@@ -1,0 +1,156 @@
+/* ==========================================================================
+   Plenustech Design System — tokens.css
+   Fonte da verdade visual do sistema. Extraído do mock PlenusLAB v8.
+
+   Decisões registradas (conversa de definição):
+   • Primária oficial = laranja do mock (#F87500) — NÃO usar o coral do logo
+   • Escala tipográfica normalizada, sem tamanhos fracionados
+   • Espaçamento em base 4px
+   • Breakpoints do mock: 900 / 1180 / 1280 · container máx. 1600px
+   • Tema dark via <html data-theme="dark">
+
+   Regra arquitetural: componentes NUNCA definem cor, fonte, espaço ou raio
+   próprios — sempre consomem um token daqui.
+   ========================================================================== */
+
+:root {
+
+  /* ---- Cor · primária ------------------------------------------------ */
+  --pl-primary:        #F87500;
+  --pl-primary-dark:   #F56600;   /* hover de elementos sólidos */
+  --pl-primary-soft:   #FFF3E8;   /* fundos de destaque suave   */
+  --pl-primary-line:   #FFD9B8;   /* bordas de destaque suave   */
+
+  /* ---- Cor · superfícies ---------------------------------------------- */
+  --pl-bg:             #F6F7F8;   /* fundo da aplicação         */
+  --pl-surface:        #FFFFFF;   /* cards, painéis, modais     */
+  --pl-surface-2:      #FAFAFB;   /* inputs, barras internas    */
+  --pl-surface-3:      #F1F2F4;   /* áreas de apoio, hover      */
+
+  /* ---- Cor · bordas ---------------------------------------------------- */
+  --pl-border:         #E9E9E9;   /* divisórias leves           */
+  --pl-border-strong:  #DEDFE1;   /* contorno de inputs         */
+
+  /* ---- Cor · texto ----------------------------------------------------- */
+  --pl-text:           #3F4143;   /* texto principal            */
+  --pl-text-2:         #66686A;   /* texto secundário           */
+  --pl-text-3:         #95989B;   /* texto terciário/metadados  */
+  --pl-ink:            #26282A;   /* superfície escura (tooltip, toast) */
+
+  /* ---- Cor · sobre superfícies fixas ---------------------------------- */
+  --pl-on-primary:     #FFFFFF;   /* texto sobre --pl-primary   */
+  --pl-on-solid:       #FFFFFF;   /* texto sobre sólidos coloridos */
+  --pl-on-ink:         #E9EAEB;   /* texto sobre --pl-ink       */
+  --pl-on-ink-2:       #A5A8AC;
+  --pl-on-ink-3:       #7C8085;
+
+  /* ---- Cor · semânticas (cada uma com par sólido/soft) ----------------- */
+  --pl-ok:             #22885B;  --pl-ok-soft:     #E8F6EF;
+  --pl-warn:           #B4761A;  --pl-warn-soft:   #FDF3E3;
+  --pl-info:           #2C6DB5;  --pl-info-soft:   #EAF2FB;
+  --pl-danger:         #C0392B;  --pl-danger-soft: #FBECEA;
+
+  /* ---- Efeitos ---------------------------------------------------------- */
+  --pl-scrim:          rgba(16, 17, 19, .38);   /* véu atrás de modais  */
+  --pl-sh-1: 0 1px 2px  rgba(24, 26, 28, .06);  /* elevação sutil       */
+  --pl-sh-2: 0 8px 20px rgba(24, 26, 28, .10);  /* dropdowns, toasts    */
+  --pl-sh-3: 0 20px 46px rgba(24, 26, 28, .20); /* modais               */
+
+  /* ---- Tipografia -------------------------------------------------------- */
+  --pl-font-ui:   'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pl-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Escala normalizada (aprovada) — UI densa, não cresce em telas grandes */
+  --pl-size-xs:   11px;   /* badges, kickers caps           */
+  --pl-size-sm:   12px;   /* metadados, labels auxiliares   */
+  --pl-size-md:   13px;   /* interface geral e tabelas      */
+  --pl-size-base: 14px;   /* parágrafo padrão               */
+  --pl-size-lg:   15px;   /* títulos de card, botões grandes */
+  --pl-size-xl:   18px;   /* títulos de seção               */
+  --pl-size-2xl:  24px;   /* títulos de página              */
+  --pl-size-3xl:  34px;   /* hero                           */
+
+  --pl-weight-medium:    500;
+  --pl-weight-semibold:  600;
+  --pl-weight-bold:      700;
+
+  --pl-leading-tight: 1.2;
+  --pl-leading:       1.6;
+
+  /* ---- Espaçamento · base 4px --------------------------------------------- */
+  --pl-space-1: 4px;
+  --pl-space-2: 8px;
+  --pl-space-3: 12px;
+  --pl-space-4: 16px;
+  --pl-space-5: 24px;
+  --pl-space-6: 32px;
+  --pl-space-7: 48px;
+
+  /* ---- Raios ---------------------------------------------------------------- */
+  --pl-radius-sm:   5px;    /* elementos pequenos: badge, tag, célula   */
+  --pl-radius-md:   8px;    /* base do sistema (352 ocorrências na v8)  */
+  --pl-radius-full: 999px;  /* pílulas, avatares, switches              */
+
+  /* ---- Layout ---------------------------------------------------------------- */
+  --pl-container: 1600px;
+
+  /* ---- Movimento --------------------------------------------------------------- */
+  --pl-speed-1: 120ms;   /* hover de cor/fundo          */
+  --pl-speed-2: 180ms;   /* elevação, painéis, switches */
+  --pl-ease: cubic-bezier(.2, .6, .3, 1);
+
+  /* ---- Breakpoints (REFERÊNCIA DOCUMENTAL) ---------------------------------------
+     ⚠️ Variáveis CSS não funcionam dentro de @media. Estes valores documentam
+     os breakpoints oficiais extraídos da v8; use os literais nas media queries:
+       900px  → mobile: sidebar vira barra horizontal, tabelas rolam (min-width 720px)
+       1180px → grids "split"/"ver" colapsam para 1 coluna
+       1280px → rails laterais (toc/lib) ocultam-se
+     Acima disso o container trava em --pl-container (1600px).                  */
+  --pl-bp-sm: 900px;
+  --pl-bp-md: 1180px;
+  --pl-bp-lg: 1280px;
+}
+
+/* ==========================================================================
+   Tema dark — extraído da v8. alterna 100% dos tokens de cor automaticamente.
+   ========================================================================== */
+:root[data-theme="dark"] {
+  --pl-primary:        #FF8A1F;
+  --pl-primary-dark:   #F87500;
+  --pl-primary-soft:   #2C2015;
+  --pl-primary-line:   #4A3218;
+
+  --pl-bg:             #141517;
+  --pl-surface:        #1B1D20;
+  --pl-surface-2:      #202226;
+  --pl-surface-3:      #282B2F;
+
+  --pl-border:         #2C2F33;
+  --pl-border-strong:  #3A3E43;
+
+  --pl-text:           #E9EAEB;
+  --pl-text-2:         #A5A8AC;
+  --pl-text-3:         #7C8085;
+  --pl-ink:            #101113;
+
+  --pl-on-primary:     #FFFFFF;
+  --pl-on-solid:       #FFFFFF;
+  --pl-on-ink:         #E9EAEB;
+  --pl-on-ink-2:       #A5A8AC;
+  --pl-on-ink-3:       #7C8085;
+
+  --pl-ok:             #4FBE8B;  --pl-ok-soft:     #16281F;
+  --pl-warn:           #DDA24A;  --pl-warn-soft:   #2A2116;
+  --pl-info:           #6BA6E8;  --pl-info-soft:   #16202C;
+  --pl-danger:         #E8776B;  --pl-danger-soft: #2A1917;
+
+  --pl-scrim:          rgba(0, 0, 0, .62);
+  --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
+  --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
+  --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
+}
+
+/* Animações compartilhadas (definidas uma vez, fora dos módulos) */
+@keyframes pl-spin { to { transform: rotate(360deg); } }
+@keyframes pl-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+@keyframes pl-indeterminate { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
