@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plenustech Design System — Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/globals.css">
+<link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 5-5.5"/></symbol>
+  <symbol id="i-danger" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+</svg>
+
+<div class="shell">
+<aside class="rail">
+  <div class="rail-brand"><div class="rail-brand-mark">P</div>
+    <div><b>Plenustech DS</b><small>v0.1.0 · showcase</small></div></div>
+  <div class="group">Fundamentos</div>
+  <a class="navlink" href="#estrategia">Estratégia de CSS</a>
+  <a class="navlink" href="#estrutura-css">Estrutura e Regras</a>
+  <a class="navlink" href="#vantagens">Vantagens e Limitações</a>
+  <a class="navlink" href="#cores">Cores</a>
+  <a class="navlink" href="#tipografia">Tipografia</a>
+  <a class="navlink" href="#espacamento">Espaçamento</a>
+  <a class="navlink" href="#raios-sombras">Raios e Sombras</a>
+  <div class="group">Componentes</div>
+  <a class="navlink" href="#button">Button</a>
+  <a class="navlink" href="#badge">Badge</a>
+  <a class="navlink" href="#chip">Chip</a>
+  <a class="navlink" href="#input">Input</a>
+  <a class="navlink" href="#select">Select</a>
+  <a class="navlink" href="#textarea">Textarea</a>
+  <a class="navlink" href="#datepicker">Date Picker</a>
+  <a class="navlink" href="#timepicker">Time Picker</a>
+  <a class="navlink" href="#datetimepicker">Date+Time</a>
+  <a class="navlink" href="#checkbox">Checkbox</a>
+  <a class="navlink" href="#radio">Radio</a>
+  <a class="navlink" href="#switch">Switch</a>
+  <a class="navlink" href="#card">Card</a>
+  <a class="navlink" href="#tabs">Tabs</a>
+  <a class="navlink" href="#accordion">Accordion</a>
+  <a class="navlink" href="#alert">Alert</a>
+  <a class="navlink" href="#toast">Toast</a>
+  <a class="navlink" href="#modal">Modal</a>
+  <a class="navlink" href="#menu">Menu</a>
+  <a class="navlink" href="#tooltip">Tooltip</a>
+  <a class="navlink" href="#breadcrumb">Breadcrumb</a>
+  <a class="navlink" href="#pagination">Pagination</a>
+  <a class="navlink" href="#avatar">Avatar</a>
+  <a class="navlink" href="#progress">Progress e Spinner</a>
+  <a class="navlink" href="#table">Table</a>
+  <a class="navlink" href="#sidebar">Sidebar</a>
+  <button class="theme-btn" id="themeBtn" type="button">🌙 <span>Tema dark</span></button>
+</aside>
+
+<main class="main">
+
+<!-- ============ PREMISSA · ESTRATÉGIA DE CSS ============ -->
+<section class="section">
+  <div class="section-head"><div class="kicker">Premissa</div>
+    <h2>Como a estilização deve se dar</h2>
+    <p>Arquitetura CSS oficial do sistema: <b>previsível, escalável e de fácil manutenção</b>, pensada para uma aplicação web de grande porte e ciclo de vida longo (LTS). Toda linha de CSS do sistema — e dos produtos que o consomem — se encaixa nesta estratégia.</p></div>
+
+  <div class="demo-card" id="estrategia">
+    <div class="demo-card-head"><b>Estratégia de CSS</b><span>abordagem híbrida em camadas</span></div>
+    <div class="demo-card-body col">
+      <p class="strat-lead">A adoção é <b>híbrida e em camadas</b>: cada camada tem responsabilidade exclusiva e só enxerga a camada de cima. Nada de estilos de página no global, nada de valores visuais fora dos tokens.</p>
+      <div class="flow-stack">
+        <div class="flow-layer is-token"><b>Design Tokens</b><span>fonte da verdade dos valores visuais — <code>styles/tokens.css</code></span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-layer"><b>CSS Global Mínimo</b><span>reset, normalização e tipografia base — <code>styles/globals.css</code></span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-layer"><b>Componentes</b><span>um par <code>Componente.tsx</code> + <code>Componente.module.css</code> por componente</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-layer"><b>CSS Modules</b><span>escopo isolado por componente — sem colisões, sem efeitos implícitos</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-layer"><b>Páginas / Features</b><span>composição nos projetos consumidores — nunca no global</span></div>
+      </div>
+      <div class="principle"><b>Princípio arquitetural:</b> Global define a base. Tokens definem o sistema visual. Componentes definem o comportamento visual local.</div>
+    </div>
+  </div>
+
+  <div class="demo-card" id="estrutura-css">
+    <div class="demo-card-head"><b>Estrutura e Responsabilidades</b><span>src/ · regras 1–6</span></div>
+    <div class="demo-card-body col">
+      <pre class="strat-tree">src/
+├── styles/
+│   ├── globals.css      <span class="cm"># reset + base tipográfica (a exceção)</span>
+│   └── tokens.css       <span class="cm"># fonte da verdade visual</span>
+├── components/
+│   ├── Button/
+│   │   ├── Button.tsx
+│   │   └── Button.module.css
+│   ├── Modal/
+│   │   ├── Modal.tsx
+│   │   └── Modal.module.css
+│   └── DataTable/
+│       ├── DataTable.tsx
+│       └── DataTable.module.css
+└── features/
+    └── ...              <span class="cm"># composição nas páginas</span></pre>
+      <div class="resp-grid">
+        <div class="resp-col">
+          <h4>globals.css</h4>
+          <ul>
+            <li>Reset e normalização</li>
+            <li>Configurações de <code>html</code> e <code>body</code></li>
+            <li>Tipografia base</li>
+            <li>Estilos realmente globais</li>
+          </ul>
+        </div>
+        <div class="resp-col">
+          <h4>tokens.css</h4>
+          <ul>
+            <li>Cores</li>
+            <li>Espaçamentos</li>
+            <li>Tipografia</li>
+            <li>Bordas e raios</li>
+            <li>Sombras</li>
+            <li>Breakpoints e demais valores compartilhados</li>
+          </ul>
+        </div>
+        <div class="resp-col">
+          <h4>CSS Modules</h4>
+          <ul>
+            <li>Estilos específicos de cada componente</li>
+            <li>Isolamento de escopo</li>
+            <li>Evitar colisões entre componentes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rules-list">
+        <h4>Regras</h4>
+        <ol>
+          <li>Evitar estilos de componentes no CSS global.</li>
+          <li>Todo componente reutilizável deve possuir seu próprio CSS Module.</li>
+          <li>Valores visuais compartilhados devem utilizar tokens.</li>
+          <li>Evitar duplicação de valores fixos.</li>
+          <li>Alterações em um componente não devem afetar outros componentes implicitamente.</li>
+          <li>Estilos globais devem ser exceção, não padrão.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-card" id="vantagens">
+    <div class="demo-card-head"><b>Vantagens e Limitações</b><span>o que ganhar · o que custar</span></div>
+    <div class="demo-card-body col">
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Vantagens</h4>
+          <ul>
+            <li><b>Escopo previsível:</b> cada componente isola seus estilos; uma mudança não vaza para outros implicitamente (regras 1, 2 e 5).</li>
+            <li><b>Fonte de verdade única:</b> cor, espaço ou raio mudam no token e propagam para todos os produtos e temas.</li>
+            <li><b>Manutenção LTS barata:</b> refatorações seguras e superfície de regressão reduzida — o global quase nunca muda.</li>
+            <li><b>Temas e produtos sem esforço:</b> dark theme é troca de tokens; um novo app consome o mesmo pacote visual.</li>
+            <li><b>Onboarding rápido:</b> estrutura explícita + 6 regras objetivas — qualquer pessoa sabe onde cada estilo vive.</li>
+            <li><b>Menos CSS:</b> sem valores duplicados, os módulos nascem pequenos e focados.</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Limitações e custos</h4>
+          <ul>
+            <li><b>Depende de build:</b> CSS Modules exigem bundler (Vite/webpack); em HTML puro o isolamento é simulado — como nesta página.</li>
+            <li><b>Repetição deliberada:</b> módulos não compartilham seletores; o que se repetiria vira token ou componente, nunca CSS "utilitário".</li>
+            <li><b>Mais arquivos:</b> um <code>.module.css</code> por componente adiciona cerimônia em coisas muito pequenas.</li>
+            <li><b>Tokens estáticos em @media:</b> variáveis CSS não funcionam dentro de media queries; breakpoints viram literais documentados ou constantes TS.</li>
+            <li><b>Exige disciplina:</b> "global como exceção" depende de revisão — o atalho de jogar estilo no globals precisa ser bloqueado.</li>
+            <li><b>Custo inicial:</b> em projetos pequenos ou descartáveis, a estrutura demora a pagar o investimento.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="strat-note">Nesta documentação — que roda sem build — os "módulos" são simulados pelos blocos <code>pl-*</code> do <code>showcase.css</code>; na migração React cada bloco vira um <code>Componente.module.css</code> com este mesmo conteúdo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUNDAMENTOS ============ -->
+<section class="section">
+  <div class="section-head"><div class="kicker">Fundamentos</div>
+    <h2>Base do sistema visual</h2>
+    <p>Valores de <code>styles/tokens.css</code>. Componentes nunca definem cor, fonte ou espaço próprios — sempre consomem tokens.</p></div>
+
+  <div class="demo-card" id="cores">
+    <div class="demo-card-head"><b>Cores</b><span>tokens: color.*</span></div>
+    <div class="demo-card-body grid4">
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-primary)"></div><div class="swatch-info"><b>primary</b><code>--pl-primary</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-primary-dark)"></div><div class="swatch-info"><b>primary-dark</b><code>--pl-primary-dark</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-primary-soft)"></div><div class="swatch-info"><b>primary-soft</b><code>--pl-primary-soft</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-bg)"></div><div class="swatch-info"><b>bg</b><code>--pl-bg</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-surface)"></div><div class="swatch-info"><b>surface</b><code>--pl-surface</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-surface-3)"></div><div class="swatch-info"><b>surface-3</b><code>--pl-surface-3</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-border-strong)"></div><div class="swatch-info"><b>border-strong</b><code>--pl-border-strong</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-text)"></div><div class="swatch-info"><b>text</b><code>--pl-text</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-text-2)"></div><div class="swatch-info"><b>text-2</b><code>--pl-text-2</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-text-3)"></div><div class="swatch-info"><b>text-3</b><code>--pl-text-3</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-ink)"></div><div class="swatch-info"><b>ink</b><code>--pl-ink</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-ok)"></div><div class="swatch-info"><b>ok</b><code>--pl-ok</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-ok-soft)"></div><div class="swatch-info"><b>ok-soft</b><code>--pl-ok-soft</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-warn)"></div><div class="swatch-info"><b>warn</b><code>--pl-warn</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-warn-soft)"></div><div class="swatch-info"><b>warn-soft</b><code>--pl-warn-soft</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-info)"></div><div class="swatch-info"><b>info</b><code>--pl-info</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-info-soft)"></div><div class="swatch-info"><b>info-soft</b><code>--pl-info-soft</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-danger)"></div><div class="swatch-info"><b>danger</b><code>--pl-danger</code></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--pl-danger-soft)"></div><div class="swatch-info"><b>danger-soft</b><code>--pl-danger-soft</code></div></div>
+    </div>
+    <div class="usage"><pre>&lt;html <span class="a">data-theme</span>=<span class="s">"dark"</span>&gt;  <span class="c">// alterna todos os tokens de cor automaticamente</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="tipografia">
+    <div class="demo-card-head"><b>Tipografia</b><span>tokens: font.*</span></div>
+    <div class="demo-card-body col">
+      <div class="type-row"><code>3xl · 700</code><span style="font-size:34px;font-weight:700">Base de Conhecimento</span></div>
+      <div class="type-row"><code>2xl · 700</code><span style="font-size:24px;font-weight:700">Documentação</span></div>
+      <div class="type-row"><code>xl · 600</code><span style="font-size:18px;font-weight:600">Alteração em Lote de Produtos</span></div>
+      <div class="type-row"><code>lg · 600</code><span style="font-size:15px;font-weight:600">Download da versão atual</span></div>
+      <div class="type-row"><code>base · 500</code><span style="font-size:14px">Texto de parágrafo padrão da aplicação</span></div>
+      <div class="type-row"><code>md · 500</code><span style="font-size:13px">Texto de interface e tabelas</span></div>
+      <div class="type-row"><code>sm · 500</code><span style="font-size:12px">Metadados e labels auxiliares</span></div>
+      <div class="type-row"><code>xs · 600 caps</code><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Badges e seções</span></div>
+    </div>
+  </div>
+
+  <div class="demo-card" id="espacamento">
+    <div class="demo-card-head"><b>Espaçamento</b><span>tokens: space.*</span></div>
+    <div class="demo-card-body">
+      <div class="state-cell"><span class="state-tag">--pl-space-1 · 4px</span><div class="space-box" style="width:4px"></div></div>
+      <div class="state-cell"><span class="state-tag">2 · 8px</span><div class="space-box" style="width:8px"></div></div>
+      <div class="state-cell"><span class="state-tag">3 · 12px</span><div class="space-box" style="width:12px"></div></div>
+      <div class="state-cell"><span class="state-tag">4 · 16px</span><div class="space-box" style="width:16px"></div></div>
+      <div class="state-cell"><span class="state-tag">5 · 24px</span><div class="space-box" style="width:24px"></div></div>
+      <div class="state-cell"><span class="state-tag">6 · 32px</span><div class="space-box" style="width:32px"></div></div>
+      <div class="state-cell"><span class="state-tag">7 · 48px</span><div class="space-box" style="width:48px"></div></div>
+    </div>
+  </div>
+
+  <div class="demo-card" id="raios-sombras">
+    <div class="demo-card-head"><b>Raios e Sombras</b><span>tokens: radius.* · shadow.*</span></div>
+    <div class="demo-card-body">
+      <div class="state-cell"><span class="state-tag">radius-sm</span><div class="radius-box" style="border-radius:5px">5px</div></div>
+      <div class="state-cell"><span class="state-tag">radius-md (base)</span><div class="radius-box" style="border-radius:8px;box-shadow:var(--pl-sh-2)">8px</div></div>
+      <div class="state-cell"><span class="state-tag">radius-full</span><div class="radius-box" style="border-radius:50%">50%</div></div>
+      <div class="state-cell"><span class="state-tag">sombras sh-1 / 2 / 3</span>
+        <div style="display:flex;gap:14px">
+          <div class="shadow-box" style="box-shadow:var(--pl-sh-1)">sh-1</div>
+          <div class="shadow-box" style="box-shadow:var(--pl-sh-2)">sh-2</div>
+          <div class="shadow-box" style="box-shadow:var(--pl-sh-3)">sh-3</div>
+        </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AÇÕES E FORMULÁRIOS ============ -->
+<section class="section">
+  <div class="section-head"><div class="kicker">Componentes</div>
+    <h2>Ações e Formulários</h2>
+    <p>Passe o mouse e navegue com Tab para ver hover, foco e active.</p></div>
+
+  <div class="demo-card" id="button">
+    <div class="demo-card-head"><b>Button</b><span>&lt;Button /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">variantes</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="pl-btn pl-btn--primary">Primário</button>
+          <button class="pl-btn pl-btn--secondary">Secundário</button>
+          <button class="pl-btn pl-btn--soft">Soft</button>
+          <button class="pl-btn pl-btn--ghost">Ghost</button>
+          <button class="pl-btn pl-btn--danger">Perigo</button>
+        </div></div>
+      <div class="state-cell"><span class="state-tag">tamanhos</span>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="pl-btn pl-btn--primary pl-btn--sm">Pequeno</button>
+          <button class="pl-btn pl-btn--primary">Médio</button>
+          <button class="pl-btn pl-btn--primary pl-btn--lg">Grande</button>
+        </div></div>
+      <div class="state-cell"><span class="state-tag">desabilitado · loading</span>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="pl-btn pl-btn--primary" disabled>Desabilitado</button>
+          <button class="pl-btn pl-btn--primary"><span class="spin"></span>Salvando…</button>
+        </div></div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Button</span> <span class="a">variant</span>=<span class="s">"primary"</span> <span class="a">size</span>=<span class="s">"md"</span> <span class="a">loading</span>&gt;Salvar&lt;/<span class="t">Button</span>&gt;
+<span class="c">// variantes: primary | secondary | soft | ghost | danger · tamanhos: sm | md | lg</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="badge">
+    <div class="demo-card-head"><b>Badge</b><span>&lt;Badge /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">semânticas (com dot)</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="pl-badge pl-badge--ok"><i></i>Ativo</span>
+          <span class="pl-badge pl-badge--warn"><i></i>Pendente</span>
+          <span class="pl-badge pl-badge--info"><i></i>Novo</span>
+          <span class="pl-badge pl-badge--danger"><i></i>Erro</span>
+          <span class="pl-badge pl-badge--primary"><i></i>Destaque</span>
+          <span class="pl-badge pl-badge--neutral">Neutro</span>
+        </div></div>
+      <div class="state-cell"><span class="state-tag">outline</span>
+        <div style="display:flex;gap:8px">
+          <span class="pl-badge pl-badge--ok pl-badge--outline">Concluído</span>
+          <span class="pl-badge pl-badge--danger pl-badge--outline">Falhou</span>
+        </div></div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Badge</span> <span class="a">tone</span>=<span class="s">"ok"</span> <span class="a">dot</span>&gt;Ativo&lt;/<span class="t">Badge</span>&gt;
+<span class="c">// tones: ok | warn | info | danger | primary | neutral</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="chip">
+    <div class="demo-card-head"><b>Chip</b><span>&lt;Chip /&gt;</span></div>
+    <div class="demo-card-body">
+      <span class="pl-chip">Estoque <button type="button" aria-label="Remover">✕</button></span>
+      <span class="pl-chip">Fiscal <button type="button" aria-label="Remover">✕</button></span>
+      <span class="pl-chip">Vendas <button type="button" aria-label="Remover">✕</button></span>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Chip</span> <span class="a">onRemove</span>={remover}&gt;Estoque&lt;/<span class="t">Chip</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="input">
+    <div class="demo-card-head"><b>Input</b><span>&lt;Input /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px">
+        <div class="pl-field"><span>Nome do módulo</span><input class="pl-input" placeholder="Ex.: Estoque"></div>
+        <div class="pl-field"><span>Obrigatório</span><input class="pl-input is-error" placeholder=""><span class="pl-hint pl-hint--error">Campo obrigatório.</span></div>
+        <div class="pl-field"><span>Desabilitado</span><input class="pl-input" value="Somente leitura" disabled></div>
+        <div class="pl-field"><span>Pequeno (busca)</span><input class="pl-input pl-input--sm" placeholder="Buscar…"></div>
+        <div class="pl-field"><span>Com ajuda</span><input class="pl-input" placeholder="0,00"><span class="pl-hint">Valores em R$.</span></div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Input</span> <span class="a">label</span>=<span class="s">"E-mail"</span> <span class="a">error</span>={erro} <span class="a">hint</span>=<span class="s">"Usado no login"</span> /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="select">
+    <div class="demo-card-head"><b>Select</b><span>&lt;Select /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">dropdown custom (clique para abrir)</span>
+        <div class="pl-select" data-pl-select style="width:280px">
+          <button type="button" class="pl-select-trigger" aria-haspopup="listbox" aria-expanded="false"><span>Plenus ERP</span><span class="pl-caret"></span></button>
+          <div class="pl-select-panel" role="listbox">
+            <button type="button" class="pl-option is-selected" role="option" aria-selected="true">Plenus ERP</button>
+            <button type="button" class="pl-option" role="option">Plenus PDV</button>
+            <button type="button" class="pl-option" role="option">Plenus MOBI</button>
+            <button type="button" class="pl-option" role="option">Plenus Nuvidados</button>
+          </div>
+        </div>
+      </div>
+      <div class="state-cell"><span class="state-tag">desabilitado</span>
+        <div style="width:280px">
+          <div class="pl-field"><span>Produto</span>
+            <button type="button" class="pl-select-trigger" disabled><span>Plenus ERP</span><span class="pl-caret"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Select</span> <span class="a">label</span>=<span class="s">"Produto"</span> <span class="a">options</span>={produtos} <span class="a">onChange</span>={setProduto} /&gt;
+<span class="c">// dropdown 100% custom — sem aparência nativa do navegador</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="textarea">
+    <div class="demo-card-head"><b>Textarea</b><span>&lt;Textarea /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+        <div class="pl-field"><span>Descrição</span><textarea class="pl-textarea" placeholder="Escreva aqui…"></textarea></div>
+        <div class="pl-field"><span>Com erro</span><textarea class="pl-textarea is-error">Texto inválido</textarea><span class="pl-hint pl-hint--error">Máximo de 500 caracteres.</span></div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Textarea</span> <span class="a">label</span>=<span class="s">"Descrição"</span> <span class="a">maxLength</span>={500} /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="datepicker">
+    <div class="demo-card-head"><b>Date Picker</b><span>&lt;DatePicker /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">painel · setembro 2026</span>
+        <div class="pl-datepicker">
+          <div class="dp-head"><button type="button" class="dp-nav" aria-label="Mês anterior">‹</button><span class="dp-title">Setembro 2026</span><button type="button" class="dp-nav" aria-label="Próximo mês">›</button></div>
+          <div class="dp-week"><span>dom</span><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span></div>
+          <div class="dp-grid">
+            <button type="button" class="dp-day is-out">30</button>
+            <button type="button" class="dp-day is-out">31</button>
+            <button type="button" class="dp-day">1</button>
+            <button type="button" class="dp-day">2</button>
+            <button type="button" class="dp-day">3</button>
+            <button type="button" class="dp-day">4</button>
+            <button type="button" class="dp-day">5</button>
+            <button type="button" class="dp-day">6</button>
+            <button type="button" class="dp-day">7</button>
+            <button type="button" class="dp-day">8</button>
+            <button type="button" class="dp-day">9</button>
+            <button type="button" class="dp-day" disabled>10</button>
+            <button type="button" class="dp-day">11</button>
+            <button type="button" class="dp-day">12</button>
+            <button type="button" class="dp-day">13</button>
+            <button type="button" class="dp-day">14</button>
+            <button type="button" class="dp-day">15</button>
+            <button type="button" class="dp-day">16</button>
+            <button type="button" class="dp-day">17</button>
+            <button type="button" class="dp-day">18</button>
+            <button type="button" class="dp-day is-today is-selected">19</button>
+            <button type="button" class="dp-day">20</button>
+            <button type="button" class="dp-day">21</button>
+            <button type="button" class="dp-day">22</button>
+            <button type="button" class="dp-day">23</button>
+            <button type="button" class="dp-day">24</button>
+            <button type="button" class="dp-day">25</button>
+            <button type="button" class="dp-day">26</button>
+            <button type="button" class="dp-day">27</button>
+            <button type="button" class="dp-day">28</button>
+            <button type="button" class="dp-day">29</button>
+            <button type="button" class="dp-day">30</button>
+            <button type="button" class="dp-day is-out">1</button>
+            <button type="button" class="dp-day is-out">2</button>
+            <button type="button" class="dp-day is-out">3</button>
+          </div>
+        </div>
+      </div>
+      <div class="state-cell"><span class="state-tag">estados</span>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <button type="button" class="dp-day" style="width:30px">15</button>
+          <span class="pl-hint">← hover</span>
+          <span class="pl-hint">19 = hoje selecionado · 10 = desabilitado (min) · 30/31 = outro mês</span>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">DatePicker</span> <span class="a">value</span>={data} <span class="a">onChange</span>={setData} <span class="a">min</span>={hoje} <span class="a">locale</span>=<span class="s">"pt-BR"</span> /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="timepicker">
+    <div class="demo-card-head"><b>Time Picker</b><span>&lt;TimePicker /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">painel · passo de 30 min</span>
+        <div class="pl-timepicker">
+          <div class="tp-grid">
+            <button type="button" class="tp-opt">08:00</button>
+            <button type="button" class="tp-opt">08:30</button>
+            <button type="button" class="tp-opt">09:00</button>
+            <button type="button" class="tp-opt">09:30</button>
+            <button type="button" class="tp-opt">10:00</button>
+            <button type="button" class="tp-opt">10:30</button>
+            <button type="button" class="tp-opt">11:00</button>
+            <button type="button" class="tp-opt">11:30</button>
+            <button type="button" class="tp-opt">12:00</button>
+            <button type="button" class="tp-opt">12:30</button>
+            <button type="button" class="tp-opt">13:00</button>
+            <button type="button" class="tp-opt">13:30</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">TimePicker</span> <span class="a">value</span>={hora} <span class="a">onChange</span>={setHora} <span class="a">step</span>={30} /&gt;
+<span class="c">// grade rolável · opção selecionada em primary-soft</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="datetimepicker">
+    <div class="demo-card-head"><b>Date + Time Picker</b><span>&lt;DateTimePicker /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="state-cell"><span class="state-tag">calendário + hora + confirmação</span>
+        <div class="pl-datepicker" style="width:292px">
+          <div class="dp-head"><button type="button" class="dp-nav" aria-label="Mês anterior">‹</button><span class="dp-title">Setembro 2026</span><button type="button" class="dp-nav" aria-label="Próximo mês">›</button></div>
+          <div class="dp-week"><span>dom</span><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span></div>
+          <div class="dp-grid">
+            <button type="button" class="dp-day is-out">30</button>
+            <button type="button" class="dp-day is-out">31</button>
+            <button type="button" class="dp-day">1</button>
+            <button type="button" class="dp-day">2</button>
+            <button type="button" class="dp-day">3</button>
+            <button type="button" class="dp-day">4</button>
+            <button type="button" class="dp-day">5</button>
+            <button type="button" class="dp-day">6</button>
+            <button type="button" class="dp-day">7</button>
+            <button type="button" class="dp-day">8</button>
+            <button type="button" class="dp-day">9</button>
+            <button type="button" class="dp-day" disabled>10</button>
+            <button type="button" class="dp-day">11</button>
+            <button type="button" class="dp-day">12</button>
+            <button type="button" class="dp-day">13</button>
+            <button type="button" class="dp-day">14</button>
+            <button type="button" class="dp-day">15</button>
+            <button type="button" class="dp-day">16</button>
+            <button type="button" class="dp-day">17</button>
+            <button type="button" class="dp-day">18</button>
+            <button type="button" class="dp-day is-today is-selected">19</button>
+            <button type="button" class="dp-day">20</button>
+            <button type="button" class="dp-day">21</button>
+            <button type="button" class="dp-day">22</button>
+            <button type="button" class="dp-day">23</button>
+            <button type="button" class="dp-day">24</button>
+            <button type="button" class="dp-day">25</button>
+            <button type="button" class="dp-day">26</button>
+            <button type="button" class="dp-day">27</button>
+            <button type="button" class="dp-day">28</button>
+            <button type="button" class="dp-day">29</button>
+            <button type="button" class="dp-day">30</button>
+            <button type="button" class="dp-day is-out">1</button>
+            <button type="button" class="dp-day is-out">2</button>
+            <button type="button" class="dp-day is-out">3</button>
+          </div>
+          <div class="dp-time">
+            <button type="button" class="tp-opt">08:00</button>
+            <button type="button" class="tp-opt">08:30</button>
+            <button type="button" class="tp-opt">09:00</button>
+            <button type="button" class="tp-opt is-selected">09:30</button>
+            <button type="button" class="tp-opt">10:00</button>
+            <button type="button" class="tp-opt">10:30</button>
+            <button type="button" class="tp-opt">11:00</button>
+            <button type="button" class="tp-opt">11:30</button>
+          </div>
+          <div class="dp-foot">
+            <span class="dp-value">19/09/2026 · 09:30</span>
+            <button type="button" class="pl-btn pl-btn--primary pl-btn--sm">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">DateTimePicker</span> <span class="a">value</span>={dataHora} <span class="a">onChange</span>={setDataHora} <span class="a">step</span>={30} /&gt;
+<span class="c">// calendário + grade de horários + rodapé de confirmação</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="checkbox">
+    <div class="demo-card-head"><b>Checkbox</b><span>&lt;Checkbox /&gt;</span></div>
+    <div class="demo-card-body col">
+      <label class="pl-check"><input type="checkbox" checked><span class="box"><svg><use href="#i-check"/></svg></span>Ativar notificações por e-mail</label>
+      <label class="pl-check"><input type="checkbox" onclick="this.indeterminate=true"><span class="box"><svg><use href="#i-check"/></svg></span>Indeterminado (clique para ver)</label>
+      <label class="pl-check"><input type="checkbox"><span class="box"><svg><use href="#i-check"/></svg></span>Desmarcado</label>
+      <label class="pl-check is-disabled"><input type="checkbox" disabled><span class="box"><svg><use href="#i-check"/></svg></span>Desabilitado</label>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Checkbox</span> <span class="a">checked</span> <span class="a">onChange</span>={toggle}&gt;Ativar notificações&lt;/<span class="t">Checkbox</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="radio">
+    <div class="demo-card-head"><b>Radio</b><span>&lt;Radio /&gt;</span></div>
+    <div class="demo-card-body col">
+      <label class="pl-check pl-check--radio"><input type="radio" name="g1" checked><span class="box"></span>Documentação pública</label>
+      <label class="pl-check pl-check--radio"><input type="radio" name="g1"><span class="box"></span>Somente interna</label>
+      <label class="pl-check is-disabled pl-check--radio"><input type="radio" name="g1" disabled><span class="box"></span>Rascunho (indisponível)</label>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">RadioGroup</span> <span class="a">name</span>=<span class="s">"visibilidade"</span> <span class="a">options</span>={opcoes} /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="switch">
+    <div class="demo-card-head"><b>Switch</b><span>&lt;Switch /&gt;</span></div>
+    <div class="demo-card-body">
+      <label class="pl-switch"><input type="checkbox" checked><span class="track"></span>Modo avançado</label>
+      <label class="pl-switch"><input type="checkbox"><span class="track"></span>Desligado</label>
+      <label class="pl-switch"><input type="checkbox" disabled><span class="track"></span>Desabilitado</label>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Switch</span> <span class="a">checked</span> <span class="a">onChange</span>={setAvancado} /&gt;</pre></div>
+  </div>
+</section>
+
+<!-- ============ ESTRUTURA E FEEDBACK ============ -->
+<section class="section">
+  <div class="section-head"><div class="kicker">Componentes</div>
+    <h2>Estrutura e Feedback</h2></div>
+
+  <div class="demo-card" id="card">
+    <div class="demo-card-head"><b>Card</b><span>&lt;Card /&gt;</span></div>
+    <div class="demo-card-body">
+      <div class="pl-card" style="width:230px"><div class="pl-card-head"><b>Estoque</b><span class="pl-badge pl-badge--ok"><i></i>142 docs</span></div><div class="pl-card-body">Guias de cadastro, transferência e inventário de produtos.</div></div>
+      <div class="pl-card pl-card--hover" style="width:230px"><div class="pl-card-head"><b>Fiscal</b><span class="pl-badge pl-badge--primary"><i></i>87 docs</span></div><div class="pl-card-body">Passo a passo de notas, SPED e obrigações. <em>(hover → eleva)</em></div></div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Card</span> <span class="a">title</span>=<span class="s">"Estoque"</span> <span class="a">hoverable</span>&gt;{conteudo}&lt;/<span class="t">Card</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="tabs">
+    <div class="demo-card-head"><b>Tabs</b><span>&lt;Tabs /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="pl-tabs" role="tablist">
+        <button class="pl-tab is-active" role="tab">Documentação</button>
+        <button class="pl-tab" role="tab">Novidades</button>
+        <button class="pl-tab" role="tab">Versões</button>
+        <button class="pl-tab" disabled role="tab">Arquivado</button>
+      </div>
+      <div class="pl-tabs pl-tabs--pills" role="tablist">
+        <button class="pl-tab is-active" role="tab">Geral</button>
+        <button class="pl-tab" role="tab">Avançado</button>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Tabs</span> <span class="a">variant</span>=<span class="s">"underline"</span> <span class="a">items</span>={abas} <span class="a">onChange</span>={setAba} /&gt;
+<span class="c">// variantes: underline | pills</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="accordion">
+    <div class="demo-card-head"><b>Accordion</b><span>&lt;Accordion /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="pl-acc" style="max-width:520px">
+        <div class="pl-acc-item is-open">
+          <button class="pl-acc-trigger" type="button">Como publicar uma documentação?<span class="chev"></span></button>
+          <div class="pl-acc-panel">Acesse o módulo desejado, clique em "Novo artigo" e preencha título, categoria e conteúdo. Depois publique.</div>
+        </div>
+        <div class="pl-acc-item">
+          <button class="pl-acc-trigger" type="button">Quem pode editar artigos?<span class="chev"></span></button>
+          <div class="pl-acc-panel">Usuários com perfil de editor ou administrador.</div>
+        </div>
+        <div class="pl-acc-item">
+          <button class="pl-acc-trigger" type="button">Há versionamento de artigos?<span class="chev"></span></button>
+          <div class="pl-acc-panel">Sim, cada publicação gera um histórico com autor e data.</div>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Accordion</span> <span class="a">items</span>={faqs} <span class="a">allowMultiple</span> /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="alert">
+    <div class="demo-card-head"><b>Alert</b><span>&lt;Alert /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="pl-alert pl-alert--ok"><svg><use href="#i-ok"/></svg><div><b>Sucesso.</b> Artigo publicado com versionamento v12.</div><button class="dismiss" aria-label="Fechar">✕</button></div>
+      <div class="pl-alert pl-alert--info"><svg><use href="#i-info"/></svg><div><b>Atualização.</b> Uma nova versão do Plenus ERP está disponível.</div></div>
+      <div class="pl-alert pl-alert--warn"><svg><use href="#i-warn"/></svg><div><b>Atenção.</b> 3 artigos estão sem revisão há mais de 90 dias.</div></div>
+      <div class="pl-alert pl-alert--danger"><svg><use href="#i-danger"/></svg><div><b>Erro.</b> Falha ao sincronizar. Tente novamente.</div></div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Alert</span> <span class="a">tone</span>=<span class="s">"warn"</span> <span class="a">title</span>=<span class="s">"Atenção"</span> <span class="a">dismissible</span> <span class="a">onDismiss</span>={fechar}&gt;{msg}&lt;/<span class="t">Alert</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="toast">
+    <div class="demo-card-head"><b>Toast</b><span>&lt;Toast /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div class="pl-toast pl-toast--ok"><div><b>Salvo.</b> Alterações gravadas.</div></div>
+      <div class="pl-toast pl-toast--info"><div><b>Enviando…</b> Sincronização em andamento.</div></div>
+      <div class="pl-toast pl-toast--warn"><div><b>Sessão expira em 5 min.</b></div></div>
+      <div class="pl-toast pl-toast--danger"><div><b>Falha no upload.</b> Arquivo excede 10MB.</div></div>
+    </div>
+    <div class="usage"><pre>toast.<span class="t">success</span>(<span class="s">'Artigo publicado'</span>)  <span class="c">// ou toast.error / info / warn</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="modal">
+    <div class="demo-card-head"><b>Modal</b><span>&lt;Modal /&gt;</span></div>
+    <div class="demo-card-body">
+      <div class="pl-modal-wrap">
+        <div class="pl-modal" role="dialog" aria-modal="true" aria-label="Excluir artigo">
+          <div class="pl-modal-head"><b>Excluir artigo?</b><button class="pl-btn pl-btn--ghost pl-btn--sm" aria-label="Fechar">✕</button></div>
+          <div class="pl-modal-body">Essa ação não pode ser desfeita. O artigo "Alteração em Lote" e seu histórico serão removidos.</div>
+          <div class="pl-modal-foot"><button class="pl-btn pl-btn--secondary">Cancelar</button><button class="pl-btn pl-btn--danger">Excluir</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Modal</span> <span class="a">open</span>={aberto} <span class="a">onClose</span>={fechar} <span class="a">title</span>=<span class="s">"Excluir artigo?"</span>&gt;
+  {conteudo}  <span class="c">// fecha com Esc, clique no scrim ou botão ✕</span>
+&lt;/<span class="t">Modal</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="menu">
+    <div class="demo-card-head"><b>Menu / Dropdown</b><span>&lt;Menu /&gt;</span></div>
+    <div class="demo-card-body">
+      <div class="pl-menu">
+        <button class="pl-btn pl-btn--secondary">Ações ▾</button>
+        <div class="pl-menu-panel">
+          <div class="pl-menu-label">Artigo</div>
+          <button class="pl-menu-item">✏️ Editar</button>
+          <button class="pl-menu-item">📋 Duplicar</button>
+          <button class="pl-menu-item" disabled>🔒 Bloqueado</button>
+          <div class="pl-menu-sep"></div>
+          <button class="pl-menu-item is-danger">🗑 Excluir</button>
+        </div>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Menu</span> <span class="a">trigger</span>={<span class="s">&lt;Button&gt;Ações&lt;/Button&gt;</span>} <span class="a">items</span>={acoes} /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="tooltip">
+    <div class="demo-card-head"><b>Tooltip</b><span>&lt;Tooltip /&gt;</span></div>
+    <div class="demo-card-body" style="padding-top:44px">
+      <span class="pl-tip"><button class="pl-btn pl-btn--ghost pl-btn--sm">⬆ Passe o mouse</button><span class="tip">Publicar rascunho</span></span>
+      <span class="pl-tip"><button class="pl-btn pl-btn--ghost pl-btn--sm">⬆ Ou foco com Tab</button><span class="tip">Ver histórico</span></span>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Tooltip</span> <span class="a">content</span>=<span class="s">"Publicar rascunho"</span>&gt;{gatilho}&lt;/<span class="t">Tooltip</span>&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="breadcrumb">
+    <div class="demo-card-head"><b>Breadcrumb</b><span>&lt;Breadcrumb /&gt;</span></div>
+    <div class="demo-card-body">
+      <nav class="pl-crumb" aria-label="Trilha">
+        <a href="#">Home</a><span class="sep">›</span>
+        <a href="#">Plenus ERP</a><span class="sep">›</span>
+        <a href="#">Estoque</a><span class="sep">›</span>
+        <span aria-current="page">Alteração em Lote de Produtos</span>
+      </nav>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Breadcrumb</span> <span class="a">items</span>={[{rotulo:<span class="s">'Estoque'</span>, href:<span class="s">'/estoque'</span>}, …]} /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="pagination">
+    <div class="demo-card-head"><b>Pagination</b><span>&lt;Pagination /&gt;</span></div>
+    <div class="demo-card-body">
+      <nav class="pl-pag" aria-label="Paginação">
+        <button disabled>‹</button>
+        <button class="is-active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <span class="dots">…</span>
+        <button>12</button>
+        <button>›</button>
+      </nav>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Pagination</span> <span class="a">page</span>={pagina} <span class="a">total</span>={total} <span class="a">onChange</span>={setPagina} /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="avatar">
+    <div class="demo-card-head"><b>Avatar</b><span>&lt;Avatar /&gt;</span></div>
+    <div class="demo-card-body">
+      <span class="pl-avatar pl-avatar--sm">JS</span>
+      <span class="pl-avatar pl-avatar--md">MC</span>
+      <span class="pl-avatar pl-avatar--lg">RA</span>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Avatar</span> <span class="a">name</span>=<span class="s">"Maria Costa"</span> <span class="a">size</span>=<span class="s">"md"</span> <span class="a">src</span>={foto} /&gt;
+<span class="c">// sem foto: exibe iniciais · tamanhos: sm | md | lg</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="progress">
+    <div class="demo-card-head"><b>Progress e Spinner</b><span>&lt;Progress /&gt; · &lt;Spinner /&gt;</span></div>
+    <div class="demo-card-body col" style="gap:18px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <div class="state-cell"><span class="state-tag">determinado 70%</span><div class="pl-progress"><div style="width:70%"></div></div></div>
+        <div class="state-cell"><span class="state-tag">sucesso 100%</span><div class="pl-progress pl-progress--ok"><div style="width:100%"></div></div></div>
+        <div class="state-cell"><span class="state-tag">indeterminado (carregando)</span><div class="pl-progress is-indeterminate"><div></div></div></div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <span class="pl-spinner"></span><span class="pl-spinner pl-spinner--sm"></span>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Progress</span> <span class="a">value</span>={70} <span class="a">tone</span>=<span class="s">"ok"</span> /&gt;  <span class="c">// sem value → indeterminado</span>
+&lt;<span class="t">Spinner</span> <span class="a">size</span>=<span class="s">"sm"</span> /&gt;</pre></div>
+  </div>
+
+  <div class="demo-card" id="table">
+    <div class="demo-card-head"><b>Table</b><span>&lt;Table /&gt;</span></div>
+    <div class="demo-card-body col">
+      <div style="overflow-x:auto">
+        <table class="pl-table" style="min-width:640px">
+          <thead><tr><th>Artigo</th><th>Módulo</th><th>Versão</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Alteração em Lote</td><td>Estoque</td><td class="num">v12</td><td><span class="pl-badge pl-badge--ok"><i></i>Publicado</span></td></tr>
+            <tr><td>Importação de XML</td><td>Fiscal</td><td class="num">v8</td><td><span class="pl-badge pl-badge--warn"><i></i>Revisão</span></td></tr>
+            <tr><td>Ordem de Serviço</td><td>Vendas</td><td class="num">v15</td><td><span class="pl-badge pl-badge--info"><i></i>Rascunho</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Table</span> <span class="a">columns</span>={colunas} <span class="a">rows</span>={artigos} <span class="a">rowKey</span>=<span class="s">"id"</span> /&gt;
+<span class="c">// em telas &lt;900px o wrapper aplica overflow-x automático</span></pre></div>
+  </div>
+
+  <div class="demo-card" id="sidebar">
+    <div class="demo-card-head"><b>Sidebar / Nav</b><span>&lt;Sidebar /&gt;</span></div>
+    <div class="demo-card-body">
+      <nav class="pl-nav">
+        <div class="pl-nav-title">Plenus ERP</div>
+        <button class="pl-nav-item is-active"><span class="nlabel">Estoque</span><span class="count">142</span></button>
+        <button class="pl-nav-item"><span class="nlabel">Fiscal</span><span class="count">87</span></button>
+        <button class="pl-nav-item"><span class="nlabel">Vendas</span><span class="count">64</span></button>
+        <div class="pl-nav-sep"></div>
+        <div class="pl-nav-title">Sistema</div>
+        <button class="pl-nav-item"><span class="nlabel">Configurações</span></button>
+      </nav>
+    </div>
+    <div class="usage"><pre>&lt;<span class="t">Sidebar</span> <span class="a">groups</span>={grupos} <span class="a">activeId</span>={modulo} <span class="a">onSelect</span>={setModulo} /&gt;
+<span class="c">// &lt;900px colapsa em barra horizontal (ver regras de responsividade)</span></pre></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// Tema dark/light
+const btn = document.getElementById('themeBtn');
+btn.addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.getAttribute('data-theme') === 'dark';
+  if (dark) root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', 'dark');
+  btn.querySelector('span').textContent = dark ? 'Tema dark' : 'Tema light';
+});
+
+// Accordion
+document.querySelectorAll('.pl-acc-trigger').forEach(t => {
+  t.addEventListener('click', () => t.closest('.pl-acc-item').classList.toggle('is-open'));
+});
+
+// Tabs (demo)
+document.querySelectorAll('.pl-tabs').forEach(tabs => {
+  tabs.querySelectorAll('.pl-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.disabled) return;
+      tabs.querySelectorAll('.pl-tab').forEach(x => x.classList.remove('is-active'));
+      tab.classList.add('is-active');
+    });
+  });
+});
+
+// Select custom — abre/fecha, seleciona opção, fecha com Esc ou clique fora
+document.querySelectorAll('[data-pl-select]').forEach(sel => {
+  const trigger = sel.querySelector('.pl-select-trigger');
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = sel.classList.toggle('is-open');
+    trigger.setAttribute('aria-expanded', open);
+  });
+  sel.querySelectorAll('.pl-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      sel.querySelectorAll('.pl-option').forEach(o => { o.classList.remove('is-selected'); o.setAttribute('aria-selected', 'false'); });
+      opt.classList.add('is-selected');
+      opt.setAttribute('aria-selected', 'true');
+      trigger.querySelector('span').textContent = opt.textContent;
+      sel.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('[data-pl-select].is-open').forEach(s => s.classList.remove('is-open'));
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.querySelectorAll('[data-pl-select].is-open').forEach(s => s.classList.remove('is-open'));
+});
+
+// Navlink ativo ao clicar
+document.querySelectorAll('.rail .navlink').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.rail .navlink').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
