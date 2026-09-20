@@ -13,6 +13,12 @@
    próprios — sempre consomem um token daqui.
    ========================================================================== */
 
+@import '../tokens/primitive/brand.css';
+@import '../tokens/primitive/neutral.css';
+@import '../tokens/primitive/status.css';
+@import '../tokens/semantic/color.css';
+@import '../tokens/semantic/typography.css';
+
 :root {
 
   /* ---- Cor · primária ------------------------------------------------ */
@@ -43,7 +49,6 @@
   --pl-on-ink:         #E9EAEB;   /* texto sobre --pl-ink       */
   --pl-on-ink-2:       #A5A8AC;
   --pl-on-ink-3:       #7C8085;
-
   /* ---- Cor · semânticas (cada uma com par sólido/soft) ----------------- */
   --pl-ok:             #22885B;  --pl-ok-soft:     #E8F6EF;
   --pl-warn:           #B4761A;  --pl-warn-soft:   #FDF3E3;
@@ -148,6 +153,33 @@
   --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
   --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
   --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
+}
+
+/* Aliases temporarios para consumidores existentes durante a migracao. */
+:root,
+:root[data-theme="dark"] {
+  --pl-primary: var(--pl-color-primary);
+  --pl-primary-dark: var(--pl-color-primary-hover);
+  --pl-primary-soft: var(--pl-color-primary-container);
+  --pl-primary-line: var(--pl-color-primary-line);
+  --pl-bg: var(--pl-color-background);
+  --pl-surface: var(--pl-color-surface);
+  --pl-surface-2: var(--pl-color-surface-subtle);
+  --pl-surface-3: var(--pl-color-surface-muted);
+  --pl-border: var(--pl-color-border);
+  --pl-border-strong: var(--pl-color-border-strong);
+  --pl-text: var(--pl-color-text);
+  --pl-text-2: var(--pl-color-text-secondary);
+  --pl-text-3: var(--pl-color-text-tertiary);
+  --pl-ink: var(--pl-color-ink);
+  --pl-on-primary: var(--pl-color-on-primary);
+  --pl-on-solid: var(--pl-neutral-white);
+  --pl-on-ink: var(--pl-color-on-ink);
+  --pl-ok: var(--pl-color-success);
+  --pl-warn: var(--pl-color-warning);
+  --pl-info: var(--pl-color-info);
+  --pl-danger: var(--pl-color-danger);
+  --pl-font-ui: var(--pl-font-body);
 }
 
 /* Animações compartilhadas (definidas uma vez, fora dos módulos) */

@@ -1,0 +1,41 @@
+:root {
+  --pl-font-heading: 'Poppins', sans-serif;
+  --pl-font-body: 'Montserrat', sans-serif;
+  --pl-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --pl-type-display-large-size: 36px;
+  --pl-type-display-large-line-height: 44px;
+  --pl-type-display-large-weight: 600;
+
+  --pl-type-headline-large-size: 32px;
+  --pl-type-headline-large-line-height: 40px;
+  --pl-type-headline-large-weight: 600;
+
+  --pl-type-headline-medium-size: 24px;
+  --pl-type-headline-medium-line-height: 32px;
+  --pl-type-headline-medium-weight: 600;
+
+  --pl-type-title-size: 16px;
+  --pl-type-title-line-height: 24px;
+  --pl-type-title-weight: 600;
+
+  --pl-type-body-size: 14px;
+  --pl-type-body-line-height: 20px;
+  --pl-type-body-weight: 400;
+
+  --pl-type-label-size: 14px;
+  --pl-type-label-line-height: 20px;
+  --pl-type-label-weight: 600;
+
+  --pl-type-caption-size: 12px;
+  --pl-type-caption-line-height: 16px;
+  --pl-type-caption-weight: 400;
+
+  --pl-type-data-value-size: 14px;
+  --pl-type-data-value-line-height: 20px;
+  --pl-type-data-value-weight: 500;
+
+  --pl-type-code-size: 12px;
+  --pl-type-code-line-height: 16px;
+  --pl-type-code-weight: 500;
+}

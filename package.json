@@ -9,11 +9,14 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:showcase": "vite --config showcase/vite.config.ts",
     "build": "tsc -b && vite build",
+    "build:showcase": "vite build --config showcase/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:showcase": "vite preview --config showcase/vite.config.ts"
   },
   "dependencies": {
     "react": "^19.1.0",

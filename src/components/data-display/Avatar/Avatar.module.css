@@ -1,0 +1,30 @@
+.avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-primary);
+  font-family: var(--pl-font-body);
+  font-weight: var(--pl-weight-semibold);
+  object-fit: cover;
+}
+
+.sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--pl-size-sm);
+}
+
+.md {
+  width: 40px;
+  height: 40px;
+  font-size: var(--pl-size-md);
+}
+
+.lg {
+  width: 56px;
+  height: 56px;
+  font-size: var(--pl-size-lg);
+}

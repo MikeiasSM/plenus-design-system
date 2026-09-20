@@ -1,0 +1,59 @@
+:root {
+  --pl-color-primary: var(--pl-brand-orange-50);
+  --pl-color-primary-hover: var(--pl-brand-orange-60);
+  --pl-color-primary-active: var(--pl-brand-orange-70);
+  --pl-color-primary-container: var(--pl-brand-orange-10);
+  --pl-color-primary-line: var(--pl-brand-orange-30);
+  --pl-color-on-primary: var(--pl-neutral-white);
+
+  --pl-color-background: #F6F7F8;
+  --pl-color-surface: var(--pl-neutral-white);
+  --pl-color-surface-subtle: #FAFAFB;
+  --pl-color-surface-muted: #F1F2F4;
+  --pl-color-border: #E9E9E9;
+  --pl-color-border-strong: #DEDFE1;
+  --pl-color-text: var(--pl-neutral-graphite);
+  --pl-color-text-secondary: var(--pl-neutral-gray);
+  --pl-color-text-tertiary: #95989B;
+  --pl-color-ink: #26282A;
+  --pl-color-on-ink: #E9EAEB;
+
+  --pl-color-success: var(--pl-status-green);
+  --pl-color-success-container: #E8F6EF;
+  --pl-color-warning: var(--pl-status-yellow);
+  --pl-color-warning-container: #FDF3E3;
+  --pl-color-danger: var(--pl-status-red);
+  --pl-color-danger-container: #FBECEA;
+  --pl-color-info: var(--pl-brand-blue-50);
+  --pl-color-info-container: #EAF2FB;
+}
+
+:root[data-theme="dark"] {
+  --pl-color-primary: var(--pl-brand-orange-50);
+  --pl-color-primary-hover: var(--pl-brand-orange-40);
+  --pl-color-primary-active: var(--pl-brand-orange-30);
+  --pl-color-primary-container: #2C2015;
+  --pl-color-primary-line: #4A3218;
+  --pl-color-on-primary: var(--pl-neutral-white);
+
+  --pl-color-background: #141517;
+  --pl-color-surface: #1B1D20;
+  --pl-color-surface-subtle: #202226;
+  --pl-color-surface-muted: #282B2F;
+  --pl-color-border: #2C2F33;
+  --pl-color-border-strong: #3A3E43;
+  --pl-color-text: #E9EAEB;
+  --pl-color-text-secondary: #A5A8AC;
+  --pl-color-text-tertiary: #7C8085;
+  --pl-color-ink: #101113;
+  --pl-color-on-ink: #E9EAEB;
+
+  --pl-color-success: #4FBE8B;
+  --pl-color-success-container: #16281F;
+  --pl-color-warning: #DDA24A;
+  --pl-color-warning-container: #2A2116;
+  --pl-color-danger: #E8776B;
+  --pl-color-danger-container: #2A1917;
+  --pl-color-info: #6BA6E8;
+  --pl-color-info-container: #16202C;
+}

@@ -1,0 +1,14 @@
+.label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.required {
+  color: var(--pl-color-danger);
+}

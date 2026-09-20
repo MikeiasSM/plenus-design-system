@@ -21,6 +21,38 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - Estrutura inicial de pacote, TypeScript, build e Vitest criada.
 - Ponto de entrada `src/index.ts` criado para os estilos globais.
 - Teste de fumaça da fundacao criado.
+- Camadas iniciais de tokens de marca, neutros, status, cores semanticas e tipografia criadas.
+- Cores e fontes oficiais conectadas aos aliases legados durante a migracao.
+- Showcase atualizado para carregar apenas os pesos tipograficos definidos.
+- Primeiro componente oficial `Button` implementado com CSS Module, variantes, tamanhos, loading e testes.
+- `Button` exportado pelo ponto de entrada publico `src/index.ts`.
+- Componente primitivo `Label` implementado com CSS Module, associacao nativa, indicador obrigatorio e testes.
+- `Label` exportado pelo ponto de entrada publico `src/index.ts`.
+- Componente primitivo `Input` implementado com CSS Module, label, hint, erro, tamanhos e testes de acessibilidade.
+- `Input` exportado pelo ponto de entrada publico `src/index.ts`.
+- `Input` ampliado com `maxLength`, `showCharacterCount`, contagem controlada/nao controlada e anuncio acessivel.
+- Formatter `formatDecimalInput` criado para normalizacao de inteiros e decimais com virgula e escala configuravel.
+- Componente `NumberInput` implementado para inteiros e decimais com controle de casas, testes e exportacao publica.
+- `NumberInput` integrado ao Showcase com exemplos de quantidade inteira e decimal.
+- Componente `PasswordInput` implementado como componente independente, com toggle de visibilidade, autocomplete, erro e contador.
+- `PasswordInput` exportado e documentado no Showcase.
+- `PasswordInput` bloqueia copia e corte por padrao, permite opt-in com `allowCopy` e preserva colagem/autofill.
+- Limite de seguranca do navegador documentado: extensoes e scripts privilegiados nao podem ser impedidos pelo componente.
+- `PasswordInput` fornece `validate`, `validateOnBlur` e `onValidationChange` para regras de produto sem politica fixa embutida.
+- Formatter `formatCurrencyInput` criado para moeda, milhares e duas casas decimais.
+- Componente `CurrencyInput` implementado com edicao bruta, formatacao no blur e valor interno separado.
+- `CurrencyInput` exportado e documentado no Showcase.
+- Componente `Avatar` implementado com tamanhos, imagem, fallback por iniciais e tratamento de falha.
+- `Avatar` exportado e documentado no Showcase.
+- `Label` e `Input` integrados ao Showcase React com exemplos de associacao, ajuda, erro, disabled e tamanho compacto.
+- Componente primitivo `Badge` implementado com CSS Module, tons semanticos, dot, outline e testes.
+- `Badge` exportado pelo ponto de entrada publico `src/index.ts`.
+- Showcase React reorganizado como documentacao por categorias.
+- Cada componente documentado possui demonstracoes funcionais, tipos/variantes/estados e exemplo de implementacao.
+- Button, Input e Badge organizados nas categorias Acoes, Formularios e Data display.
+- Entrada React inicial do Showcase criada em `showcase/app/`.
+- Showcase React configurado para consumir o Button pelo alias local `@plenus`.
+- Scripts `dev:showcase`, `build:showcase` e `preview:showcase` adicionados.
 - Tokens visuais iniciais em `src/styles/tokens.css`.
 - Estilos globais iniciais em `src/styles/globals.css`.
 
@@ -33,6 +65,7 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - Validacao da carga das familias e pesos tipograficos definidos.
 - Criacao da estrutura de componentes em `src/components/`.
 - Migracao do Showcase para React + Vite.
+- Expansao do Showcase React para os proximos componentes oficiais.
 
 ### Ainda nao implementado
 
@@ -46,6 +79,46 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - Testes automatizados de componentes, acessibilidade e comportamento.
 - Pipeline de build, validacao e publicacao do pacote.
 - Showcase consumindo o pacote como aplicacao externa.
+
+## Pendencias de correcao identificadas no review
+
+- Corrigir o comportamento controlled do `CurrencyInput` quando o valor externo muda durante o foco.
+- Corrigir o tratamento de `decimalScale={0}` no formatter monetario.
+- Definir e corrigir o contrato de `NumberInput.onChange`, evitando divergencia entre o evento recebido e o valor exibido.
+- Corrigir o estado disabled do `PasswordInput`, incluindo o botao de mostrar/ocultar.
+- Definir o comportamento de `validateOnBlur={false}` e garantir que a validacao customizada sempre tenha um ciclo previsivel.
+- Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
+- Exportar os formatadores pela API publica quando fizerem parte do contrato de consumo.
+- Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
+- Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
+- Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
+
+## Contexto para implementacoes futuras
+
+### Campos numericos e monetarios
+
+- `Input` generico nao deve formatar valores.
+- `NumberInput` deve separar claramente valor bruto, valor exibido, parser e formatter.
+- O modo inteiro nao aceita virgula ou ponto e nao aplica casas decimais.
+- O modo decimal usa virgula como separador e respeita `decimalScale`.
+- `CurrencyInput` deve manter a edicao bruta durante o foco e aplicar a formatacao monetaria no blur.
+- Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
+- `onChange` e callbacks de valor normalizado precisam ter responsabilidades distintas e documentadas.
+
+### PasswordInput
+
+- A senha inicia mascarada e a revelacao exige acao explicita.
+- Copia e corte sao bloqueados por padrao, mas colagem e autocomplete permanecem permitidos.
+- O botao de visibilidade deve respeitar o estado disabled do campo.
+- Validacoes de produto devem ser configuraveis, sem transformar regras como maiuscula, minuscula, numero ou caractere especial em variantes visuais.
+- A API deve definir claramente quando validar, como expor a mensagem e como informar o resultado ao produto.
+- Forca da senha, quando necessaria, deve ser um mecanismo ou componente separado da entrada basica.
+
+### Distribuicao e API publica
+
+- O pacote documentado para consumidores precisa possuir entrypoint, exports e declaracoes TypeScript configurados.
+- Utilitarios reutilizaveis so devem ser considerados parte da API publica quando forem exportados por `src/index.ts`.
+- O Showcase deve consumir componentes oficiais e possuir uma fonte de entrada claramente definida.
 
 ## Ordem de implementacao
 
