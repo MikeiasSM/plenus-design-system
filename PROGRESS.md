@@ -13,6 +13,14 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - Principios de composicao, acessibilidade e independencia de dominio.
 - Organizacao conceitual de tokens primitivos, semanticos e temas.
 - Convencoes para componentes, CSS Modules, testes e API publica.
+- Referencia de cores em `TOKENS-REFERENCE-COLORS.md`.
+- Referencia tipografica em `TOKENS-REFERENCE-TYPOGRAPHY.md`.
+- `TOKENS.md` atualizado com links para as referencias especializadas.
+- Remocao do README local de `src/components/`, mantendo apenas a documentacao Markdown da raiz.
+- Stack inicial definida: React, TypeScript, Vite, npm e Node 20 LTS.
+- Estrutura inicial de pacote, TypeScript, build e Vitest criada.
+- Ponto de entrada `src/index.ts` criado para os estilos globais.
+- Teste de fumaça da fundacao criado.
 - Tokens visuais iniciais em `src/styles/tokens.css`.
 - Estilos globais iniciais em `src/styles/globals.css`.
 
@@ -20,12 +28,15 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 
 - Showcase visual derivado de um mock de implementacao anterior.
 - Migracao gradual do Showcase estatico para componentes oficiais.
-- Consolidacao da nomenclatura e da estrutura definitiva de tokens.
+- Consolidacao da nomenclatura definitiva dos tokens entre a documentacao e a implementacao.
+- Validacao tecnica das escalas tonais, contraste e combinacoes de temas.
+- Validacao da carga das familias e pesos tipograficos definidos.
 - Criacao da estrutura de componentes em `src/components/`.
+- Migracao do Showcase para React + Vite.
 
 ### Ainda nao implementado
 
-- Configuracao do pacote e ponto de entrada `src/index.ts`.
+- API publica de componentes e exportacoes definitivas em `src/index.ts`.
 - Estrutura de tokens primitivos e semanticos conforme a arquitetura.
 - Hooks reutilizaveis.
 - Utilitarios de apresentacao.
@@ -76,6 +87,8 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 1. `README.md` — visao geral, objetivo, limites e estrutura do projeto.
 2. `ARCHITECTURE.md` — dependencias, camadas e decisoes arquiteturais.
 3. `TOKENS.md` — linguagem visual, temas e regras de valores compartilhados.
+   - `TOKENS-REFERENCE-COLORS.md` — referencia detalhada de cores e temas.
+   - `TOKENS-REFERENCE-TYPOGRAPHY.md` — referencia detalhada de tipografia.
 4. `COMPONENTS.md` — classificacao, APIs, composicao e acessibilidade dos componentes.
 5. `CONTRIBUTING.md` — processo pratico para implementar e revisar alteracoes.
 6. `showcase/` — referencia visual e validacao pratica da implementacao.
