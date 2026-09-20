@@ -1,162 +1,190 @@
 # Plenustech Design System
 
-Design System centralizado para os produtos web da Plenustech, com foco em consistência visual, reutilização e manutenção de longo prazo (LTS).
+Design System centralizado para os produtos web da Plenustech.
+
+O projeto fornece a fonte oficial de componentes de interface, tokens visuais, padrões de comportamento, acessibilidade e diretrizes de integração de UI utilizadas pelos produtos da empresa.
+
+> O Design System define. O Showcase demonstra. As aplicações consomem.
 
 ## Objetivo
 
-Este repositório é a **fonte oficial dos componentes e fundamentos visuais** do Design System.
+Este repositório é a fonte oficial da verdade para a interface e a experiência de usuário dos produtos web da Plenustech.
 
-O projeto possui duas responsabilidades distintas:
+O pacote fornece:
 
-```text
-Design System
-└── src/
-    ├── components/   # componentes reutilizáveis
-    └── styles/       # tokens e estilos globais mínimos
+- Tokens visuais e semânticos.
+- Temas e estilos globais.
+- Componentes de interface reutilizáveis.
+- Hooks de comportamento reutilizável.
+- Utilitários de apresentação de dados.
+- Abstrações de acessibilidade.
+- Componentes complexos baseados em composição.
+- Padrões oficiais de integração de UI.
 
-Aplicação de exemplo
-└── showcase/         # aplicação que demonstra os componentes
-```
-
-O `showcase` é uma aplicação de exemplo. Ele não é a implementação dos componentes e não deve se tornar uma fonte de estilos ou componentes para o Design System.
+O Design System não contém regras de negócio específicas das aplicações consumidoras.
 
 ## Arquitetura
 
+O repositório possui duas partes principais:
+
+### Design System
+
 ```text
-                    ┌──────────────────────┐
-                    │   Design Tokens      │
-                    │   src/styles/        │
-                    └──────────┬───────────┘
-                               ↓
-                    ┌──────────────────────┐
-                    │   CSS Global Mínimo  │
-                    │   globals.css        │
-                    └──────────┬───────────┘
-                               ↓
-                    ┌──────────────────────┐
-                    │    Components        │
-                    │    src/components/   │
-                    │  *.module.css        │
-                    └──────────┬───────────┘
-                               ↓
-             ┌─────────────────┴─────────────────┐
-             ↓                                   ↓
-   ┌──────────────────────┐           ┌──────────────────────┐
-   │      Showcase        │           │ Produtos consumidores│
-   │   aplicação exemplo  │           │       da empresa     │
-   └──────────────────────┘           └──────────────────────┘
+└── src/
+    ├── tokens/
+    ├── styles/
+    ├── hooks/
+    ├── utils/
+    └── components/
 ```
 
-### Direção das dependências
+### Aplicação de Demonstração
 
-- `src/styles` não depende de componentes ou do `showcase`.
-- `src/components` pode consumir `src/styles`.
-- `showcase` consome o Design System.
-- O Design System nunca deve depender do `showcase`.
+```text
+└── showcase/
+```
 
-## Estrutura do projeto
+O `src/` contém exclusivamente o código que pertence ao Design System e que pode ser distribuído como pacote.
+
+O `showcase/` é uma aplicação consumidora utilizada para demonstração, documentação visual e validação de integração.
+
+O Showcase não define componentes oficiais, não contém regras de negócio do Design System e não fornece código que seja importado pela biblioteca.
+
+Para conhecer as decisões arquiteturais em detalhes, consulte [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Instalação
+
+O Design System deve ser consumido como um pacote pela aplicação.
+
+Exemplo:
+
+```bash
+npm install @plenustech/design-system
+```
+
+O nome e o mecanismo de publicação podem variar de acordo com a infraestrutura de distribuição adotada pela empresa.
+
+## Uso
+
+Os componentes públicos devem ser importados pelo ponto de entrada oficial do pacote:
+
+```tsx
+import { Button } from '@plenustech/design-system';
+
+export function Example() {
+  return <Button>Continuar</Button>;
+}
+```
+
+Não é recomendado importar arquivos internos diretamente:
+
+```tsx
+// Evitar
+import Button from '@plenustech/design-system/src/components/actions/Button';
+```
+
+A API pública do Design System é definida pelas exportações do ponto de entrada:
+
+- `src/index.ts`
+
+Isso permite alterar a organização interna do projeto sem transformar a estrutura de arquivos em uma API pública.
+
+## Showcase
+
+O `showcase/` é a aplicação oficial de demonstração do Design System.
+
+Ele é utilizado para:
+
+- Demonstrar componentes.
+- Documentar estados e variações.
+- Validar comportamento visual.
+- Validar integração entre componentes.
+- Exercitar temas.
+- Verificar responsividade.
+- Facilitar inspeção manual de acessibilidade.
+- Servir como ambiente de desenvolvimento visual.
+
+O Showcase consome o Design System como consumidor externo e não deve ser utilizado como fonte de componentes ou estilos.
+
+## Estrutura
 
 ```text
 plenus-design-system/
 ├── src/
+│   ├── tokens/
+│   │   ├── primitive/
+│   │   └── semantic/
+│   │
+│   ├── styles/
+│   │   ├── globals.css
+│   │   ├── reset.css
+│   │   └── themes/
+│   │
+│   ├── hooks/
+│   │
+│   ├── utils/
+│   │   └── formatters/
+│   │
 │   ├── components/
 │   │   ├── actions/
 │   │   ├── data-display/
 │   │   ├── forms/
 │   │   ├── feedback/
+│   │   ├── icons/
 │   │   ├── navigation/
 │   │   └── overlays/
 │   │
-│   └── styles/
-│       ├── globals.css
-│       └── tokens.css
+│   └── index.ts
 │
 ├── showcase/
-│   ├── index.html
-│   └── showcase.css
-│
 ├── .editorconfig
 ├── .gitignore
+├── ARCHITECTURE.md
+├── COMPONENTS.md
+├── CONTRIBUTING.md
+├── TOKENS.md
 └── README.md
 ```
 
-As categorias em `src/components` são apenas organizacionais. O componente deve permanecer completo dentro da própria pasta.
+## Princípios
 
-## Componentes
+O Design System segue alguns princípios fundamentais:
 
-Os componentes serão adicionados gradualmente ao Design System. Alguns já são demonstrados no `showcase`, e sua implementação oficial deve existir em `src/components` antes de ser considerada parte reutilizável do sistema.
+### Fonte única da verdade
 
-Exemplo:
+Decisões visuais e comportamentais compartilhadas devem ser implementadas no Design System e reutilizadas pelos produtos.
 
-```text
-src/components/actions/Button/
-├── Button.tsx
-└── Button.module.css
-```
+### Composição
 
-Um componente não deve ter seu CSS principal declarado diretamente no `showcase` ou em `globals.css`.
+Componentes complexos devem priorizar composição e APIs semânticas em vez de acumular propriedades condicionais.
 
-## CSS
+### Encapsulamento
 
-A estratégia oficial é híbrida:
+Cada componente deve encapsular sua implementação, estilos e testes.
 
-### `tokens.css`
+### Tokens
 
-Fonte da verdade para valores visuais compartilhados:
+Valores pertencentes à linguagem visual devem ser representados por tokens, evitando valores arbitrários espalhados pelo código.
 
-- cores;
-- espaçamentos;
-- tipografia;
-- raios;
-- sombras;
-- dimensões e demais tokens do sistema.
+### Acessibilidade
 
-### `globals.css`
+Acessibilidade faz parte da implementação do componente e não deve ser tratada como uma etapa posterior.
 
-CSS global mínimo:
+### Independência de domínio
 
-- reset e normalização;
-- configuração base de `html` e `body`;
-- tipografia base;
-- regras realmente globais.
+O Design System fornece infraestrutura de interface, comportamento e apresentação, mas não implementa regras de negócio específicas de um produto.
 
-### CSS Modules
+### Separação entre apresentação e domínio
 
-O estilo específico de cada componente deve ficar junto da implementação:
+Formatadores de apresentação podem fazer parte do Design System. Regras de negócio, transformação de dados de domínio e decisões específicas de produto devem permanecer nas aplicações consumidoras.
 
-```text
-Button/
-├── Button.tsx
-└── Button.module.css
-```
+## Documentação
 
-Isso mantém o escopo previsível e reduz colisões entre componentes.
-
-## Regras de arquitetura
-
-1. Componentes reutilizáveis pertencem a `src/components`.
-2. Cada componente deve encapsular seus próprios estilos com CSS Modules.
-3. Valores visuais compartilhados devem usar tokens.
-4. `globals.css` deve permanecer pequeno e genérico.
-5. O `showcase` demonstra e testa o Design System; não define sua arquitetura.
-6. Um componente não pode importar código do `showcase`.
-7. Evitar duplicação de componentes ou estilos entre o Design System e aplicações consumidoras.
-8. Mudanças visuais compartilhadas devem ser feitas na origem correta: token para valores, componente para comportamento visual local.
-
-## Showcase
-
-O `showcase/` é a **aplicação de exemplo e documentação visual** do Design System.
-
-Ele terá todos os componentes do sistema e receberá novos componentes ao longo do projeto.
-
-A implementação atual do showcase pode conter demonstrações locais e código ainda não migrado para os componentes oficiais. Isso não altera a regra arquitetural: a evolução do projeto deve fazer o `showcase` consumir os componentes existentes em `src/components`, sem mover sua implementação para dentro dele.
-
-## Versionamento
-
-O repositório deve evoluir com versões do Design System. Alterações que modificam componentes ou tokens devem ser tratadas como mudanças do produto compartilhado, pois podem afetar múltiplas aplicações consumidoras.
-
-A convenção de versão pode seguir Semantic Versioning (`MAJOR.MINOR.PATCH`) quando o processo de publicação do pacote for definido.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — princípios e decisões arquiteturais.
+- [COMPONENTS.md](COMPONENTS.md) — padrões para criação e organização de componentes.
+- [TOKENS.md](TOKENS.md) — padrões para criação e gerencia de tokens visuais.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
 
 ## Princípio central
 
-> **O Design System define. O Showcase demonstra. As aplicações consomem.**
+> O Design System define. O Showcase demonstra. As aplicações consomem.
