@@ -1,0 +1,98 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  cursor: pointer;
+}
+
+.control:has(.input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+  cursor: inherit;
+  transition: background-color var(--pl-speed-2) var(--pl-ease), border-color var(--pl-speed-2) var(--pl-ease), box-shadow var(--pl-speed-2) var(--pl-ease);
+}
+
+.input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  transition: transform var(--pl-speed-2) var(--pl-ease);
+}
+
+.input:checked {
+  border-color: var(--pl-color-primary);
+  background: var(--pl-color-primary);
+}
+
+.input:checked::after {
+  transform: translateX(16px);
+}
+
+.input:not(.error):hover:not(:disabled) {
+  border-color: var(--pl-color-primary);
+  box-shadow: var(--pl-sh-1);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.error {
+  border-color: var(--pl-color-danger);
+}
+
+.error:hover:not(:disabled) {
+  box-shadow: var(--pl-sh-1);
+}
+
+.text {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.hint,
+.errorMessage {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.hint {
+  color: var(--pl-color-text-tertiary);
+}
+
+.errorMessage {
+  color: var(--pl-color-danger-text);
+}

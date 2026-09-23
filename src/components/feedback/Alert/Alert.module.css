@@ -1,0 +1,46 @@
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  padding: var(--pl-space-3) var(--pl-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--pl-radius-md);
+  background: var(--alert-surface);
+  border-color: var(--alert-line);
+  color: var(--alert-tone);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.title {
+  font-weight: var(--pl-type-label-weight);
+}
+
+.body {
+  color: inherit;
+}
+
+.info {
+  --alert-tone: var(--pl-color-on-info-container);
+  --alert-surface: var(--pl-color-info-container);
+  --alert-line: var(--pl-color-info);
+}
+
+.success {
+  --alert-tone: var(--pl-color-on-success-container);
+  --alert-surface: var(--pl-color-success-container);
+  --alert-line: var(--pl-color-success);
+}
+
+.warning {
+  --alert-tone: var(--pl-color-on-warning-container);
+  --alert-surface: var(--pl-color-warning-container);
+  --alert-line: var(--pl-color-warning);
+}
+
+.danger {
+  --alert-tone: var(--pl-color-on-danger-container);
+  --alert-surface: var(--pl-color-danger-container);
+  --alert-line: var(--pl-color-danger);
+}

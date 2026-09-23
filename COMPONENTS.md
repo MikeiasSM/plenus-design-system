@@ -241,8 +241,11 @@ Preferir:
 - Button
 - Dialog
 - Select
-- DataTable
+- Table
+- DataGrid
 - Pagination
+
+`Table` nomeia o componente básico de tabela. `DataGrid` nomeia o componente completo, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade.
 
 Evitar nomes excessivamente específicos de produto:
 

@@ -1,0 +1,93 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.control {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+  cursor: pointer;
+}
+
+.control:has(.input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-surface);
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: inherit;
+  transition: background-color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.input:not(.error):hover:not(:disabled) {
+  border-color: var(--pl-color-primary);
+  box-shadow: var(--pl-sh-1);
+}
+
+.input:checked,
+.input:indeterminate {
+  border-color: var(--pl-color-primary);
+  background-color: var(--pl-color-primary);
+}
+
+.input:checked {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l4 4L19 7'/></svg>");
+}
+
+.input:indeterminate {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round'><path d='M6 12h12'/></svg>");
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.input:disabled {
+  background-color: var(--pl-color-surface-muted);
+  cursor: not-allowed;
+}
+
+.error {
+  border-color: var(--pl-color-danger);
+}
+
+.error:hover:not(:disabled) {
+  box-shadow: var(--pl-sh-1);
+}
+
+.text {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.hint,
+.errorMessage {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.hint {
+  color: var(--pl-color-text-tertiary);
+}
+
+.errorMessage {
+  color: var(--pl-color-danger-text);
+}

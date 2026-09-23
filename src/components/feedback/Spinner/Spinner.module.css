@@ -1,0 +1,25 @@
+.spinner {
+  display: inline-block;
+  flex: none;
+  border: 2px solid var(--spinner-track, var(--pl-color-surface-muted));
+  border-top-color: var(--spinner-arc, var(--pl-color-primary-hover));
+  border-radius: var(--pl-radius-full);
+  animation: pl-spin 0.7s linear infinite;
+}
+
+.sm {
+  width: 14px;
+  height: 14px;
+}
+
+.md {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.lg {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}

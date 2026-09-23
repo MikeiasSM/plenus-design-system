@@ -1,2 +1,2 @@
-export { formatDecimalInput } from './formatDecimalInput';
-export { formatCurrencyInput } from './formatCurrencyInput';
+export { formatarEntradaDecimal } from './formatarEntradaDecimal';
+export { formatarEntradaMonetaria } from './formatarEntradaMonetaria';

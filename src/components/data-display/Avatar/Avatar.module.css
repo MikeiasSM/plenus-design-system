@@ -5,7 +5,7 @@
   overflow: hidden;
   border-radius: var(--pl-radius-full);
   background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary);
+  color: var(--pl-color-on-primary-container);
   font-family: var(--pl-font-body);
   font-weight: var(--pl-weight-semibold);
   object-fit: cover;

@@ -1,0 +1,27 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.hint,
+.errorMessage,
+.characterCount {
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.hint {
+  color: var(--pl-color-text-tertiary);
+}
+
+.errorMessage {
+  color: var(--pl-color-danger-text);
+}
+
+.characterCount {
+  align-self: flex-end;
+  color: var(--pl-color-text-tertiary);
+}

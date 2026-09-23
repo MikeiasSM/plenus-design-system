@@ -28,10 +28,10 @@ ul, ol { margin: 0; padding: 0; }
 img, svg, video { display: block; max-width: 100%; }
 
 a {
-  color: var(--pl-primary);
+  color: var(--pl-color-primary-active);
   text-decoration: none;
 }
-a:hover { color: var(--pl-primary-dark); }
+a:hover { text-decoration: underline; }
 
 button { font-family: inherit; }
 
@@ -56,7 +56,7 @@ select {
 
 /* Foco visível acessível — nunca remova sem substituir por ring no componente */
 :focus-visible {
-  outline: 2px solid var(--pl-primary);
+  outline: 2px solid var(--pl-color-primary);
   outline-offset: 2px;
 }
 
@@ -70,3 +70,15 @@ select {
 }
 
 /* Media queries globais ficam nos módulos/páginas — aqui só a base. */
+
+/* Respeita a preferencia de movimento reduzido do sistema operacional. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

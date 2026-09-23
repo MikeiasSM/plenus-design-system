@@ -10,5 +10,5 @@
 }
 
 .required {
-  color: var(--pl-color-danger);
+  color: var(--pl-color-danger-text);
 }

@@ -1,0 +1,46 @@
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  width: 100%;
+}
+
+.track {
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pl-color-primary-hover);
+  transition: width var(--pl-speed-2) var(--pl-ease);
+}
+
+.indeterminate {
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pl-color-primary-hover);
+  animation: pl-indeterminate 1.2s ease-in-out infinite;
+}
+
+.value {
+  flex: none;
+  min-width: 36px;
+  text-align: right;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.sm .track {
+  height: 4px;
+}
+
+.md .track {
+  height: 8px;
+}

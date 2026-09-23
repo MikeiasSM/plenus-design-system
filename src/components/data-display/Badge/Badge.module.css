@@ -24,27 +24,27 @@
 }
 
 .ok {
-  --badge-tone: var(--pl-color-success);
+  --badge-tone: var(--pl-color-on-success-container);
   --badge-surface: var(--pl-color-success-container);
 }
 
 .warn {
-  --badge-tone: var(--pl-color-warning);
+  --badge-tone: var(--pl-color-on-warning-container);
   --badge-surface: var(--pl-color-warning-container);
 }
 
 .info {
-  --badge-tone: var(--pl-color-info);
+  --badge-tone: var(--pl-color-on-info-container);
   --badge-surface: var(--pl-color-info-container);
 }
 
 .danger {
-  --badge-tone: var(--pl-color-danger);
+  --badge-tone: var(--pl-color-on-danger-container);
   --badge-surface: var(--pl-color-danger-container);
 }
 
 .primary {
-  --badge-tone: var(--pl-color-primary);
+  --badge-tone: var(--pl-color-on-primary-container);
   --badge-surface: var(--pl-color-primary-container);
 }
 

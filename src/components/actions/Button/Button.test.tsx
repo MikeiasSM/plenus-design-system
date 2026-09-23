@@ -32,12 +32,25 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Indisponivel' })).toBeDisabled();
   });
 
-  it('marks loading buttons as busy and disabled', () => {
+  it('marks loading buttons as busy without removing them from the tab order', () => {
     render(<Button loading>Salvando</Button>);
 
     const button = screen.getByRole('button', { name: 'Salvando' });
-    expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).not.toBeDisabled();
+
+    button.focus();
+    expect(button).toHaveFocus();
+  });
+
+  it('ignores clicks while loading', () => {
+    const handleClick = vi.fn();
+    render(<Button loading onClick={handleClick}>Salvando</Button>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvando' }));
+
+    expect(handleClick).not.toHaveBeenCalled();
   });
 
   it('calls the click handler when enabled', () => {

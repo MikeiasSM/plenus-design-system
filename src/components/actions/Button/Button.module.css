@@ -1,4 +1,6 @@
 .button {
+  --spinner-arc: currentColor;
+  --spinner-track: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -17,11 +19,12 @@
     box-shadow var(--pl-speed-2) var(--pl-ease);
 }
 
-.button:not(:disabled):hover {
+.button:not(:disabled):not([aria-disabled='true']):hover {
   box-shadow: 0 5px 12px color-mix(in srgb, var(--button-hover-shadow) 32%, transparent);
 }
 
-.button:disabled {
+.button:disabled,
+.button[aria-disabled='true'] {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -37,7 +40,7 @@
   color: var(--pl-color-on-primary);
 }
 
-.primary:not(:disabled):hover {
+.primary:not(:disabled):not([aria-disabled='true']):hover {
   background: var(--pl-color-primary-hover);
 }
 
@@ -48,21 +51,20 @@
   color: var(--pl-color-text);
 }
 
-.secondary:not(:disabled):hover {
+.secondary:not(:disabled):not([aria-disabled='true']):hover {
   border-color: var(--pl-color-primary);
-  color: var(--pl-color-primary);
+  color: var(--pl-color-primary-active);
 }
 
 .soft {
   --button-hover-shadow: var(--pl-color-primary);
   background: var(--pl-color-primary-container);
   border-color: var(--pl-color-primary-line);
-  color: var(--pl-color-primary);
+  color: var(--pl-color-on-primary-container);
 }
 
-.soft:not(:disabled):hover {
+.soft:not(:disabled):not([aria-disabled='true']):hover {
   background: color-mix(in srgb, var(--pl-color-primary-container) 72%, var(--pl-color-surface));
-  color: var(--pl-color-primary-hover);
 }
 
 .ghost {
@@ -71,18 +73,18 @@
   color: var(--pl-color-text-secondary);
 }
 
-.ghost:not(:disabled):hover {
+.ghost:not(:disabled):not([aria-disabled='true']):hover {
   background: var(--pl-color-surface-muted);
   color: var(--pl-color-text);
 }
 
 .danger {
-  --button-hover-shadow: var(--pl-color-danger);
-  background: var(--pl-color-danger);
-  color: var(--pl-neutral-white);
+  --button-hover-shadow: var(--pl-color-danger-solid);
+  background: var(--pl-color-danger-solid);
+  color: var(--pl-color-on-danger);
 }
 
-.danger:not(:disabled):hover {
+.danger:not(:disabled):not([aria-disabled='true']):hover {
   filter: brightness(0.9);
 }
 
@@ -98,14 +100,4 @@
 .lg {
   padding: 13px 26px;
   font-size: var(--pl-size-lg);
-}
-
-.spinner {
-  width: 14px;
-  height: 14px;
-  flex: none;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: var(--pl-radius-full);
-  animation: pl-spin 0.7s linear infinite;
 }

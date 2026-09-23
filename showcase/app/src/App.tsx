@@ -1,5 +1,8 @@
 import { useState, type ReactNode } from 'react';
-import { Avatar, Badge, Button, CurrencyInput, Input, NumberInput, PasswordInput } from '@plenus/index';
+import {
+  Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
+  Progress, Radio, RadioGroup, Spinner, Switch, Textarea,
+} from '@plenus/index';
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -44,6 +47,7 @@ function ComponentDoc({
 
 export function App() {
   const [saved, setSaved] = useState(false);
+  const [pagamento, setPagamento] = useState('pix');
 
   return (
     <div className="docs-layout">
@@ -59,9 +63,17 @@ export function App() {
           <p className="rail-group">Acoes</p>
           <a href="#button">Button</a>
           <p className="rail-group">Formularios</p>
-          <a href="#input">Input</a>
-          <a href="#password-input">PasswordInput</a>
-          <a href="#currency-input">CurrencyInput</a>
+          <a href="#input-text">InputText</a>
+          <a href="#input-password">InputPassword</a>
+          <a href="#input-currency">InputCurrency</a>
+          <a href="#textarea">Textarea</a>
+          <a href="#checkbox">Checkbox</a>
+          <a href="#radio-group">RadioGroup</a>
+          <a href="#switch">Switch</a>
+          <p className="rail-group">Feedback</p>
+          <a href="#alert">Alert</a>
+          <a href="#progress">Progress</a>
+          <a href="#spinner">Spinner</a>
           <p className="rail-group">Data display</p>
           <a href="#badge">Badge</a>
           <a href="#avatar">Avatar</a>
@@ -116,17 +128,17 @@ export function App() {
         <ComponentDoc
           category="forms"
           description="Campo monetario com edicao bruta, regra decimal brasileira e formatacao no blur."
-          id="currency-input"
-          name="CurrencyInput"
-          api={'<CurrencyInput\n  label="Valor"\n  currency="BRL"\n  decimalScale={2}\n  onValueChange={setValor}\n/>'}
+          id="input-currency"
+          name="InputCurrency"
+          api={'<InputCurrency\n  label="Valor"\n  currency="BRL"\n  decimalScale={2}\n  onValueChange={setValor}\n/>'}
         >
           <div className="doc-subsection">
             <h3>Formatacao e estados</h3>
             <div className="input-grid">
-              <CurrencyInput label="Valor inteiro" defaultValue="165789" />
-              <CurrencyInput label="Valor decimal" defaultValue="165789,50" />
-              <CurrencyInput label="Com ajuda" hint="A virgula determina os centavos." placeholder="0,00" />
-              <CurrencyInput label="Desabilitado" defaultValue="2500,00" disabled />
+              <InputCurrency label="Valor inteiro" defaultValue="165789" />
+              <InputCurrency label="Valor decimal" defaultValue="165789,50" />
+              <InputCurrency label="Com ajuda" hint="A virgula determina os centavos." placeholder="0,00" />
+              <InputCurrency label="Desabilitado" defaultValue="2500,00" disabled />
             </div>
             <p className="doc-note">Durante a edicao, o campo preserva o valor bruto. Ao perder o foco, aplica R$, separador de milhares e duas casas decimais.</p>
           </div>
@@ -135,17 +147,17 @@ export function App() {
         <ComponentDoc
           category="forms"
           description="Campo especializado para senhas com alternancia de visibilidade, validacao configuravel e estados acessiveis."
-          id="password-input"
-          name="PasswordInput"
-          api={'<PasswordInput\n  label="Senha"\n  minLength={8}\n  validate={validatePassword}\n  validateOnBlur\n/>'}
+          id="input-password"
+          name="InputPassword"
+          api={'<InputPassword\n  label="Senha"\n  minLength={8}\n  validate={validatePassword}\n  validateOnBlur\n/>'}
         >
           <div className="doc-subsection">
             <h3>Estados e comportamento</h3>
             <div className="input-grid">
-              <PasswordInput label="Senha" placeholder="Digite sua senha" />
-              <PasswordInput label="Nova senha" autoComplete="new-password" hint="Use uma senha segura." />
-              <PasswordInput label="Com erro" error="Senha obrigatoria." maxLength={64} showCharacterCount />
-              <PasswordInput label="Toggle oculto" showToggle={false} placeholder="Sem controle visual" />
+              <InputPassword label="Senha" placeholder="Digite sua senha" />
+              <InputPassword label="Nova senha" autoComplete="new-password" hint="Use uma senha segura." />
+              <InputPassword label="Com erro" error="Senha obrigatoria." maxLength={64} showCharacterCount />
+              <InputPassword label="Toggle oculto" showToggle={false} placeholder="Sem controle visual" />
             </div>
             <p className="doc-note">A senha inicia mascarada. Copia e corte sao bloqueados por padrao; colagem, autofill e gerenciadores de senha permanecem permitidos. Isso nao impede extensoes ou scripts privilegiados de acessarem o campo.</p>
           </div>
@@ -154,27 +166,171 @@ export function App() {
         <ComponentDoc
           category="forms"
           description="Campo de texto com label, ajuda, erro, foco acessivel e tamanhos."
-          id="input"
-          name="Input"
-          api={'<Input\n  label="Descrição"\n  maxLength={120}\n  showCharacterCount\n/>'}
+          id="input-text"
+          name="InputText"
+          api={'<InputText\n  label="Descrição"\n  maxLength={120}\n  showCharacterCount\n/>'}
         >
           <div className="doc-subsection">
             <h3>Tipos e estados</h3>
             <div className="input-grid">
-              <Input label="Texto" placeholder="Nome do modulo" />
-              <Input label="Com ajuda" hint="Valores em reais." placeholder="0,00" />
-              <Input label="Com erro" error="Campo obrigatorio." />
-              <Input label="Desabilitado" defaultValue="Somente leitura" disabled />
-              <Input label="Busca compacta" size="sm" placeholder="Pesquisar" type="search" />
-              <Input label="Com contador" defaultValue="Texto inicial" maxLength={80} showCharacterCount />
-              <NumberInput label="Quantidade inteira" defaultValue="165789" />
-              <NumberInput label="Decimal com 2 casas" decimalScale={2} defaultValue="165789,50" />
+              <InputText label="Texto" placeholder="Nome do modulo" />
+              <InputText label="Com ajuda" hint="Valores em reais." placeholder="0,00" />
+              <InputText label="Com erro" error="Campo obrigatorio." />
+              <InputText label="Desabilitado" defaultValue="Somente leitura" disabled />
+              <InputText label="Busca compacta" size="sm" placeholder="Pesquisar" type="search" />
+              <InputText label="Com contador" defaultValue="Texto inicial" maxLength={80} showCharacterCount />
+              <InputNumber label="Quantidade inteira" defaultValue="165789" />
+              <InputNumber label="Decimal com 2 casas" decimalScale={2} defaultValue="165789,50" />
             </div>
           </div>
           <div className="doc-subsection">
             <h3>Regra decimal</h3>
             <p className="doc-note">A virgula determina os decimais. Sem virgula, o valor permanece inteiro.</p>
-            <CodeBlock>{'<NumberInput label="Percentual" decimalScale={2} />'}</CodeBlock>
+            <CodeBlock>{'<InputNumber label="Percentual" decimalScale={2} />'}</CodeBlock>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Entrada de texto multilinha com rotulo, ajuda, erro, contador e redimensionamento vertical."
+          id="textarea"
+          name="Textarea"
+          api={`<Textarea
+  label="Observacoes"
+  rows={4}
+  maxLength={240}
+  showCharacterCount
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Estados e tamanhos</h3>
+            <div className="input-grid">
+              <Textarea label="Observacoes" placeholder="Descreva a ocorrencia" />
+              <Textarea label="Com ajuda" hint="Maximo de 240 caracteres." maxLength={240} showCharacterCount />
+              <Textarea label="Com erro" error="Campo obrigatorio." />
+              <Textarea label="Compacto" size="sm" rows={2} placeholder="Nota rapida" />
+            </div>
+            <p className="doc-note">O campo compartilha rotulo, ajuda, erro e contador com os demais campos de formulario. O redimensionamento e apenas vertical e some quando desabilitado.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Selecao independente, com estado indeterminado para hierarquias de selecao."
+          id="checkbox"
+          name="Checkbox"
+          api={`<Checkbox label="Aceito os termos" hint="Leia antes de continuar." />`}
+        >
+          <div className="doc-subsection">
+            <h3>Estados</h3>
+            <div className="input-grid">
+              <Checkbox label="Aceito os termos" />
+              <Checkbox label="Selecionar todos" indeterminate />
+              <Checkbox label="Receber avisos" defaultChecked hint="No maximo um por semana." />
+              <Checkbox label="Com erro" error="Campo obrigatorio." />
+              <Checkbox label="Desabilitado" disabled defaultChecked />
+            </div>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Escolha unica entre opcoes relacionadas, agrupadas com nome acessivel."
+          id="radio-group"
+          name="RadioGroup"
+          api={`<RadioGroup label="Forma de pagamento" value={valor} onValueChange={setValor}>
+  <Radio label="Pix" value="pix" />
+  <Radio label="Boleto" value="boleto" />
+</RadioGroup>`}
+        >
+          <div className="doc-subsection">
+            <h3>Grupo controlado</h3>
+            <div className="input-grid">
+              <RadioGroup label="Forma de pagamento" value={pagamento} onValueChange={setPagamento} hint={`Selecionado: ${pagamento}`}>
+                <Radio label="Pix" value="pix" />
+                <Radio label="Boleto" value="boleto" />
+                <Radio label="Cartao" value="cartao" />
+              </RadioGroup>
+              <RadioGroup label="Com erro" error="Escolha uma opcao." required>
+                <Radio label="Mensal" value="mensal" />
+                <Radio label="Anual" value="anual" />
+              </RadioGroup>
+            </div>
+            <p className="doc-note">O grupo distribui o nome nativo entre as opcoes, expoe o rotulo por legend e propaga o estado desabilitado.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Alternancia imediata de uma preferencia, com semantica de switch."
+          id="switch"
+          name="Switch"
+          api={`<Switch label="Notificacoes por e-mail" defaultChecked />`}
+        >
+          <div className="doc-subsection">
+            <h3>Estados</h3>
+            <div className="input-grid">
+              <Switch label="Notificacoes por e-mail" />
+              <Switch label="Modo escuro" defaultChecked hint="Acompanha a preferencia do sistema." />
+              <Switch label="Sincronizacao" disabled />
+            </div>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="feedback"
+          description="Mensagem contextual de status, com urgencia definida pelo tom."
+          id="alert"
+          name="Alert"
+          api={`<Alert tone="danger" title="Falha no envio">
+  Tente novamente em alguns instantes.
+</Alert>`}
+        >
+          <div className="doc-subsection">
+            <h3>Tons</h3>
+            <div className="input-grid">
+              <Alert tone="info" title="Sincronizacao agendada">Executa todos os dias as 3h.</Alert>
+              <Alert tone="success" title="Registro salvo">As alteracoes ja estao disponiveis.</Alert>
+              <Alert tone="warning" title="Espaco quase esgotado">Restam 8% do armazenamento.</Alert>
+              <Alert tone="danger" title="Falha no envio">Tente novamente em alguns instantes.</Alert>
+            </div>
+            <p className="doc-note">Aviso e erro sao anunciados de forma assertiva; informacao e sucesso, de forma educada.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="feedback"
+          description="Progresso determinado ou indeterminado de uma operacao."
+          id="progress"
+          name="Progress"
+          api={`<Progress label="Envio do arquivo" value={40} showValue />`}
+        >
+          <div className="doc-subsection">
+            <h3>Modos e tamanhos</h3>
+            <div className="input-grid">
+              <Progress label="Envio do arquivo" value={40} showValue />
+              <Progress label="Importacao" value={82} size="sm" showValue />
+              <Progress label="Processando" />
+            </div>
+            <p className="doc-note">Sem valor, o componente entra em modo indeterminado e omite o valor atual da semantica.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="feedback"
+          description="Indicador de carregamento, decorativo por padrao."
+          id="spinner"
+          name="Spinner"
+          api={`<Spinner label="Carregando" size="md" />`}
+        >
+          <div className="doc-subsection">
+            <h3>Tamanhos</h3>
+            <div className="demo-row">
+              <Spinner size="sm" label="Carregando pequeno" />
+              <Spinner label="Carregando medio" />
+              <Spinner size="lg" label="Carregando grande" />
+            </div>
+            <p className="doc-note">Sem rotulo, o indicador fica oculto para leitores de tela. Dentro do Button, quem anuncia o estado e o proprio botao.</p>
           </div>
         </ComponentDoc>
 
