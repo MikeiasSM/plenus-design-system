@@ -20,7 +20,7 @@
 }
 
 .button:not(:disabled):not([aria-disabled='true']):hover {
-  box-shadow: 0 5px 12px color-mix(in srgb, var(--button-hover-shadow) 32%, transparent);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--button-hover-shadow) 22%, transparent);
 }
 
 .button:disabled,

@@ -1,0 +1,86 @@
+.tabs {
+  display: flex;
+  gap: var(--pl-space-4);
+  min-width: 0;
+}
+
+.horizontal {
+  flex-direction: column;
+}
+
+.horizontal .list {
+  flex-direction: row;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
+.horizontal .active {
+  border-bottom-color: var(--pl-color-primary);
+}
+
+/* Na vertical a lista vira coluna ao lado do painel, util quando os rotulos
+   sao longos ou ha mais de meia duzia de secoes. */
+.vertical {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.vertical .list {
+  flex-direction: column;
+  flex: none;
+  min-width: 160px;
+  border-right: 1px solid var(--pl-color-border);
+}
+
+.vertical .tab {
+  border-bottom: 0;
+  border-right: 2px solid transparent;
+  text-align: left;
+}
+
+.vertical .active {
+  border-right-color: var(--pl-color-primary);
+}
+
+.vertical .panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  gap: var(--pl-space-1);
+}
+
+.tab {
+  flex: none;
+  padding: var(--pl-space-2) var(--pl-space-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+  cursor: pointer;
+  transition: color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease);
+}
+
+.tab:hover:not(:disabled):not(.active) {
+  color: var(--pl-color-text);
+}
+
+.tab:disabled {
+  color: var(--pl-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.active {
+  color: var(--pl-color-on-primary-container);
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}

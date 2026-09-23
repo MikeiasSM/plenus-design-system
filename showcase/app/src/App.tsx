@@ -1,8 +1,19 @@
 import { useRef, useState, type ReactNode } from 'react';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
-  Dialog, Popover, Progress, Radio, RadioGroup, Spinner, Switch, Textarea,
+  Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
+  RadioGroup, Select, Spinner, Switch, Tabs, Textarea, Tooltip,
 } from '@plenus/index';
+
+const estadosBrasileiros = [
+  ['ac', 'Acre'], ['al', 'Alagoas'], ['ap', 'Amapa'], ['am', 'Amazonas'],
+  ['ba', 'Bahia'], ['ce', 'Ceara'], ['df', 'Distrito Federal'], ['es', 'Espirito Santo'],
+  ['go', 'Goias'], ['ma', 'Maranhao'], ['mt', 'Mato Grosso'], ['ms', 'Mato Grosso do Sul'],
+  ['mg', 'Minas Gerais'], ['pa', 'Para'], ['pb', 'Paraiba'], ['pr', 'Parana'],
+  ['pe', 'Pernambuco'], ['pi', 'Piaui'], ['rj', 'Rio de Janeiro'], ['rn', 'Rio Grande do Norte'],
+  ['rs', 'Rio Grande do Sul'], ['ro', 'Rondonia'], ['rr', 'Roraima'], ['sc', 'Santa Catarina'],
+  ['sp', 'Sao Paulo'], ['se', 'Sergipe'], ['to', 'Tocantins'],
+].map(([value, label]) => ({ value, label }));
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -51,6 +62,8 @@ export function App() {
   const [dialogoAberto, setDialogoAberto] = useState(false);
   const [popoverAberto, setPopoverAberto] = useState(false);
   const gatilhoPopover = useRef<HTMLButtonElement>(null);
+  const [uf, setUf] = useState('sp');
+  const [pagina, setPagina] = useState(5);
 
   return (
     <div className="docs-layout">
@@ -70,6 +83,8 @@ export function App() {
           <a href="#input-password">InputPassword</a>
           <a href="#input-currency">InputCurrency</a>
           <a href="#textarea">Textarea</a>
+          <a href="#select">Select</a>
+          <a href="#combobox">ComboBox</a>
           <a href="#checkbox">Checkbox</a>
           <a href="#radio-group">RadioGroup</a>
           <a href="#switch">Switch</a>
@@ -77,9 +92,16 @@ export function App() {
           <a href="#alert">Alert</a>
           <a href="#progress">Progress</a>
           <a href="#spinner">Spinner</a>
+          <p className="rail-group">Navegacao</p>
+          <a href="#tabs">Tabs</a>
+          <a href="#accordion">Accordion</a>
+          <a href="#breadcrumb">Breadcrumb</a>
+          <a href="#pagination">Pagination</a>
           <p className="rail-group">Overlays</p>
           <a href="#dialog">Dialog</a>
           <a href="#popover">Popover</a>
+          <a href="#menu">Menu</a>
+          <a href="#tooltip">Tooltip</a>
           <p className="rail-group">Data display</p>
           <a href="#badge">Badge</a>
           <a href="#avatar">Avatar</a>
@@ -412,6 +434,250 @@ export function App() {
               </div>
             </Popover>
             <p className="doc-note">Ancora no gatilho, inverte de lado quando falta espaco e reposiciona durante a rolagem. Fecha por Escape ou clique externo, devolvendo o foco ao gatilho. Nao e modal: o restante da pagina continua acessivel.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Escolha unica a partir de uma lista, com navegacao por teclado e busca por digitacao."
+          id="select"
+          name="Select"
+          api={`<Select
+  label="Estado"
+  options={estados}
+  value={uf}
+  onValueChange={setUf}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Estados</h3>
+            <div className="input-grid">
+              <Select
+                label="Estado"
+                options={[
+                  { value: 'sp', label: 'Sao Paulo' },
+                  { value: 'rj', label: 'Rio de Janeiro' },
+                  { value: 'mg', label: 'Minas Gerais' },
+                  { value: 'ex', label: 'Exterior', disabled: true },
+                ]}
+                value={uf}
+                onValueChange={setUf}
+              />
+              <Select label="Com ajuda" hint="A lista responde a digitacao." options={[{ value: 'a', label: 'Anual' }, { value: 'm', label: 'Mensal' }]} />
+              <Select label="Com erro" error="Escolha uma opcao." options={[{ value: 'a', label: 'Anual' }]} />
+              <Select label="Desabilitado" disabled options={[{ value: 'a', label: 'Anual' }]} />
+            </div>
+            <p className="doc-note">Setas navegam pulando desabilitados, Home e End vao aos extremos, digitar busca pelo inicio do texto, Enter confirma e Escape fecha devolvendo o foco ao gatilho.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Lista longa</h3>
+            <div className="input-grid">
+              <Select label="Estado (27 opcoes)" options={estadosBrasileiros} defaultValue="sp" />
+              <ComboBox label="Estado com filtro" options={estadosBrasileiros} placeholder="Digite para filtrar" />
+            </div>
+            <p className="doc-note">Com 27 registros a lista atinge o teto de altura e passa a rolar. A largura continua acompanhando o campo, e a barra de rolagem usa o estilo global definido em globals.css. Digite &quot;ma&quot; no Select para ver a busca saltar entre Maranhao e Mato Grosso.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Campo de texto que filtra uma lista enquanto se digita."
+          id="combobox"
+          name="ComboBox"
+          api={`<ComboBox
+  label="Cidade"
+  options={cidades}
+  onValueChange={setCidade}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Filtragem</h3>
+            <div className="input-grid">
+              <ComboBox
+                label="Cidade"
+                placeholder="Digite para filtrar"
+                options={[
+                  { value: 'sp', label: 'Sao Paulo' },
+                  { value: 'rj', label: 'Rio de Janeiro' },
+                  { value: 'bh', label: 'Belo Horizonte' },
+                  { value: 'poa', label: 'Porto Alegre' },
+                ]}
+              />
+              <ComboBox label="Com erro" error="Cidade obrigatoria." options={[{ value: 'sp', label: 'Sao Paulo' }]} />
+            </div>
+            <p className="doc-note">O foco permanece no campo e a opcao ativa e apontada por aria-activedescendant. Sem correspondencia, a lista informa o vazio em vez de sumir.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="overlays"
+          description="Lista de acoes ancorada a um gatilho, com foco real nos itens."
+          id="menu"
+          name="Menu"
+          api={`<Menu label="Acoes" items={acoes}>
+  <Button variant="secondary">Acoes</Button>
+</Menu>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <div className="demo-row">
+              <Menu
+                label="Acoes do modulo"
+                items={[
+                  { key: 'editar', label: 'Editar' },
+                  { key: 'duplicar', label: 'Duplicar' },
+                  { key: 'arquivar', label: 'Arquivar', disabled: true },
+                  { key: 'excluir', label: 'Excluir' },
+                ]}
+              >
+                <Button variant="secondary">Acoes</Button>
+              </Menu>
+            </div>
+            <p className="doc-note">Seta para baixo abre no primeiro item, seta para cima no ultimo. Tab e Escape fecham devolvendo o foco ao gatilho.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="overlays"
+          description="Texto auxiliar ancorado, exibido no foco e apos atraso no ponteiro."
+          id="tooltip"
+          name="Tooltip"
+          api={`<Tooltip content="Salva sem fechar a tela">
+  <Button>Salvar</Button>
+</Tooltip>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <div className="demo-row">
+              <Tooltip content="Salva sem fechar a tela"><Button>Salvar</Button></Tooltip>
+              <Tooltip content="Descarta as alteracoes" placement="bottom"><Button variant="secondary">Cancelar</Button></Tooltip>
+            </div>
+            <p className="doc-note">Aparece imediatamente no foco por teclado e apos meio segundo no ponteiro. O gatilho recebe aria-describedby enquanto visivel, e Escape dispensa.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="navigation"
+          description="Alternancia entre paineis irmaos, com ativacao automatica pelo teclado."
+          id="tabs"
+          name="Tabs"
+          api={`<Tabs label="Configuracoes" items={abas} />`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <Tabs
+              label="Configuracoes do modulo"
+              items={[
+                { key: 'geral', label: 'Geral', content: 'Nome, descricao e responsavel pelo modulo.' },
+                { key: 'acesso', label: 'Acesso', content: 'Perfis e permissoes que enxergam este modulo.' },
+                { key: 'antigo', label: 'Legado', content: 'Indisponivel', disabled: true },
+                { key: 'logs', label: 'Logs', content: 'Historico de alteracoes dos ultimos 90 dias.' },
+              ]}
+            />
+            <p className="doc-note">Setas percorrem em circulo e trocam o painel na hora, Home e End vao aos extremos, e abas desabilitadas sao puladas.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Orientacao vertical</h3>
+            <Tabs
+              orientation="vertical"
+              label="Preferencias da conta"
+              items={[
+                { key: 'perfil', label: 'Perfil', content: 'Nome, foto e dados de contato.' },
+                { key: 'notificacoes', label: 'Notificacoes', content: 'Quais avisos chegam por e-mail e quais ficam no sistema.' },
+                { key: 'seguranca', label: 'Seguranca', content: 'Senha, sessoes ativas e verificacao em duas etapas.' },
+                { key: 'faturamento', label: 'Faturamento', content: 'Plano contratado, notas e forma de pagamento.' },
+              ]}
+            />
+            <p className="doc-note">A lista vira coluna ao lado do painel e as setas passam a ser cima e baixo. Vale a partir de cerca de seis secoes, ou antes se algum rotulo passar de duas palavras.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="data-display"
+          description="Secoes recolhiveis, uma por vez ou varias em paralelo."
+          id="accordion"
+          name="Accordion"
+          api={`<Accordion items={secoes} iconPosition="right" divider />`}
+        >
+          <div className="doc-subsection">
+            <h3>Uma secao por vez</h3>
+            <Accordion
+              defaultExpandedKeys={['envio']}
+              items={[
+                { key: 'envio', label: 'Regras de envio', content: 'Prazos, transportadoras e restricoes por regiao.' },
+                { key: 'pagamento', label: 'Formas de pagamento', content: 'Pix, boleto e cartao, com as regras de cada um.' },
+                { key: 'suporte', label: 'Canais de suporte', content: 'Telefone, chat e e-mail, com horarios de atendimento.' },
+              ]}
+            />
+          </div>
+          <div className="doc-subsection">
+            <h3>Varias em paralelo</h3>
+            <Accordion
+              multiple
+              defaultExpandedKeys={['a', 'b']}
+              items={[
+                { key: 'a', label: 'Primeira', content: 'Conteudo da primeira secao.' },
+                { key: 'b', label: 'Segunda', content: 'Conteudo da segunda secao.' },
+                { key: 'c', label: 'Desabilitada', content: 'Indisponivel', disabled: true },
+              ]}
+            />
+            <p className="doc-note">As setas movem o foco entre os cabecalhos, em circulo, pulando os desabilitados.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Icone a esquerda, sem divisor</h3>
+            <Accordion
+              iconPosition="left"
+              divider={false}
+              items={[
+                { key: 'prazo', label: 'Qual o prazo de entrega?', content: 'De tres a cinco dias uteis para as capitais.' },
+                { key: 'troca', label: 'Como solicitar troca?', content: 'Pelo painel do pedido, em ate sete dias do recebimento.' },
+                { key: 'nota', label: 'Onde fica a nota fiscal?', content: 'Anexada ao e-mail de confirmacao e no historico do pedido.' },
+              ]}
+            />
+            <p className="doc-note">Direita e a convencao da web; esquerda funciona quando os rotulos sao curtos e a coluna e estreita. Sem divisor o item fica compacto; com divisor, ganha regra e folga.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="navigation"
+          description="Trilha ate a pagina atual, sem acoplamento a um roteador."
+          id="breadcrumb"
+          name="Breadcrumb"
+          api={`<Breadcrumb as={Link} items={trilha} />`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <Breadcrumb
+              items={[
+                { label: 'Inicio', href: '#' },
+                { label: 'Modulos', href: '#' },
+                { label: 'Faturamento', href: '#' },
+                { label: 'Nota 4512' },
+              ]}
+            />
+            <p className="doc-note">O ultimo item nao vira link e recebe aria-current. A propriedade as aceita o componente de link da aplicacao, conforme ARCHITECTURE secao 11.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="navigation"
+          description="Percurso entre paginas de um conjunto longo, com reticencias."
+          id="pagination"
+          name="Pagination"
+          api={`<Pagination
+  page={pagina}
+  pageCount={20}
+  onPageChange={setPagina}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Conjunto longo</h3>
+            <Pagination page={pagina} pageCount={20} onPageChange={setPagina} />
+            <p className="doc-note">Primeira e ultima pagina ficam sempre visiveis. Abaixo de oito paginas a reticencia some, porque nao economizaria espaco.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Conjunto curto</h3>
+            <Pagination page={2} pageCount={5} onPageChange={() => undefined} />
           </div>
         </ComponentDoc>
 

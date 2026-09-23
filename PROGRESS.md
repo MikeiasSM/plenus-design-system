@@ -101,6 +101,25 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - `Dialog` renderizado em portal, exportado e documentado no Showcase.
 - Componente `Popover` implementado com `useOverlayPosition`, trazendo ancoragem ao gatilho, inversao por colisao e reposicionamento em rolagem. Nao e modal: o restante da pagina permanece acessivel.
 - `Popover` e a base de posicionamento que `Menu`, `Select` e `ComboBox` vao reaproveitar.
+- Componente `Tooltip` implementado com atraso no ponteiro, exibicao imediata no foco, `aria-describedby` no gatilho e dispensa por Escape. Encadeia os manipuladores proprios do gatilho em vez de substitui-los.
+- Componente `Menu` implementado sobre o State Motor: foco real nos itens, navegacao com salto de desabilitados, abertura no primeiro ou no ultimo item conforme a seta, busca por digitacao e fechamento por Tab ou Escape.
+- Componente `Select` implementado sobre o State Motor e o `Field`, com `role="combobox"`, listbox por `aria-activedescendant`, contratos controlado e nao controlado.
+- Componente `ComboBox` implementado com filtragem por substring, foco permanente no campo e aviso de lista vazia. Dispensa `FocusScope`, porque o foco nunca sai do campo.
+- `Menu` e `Select` devolvem o foco ao gatilho por conta propria, sem depender do `restoreFocus` do `FocusScope`.
+- Sombra do `Button` no hover reduzida de `0 5px 12px` a 32% para `0 3px 8px` a 22%, por avaliacao visual em uso.
+- Listas de `Select` e `ComboBox` passam a acompanhar a largura do gatilho, medida no layout antes da pintura.
+- `Select`, `ComboBox` e `Menu` ganham folga de 8px da borda da janela e teto de altura, para nao colarem nas extremidades nem ocuparem a tela inteira quando a lista e longa.
+- Hover dos itens de `Menu`, `Select` e `ComboBox` deixa o cinza e passa a `--pl-color-primary-container` com texto em `--pl-color-on-primary-container`, em 7.27:1.
+- Itens das listas ganham espacamento de `--pl-space-1` entre si.
+- Componente `Tabs` implementado sobre o State Motor, com ativacao automatica pelo teclado, percurso circular e salto de abas desabilitadas.
+- Componente `Accordion` implementado sobre o State Motor, com modo unico ou multiplo, regiao rotulada pelo gatilho e navegacao circular entre cabecalhos.
+- `Accordion` alinhado a referencia visual do Untitled UI, que e vertical: icone de circulo com mais e menos trocando o glifo em vez de chevron girando, propriedade `iconPosition` e variacao com e sem divisor.
+- Hover do cabecalho do `Accordion` deixa de pintar o fundo e passa a mudar apenas o texto e o icone, para `--pl-color-primary-active`, em 5.38:1 no claro e 11.04:1 no escuro.
+- Orientacao horizontal do `Accordion` removida. A referencia nao possui esse arranjo; o par vertical e horizontal pertence ao `Tabs`.
+- `Tabs` ganha `orientation`, com `aria-orientation` no tablist e eixo de setas acompanhando, seguindo os Vertical Tabs do Untitled UI.
+- Componente `Breadcrumb` implementado com `aria-current` no ultimo item e propriedade `as`, que recebe o componente de link da aplicacao conforme `ARCHITECTURE.md` secao 11.
+- Componente `Pagination` implementado com faixa reticenciada, primeira e ultima pagina sempre visiveis e limitacao da pagina informada.
+- Regra da faixa de paginacao corrigida: abaixo do limite em que a reticencia economiza espaco, todas as paginas aparecem.
 - Todos os seis componentes documentados no Showcase e exportados pela API publica.
 - Contraste dos novos componentes validado: preenchimento do `Progress`, marca do `Checkbox`, polegar do `Switch` e textos do `Alert`.
 - Borda dos controles de formulario mantem o neutro `--pl-color-border-strong` em repouso e passa a `--pl-color-primary` no hover, unico estado que altera a borda. Antes o hover usava o cinza escuro `--pl-color-text-tertiary`.
@@ -121,7 +140,7 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 
 ### Ainda nao implementado
 
-- Componentes das etapas 7 a 9 da ordem de implementacao.
+- Componentes da etapa 9 da ordem de implementacao.
 - Utilitarios de apresentacao previstos em `ARCHITECTURE.md` secao 9.1, como `formatarMoeda` e `formatarData`.
 - State Motors dos demais componentes complexos, como calendario e grade.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12.
@@ -216,14 +235,13 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
    - Motor puro em `src/hooks/useSelection/selection.ts`, testado isoladamente, conforme `ARCHITECTURE.md` secao 7.
    - Ligacao React fina em `useSelection`, pronta para `Select`, `ComboBox`, `Menu`, `ListBox` e `Table`.
 
-7. **Familia de overlays** — em andamento
-   - `Dialog` concluido, estabelecendo o padrao de adocao dos primitivos do React Aria.
-   - `Popover` concluido, trazendo o posicionamento com colisao.
-   - Faltam `Tooltip`, `Menu`, `Select` e `ComboBox`.
+7. **Familia de overlays** — concluida
+   - `Dialog`, `Popover`, `Tooltip`, `Menu`, `Select` e `ComboBox` implementados, testados, exportados e documentados no Showcase.
+   - `Select` e `ComboBox` sao a primeira aplicacao do State Motor da etapa 6.
 
-8. **Navegacao e composicao**
-   - Implementar `Tabs`, `Accordion`, `Breadcrumb` e `Pagination`.
-   - Definir composicao, gerenciamento de foco e comportamento de fechamento.
+8. **Navegacao e composicao** — concluida
+   - `Tabs`, `Accordion`, `Breadcrumb` e `Pagination` implementados, testados, exportados e documentados no Showcase.
+   - `Tabs` e `Accordion` sao o terceiro e o quarto consumidores do State Motor.
 
 9. **Tabelas e datas**
    - Implementar `Table` basico em HTML nativo, com ordenacao e selecao. `DataGrid` fica em decisao propria, com AG Grid como referencia.

@@ -1,0 +1,81 @@
+.accordion {
+  display: flex;
+  flex-direction: column;
+}
+
+/* O divisor acrescenta regra e folga; sem ele o item fica compacto. */
+.divided {
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  overflow: hidden;
+}
+
+.divided .item + .item {
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.divided .trigger {
+  padding: var(--pl-space-3) var(--pl-space-4);
+}
+
+.divided .panel {
+  padding: 0 var(--pl-space-4) var(--pl-space-4);
+}
+
+.heading {
+  margin: 0;
+  font: inherit;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+  width: 100%;
+  padding: var(--pl-space-2) 0;
+  border: 0;
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--pl-speed-1) var(--pl-ease);
+}
+
+.trigger:hover:not(:disabled),
+.trigger:hover:not(:disabled) .icon {
+  color: var(--pl-color-primary-active);
+}
+
+.trigger:disabled {
+  color: var(--pl-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.label {
+  flex: 1;
+}
+
+.iconLeft {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.icon {
+  flex: none;
+  color: var(--pl-color-text-tertiary);
+}
+
+
+.panel {
+  padding: 0 0 var(--pl-space-3);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
