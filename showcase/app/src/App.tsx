@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
-  Progress, Radio, RadioGroup, Spinner, Switch, Textarea,
+  Dialog, Popover, Progress, Radio, RadioGroup, Spinner, Switch, Textarea,
 } from '@plenus/index';
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
@@ -48,6 +48,9 @@ function ComponentDoc({
 export function App() {
   const [saved, setSaved] = useState(false);
   const [pagamento, setPagamento] = useState('pix');
+  const [dialogoAberto, setDialogoAberto] = useState(false);
+  const [popoverAberto, setPopoverAberto] = useState(false);
+  const gatilhoPopover = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="docs-layout">
@@ -74,6 +77,9 @@ export function App() {
           <a href="#alert">Alert</a>
           <a href="#progress">Progress</a>
           <a href="#spinner">Spinner</a>
+          <p className="rail-group">Overlays</p>
+          <a href="#dialog">Dialog</a>
+          <a href="#popover">Popover</a>
           <p className="rail-group">Data display</p>
           <a href="#badge">Badge</a>
           <a href="#avatar">Avatar</a>
@@ -331,6 +337,81 @@ export function App() {
               <Spinner size="lg" label="Carregando grande" />
             </div>
             <p className="doc-note">Sem rotulo, o indicador fica oculto para leitores de tela. Dentro do Button, quem anuncia o estado e o proprio botao.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="overlays"
+          description="Janela modal com foco preso, retorno de foco, trava de rolagem e dispensa por Escape."
+          id="dialog"
+          name="Dialog"
+          api={`<Dialog
+  open={aberto}
+  onClose={fechar}
+  title="Confirmar exclusao"
+  footer={<Button variant="danger">Excluir</Button>}
+>
+  Esta acao nao pode ser desfeita.
+</Dialog>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <div className="demo-row">
+              <Button variant="danger" onClick={() => setDialogoAberto(true)}>Excluir modulo</Button>
+            </div>
+            <Dialog
+              open={dialogoAberto}
+              onClose={() => setDialogoAberto(false)}
+              title="Confirmar exclusao"
+              description="O modulo e todos os seus registros serao removidos."
+              footer={
+                <>
+                  <Button variant="secondary" onClick={() => setDialogoAberto(false)}>Cancelar</Button>
+                  <Button variant="danger" onClick={() => setDialogoAberto(false)}>Excluir</Button>
+                </>
+              }
+            >
+              Esta acao nao pode ser desfeita.
+            </Dialog>
+            <p className="doc-note">O foco fica preso no dialogo, retorna ao gatilho ao fechar, a rolagem do fundo trava e o restante da pagina e escondido da tecnologia assistiva. Fecha por Escape, clique fora ou botao de fechar.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="overlays"
+          description="Painel ancorado a um gatilho, com inversao automatica quando falta espaco."
+          id="popover"
+          name="Popover"
+          api={`<Popover
+  open={aberto}
+  onClose={fechar}
+  triggerRef={gatilho}
+  placement="bottom start"
+  aria-label="Filtros"
+>
+  {conteudo}
+</Popover>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <div className="demo-row">
+              <Button ref={gatilhoPopover} variant="secondary" onClick={() => setPopoverAberto((atual) => !atual)}>
+                Filtros
+              </Button>
+            </div>
+            <Popover
+              open={popoverAberto}
+              onClose={() => setPopoverAberto(false)}
+              triggerRef={gatilhoPopover}
+              aria-label="Filtros"
+            >
+              <div className="input-grid">
+                <Checkbox label="Somente ativos" defaultChecked />
+                <Checkbox label="Com pendencia" />
+                <Button size="sm" onClick={() => setPopoverAberto(false)}>Aplicar</Button>
+              </div>
+            </Popover>
+            <p className="doc-note">Ancora no gatilho, inverte de lado quando falta espaco e reposiciona durante a rolagem. Fecha por Escape ou clique externo, devolvendo o foco ao gatilho. Nao e modal: o restante da pagina continua acessivel.</p>
           </div>
         </ComponentDoc>
 

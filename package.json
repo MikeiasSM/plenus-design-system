@@ -19,6 +19,8 @@
     "preview:showcase": "vite preview --config showcase/vite.config.ts"
   },
   "dependencies": {
+    "@react-aria/focus": "^3.22.1",
+    "@react-aria/overlays": "^3.32.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

@@ -92,6 +92,15 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - `Progress` suporta modo indeterminado, omitindo `aria-valuenow`, e limita o valor a faixa declarada.
 - `Spinner` extraido do `Button`, que passou a consumi-lo. Fica decorativo sem rotulo e assume `role="status"` quando recebe um.
 - `Spinner` redesenhado como trilho cinza com arco colorido, parametrizado por `--spinner-arc` e `--spinner-track`. O `Button` sobrescreve os dois para manter o indicador na cor da variante.
+- Primeiro State Motor criado em `src/hooks/useSelection/`: `selection.ts` concentra colecao, navegacao com salto de desabilitados, selecao simples e multipla, typeahead e sanitizacao, sem nenhuma dependencia de React.
+- `useSelection` liga o motor ao React, adicionando apenas o que o framework exige: guarda da chave focada, contrato controlado e nao controlado, e buffer temporizado da busca por digitacao.
+- Motor coberto por 20 testes. Nao exportado pela API publica ate que um componente externo precise dele.
+- Primeira adocao do React Aria: `@react-aria/focus` e `@react-aria/overlays` entram como dependencia, restritos aos primitivos admitidos em `CLAUDE.md`. Ambos externalizados no build, para nao serem embutidos no pacote.
+- Token `--pl-color-scrim` criado na camada semantica, substituindo o legado `--pl-scrim`.
+- Componente `Dialog` implementado com `FocusScope`, `useOverlay`, `usePreventScroll` e `ariaHideOutside`: foco preso, retorno de foco ao gatilho, trava de rolagem, fundo escondido da tecnologia assistiva e dispensa por Escape, clique externo ou botao de fechar.
+- `Dialog` renderizado em portal, exportado e documentado no Showcase.
+- Componente `Popover` implementado com `useOverlayPosition`, trazendo ancoragem ao gatilho, inversao por colisao e reposicionamento em rolagem. Nao e modal: o restante da pagina permanece acessivel.
+- `Popover` e a base de posicionamento que `Menu`, `Select` e `ComboBox` vao reaproveitar.
 - Todos os seis componentes documentados no Showcase e exportados pela API publica.
 - Contraste dos novos componentes validado: preenchimento do `Progress`, marca do `Checkbox`, polegar do `Switch` e textos do `Alert`.
 - Borda dos controles de formulario mantem o neutro `--pl-color-border-strong` em repouso e passa a `--pl-color-primary` no hover, unico estado que altera a borda. Antes o hover usava o cinza escuro `--pl-color-text-tertiary`.
@@ -112,10 +121,9 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 
 ### Ainda nao implementado
 
-- Componentes das etapas 6 a 9 da ordem de implementacao.
-- Hooks reutilizaveis em `src/hooks/`.
+- Componentes das etapas 7 a 9 da ordem de implementacao.
 - Utilitarios de apresentacao previstos em `ARCHITECTURE.md` secao 9.1, como `formatarMoeda` e `formatarData`.
-- State Motors para componentes complexos.
+- State Motors dos demais componentes complexos, como calendario e grade.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -135,6 +143,7 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
+- Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
 
 ## Excecoes de contraste aceitas
 
@@ -203,13 +212,14 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
    - `Checkbox`, `RadioGroup` com `Radio`, `Switch`, `Alert`, `Progress` e `Spinner` implementados sobre HTML nativo, sem overlay e sem State Motor.
    - `Button` consome `Spinner` em vez do indicador proprio.
 
-6. **State Motor de selecao**
-   - Construir o motor compartilhado de colecao, selecao, chave focada e typeahead, independente de JSX e testado isoladamente, conforme `ARCHITECTURE.md` secao 7.
-   - Antecede a etapa 7 porque define a forma de `Select`, `ComboBox`, `Menu`, `ListBox` e `Table`.
+6. **State Motor de selecao** — concluida
+   - Motor puro em `src/hooks/useSelection/selection.ts`, testado isoladamente, conforme `ARCHITECTURE.md` secao 7.
+   - Ligacao React fina em `useSelection`, pronta para `Select`, `ComboBox`, `Menu`, `ListBox` e `Table`.
 
-7. **Familia de overlays**
-   - Implementar `Dialog`, `Popover`, `Tooltip`, `Menu`, `Select` e `ComboBox` juntos, compartilhando os primitivos de foco, posicionamento e trava de rolagem.
-   - Primeiro uso dos primitivos do React Aria admitidos em `CLAUDE.md`.
+7. **Familia de overlays** — em andamento
+   - `Dialog` concluido, estabelecendo o padrao de adocao dos primitivos do React Aria.
+   - `Popover` concluido, trazendo o posicionamento com colisao.
+   - Faltam `Tooltip`, `Menu`, `Select` e `ComboBox`.
 
 8. **Navegacao e composicao**
    - Implementar `Tabs`, `Accordion`, `Breadcrumb` e `Pagination`.

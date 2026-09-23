@@ -1,0 +1,99 @@
+.underlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pl-space-4);
+  background: var(--pl-color-scrim);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+  width: 100%;
+  max-height: calc(100vh - var(--pl-space-7));
+  overflow-y: auto;
+  padding: var(--pl-space-5);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-3);
+}
+
+.dialog:focus-visible {
+  outline: none;
+}
+
+.sm {
+  max-width: 400px;
+}
+
+.md {
+  max-width: 560px;
+}
+
+.lg {
+  max-width: 760px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+}
+
+.title {
+  margin: 0;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-heading);
+  font-size: var(--pl-type-headline-medium-size);
+  font-weight: var(--pl-type-headline-medium-weight);
+  line-height: var(--pl-type-headline-medium-line-height);
+}
+
+.close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: transparent;
+  color: var(--pl-color-text-secondary);
+  cursor: pointer;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+.close:hover {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+}
+
+.description {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.body {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--pl-space-2);
+  margin-top: var(--pl-space-2);
+}

@@ -18,6 +18,7 @@
   --pl-color-text-tertiary: #6E7175;
   --pl-color-ink: #26282A;
   --pl-color-on-ink: #E9EAEB;
+  --pl-color-scrim: rgba(16, 17, 19, 0.38);
 
   --pl-color-success: var(--pl-status-green);
   --pl-color-success-container: #E8F6EF;
@@ -56,6 +57,7 @@
   --pl-color-text-tertiary: #8E9297;
   --pl-color-ink: #101113;
   --pl-color-on-ink: #E9EAEB;
+  --pl-color-scrim: rgba(0, 0, 0, 0.62);
 
   --pl-color-success: #4FBE8B;
   --pl-color-success-container: #16281F;
