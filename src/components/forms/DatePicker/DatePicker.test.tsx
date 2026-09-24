@@ -1,4 +1,4 @@
-import { CalendarDate } from '@internationalized/date';
+import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
 
@@ -50,6 +50,7 @@ describe('DatePicker', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 12));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -97,7 +98,43 @@ describe('DatePicker', () => {
     const grade = screen.getByRole('grid');
     fireEvent.keyDown(grade, { key: 'ArrowRight' });
     fireEvent.keyDown(grade, { key: 'Enter' });
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 10));
+  });
+
+  it('nao aplica nada antes de confirmar', () => {
+    const mudou = vi.fn();
+    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
+
+    expect(mudou).not.toHaveBeenCalled();
+  });
+
+  it('descarta a escolha ao cancelar', () => {
+    const mudou = vi.fn();
+    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(mudou).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Vencimento')).toHaveValue('09/03/2026');
+  });
+
+  it('leva o calendario para hoje sem aplicar', () => {
+    const mudou = vi.fn();
+    const hoje = today(getLocalTimeZone());
+    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hoje' }));
+    expect(mudou).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith(hoje);
   });
 });

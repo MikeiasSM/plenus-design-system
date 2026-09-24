@@ -1,10 +1,11 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
+import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
 import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
+import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
-import { HourAndMinute } from '../TimePicker/HourAndMinute';
+import { TimeSlots } from '../TimePicker/TimeSlots';
 import { Field } from '../Field';
 import styles from './DateTimePicker.module.css';
 
@@ -21,7 +22,7 @@ export interface DateTimePickerProps {
   locale?: string;
   max?: CalendarDate;
   min?: CalendarDate;
-  minuteStep?: number;
+  step?: number;
   onValueChange?: (value?: CalendarDateTime) => void;
   placeholder?: string;
   required?: boolean;
@@ -80,7 +81,7 @@ export function DateTimePicker({
   locale = 'pt-BR',
   max,
   min,
-  minuteStep = 5,
+  step = 30,
   onValueChange,
   placeholder = 'dd/mm/aaaa hh:mm',
   required = false,
@@ -95,6 +96,13 @@ export function DateTimePicker({
   const [texto, setTexto] = useState(() => paraTexto(defaultValue));
   const [digitando, setDigitando] = useState(false);
   const escolhido = value ?? internalValue;
+  const [rascunho, setRascunho] = useState(escolhido);
+
+  useEffect(() => {
+    if (open) {
+      setRascunho(escolhido);
+    }
+  }, [open]);
   const exibido = digitando ? texto : paraTexto(escolhido);
 
   function definir(proximo?: CalendarDateTime) {
@@ -105,14 +113,16 @@ export function DateTimePicker({
     onValueChange?.(proximo);
   }
 
-  function combinarData(data: CalendarDate) {
-    definir(new CalendarDateTime(data.year, data.month, data.day, escolhido?.hour ?? 0, escolhido?.minute ?? 0));
+  function rascunharData(data: CalendarDate) {
+    setRascunho(new CalendarDateTime(data.year, data.month, data.day, rascunho?.hour ?? 0, rascunho?.minute ?? 0));
   }
 
-  function combinarHora(hora: Time) {
-    const base = escolhido ?? new CalendarDateTime(new Date().getFullYear(), 1, 1);
+  // Sem data escolhida, a hora se apoia em hoje: inventar outra data
+  // faria o campo exibir um dia que o usuario nunca escolheu.
+  function rascunharHora(hora: Time) {
+    const base = rascunho ?? today(getLocalTimeZone());
 
-    definir(new CalendarDateTime(base.year, base.month, base.day, hora.hour, hora.minute));
+    setRascunho(new CalendarDateTime(base.year, base.month, base.day, hora.hour, hora.minute));
   }
 
   function fechar(devolverFoco = true) {
@@ -211,27 +221,49 @@ export function DateTimePicker({
                 role="dialog"
                 style={positionProps.style}
               >
-                <Calendar
-                  autoFocus
-                  isDateUnavailable={isDateUnavailable}
-                  locale={locale}
-                  max={max}
-                  min={min}
-                  onSelect={(data) => {
-                    combinarData(data);
-                    setDigitando(false);
-                  }}
-                  value={escolhido && new CalendarDate(escolhido.year, escolhido.month, escolhido.day)}
-                />
-                <HourAndMinute
-                  baseId={(providedId ?? 'datetime') + '-hora'}
-                  minuteStep={minuteStep}
-                  onChange={(hora) => {
-                    combinarHora(hora);
-                    setDigitando(false);
-                  }}
-                  value={escolhido && new Time(escolhido.hour, escolhido.minute)}
-                />
+                <div className={styles.columns}>
+                  <Calendar
+                    autoFocus
+                    isDateUnavailable={isDateUnavailable}
+                    locale={locale}
+                    max={max}
+                    min={min}
+                    onSelect={rascunharData}
+                    value={rascunho && new CalendarDate(rascunho.year, rascunho.month, rascunho.day)}
+                  />
+                  <TimeSlots
+                    baseId={(providedId ?? 'datetime') + '-hora'}
+                    onChange={rascunharHora}
+                    step={step}
+                    value={rascunho && new Time(rascunho.hour, rascunho.minute)}
+                  />
+                </div>
+                <div className={styles.footer}>
+                  <Button
+                    onClick={() => rascunharData(today(getLocalTimeZone()))}
+                    size="sm"
+                    variant="ghost"
+                    type="button"
+                  >
+                    Hoje
+                  </Button>
+                  <div className={styles.actions}>
+                    <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        definir(rascunho);
+                        setDigitando(false);
+                        fechar();
+                      }}
+                      size="sm"
+                      type="button"
+                    >
+                      Aplicar
+                    </Button>
+                  </div>
+                </div>
               </div>,
               document.body,
             )}

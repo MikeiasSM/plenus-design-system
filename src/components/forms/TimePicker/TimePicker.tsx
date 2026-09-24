@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
 import { Field } from '../Field';
-import { HourAndMinute, doisDigitos } from './HourAndMinute';
+import { TimeSlots, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 
 export type TimePickerSize = 'sm' | 'md';
@@ -17,16 +17,12 @@ export interface TimePickerProps {
   label?: string;
   max?: Time;
   min?: Time;
-  minuteStep?: number;
+  step?: number;
   onValueChange?: (value?: Time) => void;
   placeholder?: string;
   required?: boolean;
   size?: TimePickerSize;
   value?: Time;
-}
-
-export function paraTextoDeHora(hora?: Time) {
-  return hora ? doisDigitos(hora.hour) + ':' + doisDigitos(hora.minute) : '';
 }
 
 /** Aplica a mascara hora:minuto conforme o usuario digita. */
@@ -55,7 +51,7 @@ export function TimePicker({
   label,
   max,
   min,
-  minuteStep = 5,
+  step = 30,
   onValueChange,
   placeholder = 'hh:mm',
   required = false,
@@ -176,15 +172,16 @@ export function TimePicker({
                 role="dialog"
                 style={positionProps.style}
               >
-                <HourAndMinute
+                <TimeSlots
                   baseId={providedId ?? 'hora'}
                   max={max}
                   min={min}
-                  minuteStep={minuteStep}
                   onChange={(hora) => {
                     definir(hora);
                     setDigitando(false);
+                    fechar();
                   }}
+                  step={step}
                   value={escolhido}
                 />
               </div>,

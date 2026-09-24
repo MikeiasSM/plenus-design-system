@@ -1,8 +1,9 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import type { CalendarDate } from '@internationalized/date';
+import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
+import { Button } from '../../actions/Button';
 import { Field } from '../Field';
 import { Calendar } from './Calendar';
 import styles from './DatePicker.module.css';
@@ -52,6 +53,13 @@ export function DatePicker({
   const escolhido = value ?? internalValue;
   const [texto, setTexto] = useState(() => (escolhido ? formatarEntradaData(escolhido.toString().split('-').reverse().join('')) : ''));
   const [digitando, setDigitando] = useState(false);
+  const [rascunho, setRascunho] = useState(escolhido);
+
+  useEffect(() => {
+    if (open) {
+      setRascunho(escolhido);
+    }
+  }, [open]);
 
   const exibido = digitando
     ? texto
@@ -169,13 +177,30 @@ export function DatePicker({
                   locale={locale}
                   max={max}
                   min={min}
-                  onSelect={(data) => {
-                    definir(data);
-                    setDigitando(false);
-                    fechar();
-                  }}
-                  value={escolhido}
+                  onSelect={setRascunho}
+                  value={rascunho}
                 />
+                <div className={styles.footer}>
+                  <Button onClick={() => setRascunho(today(getLocalTimeZone()))} size="sm" variant="ghost" type="button">
+                    Hoje
+                  </Button>
+                  <div className={styles.actions}>
+                    <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        definir(rascunho);
+                        setDigitando(false);
+                        fechar();
+                      }}
+                      size="sm"
+                      type="button"
+                    >
+                      Aplicar
+                    </Button>
+                  </div>
+                </div>
               </div>,
               document.body,
             )}

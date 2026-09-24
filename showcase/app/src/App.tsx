@@ -318,7 +318,7 @@ export function App() {
             <h3>Hora e data com hora</h3>
             <div className="demo-grid">
               <TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />
-              <TimePicker label="De minuto em minuto" minuteStep={1} />
+              <TimePicker label="De 15 em 15 minutos" step={15} />
               <TimePicker label="Com erro" error="Informe a hora." />
             </div>
             <DateTimePicker label="Agendamento" value={agendamento} onValueChange={setAgendamento} />

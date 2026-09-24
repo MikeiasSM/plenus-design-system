@@ -76,11 +76,36 @@
 .panel {
   z-index: 95;
   display: flex;
-  align-items: flex-start;
-  gap: var(--pl-space-3);
+  flex-direction: column;
   padding: var(--pl-space-3);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   box-shadow: var(--pl-sh-2);
+}
+
+.columns {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-3);
+}
+
+.columns > *:last-child {
+  padding-left: var(--pl-space-3);
+  border-left: 1px solid var(--pl-color-border);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+  margin-top: var(--pl-space-3);
+  padding-top: var(--pl-space-3);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.actions {
+  display: flex;
+  gap: var(--pl-space-2);
 }

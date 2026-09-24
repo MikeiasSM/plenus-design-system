@@ -191,3 +191,18 @@
   border-color: var(--pl-color-primary);
   box-shadow: 0 0 0 2px var(--pl-color-primary-container);
 }
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+  margin-top: var(--pl-space-3);
+  padding-top: var(--pl-space-3);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.actions {
+  display: flex;
+  gap: var(--pl-space-2);
+}

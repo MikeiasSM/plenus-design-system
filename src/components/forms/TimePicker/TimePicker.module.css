@@ -76,7 +76,6 @@
 .panel {
   z-index: 95;
   display: flex;
-  gap: var(--pl-space-2);
   padding: var(--pl-space-2);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
@@ -84,11 +83,6 @@
   box-shadow: var(--pl-sh-2);
 }
 
-.column {
-  width: 4rem;
-}
-
-.columns {
-  display: flex;
-  gap: var(--pl-space-2);
+.slots {
+  width: 7rem;
 }

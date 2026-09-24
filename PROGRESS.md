@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-271 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
+275 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -174,8 +174,11 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Formatar `CalendarDate` exige converter com o fuso local, nao com UTC. Convertendo com UTC, o cabecalho do calendario exibia o mes anterior em qualquer fuso negativo: meia-noite UTC do dia primeiro e ainda dia 28 do mes anterior no horario local. O teste pegou isso.
 - Cada dia anuncia a data por extenso, nao apenas o numero. Alem de ser o que o leitor de tela precisa, resolve a ambiguidade dos dias de meses vizinhos, que repetem o mesmo numero na mesma grade.
 - `TimePicker` **nao** usa `input type="time"`. O seletor nativo foi implementado e descartado: ele segue a localidade do sistema operacional, nao a da aplicacao, e exibia 12 horas com AM/PM num contexto pt-BR; seu painel tambem nao aceita estilo, ficando fora do Design System por construcao.
-- O painel de hora sao duas colunas de listbox, hora e minuto, em `HourAndMinute`, sobre a mesma listagem compartilhada de `List`, `Select` e `ComboBox`. `minuteStep` define o passo, e `min` e `max` desabilitam o que esta fora da faixa.
-- `DateTimePicker` e um campo unico, com data e hora na mesma mascara, e um painel unico com o calendario e as colunas de hora. Escolher a data preserva a hora e vice-versa; quando a data vem antes da hora, assume meia-noite.
+- O painel de hora e **uma coluna de horarios**, nao duas colunas de hora e minuto. E o que o `DateTimePickerDemo` do Untitled UI faz: uma lista rolavel de horarios ao lado do calendario, de trinta em trinta minutos por padrao. A primeira versao, com colunas separadas de hora e minuto, foi descartada por divergir da referencia.
+- Os horarios saem de `gerarHorarios`, entre `min` e `max`, com o passo de `step`. A lista corre sobre a listagem compartilhada de `List`, `Select` e `ComboBox`.
+- `DateTimePicker` e um campo unico, com data e hora na mesma mascara, e um painel unico com o calendario a esquerda e os horarios a direita.
+- O painel trabalha sobre um **rascunho**: nada e aplicado ate o usuario confirmar, conforme o rodape de cancelar e aplicar da referencia. `Hoje` leva o calendario para a data corrente sem confirmar.
+- Escolher hora sem data escolhida apoia-se em **hoje**. A primeira versao inventava o dia primeiro de janeiro, e o campo exibia uma data que o usuario nunca havia escolhido.
 - Tipografia: `type.title` pertence a Montserrat, nao a Poppins. O `Card` nascera errado e foi corrigido. Poppins fica restrita a display e headline, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
 - Tipografia: valores numericos e monetarios em tabela usam `type.data-value` em JetBrains Mono, pela mesma referencia. `Table.Column` e `Table.Cell` ganharam `numeric`, que aplica a familia, o tamanho, o peso e o alinhamento a direita.
 - Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.

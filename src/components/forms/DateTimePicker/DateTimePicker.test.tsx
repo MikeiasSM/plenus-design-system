@@ -1,4 +1,4 @@
-import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
+import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DateTimePicker } from './DateTimePicker';
 import { TimePicker } from '../TimePicker';
@@ -16,8 +16,7 @@ describe('DateTimePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
     expect(screen.getByRole('grid')).toBeInTheDocument();
-    expect(screen.getByRole('listbox', { name: 'Hora' })).toBeInTheDocument();
-    expect(screen.getByRole('listbox', { name: 'Minuto' })).toBeInTheDocument();
+    expect(screen.getByRole('listbox', { name: 'Horário' })).toBeInTheDocument();
   });
 
   it('escolhe a hora no painel preservando a data', () => {
@@ -27,7 +26,8 @@ describe('DateTimePicker', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
-    fireEvent.click(screen.getByRole('option', { name: '08' }));
+    fireEvent.click(screen.getByRole('option', { name: '08:30' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 8, 30));
   });
@@ -40,6 +40,7 @@ describe('DateTimePicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 12, 14, 30));
   });
@@ -101,9 +102,9 @@ describe('TimePicker', () => {
     expect(screen.getByLabelText('Inicio')).toHaveAttribute('type', 'text');
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
-    fireEvent.click(screen.getByRole('option', { name: '14' }));
+    fireEvent.click(screen.getByRole('option', { name: '14:30' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new Time(14, 45));
+    expect(mudou).toHaveBeenLastCalledWith(new Time(14, 30));
   });
 
   it('desabilita as horas fora da faixa', () => {
@@ -111,8 +112,10 @@ describe('TimePicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
 
-    expect(screen.getByRole('option', { name: '07' })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('option', { name: '08' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.queryByRole('option', { name: '07:30' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '08:00' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '18:00' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: '18:30' })).not.toBeInTheDocument();
   });
 
   it('expoe erro de forma acessivel', () => {
@@ -121,5 +124,17 @@ describe('TimePicker', () => {
     const campo = screen.getByLabelText('Inicio');
     expect(campo).toHaveAttribute('aria-invalid', 'true');
     expect(campo).toHaveAccessibleDescription('Informe a hora.');
+  });
+
+  it('apoia a hora em hoje quando ainda nao ha data', () => {
+    const mudou = vi.fn();
+    const hoje = today(getLocalTimeZone());
+    render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('option', { name: '09:00' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(hoje.year, hoje.month, hoje.day, 9, 0));
   });
 });
