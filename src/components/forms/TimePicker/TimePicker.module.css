@@ -113,3 +113,8 @@
   max-height: 14rem;
   font-variant-numeric: tabular-nums;
 }
+
+.slotList [role='option'] {
+  justify-content: center;
+  padding-inline: var(--pl-space-2);
+}
