@@ -39,9 +39,9 @@ A situação indica a existência do componente, não a cobertura integral do pa
 | `Checkbox` | Escolha binária independente. | Disponível |
 | `RadioGroup` com `Radio` | Escolha única entre opções sempre visíveis. | Disponível |
 | `Switch` | Alternância de um estado ativo. | Disponível |
-| `DatePicker` | Entrada de data por calendário. | Previsto |
-| `TimePicker` | Entrada de hora. | Previsto |
-| `DateTimePicker` | Entrada de data e hora combinadas. | Previsto |
+| `DatePicker` | Entrada de data, digitada ou escolhida em calendário. | Disponível |
+| `TimePicker` | Entrada de hora. | Disponível |
+| `DateTimePicker` | Entrada de data e hora combinadas. | Disponível |
 
 ## 4. Listagem e escolha
 

@@ -1,8 +1,10 @@
 import { useRef, useState, type ReactNode } from 'react';
+import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  Card, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea, Tooltip,
+  Card, DatePicker, DateTimePicker, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
+  TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
 
 const estadosBrasileiros = [
@@ -87,6 +89,8 @@ export function App() {
   const [equipeEscolhida, setEquipeEscolhida] = useState<readonly string[]>([]);
   const [ordemEquipe, setOrdemEquipe] = useState<OrdemTabela>({ column: 'nome', direction: 'ascending' });
   const [paginaEquipe, setPaginaEquipe] = useState(1);
+  const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
+  const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
   const equipeOrdenada = [...equipe].sort((a, b) => {
     const campo = ordemEquipe.column === 'status' ? 'status' : 'nome';
     const comparacao = a[campo].localeCompare(b[campo], 'pt-BR');
@@ -111,6 +115,7 @@ export function App() {
           <a href="#input-password">InputPassword</a>
           <a href="#input-currency">InputCurrency</a>
           <a href="#textarea">Textarea</a>
+          <a href="#datepicker">DatePicker</a>
           <a href="#select">Select</a>
           <a href="#combobox">ComboBox</a>
           <a href="#checkbox">Checkbox</a>
@@ -269,6 +274,59 @@ export function App() {
               <Textarea label="Compacto" size="sm" rows={2} placeholder="Nota rapida" />
             </div>
             <p className="doc-note">O campo compartilha rotulo, ajuda, erro e contador com os demais campos de formulario. O redimensionamento e apenas vertical e some quando desabilitado.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
+          description="Entrada de data, hora e data com hora, com selecao em calendario."
+          id="datepicker"
+          name="DatePicker"
+          api={`<DatePicker
+  label="Vencimento"
+  value={data}
+  onValueChange={setData}
+  min={hoje}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Data</h3>
+            <div className="demo-grid">
+              <DatePicker label="Vencimento" value={dataEscolhida} onValueChange={setDataEscolhida} />
+              <DatePicker label="Com ajuda" hint="Digite ou escolha no calendario." />
+              <DatePicker label="Com erro" error="Informe o vencimento." />
+              <DatePicker label="Desabilitado" disabled value={new CalendarDate(2026, 3, 9)} />
+            </div>
+            <p className="doc-note">Digite com barras, tracos, pontos ou espacos: a mascara se encarrega do resto. A seta para baixo abre o calendario; nele as setas andam por dia e semana, PageUp e PageDown trocam o mes, com Shift trocam o ano, Enter escolhe e Escape fecha devolvendo o foco. Cada dia anuncia a data por extenso.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Faixa permitida e dias indisponiveis</h3>
+            <div className="demo-grid">
+              <DatePicker
+                label="A partir de hoje"
+                min={new CalendarDate(2026, 3, 1)}
+                max={new CalendarDate(2026, 3, 31)}
+              />
+              <DatePicker
+                label="Sem fins de semana"
+                isDateUnavailable={(data) => [0, 6].includes(data.toDate('UTC').getUTCDay())}
+              />
+            </div>
+            <p className="doc-note">Os limites e o predicado desabilitam os dias na grade e impedem que o teclado passe deles.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Hora e data com hora</h3>
+            <div className="demo-grid">
+              <TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />
+              <TimePicker label="Com erro" error="Informe a hora." />
+            </div>
+            <DateTimePicker label="Agendamento" value={agendamento} onValueChange={setAgendamento} />
+            <p className="doc-note">
+              {agendamento
+                ? `Escolhido: ${formatarData(agendamento.toString().slice(0, 10), { formato: 'longo' })} as ${formatarHora(agendamento.toString().slice(11, 16))}`
+                : 'Nada escolhido ainda.'}
+            </p>
+            <p className="doc-note">A data mantem a hora ja informada e a hora mantem a data; quando a data vem primeiro, a hora comeca em meia-noite. O texto acima usa os formatadores de apresentacao formatarData e formatarHora.</p>
           </div>
         </ComponentDoc>
 

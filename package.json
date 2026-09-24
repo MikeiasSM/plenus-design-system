@@ -19,6 +19,7 @@
     "preview:showcase": "vite preview --config showcase/vite.config.ts"
   },
   "dependencies": {
+    "@internationalized/date": "^3.12.4",
     "@react-aria/focus": "^3.22.1",
     "@react-aria/overlays": "^3.32.1",
     "react": "^19.1.0",

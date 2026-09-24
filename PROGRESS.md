@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-227 testes em 35 arquivos. Build da biblioteca e do Showcase validados.
+268 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -21,11 +21,12 @@ Outros modulos:
 - `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion` e `List`. Alem das chaves escolhidas, retem os itens, para que a escolha sobreviva ao item sair da colecao filtrada.
 - `src/components/data-display/List/useListing` e `ListingOptions` — a listagem compartilhada: colecao, filtro, teclado, ARIA, marcacao e virtualizacao. **Internos**, nao exportados. Servem `List`, `Select` e `ComboBox`.
 - `src/components/data-display/List/useVirtualWindow` — janela virtual da listagem. **Interno**, pertence ao componente conforme `ARCHITECTURE.md` secao 8.
+- `src/hooks/useCalendar` — State Motor de calendario, com `calendar.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `DatePicker` e, por ele, `DateTimePicker`.
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/utils/formatters` — `formatarEntradaDecimal` e `formatarEntradaMonetaria`. **Nao exportados** pela API publica.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`. Todas externalizadas no build.
 
 ### Decisoes tomadas
 
@@ -166,6 +167,17 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
 - `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
 
+### Datas
+
+- `@internationalized/date` entrou como dependencia, conforme os primitivos admitidos em `CLAUDE.md`, e e externalizada no build. Os hooks `useCalendar` e `useDatePicker` do React Aria permanecem vetados: o comportamento e o deles, a maquina de estado e nossa.
+- O motor de calendario vive em `src/hooks/useCalendar/calendar.ts`, puro e sem React, conforme `ARCHITECTURE.md` secao 7. Ele monta a grade do mes, aplica limites e resolve a navegacao por teclado.
+- Formatar `CalendarDate` exige converter com o fuso local, nao com UTC. Convertendo com UTC, o cabecalho do calendario exibia o mes anterior em qualquer fuso negativo: meia-noite UTC do dia primeiro e ainda dia 28 do mes anterior no horario local. O teste pegou isso.
+- Cada dia anuncia a data por extenso, nao apenas o numero. Alem de ser o que o leitor de tela precisa, resolve a ambiguidade dos dias de meses vizinhos, que repetem o mesmo numero na mesma grade.
+- `TimePicker` usa `input type="time"` nativo. O seletor de hora do navegador ja e acessivel, localizado e conhecido pelo usuario; um seletor proprio seria trabalho sem ganho, contra o mandamento 8.
+- `DateTimePicker` compoe `DatePicker` e `TimePicker` e detem o valor combinado. Os filhos sao controlados por ele, para que a troca de data preserve a hora e vice-versa. Quando a data vem antes da hora, assume meia-noite.
+- Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.
+- Pendente do Untitled UI: intervalo de datas, atalhos de periodo, visao de dois meses e rodape com cancelar e aplicar. Nenhum deles foi pedido por um cenario concreto ate agora.
+
 ### Familia de tabela: Table, Card e DataGrid
 
 Levantamento das referencias feito antes da implementacao. O Untitled UI guia visual **e** funcionalidade; a arquitetura permanece do Design System.
@@ -241,10 +253,11 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - Busca acentuada corrigida em `src/utils/textSearch`, alcancando o typeahead de `Select` e `Menu` e o filtro do `ComboBox`. Concluida.
    - Motor de selecao estendido com ancora, faixa por Shift, marcar todos e estado indeterminado, servindo `List.SelectAll`. Concluida.
 
-10. **Tabelas e datas** — em andamento
+10. **Tabelas e datas** — concluida, exceto o `DataGrid`
    - `Table` implementado em HTML nativo, com ordenacao, selecao nos tres modos, densidade, zebra, divisor, cabecalho fixo, descarte de colunas, vazio e carregamento. `Card` criado como superficie que o envolve. Ambos testados, exportados e documentados no Showcase.
    - `DataGrid` fica em decisao propria, com AG Grid como referencia. Escopo levantado, sem data.
-   - Implementar `DatePicker`, `TimePicker` e `DateTimePicker` sobre `@internationalized/date`, junto com o formatador de apresentacao previsto em `ARCHITECTURE.md` secao 9.1.
+   - `DatePicker`, `TimePicker` e `DateTimePicker` implementados sobre `@internationalized/date`, com State Motor de calendario proprio, testes, exportacao publica e Showcase.
+   - `formatarData` e `formatarHora` criados conforme `ARCHITECTURE.md` secao 9.1, e exportados pela API publica. `formatarEntradaData` e `lerEntradaData` acompanham as mascaras de entrada ja existentes.
 
 11. **Showcase como consumidor**
    - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
