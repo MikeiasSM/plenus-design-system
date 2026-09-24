@@ -327,7 +327,7 @@ export function App() {
                 ? `Escolhido: ${formatarData(agendamento.toString().slice(0, 10), { formato: 'longo' })} as ${formatarHora(agendamento.toString().slice(11, 16))}`
                 : 'Nada escolhido ainda.'}
             </p>
-            <p className="doc-note">Campo unico para data e hora, com calendario e colunas de hora no mesmo painel. A hora segue 24 horas em qualquer sistema, porque o seletor e do proprio Design System e nao o do navegador. Escolher a data preserva a hora e vice-versa; quando a data vem primeiro, a hora comeca em meia-noite. O texto acima usa formatarData e formatarHora.</p>
+            <p className="doc-note">Campo unico para data e hora, com calendario e coluna de horarios no mesmo painel, e um campo hh:mm para informar a hora sem percorrer a lista. A hora segue 24 horas em qualquer sistema, porque o seletor e do proprio Design System e nao o do navegador. Escolher a data preserva a hora e vice-versa; quando a data vem primeiro, a hora comeca em meia-noite. O botao Agora preenche data e hora correntes. Nada e aplicado ate confirmar. O texto acima usa formatarData e formatarHora.</p>
           </div>
         </ComponentDoc>
 

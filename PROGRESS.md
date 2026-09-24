@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-278 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
+280 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -177,6 +177,8 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - O painel de hora e **uma coluna de horarios**, nao duas colunas de hora e minuto. E o que o `DateTimePickerDemo` do Untitled UI faz: uma lista rolavel de horarios ao lado do calendario, de trinta em trinta minutos por padrao. A primeira versao, com colunas separadas de hora e minuto, foi descartada por divergir da referencia.
 - Os horarios saem de `gerarHorarios`, entre `min` e `max`, com o passo de `step`. Sem limites, a lista cobre o dia inteiro: da meia-noite as 23h30 no passo padrao. A lista corre sobre a listagem compartilhada de `List`, `Select` e `ComboBox`, com altura limitada por CSS e sem virtualizacao, que para algumas dezenas de itens so traria risco.
 - O painel de horarios tem um campo `hh:mm` proprio, para informar a hora sem percorrer a lista.
+- A hora digitada so e aplicada com os quatro digitos. Aceitar `18:4` como `18:04`, por ser tecnicamente valido, fixava o valor no terceiro digito e impedia completar a dezena do minuto. Vale para o campo do `TimePicker`, o do painel e o do `DateTimePicker`.
+- O rodape do `DateTimePicker` traz **Agora**, com data e hora correntes, e nao `Hoje`: num campo que carrega horario, oferecer so o dia deixaria a hora por conta do usuario sem necessidade.
 - `DateTimePicker` e um campo unico, com data e hora na mesma mascara, e um painel unico com o calendario a esquerda e os horarios a direita.
 - O painel trabalha sobre um **rascunho**: nada e aplicado ate o usuario confirmar, conforme o rodape de cancelar e aplicar da referencia. `Hoje` leva o calendario para a data corrente sem confirmar.
 - Escolher hora sem data escolhida apoia-se em **hoje**. A primeira versao inventava o dia primeiro de janeiro, e o campo exibia uma data que o usuario nunca havia escolhido.

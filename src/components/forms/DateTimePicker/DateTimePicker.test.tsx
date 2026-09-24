@@ -1,4 +1,12 @@
-import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
+import {
+  CalendarDate,
+  CalendarDateTime,
+  Time,
+  getLocalTimeZone,
+  now,
+  toCalendarDateTime,
+  today,
+} from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DateTimePicker } from './DateTimePicker';
 import { TimePicker } from '../TimePicker';
@@ -158,5 +166,37 @@ describe('TimePicker', () => {
     fireEvent.change(screen.getByLabelText('Horário em horas e minutos'), { target: { value: '2147' } });
 
     expect(mudou).toHaveBeenLastCalledWith(new Time(21, 47));
+  });
+
+  it('nao fixa a hora antes dos quatro digitos', () => {
+    const mudou = vi.fn();
+    render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
+
+    const campo = screen.getByLabelText('Agendamento');
+
+    fireEvent.change(campo, { target: { value: '09032026184' } });
+    expect(campo).toHaveValue('09/03/2026 18:4');
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 0, 0));
+
+    fireEvent.change(campo, { target: { value: '090320261840' } });
+    expect(campo).toHaveValue('09/03/2026 18:40');
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 18, 40));
+  });
+
+  it('preenche data e hora correntes pelo Agora', () => {
+    const mudou = vi.fn();
+    render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agora' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    const agora = toCalendarDateTime(now(getLocalTimeZone()));
+    const aplicado = mudou.mock.lastCall?.[0] as CalendarDateTime;
+
+    expect(aplicado.day).toBe(agora.day);
+    expect(aplicado.hour).toBe(agora.hour);
+    expect(aplicado.minute).toBe(agora.minute);
+    expect(aplicado.second).toBe(0);
   });
 });

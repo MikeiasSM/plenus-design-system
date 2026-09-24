@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
+import {
+  CalendarDate,
+  CalendarDateTime,
+  Time,
+  getLocalTimeZone,
+  now,
+  toCalendarDateTime,
+  today,
+} from '@internationalized/date';
 import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
@@ -54,10 +62,13 @@ export function lerEntradaDataHora(valor: string) {
     return undefined;
   }
 
-  const [h, m] = hora.split(':').map(Number);
-  const horaValida = Number.isInteger(h) && Number.isInteger(m) && h < 24 && m < 60;
+  // A hora so conta com os quatro digitos: aceitar 18:4 como 18:04 fixaria
+  // o valor no terceiro digito e impediria completar a dezena do minuto.
+  const completa = /^\d{2}:\d{2}$/.test(hora);
+  const [h, m] = completa ? hora.split(':').map(Number) : [0, 0];
+  const valida = completa && h < 24 && m < 60;
 
-  return new CalendarDateTime(dia.year, dia.month, dia.day, horaValida ? h : 0, horaValida ? m : 0);
+  return new CalendarDateTime(dia.year, dia.month, dia.day, valida ? h : 0, valida ? m : 0);
 }
 
 function paraTexto(valor?: CalendarDateTime) {
@@ -240,12 +251,12 @@ export function DateTimePicker({
                 </div>
                 <div className={styles.footer}>
                   <Button
-                    onClick={() => rascunharData(today(getLocalTimeZone()))}
+                    onClick={() => setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }))}
                     size="sm"
                     variant="ghost"
                     type="button"
                   >
-                    Hoje
+                    Agora
                   </Button>
                   <div className={styles.actions}>
                     <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">

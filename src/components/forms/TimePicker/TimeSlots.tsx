@@ -27,14 +27,19 @@ export function formatarEntradaHora(valor: string) {
   return digitos.length <= 2 ? digitos : digitos.slice(0, 2) + ':' + digitos.slice(2);
 }
 
+/**
+ * So devolve a hora quando os quatro digitos foram informados. Aceitar
+ * 18:4 como 18:04 fixaria o valor no terceiro digito e impediria completar
+ * a dezena do minuto.
+ */
 export function lerEntradaHora(valor: string) {
-  const [hora, minuto] = valor.split(':').map(Number);
-
-  if (!Number.isInteger(hora) || !Number.isInteger(minuto) || hora > 23 || minuto > 59) {
+  if (!/^\d{2}:\d{2}$/.test(valor)) {
     return undefined;
   }
 
-  return new Time(hora, minuto);
+  const [hora, minuto] = valor.split(':').map(Number);
+
+  return hora > 23 || minuto > 59 ? undefined : new Time(hora, minuto);
 }
 
 /** Horarios do dia inteiro, do primeiro ao ultimo que couber no passo. */
