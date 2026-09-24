@@ -32,7 +32,7 @@
 .title {
   margin: 0;
   color: var(--pl-color-text);
-  font-family: var(--pl-font-heading);
+  font-family: var(--pl-font-body);
   font-size: var(--pl-type-title-size);
   font-weight: var(--pl-type-title-weight);
   line-height: var(--pl-type-title-line-height);

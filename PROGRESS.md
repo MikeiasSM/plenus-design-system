@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-268 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
+271 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -173,8 +173,11 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - O motor de calendario vive em `src/hooks/useCalendar/calendar.ts`, puro e sem React, conforme `ARCHITECTURE.md` secao 7. Ele monta a grade do mes, aplica limites e resolve a navegacao por teclado.
 - Formatar `CalendarDate` exige converter com o fuso local, nao com UTC. Convertendo com UTC, o cabecalho do calendario exibia o mes anterior em qualquer fuso negativo: meia-noite UTC do dia primeiro e ainda dia 28 do mes anterior no horario local. O teste pegou isso.
 - Cada dia anuncia a data por extenso, nao apenas o numero. Alem de ser o que o leitor de tela precisa, resolve a ambiguidade dos dias de meses vizinhos, que repetem o mesmo numero na mesma grade.
-- `TimePicker` usa `input type="time"` nativo. O seletor de hora do navegador ja e acessivel, localizado e conhecido pelo usuario; um seletor proprio seria trabalho sem ganho, contra o mandamento 8.
-- `DateTimePicker` compoe `DatePicker` e `TimePicker` e detem o valor combinado. Os filhos sao controlados por ele, para que a troca de data preserve a hora e vice-versa. Quando a data vem antes da hora, assume meia-noite.
+- `TimePicker` **nao** usa `input type="time"`. O seletor nativo foi implementado e descartado: ele segue a localidade do sistema operacional, nao a da aplicacao, e exibia 12 horas com AM/PM num contexto pt-BR; seu painel tambem nao aceita estilo, ficando fora do Design System por construcao.
+- O painel de hora sao duas colunas de listbox, hora e minuto, em `HourAndMinute`, sobre a mesma listagem compartilhada de `List`, `Select` e `ComboBox`. `minuteStep` define o passo, e `min` e `max` desabilitam o que esta fora da faixa.
+- `DateTimePicker` e um campo unico, com data e hora na mesma mascara, e um painel unico com o calendario e as colunas de hora. Escolher a data preserva a hora e vice-versa; quando a data vem antes da hora, assume meia-noite.
+- Tipografia: `type.title` pertence a Montserrat, nao a Poppins. O `Card` nascera errado e foi corrigido. Poppins fica restrita a display e headline, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
+- Tipografia: valores numericos e monetarios em tabela usam `type.data-value` em JetBrains Mono, pela mesma referencia. `Table.Column` e `Table.Cell` ganharam `numeric`, que aplica a familia, o tamanho, o peso e o alinhamento a direita.
 - Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.
 - Pendente do Untitled UI: intervalo de datas, atalhos de periodo, visao de dois meses e rodape com cancelar e aplicar. Nenhum deles foi pedido por um cenario concreto ate agora.
 

@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
-import { DatePicker } from '../DatePicker';
-import { TimePicker } from '../TimePicker';
+import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
+import { Calendar } from '../DatePicker/Calendar';
+import { HourAndMinute } from '../TimePicker/HourAndMinute';
+import { Field } from '../Field';
 import styles from './DateTimePicker.module.css';
 
 export type DateTimePickerSize = 'sm' | 'md';
@@ -17,19 +21,52 @@ export interface DateTimePickerProps {
   locale?: string;
   max?: CalendarDate;
   min?: CalendarDate;
+  minuteStep?: number;
   onValueChange?: (value?: CalendarDateTime) => void;
+  placeholder?: string;
   required?: boolean;
   size?: DateTimePickerSize;
-  timeLabel?: string;
   value?: CalendarDateTime;
 }
 
-function paraData(valor?: CalendarDateTime) {
-  return valor && new CalendarDate(valor.year, valor.month, valor.day);
+const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
+
+/** Aplica a mascara dia/mes/ano hora:minuto conforme o usuario digita. */
+export function formatarEntradaDataHora(valor: string) {
+  const digitos = valor.replace(/\D/g, '').slice(0, 12);
+  const data = formatarEntradaData(digitos.slice(0, 8));
+
+  if (digitos.length <= 8) {
+    return data;
+  }
+
+  const hora = digitos.slice(8);
+
+  return data + ' ' + (hora.length <= 2 ? hora : hora.slice(0, 2) + ':' + hora.slice(2));
 }
 
-function paraHora(valor?: CalendarDateTime) {
-  return valor && new Time(valor.hour, valor.minute);
+export function lerEntradaDataHora(valor: string) {
+  const [data, hora = ''] = valor.trim().split(/\s+/);
+  const dia = lerEntradaData(data);
+
+  if (!dia) {
+    return undefined;
+  }
+
+  const [h, m] = hora.split(':').map(Number);
+  const horaValida = Number.isInteger(h) && Number.isInteger(m) && h < 24 && m < 60;
+
+  return new CalendarDateTime(dia.year, dia.month, dia.day, horaValida ? h : 0, horaValida ? m : 0);
+}
+
+function paraTexto(valor?: CalendarDateTime) {
+  if (!valor) {
+    return '';
+  }
+
+  const data = [doisDigitos(valor.day), doisDigitos(valor.month), valor.year].join('/');
+
+  return data + ' ' + doisDigitos(valor.hour) + ':' + doisDigitos(valor.minute);
 }
 
 export function DateTimePicker({
@@ -37,20 +74,28 @@ export function DateTimePicker({
   disabled = false,
   error,
   hint,
-  id,
+  id: providedId,
   isDateUnavailable,
   label,
   locale = 'pt-BR',
   max,
   min,
+  minuteStep = 5,
   onValueChange,
+  placeholder = 'dd/mm/aaaa hh:mm',
   required = false,
   size = 'md',
-  timeLabel = 'Hora',
   value,
 }: DateTimePickerProps) {
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue);
-  const atual = value ?? internalValue;
+  const [texto, setTexto] = useState(() => paraTexto(defaultValue));
+  const [digitando, setDigitando] = useState(false);
+  const escolhido = value ?? internalValue;
+  const exibido = digitando ? texto : paraTexto(escolhido);
 
   function definir(proximo?: CalendarDateTime) {
     if (value === undefined) {
@@ -60,45 +105,138 @@ export function DateTimePicker({
     onValueChange?.(proximo);
   }
 
-  function combinar(data?: CalendarDate, hora?: Time) {
-    if (!data) {
-      definir(undefined);
-      return;
-    }
-
-    const usada = hora ?? new Time(0, 0);
-
-    definir(new CalendarDateTime(data.year, data.month, data.day, usada.hour, usada.minute));
+  function combinarData(data: CalendarDate) {
+    definir(new CalendarDateTime(data.year, data.month, data.day, escolhido?.hour ?? 0, escolhido?.minute ?? 0));
   }
 
+  function combinarHora(hora: Time) {
+    const base = escolhido ?? new CalendarDateTime(new Date().getFullYear(), 1, 1);
+
+    definir(new CalendarDateTime(base.year, base.month, base.day, hora.hour, hora.minute));
+  }
+
+  function fechar(devolverFoco = true) {
+    setOpen(false);
+
+    if (devolverFoco) {
+      triggerRef.current?.focus();
+    }
+  }
+
+  function handleChange(entrada: string) {
+    const mascarado = formatarEntradaDataHora(entrada);
+
+    setDigitando(true);
+    setTexto(mascarado);
+
+    const lido = lerEntradaDataHora(mascarado);
+
+    if (lido) {
+      definir(lido);
+    } else if (mascarado === '') {
+      definir(undefined);
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'ArrowDown' && !open) {
+      event.preventDefault();
+      setOpen(true);
+    }
+  }
+
+  const { overlayProps } = useOverlay(
+    { isOpen: open, onClose: () => fechar(false), isDismissable: true, shouldCloseOnBlur: false },
+    panelRef,
+  );
+  const { overlayProps: positionProps } = useOverlayPosition({
+    targetRef: fieldRef,
+    overlayRef: panelRef,
+    placement: 'bottom start',
+    offset: 6,
+    containerPadding: 8,
+    isOpen: open,
+  });
+
   return (
-    <div className={styles.group}>
-      <div className={styles.date}>
-        <DatePicker
-          disabled={disabled}
-          error={error}
-          hint={hint}
-          id={id}
-          isDateUnavailable={isDateUnavailable}
-          label={label}
-          locale={locale}
-          max={max}
-          min={min}
-          onValueChange={(data) => combinar(data, paraHora(atual))}
-          required={required}
-          size={size}
-          value={paraData(atual)}
-        />
-      </div>
-      <div className={styles.time}>
-        <TimePicker
-          disabled={disabled}
-          label={timeLabel}
-          onValueChange={(hora) => combinar(paraData(atual), hora)}
-          size={size}
-          value={paraHora(atual)}
-        />
-      </div>
-    </div>
+    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+      {({ id, describedBy, invalid }) => (
+        <>
+          <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
+            <input
+              aria-describedby={describedBy}
+              aria-invalid={invalid || undefined}
+              aria-required={required || undefined}
+              autoComplete="off"
+              className={styles.input}
+              disabled={disabled}
+              id={id}
+              inputMode="numeric"
+              onBlur={() => setDigitando(false)}
+              onChange={(event) => handleChange(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              type="text"
+              value={exibido}
+            />
+            <button
+              aria-expanded={open}
+              aria-haspopup="dialog"
+              aria-label="Abrir calendário"
+              className={styles.trigger}
+              disabled={disabled}
+              onClick={() => (open ? fechar() : setOpen(true))}
+              ref={triggerRef}
+              type="button"
+            >
+              <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
+                <rect height="16" rx="2" width="18" x="3" y="5" />
+                <path d="M8 3v4M16 3v4M3 11h18" />
+              </svg>
+            </button>
+          </div>
+          {open &&
+            createPortal(
+              <div
+                {...overlayProps}
+                aria-label={label ? 'Calendário de ' + label : 'Calendário'}
+                className={styles.panel}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    fechar();
+                  }
+                  overlayProps.onKeyDown?.(event);
+                }}
+                ref={panelRef}
+                role="dialog"
+                style={positionProps.style}
+              >
+                <Calendar
+                  autoFocus
+                  isDateUnavailable={isDateUnavailable}
+                  locale={locale}
+                  max={max}
+                  min={min}
+                  onSelect={(data) => {
+                    combinarData(data);
+                    setDigitando(false);
+                  }}
+                  value={escolhido && new CalendarDate(escolhido.year, escolhido.month, escolhido.day)}
+                />
+                <HourAndMinute
+                  baseId={(providedId ?? 'datetime') + '-hora'}
+                  minuteStep={minuteStep}
+                  onChange={(hora) => {
+                    combinarHora(hora);
+                    setDigitando(false);
+                  }}
+                  value={escolhido && new Time(escolhido.hour, escolhido.minute)}
+                />
+              </div>,
+              document.body,
+            )}
+        </>
+      )}
+    </Field>
   );
 }

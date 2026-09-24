@@ -1,37 +1,94 @@
-.input {
+.field {
+  display: flex;
+  align-items: center;
   width: 100%;
   border: 1px solid var(--pl-color-border-strong);
   border-radius: var(--pl-radius-sm);
   background: var(--pl-color-surface);
+}
+
+.field:hover:not(.error) {
+  border-color: var(--pl-color-primary);
+  box-shadow: var(--pl-sh-1);
+}
+
+.field:focus-within {
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.error {
+  border-color: var(--pl-color-danger);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
 }
 
-.sm {
+.sm .input {
   padding: var(--pl-space-2) var(--pl-space-3);
 }
 
-.md {
+.md .input {
   padding: var(--pl-space-3);
-}
-
-.input:hover:not(:disabled):not(.error) {
-  border-color: var(--pl-color-primary);
-  box-shadow: var(--pl-sh-1);
 }
 
 .input:focus-visible {
   outline: none;
-  border-color: var(--pl-color-primary);
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
 }
 
 .input:disabled {
   cursor: not-allowed;
 }
 
-.error {
-  border-color: var(--pl-color-danger);
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pl-space-2) var(--pl-space-3);
+  border: 0;
+  background: none;
+  color: var(--pl-color-text-secondary);
+  cursor: pointer;
+}
+
+.trigger:hover:not(:disabled) {
+  color: var(--pl-color-primary-active);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: -2px;
+  border-radius: var(--pl-radius-sm);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+}
+
+.panel {
+  z-index: 95;
+  display: flex;
+  gap: var(--pl-space-2);
+  padding: var(--pl-space-2);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-2);
+}
+
+.column {
+  width: 4rem;
+}
+
+.columns {
+  display: flex;
+  gap: var(--pl-space-2);
 }

@@ -318,6 +318,7 @@ export function App() {
             <h3>Hora e data com hora</h3>
             <div className="demo-grid">
               <TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />
+              <TimePicker label="De minuto em minuto" minuteStep={1} />
               <TimePicker label="Com erro" error="Informe a hora." />
             </div>
             <DateTimePicker label="Agendamento" value={agendamento} onValueChange={setAgendamento} />
@@ -326,7 +327,7 @@ export function App() {
                 ? `Escolhido: ${formatarData(agendamento.toString().slice(0, 10), { formato: 'longo' })} as ${formatarHora(agendamento.toString().slice(11, 16))}`
                 : 'Nada escolhido ainda.'}
             </p>
-            <p className="doc-note">A data mantem a hora ja informada e a hora mantem a data; quando a data vem primeiro, a hora comeca em meia-noite. O texto acima usa os formatadores de apresentacao formatarData e formatarHora.</p>
+            <p className="doc-note">Campo unico para data e hora, com calendario e colunas de hora no mesmo painel. A hora segue 24 horas em qualquer sistema, porque o seletor e do proprio Design System e nao o do navegador. Escolher a data preserva a hora e vice-versa; quando a data vem primeiro, a hora comeca em meia-noite. O texto acima usa formatarData e formatarHora.</p>
           </div>
         </ComponentDoc>
 
@@ -917,7 +918,7 @@ export function App() {
                 <Table.Column id="pedido">Pedido</Table.Column>
                 <Table.Column id="cliente">Cliente</Table.Column>
                 <Table.Column id="progresso" hideBelow="sm">Entrega</Table.Column>
-                <Table.Column id="valor" align="end" sortable>Valor</Table.Column>
+                <Table.Column id="valor" numeric sortable>Valor</Table.Column>
               </Table.Header>
               <Table.Body items={vendas} empty={<span>Nenhuma venda</span>}>
                 {(venda) => (
@@ -927,7 +928,7 @@ export function App() {
                     <Table.Cell hideBelow="sm">
                       <Progress value={venda.progresso} size="sm" label={`Entrega de ${venda.pedido}`} />
                     </Table.Cell>
-                    <Table.Cell align="end">{venda.valor}</Table.Cell>
+                    <Table.Cell numeric>{venda.valor}</Table.Cell>
                   </Table.Row>
                 )}
               </Table.Body>

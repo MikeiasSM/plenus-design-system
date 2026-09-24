@@ -229,11 +229,12 @@ export interface TableColumnProps {
   help?: string;
   hideBelow?: TableBreakpoint;
   id: string;
+  numeric?: boolean;
   sortable?: boolean;
   width?: string;
 }
 
-function TableColumn({ align = 'start', children, help, hideBelow, id, sortable = false, width }: TableColumnProps) {
+function TableColumn({ align, children, help, hideBelow, id, numeric = false, sortable = false, width }: TableColumnProps) {
   const { registerColumn, requestSort, sort } = useTableContext('Table.Column');
 
   registerColumn(id);
@@ -271,7 +272,9 @@ function TableColumn({ align = 'start', children, help, hideBelow, id, sortable 
   return (
     <th
       aria-sort={sortable ? sorted ?? 'none' : undefined}
-      className={[styles.column, styles[align], sortable && styles.sortable].filter(Boolean).join(' ')}
+      className={[styles.column, styles[align ?? (numeric ? 'end' : 'start')], sortable && styles.sortable]
+        .filter(Boolean)
+        .join(' ')}
       data-hide-below={hideBelow}
       scope="col"
       style={{ width }}
@@ -350,11 +353,17 @@ export interface TableCellProps {
   align?: TableAlign;
   children?: ReactNode;
   hideBelow?: TableBreakpoint;
+  numeric?: boolean;
 }
 
-function TableCell({ align = 'start', children, hideBelow }: TableCellProps) {
+function TableCell({ align, children, hideBelow, numeric = false }: TableCellProps) {
   return (
-    <td className={[styles.cell, styles[align]].filter(Boolean).join(' ')} data-hide-below={hideBelow}>
+    <td
+      className={[styles.cell, styles[align ?? (numeric ? 'end' : 'start')], numeric && styles.numeric]
+        .filter(Boolean)
+        .join(' ')}
+      data-hide-below={hideBelow}
+    >
       {children}
     </td>
   );

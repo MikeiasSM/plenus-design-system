@@ -1,6 +1,9 @@
-import { useState, type ChangeEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
 import { Field } from '../Field';
+import { HourAndMinute, doisDigitos } from './HourAndMinute';
 import styles from './TimePicker.module.css';
 
 export type TimePickerSize = 'sm' | 'md';
@@ -14,23 +17,27 @@ export interface TimePickerProps {
   label?: string;
   max?: Time;
   min?: Time;
+  minuteStep?: number;
   onValueChange?: (value?: Time) => void;
+  placeholder?: string;
   required?: boolean;
   size?: TimePickerSize;
-  step?: number;
   value?: Time;
 }
 
-function paraTexto(hora?: Time) {
-  if (!hora) {
-    return '';
-  }
-
-  return [hora.hour, hora.minute].map((parte) => String(parte).padStart(2, '0')).join(':');
+export function paraTextoDeHora(hora?: Time) {
+  return hora ? doisDigitos(hora.hour) + ':' + doisDigitos(hora.minute) : '';
 }
 
-export function lerHora(texto: string) {
-  const [hora, minuto] = texto.split(':').map(Number);
+/** Aplica a mascara hora:minuto conforme o usuario digita. */
+export function formatarEntradaHora(valor: string) {
+  const digitos = valor.replace(/\D/g, '').slice(0, 4);
+
+  return digitos.length <= 2 ? digitos : digitos.slice(0, 2) + ':' + digitos.slice(2);
+}
+
+export function lerEntradaHora(valor: string) {
+  const [hora, minuto] = valor.split(':').map(Number);
 
   if (!Number.isInteger(hora) || !Number.isInteger(minuto) || hora > 23 || minuto > 59) {
     return undefined;
@@ -48,42 +55,142 @@ export function TimePicker({
   label,
   max,
   min,
+  minuteStep = 5,
   onValueChange,
+  placeholder = 'hh:mm',
   required = false,
   size = 'md',
-  step = 60,
   value,
 }: TimePickerProps) {
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue);
+  const [texto, setTexto] = useState(() => paraTextoDeHora(defaultValue));
+  const [digitando, setDigitando] = useState(false);
   const escolhido = value ?? internalValue;
+  const exibido = digitando ? texto : paraTextoDeHora(escolhido);
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const lido = event.target.value === '' ? undefined : lerHora(event.target.value);
-
+  function definir(proximo?: Time) {
     if (value === undefined) {
-      setInternalValue(lido);
+      setInternalValue(proximo);
     }
 
-    onValueChange?.(lido);
+    onValueChange?.(proximo);
   }
+
+  function fechar(devolverFoco = true) {
+    setOpen(false);
+
+    if (devolverFoco) {
+      triggerRef.current?.focus();
+    }
+  }
+
+  function handleChange(entrada: string) {
+    const mascarado = formatarEntradaHora(entrada);
+
+    setDigitando(true);
+    setTexto(mascarado);
+
+    const lido = lerEntradaHora(mascarado);
+
+    if (lido) {
+      definir(lido);
+    } else if (mascarado === '') {
+      definir(undefined);
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'ArrowDown' && !open) {
+      event.preventDefault();
+      setOpen(true);
+    }
+  }
+
+  const { overlayProps } = useOverlay(
+    { isOpen: open, onClose: () => fechar(false), isDismissable: true, shouldCloseOnBlur: false },
+    panelRef,
+  );
+  const { overlayProps: positionProps } = useOverlayPosition({
+    targetRef: fieldRef,
+    overlayRef: panelRef,
+    placement: 'bottom start',
+    offset: 6,
+    containerPadding: 8,
+    isOpen: open,
+  });
 
   return (
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
-        <input
-          aria-describedby={describedBy}
-          aria-invalid={invalid || undefined}
-          aria-required={required || undefined}
-          className={[styles.input, styles[size], error && styles.error].filter(Boolean).join(' ')}
-          disabled={disabled}
-          id={id}
-          max={paraTexto(max) || undefined}
-          min={paraTexto(min) || undefined}
-          onChange={handleChange}
-          step={step}
-          type="time"
-          value={paraTexto(escolhido)}
-        />
+        <>
+          <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
+            <input
+              aria-describedby={describedBy}
+              aria-invalid={invalid || undefined}
+              aria-required={required || undefined}
+              autoComplete="off"
+              className={styles.input}
+              disabled={disabled}
+              id={id}
+              inputMode="numeric"
+              onBlur={() => setDigitando(false)}
+              onChange={(event) => handleChange(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              type="text"
+              value={exibido}
+            />
+            <button
+              aria-expanded={open}
+              aria-haspopup="dialog"
+              aria-label="Abrir seletor de hora"
+              className={styles.trigger}
+              disabled={disabled}
+              onClick={() => (open ? fechar() : setOpen(true))}
+              ref={triggerRef}
+              type="button"
+            >
+              <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            </button>
+          </div>
+          {open &&
+            createPortal(
+              <div
+                {...overlayProps}
+                aria-label={label ? 'Horas de ' + label : 'Horas'}
+                className={styles.panel}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    fechar();
+                  }
+                  overlayProps.onKeyDown?.(event);
+                }}
+                ref={panelRef}
+                role="dialog"
+                style={positionProps.style}
+              >
+                <HourAndMinute
+                  baseId={providedId ?? 'hora'}
+                  max={max}
+                  min={min}
+                  minuteStep={minuteStep}
+                  onChange={(hora) => {
+                    definir(hora);
+                    setDigitando(false);
+                  }}
+                  value={escolhido}
+                />
+              </div>,
+              document.body,
+            )}
+        </>
       )}
     </Field>
   );

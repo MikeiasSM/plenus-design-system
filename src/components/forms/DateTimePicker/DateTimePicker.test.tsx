@@ -4,11 +4,32 @@ import { DateTimePicker } from './DateTimePicker';
 import { TimePicker } from '../TimePicker';
 
 describe('DateTimePicker', () => {
-  it('apresenta data e hora com rotulos proprios', () => {
+  it('apresenta data e hora no mesmo campo', () => {
     render(<DateTimePicker label="Agendamento" value={new CalendarDateTime(2026, 3, 9, 14, 30)} />);
 
-    expect(screen.getByLabelText('Agendamento')).toHaveValue('09/03/2026');
-    expect(screen.getByLabelText('Hora')).toHaveValue('14:30');
+    expect(screen.getByLabelText('Agendamento')).toHaveValue('09/03/2026 14:30');
+  });
+
+  it('traz calendario e horas no mesmo painel', () => {
+    render(<DateTimePicker label="Agendamento" value={new CalendarDateTime(2026, 3, 9, 14, 30)} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('grid')).toBeInTheDocument();
+    expect(screen.getByRole('listbox', { name: 'Hora' })).toBeInTheDocument();
+    expect(screen.getByRole('listbox', { name: 'Minuto' })).toBeInTheDocument();
+  });
+
+  it('escolhe a hora no painel preservando a data', () => {
+    const mudou = vi.fn();
+    render(
+      <DateTimePicker label="Agendamento" defaultValue={new CalendarDateTime(2026, 3, 9, 14, 30)} onValueChange={mudou} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('option', { name: '08' }));
+
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 8, 30));
   });
 
   it('escolhe a data pelo calendario preservando a hora', () => {
@@ -23,15 +44,15 @@ describe('DateTimePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 12, 14, 30));
   });
 
-  it('troca a hora preservando a data', () => {
+  it('aceita data e hora digitadas no mesmo campo', () => {
     const mudou = vi.fn();
-    render(
-      <DateTimePicker label="Agendamento" defaultValue={new CalendarDateTime(2026, 3, 9, 14, 30)} onValueChange={mudou} />,
-    );
+    render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
 
-    fireEvent.change(screen.getByLabelText('Hora'), { target: { value: '08:15' } });
+    const campo = screen.getByLabelText('Agendamento');
+    fireEvent.change(campo, { target: { value: '090320261415' } });
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 8, 15));
+    expect(campo).toHaveValue('09/03/2026 14:15');
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 14, 15));
   });
 
   it('assume meia-noite quando a data vem antes da hora', () => {
@@ -59,25 +80,39 @@ describe('DateTimePicker', () => {
 });
 
 describe('TimePicker', () => {
-  it('reporta a hora digitada e aceita vazio', () => {
+  it('aplica a mascara e reporta a hora digitada', () => {
     const mudou = vi.fn();
     render(<TimePicker label="Inicio" onValueChange={mudou} />);
 
     const campo = screen.getByLabelText('Inicio');
 
-    fireEvent.change(campo, { target: { value: '09:45' } });
+    fireEvent.change(campo, { target: { value: '0945' } });
+    expect(campo).toHaveValue('09:45');
     expect(mudou).toHaveBeenLastCalledWith(new Time(9, 45));
 
     fireEvent.change(campo, { target: { value: '' } });
     expect(mudou).toHaveBeenLastCalledWith(undefined);
   });
 
-  it('declara os limites ao navegador', () => {
+  it('escolhe hora e minuto no painel proprio, sem o seletor nativo', () => {
+    const mudou = vi.fn();
+    render(<TimePicker label="Inicio" defaultValue={new Time(9, 45)} onValueChange={mudou} />);
+
+    expect(screen.getByLabelText('Inicio')).toHaveAttribute('type', 'text');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
+    fireEvent.click(screen.getByRole('option', { name: '14' }));
+
+    expect(mudou).toHaveBeenLastCalledWith(new Time(14, 45));
+  });
+
+  it('desabilita as horas fora da faixa', () => {
     render(<TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />);
 
-    const campo = screen.getByLabelText('Inicio');
-    expect(campo).toHaveAttribute('min', '08:00');
-    expect(campo).toHaveAttribute('max', '18:00');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
+
+    expect(screen.getByRole('option', { name: '07' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: '08' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('expoe erro de forma acessivel', () => {

@@ -117,6 +117,14 @@
   vertical-align: middle;
 }
 
+.numeric {
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-data-value-size);
+  font-weight: var(--pl-type-data-value-weight);
+  line-height: var(--pl-type-data-value-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
 .start {
   text-align: left;
 }
