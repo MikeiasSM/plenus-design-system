@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  RadioGroup, Select, Spinner, Switch, Tabs, Textarea, Tooltip,
+  Card, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea, Tooltip,
 } from '@plenus/index';
 
 const estadosBrasileiros = [
@@ -14,6 +14,26 @@ const estadosBrasileiros = [
   ['rs', 'Rio Grande do Sul'], ['ro', 'Rondonia'], ['rr', 'Roraima'], ['sc', 'Santa Catarina'],
   ['sp', 'Sao Paulo'], ['se', 'Sergipe'], ['to', 'Tocantins'],
 ].map(([value, label]) => ({ value, label }));
+
+const muitasLinhas = Array.from({ length: 10000 }, (_, indice) => ({
+  value: String(indice),
+  label: 'Registro ' + String(indice + 1).padStart(5, '0'),
+}));
+
+type OrdemTabela = { column: string; direction: 'ascending' | 'descending' };
+
+const equipe = [
+  { id: '1', nome: 'Ana Prado', email: 'ana@plenustech.com', funcao: 'Administradora', status: 'Ativo' },
+  { id: '2', nome: 'Bruno Dias', email: 'bruno@plenustech.com', funcao: 'Editor', status: 'Convidado' },
+  { id: '3', nome: 'Celia Nunes', email: 'celia@plenustech.com', funcao: 'Leitora', status: 'Ativo' },
+  { id: '4', nome: 'Diego Alves', email: 'diego@plenustech.com', funcao: 'Editor', status: 'Convidado' },
+];
+
+const vendas = [
+  { id: 'v1', pedido: '#1042', cliente: 'Comercio Aurora', progresso: 100, valor: 'R$ 12.400,00' },
+  { id: 'v2', pedido: '#1043', cliente: 'Industria Belo', progresso: 60, valor: 'R$ 8.150,00' },
+  { id: 'v3', pedido: '#1044', cliente: 'Transportes Cruz', progresso: 25, valor: 'R$ 3.720,00' },
+];
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -64,6 +84,14 @@ export function App() {
   const gatilhoPopover = useRef<HTMLButtonElement>(null);
   const [uf, setUf] = useState('sp');
   const [pagina, setPagina] = useState(5);
+  const [equipeEscolhida, setEquipeEscolhida] = useState<readonly string[]>([]);
+  const [ordemEquipe, setOrdemEquipe] = useState<OrdemTabela>({ column: 'nome', direction: 'ascending' });
+  const [paginaEquipe, setPaginaEquipe] = useState(1);
+  const equipeOrdenada = [...equipe].sort((a, b) => {
+    const campo = ordemEquipe.column === 'status' ? 'status' : 'nome';
+    const comparacao = a[campo].localeCompare(b[campo], 'pt-BR');
+    return ordemEquipe.direction === 'ascending' ? comparacao : -comparacao;
+  });
 
   return (
     <div className="docs-layout">
@@ -103,6 +131,8 @@ export function App() {
           <a href="#menu">Menu</a>
           <a href="#tooltip">Tooltip</a>
           <p className="rail-group">Data display</p>
+          <a href="#list">List</a>
+          <a href="#table">Table</a>
           <a href="#badge">Badge</a>
           <a href="#avatar">Avatar</a>
         </nav>
@@ -184,7 +214,7 @@ export function App() {
             <div className="input-grid">
               <InputPassword label="Senha" placeholder="Digite sua senha" />
               <InputPassword label="Nova senha" autoComplete="new-password" hint="Use uma senha segura." />
-              <InputPassword label="Com erro" error="Senha obrigatoria." maxLength={64} showCharacterCount />
+              <InputPassword label="Com erro" error="Senha obrigatoria." maxLength={64} />
               <InputPassword label="Toggle oculto" showToggle={false} placeholder="Sem controle visual" />
             </div>
             <p className="doc-note">A senha inicia mascarada. Copia e corte sao bloqueados por padrao; colagem, autofill e gerenciadores de senha permanecem permitidos. Isso nao impede extensoes ou scripts privilegiados de acessarem o campo.</p>
@@ -678,6 +708,203 @@ export function App() {
           <div className="doc-subsection">
             <h3>Conjunto curto</h3>
             <Pagination page={2} pageCount={5} onPageChange={() => undefined} />
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="data-display"
+          description="Listagem visivel na tela, com busca e selecao opcionais."
+          id="list"
+          name="List"
+          api={`<List items={cidades} selectionMode="multiple" onSelectionChange={setEscolhidas}>
+  <List.Search placeholder="Buscar cidade" />
+  <List.SelectAll />
+  <List.Options height={240} />
+  <List.Empty>Nenhuma cidade encontrada</List.Empty>
+</List>`}
+        >
+          <div className="doc-subsection">
+            <h3>Listagem simples com busca</h3>
+            <List items={estadosBrasileiros} label="Estados">
+              <List.Search placeholder="Buscar estado" />
+              <List.Options height={200} />
+              <List.Empty>Nenhum estado encontrado</List.Empty>
+            </List>
+            <p className="doc-note">Sem selecao a marcacao e de lista, nao de caixa de listagem. A busca ignora caixa e acento: digitar "goias" encontra "Goias", e "sao" encontra "Sao Paulo".</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Selecao unica</h3>
+            <List items={estadosBrasileiros} label="Estado de origem" selectionMode="single">
+              <List.Search placeholder="Buscar estado" />
+              <List.Options height={200} />
+              <List.Empty>Nenhum estado encontrado</List.Empty>
+            </List>
+            <p className="doc-note">Com selecao a lista vira listbox. As setas percorrem, Home e End vao aos extremos, Enter escolhe.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Selecao multipla</h3>
+            <List items={estadosBrasileiros} label="Estados atendidos" selectionMode="multiple">
+              <List.Search placeholder="Buscar estado" />
+              <List.SelectAll label="Selecionar todos os estados" />
+              <List.Options height={200} />
+              <List.Empty>Nenhum estado encontrado</List.Empty>
+            </List>
+            <p className="doc-note">A caixa de marcacao e apenas visual: quem comunica a escolha e o proprio item. Marque um estado e depois busque outro: o escolhido continua visivel no topo, para nao se perder do que ja foi marcado. Clique em um estado e depois em outro com Shift para marcar a faixa inteira; Shift com as setas faz o mesmo pelo teclado. O marcar todos fica indeterminado enquanto a escolha e parcial.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Volume</h3>
+            <List items={muitasLinhas} label="Registros" selectionMode="multiple">
+              <List.Search placeholder="Buscar registro" />
+              <List.SelectAll label="Selecionar todos os registros" />
+              <List.Options height={240} />
+              <List.Empty>Nenhum registro encontrado</List.Empty>
+            </List>
+            <p className="doc-note">Dez mil registros. Apenas a faixa visivel existe no DOM, e cada item declara sua posicao e o total para o leitor de tela.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="data-display"
+          description="Tabela semantica com ordenacao, selecao e densidade."
+          id="table"
+          name="Table"
+          api={`<Card>
+  <Card.Header title="Membros" description="..." badge={<Badge>12</Badge>} trailing={<Button>Convidar</Button>} />
+  <Card.Body flush>
+    <Table rows={membros} selectionMode="multiple" onSelectionChange={setEscolhidos}>
+      <Table.Header>
+        <Table.Column id="nome" sortable>Nome</Table.Column>
+      </Table.Header>
+      <Table.Body items={membros} empty={<span>Nenhum membro</span>}>
+        {(m) => (
+          <Table.Row id={m.id} label={\`Selecionar \${m.nome}\`}>
+            <Table.Cell>{m.nome}</Table.Cell>
+          </Table.Row>
+        )}
+      </Table.Body>
+    </Table>
+  </Card.Body>
+  <Card.Footer><Pagination page={1} pageCount={5} onPageChange={setPagina} /></Card.Footer>
+</Card>`}
+        >
+          <div className="doc-subsection">
+            <h3>Equipe, com selecao multipla em cartao</h3>
+            <Card>
+              <Card.Header
+                title="Membros da equipe"
+                description="Gerencie quem tem acesso ao espaco de trabalho."
+                badge={<Badge tone="neutral">{equipe.length}</Badge>}
+                trailing={<Button size="sm">Convidar</Button>}
+              />
+              <Card.Body flush>
+                <Table
+                  rows={equipe}
+                  label="Membros da equipe"
+                  selectionMode="multiple"
+                  onSelectionChange={setEquipeEscolhida}
+                  sort={ordemEquipe}
+                  onSortChange={setOrdemEquipe}
+                >
+                  <Table.Header>
+                    <Table.Column id="nome" sortable>Nome</Table.Column>
+                    <Table.Column id="funcao" help="Define o que a pessoa pode fazer">Funcao</Table.Column>
+                    <Table.Column id="status" sortable>Status</Table.Column>
+                    <Table.Column id="acoes" align="end" hideBelow="md">Acoes</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={equipeOrdenada} empty={<span>Nenhum membro encontrado</span>}>
+                    {(pessoa) => (
+                      <Table.Row id={pessoa.id} label={`Selecionar ${pessoa.nome}`}>
+                        <Table.Cell>
+                          <div className="cell-person">
+                            <Avatar name={pessoa.nome} size="sm" />
+                            <div>
+                              <b>{pessoa.nome}</b>
+                              <span>{pessoa.email}</span>
+                            </div>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell>{pessoa.funcao}</Table.Cell>
+                        <Table.Cell>
+                          <Badge tone={pessoa.status === 'Ativo' ? 'ok' : 'warn'}>{pessoa.status}</Badge>
+                        </Table.Cell>
+                        <Table.Cell align="end" hideBelow="md">
+                          <Menu
+                            label={`Acoes de ${pessoa.nome}`}
+                            items={[
+                              { key: 'editar', label: 'Editar' },
+                              { key: 'remover', label: 'Remover' },
+                            ]}
+                          >
+                            <Button variant="ghost" size="sm">
+                              Acoes
+                            </Button>
+                          </Menu>
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
+              </Card.Body>
+              <Card.Footer>
+                <span className="doc-note">{equipeEscolhida.length} selecionados</span>
+                <Pagination page={paginaEquipe} pageCount={5} onPageChange={setPaginaEquipe} />
+              </Card.Footer>
+            </Card>
+            <p className="doc-note">Clique em uma linha e depois em outra com Shift para marcar a faixa. O cabecalho marca todas e fica indeterminado na escolha parcial. A coluna de acoes desaparece em telas estreitas.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Vendas, compacta com zebra e selecao unica</h3>
+            <Table rows={vendas} label="Vendas" size="sm" striped divider={false} selectionMode="single">
+              <Table.Header>
+                <Table.Column id="pedido">Pedido</Table.Column>
+                <Table.Column id="cliente">Cliente</Table.Column>
+                <Table.Column id="progresso" hideBelow="sm">Entrega</Table.Column>
+                <Table.Column id="valor" align="end" sortable>Valor</Table.Column>
+              </Table.Header>
+              <Table.Body items={vendas} empty={<span>Nenhuma venda</span>}>
+                {(venda) => (
+                  <Table.Row id={venda.id} label={`Selecionar ${venda.pedido}`}>
+                    <Table.Cell>{venda.pedido}</Table.Cell>
+                    <Table.Cell>{venda.cliente}</Table.Cell>
+                    <Table.Cell hideBelow="sm">
+                      <Progress value={venda.progresso} size="sm" label={`Entrega de ${venda.pedido}`} />
+                    </Table.Cell>
+                    <Table.Cell align="end">{venda.valor}</Table.Cell>
+                  </Table.Row>
+                )}
+              </Table.Body>
+            </Table>
+            <p className="doc-note">Densidade compacta, sem divisores e com fundo alternado, que a referencia recomenda a partir de oito colunas. Na selecao unica o controle vira radio.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Sem registros e carregando</h3>
+            <Table rows={[]} label="Arquivos vazios">
+              <Table.Header>
+                <Table.Column id="arquivo">Arquivo</Table.Column>
+                <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
+              </Table.Header>
+              <Table.Body items={[] as typeof vendas} empty={<span>Nenhum arquivo enviado ainda</span>}>
+                {(item) => (
+                  <Table.Row id={item.id}>
+                    <Table.Cell>{item.pedido}</Table.Cell>
+                  </Table.Row>
+                )}
+              </Table.Body>
+            </Table>
+            <Table rows={[]} label="Arquivos carregando" loading>
+              <Table.Header>
+                <Table.Column id="arquivo">Arquivo</Table.Column>
+                <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
+              </Table.Header>
+              <Table.Body items={[] as typeof vendas} empty={<span>Nenhum arquivo</span>}>
+                {(item) => (
+                  <Table.Row id={item.id}>
+                    <Table.Cell>{item.pedido}</Table.Cell>
+                  </Table.Row>
+                )}
+              </Table.Body>
+            </Table>
+            <p className="doc-note">O vazio ocupa a largura da tabela; o carregamento substitui o vazio e marca a tabela como ocupada.</p>
           </div>
         </ComponentDoc>
 

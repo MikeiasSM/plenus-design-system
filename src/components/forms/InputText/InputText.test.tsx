@@ -90,4 +90,13 @@ describe('InputText', () => {
     expect(input).toHaveValue('Inicial');
     expect(screen.getByText('7/20')).toBeInTheDocument();
   });
+
+  it('conta na mesma medida do limite do navegador', () => {
+    render(
+      <InputText id="emoji" label="Apelido" defaultValue="oi 😀" maxLength={10} showCharacterCount />,
+    );
+
+    // 'oi ' e o emoji, que ocupa duas unidades UTF-16, exatamente como maxLength conta.
+    expect(screen.getByText('5/10')).toBeInTheDocument();
+  });
 });

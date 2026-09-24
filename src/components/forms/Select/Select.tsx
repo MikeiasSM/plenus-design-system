@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
+import { ListingOptions } from '../../data-display/List/ListingOptions';
+import { useListing, type Listing } from '../../data-display/List/useListing';
 import { Field } from '../Field';
 import styles from './Select.module.css';
 
@@ -44,24 +45,22 @@ export function Select({
 }: SelectProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const collection = useMemo<SelectionItem[]>(
-    () => options.map((option) => ({ key: option.value, disabled: option.disabled, textValue: option.label })),
-    [options],
-  );
-  const selection = useSelection({
-    items: collection,
-    mode: 'single',
-    defaultSelectedKeys: defaultValue === undefined ? undefined : [defaultValue],
-    selectedKeys: value === undefined ? undefined : [value],
-    onSelectionChange: (keys) => {
-      const [chosen] = keys;
-      if (chosen !== undefined) {
-        onValueChange?.(chosen);
+
+  const listing = useListing({
+    items: options,
+    selectionMode: 'single',
+    defaultValue: defaultValue === undefined ? undefined : options.filter((option) => option.value === defaultValue),
+    value: value === undefined ? undefined : options.filter((option) => option.value === value),
+    onSelectionChange: (chosen) => {
+      const [first] = chosen;
+
+      if (first) {
+        onValueChange?.(first.value);
       }
     },
   });
-  const [selected] = selection.selectedKeys;
-  const chosen = options.find((option) => option.value === selected);
+
+  const [chosen] = listing.selected;
 
   function fechar() {
     setOpen(false);
@@ -73,7 +72,7 @@ export function Select({
       return;
     }
 
-    selection.focus(selected ?? collection.find((item) => !item.disabled)?.key);
+    listing.focus(chosen?.value ?? options.find((option) => !option.disabled)?.value);
     setOpen(true);
   }
 
@@ -85,13 +84,7 @@ export function Select({
   }
 
   return (
-    <Field
-      error={error}
-      hint={hint}
-      id={providedId}
-      label={label}
-      required={required}
-    >
+    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <button
@@ -110,7 +103,17 @@ export function Select({
             onKeyDown={handleTriggerKeyDown}
           >
             <span className={chosen ? styles.value : styles.placeholder}>{chosen?.label ?? placeholder}</span>
-            <svg className={styles.chevron} viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+            <svg
+              className={styles.chevron}
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
               <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
@@ -118,9 +121,8 @@ export function Select({
             createPortal(
               <SelectListbox
                 label={label ?? placeholder}
+                listing={listing}
                 onClose={fechar}
-                options={options}
-                selection={selection}
                 triggerRef={triggerRef}
               />,
               document.body,
@@ -133,26 +135,26 @@ export function Select({
 
 function SelectListbox({
   label,
+  listing,
   onClose,
-  options,
-  selection,
   triggerRef,
 }: {
   label: string;
+  listing: Listing;
   onClose: () => void;
-  options: readonly SelectOption[];
-  selection: ReturnType<typeof useSelection>;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const baseId = useRef(`listbox-${Math.random().toString(36).slice(2, 9)}`).current;
-  const { focusedKey, focusFirst, focusLast, focusNext, focusPrevious, search, selectedKeys } = selection;
-  const activeIndex = options.findIndex((option) => option.value === focusedKey);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const listboxRef = useRef<HTMLElement | null>(null);
+  const baseId = useRef('listbox-' + Math.random().toString(36).slice(2, 9)).current;
 
-  const { overlayProps } = useOverlay({ isOpen: true, onClose, isDismissable: true, shouldCloseOnBlur: false }, ref);
+  const { overlayProps } = useOverlay(
+    { isOpen: true, onClose, isDismissable: true, shouldCloseOnBlur: false },
+    panelRef,
+  );
   const { overlayProps: positionProps } = useOverlayPosition({
     targetRef: triggerRef,
-    overlayRef: ref,
+    overlayRef: panelRef,
     placement: 'bottom start',
     offset: 6,
     containerPadding: 8,
@@ -168,79 +170,54 @@ function SelectListbox({
   }, [triggerRef]);
 
   useEffect(() => {
-    ref.current?.focus();
+    listboxRef.current?.focus();
   }, []);
 
-  function escolher(option: SelectOption) {
-    if (option.disabled) {
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key === 'Escape' || event.key === 'Tab') {
+      onClose();
       return;
     }
 
-    selection.select(option.value);
-    onClose();
-  }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      const alvo = listing.visible.find((option) => option.value === listing.focusedKey);
 
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      focusNext();
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      focusPrevious();
-    } else if (event.key === 'Home') {
-      event.preventDefault();
-      focusFirst();
-    } else if (event.key === 'End') {
-      event.preventDefault();
-      focusLast();
-    } else if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      const alvo = options.find((option) => option.value === focusedKey);
-      if (alvo) {
-        escolher(alvo);
+      if (alvo && !alvo.disabled) {
+        listing.select(alvo);
+        onClose();
       }
-    } else if (event.key === 'Escape' || event.key === 'Tab') {
-      onClose();
-    } else if (event.key.length === 1 && !event.metaKey && !event.ctrlKey) {
-      search(event.key);
+      return;
     }
+
+    if (event.key.length === 1 && !event.metaKey && !event.ctrlKey) {
+      listing.typeahead(event.key);
+      return;
+    }
+
+    listing.handleKeyDown(event);
   }
 
   return (
-      <div
-        {...overlayProps}
-        ref={ref}
-        className={styles.listbox}
-        style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
-        role="listbox"
-        aria-label={label}
-        aria-activedescendant={activeIndex >= 0 ? `${baseId}-${activeIndex}` : undefined}
-        tabIndex={-1}
+    <div
+      {...overlayProps}
+      ref={panelRef}
+      className={styles.panel}
+      style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
+    >
+      <ListingOptions
+        baseId={baseId}
+        elementRef={listboxRef}
+        label={label}
+        listing={listing}
         onKeyDown={(event) => {
           // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
           handleKeyDown(event);
-          overlayProps.onKeyDown?.(event);
+          overlayProps.onKeyDown?.(event as KeyboardEvent<HTMLDivElement>);
         }}
-      >
-        {options.map((option, index) => (
-          <div
-            key={option.value}
-            className={[
-              styles.option,
-              focusedKey === option.value && styles.focused,
-              option.disabled && styles.disabled,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            id={`${baseId}-${index}`}
-            role="option"
-            aria-selected={selectedKeys.has(option.value)}
-            aria-disabled={option.disabled || undefined}
-            onClick={() => escolher(option)}
-          >
-            {option.label}
-          </div>
-        ))}
-      </div>
+        onSelect={onClose}
+        tabIndex={-1}
+      />
+    </div>
   );
 }

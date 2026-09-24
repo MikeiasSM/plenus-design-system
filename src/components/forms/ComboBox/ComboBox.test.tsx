@@ -5,6 +5,7 @@ const opcoes: ComboBoxOption[] = [
   { value: 'sp', label: 'Sao Paulo' },
   { value: 'rj', label: 'Rio de Janeiro' },
   { value: 'mg', label: 'Belo Horizonte' },
+  { value: 'gyn', label: 'Goiânia' },
 ];
 
 function montar(props: Partial<React.ComponentProps<typeof ComboBox>> = {}) {
@@ -27,6 +28,15 @@ describe('ComboBox', () => {
 
     expect(screen.getByRole('option', { name: 'Rio de Janeiro' })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Sao Paulo' })).not.toBeInTheDocument();
+  });
+
+  it('filtra sem acento o texto acentuado', () => {
+    const campo = montar();
+
+    fireEvent.change(campo, { target: { value: 'goiania' } });
+
+    expect(screen.getByRole('option', { name: 'Goiânia' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Rio de Janeiro' })).not.toBeInTheDocument();
   });
 
   it('avisa quando nada corresponde', () => {
@@ -70,5 +80,25 @@ describe('ComboBox', () => {
     fireEvent.keyDown(campo, { key: 'Escape' });
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(campo).toHaveValue('Sao Paulo');
+  });
+
+  it('delega a busca ao produto sem filtrar por conta propria', () => {
+    const buscar = vi.fn();
+    const campo = montar({ onSearch: buscar });
+
+    fireEvent.change(campo, { target: { value: 'goi' } });
+
+    expect(buscar).toHaveBeenCalledWith('goi');
+    expect(screen.getByRole('option', { name: 'Rio de Janeiro' })).toBeInTheDocument();
+  });
+
+  it('anuncia o carregamento da busca externa', () => {
+    const campo = montar({ onSearch: vi.fn(), options: [], loading: true });
+
+    fireEvent.click(campo);
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByText('Carregando')).toBeInTheDocument();
+    expect(screen.queryByText('Nenhum resultado')).not.toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatarEntradaDecimal } from '../../../utils/formatters';
 
-export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'type' | 'value'> {
+export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
   decimalScale?: number;
   defaultValue?: string | number;
   onValueChange?: (value: string) => void;

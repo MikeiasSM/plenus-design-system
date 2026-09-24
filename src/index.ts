@@ -51,3 +51,38 @@ export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeTone } from './components/data-display/Badge';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
+export { List } from './components/data-display/List';
+export type {
+  ListEmptyProps,
+  ListItem,
+  ListOptionsProps,
+  ListProps,
+  ListSearchProps,
+  ListSelectAllProps,
+  ListSelectionMode,
+} from './components/data-display/List';
+export { Card } from './components/data-display/Card';
+export type {
+  CardBodyProps,
+  CardFooterProps,
+  CardHeaderProps,
+  CardHeadingLevel,
+  CardProps,
+} from './components/data-display/Card';
+export { Table } from './components/data-display/Table';
+export type {
+  SortDirection,
+  TableAlign,
+  TableBodyProps,
+  TableBreakpoint,
+  TableCellProps,
+  TableColumnProps,
+  TableHeaderProps,
+  TableProps,
+  TableRowItem,
+  TableRowProps,
+  TableSelectionControl,
+  TableSelectionMode,
+  TableSize,
+  TableSort,
+} from './components/data-display/Table';

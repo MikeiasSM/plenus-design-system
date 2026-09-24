@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "types": [],
+    "paths": {
+      "@plenus/*": ["./src/*"]
+    }
+  },
+  "include": ["showcase", "src/vite-env.d.ts"]
+}

@@ -23,12 +23,27 @@ describe('InputPassword', () => {
     expect(screen.getByLabelText('Nova senha')).toHaveAttribute('autocomplete', 'new-password');
   });
 
-  it('supports errors and character count', () => {
-    render(<InputPassword label="Senha" error="Senha obrigatoria." maxLength={20} showCharacterCount />);
+  it('supports errors without publishing the password length', () => {
+    render(<InputPassword label="Senha" error="Senha obrigatoria." maxLength={20} />);
 
     const input = screen.getByLabelText('Senha');
     expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input).toHaveAccessibleDescription('Senha obrigatoria. 0/20');
+    expect(input).toHaveAccessibleDescription('Senha obrigatoria.');
+  });
+
+  it('hides the password again when the form is submitted', () => {
+    render(
+      <form>
+        <InputPassword label="Senha" defaultValue="segredo" />
+      </form>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar senha' }));
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'text');
+
+    fireEvent.submit(screen.getByLabelText('Senha').closest('form')!);
+
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'password');
   });
 
   it('supports hiding the toggle', () => {

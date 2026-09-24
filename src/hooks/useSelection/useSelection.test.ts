@@ -70,4 +70,17 @@ describe('useSelection', () => {
 
     vi.useRealTimers();
   });
+
+  it('retem o item escolhido quando ele sai da colecao', () => {
+    const { result, rerender } = renderHook(({ colecao }) => useSelection({ items: colecao, mode: 'multiple' }), {
+      initialProps: { colecao: items },
+    });
+
+    act(() => result.current.select('cartao'));
+    expect(result.current.selectedItems).toEqual([{ key: 'cartao', textValue: 'Cartao' }]);
+
+    rerender({ colecao: [{ key: 'pix', textValue: 'Pix' }] });
+
+    expect(result.current.selectedItems).toEqual([{ key: 'cartao', textValue: 'Cartao' }]);
+  });
 });

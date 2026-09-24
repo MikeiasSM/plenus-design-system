@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-168 testes em 30 arquivos. Build da biblioteca e do Showcase validados.
+227 testes em 35 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -17,8 +17,11 @@ Os componentes assinalados como disponiveis em `COMPONENTS-CATALOG.md` estao imp
 Outros modulos:
 
 - `src/components/forms/Field` — cromo de campo compartilhado. **Interno**, nao exportado.
-- `src/hooks/useCharacterCount` — contagem de caracteres dos campos, controlada ou nao. **Interno**, nao exportado. Serve `InputText`, `InputPassword` e `Textarea`.
-- `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs` e `Accordion`.
+- `src/hooks/useCharacterCount` — contagem de caracteres, controlada ou nao. **Interno**, nao exportado. Serve apenas `InputText` e `Textarea`, os campos de texto plano.
+- `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion` e `List`. Alem das chaves escolhidas, retem os itens, para que a escolha sobreviva ao item sair da colecao filtrada.
+- `src/components/data-display/List/useListing` e `ListingOptions` — a listagem compartilhada: colecao, filtro, teclado, ARIA, marcacao e virtualizacao. **Internos**, nao exportados. Servem `List`, `Select` e `ComboBox`.
+- `src/components/data-display/List/useVirtualWindow` — janela virtual da listagem. **Interno**, pertence ao componente conforme `ARCHITECTURE.md` secao 8.
+- `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/utils/formatters` — `formatarEntradaDecimal` e `formatarEntradaMonetaria`. **Nao exportados** pela API publica.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
@@ -130,6 +133,20 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 - Foco de teclado, hover e selecao sao tres estados visuais distintos e devem ser desenhados juntos.
 - O motor de selecao ganha ancora, faixa por Shift, marcar todos e estado indeterminado quando a `List` exigir, nao antes. Hoje o modo multiplo nao possui consumidor.
 - Nome: `List`. `ListBox` mentiria no modo sem selecao.
+- A faixa por Shift **acumula** sobre o que ja estava escolhido, em vez de substituir a escolha. Em lista com caixa de marcacao, substituir apagaria silenciosamente o trabalho anterior do usuario.
+- A ancora e o ultimo item escolhido item a item. Shift com clique e Shift com as setas partem dela.
+- `List.SelectAll` e parte composta, nao propriedade: e um controle visivel na tela, conforme o criterio de `COMPONENTS.md` secao 4. Ele consome o `Checkbox` do projeto, que aqui cabe por estar fora do listbox, e alcanca apenas os itens habilitados e visiveis.
+- `Ctrl+A` foi implementado e removido: com a busca em foco ele sequestraria a selecao do texto do campo. O marcar todos tem controle proprio, acessivel por teclado.
+- `Select` e `ComboBox` nao se compoem: ambos compoem `ListingOptions` dentro do proprio painel. O que compartilham e o painel, nao o campo. Cada um mantem seu gatilho, seu overlay e sua ligacao com `Field`.
+- O painel virou dois elementos: um envoltorio com o posicionamento, a borda e a dispensa do overlay, e o `role="listbox"` dentro dele. O `aria-activedescendant` precisa viver no elemento que detem o foco e tem papel de listagem, e as propriedades do `useOverlay` precisam de um elemento proprio.
+- `ComboBox` ganhou `onSearch` e `loading` na reestruturacao: com a busca externa a cargo do produto, ele atende os dez mil registros sem filtrar por conta propria.
+- O filtro textual da listagem chama-se `filter`; a busca por digitacao do motor chama-se `typeahead`. Sao comportamentos distintos e o nome `search` servia aos dois, o que confundia.
+- A `List` recebe os itens por propriedade e as partes por composicao. Virtualizacao exige que o componente decida quais itens existem no DOM a cada instante, e itens escritos como filhos ja estao criados antes de o componente ver qualquer um. Busca, opcoes e vazio permanecem partes compostas, conforme `COMPONENTS.md` secao 4.
+- A `List` troca o elemento conforme o modo: `ul` e `li` sem selecao, `div` com `role="listbox"` e `role="option"` com selecao. O `ul` nao aceita um grupo como filho direto, e no modo sem selecao a marcacao nativa de lista e a correta.
+- A secao de selecionados no topo aparece somente com busca ativa, listando o que foi escolhido e saiu do resultado. Fora da busca, subir os marcados faria o item pular de lugar no instante da escolha, o que e pior com a lista virtualizada.
+- Navegacao por teclado existe apenas nos modos com selecao. Sem selecao nao ha o que focar, e `aria-activedescendant` apontaria para itens sem papel.
+- A janela virtual mede a altura de um item real e desliga se a medida for zero, o que mantem o comportamento correto em jsdom, onde nao ha layout. A rolagem ate o item focado usa a matematica da janela quando virtualizada e o proprio elemento quando nao.
+- A comparacao textual usa `Intl.Collator` com sensibilidade `base`, e nao `useFilter` ou `useCollator`. O typeahead vive em `selection.ts`, que e motor puro sem React conforme `ARCHITECTURE.md` secao 7, e um hook nao cabe ali. Injetar a comparacao de fora furaria a pureza do motor para resolver o que o `Intl` nativo resolve em poucas linhas, sem uma terceira dependencia.
 
 ### Formatadores e localidade
 
@@ -149,9 +166,30 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
 - `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
 
+### Familia de tabela: Table, Card e DataGrid
+
+Levantamento das referencias feito antes da implementacao. O Untitled UI guia visual **e** funcionalidade; a arquitetura permanece do Design System.
+
+- O `Table` recebe as linhas por colecao, com `items` e uma funcao que desenha a linha. Linhas escritas soltas impediriam saber a colecao antes de renderizar, e sem isso nao ha marcar todos, nem faixa por Shift confiavel, nem `aria-rowcount` quando a virtualizacao existir. A forma estatica pode ser acrescentada depois sem quebrar contrato.
+- O `Table` **nao desenha contorno externo**. Quem envolve desenha. Foi assim que o acoplamento com o cartao deixou de existir: o `Card` nao sabe que ha uma tabela dentro, e a tabela nao sabe que esta num cartao.
+- O cartao nasceu como `Card` generico, e nao como `TableCard`, porque o mantenedor declarou que havera um cartao para outros conteudos. Criar o especifico seria trabalho a descartar.
+- A coluna de selecao e inserida pelo componente, nao escrita pelo consumidor. O controle segue o modo: radio na escolha unica, caixa de marcacao na multipla, com `toggle` disponivel por propriedade.
+- `highlightSelectedRow` segue a referencia e vem ligado. A `List` mantem a decisao oposta, destaque apenas na marcacao, porque ali o item nao e uma linha de tabela.
+- Ordenacao e estado, nao algoritmo. Com o consumidor dono das linhas, quem reordena os dados e ele ou o servidor. O componente guarda a direcao, declara `aria-sort` e avisa a mudanca, como a referencia.
+- O descarte de colunas em telas estreitas usa `hideBelow` com media query e atributo de dado, sem hook de breakpoint. O `useBreakpoint` previsto em `ARCHITECTURE.md` secao 8 nasce quando um componente exigir medida em tempo de execucao.
+- O `DataGrid` tem escopo levantado a partir do AG Grid Community: colunas fixas, redimensionaveis e reordenaveis, filtro por coluna, edicao de celula, virtualizacao de linha e coluna, e navegacao bidimensional. Exportacao para planilha, graficos integrados e area de transferencia dependem de decisao sobre dependencia, conforme o mandamento 13, e conversam com a escolha do D3 como nucleo de graficos.
+
+### Contador de caracteres
+
+- O contador existe apenas em campo de texto plano: `InputText` e `Textarea`. `InputNumber` e `InputCurrency` omitem `showCharacterCount` do tipo herdado de `InputText`, e `InputPassword` nao o possui.
+- A contagem usa unidades UTF-16, a mesma medida do `maxLength` nativo, definida pelo HTML. Assim o numero exibido corresponde ao ponto exato em que o navegador corta. Um emoji conta 2, como no limite.
+- Contar pontos de codigo, como era feito antes, exibia um numero que nao correspondia ao corte: com `maxLength` de 20, vinte emojis apareciam como 10/20 e o navegador ja havia cortado a metade.
+- Contar grafemas corresponderia ao que o usuario ve, mas obrigaria o componente a impor o limite por conta propria e nenhuma referencia do projeto faz isso. Nenhuma delas oferece contador.
+
 ### InputPassword
 
-- A senha inicia mascarada e a revelacao exige acao explicita.
+- A senha inicia mascarada e a revelacao exige acao explicita, e volta a ser ocultada quando o formulario e enviado.
+- `showCharacterCount` foi removido. Um contador ao vivo em campo mascarado publica na tela o comprimento exato da senha, que e justamente o que a mascara protege. Nenhuma referencia do projeto oferece contador em campo de senha. `maxLength` permanece, sem contagem visivel.
 - Copia e corte sao bloqueados por padrao, mas colagem e autocomplete permanecem permitidos.
 - O botao de visibilidade deve respeitar o estado disabled do campo.
 - Validacoes de produto devem ser configuraveis, sem transformar regras como maiuscula, minuscula, numero ou caractere especial em variantes visuais.
@@ -197,14 +235,15 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
    - `Tabs`, `Accordion`, `Breadcrumb` e `Pagination` implementados, testados, exportados e documentados no Showcase.
    - `Tabs` e `Accordion` sao o terceiro e o quarto consumidores do State Motor.
 
-9. **Familia de listagem** — proxima
-   - Implementar `List` com os tres modos de selecao, busca local e externa e virtualizacao.
-   - Reestruturar `Select` e `ComboBox` sobre a mesma listagem interna, eliminando os dois paineis independentes de hoje.
-   - Corrigir a busca acentuada com `useFilter` e `useCollator`, que alcanca tambem `Menu`.
-   - Estender o motor de selecao conforme a `List` exigir, e nao antes.
+9. **Familia de listagem** — concluida
+   - `List` implementada com os tres modos de selecao, busca local e externa, virtualizacao, testes, exportacao publica e Showcase. Concluida.
+   - `Select` e `ComboBox` reestruturados sobre a mesma listagem interna. Os tres paineis independentes deram lugar a um. Concluida.
+   - Busca acentuada corrigida em `src/utils/textSearch`, alcancando o typeahead de `Select` e `Menu` e o filtro do `ComboBox`. Concluida.
+   - Motor de selecao estendido com ancora, faixa por Shift, marcar todos e estado indeterminado, servindo `List.SelectAll`. Concluida.
 
-10. **Tabelas e datas**
-   - Implementar `Table` basico em HTML nativo, com ordenacao e selecao. `DataGrid` fica em decisao propria, com AG Grid como referencia.
+10. **Tabelas e datas** — em andamento
+   - `Table` implementado em HTML nativo, com ordenacao, selecao nos tres modos, densidade, zebra, divisor, cabecalho fixo, descarte de colunas, vazio e carregamento. `Card` criado como superficie que o envolve. Ambos testados, exportados e documentados no Showcase.
+   - `DataGrid` fica em decisao propria, com AG Grid como referencia. Escopo levantado, sem data.
    - Implementar `DatePicker`, `TimePicker` e `DateTimePicker` sobre `@internationalized/date`, junto com o formatador de apresentacao previsto em `ARCHITECTURE.md` secao 9.1.
 
 11. **Showcase como consumidor**

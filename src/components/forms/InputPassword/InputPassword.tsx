@@ -1,5 +1,12 @@
-import { useState, type ChangeEvent, type ClipboardEvent, type FocusEvent, type InputHTMLAttributes } from 'react';
-import { useCharacterCount } from '../../../hooks/useCharacterCount';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ClipboardEvent,
+  type FocusEvent,
+  type InputHTMLAttributes,
+} from 'react';
 import { Field } from '../Field';
 import styles from './InputPassword.module.css';
 
@@ -9,7 +16,6 @@ export interface InputPasswordProps extends Omit<InputHTMLAttributes<HTMLInputEl
   label?: string;
   allowCopy?: boolean;
   onValidationChange?: (message?: string) => void;
-  showCharacterCount?: boolean;
   showToggle?: boolean;
   validate?: (value: string) => string | undefined;
   validateOnBlur?: boolean;
@@ -34,7 +40,6 @@ export function InputPassword({
   onBlur,
   onValidationChange,
   required = false,
-  showCharacterCount = false,
   showToggle = true,
   size = 'md',
   validate,
@@ -45,11 +50,27 @@ export function InputPassword({
   const [visible, setVisible] = useState(false);
   const [blurred, setBlurred] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string>();
-  const { ref: inputRef, count, updateCount } = useCharacterCount<HTMLInputElement>(value, defaultValue);
+  const inputRef = useRef<HTMLInputElement>(null);
   const displayedError = error ?? validationMessage;
   const inputClasses = [styles.input, styles[size], displayedError && styles.error, className]
     .filter(Boolean)
     .join(' ');
+
+  useEffect(() => {
+    const form = inputRef.current?.form;
+
+    if (!form) {
+      return;
+    }
+
+    function ocultar() {
+      setVisible(false);
+    }
+
+    form.addEventListener('submit', ocultar);
+
+    return () => form.removeEventListener('submit', ocultar);
+  }, []);
 
   function runValidation(nextValue: string) {
     const message = validate?.(nextValue);
@@ -59,7 +80,6 @@ export function InputPassword({
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    updateCount(event.target.value);
     if (validate && (blurred || !validateOnBlur)) {
       runValidation(event.target.value);
     }
@@ -91,14 +111,12 @@ export function InputPassword({
   return (
     <Field
       aria-describedby={ariaDescribedBy}
-      characterCount={count}
       error={displayedError}
       hint={hint}
       id={providedId}
       label={label}
       maxLength={maxLength}
       required={required}
-      showCharacterCount={showCharacterCount}
     >
       {({ id, describedBy, invalid }) => (
         <div className={styles.control}>

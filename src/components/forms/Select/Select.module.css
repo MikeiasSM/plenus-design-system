@@ -73,12 +73,11 @@
   color: var(--pl-color-text-tertiary);
 }
 
-.listbox {
+.panel {
   z-index: 95;
   display: flex;
   flex-direction: column;
-  gap: var(--pl-space-1);
-  overflow-y: auto;
+  overflow: hidden;
   padding: var(--pl-space-1);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
@@ -86,36 +85,3 @@
   box-shadow: var(--pl-sh-2);
 }
 
-.listbox:focus-visible {
-  outline: none;
-}
-
-.option {
-  padding: var(--pl-space-2) var(--pl-space-3);
-  border-radius: var(--pl-radius-sm);
-  color: var(--pl-color-text);
-  font-family: var(--pl-font-body);
-  font-size: var(--pl-type-body-size);
-  line-height: var(--pl-type-body-line-height);
-  cursor: pointer;
-}
-
-.option:hover:not(.disabled) {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
-}
-
-.option[aria-selected='true'] {
-  color: var(--pl-color-on-primary-container);
-  font-weight: var(--pl-type-label-weight);
-}
-
-.focused {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
-}
-
-.disabled {
-  color: var(--pl-color-text-tertiary);
-  cursor: not-allowed;
-}

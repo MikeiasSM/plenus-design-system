@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 
 type FieldValue = string | number | readonly string[] | undefined;
 
+// Conta unidades UTF-16, a mesma medida do maxLength nativo, para que o
+// numero exibido corresponda ao ponto exato em que o navegador corta.
 function countCharacters(value: FieldValue) {
-  return Array.from(String(value ?? '')).length;
+  return String(value ?? '').length;
 }
 
 export function useCharacterCount<T extends HTMLInputElement | HTMLTextAreaElement>(

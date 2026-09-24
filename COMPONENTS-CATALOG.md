@@ -49,7 +49,7 @@ A situação indica a existência do componente, não a cobertura integral do pa
 | --- | --- | --- |
 | `Select` | Campo de escolha única a partir de uma lista curta. | Disponível |
 | `ComboBox` | Campo de listagem completo, com busca e seleção simples ou múltipla. | Disponível |
-| `List` | Listagem visível na própria interface, com busca e seleção opcionais. | Previsto |
+| `List` | Listagem visível na própria interface, com busca e seleção opcionais. | Disponível |
 
 Os três nomes são próximos e a fronteira é o papel na interface, não a implementação.
 
@@ -62,12 +62,17 @@ Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel,
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
+| `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
-| `Table` | Tabela básica, em HTML semântico. | Previsto |
+| `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Previsto |
 
-`Table` cobre a exibição tabular direta. `DataGrid` cobre o conjunto de comportamentos de grade. A escolha entre os dois é pela complexidade do comportamento exigido, não pelo volume de dados.
+O critério entre os dois é quem decide quais linhas existem na página. No `Table`, o consumidor escreve a linha e todas estão presentes. No `DataGrid`, o componente decide e mantém apenas a faixa visível, o que é o que torna possível a virtualização.
+
+Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação percorre os controles de cada célula; o `DataGrid` é um controle interativo, com navegação bidimensional entre células.
+
+O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`.
 
 ## 6. Feedback
 

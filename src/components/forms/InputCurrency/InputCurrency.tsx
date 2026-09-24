@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type FocusEvent } from 'react';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatarEntradaDecimal, formatarEntradaMonetaria } from '../../../utils/formatters';
 
-export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'type' | 'value'> {
+export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
   currency?: string;
   defaultValue?: string | number;
   decimalScale?: number;

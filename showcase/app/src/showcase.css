@@ -341,3 +341,19 @@ body {
 }
 
 
+
+.cell-person {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-3);
+}
+
+.cell-person div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cell-person span {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size, 0.8125rem);
+}

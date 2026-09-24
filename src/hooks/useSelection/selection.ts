@@ -1,3 +1,5 @@
+import { startsWithTerm } from '../../utils/textSearch';
+
 export type SelectionMode = 'none' | 'single' | 'multiple';
 
 export interface SelectionItem {
@@ -6,7 +8,10 @@ export interface SelectionItem {
   textValue?: string;
 }
 
+export type SelectionStatus = 'none' | 'partial' | 'all';
+
 export interface SelectionState {
+  anchorKey?: string;
   focusedKey?: string;
   selectedKeys: ReadonlySet<string>;
 }
@@ -54,7 +59,7 @@ export function previousKey(items: readonly SelectionItem[], from: string | unde
 }
 
 export function matchKey(items: readonly SelectionItem[], query: string, from: string | undefined) {
-  const term = query.trim().toLowerCase();
+  const term = query.trim();
 
   if (!term || items.length === 0) {
     return undefined;
@@ -69,7 +74,7 @@ export function matchKey(items: readonly SelectionItem[], query: string, from: s
       continue;
     }
 
-    if ((item.textValue ?? item.key).toLowerCase().startsWith(term)) {
+    if (startsWithTerm(item.textValue ?? item.key, term)) {
       return item.key;
     }
   }
@@ -94,17 +99,55 @@ export function select(state: SelectionState, key: string, mode: SelectionMode):
     selectedKeys.add(key);
   }
 
-  return { focusedKey: key, selectedKeys };
+  return { anchorKey: key, focusedKey: key, selectedKeys };
+}
+
+export function selectRange(
+  state: SelectionState,
+  key: string,
+  items: readonly SelectionItem[],
+): SelectionState {
+  const anchor = state.anchorKey ?? state.focusedKey ?? key;
+  const from = indexOfKey(items, anchor);
+  const to = indexOfKey(items, key);
+
+  if (from < 0 || to < 0) {
+    return select(state, key, 'multiple');
+  }
+
+  const [inicio, fim] = from <= to ? [from, to] : [to, from];
+  const selectedKeys = new Set(state.selectedKeys);
+
+  for (let i = inicio; i <= fim; i += 1) {
+    if (!items[i].disabled) {
+      selectedKeys.add(items[i].key);
+    }
+  }
+
+  return { anchorKey: anchor, focusedKey: key, selectedKeys };
+}
+
+export function selectionStatus(state: SelectionState, items: readonly SelectionItem[]): SelectionStatus {
+  const available = items.filter((item) => !item.disabled);
+  const chosen = available.filter((item) => state.selectedKeys.has(item.key)).length;
+
+  if (chosen === 0) {
+    return 'none';
+  }
+
+  return chosen === available.length ? 'all' : 'partial';
+}
+
+export function toggleAll(state: SelectionState, items: readonly SelectionItem[]): SelectionState {
+  const available = items.filter((item) => !item.disabled);
+  const selectedKeys = new Set(state.selectedKeys);
+  const marcar = selectionStatus(state, items) !== 'all';
+
+  available.forEach((item) => (marcar ? selectedKeys.add(item.key) : selectedKeys.delete(item.key)));
+
+  return { ...state, selectedKeys };
 }
 
 export function clearSelection(state: SelectionState): SelectionState {
   return { focusedKey: state.focusedKey, selectedKeys: new Set() };
-}
-
-export function sanitizeSelection(state: SelectionState, items: readonly SelectionItem[]): SelectionState {
-  const available = new Set(items.map((item) => item.key));
-  const selectedKeys = new Set([...state.selectedKeys].filter((key) => available.has(key)));
-  const focusedKey = state.focusedKey && available.has(state.focusedKey) ? state.focusedKey : undefined;
-
-  return { focusedKey, selectedKeys };
 }
