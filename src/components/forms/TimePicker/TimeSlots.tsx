@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Time } from '@internationalized/date';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type ListingItem } from '../../data-display/List/useListing';
@@ -6,7 +6,6 @@ import styles from './TimePicker.module.css';
 
 export interface TimeSlotsProps {
   baseId: string;
-  height?: number;
   label?: string;
   max?: Time;
   min?: Time;
@@ -21,6 +20,24 @@ export function paraTextoDeHora(hora?: Time) {
   return hora ? doisDigitos(hora.hour) + ':' + doisDigitos(hora.minute) : '';
 }
 
+/** Aplica a mascara hora:minuto conforme o usuario digita. */
+export function formatarEntradaHora(valor: string) {
+  const digitos = valor.replace(/\D/g, '').slice(0, 4);
+
+  return digitos.length <= 2 ? digitos : digitos.slice(0, 2) + ':' + digitos.slice(2);
+}
+
+export function lerEntradaHora(valor: string) {
+  const [hora, minuto] = valor.split(':').map(Number);
+
+  if (!Number.isInteger(hora) || !Number.isInteger(minuto) || hora > 23 || minuto > 59) {
+    return undefined;
+  }
+
+  return new Time(hora, minuto);
+}
+
+/** Horarios do dia inteiro, do primeiro ao ultimo que couber no passo. */
 export function gerarHorarios(step: number, min = new Time(0, 0), max = new Time(23, 59)) {
   const inicio = min.hour * 60 + min.minute;
   const fim = max.hour * 60 + max.minute;
@@ -33,16 +50,10 @@ export function gerarHorarios(step: number, min = new Time(0, 0), max = new Time
   return horarios;
 }
 
-export function TimeSlots({
-  baseId,
-  height = 264,
-  label = 'Horário',
-  max,
-  min,
-  onChange,
-  step = 30,
-  value,
-}: TimeSlotsProps) {
+export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step = 30, value }: TimeSlotsProps) {
+  const [texto, setTexto] = useState(() => paraTextoDeHora(value));
+  const [digitando, setDigitando] = useState(false);
+
   const horarios = useMemo<ListingItem[]>(
     () => gerarHorarios(step, min, max).map((hora) => ({ value: paraTextoDeHora(hora), label: paraTextoDeHora(hora) })),
     [max, min, step],
@@ -54,21 +65,42 @@ export function TimeSlots({
     selectionMode: 'single',
     value: value ? [{ value: escolhido, label: escolhido }] : [],
     onSelectionChange: ([item]) => {
-      const lido = item && item.value.split(':').map(Number);
+      const lido = item && lerEntradaHora(item.value);
 
       if (lido) {
-        onChange(new Time(lido[0], lido[1]));
+        setDigitando(false);
+        onChange(lido);
       }
     },
   });
 
+  function handleChange(entrada: string) {
+    const mascarado = formatarEntradaHora(entrada);
+
+    setDigitando(true);
+    setTexto(mascarado);
+
+    const lido = lerEntradaHora(mascarado);
+
+    if (lido) {
+      onChange(lido);
+    }
+  }
+
   return (
-    <ListingOptions
-      baseId={baseId}
-      className={styles.slots}
-      height={height}
-      label={label}
-      listing={listagem}
-    />
+    <div className={styles.slots}>
+      <input
+        aria-label={label + ' em horas e minutos'}
+        autoComplete="off"
+        className={styles.slotInput}
+        inputMode="numeric"
+        onBlur={() => setDigitando(false)}
+        onChange={(event) => handleChange(event.target.value)}
+        placeholder="hh:mm"
+        type="text"
+        value={digitando ? texto : escolhido}
+      />
+      <ListingOptions baseId={baseId} className={styles.slotList} label={label} listing={listagem} />
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
 import { Field } from '../Field';
-import { TimeSlots, paraTextoDeHora } from './TimeSlots';
+import { TimeSlots, formatarEntradaHora, lerEntradaHora, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 
 export type TimePickerSize = 'sm' | 'md';
@@ -23,23 +23,6 @@ export interface TimePickerProps {
   required?: boolean;
   size?: TimePickerSize;
   value?: Time;
-}
-
-/** Aplica a mascara hora:minuto conforme o usuario digita. */
-export function formatarEntradaHora(valor: string) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 4);
-
-  return digitos.length <= 2 ? digitos : digitos.slice(0, 2) + ':' + digitos.slice(2);
-}
-
-export function lerEntradaHora(valor: string) {
-  const [hora, minuto] = valor.split(':').map(Number);
-
-  if (!Number.isInteger(hora) || !Number.isInteger(minuto) || hora > 23 || minuto > 59) {
-    return undefined;
-  }
-
-  return new Time(hora, minuto);
 }
 
 export function TimePicker({

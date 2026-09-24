@@ -7,11 +7,19 @@ export function useVirtualWindow(total: number, height?: number) {
   const [itemHeight, setItemHeight] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
 
+  // O passo entre itens inclui o espaco que o container coloca entre eles.
+  // Medir apenas a altura do item acumula erro e faz a janela descolar da
+  // rolagem conforme a lista avanca.
   const measureItem = useCallback((node: HTMLElement | null) => {
-    const measured = node?.offsetHeight ?? 0;
+    if (!node) {
+      return;
+    }
 
-    if (measured > 0) {
-      setItemHeight((current) => (current === measured ? current : measured));
+    const proximo = node.nextElementSibling as HTMLElement | null;
+    const passo = proximo ? proximo.offsetTop - node.offsetTop : node.offsetHeight;
+
+    if (passo > 0) {
+      setItemHeight((current) => (current === passo ? current : passo));
     }
   }, []);
 

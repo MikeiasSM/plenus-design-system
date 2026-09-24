@@ -84,5 +84,31 @@
 }
 
 .slots {
-  width: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+  width: 7.5rem;
+}
+
+.slotInput {
+  width: 100%;
+  padding: var(--pl-space-2);
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-body-size);
+  text-align: center;
+}
+
+.slotInput:focus-visible {
+  outline: none;
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.slotList {
+  max-height: 14rem;
+  font-family: var(--pl-font-mono);
 }

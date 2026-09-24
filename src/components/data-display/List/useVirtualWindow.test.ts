@@ -1,8 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { useVirtualWindow } from './useVirtualWindow';
 
-function medir(medida: (node: HTMLElement | null) => void, altura: number) {
-  act(() => medida({ offsetHeight: altura } as HTMLElement));
+function medir(medida: (node: HTMLElement | null) => void, altura: number, espaco = 0) {
+  const proximo = espaco > 0 ? ({ offsetTop: altura + espaco } as HTMLElement) : null;
+
+  act(() => medida({ offsetHeight: altura, offsetTop: 0, nextElementSibling: proximo } as unknown as HTMLElement));
 }
 
 function rolar(anexar: (node: HTMLElement | null) => void, rolagem: () => void, topo: number) {
@@ -57,5 +59,14 @@ describe('useVirtualWindow', () => {
 
     expect(result.current.active).toBe(false);
     expect(result.current.end).toBe(5);
+  });
+
+  it('mede o passo incluindo o espaco entre os itens', () => {
+    const { result } = renderHook(() => useVirtualWindow(10000, 320));
+
+    medir(result.current.measureItem, 28, 4);
+
+    expect(result.current.active).toBe(true);
+    expect(result.current.padding.after).toBe((10000 - result.current.end) * 32);
   });
 });

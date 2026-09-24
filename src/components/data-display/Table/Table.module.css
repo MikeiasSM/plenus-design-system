@@ -8,7 +8,8 @@
   border-collapse: collapse;
   background: var(--pl-color-surface);
   color: var(--pl-color-text);
-  font-family: var(--pl-font-body);
+  font-family: var(--pl-font-mono);
+  font-variant-numeric: tabular-nums;
   text-align: left;
 }
 
@@ -118,7 +119,6 @@
 }
 
 .numeric {
-  font-family: var(--pl-font-mono);
   font-size: var(--pl-type-data-value-size);
   font-weight: var(--pl-type-data-value-weight);
   line-height: var(--pl-type-data-value-line-height);

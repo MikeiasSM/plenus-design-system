@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-275 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
+278 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -146,7 +146,7 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 - A `List` troca o elemento conforme o modo: `ul` e `li` sem selecao, `div` com `role="listbox"` e `role="option"` com selecao. O `ul` nao aceita um grupo como filho direto, e no modo sem selecao a marcacao nativa de lista e a correta.
 - A secao de selecionados no topo aparece somente com busca ativa, listando o que foi escolhido e saiu do resultado. Fora da busca, subir os marcados faria o item pular de lugar no instante da escolha, o que e pior com a lista virtualizada.
 - Navegacao por teclado existe apenas nos modos com selecao. Sem selecao nao ha o que focar, e `aria-activedescendant` apontaria para itens sem papel.
-- A janela virtual mede a altura de um item real e desliga se a medida for zero, o que mantem o comportamento correto em jsdom, onde nao ha layout. A rolagem ate o item focado usa a matematica da janela quando virtualizada e o proprio elemento quando nao.
+- A janela virtual mede o **passo entre dois itens**, nao a altura de um item. Medindo so a altura, o espaco que o container coloca entre eles ficava de fora, o erro se acumulava e perto do fim da lista os espacadores colidiam com os itens, com numeros aparecendo fora de lugar. Ela desliga se a medida for zero, o que mantem o comportamento correto em jsdom, onde nao ha layout. A rolagem ate o item focado usa a matematica da janela quando virtualizada e o proprio elemento quando nao.
 - A comparacao textual usa `Intl.Collator` com sensibilidade `base`, e nao `useFilter` ou `useCollator`. O typeahead vive em `selection.ts`, que e motor puro sem React conforme `ARCHITECTURE.md` secao 7, e um hook nao cabe ali. Injetar a comparacao de fora furaria a pureza do motor para resolver o que o `Intl` nativo resolve em poucas linhas, sem uma terceira dependencia.
 
 ### Formatadores e localidade
@@ -175,12 +175,13 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Cada dia anuncia a data por extenso, nao apenas o numero. Alem de ser o que o leitor de tela precisa, resolve a ambiguidade dos dias de meses vizinhos, que repetem o mesmo numero na mesma grade.
 - `TimePicker` **nao** usa `input type="time"`. O seletor nativo foi implementado e descartado: ele segue a localidade do sistema operacional, nao a da aplicacao, e exibia 12 horas com AM/PM num contexto pt-BR; seu painel tambem nao aceita estilo, ficando fora do Design System por construcao.
 - O painel de hora e **uma coluna de horarios**, nao duas colunas de hora e minuto. E o que o `DateTimePickerDemo` do Untitled UI faz: uma lista rolavel de horarios ao lado do calendario, de trinta em trinta minutos por padrao. A primeira versao, com colunas separadas de hora e minuto, foi descartada por divergir da referencia.
-- Os horarios saem de `gerarHorarios`, entre `min` e `max`, com o passo de `step`. A lista corre sobre a listagem compartilhada de `List`, `Select` e `ComboBox`.
+- Os horarios saem de `gerarHorarios`, entre `min` e `max`, com o passo de `step`. Sem limites, a lista cobre o dia inteiro: da meia-noite as 23h30 no passo padrao. A lista corre sobre a listagem compartilhada de `List`, `Select` e `ComboBox`, com altura limitada por CSS e sem virtualizacao, que para algumas dezenas de itens so traria risco.
+- O painel de horarios tem um campo `hh:mm` proprio, para informar a hora sem percorrer a lista.
 - `DateTimePicker` e um campo unico, com data e hora na mesma mascara, e um painel unico com o calendario a esquerda e os horarios a direita.
 - O painel trabalha sobre um **rascunho**: nada e aplicado ate o usuario confirmar, conforme o rodape de cancelar e aplicar da referencia. `Hoje` leva o calendario para a data corrente sem confirmar.
 - Escolher hora sem data escolhida apoia-se em **hoje**. A primeira versao inventava o dia primeiro de janeiro, e o campo exibia uma data que o usuario nunca havia escolhido.
 - Tipografia: `type.title` pertence a Montserrat, nao a Poppins. O `Card` nascera errado e foi corrigido. Poppins fica restrita a display e headline, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
-- Tipografia: valores numericos e monetarios em tabela usam `type.data-value` em JetBrains Mono, pela mesma referencia. `Table.Column` e `Table.Cell` ganharam `numeric`, que aplica a familia, o tamanho, o peso e o alinhamento a direita.
+- Tipografia: a `Table` usa **JetBrains Mono**, a familia que `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a tabelas e dados tecnicos, com `tabular-nums` para os digitos alinharem em coluna. `Table.Column` e `Table.Cell` mantem `numeric`, que aplica `type.data-value` em tamanho, peso e alinhamento a direita.
 - Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.
 - Pendente do Untitled UI: intervalo de datas, atalhos de periodo, visao de dois meses e rodape com cancelar e aplicar. Nenhum deles foi pedido por um cenario concreto ate agora.
 

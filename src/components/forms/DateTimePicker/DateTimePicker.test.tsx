@@ -137,4 +137,26 @@ describe('TimePicker', () => {
 
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(hoje.year, hoje.month, hoje.day, 9, 0));
   });
+
+  it('oferece o dia inteiro, da meia-noite a ultima meia hora', () => {
+    render(<TimePicker label="Inicio" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
+
+    const horarios = screen.getAllByRole('option');
+    expect(horarios).toHaveLength(48);
+    expect(horarios[0]).toHaveTextContent('00:00');
+    expect(horarios.at(-1)).toHaveTextContent('23:30');
+    expect(screen.getByRole('option', { name: '23:00' })).toBeInTheDocument();
+  });
+
+  it('aceita a hora digitada no proprio painel', () => {
+    const mudou = vi.fn();
+    render(<TimePicker label="Inicio" onValueChange={mudou} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
+    fireEvent.change(screen.getByLabelText('Horário em horas e minutos'), { target: { value: '2147' } });
+
+    expect(mudou).toHaveBeenLastCalledWith(new Time(21, 47));
+  });
 });
