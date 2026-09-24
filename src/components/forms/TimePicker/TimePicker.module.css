@@ -97,8 +97,9 @@
   border-radius: var(--pl-radius-sm);
   background: var(--pl-color-surface);
   color: var(--pl-color-text);
-  font-family: var(--pl-font-mono);
+  font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
@@ -110,5 +111,5 @@
 
 .slotList {
   max-height: 14rem;
-  font-family: var(--pl-font-mono);
+  font-variant-numeric: tabular-nums;
 }
