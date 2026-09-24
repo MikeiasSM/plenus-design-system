@@ -23,7 +23,8 @@ Outros modulos:
 - `src/components/data-display/List/useVirtualWindow` — janela virtual da listagem. **Interno**, pertence ao componente conforme `ARCHITECTURE.md` secao 8.
 - `src/hooks/useCalendar` — State Motor de calendario, com `calendar.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `DatePicker` e, por ele, `DateTimePicker`.
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
-- `src/utils/formatters` — `formatarEntradaDecimal` e `formatarEntradaMonetaria`. **Nao exportados** pela API publica.
+- `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
+- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
 Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`. Todas externalizadas no build.
@@ -247,7 +248,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 
 6. **State Motor de selecao** — concluida
    - Motor puro em `src/hooks/useSelection/selection.ts`, testado isoladamente, conforme `ARCHITECTURE.md` secao 7.
-   - Ligacao React fina em `useSelection`. Hoje serve `Menu`, `Select`, `ComboBox`, `Tabs` e `Accordion`, e esta pronta para `Table`.
+   - Ligacao React fina em `useSelection`. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion`, `List` e `Table`.
 
 7. **Familia de overlays** — concluida
    - `Dialog`, `Popover`, `Tooltip`, `Menu`, `Select` e `ComboBox` implementados, testados, exportados e documentados no Showcase.
@@ -269,11 +270,16 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - `DatePicker`, `TimePicker` e `DateTimePicker` implementados sobre `@internationalized/date`, com State Motor de calendario proprio, testes, exportacao publica e Showcase.
    - `formatarData` e `formatarHora` criados conforme `ARCHITECTURE.md` secao 9.1, e exportados pela API publica. `formatarEntradaData` e `lerEntradaData` acompanham as mascaras de entrada ja existentes.
 
-11. **Showcase como consumidor**
+11. **Editor em blocos** — proxima
+   - Componente complexo, previsto em `ARCHITECTURE.md` secao 6.3 entre os exemplos de editores, com State Motor proprio conforme a secao 7.
+   - Gutenberg, do WordPress, como referencia de funcionalidade e de modelo de blocos.
+   - Escopo, nome e limites a definir antes da implementacao, com o levantamento da referencia como base.
+
+12. **Showcase como consumidor**
    - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
 
-12. **Integracao e distribuicao**
+13. **Integracao e distribuicao**
    - Configurar `main`, `module`, `exports` e `types`, emitir declaracoes e validar o pacote construido.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
