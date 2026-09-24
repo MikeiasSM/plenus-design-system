@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type ClipboardEvent, type FocusEvent, type InputHTMLAttributes } from 'react';
+import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
 import styles from './InputPassword.module.css';
 
@@ -44,8 +45,7 @@ export function InputPassword({
   const [visible, setVisible] = useState(false);
   const [blurred, setBlurred] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string>();
-  const [uncontrolledCount, setUncontrolledCount] = useState(() => Array.from(String(defaultValue ?? '')).length);
-  const characterCount = value === undefined ? uncontrolledCount : Array.from(String(value)).length;
+  const { ref: inputRef, count, updateCount } = useCharacterCount<HTMLInputElement>(value, defaultValue);
   const displayedError = error ?? validationMessage;
   const inputClasses = [styles.input, styles[size], displayedError && styles.error, className]
     .filter(Boolean)
@@ -59,9 +59,7 @@ export function InputPassword({
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    if (value === undefined) {
-      setUncontrolledCount(Array.from(event.target.value).length);
-    }
+    updateCount(event.target.value);
     if (validate && (blurred || !validateOnBlur)) {
       runValidation(event.target.value);
     }
@@ -93,7 +91,7 @@ export function InputPassword({
   return (
     <Field
       aria-describedby={ariaDescribedBy}
-      characterCount={characterCount}
+      characterCount={count}
       error={displayedError}
       hint={hint}
       id={providedId}
@@ -111,6 +109,7 @@ export function InputPassword({
             defaultValue={defaultValue}
             disabled={disabled}
             id={id}
+            ref={inputRef}
             aria-describedby={describedBy}
             aria-invalid={invalid || ariaInvalid}
             maxLength={maxLength}

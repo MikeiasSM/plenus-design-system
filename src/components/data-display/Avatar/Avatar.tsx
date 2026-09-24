@@ -1,9 +1,9 @@
-import { useEffect, useState, type ImgHTMLAttributes, type SyntheticEvent } from 'react';
+import { useEffect, useState, type HTMLAttributes, type SyntheticEvent } from 'react';
 import styles from './Avatar.module.css';
 
 export type AvatarSize = 'sm' | 'md' | 'lg';
 
-export interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'src'> {
+export interface AvatarProps extends HTMLAttributes<HTMLElement> {
   name: string;
   size?: AvatarSize;
   src?: string;
@@ -23,7 +23,7 @@ export function Avatar({ className, name, onError, size = 'md', src, ...props }:
     setImageFailed(false);
   }, [src]);
 
-  function handleError(event: SyntheticEvent<HTMLImageElement, Event>) {
+  function handleError(event: SyntheticEvent<HTMLElement, Event>) {
     setImageFailed(true);
     onError?.(event);
   }

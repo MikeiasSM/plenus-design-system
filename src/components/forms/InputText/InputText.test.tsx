@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { InputText } from './InputText';
 
 describe('InputText', () => {
@@ -72,5 +72,22 @@ describe('InputText', () => {
     );
 
     expect(screen.getByText('6/10')).toBeInTheDocument();
+  });
+
+  it('restores the character count after the form is reset', () => {
+    render(
+      <form>
+        <InputText id="reset" label="Observação" defaultValue="Inicial" maxLength={20} showCharacterCount />
+      </form>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Observação' }), { target: { value: 'Texto alterado' } });
+    expect(screen.getByText('14/20')).toBeInTheDocument();
+
+    const input = screen.getByRole('textbox', { name: 'Observação' }) as HTMLInputElement;
+    act(() => input.form!.reset());
+
+    expect(input).toHaveValue('Inicial');
+    expect(screen.getByText('7/20')).toBeInTheDocument();
   });
 });

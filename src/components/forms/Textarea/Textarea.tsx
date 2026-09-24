@@ -1,4 +1,5 @@
-import { useState, type ChangeEvent, type TextareaHTMLAttributes } from 'react';
+import { type ChangeEvent, type TextareaHTMLAttributes } from 'react';
+import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
 import styles from './Textarea.module.css';
 
@@ -30,23 +31,20 @@ export function Textarea({
   value,
   ...props
 }: TextareaProps) {
-  const [uncontrolledCount, setUncontrolledCount] = useState(() => Array.from(String(defaultValue ?? '')).length);
-  const characterCount = value === undefined ? uncontrolledCount : Array.from(String(value)).length;
+  const { ref: textareaRef, count, updateCount } = useCharacterCount<HTMLTextAreaElement>(value, defaultValue);
   const classes = [styles.textarea, styles[size], error && styles.error, className]
     .filter(Boolean)
     .join(' ');
 
   function handleChange(event: ChangeEvent<HTMLTextAreaElement>) {
-    if (value === undefined) {
-      setUncontrolledCount(Array.from(event.target.value).length);
-    }
+    updateCount(event.target.value);
     onChange?.(event);
   }
 
   return (
     <Field
       aria-describedby={ariaDescribedBy}
-      characterCount={characterCount}
+      characterCount={count}
       error={error}
       hint={hint}
       id={providedId}
@@ -60,6 +58,7 @@ export function Textarea({
           {...props}
           defaultValue={defaultValue}
           id={id}
+          ref={textareaRef}
           aria-describedby={describedBy}
           aria-invalid={invalid || ariaInvalid}
           className={classes}

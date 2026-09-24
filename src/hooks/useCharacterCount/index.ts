@@ -1,0 +1,1 @@
+export { useCharacterCount } from './useCharacterCount';

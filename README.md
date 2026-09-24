@@ -141,6 +141,7 @@ plenus-design-system/
 ├── .gitignore
 ├── ARCHITECTURE.md
 ├── COMPONENTS.md
+├── COMPONENTS-CATALOG.md
 ├── CONTRIBUTING.md
 ├── TOKENS.md
 └── README.md
@@ -182,6 +183,7 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — princípios e decisões arquiteturais.
 - [COMPONENTS.md](COMPONENTS.md) — padrões para criação e organização de componentes.
+- [COMPONENTS-CATALOG.md](COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
 - [TOKENS.md](TOKENS.md) — padrões para criação e gerencia de tokens visuais.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
 

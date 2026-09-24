@@ -99,6 +99,23 @@ Quando a complexidade estrutural cresce, avaliar composição:
 
 Isso não significa que propriedades booleanas sejam proibidas. Elas são apropriadas para variações simples.
 
+O critério que separa os dois casos é a estrutura.
+
+- O que ocupa espaço na interface e pode precisar de controle do consumidor é **parte**, e pertence à composição.
+- O que altera comportamento sem acrescentar estrutura é **modo**, e pertence às propriedades.
+
+Uma busca é parte: é um campo real, que o consumidor precisa rotular, posicionar e às vezes preencher. Um modo de seleção é modo: não acrescenta nenhuma parte à árvore, apenas altera como o clique e o teclado se comportam.
+
+Quando a variação possui mais de dois estados, uma propriedade nomeada expressa a intenção melhor do que booleanos acumulados:
+
+```tsx
+// Evitar
+<Component selectable multiple />
+
+// Preferir
+<Component selectionMode="multiple" />
+```
+
 ## 5. Componentes complexos
 
 Componentes complexos devem separar, quando necessário:
@@ -244,8 +261,10 @@ Preferir:
 - Table
 - DataGrid
 - Pagination
+- List
+- ComboBox
 
-`Table` nomeia o componente básico de tabela. `DataGrid` nomeia o componente completo, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade.
+Os componentes cobertos pelo Design System, o papel de cada um e as fronteiras entre nomes próximos estão em `COMPONENTS-CATALOG.md`.
 
 Evitar nomes excessivamente específicos de produto:
 

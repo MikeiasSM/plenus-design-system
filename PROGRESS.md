@@ -2,133 +2,71 @@
 
 Este documento acompanha a implementacao do Plenustech Design System em relacao a documentacao oficial do repositorio.
 
-Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONENTS.md`, `TOKENS.md` ou `CONTRIBUTING.md`. Esses documentos sao a fonte normativa do projeto.
+Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONENTS.md`, `TOKENS.md` ou `CONTRIBUTING.md`. Esses documentos sao a fonte normativa do projeto. As diretrizes de programacao, idioma, nomenclatura e referencias externas estao em `CLAUDE.md`, subordinadas a eles.
+
+O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado atual, as decisoes que nao devem ser reabertas sem motivo novo, e o que vem a seguir.
 
 ## Estado atual
 
-### Definido
+168 testes em 30 arquivos. Build da biblioteca e do Showcase validados.
 
-- Arquitetura e limites do Design System.
-- Separacao entre Design System, Showcase e aplicacoes consumidoras.
-- Principios de composicao, acessibilidade e independencia de dominio.
-- Organizacao conceitual de tokens primitivos, semanticos e temas.
-- Convencoes para componentes, CSS Modules, testes e API publica.
-- Referencia de cores em `TOKENS-REFERENCE-COLORS.md`.
-- Referencia tipografica em `TOKENS-REFERENCE-TYPOGRAPHY.md`.
-- `TOKENS.md` atualizado com links para as referencias especializadas.
-- Remocao do README local de `src/components/`, mantendo apenas a documentacao Markdown da raiz.
-- Stack inicial definida: React, TypeScript, Vite, npm e Node 20 LTS.
-- Estrutura inicial de pacote, TypeScript, build e Vitest criada.
-- Ponto de entrada `src/index.ts` criado para os estilos globais.
-- Teste de fumaça da fundacao criado.
-- Camadas iniciais de tokens de marca, neutros, status, cores semanticas e tipografia criadas.
-- Cores e fontes oficiais conectadas aos aliases legados durante a migracao.
-- Showcase atualizado para carregar apenas os pesos tipograficos definidos.
-- Primeiro componente oficial `Button` implementado com CSS Module, variantes, tamanhos, loading e testes.
-- `Button` exportado pelo ponto de entrada publico `src/index.ts`.
-- Componente primitivo `Label` implementado com CSS Module, associacao nativa, indicador obrigatorio e testes.
-- `Label` exportado pelo ponto de entrada publico `src/index.ts`.
-- Componente primitivo `Input` implementado com CSS Module, label, hint, erro, tamanhos e testes de acessibilidade.
-- `Input` exportado pelo ponto de entrada publico `src/index.ts`.
-- `Input` ampliado com `maxLength`, `showCharacterCount`, contagem controlada/nao controlada e anuncio acessivel.
-- Formatter `formatDecimalInput` criado para normalizacao de inteiros e decimais com virgula e escala configuravel.
-- Componente `NumberInput` implementado para inteiros e decimais com controle de casas, testes e exportacao publica.
-- `NumberInput` integrado ao Showcase com exemplos de quantidade inteira e decimal.
-- Componente `PasswordInput` implementado como componente independente, com toggle de visibilidade, autocomplete, erro e contador.
-- `PasswordInput` exportado e documentado no Showcase.
-- `PasswordInput` bloqueia copia e corte por padrao, permite opt-in com `allowCopy` e preserva colagem/autofill.
-- Limite de seguranca do navegador documentado: extensoes e scripts privilegiados nao podem ser impedidos pelo componente.
-- `PasswordInput` fornece `validate`, `validateOnBlur` e `onValidationChange` para regras de produto sem politica fixa embutida.
-- Formatter `formatCurrencyInput` criado para moeda, milhares e duas casas decimais.
-- Componente `CurrencyInput` implementado com edicao bruta, formatacao no blur e valor interno separado.
-- `CurrencyInput` exportado e documentado no Showcase.
-- Componente `Avatar` implementado com tamanhos, imagem, fallback por iniciais e tratamento de falha.
-- `Avatar` exportado e documentado no Showcase.
-- `Label` e `Input` integrados ao Showcase React com exemplos de associacao, ajuda, erro, disabled e tamanho compacto.
-- Componente primitivo `Badge` implementado com CSS Module, tons semanticos, dot, outline e testes.
-- `Badge` exportado pelo ponto de entrada publico `src/index.ts`.
-- Showcase React reorganizado como documentacao por categorias.
-- Cada componente documentado possui demonstracoes funcionais, tipos/variantes/estados e exemplo de implementacao.
-- Button, Input e Badge organizados nas categorias Acoes, Formularios e Data display.
-- Entrada React inicial do Showcase criada em `showcase/app/`.
-- Showcase React configurado para consumir o Button pelo alias local `@plenus`.
-- Scripts `dev:showcase`, `build:showcase` e `preview:showcase` adicionados.
-- Tokens visuais iniciais em `src/styles/tokens.css`.
-- Estilos globais iniciais em `src/styles/globals.css`.
-- Diretrizes primarias de programacao definidas em `CLAUDE.md`, subordinadas ao corpus normativo.
-- Regra de idioma definida: componentes, hooks e tokens em ingles; formatadores e utilitarios de apresentacao em portugues.
-- Nomenclatura dos tokens confirmada como conforme aos documentos de referencia de cores e tipografia, que prescrevem ingles.
-- Formatadores renomeados para `formatarEntradaDecimal` e `formatarEntradaMonetaria`, preservando `formatarMoeda` para a formatacao de apresentacao prevista na arquitetura.
-- Formatadores passam a converter valores numericos para a convencao decimal brasileira e a preservar o sinal negativo.
-- `formatarEntradaMonetaria` deixa de emitir virgula orfa quando nao ha casas decimais.
-- `Input`, `NumberInput`, `CurrencyInput` e `PasswordInput` passam a derivar o valor exibido em vez de espelhar estado, eliminando os efeitos de sincronizacao.
-- `CurrencyInput` reflete mudancas externas de valor mesmo durante o foco.
-- `NumberInput` deixa de expor `onChange`, restando `onValueChange` como canal unico do valor normalizado.
-- `PasswordInput` desabilita o botao de visibilidade junto com o campo.
-- `validateOnBlur` passa a escolher o gatilho da validacao: blur por padrao, mudanca quando desativado.
-- Preferencia de movimento reduzido respeitada globalmente em `globals.css`.
-- Variantes de texto das cores funcionais criadas conforme `TOKENS-REFERENCE-COLORS.md`, que ja as previa: `on-primary-container`, `on-success-container`, `on-warning-container`, `on-danger-container`, `on-info-container` e `danger-text`.
-- Neutro terciario recalibrado para `#6E7175` no claro e `#8E9297` no escuro, corrigindo hints, placeholders e contadores.
-- `primary` deixa de ser usado como texto sobre fundo claro em Button secundario, toggle de senha e links, cedendo lugar a `primary-active`.
-- Convencao de nomenclatura definida como tipo seguido de especializacao, registrada em `CLAUDE.md`.
-- `COMPONENTS.md` secao 12 atualizada: `DataTable` era nomenclatura antiga e deu lugar a `Table` para o componente basico e `DataGrid` para o completo.
-- Bibliotecas de referencia do projeto registradas em `CLAUDE.md`: Untitled UI, React Aria, Radix UI, shadcn/ui, AG Grid e D3.
-- `Button` em carregamento deixa de usar `disabled` e passa a usar `aria-disabled` com `aria-busy`, preservando o foco e o anuncio do estado. O clique e bloqueado no handler.
-- `aria-live` removido dos contadores de caractere de `InputText` e `InputPassword`, que anunciavam a cada tecla. A contagem permanece acessivel por `aria-describedby`.
-- Decidido que o React Aria entra apenas como primitivo de comportamento sem estado. Maquinas de colecao, selecao e navegacao permanecem como State Motors proprios, conforme `ARCHITECTURE.md` secao 7.
-- Descartados `react-aria-components`, `react-stately` e os hooks do `react-aria` que recebem estado de colecao. Radix, shadcn/ui e Tailwind descartados como fundacao, por cederem DOM e estado e por conflitarem com o CSS Modules exigido em `ARCHITECTURE.md` secao 4.
-- Componentes de formulario renomeados para `InputText`, `InputNumber`, `InputPassword` e `InputCurrency`, com diretorios, arquivos, tipos, testes, API publica e Showcase alinhados.
-- `Button` variante `danger` solida passa a consumir `--pl-color-danger-solid`, em 6.95:1 no claro e 5.44:1 no escuro.
-- Ultima referencia a token primitivo dentro de componente removida, com a criacao de `--pl-color-on-danger`.
-- Contraste validado em WCAG AA em todas as combinacoes de texto e de componente, exceto as excecoes aceitas registradas adiante.
-- Emissao de `vite.config.js` eliminada, encerrando o sombreamento do arquivo de configuracao.
-- Componente interno `Field` extraido com o cromo de campo: envoltorio, rotulo, mensagem de ajuda ou erro, contador e fiacao de `id` e `aria-describedby`. Nao e exportado pela API publica.
-- `InputText` e `InputPassword` passam a consumir `Field`, eliminando a duplicacao que havia exigido a mesma correcao de `aria-live` em dois lugares.
-- Componente `Textarea` implementado sobre `Field`, com tamanhos, contador, redimensionamento vertical, testes, exportacao publica e documentacao no Showcase.
-- Ultimo token legado consumido por componente eliminado: `--pl-danger-soft` deu lugar a `--pl-color-danger-container` no anel de foco de erro.
-- Componentes `Checkbox`, `RadioGroup` com `Radio`, e `Switch` implementados sobre controles nativos com `appearance: none`, incluindo estado indeterminado, propagacao de desabilitado e semantica de grupo por `fieldset` e `legend`.
-- Componentes `Alert`, `Progress` e `Spinner` implementados em `src/components/feedback/`.
-- `Alert` define a urgencia pelo tom: aviso e erro usam `role="alert"`, informacao e sucesso usam `role="status"`.
-- `Progress` suporta modo indeterminado, omitindo `aria-valuenow`, e limita o valor a faixa declarada.
-- `Spinner` extraido do `Button`, que passou a consumi-lo. Fica decorativo sem rotulo e assume `role="status"` quando recebe um.
-- `Spinner` redesenhado como trilho cinza com arco colorido, parametrizado por `--spinner-arc` e `--spinner-track`. O `Button` sobrescreve os dois para manter o indicador na cor da variante.
-- Primeiro State Motor criado em `src/hooks/useSelection/`: `selection.ts` concentra colecao, navegacao com salto de desabilitados, selecao simples e multipla, typeahead e sanitizacao, sem nenhuma dependencia de React.
-- `useSelection` liga o motor ao React, adicionando apenas o que o framework exige: guarda da chave focada, contrato controlado e nao controlado, e buffer temporizado da busca por digitacao.
-- Motor coberto por 20 testes. Nao exportado pela API publica ate que um componente externo precise dele.
-- Primeira adocao do React Aria: `@react-aria/focus` e `@react-aria/overlays` entram como dependencia, restritos aos primitivos admitidos em `CLAUDE.md`. Ambos externalizados no build, para nao serem embutidos no pacote.
-- Token `--pl-color-scrim` criado na camada semantica, substituindo o legado `--pl-scrim`.
-- Componente `Dialog` implementado com `FocusScope`, `useOverlay`, `usePreventScroll` e `ariaHideOutside`: foco preso, retorno de foco ao gatilho, trava de rolagem, fundo escondido da tecnologia assistiva e dispensa por Escape, clique externo ou botao de fechar.
-- `Dialog` renderizado em portal, exportado e documentado no Showcase.
-- Componente `Popover` implementado com `useOverlayPosition`, trazendo ancoragem ao gatilho, inversao por colisao e reposicionamento em rolagem. Nao e modal: o restante da pagina permanece acessivel.
-- `Popover` e a base de posicionamento que `Menu`, `Select` e `ComboBox` vao reaproveitar.
-- Componente `Tooltip` implementado com atraso no ponteiro, exibicao imediata no foco, `aria-describedby` no gatilho e dispensa por Escape. Encadeia os manipuladores proprios do gatilho em vez de substitui-los.
-- Componente `Menu` implementado sobre o State Motor: foco real nos itens, navegacao com salto de desabilitados, abertura no primeiro ou no ultimo item conforme a seta, busca por digitacao e fechamento por Tab ou Escape.
-- Componente `Select` implementado sobre o State Motor e o `Field`, com `role="combobox"`, listbox por `aria-activedescendant`, contratos controlado e nao controlado.
-- Componente `ComboBox` implementado com filtragem por substring, foco permanente no campo e aviso de lista vazia. Dispensa `FocusScope`, porque o foco nunca sai do campo.
-- `Menu` e `Select` devolvem o foco ao gatilho por conta propria, sem depender do `restoreFocus` do `FocusScope`.
-- Sombra do `Button` no hover reduzida de `0 5px 12px` a 32% para `0 3px 8px` a 22%, por avaliacao visual em uso.
-- Listas de `Select` e `ComboBox` passam a acompanhar a largura do gatilho, medida no layout antes da pintura.
-- `Select`, `ComboBox` e `Menu` ganham folga de 8px da borda da janela e teto de altura, para nao colarem nas extremidades nem ocuparem a tela inteira quando a lista e longa.
-- Hover dos itens de `Menu`, `Select` e `ComboBox` deixa o cinza e passa a `--pl-color-primary-container` com texto em `--pl-color-on-primary-container`, em 7.27:1.
-- Itens das listas ganham espacamento de `--pl-space-1` entre si.
-- Componente `Tabs` implementado sobre o State Motor, com ativacao automatica pelo teclado, percurso circular e salto de abas desabilitadas.
-- Componente `Accordion` implementado sobre o State Motor, com modo unico ou multiplo, regiao rotulada pelo gatilho e navegacao circular entre cabecalhos.
-- `Accordion` alinhado a referencia visual do Untitled UI, que e vertical: icone de circulo com mais e menos trocando o glifo em vez de chevron girando, propriedade `iconPosition` e variacao com e sem divisor.
-- Hover do cabecalho do `Accordion` deixa de pintar o fundo e passa a mudar apenas o texto e o icone, para `--pl-color-primary-active`, em 5.38:1 no claro e 11.04:1 no escuro.
-- Orientacao horizontal do `Accordion` removida. A referencia nao possui esse arranjo; o par vertical e horizontal pertence ao `Tabs`.
-- `Tabs` ganha `orientation`, com `aria-orientation` no tablist e eixo de setas acompanhando, seguindo os Vertical Tabs do Untitled UI.
-- Componente `Breadcrumb` implementado com `aria-current` no ultimo item e propriedade `as`, que recebe o componente de link da aplicacao conforme `ARCHITECTURE.md` secao 11.
-- Componente `Pagination` implementado com faixa reticenciada, primeira e ultima pagina sempre visiveis e limitacao da pagina informada.
-- Regra da faixa de paginacao corrigida: abaixo do limite em que a reticencia economiza espaco, todas as paginas aparecem.
-- Todos os seis componentes documentados no Showcase e exportados pela API publica.
-- Contraste dos novos componentes validado: preenchimento do `Progress`, marca do `Checkbox`, polegar do `Switch` e textos do `Alert`.
-- Borda dos controles de formulario mantem o neutro `--pl-color-border-strong` em repouso e passa a `--pl-color-primary` no hover, unico estado que altera a borda. Antes o hover usava o cinza escuro `--pl-color-text-tertiary`.
-- Hover dos controles ganha elevacao discreta com `--pl-sh-1`, acompanhando o padrao ja existente no `Button`. Campos em erro recebem a mesma sombra sem perder a borda de perigo.
-- Foco dos campos mantido como borda em `--pl-color-primary` mais halo de `primary-container`. O `outline` deslocado chegou a ser adotado e foi revertido por decisao visual: produzia borda dupla.
-- Sinal visivel do foco passa a ser a troca da borda, em 3.03:1 no claro e 5.57:1 no escuro. O halo e decorativo, em 1.08:1.
-- Corrigida a precedencia do hover sobre o estado de erro, que antes pintava de laranja a borda de um campo invalido.
-- Preenchimento do `Progress` clareado de `primary-active` para `primary-hover`, o tom mais claro que ainda alcanca o minimo de 3:1 contra o trilho.
-- Borda de campo no hover alcanca 3.03:1 no claro e 5.57:1 no escuro. Em repouso segue como excecao aceita.
+### Inventario
+
+Os componentes assinalados como disponiveis em `COMPONENTS-CATALOG.md` estao implementados, testados e exportados por `src/index.ts`. O catalogo e a fonte dos nomes e do papel de cada um; aqui fica apenas o estado.
+
+Outros modulos:
+
+- `src/components/forms/Field` — cromo de campo compartilhado. **Interno**, nao exportado.
+- `src/hooks/useCharacterCount` — contagem de caracteres dos campos, controlada ou nao. **Interno**, nao exportado. Serve `InputText`, `InputPassword` e `Textarea`.
+- `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs` e `Accordion`.
+- `src/utils/formatters` — `formatarEntradaDecimal` e `formatarEntradaMonetaria`. **Nao exportados** pela API publica.
+- `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
+
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`.
+
+### Decisoes tomadas
+
+Registradas para nao serem reabertas sem motivo novo. O porque importa mais que o que.
+
+**Dependencias e arquitetura**
+
+- React Aria entra **apenas como primitivo de comportamento sem estado**: foco, posicionamento, rolagem, ponteiro e internacionalizacao. Maquinas de colecao, selecao e navegacao permanecem como State Motors proprios, conforme `ARCHITECTURE.md` secao 7. Os hooks vetados estao nomeados em `CLAUDE.md`.
+- Descartados como fundacao: `react-aria-components` e `react-stately`, por cederem a maquina de estado; Radix e shadcn/ui, por cederem tambem o DOM; Tailwind, por conflitar com o CSS Modules exigido em `ARCHITECTURE.md` secao 4.
+- `@react-aria/focus` e `@react-aria/overlays` sao externalizados no build, junto de `react/jsx-runtime`, para nao serem embutidos no pacote.
+- Untitled UI guia o visual sempre que houver referencia correspondente. Consultar **antes** de arbitrar tratamento visual, nao depois.
+
+**Nomenclatura e idioma**
+
+- Componentes de uma familia usam tipo seguido de especializacao: `InputText`, `InputNumber`, `InputPassword`, `InputCurrency`. Conceito unico mantem nome simples.
+- Componentes, hooks e tokens em ingles; formatadores e utilitarios de apresentacao em portugues.
+- O idioma dos tokens foi confirmado como ingles pelos documentos de referencia de cores e tipografia, que prevalecem sobre os exemplos conceituais de `TOKENS.md` secao 3.
+- `COMPONENTS.md` secao 12 atualizada: `Table` para o componente basico e `DataGrid` para o completo.
+
+**Padroes de componente**
+
+- `Field` concentra rotulo, ajuda, erro, contador e a fiacao de `id` e `aria-describedby`. O valor da contagem fica em cada controle, que e quem detem o valor.
+- Campos **derivam** o valor exibido em vez de espelhar estado em efeito.
+- Os formatadores de entrada sao mascaras, distintas do `formatarMoeda` de apresentacao previsto em `ARCHITECTURE.md` secao 9.1, que ainda nao existe.
+- `Menu` e `Select` devolvem o foco ao gatilho por conta propria. O `restoreFocus` do `FocusScope` nao era observavel em teste e mascarava a ausencia.
+- Espalhar `overlayProps` e declarar `onKeyDown` em seguida **substitui** o manipulador da biblioteca. Encadear, sempre.
+- A contagem de caracteres nao controlada vive em `useCharacterCount`, que ouve o evento `reset` do formulario e restaura a contagem inicial. Sem isso, a contagem ficava presa ao ultimo valor digitado enquanto o campo voltava ao inicial.
+- A API do `Avatar` aceita apenas atributos validos nos dois elementos que ele pode renderizar. Atributos exclusivos de `img` acabavam no `span` de fallback.
+
+**Decisoes visuais do mantenedor**
+
+- Borda dos controles: neutra em repouso, `--pl-color-primary` no hover. O hover e o unico estado que altera a borda.
+- Hover dos controles acrescenta elevacao discreta com `--pl-sh-1`.
+- Foco dos campos: borda em `primary` mais halo de `primary-container`. O `outline` deslocado foi adotado e revertido, por produzir borda dupla.
+- Hover de itens de lista em `Menu`, `Select` e `ComboBox`: `primary-container` com texto em `on-primary-container`.
+- Hover do cabecalho do `Accordion` muda apenas texto e icone, sem preencher o fundo.
+- `Progress` e `Spinner` usam `primary-hover`, o tom mais claro que alcanca o minimo de 3:1 contra o trilho.
+
+**Acessibilidade**
+
+- Contraste validado em WCAG AA nos dois temas, exceto as excecoes registradas adiante.
+- `prefers-reduced-motion` respeitado globalmente.
+- `Button` em carregamento usa `aria-disabled` com `aria-busy`, preservando o foco. O clique e bloqueado no handler.
+- Contadores de caractere nao usam `aria-live`, que anunciava a cada tecla. A contagem fica acessivel por `aria-describedby`.
 
 ### Em construcao
 
@@ -140,10 +78,10 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 
 ### Ainda nao implementado
 
-- Componentes da etapa 9 da ordem de implementacao.
+- Componentes das etapas 9 e 10 da ordem de implementacao.
 - Utilitarios de apresentacao previstos em `ARCHITECTURE.md` secao 9.1, como `formatarMoeda` e `formatarData`.
 - State Motors dos demais componentes complexos, como calendario e grade.
-- Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12.
+- Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
 - Pipeline de validacao e publicacao do pacote.
@@ -152,11 +90,8 @@ Ele nao substitui, interpreta ou altera `README.md`, `ARCHITECTURE.md`, `COMPONE
 ## Pendencias de correcao identificadas no review
 
 - Validar o contraste antes de publicar um tema ou expor os tokens como API publica, conforme exige `TOKENS-REFERENCE-COLORS.md`. As excecoes aceitas abaixo precisam ser revistas ou formalizadas nesse momento.
-- Avaliar Untitled UI, React Aria, Radix UI, AG Grid e D3 como referencia ao especificar cada novo componente, sem transforma-las em dependencia sem a justificativa do mandamento 13.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
-- Corrigir o contador do `InputText` e do `InputPassword` nao controlados apos reset de formulario.
-- Evitar que o `Avatar` espalhe propriedades de imagem no elemento de fallback.
 - Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
 - Exportar os formatadores pela API publica quando fizerem parte do contrato de consumo.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
@@ -177,6 +112,25 @@ As demais combinacoes de texto e de componente passam em AA nos dois temas.
 
 ## Contexto para implementacoes futuras
 
+### Familia de listagem: List, Select e ComboBox
+
+Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao. Os cenarios existem hoje nas duas aplicacoes principais: escolha simples, listagem com selecao unica, listagem com selecao multipla, listagem simples com busca e listagem com selecao e busca.
+
+- Tres componentes publicos e um motor interno. `List` e a listagem visivel na tela. `ComboBox` e o componente completo: campo mais painel, com selecao simples ou multipla e busca. `Select` permanece simples: escolha unica, lista curta, sem busca.
+- `ComboBox` nao compoe `Select`. Os dois compoem a mesma listagem interna, porque o que compartilham e o painel, nao o campo. Compor o completo sobre o simples inverteria a dependencia e colocaria um botao com `aria-haspopup` dentro de um campo `role="combobox"`.
+- Cada cenario e um modo, nunca um componente novo nem um booleano acumulado. Nada de `MultiSelect` ou `SearchableSelect`.
+- Regra de corte entre parte e modo: o que ocupa espaco na tela e o produto precisa controlar e parte, e vira composicao; o que e comportamento sem estrutura propria e modo, e vira propriedade. A busca e parte. A selecao e modo.
+- O papel ARIA acompanha o modo: sem selecao a marcacao e de lista; com selecao, de listbox. `COMPONENTS.md` secao 7 pede ARIA somente quando necessario.
+- A selecao trabalha com os itens escolhidos, nao com chaves. Com busca no servidor o item selecionado normalmente nao esta na colecao carregada, e sem o rotulo nao ha como exibi-lo no campo nem no topo do painel. Por isso `sanitizeSelection`, que hoje nao possui consumidor, desaparece: descartar chaves fora da colecao e a regra oposta da necessaria.
+- Busca: filtro local para listas curtas, filtro externo para as grandes. Quando externo, o componente avisa que o termo mudou e recebe a lista pronta com o sinal de carregamento. Quando consultar o servidor e decisao do produto, conforme a fronteira que `ARCHITECTURE.md` secao 9 ja estabelece para internacionalizacao. O componente nao avisa quando o termo nao mudou.
+- Volume: listas podem passar de dez mil registros. Virtualizacao e requisito estrutural, nao acrescimo posterior, e obriga a declarar total e posicao de cada item para o leitor de tela.
+- Selecionados ficam visiveis no campo e no topo do painel. No campo, quando as etiquetas nao couberem, exibir a primeira e um resumo com a contagem restante. O leitor de tela precisa ouvir a contagem total, nao apenas a primeira etiqueta.
+- Etiquetas nao entram na ordem de tabulacao. `Backspace` com o campo vazio remove a ultima.
+- Selecao multipla se apresenta com caixa de marcacao por item, sem preencher o fundo da linha. A caixa e apenas visual: quem comunica a marcacao e o proprio item. O `Checkbox` do projeto nao serve, por ser campo de formulario completo e criar um controle focavel dentro de outro.
+- Foco de teclado, hover e selecao sao tres estados visuais distintos e devem ser desenhados juntos.
+- O motor de selecao ganha ancora, faixa por Shift, marcar todos e estado indeterminado quando a `List` exigir, nao antes. Hoje o modo multiplo nao possui consumidor.
+- Nome: `List`. `ListBox` mentiria no modo sem selecao.
+
 ### Formatadores e localidade
 
 Os formatadores de entrada assumem a convencao pt-BR no codigo: virgula como decimal, ponto como milhar. Isso e escopo adequado ao momento, nao defeito, pelo mandamento 9.
@@ -193,7 +147,7 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - O modo decimal usa virgula como separador e respeita `decimalScale`.
 - `InputCurrency` deve manter a edicao bruta durante o foco e aplicar a formatacao monetaria no blur.
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
-- `onChange` e callbacks de valor normalizado precisam ter responsabilidades distintas e documentadas.
+- `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
 
 ### InputPassword
 
@@ -233,7 +187,7 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 
 6. **State Motor de selecao** — concluida
    - Motor puro em `src/hooks/useSelection/selection.ts`, testado isoladamente, conforme `ARCHITECTURE.md` secao 7.
-   - Ligacao React fina em `useSelection`, pronta para `Select`, `ComboBox`, `Menu`, `ListBox` e `Table`.
+   - Ligacao React fina em `useSelection`. Hoje serve `Menu`, `Select`, `ComboBox`, `Tabs` e `Accordion`, e esta pronta para `Table`.
 
 7. **Familia de overlays** — concluida
    - `Dialog`, `Popover`, `Tooltip`, `Menu`, `Select` e `ComboBox` implementados, testados, exportados e documentados no Showcase.
@@ -243,15 +197,21 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
    - `Tabs`, `Accordion`, `Breadcrumb` e `Pagination` implementados, testados, exportados e documentados no Showcase.
    - `Tabs` e `Accordion` sao o terceiro e o quarto consumidores do State Motor.
 
-9. **Tabelas e datas**
+9. **Familia de listagem** — proxima
+   - Implementar `List` com os tres modos de selecao, busca local e externa e virtualizacao.
+   - Reestruturar `Select` e `ComboBox` sobre a mesma listagem interna, eliminando os dois paineis independentes de hoje.
+   - Corrigir a busca acentuada com `useFilter` e `useCollator`, que alcanca tambem `Menu`.
+   - Estender o motor de selecao conforme a `List` exigir, e nao antes.
+
+10. **Tabelas e datas**
    - Implementar `Table` basico em HTML nativo, com ordenacao e selecao. `DataGrid` fica em decisao propria, com AG Grid como referencia.
    - Implementar `DatePicker`, `TimePicker` e `DateTimePicker` sobre `@internationalized/date`, junto com o formatador de apresentacao previsto em `ARCHITECTURE.md` secao 9.1.
 
-10. **Showcase como consumidor**
+11. **Showcase como consumidor**
    - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
 
-11. **Integracao e distribuicao**
+12. **Integracao e distribuicao**
    - Configurar `main`, `module`, `exports` e `types`, emitir declaracoes e validar o pacote construido.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
@@ -263,9 +223,11 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
    - `TOKENS-REFERENCE-COLORS.md` — referencia detalhada de cores e temas.
    - `TOKENS-REFERENCE-TYPOGRAPHY.md` — referencia detalhada de tipografia.
 4. `COMPONENTS.md` — classificacao, APIs, composicao e acessibilidade dos componentes.
+   - `COMPONENTS-CATALOG.md` — escopo de componentes, papel de cada um e fronteiras entre nomes proximos.
 5. `CONTRIBUTING.md` — processo pratico para implementar e revisar alteracoes.
-6. `showcase/` — referencia visual e validacao pratica da implementacao.
-7. `PROGRESS.md` — estado atual da implementacao e proximas etapas.
+6. `CLAUDE.md` — diretrizes de programacao, versionamento, idioma, nomenclatura e referencias externas. Subordinado aos documentos acima.
+7. `showcase/` — referencia visual e validacao pratica da implementacao.
+8. `PROGRESS.md` — estado atual da implementacao e proximas etapas.
 
 A ordem segue do geral para o especifico: primeiro o contrato do projeto, depois a arquitetura, os fundamentos visuais, os componentes, o processo de contribuicao e, por fim, o estado concreto da implementacao.
 
