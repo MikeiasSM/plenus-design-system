@@ -28,7 +28,12 @@ export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './Cartes
 export { ChartFrame } from './ChartFrame';
 export type { ChartFrameProps } from './ChartFrame';
 export { ChartLegend } from './ChartLegend';
-export type { ChartLegendEntry, ChartLegendPosition, ChartLegendSwatch } from './ChartLegend';
+export type {
+  ChartLegendAlign,
+  ChartLegendEntry,
+  ChartLegendPosition,
+  ChartLegendSwatch,
+} from './ChartLegend';
 export { labelFontOf, measureLabel, truncateToWidth, widestLabel } from './measureText';
 export {
   CHART_BAR_GAP,

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Axis, type AxisOrientation, type AxisTick } from './Axis';
 import { ChartFrame } from './ChartFrame';
-import type { ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
+import type { ChartLegendAlign, ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import { Grid, type GridOrientation } from './Grid';
 import type { AxisLabelRotation, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
 import styles from './Chart.module.css';
@@ -28,6 +28,7 @@ export interface CartesianFrameProps {
   grid?: readonly CartesianGrid[];
   height: number;
   legend?: readonly ChartLegendEntry[];
+  legendAlign?: ChartLegendAlign;
   legendPosition: ChartLegendPosition;
   margins: ChartMargins;
   onToggleSeries?: (label: string) => void;
@@ -106,6 +107,7 @@ export function CartesianFrame({
   grid,
   height,
   legend,
+  legendAlign,
   legendPosition,
   margins,
   onToggleSeries,
@@ -124,6 +126,7 @@ export function CartesianFrame({
       fillHeight={fillHeight}
       height={height}
       legend={legend}
+      legendAlign={legendAlign}
       legendPosition={legendPosition}
       minLegendEntries={2}
       onToggleSeries={onToggleSeries}

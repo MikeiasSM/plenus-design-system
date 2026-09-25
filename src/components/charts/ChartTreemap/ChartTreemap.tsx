@@ -8,6 +8,7 @@ import {
   useChartMetrics,
   useSeriesToggle,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
@@ -35,6 +36,7 @@ export interface ChartTreemapProps {
    */
   intentLabels?: Partial<Record<SeriesIntent, string>>;
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   showDataLabels?: boolean;
@@ -52,6 +54,7 @@ export function ChartTreemap({
   hiddenGroups,
   intentLabels,
   legend = 'bottom',
+  legendAlign,
   nodes,
   onHiddenGroupsChange,
   showDataLabels = true,
@@ -124,6 +127,7 @@ export function ChartTreemap({
       fillHeight={fillHeight}
       height={alturaDoDesenho}
       legend={entradasDaLegenda}
+      legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={intentLabels ? undefined : toggle}
       title={title}

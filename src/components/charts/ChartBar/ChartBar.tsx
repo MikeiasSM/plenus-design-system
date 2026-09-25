@@ -14,6 +14,7 @@ import {
   type AxisTick,
   type AxisVisibility,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
   type CornerRadii,
 } from '../core';
@@ -38,6 +39,7 @@ export interface ChartBarProps {
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
@@ -59,6 +61,7 @@ export function ChartBar({
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  legendAlign,
   onHiddenSeriesChange,
   orientation = 'vertical',
   series,
@@ -230,6 +233,7 @@ export function ChartBar({
         hidden: isHidden(serie.label),
         label: serie.label,
       }))}
+      legendAlign={legendAlign}
       legendPosition={posicaoDaLegenda}
       margins={margins}
       onToggleSeries={toggle}

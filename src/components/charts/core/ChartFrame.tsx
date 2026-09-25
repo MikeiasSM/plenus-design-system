@@ -1,5 +1,11 @@
 import { useId, type ReactNode } from 'react';
-import { ChartLegend, type ChartLegendEntry, type ChartLegendPosition, type ChartLegendSwatch } from './ChartLegend';
+import {
+  ChartLegend,
+  type ChartLegendAlign,
+  type ChartLegendEntry,
+  type ChartLegendPosition,
+  type ChartLegendSwatch,
+} from './ChartLegend';
 import styles from './Chart.module.css';
 
 export interface ChartFrameProps {
@@ -16,6 +22,7 @@ export interface ChartFrameProps {
   fillHeight: boolean;
   height: number;
   legend?: readonly ChartLegendEntry[];
+  legendAlign?: ChartLegendAlign;
   legendPosition: ChartLegendPosition;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
@@ -39,6 +46,7 @@ export function ChartFrame({
   fillHeight,
   height,
   legend,
+  legendAlign,
   legendPosition,
   minLegendEntries = 1,
   onToggleSeries,
@@ -49,7 +57,13 @@ export function ChartFrame({
   const tituloId = useId();
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const legenda = legendPosition !== 'none' && legend !== undefined && legend.length >= minLegendEntries && (
-    <ChartLegend entries={legend} onToggle={onToggleSeries} position={legendPosition} swatch={swatch} />
+    <ChartLegend
+      align={legendAlign}
+      entries={legend}
+      onToggle={onToggleSeries}
+      position={legendPosition}
+      swatch={swatch}
+    />
   );
 
   return (

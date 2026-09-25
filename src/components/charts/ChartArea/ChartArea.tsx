@@ -16,6 +16,7 @@ import {
   type ChartBand,
   type ChartCurve,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartPoint,
 } from '../core';
@@ -39,6 +40,7 @@ export interface ChartAreaProps {
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartAreaSeries[];
   showDataLabels?: boolean;
@@ -73,6 +75,7 @@ export function ChartArea({
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  legendAlign,
   onHiddenSeriesChange,
   series,
   showDataLabels = false,
@@ -197,6 +200,7 @@ export function ChartArea({
         hidden: isHidden(serie.label),
         label: serie.label,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}

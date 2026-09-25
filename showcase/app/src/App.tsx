@@ -23,6 +23,7 @@ import {
 } from '@plenus/index';
 import type {
   AxisVisibility,
+  ChartLegendAlign,
   ChartLegendPosition,
   ChartSankeyAlign,
   ChartSankeyFlowColor,
@@ -192,6 +193,7 @@ export function App() {
   const [posicaoDoValor, setPosicaoDoValor] = useState<ChartSankeyFlowValuePosition>('end');
   const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
   const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
+  const [alinhamentoDaLegenda, setAlinhamentoDaLegenda] = useState<ChartLegendAlign>('center');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
   const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
 
@@ -1049,7 +1051,7 @@ export function App() {
             <p className="doc-note">Em <code>onHover</code> o eixo desliza para dentro da calha depois de um instante com o ponteiro parado sobre ela, e sai na hora em que o ponteiro deixa a area. A calha continua reservada, para o desenho nao se mexer sob o ponteiro. So <code>hidden</code> devolve o espaco ao grafico.</p>
           </div>
           <div className="doc-subsection">
-            <h3>Posicao da legenda</h3>
+            <h3>Posicao e alinhamento da legenda</h3>
             <div className="demo-grid">
               {(['top', 'right', 'bottom', 'left', 'none'] as const).map((lado) => (
                 <Button
@@ -1062,17 +1064,31 @@ export function App() {
                 </Button>
               ))}
             </div>
+            <div className="demo-grid">
+              {(['left', 'center', 'right'] as const).map((alinhamento) => (
+                <Button
+                  key={alinhamento}
+                  onClick={() => setAlinhamentoDaLegenda(alinhamento)}
+                  size="sm"
+                  variant={alinhamentoDaLegenda === alinhamento ? 'primary' : 'secondary'}
+                >
+                  {alinhamento}
+                </Button>
+              ))}
+            </div>
             <ChartBar
               accent={corDoTema}
               categories={mesesDoSemestre}
               formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               legend={ladoDaLegenda}
+              legendAlign={alinhamentoDaLegenda}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
                 { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
               ]}
               title="Composicao do faturamento"
             />
+            <p className="doc-note">A posicao escolhe o lado; o alinhamento escolhe onde a legenda se apoia na largura, e vem centrado. A legenda lateral ignora o alinhamento: ali cada entrada ocupa a linha inteira, e e isso que empurra o valor para a direita e alinha uma coluna de medidas.</p>
             <p className="doc-note">A mesma escolha num grafico de barras horizontais cai para baixo quando pedida a esquerda ou a direita: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.</p>
           </div>
           <div className="doc-subsection">

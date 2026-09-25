@@ -16,6 +16,7 @@ import {
   type AxisVisibility,
   type ChartCurve,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartPoint,
 } from '../core';
@@ -50,6 +51,7 @@ export interface ChartComboProps {
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartComboSeries[];
   showDataLabels?: boolean;
@@ -94,6 +96,7 @@ export function ChartCombo({
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  legendAlign,
   onHiddenSeriesChange,
   series,
   showDataLabels = false,
@@ -230,6 +233,7 @@ export function ChartCombo({
         hidden: isHidden(serie.label),
         label: serie.label,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}

@@ -14,6 +14,7 @@ import {
   useSeriesToggle,
   widestLabel,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -34,6 +35,7 @@ export interface ChartSunburstProps {
   height?: ChartHeight;
   hiddenGroups?: readonly string[];
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Folga entre dois aneis vizinhos. */
@@ -94,6 +96,7 @@ export function ChartSunburst({
   height = 320,
   hiddenGroups,
   legend = 'bottom',
+  legendAlign,
   nodes,
   onHiddenGroupsChange,
   ringGap = 2,
@@ -199,6 +202,7 @@ export function ChartSunburst({
         hidden: isHidden(grupo.label),
         label: grupo.label,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={toggle}
       swatch="dot"

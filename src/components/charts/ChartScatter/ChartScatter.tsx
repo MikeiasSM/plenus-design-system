@@ -10,6 +10,7 @@ import {
   type AxisTick,
   type AxisVisibility,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -38,6 +39,7 @@ export interface ChartScatterProps {
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartScatterSeries[];
   title: string;
@@ -64,6 +66,7 @@ export function ChartScatter({
   height = 280,
   hiddenSeries,
   legend = 'bottom',
+  legendAlign,
   onHiddenSeriesChange,
   series,
   title,
@@ -164,6 +167,7 @@ export function ChartScatter({
         hidden: isHidden(serie.label),
         label: serie.label,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}

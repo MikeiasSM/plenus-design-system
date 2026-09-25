@@ -10,6 +10,7 @@ import {
   useSeriesToggle,
   useTweenedNumbers,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -34,6 +35,7 @@ export interface ChartRadialProps {
   height?: ChartHeight;
   hiddenTracks?: readonly string[];
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
   showCenter?: boolean;
   startAngle?: number;
@@ -62,6 +64,7 @@ export function ChartRadial({
   height = 260,
   hiddenTracks,
   legend = 'bottom',
+  legendAlign,
   onHiddenTracksChange,
   showCenter = true,
   startAngle = 0,
@@ -120,6 +123,7 @@ export function ChartRadial({
         label: anel.label,
         value: formatValue(anel.value),
       }))}
+      legendAlign={legendAlign}
       legendPosition={tracks.length > 1 ? legend : 'none'}
       onToggleSeries={toggle}
       swatch="dot"

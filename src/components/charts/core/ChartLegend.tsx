@@ -12,7 +12,17 @@ export interface ChartLegendEntry {
 
 export type ChartLegendSwatch = 'square' | 'dot';
 
+/** Onde a legenda horizontal se apoia na largura do grafico. */
+export type ChartLegendAlign = 'left' | 'center' | 'right';
+
+const ALINHAMENTO: Record<ChartLegendAlign, string> = {
+  left: styles.legendLeft,
+  center: styles.legendCenter,
+  right: styles.legendRight,
+};
+
 interface ChartLegendProps {
+  align?: ChartLegendAlign;
   entries: readonly ChartLegendEntry[];
   onToggle?: (label: string) => void;
   position: ChartLegendPosition;
@@ -23,11 +33,17 @@ interface ChartLegendProps {
  * Legenda do grafico. Quando existe um alvo para o clique, cada entrada vira um
  * botao que liga e desliga a serie, com o estado exposto por `aria-pressed`.
  */
-export function ChartLegend({ entries, onToggle, position, swatch = 'square' }: ChartLegendProps) {
+export function ChartLegend({
+  align = 'center',
+  entries,
+  onToggle,
+  position,
+  swatch = 'square',
+}: ChartLegendProps) {
   const lateral = position === 'left' || position === 'right';
 
   return (
-    <ul className={`${styles.legend} ${lateral ? styles.legendSide : ''}`}>
+    <ul className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}>
       {entries.map((entrada) => {
         const conteudo = (
           <>

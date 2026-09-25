@@ -7,6 +7,7 @@ import {
   useChartMetrics,
   useSliceRing,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartSlice,
 } from '../core';
@@ -25,6 +26,7 @@ export interface ChartDonutProps {
   height?: ChartHeight;
   hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
@@ -50,6 +52,7 @@ export function ChartDonut({
   height = 260,
   hiddenSlices,
   legend = 'right',
+  legendAlign,
   onHiddenSlicesChange,
   otherLabel = 'Outros',
   showCenter = true,
@@ -100,6 +103,7 @@ export function ChartDonut({
         label: fatia.label,
         value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
       swatch="dot"

@@ -8,6 +8,7 @@ import {
   useChartMetrics,
   useSliceRing,
   type ChartHeight,
+  type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartSlice,
 } from '../core';
@@ -24,6 +25,7 @@ export interface ChartPieProps {
   height?: ChartHeight;
   hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
+  legendAlign?: ChartLegendAlign;
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
@@ -46,6 +48,7 @@ export function ChartPie({
   height = 260,
   hiddenSlices,
   legend = 'bottom',
+  legendAlign,
   onHiddenSlicesChange,
   otherLabel = 'Outros',
   showDataLabels = false,
@@ -85,6 +88,7 @@ export function ChartPie({
         label: fatia.label,
         value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
       }))}
+      legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
       swatch="dot"

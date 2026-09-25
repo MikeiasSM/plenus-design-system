@@ -170,6 +170,20 @@ svg:hover .dot {
   list-style: none;
 }
 
+/* Alinhamento da legenda horizontal. A lateral fica de fora: ali a entrada
+   ocupa a linha inteira, e e isso que alinha a coluna de medidas. */
+.legendLeft {
+  justify-content: flex-start;
+}
+
+.legendCenter {
+  justify-content: center;
+}
+
+.legendRight {
+  justify-content: flex-end;
+}
+
 .legendSide {
   flex-direction: column;
   flex-wrap: nowrap;

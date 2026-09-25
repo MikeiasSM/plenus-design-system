@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-520 testes em 64 arquivos. Build da biblioteca e do Showcase validados.
+523 testes em 65 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -235,6 +235,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Os eixos tem tres estados de visibilidade, nos dois lados: `visible`, `hidden` e `onHover`. Em `onHover` **a calha permanece reservada** e o eixo desliza para dentro dela depois de 600ms de ponteiro parado, saindo na hora em que o ponteiro deixa a area. Reservar a calha e o que impede o desenho de se mexer sob o ponteiro; so `hidden` devolve o espaco ao grafico.
 - O atraso vive no estado de hover e o repouso tem atraso zero, entao a entrada espera e a saida e imediata sem nenhum temporizador em JavaScript.
 - O eixo da direita **espelha a escala da esquerda** em `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall`. So o `ChartCombo` tem segunda escala propria, e so quando uma serie declara pertencer a ela.
+- A legenda horizontal tem alinhamento proprio, `left`, `center` ou `right`, **centrado por padrao**. A legenda lateral o recusa: ali cada entrada ocupa a linha inteira, e e essa largura que alinha a coluna de medidas do anel. Alinhar uma coluna e alinhar uma linha sao decisoes diferentes, e so a segunda e do consumidor.
 - A legenda tem posicao escolhida entre `top`, `bottom`, `left`, `right` e `none`. Barras horizontais recusam `left` e `right` e caem para `bottom`: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.
 - A altura aceita `fill`, que a toma do contêiner. E o que permite um grafico ocupar a celula de um painel sem ninguem repetir a medida em JavaScript. A area de desenho fica fora do fluxo, para que a medida seja o que o layout concedeu e nao o que o proprio desenho ocupou, e um piso de altura evita o grafico sumir por medir zero quando quem envolve nao impoe altura alguma.
 - **Hover nao apaga as outras marcas.** A opacidade reduzida nas barras vizinhas foi implementada e descartada pelo mantenedor: o realce agora e um veu discreto atras da faixa sob o ponteiro, como o cursor da referencia. O token `--pl-chart-cursor` escurece no tema claro e clareia no escuro, porque um veu escuro sobre superficie escura nao apareceria.
