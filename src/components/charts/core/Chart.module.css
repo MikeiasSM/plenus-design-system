@@ -198,20 +198,19 @@ svg:hover .dot {
   width: 100%;
 }
 
-/* A serie desligada recolhe na direcao da base em vez de sumir de uma vez, e o
-   mesmo caminho a traz de volta. Ela sai da arvore de acessibilidade, mas fica
-   no DOM: e a permanencia que permite a transicao nos dois sentidos. */
+/* A serie desligada sai da arvore de acessibilidade mas fica no DOM: e a
+   permanencia que permite a transicao nos dois sentidos.
+
+   Quem recolhe a serie e a **presenca**, no JavaScript: nas barras ela reparte
+   a faixa entre as demais, na area empilhada ela pesa a contribuicao. Uma
+   escala em CSS por cima disso seria uma segunda animacao sobre a primeira, e
+   pivotaria em torno de uma caixa que ja colapsou. Aqui fica so a opacidade. */
 .series {
-  animation: chartSeriesIn var(--pl-speed-2) var(--pl-ease) both;
-  transform-origin: var(--pl-chart-series-origin, 50% 100%);
-  transition:
-    opacity var(--pl-speed-2) var(--pl-ease),
-    transform var(--pl-speed-2) var(--pl-ease);
+  transition: opacity var(--pl-speed-2) var(--pl-ease);
 }
 
 .seriesOff {
   opacity: 0;
-  transform: scale(0.94);
   pointer-events: none;
 }
 
@@ -282,27 +281,12 @@ svg:hover .dot {
   font-variant-numeric: tabular-nums;
 }
 
-/* A entrada surge; a serie tem transicao propria para ligar e desligar. */
-@keyframes chartSeriesIn {
-  from {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .series,
   .legendButton,
   .dynamicAxis,
   .dot {
     transition: none;
-  }
-
-  .series {
-    animation: none;
-  }
-
-  .seriesOff {
-    transform: none;
   }
 
   .slideRight,
