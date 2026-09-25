@@ -31,12 +31,15 @@ export { ChartLegend } from './ChartLegend';
 export type { ChartLegendEntry, ChartLegendPosition, ChartLegendSwatch } from './ChartLegend';
 export { labelFontOf, measureLabel, truncateToWidth, widestLabel } from './measureText';
 export {
+  CHART_BAR_GAP,
   CHART_EDGE_GAP,
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
+  barSlots,
   ringDiameter,
   valueLabelRoom,
 } from './spacing';
+export type { BarSlot } from './spacing';
 export type { LabelFont } from './measureText';
 export { areaPath, linePath, roundedBarPath } from './shapes';
 export { groupSmallSlices } from './slices';

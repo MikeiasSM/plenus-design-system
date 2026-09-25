@@ -26,6 +26,31 @@ export function valueLabelRoom(font: LabelFont) {
   return font.lineHeight + CHART_LABEL_OFFSET / 2;
 }
 
+/** Folga entre duas barras vizinhas dentro da mesma faixa. */
+export const CHART_BAR_GAP = 2;
+
+export interface BarSlot {
+  offset: number;
+  thickness: number;
+}
+
+/**
+ * Espessura e deslocamento de cada barra dentro da faixa, a partir da presenca
+ * de cada serie. A barra desligada encolhe a zero e as demais ocupam o lugar
+ * dela, sem deixar a folga sobrando no fim.
+ */
+export function barSlots(band: number, presences: readonly number[]): BarSlot[] {
+  const total = presences.reduce((soma, presenca) => soma + presenca, 0);
+  const unit = Math.max((band - CHART_BAR_GAP * Math.max(total - 1, 0)) / Math.max(total, 1), 0);
+
+  return presences.map((presenca, indice) => ({
+    offset: presences
+      .slice(0, indice)
+      .reduce((soma, anterior) => soma + (unit + CHART_BAR_GAP) * anterior, 0),
+    thickness: unit * presenca,
+  }));
+}
+
 /** Diametro do anel: o lado menor da area disponivel, menos a folga. */
 export function ringDiameter(width: number, height: number) {
   return Math.max(Math.min(width, height) - CHART_LABEL_OFFSET * 2, 0);

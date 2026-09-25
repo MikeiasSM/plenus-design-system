@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
+  barSlots,
   cartesianLayout,
   chartHeight,
   roundedBarPath,
@@ -47,8 +48,6 @@ export interface ChartBarProps {
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
 }
-
-const ESPACO_ENTRE_BARRAS = 2;
 
 export function ChartBar({
   accent,
@@ -150,24 +149,15 @@ export function ChartBar({
   const marcasDeValor = ticksFor(escalaAlvo, comprimentoValores);
 
   const vao = escalaCategorias.bandwidth();
-  const presencaTotal = presencas.reduce((total, valor) => total + valor, 0);
-  const unidade = Math.max(
-    (vao - ESPACO_ENTRE_BARRAS * Math.max(presencaTotal - 1, 0)) / Math.max(presencaTotal, 1),
-    0,
-  );
+  const faixas = barSlots(vao, presencas);
 
+  // Empilhada, a serie ocupa a faixa inteira: quem reparte e a pilha, nao a faixa.
   function espessuraDa(indiceSerie: number) {
-    return stacked ? vao : unidade * presenca(indiceSerie);
+    return stacked ? vao : faixas[indiceSerie].thickness;
   }
 
   function deslocamentoDa(indiceSerie: number) {
-    if (stacked) {
-      return 0;
-    }
-
-    return presencas
-      .slice(0, indiceSerie)
-      .reduce((total, valor) => total + (unidade + ESPACO_ENTRE_BARRAS) * valor, 0);
+    return stacked ? 0 : faixas[indiceSerie].offset;
   }
 
   /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto. */

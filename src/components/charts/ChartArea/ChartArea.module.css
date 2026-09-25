@@ -1,38 +1,17 @@
 .outline {
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  composes: line from '../core/Chart.module.css';
 }
 
-/* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
-   impressao, onde nao existe hover para revelar o ponto. */
 .dot {
-  opacity: 0;
-  transition: opacity var(--pl-speed-1) var(--pl-ease);
+  composes: dot from '../core/Chart.module.css';
 }
 
 .dotVisible {
-  opacity: 1;
-}
-
-svg:hover .dot {
-  opacity: 1;
+  composes: dotVisible from '../core/Chart.module.css';
 }
 
 .valueLabel {
   composes: valueLabel from '../core/Chart.module.css';
-}
-
-@media print {
-  .dot {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dot {
-    transition: none;
-  }
 }
 
 .series {

@@ -127,6 +127,34 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Traco da linha, comum a `ChartLine`, `ChartArea` e `ChartCombo`. */
+.line {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
+   impressao, onde nao existe hover para revelar o ponto. */
+.dot {
+  opacity: 0;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.dotVisible {
+  opacity: 1;
+}
+
+svg:hover .dot {
+  opacity: 1;
+}
+
+@media print {
+  .dot {
+    opacity: 1;
+  }
+}
+
 /* Realce da faixa sob o ponteiro, atras das marcas. */
 .cursor {
   fill: var(--pl-chart-cursor);
@@ -250,7 +278,8 @@
 @media (prefers-reduced-motion: reduce) {
   .series,
   .legendButton,
-  .dynamicAxis {
+  .dynamicAxis,
+  .dot {
     transition: none;
   }
 
