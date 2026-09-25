@@ -13,11 +13,24 @@ function fixarTamanho(largura = 520, altura = 320) {
 }
 
 function ligacoes() {
-  return [...document.querySelectorAll('path')];
+  return [...document.querySelectorAll('path')].filter((no) =>
+    no.getAttribute('class')?.includes('link'),
+  );
 }
 
 function nos() {
-  return [...document.querySelectorAll('rect')];
+  return [...document.querySelectorAll('path')].filter((no) =>
+    no.getAttribute('class')?.includes('node'),
+  );
+}
+
+/** Caixa que envolve o caminho, a partir das coordenadas dele. */
+function caixaDe(no: Element) {
+  const numeros = (no.getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
+  const xs = numeros.filter((_, indice) => indice % 2 === 0);
+  const ys = numeros.filter((_, indice) => indice % 2 === 1);
+
+  return { altura: Math.max(...ys) - Math.min(...ys), x: Math.min(...xs) };
 }
 
 describe('ChartSankey', () => {
@@ -41,8 +54,7 @@ describe('ChartSankey', () => {
 
   it('da ao no altura proporcional ao volume que passa por ele', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const alturas = nos().map((no) => Number(no.getAttribute('height')));
-    const [receita, custos] = alturas;
+    const [receita, custos] = nos().map((no) => caixaDe(no).altura);
 
     expect(receita).toBeGreaterThan(custos);
   });
@@ -99,7 +111,7 @@ describe('ChartSankey', () => {
   });
 
   it('reserva a banda do rotulo antes do fluxo, em cada lado', () => {
-    const inicioDoFluxo = () => Number(nos()[0].getAttribute('x'));
+    const inicioDoFluxo = () => caixaDe(nos()[0]).x;
 
     const { rerender } = render(<ChartSankey flows={caixa} showLabels={false} title="Fluxo" />);
     const semRotulo = inicioDoFluxo();

@@ -3,6 +3,7 @@ import { sankey } from 'd3-sankey';
 import {
   PlainFrame,
   chartHeight,
+  roundedBarPath,
   truncateToWidth,
   useChartMetrics,
   widestLabel,
@@ -88,7 +89,7 @@ export function ChartSankey({
   showLabels = true,
   title,
 }: ChartSankeyProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const [emFoco, setEmFoco] = useState<number | null>(null);
 
@@ -198,37 +199,46 @@ export function ChartSankey({
       </g>
 
       {grafo.nodes.map((no) => (
-        <rect
+        <path
           className={styles.node}
+          d={roundedBarPath(no.x0, no.y0, no.x1 - no.x0, Math.max(no.y1 - no.y0, 1), [
+            raioDoCanto,
+            raioDoCanto,
+            raioDoCanto,
+            raioDoCanto,
+          ])}
           fill={corDoNo(no.index)}
-          height={Math.max(no.y1 - no.y0, 1)}
           key={no.label}
-          width={no.x1 - no.x0}
-          x={no.x0}
-          y={no.y0}
         >
           <title>{no.label}</title>
-        </rect>
+        </path>
       ))}
 
-      {/* Rotulo de entrada fica a esquerda do no e o de saida a direita, os
-          dois na banda reservada. O do meio nao tem banda: ele fica sobre o
-          fluxo, e um halo da cor da superficie e que o separa do que passa por
-          baixo. */}
+      {/* Rotulo de entrada fica a esquerda do no e o de saida a direita, cada um
+          na sua banda reservada. O do meio nao tem banda: ele centraliza no
+          proprio no, para pertencer a ele em vez de flutuar sobre o fluxo, e um
+          halo da cor da superficie o separa do que passa por baixo. */}
       {showLabels &&
         grafo.nodes.map((no) => {
           const entrada = entradas.has(no.label);
           const saida = saidas.has(no.label);
           const aEsquerda = entrada && !saida;
+          const noMeio = !entrada && !saida;
           const banda = aEsquerda ? bandaEsquerda : saida ? bandaDireita : width * BANDA_MAXIMA;
 
           return (
             <text
-              className={`${styles.label} ${entrada || saida ? '' : styles.labelSobreFluxo}`}
+              className={`${styles.label} ${noMeio ? styles.labelSobreFluxo : ''}`}
               dominantBaseline="middle"
               key={`rotulo-${no.label}`}
-              textAnchor={aEsquerda ? 'end' : 'start'}
-              x={aEsquerda ? no.x0 - RECUO_DO_ROTULO : no.x1 + RECUO_DO_ROTULO}
+              textAnchor={noMeio ? 'middle' : aEsquerda ? 'end' : 'start'}
+              x={
+                noMeio
+                  ? (no.x0 + no.x1) / 2
+                  : aEsquerda
+                    ? no.x0 - RECUO_DO_ROTULO
+                    : no.x1 + RECUO_DO_ROTULO
+              }
               y={(no.y0 + no.y1) / 2}
             >
               {truncateToWidth(no.label, font, banda - RECUO_DO_ROTULO)}

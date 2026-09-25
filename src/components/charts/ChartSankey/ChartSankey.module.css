@@ -3,36 +3,38 @@
 }
 
 /* A ligacao e desenhada como traco, nao como preenchimento: a espessura e que
-   carrega o volume, e ela vem da propria medida do no. */
+   carrega o volume, e ela vem da propria medida do no.
+
+   Em repouso ela fica lavada de proposito: o no e que carrega a cor cheia, e e
+   sobre a faixa lavada que o rotulo do no do meio continua legivel. */
 .link {
-  opacity: 0.45;
+  opacity: 0.3;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* A ligacao sob o ponteiro vai a cor cheia. Apagar as outras sozinho nao
+/* A ligacao sob o ponteiro vai a cor quase cheia. Apagar as outras sozinho nao
    destaca: o que se ve e o grafico inteiro sumindo. */
 .linkOn {
-  opacity: 0.95;
+  opacity: 0.85;
 }
 
 .linkDim {
-  opacity: 0.14;
+  opacity: 0.1;
 }
 
 .node {
-  rx: 2;
   animation: chartSeriesIn var(--pl-speed-2) var(--pl-ease) both;
 }
 
 .label {
-  fill: var(--pl-color-text-secondary);
+  fill: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   pointer-events: none;
 }
 
-/* O rotulo do no do meio nao tem banda propria: ele cai sobre o fluxo, e o halo
-   da cor da superficie e que o separa do que passa por baixo. */
+/* O rotulo do no do meio cai sobre o fluxo: o halo da cor da superficie e que o
+   separa do que passa por baixo. */
 .labelSobreFluxo {
   paint-order: stroke;
   stroke: var(--pl-color-surface);

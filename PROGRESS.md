@@ -357,6 +357,9 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - A ligacao do sankey e desenhada como **traco**, nao como preenchimento: a espessura e que carrega o volume, e ela vem da propria medida do no.
 - No sankey, a ligacao sob o ponteiro **sobe de tom** e as demais apagam. Apagar as outras sozinho nao destaca nada: o que se via era o grafico inteiro sumindo. O realce vem do estado, nao de `:hover` no CSS, porque as ligacoes se cruzam e o `:hover` piscava na travessia.
 - `mix-blend-mode: multiply` saiu das ligacoes: contra a superficie escura do tema escuro ele as levava ao preto.
+- A ligacao fica **lavada em repouso**, e nao em cor cheia: o no e que carrega a cor, e e sobre a faixa lavada que o rotulo do no do meio continua legivel. Em cor cheia o rotulo desaparecia no fundo saturado.
+- O rotulo do no do meio **centraliza no proprio no**, e nao ao lado dele: assim ele pertence ao no em vez de flutuar sobre o fluxo, que era o que fazia dois rotulos vizinhos lerem como um bloco so.
+- O no do sankey usa o raio do token, pelo mesmo caminho das barras, em vez de um valor proprio no CSS.
 - O lado do rotulo do sankey sai do **papel do no**: entrada a esquerda, saida a direita, cada um na sua banda reservada. A regra anterior usava a metade da largura e jogava o rotulo da primeira coluna para dentro do fluxo. O no do meio nao tem banda e cai sobre o fluxo mesmo; ali um halo da cor da superficie e que o separa do que passa por baixo.
 - Entrada e saida saem das proprias ligacoes, antes do posicionamento: e isso que permite reservar a banda de cada lado.
 - `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
