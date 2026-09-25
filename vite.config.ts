@@ -7,7 +7,9 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       formats: ['es', 'cjs'],
-      fileName: (format) => `plenus-design-system.${format}.js`,
+      // A extensao decide o formato: com `type: module` no pacote, um `.js`
+      // e lido como ESM, e o bundle CommonJS nao exportaria nada.
+      fileName: (format) => (format === 'es' ? 'plenus-design-system.es.js' : 'plenus-design-system.cjs'),
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime', /^@react-aria\//, /^@internationalized\//, /^d3-/],

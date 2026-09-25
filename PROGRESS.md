@@ -49,6 +49,19 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - `@react-aria/focus` e `@react-aria/overlays` sao externalizados no build, junto de `react/jsx-runtime`, para nao serem embutidos no pacote.
 - Untitled UI guia o visual sempre que houver referencia correspondente. Consultar **antes** de arbitrar tratamento visual, nao depois.
 
+**Distribuicao**
+
+- `react` e `react-dom` sao **peer dependencies**, nao dependencias. Instalados como dependencia, o
+  consumidor receberia uma segunda copia do React e todo hook quebraria. Eles permanecem em
+  `devDependencies` porque o build e a suite precisam deles aqui.
+- A extensao do bundle CommonJS e `.cjs`, e nao `.cjs.js`. Com `type: module` no pacote, o Node le
+  qualquer `.js` como ESM: o arquivo carregava sem erro e exportava **zero** simbolos. So a
+  instalacao real pegou isso; nenhum teste da suite toca o pacote construido.
+- As declaracoes saem do proprio `tsc`, por `tsconfig.build.json`, em vez de um plugin. Nao ha
+  problema concreto que justifique a dependencia.
+- A folha de estilo nao entra pelo bundle: o Vite a extrai, e o consumidor a importa por
+  `@plenustech/design-system/styles.css`, um caminho do mapa de `exports`.
+
 **Nomenclatura e idioma**
 
 - Componentes de uma familia usam tipo seguido de especializacao: `InputText`, `InputNumber`, `InputPassword`, `InputCurrency`. Conceito unico mantem nome simples.
@@ -107,7 +120,6 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Validar o contraste antes de publicar um tema ou expor os tokens como API publica, conforme exige `TOKENS-REFERENCE-COLORS.md`. As excecoes aceitas abaixo precisam ser revistas ou formalizadas nesse momento.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
-- Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
@@ -431,8 +443,11 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 
 **Icones** — concluida. Biblioteca oficial criada e consumida pelos dez componentes que desenhavam o proprio SVG.
 
-14. **Integracao e distribuicao**
-   - Configurar `main`, `module`, `exports` e `types`, emitir declaracoes e validar o pacote construido.
+14. **Integracao e distribuicao** — em andamento
+   - `main`, `module`, `types` e `exports` configurados; declaracoes emitidas em `dist/types`; pacote
+     construido validado por instalacao real num projeto separado, nos dois formatos.
+   - Falta decidir a publicacao: o pacote continua `private`, e o `README.md` ainda nao documenta a
+     importacao da folha de estilo.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
 ## Ordem recomendada de leitura da documentacao

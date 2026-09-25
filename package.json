@@ -4,13 +4,28 @@
   "private": true,
   "description": "Design System centralizado para os produtos web da Plenustech.",
   "type": "module",
+  "main": "./dist/plenus-design-system.cjs",
+  "module": "./dist/plenus-design-system.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/plenus-design-system.es.js",
+      "require": "./dist/plenus-design-system.cjs"
+    },
+    "./styles.css": "./dist/design-system.css",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config showcase/vite.config.ts",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsc -p tsconfig.build.json",
     "build:showcase": "vite build --config showcase/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -26,7 +41,9 @@
     "d3-hierarchy": "^3.1.2",
     "d3-sankey": "^0.12.3",
     "d3-scale": "^4.0.2",
-    "d3-shape": "^3.2.0",
+    "d3-shape": "^3.2.0"
+  },
+  "peerDependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -43,6 +60,8 @@
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
     "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
