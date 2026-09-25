@@ -124,6 +124,13 @@ export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
 export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartCombo } from './components/charts/ChartCombo';
+export type {
+  ChartComboAxis,
+  ChartComboKind,
+  ChartComboProps,
+  ChartComboSeries,
+} from './components/charts/ChartCombo';
 export { ChartArea } from './components/charts/ChartArea';
 export type { ChartAreaProps, ChartAreaSeries } from './components/charts/ChartArea';
 export { ChartScatter } from './components/charts/ChartScatter';

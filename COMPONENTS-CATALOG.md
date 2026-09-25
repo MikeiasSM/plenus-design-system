@@ -81,6 +81,7 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `ChartBar` | Comparação por categoria, em barras verticais ou horizontais. | Disponível |
 | `ChartLine` | Evolução de uma medida ao longo do tempo. | Disponível |
 | `ChartArea` | Evolução com ênfase no volume acumulado. | Disponível |
+| `ChartCombo` | Duas leituras da mesma categoria, em barras e linhas. | Disponível |
 | `ChartPie` | Composição de um total em partes. | Disponível |
 | `ChartDonut` | Composição de um total, com o valor central em destaque. | Disponível |
 | `ChartWaterfall` | Formação de um resultado, passo a passo. | Disponível |
@@ -89,6 +90,10 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `ChartTreemap` | Composição hierárquica por área. | Disponível |
 | `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Disponível |
 | `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
+
+`ChartCombo` desenha barras e linhas sobre o mesmo eixo de categorias, e é a escolha quando uma categoria carrega duas leituras de naturezas diferentes — o volume em barra, a taxa em linha. Com um único tipo de marca, `ChartBar` e `ChartLine` continuam sendo os componentes certos.
+
+Cada série do `ChartCombo` declara a que eixo de valor pertence, e é essa declaração que cria o eixo direito. O gráfico nunca parte a escala por conta própria: um segundo eixo que aparece sozinho transforma o ponto de cruzamento entre as séries em artefato da escala escolhida, e não em fato do dado. Sem nenhuma série à direita, o domínio é único.
 
 A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
 

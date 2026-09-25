@@ -3,7 +3,7 @@ import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  Card, ChartArea, ChartBar, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
+  Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
   ChartSunburst, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
@@ -260,6 +260,7 @@ export function App() {
           <a href="#chartbar">ChartBar</a>
           <a href="#chartline">ChartLine</a>
           <a href="#chartarea">ChartArea</a>
+          <a href="#chartcombo">ChartCombo</a>
           <a href="#chartscatter">ChartScatter</a>
           <a href="#chartwaterfall">ChartWaterfall</a>
           <a href="#chartdonut">ChartDonut</a>
@@ -1220,6 +1221,54 @@ export function App() {
               title="Composicao do faturamento"
             />
             <p className="doc-note">Empilhadas, as faixas recebem cor solida: gradientes sobrepostos somariam opacidade e a faixa de cima escureceria a de baixo. O contorno separa uma faixa da vizinha.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Duas leituras da mesma categoria, em barras e linhas."
+          id="chartcombo"
+          name="ChartCombo"
+          api={`<ChartCombo
+  title="Faturamento e conversao"
+  categories={meses}
+  series={[
+    { kind: 'bar', label: 'Faturamento', values: [...] },
+    { kind: 'line', label: 'Conversao', values: [...], axis: 'right' },
+  ]}
+  formatValue={formatarMoeda}
+  formatRightValue={formatarPercentual}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Eixo proprio para a segunda grandeza</h3>
+            <ChartCombo
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatRightValue={(valor) => formatarPercentual(valor / 100)}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+              series={[
+                { kind: 'bar', label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { axis: 'right', kind: 'line', label: 'Conversao', values: [3.2, 4.1, 2.8, 6.4, 3.9, 4.6] },
+              ]}
+              title="Faturamento e conversao"
+            />
+            <p className="doc-note">A serie declara o eixo a que pertence, e e essa declaracao que faz nascer o eixo direito. O grafico nunca parte a escala sozinho: um segundo eixo que aparece por conta propria torna o ponto onde a linha cruza a barra um artefato da escala escolhida, e nao um fato do dado.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Um eixo so, quando as medidas se comparam</h3>
+            <ChartCombo
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+              height={220}
+              series={[
+                { kind: 'bar', label: 'Realizado', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { kind: 'line', label: 'Meta', values: [50000, 50000, 50000, 70000, 70000, 70000] },
+              ]}
+              title="Realizado contra a meta"
+            />
+            <p className="doc-note">Sem nenhuma serie a direita o dominio e unico, e a linha e a barra podem ser lidas uma contra a outra. E o caso em que o cruzamento significa alguma coisa.</p>
           </div>
         </ComponentDoc>
 

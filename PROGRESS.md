@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-509 testes em 63 arquivos. Build da biblioteca e do Showcase validados.
+520 testes em 64 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -95,7 +95,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Ainda nao implementado
 
-- O combo de linhas e barras, que depende da decisao sobre o duplo eixo Y, e o `DataGrid` da etapa 10.
+- O `DataGrid` da etapa 10.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -201,6 +201,11 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - O cinza medio volta com papel proprio em `--pl-chart-neutral`, depois de sair da rotacao de series. No tema escuro ele cede lugar a um cinza mais claro, porque some contra a superficie escura em 2,69:1.
 - **Gerar as demais cores a partir da escolhida foi implementado e descartado.** Girar a matiz em passos iguais nao separa as series de forma perceptivel: a paleta derivada do laranja mediu 3,1 em deuteranopia, pior que a paleta atual. O circulo de matiz nao e perceptivelmente uniforme, e passo igual nao produz distancia igual.
 - A referencia visual dos graficos e **hibrida**, conforme o mantenedor: shadcn/ui na maioria da familia, Metabase no pie, no donut e no sankey, Untitled UI onde nenhum dos dois tiver correspondente. O codigo da referencia foi aberto, nao apenas a descricao, e dele saem quatro decisoes: grade so horizontal e sutil; eixo sem linha e sem tique, apenas o rotulo; linha `monotone` com traco de 2; area com gradiente vertical do tom cheio ao quase transparente, mais linha de contorno. Registrado na tabela de referencias do `CLAUDE.md`.
+- **O duplo eixo Y e declarado, nunca inferido.** No `ChartCombo` a serie diz a que eixo pertence, e e essa declaracao que faz nascer o eixo direito. Isso nao reabre a decisao registrada acima: o que ela condena e o eixo duplo que *acontece* por falta de escala confiavel, e e justamente a divisao automatica que fica proibida. O `Split y-axis when necessary` do Metabase e esse mecanismo automatico; o shadcn, pelo Recharts, exige `yAxisId` em cada eixo, e e esse o caminho adotado. Sem serie a direita, o dominio e unico e o eixo direito espelha o esquerdo.
+- Uma segunda escala sem eixo para le-la e exatamente o duplo eixo que engana, entao o eixo direito do `ChartCombo` aparece por padrao assim que uma serie pertence a ele. O consumidor ainda pode impor os tres estados de visibilidade.
+- Os dois dominios do `ChartCombo` caminham numa **animacao so**, e por isso chegam juntos. Duas animacoes independentes descasariam as barras das linhas no meio da transicao.
+- No `ChartCombo` a linha passa pelo **centro da faixa**, que e onde a marca do eixo de categoria tambem fica. As duas formas compartilham a escala de faixas em vez de manterem cada uma a sua.
+- O traco da linha e o marcador de ponto passaram para `core/Chart.module.css` quando o `ChartCombo` virou o terceiro consumidor deles. `ChartLine`, `ChartArea` e `ChartCombo` compoem a partir de la; `ChartArea` mantem o nome local `outline`.
 - A moldura cartesiana e um componente interno, nao uma camada preventiva: cinco graficos repetiam titulo, margens, area de desenho, estado vazio, colocacao dos dois eixos e legenda. Ela fala em **x e y**, nao em categoria e valor — e o grafico que decide qual eixo recebe cada marca. Foi o que dissolveu o ramo `vertical`/`horizontal` da colocacao de eixos do `ChartBar`.
 - `d3-shape` entrou pela mesma fronteira do restante do D3: ele devolve string de caminho, nao toca no DOM. Interpolacao cubica monotona e geracao de faixa com base variavel sao matematica sutil que nao vale reimplementar, e o pacote tambem serve os arcos dos radiais.
 - Valor ausente **interrompe** a curva, em vez de emendar sobre o buraco. Emendar desenharia um trecho que o dado nao afirma. Vale para `ChartLine` e para a faixa do `ChartArea`.
@@ -229,7 +234,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - O angulo dos rotulos de baixo e **calculado**, com `auto` por padrao. Deitado enquanto dois rotulos vizinhos nao se tocam; a partir dai o que precisa caber e a distancia perpendicular entre duas linhas de base, que vale o passo vezes o seno do angulo, o que da 45 graus enquanto `passo x sen45 >= entrelinha` e 90 graus abaixo disso. O consumidor ainda pode impor 0, 45 ou 90.
 - Os eixos tem tres estados de visibilidade, nos dois lados: `visible`, `hidden` e `onHover`. Em `onHover` **a calha permanece reservada** e o eixo desliza para dentro dela depois de 600ms de ponteiro parado, saindo na hora em que o ponteiro deixa a area. Reservar a calha e o que impede o desenho de se mexer sob o ponteiro; so `hidden` devolve o espaco ao grafico.
 - O atraso vive no estado de hover e o repouso tem atraso zero, entao a entrada espera e a saida e imediata sem nenhum temporizador em JavaScript.
-- O eixo da direita **espelha a escala da esquerda** nesta rodada. Uma segunda escala propria depende da decisao sobre o duplo eixo Y, que o mantenedor parou para rever.
+- O eixo da direita **espelha a escala da esquerda** em `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall`. So o `ChartCombo` tem segunda escala propria, e so quando uma serie declara pertencer a ela.
 - A legenda tem posicao escolhida entre `top`, `bottom`, `left`, `right` e `none`. Barras horizontais recusam `left` e `right` e caem para `bottom`: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.
 - A altura aceita `fill`, que a toma do contêiner. E o que permite um grafico ocupar a celula de um painel sem ninguem repetir a medida em JavaScript. A area de desenho fica fora do fluxo, para que a medida seja o que o layout concedeu e nao o que o proprio desenho ocupou, e um piso de altura evita o grafico sumir por medir zero quando quem envolve nao impoe altura alguma.
 - **Hover nao apaga as outras marcas.** A opacidade reduzida nas barras vizinhas foi implementada e descartada pelo mantenedor: o realce agora e um veu discreto atras da faixa sob o ponteiro, como o cursor da referencia. O token `--pl-chart-cursor` escurece no tema claro e clareia no escuro, porque um veu escuro sobre superficie escura nao apareceria.
@@ -349,14 +354,14 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - `DatePicker`, `TimePicker` e `DateTimePicker` implementados sobre `@internationalized/date`, com State Motor de calendario proprio, testes, exportacao publica e Showcase.
    - `formatarData` e `formatarHora` criados conforme `ARCHITECTURE.md` secao 9.1, e exportados pela API publica. `formatarEntradaData` e `lerEntradaData` acompanham as mascaras de entrada ja existentes.
 
-11. **Graficos** — concluida, exceto o combo de linhas e barras
+11. **Graficos** — concluida
    - Escalas, paleta, resolucao de cor por precedencia, medida do container, eixo e grade concluidos.
    - Moldura cartesiana compartilhada extraida, com `ChartBar` migrado sobre ela sem alteracao de teste nem de API.
    - `ChartBar` implementado, vertical e horizontal, agrupado e empilhado, com rotulos de valor, legenda, estado vazio e intencao semantica. Testado, exportado e documentado no Showcase.
    - `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall` implementados sobre a moldura, com curva suave ou reta, interrupcao no valor ausente, gradiente e empilhamento, bolha pelo eixo Z com guias no ponto sob o ponteiro, e cascata com barra flutuante, conectores tracejados e rotulo de variacao. Testados, exportados e documentados no Showcase. A familia cartesiana esta concluida.
    - Revisao de elegancia do mantenedor aplicada aos cinco: margens derivadas dos rotulos, angulacao automatica, visibilidade de eixo em tres estados nos dois lados, legenda posicionavel, altura pelo contêiner, realce por faixa no lugar da opacidade e raio na barra.
    - `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` implementados, testados, exportados e documentados no Showcase. Os onze graficos do catalogo estao disponiveis.
-   - Falta apenas o combo de linhas e barras, que nao e um componente do catalogo e depende da decisao sobre o duplo eixo Y.
+   - `ChartCombo` implementado, testado, exportado e documentado no Showcase, e acrescentado ao `COMPONENTS-CATALOG.md`. A familia de graficos esta concluida.
 
 **Graficos radiais, hierarquicos e de fluxo**
 
