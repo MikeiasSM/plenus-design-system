@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
-  plotBox,
-  useChartSize,
-  type AxisLabelRotation,
+  cartesianLayout,
+  chartHeight,
+  useChartMetrics,
+  valueLabelsFor,
+  type AxisLabelAngle,
   type AxisTick,
-  type ChartMargins,
+  type AxisVisibility,
+  type ChartHeight,
 } from '../core';
 import { resolveSeriesColors, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
@@ -22,11 +25,14 @@ export interface ChartWaterfallStep {
 export interface ChartWaterfallProps {
   emptyMessage?: string;
   formatValue?: (value: number) => string;
-  height?: number;
-  labelRotation?: AxisLabelRotation;
-  showValues?: boolean;
+  height?: ChartHeight;
+  labelAngle?: AxisLabelAngle;
+  showDataLabels?: boolean;
   steps: readonly ChartWaterfallStep[];
   title: string;
+  xAxis?: AxisVisibility;
+  yAxis?: AxisVisibility;
+  yAxisRight?: AxisVisibility;
 }
 
 interface Trecho {
@@ -34,7 +40,7 @@ interface Trecho {
   inicio: number;
 }
 
-const MARGENS: ChartMargins = { top: 20, right: 16, bottom: 34, left: 52 };
+const ALTURA_DO_ROTULO = 20;
 
 /**
  * Cada passo ocupa a faixa entre o acumulado anterior e o novo acumulado. Um
@@ -77,13 +83,17 @@ export function ChartWaterfall({
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 280,
-  labelRotation = 0,
-  showValues = true,
+  labelAngle = 'auto',
+  showDataLabels = true,
   steps,
   title,
+  xAxis = 'visible',
+  yAxis = 'visible',
+  yAxisRight = 'hidden',
 }: ChartWaterfallProps) {
-  const { ref, width } = useChartSize({ height });
-  const plot = plotBox(width, height, MARGENS);
+  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const [passoEmFoco, setPassoEmFoco] = useState<number | null>(null);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
 
@@ -96,6 +106,22 @@ export function ChartWaterfall({
     () => domainOf(trechos.flatMap((trecho) => [trecho.inicio, trecho.fim])),
     [trechos],
   );
+
+  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
+
+  const { margins, plot, rotation } = cartesianLayout({
+    bottomLabels: steps.map((passo) => passo.label),
+    font,
+    height: alturaDoDesenho,
+    labelAngle,
+    leftLabels: rotulosDeValor,
+    rightLabels: rotulosDeValor,
+    topRoom: showDataLabels ? ALTURA_DO_ROTULO : 0,
+    width,
+    xAxis,
+    yAxis,
+    yAxisRight,
+  });
 
   // A faixa e indexada pela posicao, nao pelo rotulo: numa sequencia de passos o
   // mesmo rotulo pode repetir, e a escala categorica funde dominios iguais.
@@ -123,6 +149,10 @@ export function ChartWaterfall({
     position: escalaValores(valor),
   }));
 
+  function rotuloDe(passo: ChartWaterfallStep) {
+    return passo.total ? formatValue(passo.value) : comSinal(passo.value, formatValue);
+  }
+
   return (
     <CartesianFrame
       containerRef={ref}
@@ -135,14 +165,27 @@ export function ChartWaterfall({
           orientation: 'horizontal',
         },
       ]}
-      height={height}
-      margins={MARGENS}
+      fillHeight={fillHeight}
+      height={alturaDoDesenho}
+      legendPosition="none"
+      margins={margins}
       plot={plot}
       title={title}
       width={width}
-      xAxis={{ labelRotation, ticks: marcasPassos }}
-      yAxis={{ hideLine: true, ticks: marcasValor }}
+      xAxis={{ labelRotation: rotation, ticks: marcasPassos, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
+      {passoEmFoco !== null && (
+        <rect
+          className={styles.cursor}
+          height={plot.height}
+          width={escalaPassos.bandwidth()}
+          x={faixaDe(passoEmFoco)}
+          y={0}
+        />
+      )}
+
       <g aria-hidden="true">
         {trechos.slice(0, -1).map((trecho, indice) => {
           const nivel = escalaValores(trecho.fim);
@@ -171,17 +214,18 @@ export function ChartWaterfall({
             fill={cores[indice]}
             height={altura}
             key={indice}
-            rx={2}
+            onMouseEnter={() => setPassoEmFoco(indice)}
+            onMouseLeave={() => setPassoEmFoco(null)}
             width={escalaPassos.bandwidth()}
             x={faixaDe(indice)}
             y={topo}
           >
-            <title>{`${passo.label}: ${passo.total ? formatValue(passo.value) : comSinal(passo.value, formatValue)}`}</title>
+            <title>{`${passo.label}: ${rotuloDe(passo)}`}</title>
           </rect>
         );
       })}
 
-      {showValues &&
+      {showDataLabels &&
         steps.map((passo, indice) => {
           const { fim, inicio } = trechos[indice];
           const topo = Math.min(escalaValores(inicio), escalaValores(fim));
@@ -194,7 +238,7 @@ export function ChartWaterfall({
               x={faixaDe(indice) + escalaPassos.bandwidth() / 2}
               y={topo - 6}
             >
-              {passo.total ? formatValue(passo.value) : comSinal(passo.value, formatValue)}
+              {rotuloDe(passo)}
             </text>
           );
         })}

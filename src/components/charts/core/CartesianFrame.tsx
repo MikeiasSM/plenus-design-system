@@ -1,19 +1,15 @@
 import { useId, type ReactNode } from 'react';
-import { Axis, type AxisLabelRotation, type AxisTick } from './Axis';
+import { Axis, type AxisOrientation, type AxisTick } from './Axis';
 import { Grid, type GridOrientation } from './Grid';
+import type {
+  AxisLabelRotation,
+  AxisVisibility,
+  ChartMargins,
+  ChartPlot,
+} from './cartesianLayout';
 import styles from './Chart.module.css';
 
-export interface ChartMargins {
-  bottom: number;
-  left: number;
-  right: number;
-  top: number;
-}
-
-export interface ChartPlot {
-  height: number;
-  width: number;
-}
+export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
 
 export interface ChartLegendEntry {
   color: string;
@@ -24,6 +20,7 @@ export interface CartesianAxis {
   hideLine?: boolean;
   labelRotation?: AxisLabelRotation;
   ticks: readonly AxisTick[];
+  visibility?: AxisVisibility;
 }
 
 export interface CartesianGrid {
@@ -37,102 +34,200 @@ export interface CartesianFrameProps {
   containerRef: (node: HTMLElement | null) => void;
   empty: boolean;
   emptyMessage: string;
+  fillHeight: boolean;
   grid?: readonly CartesianGrid[];
   height: number;
   legend?: readonly ChartLegendEntry[];
+  legendPosition: ChartLegendPosition;
   margins: ChartMargins;
   plot: ChartPlot;
   title: string;
   width: number;
   xAxis: CartesianAxis;
   yAxis: CartesianAxis;
+  yAxisRight?: CartesianAxis;
 }
 
-/** Area de desenho, descontadas as margens que os eixos e os rotulos ocupam. */
-export function plotBox(width: number, height: number, margins: ChartMargins): ChartPlot {
-  return {
-    width: Math.max(width - margins.left - margins.right, 0),
-    height: Math.max(height - margins.top - margins.bottom, 0),
-  };
+/** A legenda ao lado poe o corpo em linha; acima ou abaixo, em coluna. */
+const DIRECAO_DO_CORPO: Record<ChartLegendPosition, string> = {
+  top: styles.bodyColumn,
+  bottom: styles.bodyColumn,
+  none: styles.bodyColumn,
+  left: styles.bodyRow,
+  right: styles.bodyRow,
+};
+
+const DESLIZE: Record<AxisOrientation, string> = {
+  bottom: styles.slideUp,
+  left: styles.slideRight,
+  right: styles.slideLeft,
+};
+
+interface EixoProps {
+  axis: CartesianAxis;
+  gutter: { height: number; width: number; x: number; y: number };
+  length: number;
+  orientation: AxisOrientation;
 }
 
 /**
- * Moldura de um grafico cartesiano: titulo, area de desenho, grade, os dois
- * eixos e a legenda. Recebe as marcas do eixo ja posicionadas e as marcas do
- * grafico como filhas, em coordenadas da area de desenho.
+ * Um eixo e a sua calha. No modo `onHover` a calha e um alvo transparente: o
+ * eixo desliza para dentro dela depois de um instante de ponteiro parado, e sai
+ * na hora em que o ponteiro deixa a area.
+ */
+function EixoComCalha({ axis, gutter, length, orientation }: EixoProps) {
+  const visibility = axis.visibility ?? 'visible';
+
+  if (visibility === 'hidden') {
+    return null;
+  }
+
+  const dinamico = visibility === 'onHover';
+  const eixo = (
+    <Axis
+      hideLine={axis.hideLine}
+      labelRotation={axis.labelRotation}
+      length={length}
+      orientation={orientation}
+      ticks={axis.ticks}
+    />
+  );
+
+  if (!dinamico) {
+    return eixo;
+  }
+
+  return (
+    <g className={`${styles.dynamicAxis} ${DESLIZE[orientation]}`}>
+      <rect
+        className={styles.gutter}
+        height={gutter.height}
+        width={gutter.width}
+        x={gutter.x}
+        y={gutter.y}
+      />
+      {eixo}
+    </g>
+  );
+}
+
+function Legenda({ entries, position }: { entries: readonly ChartLegendEntry[]; position: ChartLegendPosition }) {
+  const lateral = position === 'left' || position === 'right';
+
+  return (
+    <ul className={`${styles.legend} ${lateral ? styles.legendSide : ''}`}>
+      {entries.map((entrada) => (
+        <li className={styles.legendItem} key={entrada.label}>
+          <span aria-hidden="true" className={styles.swatch} style={{ background: entrada.color }} />
+          {entrada.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Moldura de um grafico cartesiano: titulo, area de desenho, grade, os eixos e
+ * a legenda. Recebe as marcas do eixo ja posicionadas, as margens ja calculadas
+ * a partir dos rotulos e as marcas do grafico como filhas, em coordenadas da
+ * area de desenho.
  */
 export function CartesianFrame({
   children,
   containerRef,
   empty,
   emptyMessage,
+  fillHeight,
   grid,
   height,
   legend,
+  legendPosition,
   margins,
   plot,
   title,
   width,
   xAxis,
   yAxis,
+  yAxisRight,
 }: CartesianFrameProps) {
   const tituloId = useId();
+  const comLegenda = legendPosition !== 'none' && legend !== undefined && legend.length > 1;
 
   return (
-    <figure className={styles.figure} ref={containerRef}>
+    <figure className={styles.figure}>
       <figcaption className={styles.title} id={tituloId}>
         {title}
       </figcaption>
 
-      {empty || width === 0 ? (
-        <p className={styles.empty}>{emptyMessage}</p>
-      ) : (
-        <svg
-          aria-labelledby={tituloId}
-          className={styles.canvas}
-          height={height}
-          role="img"
-          viewBox={`0 0 ${width} ${height}`}
-          width={width}
+      <div className={`${styles.body} ${DIRECAO_DO_CORPO[legendPosition]}`}>
+        {comLegenda && (legendPosition === 'top' || legendPosition === 'left') && (
+          <Legenda entries={legend} position={legendPosition} />
+        )}
+
+        <div
+          className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`}
+          ref={containerRef}
+          style={fillHeight ? undefined : { minHeight: height }}
         >
-          <g transform={`translate(${margins.left} ${margins.top})`}>
-            {grid?.map((linhas) => (
-              <Grid
-                baseline={linhas.baseline}
-                key={linhas.orientation}
-                length={linhas.orientation === 'horizontal' ? plot.width : plot.height}
-                lines={linhas.lines}
-                orientation={linhas.orientation}
-              />
-            ))}
+          {empty || width === 0 || height === 0 ? (
+            <p className={styles.empty}>{emptyMessage}</p>
+          ) : (
+            <svg
+              aria-labelledby={tituloId}
+              className={styles.canvas}
+              height={height}
+              role="img"
+              viewBox={`0 0 ${width} ${height}`}
+              width={width}
+            >
+              <g transform={`translate(${margins.left} ${margins.top})`}>
+                {grid?.map((linhas) => (
+                  <Grid
+                    baseline={linhas.baseline}
+                    key={linhas.orientation}
+                    length={linhas.orientation === 'horizontal' ? plot.width : plot.height}
+                    lines={linhas.lines}
+                    orientation={linhas.orientation}
+                  />
+                ))}
 
-            {children}
+                {children}
 
-            <g transform={`translate(0 ${plot.height})`}>
-              <Axis
-                hideLine={xAxis.hideLine}
-                labelRotation={xAxis.labelRotation}
-                length={plot.width}
-                orientation="bottom"
-                ticks={xAxis.ticks}
-              />
-            </g>
+                <g transform={`translate(0 ${plot.height})`}>
+                  <EixoComCalha
+                    axis={xAxis}
+                    gutter={{ height: margins.bottom, width: plot.width, x: 0, y: 0 }}
+                    length={plot.width}
+                    orientation="bottom"
+                  />
+                </g>
 
-            <Axis hideLine={yAxis.hideLine} length={plot.height} orientation="left" ticks={yAxis.ticks} />
-          </g>
-        </svg>
-      )}
+                <EixoComCalha
+                  axis={yAxis}
+                  gutter={{ height: plot.height, width: margins.left, x: -margins.left, y: 0 }}
+                  length={plot.height}
+                  orientation="left"
+                />
 
-      {legend && legend.length > 1 && (
-        <ul className={styles.legend}>
-          {legend.map((entrada) => (
-            <li className={styles.legendItem} key={entrada.label}>
-              <span aria-hidden="true" className={styles.swatch} style={{ background: entrada.color }} />
-              {entrada.label}
-            </li>
-          ))}
-        </ul>
-      )}
+                {yAxisRight && (
+                  <g transform={`translate(${plot.width} 0)`}>
+                    <EixoComCalha
+                      axis={yAxisRight}
+                      gutter={{ height: plot.height, width: margins.right, x: 0, y: 0 }}
+                      length={plot.height}
+                      orientation="right"
+                    />
+                  </g>
+                )}
+              </g>
+            </svg>
+          )}
+        </div>
+
+        {comLegenda && (legendPosition === 'bottom' || legendPosition === 'right') && (
+          <Legenda entries={legend} position={legendPosition} />
+        )}
+      </div>
     </figure>
   );
 }

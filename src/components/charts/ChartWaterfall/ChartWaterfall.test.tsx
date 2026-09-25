@@ -99,7 +99,7 @@ describe('ChartWaterfall', () => {
   });
 
   it('dispensa o rotulo de variacao quando pedido', () => {
-    render(<ChartWaterfall showValues={false} steps={dre} title="DRE" />);
+    render(<ChartWaterfall showDataLabels={false} steps={dre} title="DRE" />);
 
     expect(rotulos()).toHaveLength(0);
   });

@@ -1,17 +1,13 @@
+/* A barra sempre tem raio. O atributo rx nao aceita variavel CSS, entao o valor
+   vem da propriedade, que le o token. */
 .bar {
-  transition: opacity var(--pl-speed-1) var(--pl-ease);
+  rx: var(--pl-radius-sm);
 }
 
-svg:hover .bar:not(:hover) {
-  opacity: 0.72;
+.cursor {
+  composes: cursor from '../core/Chart.module.css';
 }
 
 .valueLabel {
   composes: valueLabel from '../core/Chart.module.css';
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bar {
-    transition: none;
-  }
 }

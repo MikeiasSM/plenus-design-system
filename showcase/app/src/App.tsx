@@ -7,6 +7,7 @@ import {
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
+import type { AxisVisibility, ChartLegendPosition } from '@plenus/index';
 
 const estadosBrasileiros = [
   ['ac', 'Acre'], ['al', 'Alagoas'], ['ap', 'Amapa'], ['am', 'Amazonas'],
@@ -93,6 +94,8 @@ export function App() {
   const [ordemEquipe, setOrdemEquipe] = useState<OrdemTabela>({ column: 'nome', direction: 'ascending' });
   const [paginaEquipe, setPaginaEquipe] = useState(1);
   const [corDoTema, setCorDoTema] = useState('#F26B35');
+  const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
+  const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
   const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
   const equipeOrdenada = [...equipe].sort((a, b) => {
@@ -853,10 +856,88 @@ export function App() {
               orientation="horizontal"
               series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500] }]}
               accent={corDoTema}
-              showValues
+              showDataLabels
               title="Faturamento por cliente"
             />
-            <p className="doc-note">Uma serie so dispensa legenda: o titulo ja a nomeia. As categorias vao para o eixo da esquerda e o valor fica na ponta da barra.</p>
+            <p className="doc-note">Uma serie so dispensa legenda: o titulo ja a nomeia. As categorias vao para o eixo da esquerda, e a calha desse eixo e medida pelo rotulo mais largo, entao nomes longos deixam de ser cortados.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Visibilidade dos eixos</h3>
+            <div className="demo-grid">
+              {(['visible', 'onHover', 'hidden'] as const).map((modo) => (
+                <Button
+                  key={modo}
+                  onClick={() => setEixoDeValor(modo)}
+                  size="sm"
+                  variant={eixoDeValor === modo ? 'primary' : 'secondary'}
+                >
+                  {modo}
+                </Button>
+              ))}
+            </div>
+            <ChartBar
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
+              title="Faturamento mensal"
+              yAxis={eixoDeValor}
+              yAxisRight={eixoDeValor}
+            />
+            <p className="doc-note">Em <code>onHover</code> o eixo desliza para dentro da calha depois de um instante com o ponteiro parado sobre ela, e sai na hora em que o ponteiro deixa a area. A calha continua reservada, para o desenho nao se mexer sob o ponteiro. So <code>hidden</code> devolve o espaco ao grafico.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Posicao da legenda</h3>
+            <div className="demo-grid">
+              {(['top', 'right', 'bottom', 'left', 'none'] as const).map((lado) => (
+                <Button
+                  key={lado}
+                  onClick={() => setLadoDaLegenda(lado)}
+                  size="sm"
+                  variant={ladoDaLegenda === lado ? 'primary' : 'secondary'}
+                >
+                  {lado}
+                </Button>
+              ))}
+            </div>
+            <ChartBar
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              legend={ladoDaLegenda}
+              series={[
+                { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
+              ]}
+              title="Composicao do faturamento"
+            />
+            <p className="doc-note">A mesma escolha num grafico de barras horizontais cai para baixo quando pedida a esquerda ou a direita: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Altura do contêiner</h3>
+            <div style={{ height: 340, resize: 'vertical', overflow: 'auto', border: '1px dashed var(--pl-color-border-strong)', borderRadius: 'var(--pl-radius-md)', padding: 'var(--pl-space-4)' }}>
+              <ChartBar
+                accent={corDoTema}
+                categories={mesesDoSemestre}
+                formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+                height="fill"
+                series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
+                title="Faturamento mensal"
+              />
+            </div>
+            <p className="doc-note">Com <code>height="fill"</code> a altura vem de quem envolve, e o grafico acompanha a celula de um painel sem ninguem repetir a medida em JavaScript. Arraste o canto inferior direito da caixa tracejada. Um numero continua fixando a altura, que e o padrao.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Angulacao automatica</h3>
+            <ChartBar
+              accent={corDoTema}
+              categories={['Plenus Tecnologia', 'CDCE da Escola', 'S. P Ind. Com.', 'S M de Oliveira', 'Tres D Comercio', 'Industria Belo']}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={300}
+              series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500, 9200] }]}
+              title="Faturamento por cliente"
+            />
+            <p className="doc-note">O angulo sai da medida do texto contra o passo entre categorias: deitado enquanto dois rotulos vizinhos nao se tocam, depois a 45 graus enquanto a diagonal ainda separa duas linhas de base, e em pe quando nem isso separa. Estreite a janela para ver o angulo mudar sozinho.</p>
           </div>
           <div className="doc-subsection">
             <h3>Sem dados</h3>
@@ -905,7 +986,7 @@ export function App() {
               formatValue={(valor) => `${Math.round(valor / 1000)}k`}
               height={220}
               series={[{ label: 'Ticket medio', values: [1240, 1310, 1180, 1520, 1460, 1590] }]}
-              showMarkers
+              showDots
               title="Ticket medio"
             />
             <p className="doc-note">Uma serie so dispensa legenda: o titulo ja a nomeia.</p>
@@ -1049,7 +1130,7 @@ export function App() {
             <ChartWaterfall
               formatValue={(valor) => `${Math.round(valor / 1000)}k`}
               height={220}
-              showValues={false}
+              showDataLabels={false}
               steps={[
                 { label: 'Saldo inicial', value: 80000, total: true },
                 { label: 'Recebimentos', value: 142000 },

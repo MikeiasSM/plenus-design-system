@@ -1,13 +1,17 @@
 import { useMemo } from 'react';
 import {
   CartesianFrame,
+  cartesianLayout,
+  chartHeight,
   linePath,
-  plotBox,
-  useChartSize,
-  type AxisLabelRotation,
+  useChartMetrics,
+  valueLabelsFor,
+  type AxisLabelAngle,
   type AxisTick,
+  type AxisVisibility,
   type ChartCurve,
-  type ChartMargins,
+  type ChartHeight,
+  type ChartLegendPosition,
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -25,14 +29,19 @@ export interface ChartLineProps {
   curve?: ChartCurve;
   emptyMessage?: string;
   formatValue?: (value: number) => string;
-  height?: number;
-  labelRotation?: AxisLabelRotation;
+  height?: ChartHeight;
+  labelAngle?: AxisLabelAngle;
+  legend?: ChartLegendPosition;
   series: readonly ChartLineSeries[];
-  showMarkers?: boolean;
+  showDataLabels?: boolean;
+  showDots?: boolean;
   title: string;
+  xAxis?: AxisVisibility;
+  yAxis?: AxisVisibility;
+  yAxisRight?: AxisVisibility;
 }
 
-const MARGENS: ChartMargins = { top: 12, right: 16, bottom: 34, left: 52 };
+const ALTURA_DO_ROTULO = 18;
 
 export function ChartLine({
   accent,
@@ -41,13 +50,18 @@ export function ChartLine({
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 260,
-  labelRotation = 0,
+  labelAngle = 'auto',
+  legend = 'bottom',
   series,
-  showMarkers = false,
+  showDataLabels = false,
+  showDots = false,
   title,
+  xAxis = 'visible',
+  yAxis = 'visible',
+  yAxisRight = 'hidden',
 }: ChartLineProps) {
-  const { ref, width } = useChartSize({ height });
-  const plot = plotBox(width, height, MARGENS);
+  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
 
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
@@ -55,6 +69,22 @@ export function ChartLine({
     () => mergeDomains(series.map((serie) => domainOf(serie.values.filter((valor) => valor !== null)))),
     [series],
   );
+
+  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
+
+  const { margins, plot, rotation } = cartesianLayout({
+    bottomLabels: categories,
+    font,
+    height: alturaDoDesenho,
+    labelAngle,
+    leftLabels: rotulosDeValor,
+    rightLabels: rotulosDeValor,
+    topRoom: showDataLabels ? ALTURA_DO_ROTULO : 0,
+    width,
+    xAxis,
+    yAxis,
+    yAxisRight,
+  });
 
   const escalaCategorias = useMemo(
     () => pointScale({ domain: categories, padding: 0, range: [0, plot.width] }),
@@ -102,14 +132,17 @@ export function ChartLine({
           orientation: 'horizontal',
         },
       ]}
-      height={height}
+      fillHeight={fillHeight}
+      height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
-      margins={MARGENS}
+      legendPosition={legend}
+      margins={margins}
       plot={plot}
       title={title}
       width={width}
-      xAxis={{ labelRotation, ticks: marcasCategoria }}
-      yAxis={{ hideLine: true, ticks: marcasValor }}
+      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
       {series.map((serie, indiceSerie) => (
         <g key={serie.label}>
@@ -123,7 +156,7 @@ export function ChartLine({
           {pontosPorSerie[indiceSerie].map((ponto, indice) =>
             ponto === null ? null : (
               <circle
-                className={showMarkers ? styles.markerVisible : styles.marker}
+                className={showDots ? styles.dotVisible : styles.dot}
                 cx={ponto.x}
                 cy={ponto.y}
                 fill={cores[indiceSerie]}
@@ -134,6 +167,21 @@ export function ChartLine({
               </circle>
             ),
           )}
+
+          {showDataLabels &&
+            pontosPorSerie[indiceSerie].map((ponto, indice) =>
+              ponto === null ? null : (
+                <text
+                  className={styles.valueLabel}
+                  key={categories[indice]}
+                  textAnchor="middle"
+                  x={ponto.x}
+                  y={ponto.y - 10}
+                >
+                  {formatValue(serie.values[indice] ?? 0)}
+                </text>
+              ),
+            )}
         </g>
       ))}
     </CartesianFrame>

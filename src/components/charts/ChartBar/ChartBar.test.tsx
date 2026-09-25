@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ChartBar, type ChartBarSeries } from './ChartBar';
 
 const periodos = ['08/2026', '09/2026'];
@@ -14,7 +14,13 @@ function fixarLargura(largura = 640) {
 }
 
 function barras() {
-  return [...document.querySelectorAll('rect')];
+  return [...document.querySelectorAll('rect')].filter(
+    (no) => !no.getAttribute('class')?.includes('cursor'),
+  );
+}
+
+function rotulosDoEixo() {
+  return [...document.querySelectorAll('text')].map((no) => no.textContent);
 }
 
 describe('ChartBar', () => {
@@ -99,6 +105,109 @@ describe('ChartBar', () => {
     expect(screen.queryByText('Deduções')).not.toBeInTheDocument();
   });
 
+  it('deriva a calha do eixo do rotulo mais largo, em vez de uma constante', () => {
+    const larguraDoDesenho = () => Number(document.querySelector('svg g')?.getAttribute('transform')?.match(/translate\(([\d.]+)/)?.[1]);
+
+    const { rerender } = render(
+      <ChartBar categories={periodos} formatValue={(valor) => String(valor)} series={dre} title="DRE" />,
+    );
+    const estreita = larguraDoDesenho();
+
+    rerender(
+      <ChartBar
+        categories={periodos}
+        formatValue={(valor) => `R$ ${valor.toLocaleString('pt-BR')},00`}
+        series={dre}
+        title="DRE"
+      />,
+    );
+
+    expect(larguraDoDesenho()).toBeGreaterThan(estreita as number);
+  });
+
+  it('esconde o eixo pedido e devolve o espaco ao desenho', () => {
+    const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    expect(rotulosDoEixo()).toContain('08/2026');
+
+    rerender(<ChartBar categories={periodos} series={dre} title="DRE" xAxis="hidden" />);
+    expect(rotulosDoEixo()).not.toContain('08/2026');
+  });
+
+  it('mantem o eixo dinamico na arvore, porque a calha ja esta reservada', () => {
+    render(<ChartBar categories={periodos} series={dre} title="DRE" yAxis="onHover" />);
+
+    expect(document.querySelector('[class*="dynamicAxis"]')).toBeInTheDocument();
+  });
+
+  it('mostra o eixo da direita somente quando pedido', () => {
+    const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    const comUmEixo = rotulosDoEixo().length;
+
+    rerender(<ChartBar categories={periodos} series={dre} title="DRE" yAxisRight="visible" />);
+
+    expect(rotulosDoEixo().length).toBeGreaterThan(comUmEixo);
+  });
+
+  it('espelha na direita o eixo da esquerda, e nao o de baixo', () => {
+    render(
+      <ChartBar
+        categories={periodos}
+        orientation="horizontal"
+        series={dre}
+        title="DRE"
+        yAxisRight="visible"
+      />,
+    );
+
+    const vezesQueAparece = rotulosDoEixo().filter((texto) => texto === '08/2026').length;
+
+    expect(vezesQueAparece).toBe(2);
+  });
+
+  it('realca a faixa sob o ponteiro, sem apagar as demais barras', () => {
+    render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    const realce = () => document.querySelector('[class*="cursor"]');
+
+    expect(realce()).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(barras()[0]);
+    expect(realce()).toBeInTheDocument();
+    expect(barras().every((barra) => barra.getAttribute('opacity') === null)).toBe(true);
+
+    fireEvent.mouseLeave(barras()[0]);
+    expect(realce()).not.toBeInTheDocument();
+  });
+
+  it('leva a legenda lateral para baixo nas barras horizontais, que precisam da largura', () => {
+    const lateral = () => document.querySelector('[class*="legendSide"]');
+
+    const { rerender } = render(<ChartBar categories={periodos} legend="right" series={dre} title="DRE" />);
+    expect(lateral()).toBeInTheDocument();
+
+    rerender(
+      <ChartBar categories={periodos} legend="right" orientation="horizontal" series={dre} title="DRE" />,
+    );
+    expect(lateral()).not.toBeInTheDocument();
+  });
+
+  it('dispensa a legenda quando pedido', () => {
+    render(<ChartBar categories={periodos} legend="none" series={dre} title="DRE" />);
+
+    expect(screen.queryByText('Deduções')).not.toBeInTheDocument();
+  });
+
+  it('assume a altura do contêiner quando o consumidor entrega a decisao a ele', () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 420 });
+
+    const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    expect(document.querySelector('svg')).toHaveAttribute('height', '260');
+
+    rerender(<ChartBar categories={periodos} height="fill" series={dre} title="DRE" />);
+    expect(document.querySelector('svg')).toHaveAttribute('height', '420');
+
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um grafico vazio', () => {
     render(<ChartBar categories={[]} series={[]} title="DRE" />);
 
@@ -115,7 +224,7 @@ describe('ChartBar', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={[dre[0]]} title="DRE" />);
     expect(rotulosDeBarra()).toHaveLength(0);
 
-    rerender(<ChartBar categories={periodos} series={[dre[0]]} showValues title="DRE" />);
+    rerender(<ChartBar categories={periodos} series={[dre[0]]} showDataLabels title="DRE" />);
     expect(rotulosDeBarra()).toEqual(['300000', '210000']);
   });
 });

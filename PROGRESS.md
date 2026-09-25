@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-377 testes em 50 arquivos. Build da biblioteca e do Showcase validados.
+400 testes em 51 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -25,8 +25,9 @@ Outros modulos:
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
 - `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
-- `src/components/charts/core` — moldura cartesiana compartilhada: `CartesianFrame` com `plotBox`, `Axis`, `Grid`,
-  `useChartSize` e os geradores de caminho de `shapes.ts`. **Internos**, nao exportados, exceto o tipo `ChartCurve`.
+- `src/components/charts/core` — moldura cartesiana compartilhada: `CartesianFrame`, `Axis`, `Grid`, o calculo de
+  layout de `cartesianLayout.ts`, a medida de texto de `measureText.ts`, `useChartMetrics` e os geradores de caminho
+  de `shapes.ts`. **Internos**, nao exportados, exceto os tipos que aparecem na API publica dos graficos.
   Servem `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall`.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
@@ -103,6 +104,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
 - Registrar a paleta de series no `TOKENS-REFERENCE-COLORS.md`, que hoje nao preve nenhuma cor para dados. Os tokens ja existem em `src/tokens/semantic/chart.css`; falta o documento normativo, que exige aprovacao.
+- Registrar o token `--pl-chart-cursor` junto da paleta de series, no mesmo momento em que ela for ao `TOKENS-REFERENCE-COLORS.md`.
 - Registrar no `CLAUDE.md` que a referencia visual dos graficos e o shadcn/ui, num sistema hibrido com o Untitled UI. A tabela de referencias hoje da ao Untitled UI o papel de base visual e ao shadcn/ui apenas composicao e desenho de API. A informacao veio do mantenedor durante a implementacao dos cartesianos e ja orienta o codigo; falta o documento.
 - Acrescentar `charts/` a estrutura de diretorios do `README.md`, que lista as categorias de componentes e ainda nao a inclui.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
@@ -201,6 +203,20 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Um passo marcado como total parte do zero e recebe intencao `neutral`: ele fecha a conta em vez de acrescentar a ela, e o rotulo dele dispensa o sinal.
 - **Tooltip de grafico por portal adiado por decisao do mantenedor.** Os cartesianos mantem o `<title>` por marca, com marcadores revelados no hover para dar a leitura por ponto. Ele entra quando o mantenedor decidir, e e o ponto que falta para a leitura no ponteiro se igualar a referencia.
 - **Legenda clicavel adiada.** Hoje a legenda e estatica nos cinco graficos. Ligar e desligar serie e comportamento, nao estrutura, e nenhum cenario concreto pediu ainda.
+
+**Elegancia dos graficos, a partir da revisao do mantenedor**
+
+- **Nenhuma medida do grafico e constante.** As margens saem da largura medida dos rotulos, e nao de numeros chutados. A ordem resolve a dependencia entre elas sozinha: as calhas laterais definem a largura util, a largura util define o passo entre categorias, o passo define o angulo dos rotulos e o angulo define a altura que eles ocupam embaixo. O eixo Y das barras horizontais cortava nomes longos exatamente por causa do `52` fixo.
+- A largura de um rotulo e medida no **canvas**, com a fonte lida dos tokens no proprio elemento do grafico. Ler a fonte do elemento evita repetir em JavaScript um valor que ja pertence ao CSS. Onde o canvas nao existe, como no jsdom, a estimativa por caractere mantem o calculo deterministico em vez de devolver zero e amontoar os rotulos.
+- O angulo dos rotulos de baixo e **calculado**, com `auto` por padrao. Deitado enquanto dois rotulos vizinhos nao se tocam; a partir dai o que precisa caber e a distancia perpendicular entre duas linhas de base, que vale o passo vezes o seno do angulo, o que da 45 graus enquanto `passo x sen45 >= entrelinha` e 90 graus abaixo disso. O consumidor ainda pode impor 0, 45 ou 90.
+- Os eixos tem tres estados de visibilidade, nos dois lados: `visible`, `hidden` e `onHover`. Em `onHover` **a calha permanece reservada** e o eixo desliza para dentro dela depois de 600ms de ponteiro parado, saindo na hora em que o ponteiro deixa a area. Reservar a calha e o que impede o desenho de se mexer sob o ponteiro; so `hidden` devolve o espaco ao grafico.
+- O atraso vive no estado de hover e o repouso tem atraso zero, entao a entrada espera e a saida e imediata sem nenhum temporizador em JavaScript.
+- O eixo da direita **espelha a escala da esquerda** nesta rodada. Uma segunda escala propria depende da decisao sobre o duplo eixo Y, que o mantenedor parou para rever.
+- A legenda tem posicao escolhida entre `top`, `bottom`, `left`, `right` e `none`. Barras horizontais recusam `left` e `right` e caem para `bottom`: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.
+- A altura aceita `fill`, que a toma do contêiner. E o que permite um grafico ocupar a celula de um painel sem ninguem repetir a medida em JavaScript. A area de desenho fica fora do fluxo, para que a medida seja o que o layout concedeu e nao o que o proprio desenho ocupou, e um piso de altura evita o grafico sumir por medir zero quando quem envolve nao impoe altura alguma.
+- **Hover nao apaga as outras marcas.** A opacidade reduzida nas barras vizinhas foi implementada e descartada pelo mantenedor: o realce agora e um veu discreto atras da faixa sob o ponteiro, como o cursor da referencia. O token `--pl-chart-cursor` escurece no tema claro e clareia no escuro, porque um veu escuro sobre superficie escura nao apareceria.
+- Barra sempre com raio, pelo token. O atributo `rx` nao aceita variavel CSS, entao o valor vem da propriedade `rx` no modulo, que le o token.
+- Marcadores e rotulos de valor sao opcionais em toda a familia, com os mesmos nomes: `showDots` e `showDataLabels`. `ChartScatter` fica de fora dos dois, porque ali a bolha ja e a marca e rotulo por ponto se atropela assim que as bolhas se aproximam.
 
 ### Datas
 
@@ -309,6 +325,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - Moldura cartesiana compartilhada extraida, com `ChartBar` migrado sobre ela sem alteracao de teste nem de API.
    - `ChartBar` implementado, vertical e horizontal, agrupado e empilhado, com rotulos de valor, legenda, estado vazio e intencao semantica. Testado, exportado e documentado no Showcase.
    - `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall` implementados sobre a moldura, com curva suave ou reta, interrupcao no valor ausente, gradiente e empilhamento, bolha pelo eixo Z com guias no ponto sob o ponteiro, e cascata com barra flutuante, conectores tracejados e rotulo de variacao. Testados, exportados e documentados no Showcase. A familia cartesiana esta concluida.
+   - Revisao de elegancia do mantenedor aplicada aos cinco: margens derivadas dos rotulos, angulacao automatica, visibilidade de eixo em tres estados nos dois lados, legenda posicionavel, altura pelo contêiner, realce por faixa no lugar da opacidade e raio na barra.
    - Proximos, por motor de calculo: os radiais — `ChartPie`, `ChartDonut` e `ChartRadial` —, depois os hierarquicos — `ChartTreemap` e `ChartSunburst` — e o fluxo, `ChartSankey`.
 
 12. **Editor em blocos**

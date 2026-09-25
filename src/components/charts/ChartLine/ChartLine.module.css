@@ -6,27 +6,31 @@
 
 /* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
    impressao, onde nao existe hover para revelar o ponto. */
-.marker {
+.dot {
   opacity: 0;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-.markerVisible {
+.dotVisible {
   opacity: 1;
 }
 
-svg:hover .marker {
+svg:hover .dot {
   opacity: 1;
+}
+
+.valueLabel {
+  composes: valueLabel from '../core/Chart.module.css';
 }
 
 @media print {
-  .marker {
+  .dot {
     opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marker {
+  .dot {
     transition: none;
   }
 }

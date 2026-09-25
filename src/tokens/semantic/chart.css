@@ -15,6 +15,10 @@
   --pl-chart-warning: var(--pl-color-warning);
   --pl-chart-neutral: var(--pl-neutral-gray);
 
+  /* Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no
+     escuro: um veu escuro sobre superficie escura nao apareceria. */
+  --pl-chart-cursor: rgba(24, 26, 28, 0.06);
+
   --pl-chart-grid: var(--pl-color-border);
   --pl-chart-axis: var(--pl-color-text-tertiary);
   --pl-chart-label: var(--pl-color-text-secondary);
@@ -32,4 +36,6 @@
 
   /* O cinza medio some contra a superficie escura, em 2,69:1. */
   --pl-chart-neutral: #9A9DA1;
+
+  --pl-chart-cursor: rgba(233, 234, 235, 0.08);
 }

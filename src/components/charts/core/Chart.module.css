@@ -14,10 +14,45 @@
   line-height: var(--pl-type-label-line-height);
 }
 
+/* O corpo acomoda a legenda em qualquer um dos quatro lados. A area de desenho
+   e quem mede a largura, entao ela precisa poder encolher: sem min-width zero
+   um item flex nunca fica menor que o proprio conteudo. */
+.body {
+  display: flex;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
+ /* A area de desenho fica fora do fluxo, para que a medida da altura seja o que
+   o layout concedeu e nao o que o proprio desenho ocupou. Sem isso, medir a
+   altura do contêiner realimentaria a altura do svg. */
+.plot {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/* O piso garante uma altura mensuravel mesmo quando quem envolve nao impoe
+   nenhuma, o que evita o grafico desaparecer por medir zero. */
+.plotFill {
+  height: 100%;
+  min-height: 160px;
+}
+
+.bodyColumn {
+  flex-direction: column;
+}
+
+.bodyRow {
+  flex-direction: row;
+  align-items: center;
+}
+
 .canvas {
   display: block;
+  position: absolute;
+  inset: 0;
   overflow: visible;
-  width: 100%;
 }
 
 .empty {
@@ -41,6 +76,40 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Calha do eixo dinamico: alvo de ponteiro sem tinta. */
+.gutter {
+  fill: transparent;
+}
+
+/* O eixo dinamico entra depois de um instante de ponteiro parado, para nao
+   piscar quando o ponteiro apenas atravessa o grafico, e sai na hora. O atraso
+   vive no estado de hover; o repouso tem atraso zero. */
+.dynamicAxis {
+  opacity: 0;
+  transition:
+    opacity var(--pl-speed-2) var(--pl-ease),
+    transform var(--pl-speed-2) var(--pl-ease);
+  transition-delay: 0s;
+}
+
+.dynamicAxis:hover {
+  opacity: 1;
+  transform: none;
+  transition-delay: 600ms;
+}
+
+.slideRight {
+  transform: translateX(-8px);
+}
+
+.slideLeft {
+  transform: translateX(8px);
+}
+
+.slideUp {
+  transform: translateY(8px);
+}
+
 .gridLine {
   stroke: var(--pl-chart-grid);
   stroke-width: 1;
@@ -58,6 +127,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Realce da faixa sob o ponteiro, atras das marcas. */
+.cursor {
+  fill: var(--pl-chart-cursor);
+  pointer-events: none;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -65,6 +140,12 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.legendSide {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  max-width: 40%;
 }
 
 .legendItem {
@@ -81,4 +162,16 @@
   height: 10px;
   border-radius: 2px;
   flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dynamicAxis {
+    transition: none;
+  }
+
+  .slideRight,
+  .slideLeft,
+  .slideUp {
+    transform: none;
+  }
 }

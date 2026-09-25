@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
-  plotBox,
-  useChartSize,
+  cartesianLayout,
+  chartHeight,
+  useChartMetrics,
+  valueLabelsFor,
   type AxisTick,
-  type ChartMargins,
+  type AxisVisibility,
+  type ChartHeight,
+  type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
@@ -28,12 +32,15 @@ export interface ChartScatterProps {
   formatX?: (value: number) => string;
   formatY?: (value: number) => string;
   formatZ?: (value: number) => string;
-  height?: number;
+  height?: ChartHeight;
+  legend?: ChartLegendPosition;
   series: readonly ChartScatterSeries[];
   title: string;
+  xAxis?: AxisVisibility;
+  yAxis?: AxisVisibility;
+  yAxisRight?: AxisVisibility;
 }
 
-const MARGENS: ChartMargins = { top: 12, right: 20, bottom: 34, left: 52 };
 const RAIO_SEM_Z = 5;
 const FAIXA_DE_RAIO: [number, number] = [4, 18];
 
@@ -49,12 +56,16 @@ export function ChartScatter({
   formatY = (valor) => String(valor),
   formatZ = (valor) => String(valor),
   height = 280,
+  legend = 'bottom',
   series,
   title,
+  xAxis = 'visible',
+  yAxis = 'visible',
+  yAxisRight = 'hidden',
 }: ChartScatterProps) {
-  const { ref, width } = useChartSize({ height });
+  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const [guia, setGuia] = useState<Guia | null>(null);
-  const plot = plotBox(width, height, MARGENS);
 
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
@@ -76,6 +87,23 @@ export function ChartScatter({
       ),
     [series],
   );
+
+  const rotulosY = valueLabelsFor(dominioY, alturaDoDesenho, formatY);
+  const rotulosX = valueLabelsFor(dominioX, width, formatX);
+
+  const { margins, plot, rotation } = cartesianLayout({
+    bottomLabels: rotulosX,
+    font,
+    height: alturaDoDesenho,
+    labelAngle: 'auto',
+    leftLabels: rotulosY,
+    rightLabels: rotulosY,
+    topRoom: 0,
+    width,
+    xAxis,
+    yAxis,
+    yAxisRight,
+  });
 
   const escalaX = useMemo(() => linearScale({ domain: dominioX, range: [0, plot.width] }), [dominioX, plot.width]);
   const escalaY = useMemo(() => linearScale({ domain: dominioY, range: [plot.height, 0] }), [dominioY, plot.height]);
@@ -103,14 +131,17 @@ export function ChartScatter({
         { lines: marcasY.map((valor) => escalaY(valor)), orientation: 'horizontal' },
         { lines: marcasX.map((valor) => escalaX(valor)), orientation: 'vertical' },
       ]}
-      height={height}
+      fillHeight={fillHeight}
+      height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
-      margins={MARGENS}
+      legendPosition={legend}
+      margins={margins}
       plot={plot}
       title={title}
       width={width}
-      xAxis={{ hideLine: true, ticks: ticksX }}
-      yAxis={{ hideLine: true, ticks: ticksY }}
+      xAxis={{ hideLine: true, labelRotation: rotation, ticks: ticksX, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: ticksY, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: ticksY, visibility: yAxisRight }}
     >
       {guia && (
         <g aria-hidden="true">

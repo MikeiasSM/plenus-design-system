@@ -1,7 +1,7 @@
+import { AXIS_LABEL_OFFSET, type AxisLabelRotation } from './cartesianLayout';
 import styles from './Chart.module.css';
 
-export type AxisOrientation = 'bottom' | 'left';
-export type AxisLabelRotation = 0 | 45 | 90;
+export type AxisOrientation = 'bottom' | 'left' | 'right';
 
 export interface AxisTick {
   label: string;
@@ -16,7 +16,11 @@ export interface AxisProps {
   ticks: readonly AxisTick[];
 }
 
-const AFASTAMENTO = 8;
+const ANCORA: Record<AxisOrientation, 'start' | 'end' | 'middle'> = {
+  bottom: 'middle',
+  left: 'end',
+  right: 'start',
+};
 
 /**
  * Eixo de um grafico cartesiano. Recebe as marcas ja posicionadas: a conversao
@@ -24,6 +28,7 @@ const AFASTAMENTO = 8;
  */
 export function Axis({ hideLine = false, labelRotation = 0, length, orientation, ticks }: AxisProps) {
   const deBaixo = orientation === 'bottom';
+  const afastamento = orientation === 'left' ? -AXIS_LABEL_OFFSET : AXIS_LABEL_OFFSET;
 
   return (
     <g aria-hidden="true" className={styles.axis}>
@@ -41,22 +46,18 @@ export function Axis({ hideLine = false, labelRotation = 0, length, orientation,
           className={styles.axisLabel}
           dominantBaseline={deBaixo ? 'hanging' : 'middle'}
           key={marca.label + marca.position}
-          textAnchor={deBaixo ? anchorFor(labelRotation) : 'end'}
+          textAnchor={deBaixo && labelRotation !== 0 ? 'end' : ANCORA[orientation]}
           transform={
             deBaixo && labelRotation !== 0
-              ? `rotate(${-labelRotation} ${marca.position} ${AFASTAMENTO})`
+              ? `rotate(${-labelRotation} ${marca.position} ${AXIS_LABEL_OFFSET})`
               : undefined
           }
-          x={deBaixo ? marca.position : -AFASTAMENTO}
-          y={deBaixo ? AFASTAMENTO : marca.position}
+          x={deBaixo ? marca.position : afastamento}
+          y={deBaixo ? AXIS_LABEL_OFFSET : marca.position}
         >
           {marca.label}
         </text>
       ))}
     </g>
   );
-}
-
-function anchorFor(rotation: AxisLabelRotation) {
-  return rotation === 0 ? 'middle' : 'end';
 }

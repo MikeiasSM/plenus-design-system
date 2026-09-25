@@ -108,6 +108,13 @@ export type {
 } from './components/charts/ChartScatter';
 export { ChartWaterfall } from './components/charts/ChartWaterfall';
 export type { ChartWaterfallProps, ChartWaterfallStep } from './components/charts/ChartWaterfall';
-export type { ChartCurve } from './components/charts/core';
+export type {
+  AxisLabelAngle,
+  AxisLabelRotation,
+  AxisVisibility,
+  ChartCurve,
+  ChartHeight,
+  ChartLegendPosition,
+} from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

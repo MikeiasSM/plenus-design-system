@@ -1,11 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
-  plotBox,
-  useChartSize,
-  type AxisLabelRotation,
+  cartesianLayout,
+  chartHeight,
+  useChartMetrics,
+  valueLabelsFor,
+  type AxisLabelAngle,
   type AxisTick,
-  type ChartMargins,
+  type AxisVisibility,
+  type ChartHeight,
+  type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
@@ -23,17 +27,21 @@ export interface ChartBarProps {
   categories: readonly string[];
   emptyMessage?: string;
   formatValue?: (value: number) => string;
-  height?: number;
-  labelRotation?: AxisLabelRotation;
+  height?: ChartHeight;
+  labelAngle?: AxisLabelAngle;
+  legend?: ChartLegendPosition;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
-  showValues?: boolean;
+  showDataLabels?: boolean;
   stacked?: boolean;
   title: string;
+  xAxis?: AxisVisibility;
+  yAxis?: AxisVisibility;
+  yAxisRight?: AxisVisibility;
 }
 
-const MARGENS: ChartMargins = { top: 12, right: 16, bottom: 34, left: 52 };
 const ESPACO_ENTRE_BARRAS = 2;
+const ALTURA_DO_ROTULO = 18;
 
 function somaEmpilhada(series: readonly ChartBarSeries[], indice: number) {
   return series.reduce((total, serie) => total + (serie.values[indice] ?? 0), 0);
@@ -45,16 +53,21 @@ export function ChartBar({
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 260,
-  labelRotation = 0,
+  labelAngle = 'auto',
+  legend = 'bottom',
   orientation = 'vertical',
   series,
-  showValues = false,
+  showDataLabels = false,
   stacked = false,
   title,
+  xAxis = 'visible',
+  yAxis = 'visible',
+  yAxisRight = 'hidden',
 }: ChartBarProps) {
-  const { ref, width } = useChartSize({ height });
+  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
   const vertical = orientation === 'vertical';
-  const plot = plotBox(width, height, MARGENS);
 
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
@@ -66,6 +79,27 @@ export function ChartBar({
     return mergeDomains(series.map((serie) => domainOf([...serie.values])));
   }, [categories, series, stacked]);
 
+  // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.
+  const posicaoDaLegenda = !vertical && (legend === 'left' || legend === 'right') ? 'bottom' : legend;
+
+  const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue);
+  const rotulosDeCategoria = categories;
+
+  const layout = cartesianLayout({
+    bottomLabels: vertical ? rotulosDeCategoria : rotulosDeValor,
+    font,
+    height: alturaDoDesenho,
+    labelAngle,
+    leftLabels: vertical ? rotulosDeValor : rotulosDeCategoria,
+    rightLabels: vertical ? rotulosDeValor : rotulosDeCategoria,
+    topRoom: showDataLabels && vertical ? ALTURA_DO_ROTULO : 0,
+    width,
+    xAxis,
+    yAxis,
+    yAxisRight,
+  });
+
+  const { margins, plot, rotation } = layout;
   const comprimentoCategorias = vertical ? plot.width : plot.height;
   const comprimentoValores = vertical ? plot.height : plot.width;
 
@@ -98,6 +132,9 @@ export function ChartBar({
     position: escalaValores(valor),
   }));
 
+  const eixoDeCategoria = { labelRotation: rotation, ticks: marcasCategoria };
+  const eixoDeValor = { hideLine: true, ticks: marcasValor };
+
   return (
     <CartesianFrame
       containerRef={ref}
@@ -110,15 +147,28 @@ export function ChartBar({
           orientation: vertical ? 'horizontal' : 'vertical',
         },
       ]}
-      height={height}
+      fillHeight={fillHeight}
+      height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
-      margins={MARGENS}
+      legendPosition={posicaoDaLegenda}
+      margins={margins}
       plot={plot}
       title={title}
       width={width}
-      xAxis={vertical ? { labelRotation, ticks: marcasCategoria } : { hideLine: true, ticks: marcasValor }}
-      yAxis={vertical ? { hideLine: true, ticks: marcasValor } : { ticks: marcasCategoria }}
+      xAxis={{ ...(vertical ? eixoDeCategoria : eixoDeValor), visibility: xAxis }}
+      yAxis={{ ...(vertical ? eixoDeValor : eixoDeCategoria), visibility: yAxis }}
+      yAxisRight={{ ...(vertical ? eixoDeValor : eixoDeCategoria), hideLine: true, visibility: yAxisRight }}
     >
+      {faixaEmFoco !== null && (
+        <rect
+          className={styles.cursor}
+          height={vertical ? plot.height : escalaCategorias.bandwidth()}
+          width={vertical ? escalaCategorias.bandwidth() : plot.width}
+          x={vertical ? escalaCategorias(categories[faixaEmFoco]) ?? 0 : 0}
+          y={vertical ? 0 : escalaCategorias(categories[faixaEmFoco]) ?? 0}
+        />
+      )}
+
       {series.map((serie, indiceSerie) => (
         <g key={serie.label}>
           {categories.map((categoria, indiceCategoria) => {
@@ -140,7 +190,8 @@ export function ChartBar({
                 fill={cores[indiceSerie]}
                 height={vertical ? tamanho : larguraDaBarra}
                 key={categoria}
-                rx={2}
+                onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
+                onMouseLeave={() => setFaixaEmFoco(null)}
                 width={vertical ? larguraDaBarra : tamanho}
                 x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
                 y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
@@ -152,7 +203,7 @@ export function ChartBar({
         </g>
       ))}
 
-      {showValues &&
+      {showDataLabels &&
         !stacked &&
         series.map((serie, indiceSerie) =>
           categories.map((categoria, indiceCategoria) => {

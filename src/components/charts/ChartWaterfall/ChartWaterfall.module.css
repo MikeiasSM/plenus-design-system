@@ -1,9 +1,5 @@
 .bar {
-  transition: opacity var(--pl-speed-1) var(--pl-ease);
-}
-
-svg:hover .bar:not(:hover) {
-  opacity: 0.72;
+  rx: var(--pl-radius-sm);
 }
 
 /* Liga o acumulado de um passo ao inicio do proximo. */
@@ -13,12 +9,10 @@ svg:hover .bar:not(:hover) {
   stroke-width: 1;
 }
 
-.valueLabel {
-  composes: valueLabel from '../core/Chart.module.css';
+.cursor {
+  composes: cursor from '../core/Chart.module.css';
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bar {
-    transition: none;
-  }
+.valueLabel {
+  composes: valueLabel from '../core/Chart.module.css';
 }
