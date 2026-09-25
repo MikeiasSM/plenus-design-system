@@ -123,6 +123,7 @@ export type {
   ChartSankeyAlign,
   ChartSankeyFlow,
   ChartSankeyFlowColor,
+  ChartSankeyFlowValuePosition,
   ChartSankeyNode,
   ChartSankeyProps,
 } from './components/charts/ChartSankey';

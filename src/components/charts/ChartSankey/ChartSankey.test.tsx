@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ChartSankey, type ChartSankeyFlow } from './ChartSankey';
 
 const caixa: ChartSankeyFlow[] = [
@@ -18,6 +18,12 @@ function ligacoes() {
 
 function nos() {
   return [...document.querySelectorAll('rect')];
+}
+
+function valores() {
+  return [...document.querySelectorAll('text')]
+    .filter((no) => no.getAttribute('class')?.includes('flowValue'))
+    .map((no) => no.textContent ?? '');
 }
 
 describe('ChartSankey', () => {
@@ -110,16 +116,41 @@ describe('ChartSankey', () => {
   });
 
   it('escreve o valor de cada ligacao quando pedido', () => {
-    const valores = () =>
-      [...document.querySelectorAll('text')]
-        .filter((no) => no.getAttribute('class')?.includes('flowValue'))
-        .map((no) => no.textContent);
-
     const { rerender } = render(<ChartSankey flows={caixa} title="Fluxo" />);
     expect(valores()).toHaveLength(0);
 
     rerender(<ChartSankey flows={caixa} showFlowValues title="Fluxo" />);
-    expect(valores()).toEqual(['600', '400', '600']);
+    expect(valores().sort()).toEqual(['400', '600', '600']);
+  });
+
+  it('escreve o valor no comeco, no meio ou no fim da ligacao', () => {
+    const posicaoDe = (texto: string) =>
+      Number(
+        [...document.querySelectorAll('text')]
+          .find((no) => no.textContent === texto)
+          ?.getAttribute('x'),
+      );
+
+    const { rerender } = render(
+      <ChartSankey flowValuePosition="start" flows={caixa} showFlowValues title="Fluxo" />,
+    );
+    const noComeco = posicaoDe('400');
+
+    rerender(<ChartSankey flowValuePosition="end" flows={caixa} showFlowValues title="Fluxo" />);
+
+    expect(posicaoDe('400')).toBeGreaterThan(noComeco);
+  });
+
+  it('omite o valor que cruzaria o rotulo de um no, em vez de sobrepor os dois', () => {
+    // Com o valor no comeco da ligacao ele disputa a faixa com o rotulo da
+    // propria origem, que fica logo a direita do no.
+    render(<ChartSankey flowValuePosition="start" flows={caixa} showFlowValues title="Fluxo" />);
+    const noComeco = valores().length;
+
+    cleanup();
+    render(<ChartSankey flowValuePosition="end" flows={caixa} showFlowValues title="Fluxo" />);
+
+    expect(valores().length).toBeGreaterThan(noComeco);
   });
 
   it('tira a cor da ligacao da origem, do destino ou de nenhum dos dois', () => {

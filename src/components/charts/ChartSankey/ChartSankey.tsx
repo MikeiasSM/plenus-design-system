@@ -3,6 +3,7 @@ import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3
 import {
   PlainFrame,
   chartHeight,
+  measureLabel,
   truncateToWidth,
   useChartMetrics,
   widestLabel,
@@ -27,10 +28,18 @@ export type ChartSankeyAlign = 'left' | 'right' | 'center' | 'justify';
 /** De onde a ligacao tira a cor: do no de origem, do de destino, ou de nenhum. */
 export type ChartSankeyFlowColor = 'source' | 'target' | 'neutral';
 
+/**
+ * Onde o valor da ligacao e escrito. O rotulo do no ocupa a faixa logo a
+ * direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da
+ * propria origem.
+ */
+export type ChartSankeyFlowValuePosition = 'start' | 'middle' | 'end';
+
 export interface ChartSankeyProps {
   accent?: string;
   emptyMessage?: string;
   flowColor?: ChartSankeyFlowColor;
+  flowValuePosition?: ChartSankeyFlowValuePosition;
   flows: readonly ChartSankeyFlow[];
   formatValue?: (value: number) => string;
   height?: ChartHeight;
@@ -52,6 +61,17 @@ interface NoPosicionado {
   x1: number;
   y0: number;
   y1: number;
+}
+
+interface Caixa {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}
+
+function seCruzam(uma: Caixa, outra: Caixa) {
+  return uma.x0 < outra.x1 && outra.x0 < uma.x1 && uma.y0 < outra.y1 && outra.y0 < uma.y1;
 }
 
 interface LigacaoPosicionada {
@@ -96,6 +116,7 @@ export function ChartSankey({
   accent,
   emptyMessage = 'Sem dados no período',
   flowColor = 'source',
+  flowValuePosition = 'end',
   flows,
   formatValue = (valor) => String(valor),
   height = 320,
@@ -203,6 +224,66 @@ export function ChartSankey({
     return Math.max(passo - nodeWidth - RECUO_DO_ROTULO, 0);
   })();
 
+  function rotuloDoNo(no: NoPosicionado) {
+    const saida = saidas.includes(no.label);
+    const texto = truncateToWidth(
+      no.label,
+      font,
+      (saida ? bandaDireita : larguraDaEtapa) - RECUO_DO_ROTULO,
+    );
+    const x = no.x1 + RECUO_DO_ROTULO;
+    const meio = (no.y0 + no.y1) / 2;
+
+    return {
+      caixa: {
+        x0: x,
+        x1: x + measureLabel(texto, font),
+        y0: meio - font.lineHeight / 2,
+        y1: meio + font.lineHeight / 2,
+      } satisfies Caixa,
+      texto,
+      x,
+      y: meio,
+    };
+  }
+
+  const rotulosDosNos = showLabels ? grafo.nodes.map(rotuloDoNo) : [];
+
+  /**
+   * Valor de uma ligacao, ja posicionado. Ele e omitido quando cruza o rotulo
+   * de algum no: dois textos sobrepostos nao informam nada, e o valor continua
+   * no `title` da propria ligacao.
+   */
+  function valorDa(ligacao: LigacaoPosicionada) {
+    const texto = formatValue(ligacao.value);
+    const largura = measureLabel(texto, font);
+    const saida = ligacao.source.x1;
+    const chegada = ligacao.target.x0;
+    const meio = (ligacao.y0 + ligacao.y1) / 2;
+
+    const posicoes = {
+      end: { anchor: 'end' as const, x: chegada - RECUO_DO_ROTULO },
+      middle: { anchor: 'middle' as const, x: (saida + chegada) / 2 },
+      start: { anchor: 'start' as const, x: saida + RECUO_DO_ROTULO },
+    };
+
+    const { anchor, x } = posicoes[flowValuePosition];
+    const recuo = { end: largura, middle: largura / 2, start: 0 }[flowValuePosition];
+
+    const caixa: Caixa = {
+      x0: x - recuo,
+      x1: x - recuo + largura,
+      y0: meio - font.lineHeight / 2,
+      y1: meio + font.lineHeight / 2,
+    };
+
+    if (rotulosDosNos.some((rotulo) => seCruzam(caixa, rotulo.caixa))) {
+      return undefined;
+    }
+
+    return { anchor, texto, x, y: meio };
+  }
+
   return (
     <PlainFrame
       containerRef={ref}
@@ -247,43 +328,42 @@ export function ChartSankey({
       ))}
 
       {showFlowValues &&
-        grafo.links.map((ligacao) => (
-          <text
-            className={`${styles.flowValue} ${styles.sobreFluxo}`}
-            dominantBaseline="middle"
-            key={`valor-${ligacao.source.label}-${ligacao.target.label}`}
-            textAnchor="middle"
-            x={(ligacao.source.x1 + ligacao.target.x0) / 2}
-            y={(ligacao.y0 + ligacao.y1) / 2}
-          >
-            {formatValue(ligacao.value)}
-          </text>
-        ))}
+        grafo.links.map((ligacao) => {
+          const valor = valorDa(ligacao);
+
+          if (!valor) {
+            return null;
+          }
+
+          return (
+            <text
+              className={`${styles.flowValue} ${styles.sobreFluxo}`}
+              dominantBaseline="middle"
+              key={`valor-${ligacao.source.label}-${ligacao.target.label}`}
+              textAnchor={valor.anchor}
+              x={valor.x}
+              y={valor.y}
+            >
+              {valor.texto}
+            </text>
+          );
+        })}
 
       {/* O rotulo fica sempre a direita do no. No no de saida ele cai na banda
           reservada; nos demais, sobre o proprio fluxo, e um halo da cor da
           superficie o separa do que passa por baixo. */}
-      {showLabels &&
-        grafo.nodes.map((no) => {
-          const saida = saidas.includes(no.label);
-
-          return (
-            <text
-              className={`${styles.label} ${saida ? '' : styles.sobreFluxo}`}
-              dominantBaseline="middle"
-              key={`rotulo-${no.label}`}
-              textAnchor="start"
-              x={no.x1 + RECUO_DO_ROTULO}
-              y={(no.y0 + no.y1) / 2}
-            >
-              {truncateToWidth(
-                no.label,
-                font,
-                (saida ? bandaDireita : larguraDaEtapa) - RECUO_DO_ROTULO,
-              )}
-            </text>
-          );
-        })}
+      {rotulosDosNos.map((rotulo, indice) => (
+        <text
+          className={`${styles.label} ${saidas.includes(grafo.nodes[indice].label) ? '' : styles.sobreFluxo}`}
+          dominantBaseline="middle"
+          key={`rotulo-${grafo.nodes[indice].label}`}
+          textAnchor="start"
+          x={rotulo.x}
+          y={rotulo.y}
+        >
+          {rotulo.texto}
+        </text>
+      ))}
     </PlainFrame>
   );
 }

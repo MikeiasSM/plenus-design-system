@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-486 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
+488 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -360,6 +360,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - `mix-blend-mode: multiply` saiu das ligacoes: contra a superficie escura do tema escuro ele as levava ao preto.
 - A ligacao fica **lavada em repouso**, e nao em cor cheia: o no e que carrega a cor, e e sobre a faixa lavada que o rotulo do no do meio continua legivel. Em cor cheia o rotulo desaparecia no fundo saturado.
 - **A referencia do sankey e o Metabase**, como a do anel. Dela saem tanto a forma quanto as opcoes: o rotulo fica sempre a direita do no — a referencia nao oferece escolha de posicao —, e as opcoes que ela oferece sao o alinhamento dos nos, o valor escrito sobre a ligacao e a origem da cor da ligacao. Sao essas que o componente expoe.
+- O valor da ligacao tem tres posicoes — `start`, `middle` e `end` —, com `end` por padrao. O rotulo do no ocupa a faixa logo a direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da propria origem. Em qualquer posicao, o valor que ainda assim cruzaria um rotulo e **omitido**: dois textos sobrepostos nao informam nada, e o valor continua no `title` da ligacao.
 - So o rotulo do no de **saida** tem banda reservada: ele nao tem fluxo a direita para escrever por cima. Os demais caem sobre o proprio fluxo, e ali o halo da cor da superficie e que os separa do que passa por baixo.
 - Rotulo por papel do no, rotulo quebrado em linhas e no arredondado e estendido foram **implementados e descartados**, por divergirem da referencia. O `wrapToWidth` do nucleo saiu junto, por ficar sem consumidor.
 - O realce do hover **sobe um degrau**, e nao ate a cor cheia: o realce aponta qual ligacao e, nao muda o grafico de aparencia.

@@ -13,6 +13,7 @@ import type {
   ChartLegendPosition,
   ChartSankeyAlign,
   ChartSankeyFlowColor,
+  ChartSankeyFlowValuePosition,
 } from '@plenus/index';
 
 const estadosBrasileiros = [
@@ -65,6 +66,7 @@ const jornadaDeCobranca = [
 
 const alinhamentosDoSankey = ['justify', 'left', 'right', 'center'] as const;
 const coresDaLigacao = ['source', 'target', 'neutral'] as const;
+const posicoesDoValor = ['end', 'middle', 'start'] as const;
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -140,6 +142,7 @@ export function App() {
   const [alinhamentoDoSankey, setAlinhamentoDoSankey] = useState<ChartSankeyAlign>('justify');
   const [corDaLigacao, setCorDaLigacao] = useState<ChartSankeyFlowColor>('source');
   const [valoresNaLigacao, setValoresNaLigacao] = useState(true);
+  const [posicaoDoValor, setPosicaoDoValor] = useState<ChartSankeyFlowValuePosition>('end');
   const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
   const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
@@ -1563,9 +1566,22 @@ export function App() {
                 valores
               </Button>
             </div>
+            <div className="demo-grid">
+              {posicoesDoValor.map((posicao) => (
+                <Button
+                  key={posicao}
+                  onClick={() => setPosicaoDoValor(posicao)}
+                  size="sm"
+                  variant={posicaoDoValor === posicao ? 'primary' : 'secondary'}
+                >
+                  valor: {posicao}
+                </Button>
+              ))}
+            </div>
             <ChartSankey
               accent={corDoTema}
               flowColor={corDaLigacao}
+              flowValuePosition={posicaoDoValor}
               flows={jornadaDeCobranca}
               formatValue={(valor) => valor.toLocaleString('pt-BR')}
               height={440}
@@ -1574,6 +1590,7 @@ export function App() {
               title="Jornada de cobranca"
             />
             <p className="doc-note">Seis colunas, ramos que terminam em profundidades diferentes e ligacoes de ordens de grandeza distintas — de 4.712 a 71. O alinhamento decide onde os nos sem saida se encostam: em <code>justify</code> eles vao para a borda direita, em <code>left</code> ficam onde a contagem de passos os coloca. A cor da ligacao vem da origem, do destino ou de nenhum dos dois.</p>
+            <p className="doc-note">O valor da ligacao tem tres posicoes. O rotulo do no ocupa a faixa logo a direita dele, entao <code>start</code> disputa espaco com o rotulo da propria origem e <code>end</code> nunca disputa — por isso ele e o padrao. Em qualquer uma delas, o valor que ainda assim cruzaria um rotulo e omitido: dois textos sobrepostos nao informam nada, e o valor continua no <code>title</code> da ligacao.</p>
           </div>
           <div className="doc-subsection">
             <h3>Sem rotulo e sem valor</h3>
