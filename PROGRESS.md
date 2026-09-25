@@ -59,6 +59,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
   instalacao real pegou isso; nenhum teste da suite toca o pacote construido.
 - As declaracoes saem do proprio `tsc`, por `tsconfig.build.json`, em vez de um plugin. Nao ha
   problema concreto que justifique a dependencia.
+- `prepare` constroi o pacote, para que a instalacao direta do repositorio funcione: `dist/` e
+  ignorado pelo git, e sem o script o consumidor receberia um pacote vazio. O custo e conhecido e
+  aceito: o script tambem roda a cada `npm install` feito aqui dentro.
 - A folha de estilo nao entra pelo bundle: o Vite a extrai, e o consumidor a importa por
   `@plenustech/design-system/styles.css`, um caminho do mapa de `exports`.
 
