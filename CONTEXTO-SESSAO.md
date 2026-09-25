@@ -14,8 +14,8 @@ decisões pendentes do mantenedor e o material bruto que ele forneceu.
 *Disponível* em `COMPONENTS-CATALOG.md`, implementados, testados, exportados e demonstrados no
 Showcase. A família de gráficos está completa: o `ChartCombo` fechou os doze.
 
-Suíte em **523 testes, 65 arquivos**. Build da biblioteca e do Showcase validados. O `main` está
-**26 commits à frente do `origin/main`** — o `push` é do mantenedor.
+Suíte em **535 testes, 66 arquivos**. Build da biblioteca e do Showcase validados. O `main` está
+**6 commits à frente do `origin/main`** — o `push` é do mantenedor.
 
 Para ver: `npm run dev:showcase`. O **seletor de tema escuro** fica no topo da barra lateral.
 
@@ -60,6 +60,11 @@ Em ordem cronológica, com o commit de cada etapa:
 8. `5453e3b`, `e45cd69`, `30da012` — pacote pronto para consumo externo: `exports`, declarações,
    peer dependencies, folha de estilo documentada, `private` removido e `prepare` construindo na
    instalação.
+9. `2e87110`, `e09b88e` — `ChartTooltip`, com `onHoverCategory` em dois cartesianos.
+10. `a9df04c` — Showcase estático removido; a entrada React passa a ser a oficial.
+11. `fa3df32`, `dcc0dcf`, `95f89a2`, `0a1af55`, `0af5141` — as etapas 1 a 3 do plano dos nove
+    pontos: coluna calculada sem base, `useHoveredBand` e `BandCursor` no núcleo, `onHoverStep` no
+    `ChartWaterfall`, e os dois scripts de conferência.
 
 Decisões que você fechou nesta sessão: manter `paletteWithAccent`, `resolveSeriesColors` e
 `seriesColors` na API pública; `Table` em mono no conteúdo inteiro; eixo duplo explícito por série.
@@ -72,13 +77,17 @@ Decisões que você fechou nesta sessão: manter `paletteWithAccent`, `resolveSe
    maior item pendente da família e é o `ListTooltip` que você descreveu.
 2. **`DataGrid`** — escopo levantado a partir do AG Grid, sem data. Você quer conversar no momento
    certo.
-3. **Registro de publicação.** O pacote já é publicável, mas nada obriga a publicar: a instalação
+3. **`--pl-chart-series-4` reprova em contraste no tema claro**, com 2,55:1 contra o piso de 3:1
+   da WCAG 1.4.11. O `npm run check:contraste` falha por causa disso. A troca tem custo:
+   `brand.blue.60` levaria a série a 7,77:1, mas a separação dela para a série 1 cairia de 2,37:1
+   para 1,29:1 — as duas ficariam quase iguais. Mexer aqui altera o `TOKENS-REFERENCE-COLORS.md`.
+4. **Registro de publicação.** O pacote já é publicável, mas nada obriga a publicar: a instalação
    direta do repositório privado foi validada e resolve o consumo em outra máquina. Publicar no npm
    só se passar a haver mais de um consumidor ou necessidade de versão fixada. O `README.md`
    descreve o mecanismo como variável.
-4. **Qual Showcase é o oficial** — existem duas entradas, a estática e a React. A divergência está
+5. **Qual Showcase é o oficial** — existem duas entradas, a estática e a React. A divergência está
    registrada como pendência.
-5. **Editor em blocos** — adiado. Você já tem implementação funcional em outro projeto.
+6. **Editor em blocos** — adiado. Você já tem implementação funcional em outro projeto.
 
 ---
 
