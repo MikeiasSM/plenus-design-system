@@ -9,6 +9,7 @@ import {
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
+import { IconArrowUp } from '../../icons';
 
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
@@ -252,19 +253,10 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
         </Tooltip>
       )}
       {sortable && (
-        <svg
-          aria-hidden="true"
+        <IconArrowUp
           className={[styles.sortIcon, sorted === 'descending' && styles.sortDescending].filter(Boolean).join(' ')}
-          fill="none"
-          height="12"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          width="12"
-        >
-          <path d="M12 19V5M5 12l7-7 7 7" />
-        </svg>
+          size={12}
+        />
       )}
     </>
   );

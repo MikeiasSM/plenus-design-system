@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useCalendar, type CalendarLimits } from '../../../hooks/useCalendar';
 import styles from './DatePicker.module.css';
+import { IconChevronLeft, IconChevronRight } from '../../icons';
 
 export interface CalendarProps extends CalendarLimits {
   autoFocus?: boolean;
@@ -36,9 +37,7 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
           onClick={() => calendario.goToMonth(-1)}
           type="button"
         >
-          <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
+          <IconChevronLeft size={14} />
         </button>
         <span aria-live="polite" className={styles.month}>
           {titulo}
@@ -49,9 +48,7 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
           onClick={() => calendario.goToMonth(1)}
           type="button"
         >
-          <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <IconChevronRight size={14} />
         </button>
       </div>
       <table

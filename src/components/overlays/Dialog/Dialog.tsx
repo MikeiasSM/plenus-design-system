@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import styles from './Dialog.module.css';
+import { IconClose } from '../../icons';
 
 export type DialogSize = 'sm' | 'md' | 'lg';
 
@@ -69,9 +70,7 @@ function DialogContent({
             <h2 className={styles.title} id={titleId}>{title}</h2>
             {dismissable && (
               <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
+                <IconClose size={16} />
               </button>
             )}
           </header>

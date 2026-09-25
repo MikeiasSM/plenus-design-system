@@ -7,6 +7,7 @@ import { Button } from '../../actions/Button';
 import { Field } from '../Field';
 import { Calendar } from './Calendar';
 import styles from './DatePicker.module.css';
+import { IconCalendar } from '../../icons';
 
 export type DatePickerSize = 'sm' | 'md';
 
@@ -149,10 +150,7 @@ export function DatePicker({
               ref={triggerRef}
               type="button"
             >
-              <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
-                <rect height="16" rx="2" width="18" x="3" y="5" />
-                <path d="M8 3v4M16 3v4M3 11h18" />
-              </svg>
+              <IconCalendar size={15} />
             </button>
           </div>
           {open &&

@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-502 testes em 61 arquivos. Build da biblioteca e do Showcase validados.
+509 testes em 62 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -93,7 +93,6 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 - O combo de linhas e barras, que depende da decisao sobre o duplo eixo Y, e o `DataGrid` da etapa 10.
 - State Motor da grade, para o `DataGrid`.
-- Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
 - Pipeline de validacao e publicacao do pacote.
@@ -259,9 +258,14 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 
 ### Biblioteca de icones
 
-- A fonte e o **Bootstrap Icons**, por decisao do mantenedor. Ha preferencia pelas variantes preenchidas, sem que isso seja regra: onde a versao de contorno ler melhor, ela vale.
-- Hoje dez componentes desenham o proprio SVG — `Select`, `Accordion`, `Table`, `Dialog`, `Breadcrumb`, `Pagination`, `DatePicker`, `Calendar`, `TimePicker` e `DateTimePicker` —, com chevron, fechar e seta repetidos entre eles. E a duplicacao que a biblioteca resolve, conforme `ARCHITECTURE.md` secao 12.
-- Falta decidir se os icones entram como dependencia ou como copia dos caminhos de que o projeto precisa. O mandamento 13 pesa contra arrastar o conjunto inteiro para resolver uma duzia de simbolos.
+- A fonte e o **Bootstrap Icons**, por decisao do mantenedor, sob licenca MIT. Ha preferencia pelas variantes preenchidas, sem que isso seja regra: onde a versao de contorno ler melhor, ela vale. Chevrons e setas nao tem variante — ja sao caminhos cheios.
+- **Copia dos caminhos, e nao dependencia.** Sao dois mil icones para resolver onze, e o mandamento 13 pesa contra a dependencia nesse caso. A atribuicao fica no cabecalho de `icons.tsx`.
+- Os dez componentes que desenhavam o proprio SVG passaram a consumir a biblioteca. Chevron, fechar e seta estavam repetidos entre eles, com espessuras e tamanhos que andaram sozinhos.
+- Nomenclatura de familia, conforme `CLAUDE.md`: tipo seguido de especializacao — `IconChevronDown`, `IconCalendar`, `IconClose`.
+- A base `Icon` e **interna**. Ela fecha o conjunto, para que a aplicacao use a biblioteca oficial em vez de desenhar o proprio caminho, conforme `ARCHITECTURE.md` secao 12.
+- Sem medida declarada o icone acompanha o tamanho do texto ao redor, e a cor vem sempre de `currentColor`: ele herda a cor de onde esta em vez de fixar a propria.
+- Sem `label` o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com `label`, ganha nome acessivel para o caso em que carrega o significado sozinho.
+- O conjunto cobre o que os componentes usam, e cresce quando um componente precisar de um simbolo que ainda nao existe.
 
 ### Familia de tabela: Table, Card e DataGrid
 
@@ -407,6 +411,8 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 13. **Showcase como consumidor**
    - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
+
+**Icones** — concluida. Biblioteca oficial criada e consumida pelos dez componentes que desenhavam o proprio SVG.
 
 14. **Integracao e distribuicao**
    - Configurar `main`, `module`, `exports` e `types`, emitir declaracoes e validar o pacote construido.

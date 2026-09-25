@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Accordion.module.css';
+import { IconMinusCircle, IconPlusCircle } from '../../icons';
 
 export interface AccordionItem {
   content: ReactNode;
@@ -91,21 +92,11 @@ export function Accordion({
                 onKeyDown={(event) => handleKeyDown(event, item.key)}
               >
                 <span className={styles.label}>{item.label}</span>
-                <svg
-                  className={styles.icon}
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M8 12h8" />
-                  {!aberto && <path d="M12 8v8" />}
-                </svg>
+                {aberto ? (
+                  <IconMinusCircle className={styles.icon} size={20} />
+                ) : (
+                  <IconPlusCircle className={styles.icon} size={20} />
+                )}
               </button>
             </h3>
             <div

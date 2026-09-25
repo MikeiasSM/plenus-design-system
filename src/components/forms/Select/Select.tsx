@@ -5,6 +5,7 @@ import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type Listing } from '../../data-display/List/useListing';
 import { Field } from '../Field';
 import styles from './Select.module.css';
+import { IconChevronDown } from '../../icons';
 
 export type SelectSize = 'sm' | 'md';
 
@@ -103,19 +104,7 @@ export function Select({
             onKeyDown={handleTriggerKeyDown}
           >
             <span className={chosen ? styles.value : styles.placeholder}>{chosen?.label ?? placeholder}</span>
-            <svg
-              className={styles.chevron}
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
+            <IconChevronDown className={styles.chevron} size={14} />
           </button>
           {open &&
             createPortal(

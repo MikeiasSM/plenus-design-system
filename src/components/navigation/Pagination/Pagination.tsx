@@ -1,4 +1,5 @@
 import styles from './Pagination.module.css';
+import { IconChevronLeft, IconChevronRight } from '../../icons';
 
 export interface PaginationProps {
   label?: string;
@@ -32,9 +33,7 @@ export function Pagination({
         disabled={atual === 1}
         onClick={() => onPageChange(atual - 1)}
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          <path d="M15 6l-6 6 6 6" />
-        </svg>
+        <IconChevronLeft size={14} />
       </button>
       <ol className={styles.list}>
         {paginas.map((numero, indice) =>
@@ -64,9 +63,7 @@ export function Pagination({
         disabled={atual === pageCount}
         onClick={() => onPageChange(atual + 1)}
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-          <path d="M9 6l6 6-6 6" />
-        </svg>
+        <IconChevronRight size={14} />
       </button>
     </nav>
   );

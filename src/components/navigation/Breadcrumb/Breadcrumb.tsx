@@ -1,5 +1,6 @@
 import type { ElementType } from 'react';
 import styles from './Breadcrumb.module.css';
+import { IconChevronRight } from '../../icons';
 
 export interface BreadcrumbItem {
   href?: string;
@@ -32,9 +33,7 @@ export function Breadcrumb({ as: Link = 'a', items, label = 'Trilha de navegacao
                 </Link>
               )}
               {!atual && (
-                <svg className={styles.separator} viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
+                <IconChevronRight className={styles.separator} size={12} />
               )}
             </li>
           );

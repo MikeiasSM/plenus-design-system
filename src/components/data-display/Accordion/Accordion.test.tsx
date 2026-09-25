@@ -62,12 +62,14 @@ describe('Accordion', () => {
   it('troca o glifo do icone entre mais e menos, sem girar', () => {
     render(<Accordion items={secoes} />);
     const gatilho = screen.getByRole('button', { name: /Envio/ });
+    const glifo = () => [...gatilho.querySelectorAll('path')].at(-1)?.getAttribute('d');
 
-    expect(gatilho.querySelectorAll('path')).toHaveLength(2);
-
+    const fechado = glifo();
     fireEvent.click(gatilho);
 
-    expect(gatilho.querySelectorAll('path')).toHaveLength(1);
+    // O icone troca de desenho. Girar o mesmo glifo devolveria o mesmo caminho.
+    expect(glifo()).not.toBe(fechado);
+    expect(fechado).toBeTruthy();
   });
 
   it('aceita o icone a esquerda da pergunta', () => {

@@ -8,6 +8,19 @@ import {
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
 } from '@plenus/index';
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconCalendar,
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronUp,
+  IconClock,
+  IconClose,
+  IconMinusCircle,
+  IconPlusCircle,
+} from '@plenus/index';
 import type {
   AxisVisibility,
   ChartLegendPosition,
@@ -87,6 +100,20 @@ const jornadaDeCobranca = [
 const alinhamentosDoSankey = ['justify', 'left', 'right', 'center'] as const;
 const coresDaLigacao = ['source', 'target', 'neutral'] as const;
 const posicoesDoValor = ['end', 'middle', 'start'] as const;
+
+const icones = [
+  ['IconChevronUp', IconChevronUp],
+  ['IconChevronDown', IconChevronDown],
+  ['IconChevronLeft', IconChevronLeft],
+  ['IconChevronRight', IconChevronRight],
+  ['IconArrowUp', IconArrowUp],
+  ['IconArrowDown', IconArrowDown],
+  ['IconPlusCircle', IconPlusCircle],
+  ['IconMinusCircle', IconMinusCircle],
+  ['IconCalendar', IconCalendar],
+  ['IconClock', IconClock],
+  ['IconClose', IconClose],
+] as const;
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -228,6 +255,7 @@ export function App() {
           <a href="#popover">Popover</a>
           <a href="#menu">Menu</a>
           <a href="#tooltip">Tooltip</a>
+          <a href="#icones">Icones</a>
           <p className="rail-group">Graficos</p>
           <a href="#chartbar">ChartBar</a>
           <a href="#chartline">ChartLine</a>
@@ -266,6 +294,47 @@ export function App() {
             <span><i className="token-swatch text-swatch" />Text</span>
           </div>
         </section>
+
+        <ComponentDoc
+          category="icons"
+          description="Conjunto oficial de icones, exposto pelo Design System."
+          id="icones"
+          name="Icon"
+          api={`<IconCalendar size={16} />
+<IconClose label="Fechar" />`}
+        >
+          <div className="doc-subsection">
+            <h3>O conjunto</h3>
+            <div className="icon-grid">
+              {icones.map(([nome, Desenho]) => (
+                <span className="icon-cell" key={nome}>
+                  <Desenho size={20} />
+                  <code>{nome}</code>
+                </span>
+              ))}
+            </div>
+            <p className="doc-note">Os caminhos vem do Bootstrap Icons, sob licenca MIT, copiados apenas os que o projeto usa. Onde existe variante preenchida e ela le bem no tamanho de interface, e a preenchida que vale.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Tamanho e cor</h3>
+            <div className="demo-row">
+              <span style={{ fontSize: 12 }}><IconCalendar /> 12px</span>
+              <span style={{ fontSize: 16 }}><IconCalendar /> 16px</span>
+              <span style={{ fontSize: 24 }}><IconCalendar /> 24px</span>
+              <span style={{ color: 'var(--pl-color-danger)' }}><IconClose size={20} /></span>
+              <span style={{ color: 'var(--pl-color-success)' }}><IconArrowUp size={20} /></span>
+            </div>
+            <p className="doc-note">Sem medida declarada o icone acompanha o tamanho do texto ao redor, e a cor vem sempre de <code>currentColor</code> — ele herda a cor de onde esta em vez de fixar a propria.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Decorativo ou nomeado</h3>
+            <div className="demo-row">
+              <Button><IconClose size={14} /> Cancelar</Button>
+              <Button aria-label="Fechar" variant="ghost"><IconClose label="Fechar" size={16} /></Button>
+            </div>
+            <p className="doc-note">Sem <code>label</code> o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com <code>label</code> ele ganha nome acessivel, para o caso em que carrega o significado sozinho.</p>
+          </div>
+        </ComponentDoc>
 
         <ComponentDoc
           category="actions"

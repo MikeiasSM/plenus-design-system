@@ -5,6 +5,7 @@ import { Time } from '@internationalized/date';
 import { Field } from '../Field';
 import { TimeSlots, formatarEntradaHora, lerEntradaHora, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
+import { IconClock } from '../../icons';
 
 export type TimePickerSize = 'sm' | 'md';
 
@@ -133,10 +134,7 @@ export function TimePicker({
               ref={triggerRef}
               type="button"
             >
-              <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 2" />
-              </svg>
+              <IconClock size={15} />
             </button>
           </div>
           {open &&

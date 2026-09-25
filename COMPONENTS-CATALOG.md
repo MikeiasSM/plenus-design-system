@@ -129,7 +129,11 @@ O Design System entrega os gráficos. A tradução entre o manifesto de um dashb
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
-| Biblioteca oficial de ícones | Conjunto de ícones exposto pelo Design System, conforme `ARCHITECTURE.md` seção 12. | Previsto |
+| Biblioteca oficial de ícones | Conjunto de ícones exposto pelo Design System, conforme `ARCHITECTURE.md` seção 12. | Disponível |
+
+Os ícones seguem a nomenclatura de família: tipo seguido de especialização — `IconChevronDown`, `IconCalendar`, `IconClose`. O conjunto cobre o que os componentes do Design System usam, e cresce quando um componente precisa de um símbolo que ainda não existe.
+
+Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 
 ## 11. Fora do escopo
 

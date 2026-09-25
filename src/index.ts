@@ -1,6 +1,20 @@
 import './styles/tokens.css';
 import './styles/globals.css';
 
+export {
+  IconArrowDown,
+  IconArrowUp,
+  IconCalendar,
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronUp,
+  IconClock,
+  IconClose,
+  IconMinusCircle,
+  IconPlusCircle,
+} from './components/icons';
+export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './components/actions/Button';
 export { Label } from './components/forms/Label';
