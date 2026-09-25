@@ -1,0 +1,21 @@
+.axisLine {
+  stroke: var(--pl-chart-axis);
+  stroke-width: 1;
+}
+
+.axisLabel {
+  fill: var(--pl-chart-label);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.gridLine {
+  stroke: var(--pl-chart-grid);
+  stroke-width: 1;
+}
+
+.gridBaseline {
+  stroke: var(--pl-chart-axis);
+  stroke-width: 1;
+}

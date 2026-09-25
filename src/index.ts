@@ -94,3 +94,7 @@ export { DateTimePicker } from './components/forms/DateTimePicker';
 export type { DateTimePickerProps, DateTimePickerSize } from './components/forms/DateTimePicker';
 export { formatarData, formatarHora } from './utils/formatters';
 export type { OpcoesDeData, OpcoesDeHora } from './utils/formatters';
+export { ChartBar } from './components/charts/ChartBar';
+export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
+export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
+export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

@@ -357,3 +357,20 @@ body {
   color: var(--pl-color-text-tertiary);
   font-size: var(--pl-type-caption-size, 0.8125rem);
 }
+
+.swatch-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-sm);
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

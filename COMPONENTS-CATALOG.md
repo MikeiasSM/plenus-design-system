@@ -74,7 +74,29 @@ Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação pe
 
 O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`.
 
-## 6. Feedback
+## 6. Gráficos
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `ChartBar` | Comparação por categoria, em barras verticais ou horizontais. | Disponível |
+| `ChartLine` | Evolução de uma medida ao longo do tempo. | Previsto |
+| `ChartArea` | Evolução com ênfase no volume acumulado. | Previsto |
+| `ChartPie` | Composição de um total em partes. | Previsto |
+| `ChartDonut` | Composição de um total, com o valor central em destaque. | Previsto |
+| `ChartWaterfall` | Formação de um resultado, passo a passo. | Previsto |
+| `ChartRadial` | Progresso de uma ou mais medidas contra a sua meta. | Previsto |
+| `ChartScatter` | Relação entre duas medidas numéricas. | Previsto |
+| `ChartTreemap` | Composição hierárquica por área. | Previsto |
+| `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Previsto |
+| `ChartSankey` | Fluxo entre origens e destinos. | Previsto |
+
+A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
+
+Séries com intenção não entram na rotação categórica. Pintar uma despesa com a cor de tema escolhida pelo usuário trocaria o significado da barra a cada usuário.
+
+O Design System entrega os gráficos. A tradução entre o manifesto de um dashboard e as propriedades de cada gráfico pertence à aplicação, conforme `ARCHITECTURE.md` §15.
+
+## 7. Feedback
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -82,7 +104,7 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `Progress` | Progresso de uma operação, determinado ou não. | Disponível |
 | `Spinner` | Indicação de atividade em curso. | Disponível |
 
-## 7. Navegação
+## 8. Navegação
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -90,7 +112,7 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `Pagination` | Navegação entre páginas de um conjunto. | Disponível |
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
 
-## 8. Sobreposições
+## 9. Sobreposições
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -99,13 +121,13 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
 | `Menu` | Lista de ações disparada por um gatilho. | Disponível |
 
-## 9. Ícones
+## 10. Ícones
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | Biblioteca oficial de ícones | Conjunto de ícones exposto pelo Design System, conforme `ARCHITECTURE.md` seção 12. | Previsto |
 
-## 10. Fora do escopo
+## 11. Fora do escopo
 
 O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 

@@ -3,7 +3,7 @@ import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  Card, DatePicker, DateTimePicker, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
+  Card, ChartBar, DatePicker, DateTimePicker, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
 
@@ -89,6 +89,7 @@ export function App() {
   const [equipeEscolhida, setEquipeEscolhida] = useState<readonly string[]>([]);
   const [ordemEquipe, setOrdemEquipe] = useState<OrdemTabela>({ column: 'nome', direction: 'ascending' });
   const [paginaEquipe, setPaginaEquipe] = useState(1);
+  const [corDoTema, setCorDoTema] = useState('#F26B35');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
   const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
   const equipeOrdenada = [...equipe].sort((a, b) => {
@@ -135,6 +136,9 @@ export function App() {
           <a href="#popover">Popover</a>
           <a href="#menu">Menu</a>
           <a href="#tooltip">Tooltip</a>
+          <p className="rail-group">Data display</p>
+          <p className="rail-group">Graficos</p>
+          <a href="#chartbar">ChartBar</a>
           <p className="rail-group">Data display</p>
           <a href="#list">List</a>
           <a href="#table">Table</a>
@@ -767,6 +771,91 @@ export function App() {
           <div className="doc-subsection">
             <h3>Conjunto curto</h3>
             <Pagination page={2} pageCount={5} onPageChange={() => undefined} />
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Comparacao por categoria, em barras verticais ou horizontais."
+          id="chartbar"
+          name="ChartBar"
+          api={`<ChartBar
+  title="Receita × Deduções × Despesas"
+  categories={periodos}
+  series={[
+    { label: 'Receita', values: [...], intent: 'positive' },
+    { label: 'Despesas', values: [...], intent: 'negative' },
+  ]}
+  accent={corDoUsuario}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Cor de tema do usuario</h3>
+            <div className="demo-grid">
+              {['#F26B35', '#49619C', '#6E2A92', '#67BD50', '#ED3237', '#FCB52F', '#373435', '#606062'].map((cor) => (
+                <button
+                  aria-pressed={corDoTema === cor}
+                  className="swatch-button"
+                  key={cor}
+                  onClick={() => setCorDoTema(cor)}
+                  style={{ background: cor, outline: corDoTema === cor ? '2px solid var(--pl-color-primary)' : undefined }}
+                  type="button"
+                >
+                  <span className="sr-only">{cor}</span>
+                </button>
+              ))}
+            </div>
+            <p className="doc-note">A aplicacao passa a cor escolhida pelo usuario. O Design System nao decide essa politica; ele apenas resolve.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Intencao semantica</h3>
+            <ChartBar
+              categories={['08/2026', '09/2026']}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                { label: 'Receita', values: [300000, 210000], intent: 'positive' },
+                { label: 'Deducoes', values: [179000, 96000], intent: 'warning' },
+                { label: 'Despesas', values: [50200, 8000], intent: 'negative' },
+              ]}
+              accent={corDoTema}
+              title="Receita x Deducoes x Despesas"
+            />
+            <p className="doc-note">Troque a cor de tema no seletor acima: estas barras nao mudam. Quando a serie declara intencao, a cor carrega significado e ignora tanto a paleta quanto a cor escolhida pelo usuario. Pintar despesa com a cor de tema trocaria o sentido da barra a cada usuario.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Series categoricas, empilhadas</h3>
+            <ChartBar
+              categories={['04/26', '05/26', '06/26', '07/26', '08/26', '09/26']}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 33000] },
+                { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 37000] },
+              ]}
+              accent={corDoTema}
+              stacked
+              title="Evolucao do faturamento"
+            />
+            <p className="doc-note">Aqui a cor e identidade, nao significado: a primeira serie assume a cor de tema e as demais seguem a paleta do sistema, saltando a posicao que repetiria essa cor.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Horizontal, com valores na ponta</h3>
+            <ChartBar
+              categories={['Plenus Tecnologia', 'CDCE da Escola', 'S. P Ind. Com.', 'S M de Oliveira', 'Tres D Comercio']}
+              formatValue={(valor) => `${(valor / 1000).toFixed(1)}k`}
+              height={220}
+              orientation="horizontal"
+              series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500] }]}
+              accent={corDoTema}
+              showValues
+              title="Faturamento por cliente"
+            />
+            <p className="doc-note">Uma serie so dispensa legenda: o titulo ja a nomeia. As categorias vao para o eixo da esquerda e o valor fica na ponta da barra.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Sem dados</h3>
+            <ChartBar categories={[]} series={[]} title="Faturamento por vendedor" />
+            <p className="doc-note">Sem dados, o componente anuncia a ausencia em vez de desenhar eixos vazios.</p>
           </div>
         </ComponentDoc>
 

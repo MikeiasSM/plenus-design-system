@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-317 testes em 43 arquivos. Build da biblioteca e do Showcase validados.
+340 testes em 46 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -170,6 +170,9 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 
 ### Graficos
 
+- O eixo e a grade recebem as marcas **ja posicionadas**: converter valor em pixel pertence a escala, nao ao desenho. Isso os torna testaveis sem montar um grafico inteiro.
+- A linha da base tem estilo proprio na grade: ela separa positivos de negativos e nao e apenas mais uma marca.
+- O grafico e `role="img"` nomeado pelo titulo, e cada barra carrega um `title` com serie, categoria e valor formatado. A visao em tabela, que a `Table` ja permite, entra quando houver o primeiro consumidor pedindo.
 - D3 entra como **calculo, nunca como renderizador**. `d3-scale` e `d3-array` para escalas e dominios; `d3-selection` e `d3-axis` ficam de fora por tocarem o DOM. Eixos, marcas e rotulos sao JSX, e o React continua dono da arvore. E a mesma fronteira ja firmada para o React Aria.
 - O sistema de escalas precede os graficos porque a ausencia dele e a causa raiz do duplo eixo em producao: sem escala confiavel, duas series de grandeza diferente acabam em dois eixos, e o cruzamento entre elas vira artefato da escala escolhida. `mergeDomains` une series num eixo unico.
 - O dominio inclui o zero por padrao. Barra que nao parte do zero exagera a diferenca entre os valores.
@@ -284,16 +287,21 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - `DatePicker`, `TimePicker` e `DateTimePicker` implementados sobre `@internationalized/date`, com State Motor de calendario proprio, testes, exportacao publica e Showcase.
    - `formatarData` e `formatarHora` criados conforme `ARCHITECTURE.md` secao 9.1, e exportados pela API publica. `formatarEntradaData` e `lerEntradaData` acompanham as mascaras de entrada ja existentes.
 
-11. **Editor em blocos** — proxima
+11. **Graficos** — em andamento
+   - Escalas, paleta, resolucao de cor por precedencia, medida do container, eixo e grade concluidos.
+   - `ChartBar` implementado, vertical e horizontal, agrupado e empilhado, com rotulos de valor, legenda, estado vazio e intencao semantica. Testado, exportado e documentado no Showcase.
+   - Proximos, por motor de calculo: os demais cartesianos, depois os radiais, os hierarquicos e o fluxo.
+
+12. **Editor em blocos**
    - Componente complexo, previsto em `ARCHITECTURE.md` secao 6.3 entre os exemplos de editores, com State Motor proprio conforme a secao 7.
    - Gutenberg, do WordPress, como referencia de funcionalidade e de modelo de blocos.
    - Escopo, nome e limites a definir antes da implementacao, com o levantamento da referencia como base.
 
-12. **Showcase como consumidor**
+13. **Showcase como consumidor**
    - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
 
-13. **Integracao e distribuicao**
+14. **Integracao e distribuicao**
    - Configurar `main`, `module`, `exports` e `types`, emitir declaracoes e validar o pacote construido.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
