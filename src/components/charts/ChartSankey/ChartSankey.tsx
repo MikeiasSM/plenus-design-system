@@ -7,6 +7,7 @@ import {
   truncateToWidth,
   useChartMetrics,
   widestLabel,
+  wrapToWidth,
   type ChartHeight,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -161,6 +162,22 @@ export function ChartSankey({
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
+  /**
+   * Largura da etapa: o vao entre duas colunas, descontados o no e os recuos. E
+   * dentro dela que o rotulo do no do meio precisa caber.
+   */
+  const larguraDaEtapa = (() => {
+    const colunas = [...new Set(grafo.nodes.map((no) => no.x0))].sort((a, b) => a - b);
+
+    if (colunas.length < 2) {
+      return width * BANDA_MAXIMA;
+    }
+
+    const passo = Math.min(...colunas.slice(1).map((x, indice) => x - colunas[indice]));
+
+    return Math.max(passo - nodeWidth - RECUO_DO_ROTULO * 2, 0);
+  })();
+
   function classeDa(indice: number) {
     if (emFoco === null) {
       return styles.link;
@@ -198,50 +215,89 @@ export function ChartSankey({
         ))}
       </g>
 
-      {grafo.nodes.map((no) => (
-        <path
-          className={styles.node}
-          d={roundedBarPath(no.x0, no.y0, no.x1 - no.x0, Math.max(no.y1 - no.y0, 1), [
-            raioDoCanto,
-            raioDoCanto,
-            raioDoCanto,
-            raioDoCanto,
-          ])}
-          fill={corDoNo(no.index)}
-          key={no.label}
-        >
-          <title>{no.label}</title>
-        </path>
-      ))}
+      {grafo.nodes.map((no) => {
+        const largura = no.x1 - no.x0;
+        const altura = Math.max(no.y1 - no.y0, 1);
+
+        // O arredondamento come as pontas e faz o no parecer mais curto que o
+        // volume que ele representa. Estender pelo raio em cada ponta devolve o
+        // comprimento aparente. Aqui isso nao mente sobre medida alguma: o no
+        // nao e lido contra uma escala, so contra os outros nos.
+        const raio = Math.min(raioDoCanto, Math.min(largura, altura) / 2);
+
+        return (
+          <path
+            className={styles.node}
+            d={roundedBarPath(no.x0, no.y0 - raio, largura, altura + raio * 2, [
+              raio,
+              raio,
+              raio,
+              raio,
+            ])}
+            fill={corDoNo(no.index)}
+            key={no.label}
+          >
+            <title>{no.label}</title>
+          </path>
+        );
+      })}
 
       {/* Rotulo de entrada fica a esquerda do no e o de saida a direita, cada um
-          na sua banda reservada. O do meio nao tem banda: ele centraliza no
-          proprio no, para pertencer a ele em vez de flutuar sobre o fluxo, e um
-          halo da cor da superficie o separa do que passa por baixo. */}
+          na sua banda reservada. O do meio fica dentro da propria etapa,
+          centralizado no no e quebrado em linhas quando nao cabe numa so; um
+          halo da cor da superficie o separa do fluxo que passa por baixo. */}
       {showLabels &&
         grafo.nodes.map((no) => {
           const entrada = entradas.has(no.label);
           const saida = saidas.has(no.label);
           const aEsquerda = entrada && !saida;
           const noMeio = !entrada && !saida;
-          const banda = aEsquerda ? bandaEsquerda : saida ? bandaDireita : width * BANDA_MAXIMA;
+          const meioDoNo = (no.y0 + no.y1) / 2;
+
+          if (!noMeio) {
+            const banda = aEsquerda ? bandaEsquerda : bandaDireita;
+
+            return (
+              <text
+                className={styles.label}
+                dominantBaseline="middle"
+                key={`rotulo-${no.label}`}
+                textAnchor={aEsquerda ? 'end' : 'start'}
+                x={aEsquerda ? no.x0 - RECUO_DO_ROTULO : no.x1 + RECUO_DO_ROTULO}
+                y={meioDoNo}
+              >
+                {truncateToWidth(no.label, font, banda - RECUO_DO_ROTULO)}
+              </text>
+            );
+          }
+
+          // O rotulo cabe na altura do proprio no: mais linhas que isso
+          // transbordariam a etapa.
+          const linhas = wrapToWidth(
+            no.label,
+            font,
+            larguraDaEtapa,
+            Math.max(Math.floor((no.y1 - no.y0) / font.lineHeight), 1),
+          );
 
           return (
             <text
-              className={`${styles.label} ${noMeio ? styles.labelSobreFluxo : ''}`}
+              className={`${styles.label} ${styles.labelSobreFluxo}`}
               dominantBaseline="middle"
               key={`rotulo-${no.label}`}
-              textAnchor={noMeio ? 'middle' : aEsquerda ? 'end' : 'start'}
-              x={
-                noMeio
-                  ? (no.x0 + no.x1) / 2
-                  : aEsquerda
-                    ? no.x0 - RECUO_DO_ROTULO
-                    : no.x1 + RECUO_DO_ROTULO
-              }
-              y={(no.y0 + no.y1) / 2}
+              textAnchor="middle"
+              x={(no.x0 + no.x1) / 2}
+              y={meioDoNo - ((linhas.length - 1) * font.lineHeight) / 2}
             >
-              {truncateToWidth(no.label, font, banda - RECUO_DO_ROTULO)}
+              {linhas.map((linha, indice) => (
+                <tspan
+                  dy={indice === 0 ? 0 : font.lineHeight}
+                  key={linha}
+                  x={(no.x0 + no.x1) / 2}
+                >
+                  {linha}
+                </tspan>
+              ))}
             </text>
           );
         })}

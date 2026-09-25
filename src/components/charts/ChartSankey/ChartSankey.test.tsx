@@ -110,6 +110,36 @@ describe('ChartSankey', () => {
     expect(comHalo.map((no) => no.textContent)).toEqual(['Custos']);
   });
 
+  it('estende o no pelo raio em cada ponta, para o arredondamento nao encurta-lo', () => {
+    render(<ChartSankey flows={caixa} title="Fluxo" />);
+
+    // Por Custos passam 600, o mesmo da ligacao que chega nele: sem a extensao,
+    // a altura do no seria exatamente a espessura dela.
+    const custos = caixaDe(nos()[1]).altura;
+    const chegada = Number(ligacoes()[0].getAttribute('stroke-width'));
+
+    expect(custos).toBeGreaterThan(chegada);
+  });
+
+  it('quebra o rotulo do no do meio em linhas, para ele caber na etapa', () => {
+    render(
+      <ChartSankey
+        flows={[
+          { source: 'Receita', target: 'Receita liquida acumulada no periodo', value: 600 },
+          { source: 'Receita liquida acumulada no periodo', target: 'CMV', value: 600 },
+        ]}
+        title="Fluxo"
+      />,
+    );
+
+    const doMeio = [...document.querySelectorAll('text')].find((no) =>
+      no.getAttribute('class')?.includes('labelSobreFluxo'),
+    );
+
+    expect(doMeio?.querySelectorAll('tspan').length).toBeGreaterThan(1);
+    expect(doMeio?.textContent).toContain('Receita');
+  });
+
   it('reserva a banda do rotulo antes do fluxo, em cada lado', () => {
     const inicioDoFluxo = () => caixaDe(nos()[0]).x;
 

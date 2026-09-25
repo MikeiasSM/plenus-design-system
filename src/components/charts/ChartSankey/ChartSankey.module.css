@@ -12,14 +12,15 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* A ligacao sob o ponteiro vai a cor quase cheia. Apagar as outras sozinho nao
-   destaca: o que se ve e o grafico inteiro sumindo. */
+/* A ligacao sob o ponteiro sobe um degrau, e nao ate a cor cheia: o realce
+   precisa apontar qual e, nao mudar o grafico de aparencia. Apagar as outras
+   sozinho tambem nao serve — ali o que se ve e o grafico inteiro sumindo. */
 .linkOn {
-  opacity: 0.85;
+  opacity: 0.58;
 }
 
 .linkDim {
-  opacity: 0.1;
+  opacity: 0.12;
 }
 
 .node {

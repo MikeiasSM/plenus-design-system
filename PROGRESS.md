@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-483 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
+489 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -358,7 +358,9 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - No sankey, a ligacao sob o ponteiro **sobe de tom** e as demais apagam. Apagar as outras sozinho nao destaca nada: o que se via era o grafico inteiro sumindo. O realce vem do estado, nao de `:hover` no CSS, porque as ligacoes se cruzam e o `:hover` piscava na travessia.
 - `mix-blend-mode: multiply` saiu das ligacoes: contra a superficie escura do tema escuro ele as levava ao preto.
 - A ligacao fica **lavada em repouso**, e nao em cor cheia: o no e que carrega a cor, e e sobre a faixa lavada que o rotulo do no do meio continua legivel. Em cor cheia o rotulo desaparecia no fundo saturado.
-- O rotulo do no do meio **centraliza no proprio no**, e nao ao lado dele: assim ele pertence ao no em vez de flutuar sobre o fluxo, que era o que fazia dois rotulos vizinhos lerem como um bloco so.
+- O rotulo do no do meio **fica dentro da propria etapa**, centralizado no no e quebrado em linhas quando nao cabe numa so. A etapa e o vao entre duas colunas, descontados o no e os recuos, e o limite de linhas e a altura do proprio no. Ao lado do no e numa linha so, ele flutuava sobre o fluxo e dois rotulos vizinhos liam como um bloco so.
+- O realce do hover **sobe um degrau**, e nao ate a cor cheia: o realce aponta qual ligacao e, nao muda o grafico de aparencia.
+- O no e **estendido pelo raio em cada ponta**. O arredondamento come as pontas e o faz parecer mais curto que o volume que representa; ali a extensao nao mente sobre medida alguma, porque o no nao e lido contra uma escala, so contra os outros nos. Nas barras cartesianas a compensacao **nao** se aplica: la a barra e lida contra a linha da grade.
 - O no do sankey usa o raio do token, pelo mesmo caminho das barras, em vez de um valor proprio no CSS.
 - O lado do rotulo do sankey sai do **papel do no**: entrada a esquerda, saida a direita, cada um na sua banda reservada. A regra anterior usava a metade da largura e jogava o rotulo da primeira coluna para dentro do fluxo. O no do meio nao tem banda e cai sobre o fluxo mesmo; ali um halo da cor da superficie e que o separa do que passa por baixo.
 - Entrada e saida saem das proprias ligacoes, antes do posicionamento: e isso que permite reservar a banda de cada lado.

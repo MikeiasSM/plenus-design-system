@@ -92,3 +92,41 @@ export function truncateToWidth(text: string, font: LabelFont, maxWidth: number)
 
   return corte > 0 ? `${text.slice(0, corte)}…` : '';
 }
+
+/**
+ * Texto quebrado nas linhas que cabem na largura. Onde o rotulo divide espaco
+ * com o desenho, espremer tudo numa linha so e o que o faz invadir o que esta
+ * ao lado. A ultima linha e cortada quando o limite de linhas se esgota.
+ */
+export function wrapToWidth(text: string, font: LabelFont, maxWidth: number, maxLines = 2) {
+  if (maxWidth <= 0 || maxLines <= 0) {
+    return [];
+  }
+
+  const linhas: string[] = [];
+
+  text.split(/\s+/).filter(Boolean).forEach((palavra) => {
+    const atual = linhas.at(-1);
+    const juntas = atual ? `${atual} ${palavra}` : palavra;
+
+    if (atual !== undefined && measureLabel(juntas, font) <= maxWidth) {
+      linhas[linhas.length - 1] = juntas;
+      return;
+    }
+
+    linhas.push(palavra);
+  });
+
+  if (linhas.length <= maxLines) {
+    return linhas.map((linha) => truncateToWidth(linha, font, maxWidth));
+  }
+
+  const cabem = linhas.slice(0, maxLines);
+  cabem[maxLines - 1] = truncateToWidth(
+    [cabem[maxLines - 1], ...linhas.slice(maxLines)].join(' '),
+    font,
+    maxWidth,
+  );
+
+  return cabem;
+}
