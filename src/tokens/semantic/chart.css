@@ -8,6 +8,13 @@
   --pl-chart-series-5: var(--pl-brand-orange-70);
   --pl-chart-series-6: var(--pl-brand-purple-40);
 
+  /* Papeis semanticos. Quando a serie declara intenção, a cor carrega
+     significado e nao entra na rotacao categorica. */
+  --pl-chart-positive: var(--pl-color-success);
+  --pl-chart-negative: var(--pl-color-danger);
+  --pl-chart-warning: var(--pl-color-warning);
+  --pl-chart-neutral: var(--pl-neutral-gray);
+
   --pl-chart-grid: var(--pl-color-border);
   --pl-chart-axis: var(--pl-color-text-tertiary);
   --pl-chart-label: var(--pl-color-text-secondary);
@@ -22,4 +29,7 @@
   --pl-chart-series-4: var(--pl-brand-blue-30);
   --pl-chart-series-5: var(--pl-brand-orange-50);
   --pl-chart-series-6: var(--pl-brand-purple-30);
+
+  /* O cinza medio some contra a superficie escura, em 2,69:1. */
+  --pl-chart-neutral: #9A9DA1;
 }

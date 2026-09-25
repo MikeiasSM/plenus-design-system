@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-308 testes em 42 arquivos. Build da biblioteca e do Showcase validados.
+317 testes em 43 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -177,6 +177,9 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - As oito cores institucionais nao formam paleta de dados: tres sao status, duas sao neutras e sobram tres matizes. Medidas em conjunto, reprovam em separacao para deficiencia de visao de cores (3,6 no par laranja e verde), em separacao para visao plena (9,7 no par cinza e azul) e em contraste nos dois temas. A paleta de series usa tons das rampas de marca e leva o pior par de 3,6 para 20,6.
 - Verde, vermelho e amarelo permanecem reservados a status, e sao a escolha certa quando o dado **e** status, como o mapa de produtos por margem e o DRE.
 - A aplicacao pode passar as proprias cores, conforme `ARCHITECTURE.md` secao 15: a cor de tema escolhida pelo usuario e politica do produto. `paletteWithAccent` abre a paleta com essa cor e segue com as do sistema, saltando a posicao que a repetiria.
+- A cor de uma serie se resolve em tres niveis de precedencia: a cor informada pelo implementador vence; depois a intencao semantica; por fim a paleta categorica. Series com cor ou intencao **nao consomem posicao** da paleta, para que as categoricas sigam a ordem sem deixar buracos.
+- Intencoes: `positive`, `negative`, `warning` e `neutral`, esta ultima para totais e subtotais. Elas ignoram a paleta e a cor de tema do usuario, porque ali a cor carrega significado: pintar despesa com a cor escolhida pelo usuario trocaria o sentido da barra a cada usuario. O DRE, a cascata e o mapa de produtos por margem sao exatamente esse caso.
+- O cinza medio volta com papel proprio em `--pl-chart-neutral`, depois de sair da rotacao de series. No tema escuro ele cede lugar a um cinza mais claro, porque some contra a superficie escura em 2,69:1.
 - **Gerar as demais cores a partir da escolhida foi implementado e descartado.** Girar a matiz em passos iguais nao separa as series de forma perceptivel: a paleta derivada do laranja mediu 3,1 em deuteranopia, pior que a paleta atual. O circulo de matiz nao e perceptivelmente uniforme, e passo igual nao produz distancia igual.
 
 ### Datas
