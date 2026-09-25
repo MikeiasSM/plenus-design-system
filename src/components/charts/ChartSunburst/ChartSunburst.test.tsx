@@ -125,6 +125,42 @@ describe('ChartSunburst', () => {
     expect(conector?.getAttribute('points')?.split(' ')).toHaveLength(3);
   });
 
+  it('reserva a banda dos rotulos antes do anel, em vez de desenhar no que sobrar', () => {
+    const raioExterno = () => {
+      const numeros = (arcos()[0].getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
+      return Math.max(...numeros.map(Math.abs));
+    };
+
+    const { rerender } = render(<ChartSunburst nodes={despesas} showLabels={false} title="Despesas" />);
+    const semRotulo = raioExterno();
+
+    rerender(<ChartSunburst nodes={despesas} title="Despesas" />);
+
+    expect(raioExterno()).toBeLessThan(semRotulo);
+  });
+
+  it('nao corta o rotulo ate ele desaparecer, porque a banda foi reservada para ele', () => {
+    render(
+      <ChartSunburst
+        nodes={[
+          {
+            label: 'Operacionais',
+            children: [
+              { label: 'Contabilidade', value: 500 },
+              { label: 'Energia', value: 300 },
+            ],
+          },
+        ]}
+        title="Despesas"
+      />,
+    );
+
+    const rotulos = [...document.querySelectorAll('text')].map((no) => no.textContent ?? '');
+
+    expect(rotulos).toHaveLength(2);
+    expect(rotulos.every((texto) => texto.replace('…', '').length > 3)).toBe(true);
+  });
+
   it('dispensa os rotulos quando pedido', () => {
     render(<ChartSunburst nodes={despesas} showLabels={false} title="Despesas" />);
 

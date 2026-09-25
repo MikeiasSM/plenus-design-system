@@ -10,6 +10,7 @@ import {
   truncateToWidth,
   useChartMetrics,
   useSeriesToggle,
+  widestLabel,
   type ChartHeight,
   type ChartLegendPosition,
 } from '../core';
@@ -47,6 +48,33 @@ type Arco = HierarchyRectangularNode<ChartSunburstNode>;
 const ANGULO_MINIMO_DO_ROTULO = 0.18;
 const COMPRIMENTO_DO_CONECTOR = 14;
 const RECUO_DO_ROTULO = 6;
+
+/**
+ * Teto da banda de rotulos, como fracao da largura. Sem teto, um unico rotulo
+ * longo encolheria o anel ate ele deixar de ser o assunto do grafico.
+ */
+const BANDA_MAXIMA = 0.24;
+
+/**
+ * Rotulos de cada nivel da arvore declarada. Medir a banda antes de montar o
+ * anel exige saber os rotulos antes, e o nivel mais profundo declarado e o
+ * mesmo que o anel externo tera.
+ */
+function rotulosPorNivel(
+  nodes: readonly ChartSunburstNode[],
+  nivel = 1,
+  por = new Map<number, string[]>(),
+) {
+  nodes.forEach((no) => {
+    por.set(nivel, [...(por.get(nivel) ?? []), no.label]);
+
+    if (no.children?.length) {
+      rotulosPorNivel(no.children, nivel + 1, por);
+    }
+  });
+
+  return por;
+}
 
 /**
  * Cada anel clareia sobre o anterior, e o filho nasce da cor do pai. Sem isso a
@@ -97,10 +125,23 @@ export function ChartSunburst({
     [isHidden, nodes],
   );
 
-  // O rotulo projetado precisa de margem lateral, entao o raio nao ocupa a area
-  // inteira quando os rotulos estao ligados.
-  const diametro = ringDiameter(width, alturaDoDesenho);
-  const raio = showLabels ? diametro / 2 - COMPRIMENTO_DO_CONECTOR * 2 : diametro / 2;
+  // A banda dos rotulos e reservada antes do anel, medida pelo rotulo mais
+  // largo do anel externo. Sem reservar, o rotulo era desenhado no que sobrasse
+  // — quase nada nas laterais — e acabava cortado ate sumir.
+  const rotulosExternos = useMemo(() => {
+    const niveis = rotulosPorNivel(visiveis);
+    const externo = Math.max(0, ...niveis.keys());
+
+    return niveis.get(externo) ?? [];
+  }, [visiveis]);
+
+  const larguraDoRotulo = showLabels
+    ? Math.min(widestLabel(rotulosExternos, font), width * BANDA_MAXIMA)
+    : 0;
+  const banda = showLabels ? COMPRIMENTO_DO_CONECTOR * 2 + RECUO_DO_ROTULO + larguraDoRotulo : 0;
+
+  const diametro = ringDiameter(Math.max(width - banda * 2, 0), alturaDoDesenho);
+  const raio = diametro / 2;
 
   const arcos = useMemo(() => {
     if (raio <= 0) {
@@ -200,7 +241,6 @@ export function ChartSunburst({
             const [xCotovelo, yCotovelo] = arcAnchor(angulos, arco.y1 + COMPRIMENTO_DO_CONECTOR);
             const paraDireita = xCotovelo >= 0;
             const xFim = xCotovelo + (paraDireita ? COMPRIMENTO_DO_CONECTOR : -COMPRIMENTO_DO_CONECTOR);
-            const espaco = Math.max(diametro / 2 - Math.abs(xFim) - RECUO_DO_ROTULO, 0);
 
             return (
               <g className={styles.leader} key={`rotulo-${caminhoDe(arco)}`}>
@@ -215,7 +255,7 @@ export function ChartSunburst({
                   x={xFim + (paraDireita ? RECUO_DO_ROTULO : -RECUO_DO_ROTULO)}
                   y={yCotovelo}
                 >
-                  {truncateToWidth(arco.data.label, font, espaco)}
+                  {truncateToWidth(arco.data.label, font, larguraDoRotulo)}
                 </text>
               </g>
             );
