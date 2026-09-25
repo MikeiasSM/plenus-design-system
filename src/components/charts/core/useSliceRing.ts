@@ -10,6 +10,8 @@ export interface UseSliceRingOptions {
   defaultHiddenSlices?: readonly string[];
   hiddenSlices?: readonly string[];
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
+  /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
+  onHoverSlice?: (slice: ChartSlice | null) => void;
   otherLabel: string;
   slices: readonly ChartSlice[];
   smallSliceThreshold: number;
@@ -18,10 +20,10 @@ export interface UseSliceRingOptions {
 export interface SliceRing {
   angles: readonly ArcAngles[];
   colors: readonly string[];
+  focus: (index: number | null) => void;
   focused: number | null;
   isHidden: (label: string) => boolean;
   ratioOf: (index: number) => number;
-  setFocused: (index: number | null) => void;
   slices: readonly ChartSlice[];
   toggle: (label: string) => void;
   total: number;
@@ -38,6 +40,7 @@ export function useSliceRing({
   defaultHiddenSlices,
   hiddenSlices,
   onHiddenSlicesChange,
+  onHoverSlice,
   otherLabel,
   slices,
   smallSliceThreshold,
@@ -79,10 +82,15 @@ export function useSliceRing({
   return {
     angles,
     colors,
+    // A fatia entregue e a **agrupada**: as pequenas ja viraram uma so, entao o
+    // indice do anel nao corresponde ao que o consumidor informou.
+    focus: (indice) => {
+      setFocused(indice);
+      onHoverSlice?.(indice === null ? null : reunidas[indice] ?? null);
+    },
     focused,
     isHidden,
     ratioOf: (indice) => (total > 0 ? (values[indice] ?? 0) / total : 0),
-    setFocused,
     slices: reunidas,
     toggle,
     total,

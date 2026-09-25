@@ -27,6 +27,8 @@ export interface ChartPieProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
+  /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
+  onHoverSlice?: (slice: ChartSlice | null) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
   showDataLabels?: boolean;
@@ -50,6 +52,7 @@ export function ChartPie({
   legend = 'bottom',
   legendAlign,
   onHiddenSlicesChange,
+  onHoverSlice,
   otherLabel = 'Outros',
   showDataLabels = false,
   showLegendValues = false,
@@ -66,6 +69,7 @@ export function ChartPie({
     defaultHiddenSlices,
     hiddenSlices,
     onHiddenSlicesChange,
+    onHoverSlice,
     otherLabel,
     slices,
     smallSliceThreshold,
@@ -101,8 +105,8 @@ export function ChartPie({
           d={arcPath({ ...anel.angles[indice], cornerRadius: canto, innerRadius: 0, outerRadius: raio })}
           fill={anel.colors[indice]}
           key={fatia.label}
-          onMouseEnter={() => anel.setFocused(indice)}
-          onMouseLeave={() => anel.setFocused(null)}
+          onMouseEnter={() => anel.focus(indice)}
+          onMouseLeave={() => anel.focus(null)}
         >
           <title>{`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}</title>
         </path>

@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-534 testes em 66 arquivos. Build da biblioteca e do Showcase validados.
+536 testes em 66 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -120,7 +120,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 ### Ainda nao implementado
 
 - O `DataGrid` da etapa 10.
-- Ligacao do `ChartTooltip` aos doze graficos. Feita a costura dos dois cartesianos que o Showcase demonstra; faltam os demais e a decisao sobre o `<title>` por marca.
+- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`, e a decisao sobre o `<title>` por marca.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -241,7 +241,9 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - **Apesar do nome, o `ChartTooltip` nao conhece grafico algum.** Ele recebe linhas e colunas; quem as monta e quem o usa. O nome veio do shadcn, por decisao do mantenedor, e da referencia visual ja adotada para os graficos — mas o `ChartTooltip` de la e `const ChartTooltip = RechartsPrimitive.Tooltip`, um alias vazio, e o `ChartTooltipContent` que o acompanha nao tem subtitulo, nem multiplas colunas, nem campo calculado, nem totalizador. O nome e emprestado; o componente e nosso.
 - O balao **segue o ponteiro**, e nao a marca. Por isso nao usa `useOverlayPosition`, que ancora em elemento e nao em coordenada: a posicao sai do proprio evento, com giro para o lado oposto ao encostar na borda da janela.
 - O `ChartTooltip` e **decorativo** para leitor de tela, com `aria-hidden`. Uma grade que some a qualquer interacao nao e leitura acessivel; a de cada marca continua no `<title>` que os graficos trazem. Falta decidir se esse `<title>` sai ou vira `aria-label` quando o balao for ligado aos doze: com o ponteiro parado, o navegador mostra os dois.
-- `ChartBar` e `ChartCombo` ganharam `onHoverCategory`, a costura minima para o consumidor montar a leitura. Eles ja rastreavam a faixa sob o ponteiro; faltava avisar. A familia radial precisa de costura propria, porque o agrupamento de fatias pequenas desloca o indice em relacao ao que o consumidor informou.
+- A costura de hover vive em dois lugares, um por familia. `useHoveredBand` serve os cartesianos de faixa — `ChartBar`, `ChartCombo` e `ChartWaterfall` —, que expoem `onHoverCategory` ou, no caso do passo, `onHoverStep`. `useSliceRing` serve o anel, e expoe `onHoverSlice`.
+- **O anel entrega a fatia, e nao o indice.** As pequenas ja foram reunidas em "Outros" quando o ponteiro chega, entao o indice do anel nao corresponde ao que o consumidor informou. Entregar a fatia agrupada, com rotulo e valor, dispensa qualquer busca do lado de fora. O `setFocused` do hook virou `focus` na mesma mudanca: ele passou a avisar alem de gravar, e o nome anterior escondia isso.
+- `ChartLine` e `ChartArea` **nao** ganharam costura. Eles usam `pointScale`, sem faixa e sem estado de hover; avisar a categoria ali exige criar faixas de clique invisiveis sobre a area, com decisao de largura e de encaixe no ponto mais proximo. E desenho, nao fiacao. No `ChartScatter` o eixo X e numerico e categoria nao se aplica.
 - Valor no balao e **JetBrains Mono**, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`: `type.data-value` cobre valores monetarios, percentuais e totais em tabelas. O rotulo da serie continua em Montserrat, que e conteudo de interface.
 - **Legenda clicavel implementada**, depois de adiada uma rodada. Cada entrada e um botao com `aria-pressed`, e o estado e controlado ou nao conforme `COMPONENTS.md` secao 6. Ela trabalha com rotulos, nao com indices: e o rotulo que a legenda exibe e o que o produto reconhece, e o indice mudaria de significado ao reordenar as series.
 

@@ -126,6 +126,30 @@ describe('ChartDonut', () => {
     expect(screen.getByRole('button', { name: /Outros/ })).toBeInTheDocument();
   });
 
+  it('avisa a fatia sob o ponteiro ja agrupada, e nao a que o consumidor informou', () => {
+    const vistas: (string | null)[] = [];
+
+    render(
+      <ChartDonut
+        onHoverSlice={(fatia) => vistas.push(fatia?.label ?? null)}
+        slices={[
+          { label: 'CMV', value: 940 },
+          { label: 'Frete', value: 20 },
+          { label: 'Devoluções', value: 20 },
+          { label: 'Comissões', value: 20 },
+        ]}
+        smallSliceThreshold={0.05}
+        title="Custos"
+      />,
+    );
+
+    fireEvent.mouseEnter(fatias()[1]);
+    fireEvent.mouseLeave(fatias()[1]);
+
+    // As tres pequenas viraram uma so, entao o indice 1 do anel nao e o Frete.
+    expect(vistas).toEqual(['Outros', null]);
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um anel vazio', () => {
     render(<ChartDonut slices={[]} title="Custos" />);
 
