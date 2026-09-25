@@ -1,3 +1,5 @@
+export { BandCursor } from './BandCursor';
+export type { BandCursorProps, BandOrientation } from './BandCursor';
 export { Axis } from './Axis';
 export type { AxisOrientation, AxisProps, AxisTick } from './Axis';
 export { Grid } from './Grid';
@@ -52,6 +54,8 @@ export type { ChartSlice, GroupSmallSlicesOptions } from './slices';
 export type { ChartBand, ChartCurve, ChartPoint, CornerRadii } from './shapes';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
+export { useHoveredBand } from './useHoveredBand';
+export type { HoveredBand } from './useHoveredBand';
 export { useSeriesToggle } from './useSeriesToggle';
 export type { SeriesToggle, UseSeriesToggleOptions } from './useSeriesToggle';
 export { useSliceRing } from './useSliceRing';

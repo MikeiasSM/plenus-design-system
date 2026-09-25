@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
+  BandCursor,
   CartesianFrame,
   cartesianLayout,
   chartHeight,
   roundedBarPath,
   useChartMetrics,
+  useHoveredBand,
   useTweenedNumbers,
   valueLabelRoom,
   valueLabelsFor,
@@ -95,7 +97,7 @@ export function ChartWaterfall({
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const [passoEmFoco, setPassoEmFoco] = useState<number | null>(null);
+  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand();
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
 
@@ -188,13 +190,7 @@ export function ChartWaterfall({
       yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
       {passoEmFoco !== null && (
-        <rect
-          className={styles.cursor}
-          height={plot.height}
-          width={escalaPassos.bandwidth()}
-          x={faixaDe(passoEmFoco)}
-          y={0}
-        />
+        <BandCursor offset={faixaDe(passoEmFoco)} plot={plot} size={escalaPassos.bandwidth()} />
       )}
 
       <g aria-hidden="true">
@@ -230,8 +226,8 @@ export function ChartWaterfall({
             ])}
             fill={cores[indice]}
             key={indice}
-            onMouseEnter={() => setPassoEmFoco(indice)}
-            onMouseLeave={() => setPassoEmFoco(null)}
+            onMouseEnter={() => focarPasso(indice)}
+            onMouseLeave={() => focarPasso(null)}
           >
             <title>{`${passo.label}: ${rotuloDe(passo)}`}</title>
           </path>

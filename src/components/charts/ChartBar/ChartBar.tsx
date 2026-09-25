@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
+  BandCursor,
   CartesianFrame,
   barSlots,
   cartesianLayout,
   chartHeight,
   roundedBarPath,
   useChartMetrics,
+  useHoveredBand,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelRoom,
@@ -78,12 +80,7 @@ export function ChartBar({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
-  const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
-
-  const focarFaixa = (indice: number | null) => {
-    setFaixaEmFoco(indice);
-    onHoverCategory?.(indice);
-  };
+  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
   const vertical = orientation === 'vertical';
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -253,12 +250,11 @@ export function ChartBar({
       yAxisRight={{ ...(vertical ? eixoDeValor : eixoDeCategoria), hideLine: true, visibility: yAxisRight }}
     >
       {faixaEmFoco !== null && (
-        <rect
-          className={styles.cursor}
-          height={vertical ? plot.height : vao}
-          width={vertical ? vao : plot.width}
-          x={vertical ? escalaCategorias(categories[faixaEmFoco]) ?? 0 : 0}
-          y={vertical ? 0 : escalaCategorias(categories[faixaEmFoco]) ?? 0}
+        <BandCursor
+          offset={escalaCategorias(categories[faixaEmFoco]) ?? 0}
+          orientation={orientation}
+          plot={plot}
+          size={vao}
         />
       )}
 

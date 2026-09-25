@@ -9,10 +9,6 @@
   stroke-width: 1;
 }
 
-.cursor {
-  composes: cursor from '../core/Chart.module.css';
-}
-
 .valueLabel {
   composes: valueLabel from '../core/Chart.module.css';
 }

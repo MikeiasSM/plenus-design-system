@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
+  BandCursor,
   CartesianFrame,
   barSlots,
   cartesianLayout,
@@ -7,6 +8,7 @@ import {
   linePath,
   roundedBarPath,
   useChartMetrics,
+  useHoveredBand,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelRoom,
@@ -112,12 +114,7 @@ export function ChartCombo({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
-  const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
-
-  const focarFaixa = (indice: number | null) => {
-    setFaixaEmFoco(indice);
-    onHoverCategory?.(indice);
-  };
+  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
 
   const formatarDireita = formatRightValue ?? formatValue;
   const temEixoDireito = series.some((serie) => eixoDa(serie) === 'right');
@@ -261,13 +258,7 @@ export function ChartCombo({
       }}
     >
       {faixaEmFoco !== null && (
-        <rect
-          className={styles.cursor}
-          height={plot.height}
-          width={vao}
-          x={escalaCategorias(categories[faixaEmFoco]) ?? 0}
-          y={0}
-        />
+        <BandCursor offset={escalaCategorias(categories[faixaEmFoco]) ?? 0} plot={plot} size={vao} />
       )}
 
       {series.map((serie, indiceSerie) => {
