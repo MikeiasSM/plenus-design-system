@@ -3,7 +3,8 @@ import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  Card, ChartBar, DatePicker, DateTimePicker, List, RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
+  Card, ChartArea, ChartBar, ChartLine, ChartScatter, ChartWaterfall, DatePicker, DateTimePicker, List,
+  RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
 
@@ -36,6 +37,8 @@ const vendas = [
   { id: 'v2', pedido: '#1043', cliente: 'Industria Belo', progresso: 60, valor: 'R$ 8.150,00' },
   { id: 'v3', pedido: '#1044', cliente: 'Transportes Cruz', progresso: 25, valor: 'R$ 3.720,00' },
 ];
+
+const mesesDoSemestre = ['04/26', '05/26', '06/26', '07/26', '08/26', '09/26'];
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -136,9 +139,12 @@ export function App() {
           <a href="#popover">Popover</a>
           <a href="#menu">Menu</a>
           <a href="#tooltip">Tooltip</a>
-          <p className="rail-group">Data display</p>
           <p className="rail-group">Graficos</p>
           <a href="#chartbar">ChartBar</a>
+          <a href="#chartline">ChartLine</a>
+          <a href="#chartarea">ChartArea</a>
+          <a href="#chartscatter">ChartScatter</a>
+          <a href="#chartwaterfall">ChartWaterfall</a>
           <p className="rail-group">Data display</p>
           <a href="#list">List</a>
           <a href="#table">Table</a>
@@ -856,6 +862,203 @@ export function App() {
             <h3>Sem dados</h3>
             <ChartBar categories={[]} series={[]} title="Faturamento por vendedor" />
             <p className="doc-note">Sem dados, o componente anuncia a ausencia em vez de desenhar eixos vazios.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Evolucao de uma medida ao longo do tempo."
+          id="chartline"
+          name="ChartLine"
+          api={`<ChartLine
+  title="Evolucao do faturamento"
+  categories={meses}
+  series={[
+    { label: 'Servicos', values: [...] },
+    { label: 'Produtos', values: [...] },
+  ]}
+  curve="smooth"
+  accent={corDoUsuario}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Curva suave, marcadores no hover</h3>
+            <ChartLine
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
+              ]}
+              title="Evolucao do faturamento"
+            />
+            <p className="doc-note">Os marcadores ficam ocultos em repouso e aparecem quando o ponteiro entra no grafico. Na impressao eles aparecem sempre, porque ali nao existe hover para revelar o ponto.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Linha reta, marcadores sempre visiveis</h3>
+            <ChartLine
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              curve="straight"
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={220}
+              series={[{ label: 'Ticket medio', values: [1240, 1310, 1180, 1520, 1460, 1590] }]}
+              showMarkers
+              title="Ticket medio"
+            />
+            <p className="doc-note">Uma serie so dispensa legenda: o titulo ja a nomeia.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Periodo sem medida</h3>
+            <ChartLine
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={220}
+              series={[{ label: 'Servicos', values: [42000, 58000, null, null, 54000, 63000] }]}
+              title="Faturamento com coleta interrompida"
+            />
+            <p className="doc-note">Onde o valor nao existe a curva se interrompe, em vez de emendar sobre o buraco. Emendar desenharia um trecho que o dado nao afirma.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Evolucao com enfase no volume acumulado."
+          id="chartarea"
+          name="ChartArea"
+          api={`<ChartArea
+  title="Volume acumulado"
+  categories={meses}
+  series={[{ label: 'Servicos', values: [...] }]}
+  stacked
+  accent={corDoUsuario}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Gradiente vertical, quando nao empilha</h3>
+            <ChartArea
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
+              title="Volume faturado"
+            />
+            <p className="doc-note">Sem empilhamento, o preenchimento vai do tom no topo ao quase transparente na base, e a linha de contorno em cor cheia marca o limite superior. O topo nao fecha em opacidade total porque areas nao empilhadas se sobrepoem, e a de cima esconderia a de baixo.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Cor solida, quando empilha</h3>
+            <ChartArea
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
+              ]}
+              stacked
+              title="Composicao do faturamento"
+            />
+            <p className="doc-note">Empilhadas, as faixas recebem cor solida: gradientes sobrepostos somariam opacidade e a faixa de cima escureceria a de baixo. O contorno separa uma faixa da vizinha.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Relacao entre duas medidas numericas."
+          id="chartscatter"
+          name="ChartScatter"
+          api={`<ChartScatter
+  title="Prazo medio por margem"
+  series={[{
+    label: 'Clientes',
+    points: [{ label: 'Aurora', x: 18, y: 32, z: 26500 }],
+  }]}
+  formatX={(valor) => valor + ' dias'}
+  formatY={(valor) => valor + '%'}
+  formatZ={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Bolha dimensionada pelo eixo Z</h3>
+            <ChartScatter
+              accent={corDoTema}
+              formatX={(valor) => `${valor} d`}
+              formatY={(valor) => `${valor}%`}
+              formatZ={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                {
+                  label: 'Industria',
+                  points: [
+                    { label: 'Plenus Tecnologia', x: 18, y: 32, z: 26500 },
+                    { label: 'Industria Belo', x: 34, y: 21, z: 18900 },
+                    { label: 'Tres D Comercio', x: 46, y: 12, z: 10500 },
+                  ],
+                },
+                {
+                  label: 'Servicos',
+                  points: [
+                    { label: 'CDCE da Escola', x: 22, y: 38, z: 16400 },
+                    { label: 'S M de Oliveira', x: 41, y: 27, z: 14200 },
+                    { label: 'S P Ind. Com.', x: 55, y: 18, z: 9200 },
+                  ],
+                },
+              ]}
+              title="Prazo medio por margem"
+            />
+            <p className="doc-note">O raio cresce pela raiz do valor, para que a area da bolha acompanhe o dado e nao o raio. Passe o ponteiro sobre uma bolha: as guias tracejadas levam o ponto aos dois eixos.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Formacao de um resultado, passo a passo."
+          id="chartwaterfall"
+          name="ChartWaterfall"
+          api={`<ChartWaterfall
+  title="Formacao do resultado"
+  steps={[
+    { label: 'Receita', value: 300000 },
+    { label: 'Deducoes', value: -80000 },
+    { label: 'Resultado', value: 170000, total: true },
+  ]}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Passos coloridos pela intencao</h3>
+            <ChartWaterfall
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              steps={[
+                { label: 'Receita bruta', value: 300000 },
+                { label: 'Deducoes', value: -42000, intent: 'warning' },
+                { label: 'Receita liquida', value: 258000, total: true },
+                { label: 'CMV', value: -96000 },
+                { label: 'Despesas', value: -50200 },
+                { label: 'Resultado', value: 111800, total: true },
+              ]}
+              title="Formacao do resultado"
+            />
+            <p className="doc-note">A cor sai do sinal do passo: aporte contra deducao. Um passo pode declarar a intencao, como as deducoes acima. O passo marcado como total parte do zero, porque fecha a conta em vez de acrescentar a ela, e o rotulo dele dispensa o sinal.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Sem rotulo de variacao</h3>
+            <ChartWaterfall
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={220}
+              showValues={false}
+              steps={[
+                { label: 'Saldo inicial', value: 80000, total: true },
+                { label: 'Recebimentos', value: 142000 },
+                { label: 'Pagamentos', value: -96000 },
+                { label: 'Saldo final', value: 126000, total: true },
+              ]}
+              title="Movimentacao do caixa"
+            />
+            <p className="doc-note">As linhas tracejadas ligam o acumulado de cada passo ao inicio do proximo, e a linha da base destaca o zero.</p>
           </div>
         </ComponentDoc>
 

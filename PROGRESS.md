@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-340 testes em 46 arquivos. Build da biblioteca e do Showcase validados.
+377 testes em 50 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -25,9 +25,12 @@ Outros modulos:
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
 - `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
+- `src/components/charts/core` — moldura cartesiana compartilhada: `CartesianFrame` com `plotBox`, `Axis`, `Grid`,
+  `useChartSize` e os geradores de caminho de `shapes.ts`. **Internos**, nao exportados, exceto o tipo `ChartCurve`.
+  Servem `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall`.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale` e `d3-array`. Todas externalizadas no build.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array` e `d3-shape`. Todas externalizadas no build.
 
 ### Decisoes tomadas
 
@@ -83,7 +86,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Ainda nao implementado
 
-- Os dez graficos restantes da etapa 11, e o `DataGrid` da etapa 10.
+- Os seis graficos restantes da etapa 11 — os radiais, os hierarquicos e o fluxo —, e o `DataGrid` da etapa 10.
 - `formatarMoeda`, `formatarNumero` e `formatarPercentual`, previstos em `ARCHITECTURE.md` secao 9.1. `formatarData` e `formatarHora` ja existem.
 - State Motor da grade, para o `DataGrid`.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
@@ -100,6 +103,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
 - Registrar a paleta de series no `TOKENS-REFERENCE-COLORS.md`, que hoje nao preve nenhuma cor para dados. Os tokens ja existem em `src/tokens/semantic/chart.css`; falta o documento normativo, que exige aprovacao.
+- Registrar no `CLAUDE.md` que a referencia visual dos graficos e o shadcn/ui, num sistema hibrido com o Untitled UI. A tabela de referencias hoje da ao Untitled UI o papel de base visual e ao shadcn/ui apenas composicao e desenho de API. A informacao veio do mantenedor durante a implementacao dos cartesianos e ja orienta o codigo; falta o documento.
 - Acrescentar `charts/` a estrutura de diretorios do `README.md`, que lista as categorias de componentes e ainda nao a inclui.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
@@ -186,6 +190,17 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Intencoes: `positive`, `negative`, `warning` e `neutral`, esta ultima para totais e subtotais. Elas ignoram a paleta e a cor de tema do usuario, porque ali a cor carrega significado: pintar despesa com a cor escolhida pelo usuario trocaria o sentido da barra a cada usuario. O DRE, a cascata e o mapa de produtos por margem sao exatamente esse caso.
 - O cinza medio volta com papel proprio em `--pl-chart-neutral`, depois de sair da rotacao de series. No tema escuro ele cede lugar a um cinza mais claro, porque some contra a superficie escura em 2,69:1.
 - **Gerar as demais cores a partir da escolhida foi implementado e descartado.** Girar a matiz em passos iguais nao separa as series de forma perceptivel: a paleta derivada do laranja mediu 3,1 em deuteranopia, pior que a paleta atual. O circulo de matiz nao e perceptivelmente uniforme, e passo igual nao produz distancia igual.
+- A referencia visual dos graficos e o **shadcn/ui**, conforme o mantenedor, num sistema hibrido com o Untitled UI. O codigo da referencia foi aberto, nao apenas a descricao, e dele saem quatro decisoes: grade so horizontal e sutil; eixo sem linha e sem tique, apenas o rotulo; linha `monotone` com traco de 2; area com gradiente vertical do tom cheio ao quase transparente, mais linha de contorno. Registrar isso no `CLAUDE.md` depende de aprovacao.
+- A moldura cartesiana e um componente interno, nao uma camada preventiva: cinco graficos repetiam titulo, margens, area de desenho, estado vazio, colocacao dos dois eixos e legenda. Ela fala em **x e y**, nao em categoria e valor — e o grafico que decide qual eixo recebe cada marca. Foi o que dissolveu o ramo `vertical`/`horizontal` da colocacao de eixos do `ChartBar`.
+- `d3-shape` entrou pela mesma fronteira do restante do D3: ele devolve string de caminho, nao toca no DOM. Interpolacao cubica monotona e geracao de faixa com base variavel sao matematica sutil que nao vale reimplementar, e o pacote tambem serve os arcos dos radiais.
+- Valor ausente **interrompe** a curva, em vez de emendar sobre o buraco. Emendar desenharia um trecho que o dado nao afirma. Vale para `ChartLine` e para a faixa do `ChartArea`.
+- Area empilhada recebe **cor solida**, nao gradiente: gradientes sobrepostos somam opacidade e a faixa de cima escurece a de baixo. O contorno permanece nos dois casos, porque e ele que separa uma faixa da vizinha.
+- O raio da bolha do `ChartScatter` cresce pela **raiz** do valor, para que a area acompanhe o dado. Mapeando o valor direto ao raio, a area cresceria com o quadrado dele.
+- Na cascata, o **sinal do rotulo pertence ao grafico**, que formata a magnitude. Delegar o sinal ao formatador do consumidor perdia a variacao com qualquer formatador que exibisse apenas o valor. O teste pegou isso.
+- Na cascata, a faixa de cada passo e indexada pela **posicao**, nao pelo rotulo: numa sequencia de passos o mesmo rotulo pode repetir, e a escala categorica funde dominios iguais, sobrepondo as barras.
+- Um passo marcado como total parte do zero e recebe intencao `neutral`: ele fecha a conta em vez de acrescentar a ela, e o rotulo dele dispensa o sinal.
+- **Tooltip de grafico por portal adiado por decisao do mantenedor.** Os cartesianos mantem o `<title>` por marca, com marcadores revelados no hover para dar a leitura por ponto. Ele entra quando o mantenedor decidir, e e o ponto que falta para a leitura no ponteiro se igualar a referencia.
+- **Legenda clicavel adiada.** Hoje a legenda e estatica nos cinco graficos. Ligar e desligar serie e comportamento, nao estrutura, e nenhum cenario concreto pediu ainda.
 
 ### Datas
 
@@ -291,8 +306,10 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 
 11. **Graficos** — em andamento
    - Escalas, paleta, resolucao de cor por precedencia, medida do container, eixo e grade concluidos.
+   - Moldura cartesiana compartilhada extraida, com `ChartBar` migrado sobre ela sem alteracao de teste nem de API.
    - `ChartBar` implementado, vertical e horizontal, agrupado e empilhado, com rotulos de valor, legenda, estado vazio e intencao semantica. Testado, exportado e documentado no Showcase.
-   - Proximos, por motor de calculo: os demais cartesianos, depois os radiais, os hierarquicos e o fluxo.
+   - `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall` implementados sobre a moldura, com curva suave ou reta, interrupcao no valor ausente, gradiente e empilhamento, bolha pelo eixo Z com guias no ponto sob o ponteiro, e cascata com barra flutuante, conectores tracejados e rotulo de variacao. Testados, exportados e documentados no Showcase. A familia cartesiana esta concluida.
+   - Proximos, por motor de calculo: os radiais — `ChartPie`, `ChartDonut` e `ChartRadial` —, depois os hierarquicos — `ChartTreemap` e `ChartSunburst` — e o fluxo, `ChartSankey`.
 
 12. **Editor em blocos**
    - Componente complexo, previsto em `ARCHITECTURE.md` secao 6.3 entre os exemplos de editores, com State Motor proprio conforme a secao 7.

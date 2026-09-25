@@ -1,0 +1,21 @@
+.bubble {
+  fill-opacity: 0.68;
+  transition: fill-opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.bubble:hover {
+  fill-opacity: 1;
+}
+
+/* Guias do ponto sob o ponteiro, ate cada eixo. */
+.guide {
+  stroke: var(--pl-chart-axis);
+  stroke-dasharray: 3 3;
+  stroke-width: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble {
+    transition: none;
+  }
+}

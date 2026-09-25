@@ -96,5 +96,18 @@ export { formatarData, formatarHora } from './utils/formatters';
 export type { OpcoesDeData, OpcoesDeHora } from './utils/formatters';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
+export { ChartLine } from './components/charts/ChartLine';
+export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartArea } from './components/charts/ChartArea';
+export type { ChartAreaProps, ChartAreaSeries } from './components/charts/ChartArea';
+export { ChartScatter } from './components/charts/ChartScatter';
+export type {
+  ChartScatterPoint,
+  ChartScatterProps,
+  ChartScatterSeries,
+} from './components/charts/ChartScatter';
+export { ChartWaterfall } from './components/charts/ChartWaterfall';
+export type { ChartWaterfallProps, ChartWaterfallStep } from './components/charts/ChartWaterfall';
+export type { ChartCurve } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

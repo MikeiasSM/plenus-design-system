@@ -1,0 +1,24 @@
+.bar {
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+svg:hover .bar:not(:hover) {
+  opacity: 0.72;
+}
+
+/* Liga o acumulado de um passo ao inicio do proximo. */
+.connector {
+  stroke: var(--pl-chart-axis);
+  stroke-dasharray: 3 3;
+  stroke-width: 1;
+}
+
+.valueLabel {
+  composes: valueLabel from '../core/Chart.module.css';
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

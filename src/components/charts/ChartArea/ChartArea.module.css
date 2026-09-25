@@ -1,0 +1,28 @@
+.outline {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
+   impressao, onde nao existe hover para revelar o ponto. */
+.marker {
+  opacity: 0;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+svg:hover .marker {
+  opacity: 1;
+}
+
+@media print {
+  .marker {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker {
+    transition: none;
+  }
+}

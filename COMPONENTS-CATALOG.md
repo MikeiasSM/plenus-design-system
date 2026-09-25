@@ -79,13 +79,13 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `ChartBar` | Comparação por categoria, em barras verticais ou horizontais. | Disponível |
-| `ChartLine` | Evolução de uma medida ao longo do tempo. | Previsto |
-| `ChartArea` | Evolução com ênfase no volume acumulado. | Previsto |
+| `ChartLine` | Evolução de uma medida ao longo do tempo. | Disponível |
+| `ChartArea` | Evolução com ênfase no volume acumulado. | Disponível |
 | `ChartPie` | Composição de um total em partes. | Previsto |
 | `ChartDonut` | Composição de um total, com o valor central em destaque. | Previsto |
-| `ChartWaterfall` | Formação de um resultado, passo a passo. | Previsto |
+| `ChartWaterfall` | Formação de um resultado, passo a passo. | Disponível |
 | `ChartRadial` | Progresso de uma ou mais medidas contra a sua meta. | Previsto |
-| `ChartScatter` | Relação entre duas medidas numéricas. | Previsto |
+| `ChartScatter` | Relação entre duas medidas numéricas. | Disponível |
 | `ChartTreemap` | Composição hierárquica por área. | Previsto |
 | `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Previsto |
 | `ChartSankey` | Fluxo entre origens e destinos. | Previsto |
