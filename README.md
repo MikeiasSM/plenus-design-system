@@ -127,6 +127,7 @@ plenus-design-system/
 │   │
 │   ├── components/
 │   │   ├── actions/
+│   │   ├── charts/
 │   │   ├── data-display/
 │   │   ├── forms/
 │   │   ├── feedback/
