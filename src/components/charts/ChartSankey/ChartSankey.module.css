@@ -5,17 +5,18 @@
 /* A ligacao e desenhada como traco, nao como preenchimento: a espessura e que
    carrega o volume, e ela vem da propria medida do no. */
 .link {
-  mix-blend-mode: multiply;
-  opacity: 0.42;
+  opacity: 0.45;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-.link:hover {
-  opacity: 0.78;
+/* A ligacao sob o ponteiro vai a cor cheia. Apagar as outras sozinho nao
+   destaca: o que se ve e o grafico inteiro sumindo. */
+.linkOn {
+  opacity: 0.95;
 }
 
 .linkDim {
-  opacity: 0.16;
+  opacity: 0.14;
 }
 
 .node {
@@ -24,10 +25,19 @@
 }
 
 .label {
-  fill: var(--pl-chart-label);
+  fill: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   pointer-events: none;
+}
+
+/* O rotulo do no do meio nao tem banda propria: ele cai sobre o fluxo, e o halo
+   da cor da superficie e que o separa do que passa por baixo. */
+.labelSobreFluxo {
+  paint-order: stroke;
+  stroke: var(--pl-color-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 @media (prefers-reduced-motion: reduce) {

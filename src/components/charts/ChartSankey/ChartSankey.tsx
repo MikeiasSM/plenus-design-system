@@ -70,6 +70,12 @@ function caminhoDa(ligacao: LigacaoPosicionada) {
 
 const RECUO_DO_ROTULO = 8;
 
+/**
+ * Teto de cada banda de rotulo, como fracao da largura. Sem teto, um nome longo
+ * espremeria o fluxo, que e o assunto do grafico.
+ */
+const BANDA_MAXIMA = 0.22;
+
 export function ChartSankey({
   accent,
   emptyMessage = 'Sem dados no período',
@@ -107,14 +113,29 @@ export function ChartSankey({
   // sempre a cor da sua origem.
   const cores = useMemo(() => resolveSeriesColors(declarados, { accent }), [accent, declarados]);
 
-  // O rotulo da primeira e da ultima coluna vive fora dos nos, entao o desenho
-  // recua para caber: sem isso o nome do no sai pela borda.
-  const margem = showLabels
-    ? widestLabel(declarados.map((no) => no.label), font) / 2 + RECUO_DO_ROTULO
-    : 0;
+  /**
+   * Entrada e o no em que nada desemboca; saida, aquele de onde nada parte. E o
+   * que decide de que lado o rotulo fica, e sai das ligacoes: saber isso antes
+   * do posicionamento e o que permite reservar a banda de cada lado.
+   */
+  const { entradas, saidas } = useMemo(() => {
+    const destinos = new Set(flows.map((fluxo) => fluxo.target));
+    const origens = new Set(flows.map((fluxo) => fluxo.source));
+
+    return {
+      entradas: new Set(declarados.map((no) => no.label).filter((rotulo) => !destinos.has(rotulo))),
+      saidas: new Set(declarados.map((no) => no.label).filter((rotulo) => !origens.has(rotulo))),
+    };
+  }, [declarados, flows]);
+
+  const bandaDe = (rotulos: Iterable<string>) =>
+    showLabels ? Math.min(widestLabel([...rotulos], font), width * BANDA_MAXIMA) + RECUO_DO_ROTULO : 0;
+
+  const bandaEsquerda = bandaDe(entradas);
+  const bandaDireita = bandaDe(saidas);
 
   const grafo = useMemo(() => {
-    const util = width - margem * 2;
+    const util = width - bandaEsquerda - bandaDireita;
 
     if (util <= 0 || alturaDoDesenho <= 0 || flows.length === 0) {
       return { links: [] as LigacaoPosicionada[], nodes: [] as NoPosicionado[] };
@@ -125,8 +146,8 @@ export function ChartSankey({
       .nodeWidth(nodeWidth)
       .nodePadding(nodePadding)
       .extent([
-        [margem, 2],
-        [margem + util, alturaDoDesenho - 2],
+        [bandaEsquerda, 2],
+        [bandaEsquerda + util, alturaDoDesenho - 2],
       ]);
 
     const resultado = posicionar({
@@ -135,9 +156,17 @@ export function ChartSankey({
     });
 
     return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
-  }, [alturaDoDesenho, declarados, flows, margem, nodePadding, nodeWidth, width]);
+  }, [alturaDoDesenho, bandaDireita, bandaEsquerda, declarados, flows, nodePadding, nodeWidth, width]);
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
+
+  function classeDa(indice: number) {
+    if (emFoco === null) {
+      return styles.link;
+    }
+
+    return `${styles.link} ${emFoco === indice ? styles.linkOn : styles.linkDim}`;
+  }
 
   return (
     <PlainFrame
@@ -153,7 +182,7 @@ export function ChartSankey({
       <g className={styles.links}>
         {grafo.links.map((ligacao, indice) => (
           <path
-            className={`${styles.link} ${emFoco !== null && emFoco !== indice ? styles.linkDim : ''}`}
+            className={classeDa(indice)}
             d={caminhoDa(ligacao)}
             key={`${ligacao.source.label}-${ligacao.target.label}`}
             onMouseEnter={() => setEmFoco(indice)}
@@ -182,23 +211,27 @@ export function ChartSankey({
         </rect>
       ))}
 
+      {/* Rotulo de entrada fica a esquerda do no e o de saida a direita, os
+          dois na banda reservada. O do meio nao tem banda: ele fica sobre o
+          fluxo, e um halo da cor da superficie e que o separa do que passa por
+          baixo. */}
       {showLabels &&
         grafo.nodes.map((no) => {
-          // O rotulo fica do lado de fora do no: a esquerda quando o no esta na
-          // metade direita, a direita quando esta na esquerda.
-          const aDireita = no.x0 < width / 2;
-          const x = aDireita ? no.x1 + RECUO_DO_ROTULO : no.x0 - RECUO_DO_ROTULO;
+          const entrada = entradas.has(no.label);
+          const saida = saidas.has(no.label);
+          const aEsquerda = entrada && !saida;
+          const banda = aEsquerda ? bandaEsquerda : saida ? bandaDireita : width * BANDA_MAXIMA;
 
           return (
             <text
-              className={styles.label}
+              className={`${styles.label} ${entrada || saida ? '' : styles.labelSobreFluxo}`}
               dominantBaseline="middle"
               key={`rotulo-${no.label}`}
-              textAnchor={aDireita ? 'start' : 'end'}
-              x={x}
+              textAnchor={aEsquerda ? 'end' : 'start'}
+              x={aEsquerda ? no.x0 - RECUO_DO_ROTULO : no.x1 + RECUO_DO_ROTULO}
               y={(no.y0 + no.y1) / 2}
             >
-              {truncateToWidth(no.label, font, aDireita ? width - x : x)}
+              {truncateToWidth(no.label, font, banda - RECUO_DO_ROTULO)}
             </text>
           );
         })}

@@ -60,28 +60,53 @@ describe('ChartSankey', () => {
     expect(ligacoes()[0].querySelector('title')?.textContent).toBe('Receita → Custos: R$ 600');
   });
 
-  it('apaga as demais ligacoes quando o ponteiro entra numa delas', () => {
+  it('acende a ligacao sob o ponteiro e apaga as demais', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const apagadas = () =>
-      ligacoes().filter((no) => no.getAttribute('class')?.includes('linkDim')).length;
+    const com = (classe: string) =>
+      ligacoes().filter((no) => no.getAttribute('class')?.includes(classe)).length;
 
-    expect(apagadas()).toBe(0);
+    expect(com('linkOn')).toBe(0);
+    expect(com('linkDim')).toBe(0);
 
     fireEvent.mouseEnter(ligacoes()[0]);
-    expect(apagadas()).toBe(2);
+
+    // Apagar as outras sozinho nao destaca: a de foco tambem sobe de tom.
+    expect(com('linkOn')).toBe(1);
+    expect(com('linkDim')).toBe(2);
 
     fireEvent.mouseLeave(ligacoes()[0]);
-    expect(apagadas()).toBe(0);
+    expect(com('linkOn')).toBe(0);
   });
 
-  it('ancora o rotulo conforme o lado em que o no esta', () => {
+  it('ancora o rotulo pelo papel do no: entrada a esquerda, saida a direita', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const ancoras = [...document.querySelectorAll('text')].map((no) =>
-      no.getAttribute('text-anchor'),
+    const rotulo = (texto: string) =>
+      [...document.querySelectorAll('text')].find((no) => no.textContent === texto)!;
+
+    // Nada desemboca em Receita, e nada parte de CMV.
+    expect(rotulo('Receita')).toHaveAttribute('text-anchor', 'end');
+    expect(rotulo('CMV')).toHaveAttribute('text-anchor', 'start');
+  });
+
+  it('da halo ao rotulo do no do meio, que cai sobre o fluxo', () => {
+    render(<ChartSankey flows={caixa} title="Fluxo" />);
+    const comHalo = [...document.querySelectorAll('text')].filter((no) =>
+      no.getAttribute('class')?.includes('labelSobreFluxo'),
     );
 
-    expect(ancoras).toContain('start');
-    expect(ancoras).toContain('end');
+    // Custos e o unico no que recebe e entrega ao mesmo tempo.
+    expect(comHalo.map((no) => no.textContent)).toEqual(['Custos']);
+  });
+
+  it('reserva a banda do rotulo antes do fluxo, em cada lado', () => {
+    const inicioDoFluxo = () => Number(nos()[0].getAttribute('x'));
+
+    const { rerender } = render(<ChartSankey flows={caixa} showLabels={false} title="Fluxo" />);
+    const semRotulo = inicioDoFluxo();
+
+    rerender(<ChartSankey flows={caixa} title="Fluxo" />);
+
+    expect(inicioDoFluxo()).toBeGreaterThan(semRotulo);
   });
 
   it('dispensa os rotulos quando pedido', () => {
