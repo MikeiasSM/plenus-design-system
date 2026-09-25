@@ -94,13 +94,13 @@ export function ListingOptions({
         style={{ height, ...style }}
       >
         {loading && <li className={styles.status}>{loadingMessage}</li>}
-        <li aria-hidden="true" style={{ height: padding.before }} />
+        <li aria-hidden="true" className={styles.spacer} style={{ height: padding.before }} />
         {rendered.map((item, index) => (
           <li className={styles.option} key={item.value} ref={index === 0 ? measureItem : undefined}>
             {item.label}
           </li>
         ))}
-        <li aria-hidden="true" style={{ height: padding.after }} />
+        <li aria-hidden="true" className={styles.spacer} style={{ height: padding.after }} />
         {!loading && visible.length === 0 && empty}
       </ul>
     );
@@ -154,9 +154,9 @@ export function ListingOptions({
           {detached.map((item) => renderOption(item, 0, false))}
         </div>
       )}
-      <div aria-hidden="true" style={{ height: padding.before }} />
+      <div aria-hidden="true" className={styles.spacer} style={{ height: padding.before }} />
       {rendered.map((item, index) => renderOption(item, start + index + 1, index === 0))}
-      <div aria-hidden="true" style={{ height: padding.after }} />
+      <div aria-hidden="true" className={styles.spacer} style={{ height: padding.after }} />
       {!loading && visible.length === 0 && empty}
     </div>
   );

@@ -46,8 +46,17 @@
   outline: none;
 }
 
+/* Os espacadores da janela virtual medem a lista inteira, e a opcao mede o
+   proprio conteudo. Num flex em coluna com rolagem, item encolhivel tem a
+   altura renegociada quando o conteudo excede o container — e e a altura deles
+   que sustenta a barra de rolagem. */
+.spacer {
+  flex: none;
+}
+
 .option {
   display: flex;
+  flex: none;
   align-items: center;
   gap: var(--pl-space-2);
   padding: var(--pl-space-2) var(--pl-space-3);
