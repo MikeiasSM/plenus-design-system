@@ -32,6 +32,8 @@ export interface ChartWaterfallProps {
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   labelAngle?: AxisLabelAngle;
+  /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
+  onHoverStep?: (index: number | null) => void;
   showDataLabels?: boolean;
   steps: readonly ChartWaterfallStep[];
   title: string;
@@ -88,6 +90,7 @@ export function ChartWaterfall({
   formatValue = (valor) => String(valor),
   height = 280,
   labelAngle = 'auto',
+  onHoverStep,
   showDataLabels = true,
   steps,
   title,
@@ -97,7 +100,7 @@ export function ChartWaterfall({
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand();
+  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(onHoverStep);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
 
