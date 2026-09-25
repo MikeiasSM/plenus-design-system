@@ -111,6 +111,8 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Em construcao
 
+- **Verificacao em navegador real, por Playwright.** Duas coisas medidas em Chrome, contra o Showcase servido: o movimento ao desligar uma serie pela legenda anima — a largura da barra caminha 55,6 → 34,3 → 16,5 → 3,2 → 0 em cerca de 200ms, e a altura acompanha o eixo reescalando —, e a lista virtual assenta no fim, com `scrollTop` fixo em 399.764 contra `scrollHeight` de 400.004, que e `10000 x 40 + 4` como a conta previa. O `prefers-reduced-motion` reportado pelo navegador limpo e `false`.
+- O MCP do Playwright esta configurado no escopo local do projeto. Ele so entra em vigor numa sessao nova, porque servidores MCP sao carregados na abertura.
 - **O Showcase estatico foi removido, e a entrada oficial passa a ser unica: `showcase/app`.** Ele era o mock de uma implementacao anterior — 53 KB de HTML escrito a mao e 44 KB de CSS que reimplementava estilo de producao, exatamente o que `README.md` nega ao Showcase. Nenhum script o alcancava: a raiz do `vite.config.ts` ja era `app`, e a entrada React cobre 53 secoes contra 38 dele.
 - Saiu com ele a documentacao **visual** de fundamentos: cores, tipografia, espacamento, raios e sombras e estrategia de CSS. O conteudo continua normativo em `TOKENS.md` e nos dois documentos de referencia; o que se perdeu foi a pagina que o desenhava. Esta no historico do git, se for para repor.
 - Showcase sem formatador improvisado: as vinte e oito funcoes de formatacao escritas a mao nos graficos deram lugar aos formatadores de apresentacao. Sobraram duas, e ambas acrescentam unidade de dominio — `dias` — que nao pertence ao Design System.
