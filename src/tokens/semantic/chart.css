@@ -1,0 +1,25 @@
+/* Cores de serie para graficos. A ordem e fixa: a serie N usa sempre o mesmo
+   token, para que um filtro que reduza as series nao repinte as restantes. */
+:root {
+  --pl-chart-series-1: var(--pl-brand-blue-50);
+  --pl-chart-series-2: var(--pl-brand-orange-50);
+  --pl-chart-series-3: var(--pl-brand-purple-50);
+  --pl-chart-series-4: var(--pl-brand-blue-40);
+  --pl-chart-series-5: var(--pl-brand-orange-70);
+  --pl-chart-series-6: var(--pl-brand-purple-40);
+
+  --pl-chart-grid: var(--pl-color-border);
+  --pl-chart-axis: var(--pl-color-text-tertiary);
+  --pl-chart-label: var(--pl-color-text-secondary);
+}
+
+/* O tema escuro recebe tons proprios das mesmas rampas. A paleta do claro
+   reprova em contraste contra a superficie escura. */
+[data-theme='dark'] {
+  --pl-chart-series-1: var(--pl-brand-blue-40);
+  --pl-chart-series-2: var(--pl-brand-orange-40);
+  --pl-chart-series-3: var(--pl-brand-purple-40);
+  --pl-chart-series-4: var(--pl-brand-blue-30);
+  --pl-chart-series-5: var(--pl-brand-orange-50);
+  --pl-chart-series-6: var(--pl-brand-purple-30);
+}

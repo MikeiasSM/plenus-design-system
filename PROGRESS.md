@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-280 testes em 40 arquivos. Build da biblioteca e do Showcase validados.
+308 testes em 42 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -27,7 +27,7 @@ Outros modulos:
 - `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`. Todas externalizadas no build.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale` e `d3-array`. Todas externalizadas no build.
 
 ### Decisoes tomadas
 
@@ -167,6 +167,17 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - `InputCurrency` deve manter a edicao bruta durante o foco e aplicar a formatacao monetaria no blur.
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
 - `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
+
+### Graficos
+
+- D3 entra como **calculo, nunca como renderizador**. `d3-scale` e `d3-array` para escalas e dominios; `d3-selection` e `d3-axis` ficam de fora por tocarem o DOM. Eixos, marcas e rotulos sao JSX, e o React continua dono da arvore. E a mesma fronteira ja firmada para o React Aria.
+- O sistema de escalas precede os graficos porque a ausencia dele e a causa raiz do duplo eixo em producao: sem escala confiavel, duas series de grandeza diferente acabam em dois eixos, e o cruzamento entre elas vira artefato da escala escolhida. `mergeDomains` une series num eixo unico.
+- O dominio inclui o zero por padrao. Barra que nao parte do zero exagera a diferenca entre os valores.
+- Paleta de series em `src/tokens/semantic/chart.css`, com seis posicoes fixas e tons proprios por tema. A serie N usa sempre o mesmo token, para que um filtro que reduza as series nao repinte as restantes.
+- As oito cores institucionais nao formam paleta de dados: tres sao status, duas sao neutras e sobram tres matizes. Medidas em conjunto, reprovam em separacao para deficiencia de visao de cores (3,6 no par laranja e verde), em separacao para visao plena (9,7 no par cinza e azul) e em contraste nos dois temas. A paleta de series usa tons das rampas de marca e leva o pior par de 3,6 para 20,6.
+- Verde, vermelho e amarelo permanecem reservados a status, e sao a escolha certa quando o dado **e** status, como o mapa de produtos por margem e o DRE.
+- A aplicacao pode passar as proprias cores, conforme `ARCHITECTURE.md` secao 15: a cor de tema escolhida pelo usuario e politica do produto. `paletteWithAccent` abre a paleta com essa cor e segue com as do sistema, saltando a posicao que a repetiria.
+- **Gerar as demais cores a partir da escolhida foi implementado e descartado.** Girar a matiz em passos iguais nao separa as series de forma perceptivel: a paleta derivada do laranja mediu 3,1 em deuteranopia, pior que a paleta atual. O circulo de matiz nao e perceptivelmente uniforme, e passo igual nao produz distancia igual.
 
 ### Datas
 
