@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: (format) => `plenus-design-system.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', /^@react-aria\//, /^@internationalized\//],
+      external: ['react', 'react-dom', 'react/jsx-runtime', /^@react-aria\//, /^@internationalized\//, /^d3-/],
     },
   },
   test: {
