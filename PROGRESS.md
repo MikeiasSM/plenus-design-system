@@ -83,9 +83,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Ainda nao implementado
 
-- Componentes das etapas 9 e 10 da ordem de implementacao.
-- Utilitarios de apresentacao previstos em `ARCHITECTURE.md` secao 9.1, como `formatarMoeda` e `formatarData`.
-- State Motors dos demais componentes complexos, como calendario e grade.
+- Os dez graficos restantes da etapa 11, e o `DataGrid` da etapa 10.
+- `formatarMoeda`, `formatarNumero` e `formatarPercentual`, previstos em `ARCHITECTURE.md` secao 9.1. `formatarData` e `formatarHora` ja existem.
+- State Motor da grade, para o `DataGrid`.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -98,7 +98,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
 - Configurar `main`, `module`, `exports` e `types` para consumo externo do pacote quando a publicacao for preparada.
-- Exportar os formatadores pela API publica quando fizerem parte do contrato de consumo.
+- Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
+- Registrar a paleta de series no `TOKENS-REFERENCE-COLORS.md`, que hoje nao preve nenhuma cor para dados. Os tokens ja existem em `src/tokens/semantic/chart.css`; falta o documento normativo, que exige aprovacao.
+- Acrescentar `charts/` a estrutura de diretorios do `README.md`, que lista as categorias de componentes e ainda nao a inclui.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
