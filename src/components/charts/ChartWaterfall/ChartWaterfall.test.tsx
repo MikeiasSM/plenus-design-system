@@ -13,14 +13,20 @@ function fixarLargura(largura = 640) {
 }
 
 function barras() {
-  return [...document.querySelectorAll('rect')];
+  return [...document.querySelectorAll('path')];
+}
+
+/** Caixa que envolve o caminho da barra, a partir das coordenadas dele. */
+function caixaDe(barra: Element) {
+  const numeros = (barra.getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
+  const ys = numeros.filter((_, indice) => indice % 2 === 1);
+  const xs = numeros.filter((_, indice) => indice % 2 === 0);
+
+  return { base: Math.max(...ys), topo: Math.min(...ys), x: Math.min(...xs) };
 }
 
 function topoEBase(indice: number) {
-  const barra = barras()[indice];
-  const topo = Number(barra.getAttribute('y'));
-
-  return { base: topo + Number(barra.getAttribute('height')), topo };
+  return caixaDe(barras()[indice]);
 }
 
 function rotulos() {
@@ -115,7 +121,7 @@ describe('ChartWaterfall', () => {
       />,
     );
 
-    const [primeira, segunda] = barras().map((barra) => Number(barra.getAttribute('x')));
+    const [primeira, segunda] = barras().map((barra) => caixaDe(barra).x);
 
     expect(segunda).toBeGreaterThan(primeira);
   });

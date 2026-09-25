@@ -3,6 +3,7 @@ import {
   CartesianFrame,
   cartesianLayout,
   chartHeight,
+  roundedBarPath,
   useChartMetrics,
   useSeriesToggle,
   useTweenedNumbers,
@@ -12,6 +13,7 @@ import {
   type AxisVisibility,
   type ChartHeight,
   type ChartLegendPosition,
+  type CornerRadii,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
@@ -68,7 +70,7 @@ export function ChartBar({
   yAxis = 'visible',
   yAxisRight = 'hidden',
 }: ChartBarProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
@@ -173,6 +175,39 @@ export function ChartBar({
     return (series[indiceSerie].values[indiceCategoria] ?? 0) * (stacked ? presenca(indiceSerie) : 1);
   }
 
+  /**
+   * Cantos de um segmento. Empilhado, so as duas pontas da pilha sao
+   * arredondadas e o meio fica reto, para os segmentos lerem como uma barra so.
+   */
+  function cantosDa(indiceSerie: number, indiceCategoria: number): CornerRadii {
+    if (!stacked) {
+      return [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto];
+    }
+
+    const naPilha = series
+      .map((_, ordem) => ordem)
+      .filter((ordem) => contribuicao(ordem, indiceCategoria) !== 0);
+    const abre = naPilha[0] === indiceSerie;
+    const fecha = naPilha.at(-1) === indiceSerie;
+
+    if (vertical) {
+      // A pilha cresce para cima: quem abre encosta na base, quem fecha e o topo.
+      return [
+        fecha ? raioDoCanto : 0,
+        fecha ? raioDoCanto : 0,
+        abre ? raioDoCanto : 0,
+        abre ? raioDoCanto : 0,
+      ];
+    }
+
+    return [
+      abre ? raioDoCanto : 0,
+      fecha ? raioDoCanto : 0,
+      fecha ? raioDoCanto : 0,
+      abre ? raioDoCanto : 0,
+    ];
+  }
+
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
     position: (escalaCategorias(categoria) ?? 0) + vao / 2,
@@ -248,19 +283,22 @@ export function ChartBar({
               const deslocamento = deslocamentoDa(indiceSerie);
 
               return (
-                <rect
+                <path
                   className={styles.bar}
+                  d={roundedBarPath(
+                    vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim),
+                    vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento,
+                    vertical ? espessura : tamanho,
+                    vertical ? tamanho : espessura,
+                    cantosDa(indiceSerie, indiceCategoria),
+                  )}
                   fill={cores[indiceSerie]}
-                  height={vertical ? tamanho : espessura}
                   key={categoria}
                   onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
                   onMouseLeave={() => setFaixaEmFoco(null)}
-                  width={vertical ? espessura : tamanho}
-                  x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
-                  y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
                 >
                   <title>{`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}</title>
-                </rect>
+                </path>
               );
             })}
 

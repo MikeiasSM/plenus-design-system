@@ -2,8 +2,8 @@ import {
   RadialFrame,
   arcPath,
   chartHeight,
+  fitCenterText,
   ringDiameter,
-  truncateToWidth,
   useChartMetrics,
   useSliceRing,
   type ChartHeight,
@@ -28,6 +28,8 @@ export interface ChartDonutProps {
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
+  /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
+  sliceRadius?: number;
   showCenter?: boolean;
   showLegendValues?: boolean;
   slices: readonly ChartSlice[];
@@ -37,17 +39,6 @@ export interface ChartDonutProps {
   thickness?: number;
   title: string;
 }
-
-/**
- * Tamanhos oficiais candidatos ao valor do centro, do maior para o menor. O
- * valor do centro e um KPI, e `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a
- * Poppins a esse papel; o anel pequeno desce na escala em vez de sair dela.
- */
-const ESCALA_DO_CENTRO = [
-  { family: 'var(--pl-font-heading)', line: 44, size: 36 },
-  { family: 'var(--pl-font-heading)', line: 32, size: 24 },
-  { family: 'var(--pl-font-body)', line: 24, size: 16 },
-];
 
 export function ChartDonut({
   accent,
@@ -63,12 +54,13 @@ export function ChartDonut({
   otherLabel = 'Outros',
   showCenter = true,
   showLegendValues = true,
+  sliceRadius,
   slices,
   smallSliceThreshold = 0.02,
   thickness = 0.38,
   title,
 }: ChartDonutProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
 
   const anel = useSliceRing({
@@ -85,8 +77,14 @@ export function ChartDonut({
   const raio = diametro / 2;
   const raioInterno = raio * (1 - thickness);
 
-  const escala = ESCALA_DO_CENTRO.find(({ size }) => size * 3.4 <= raioInterno * 2) ?? ESCALA_DO_CENTRO[2];
+  const canto = sliceRadius ?? raioDoCanto;
   const focada = anel.focused === null ? undefined : anel.slices[anel.focused];
+  const centro = fitCenterText(
+    formatValue(focada ? Math.max(focada.value, 0) : anel.total),
+    focada ? focada.label : centerLabel,
+    font,
+    raioInterno * 2,
+  );
 
   return (
     <RadialFrame
@@ -109,7 +107,12 @@ export function ChartDonut({
       {anel.slices.map((fatia, indice) => (
         <path
           className={styles.slice}
-          d={arcPath({ ...anel.angles[indice], innerRadius: raioInterno, outerRadius: raio })}
+          d={arcPath({
+            ...anel.angles[indice],
+            cornerRadius: canto,
+            innerRadius: raioInterno,
+            outerRadius: raio,
+          })}
           fill={anel.colors[indice]}
           key={fatia.label}
           onMouseEnter={() => anel.setFocused(indice)}
@@ -123,14 +126,14 @@ export function ChartDonut({
         <g className={styles.center}>
           <text
             className={styles.centerValue}
-            dy={escala.size * 0.1}
-            style={{ fontFamily: escala.family, fontSize: escala.size }}
+            dy={centro.size * 0.1}
+            style={{ fontFamily: centro.family, fontSize: centro.size }}
             textAnchor="middle"
           >
-            {formatValue(focada ? Math.max(focada.value, 0) : anel.total)}
+            {centro.value}
           </text>
-          <text className={styles.centerLabel} dy={escala.line * 0.62} textAnchor="middle">
-            {truncateToWidth(focada ? focada.label : centerLabel, font, raioInterno * 1.7)}
+          <text className={styles.centerLabel} dy={centro.lineHeight * 0.62} textAnchor="middle">
+            {centro.label}
           </text>
         </g>
       )}

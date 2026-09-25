@@ -22,6 +22,8 @@ export type {
 } from './cartesianLayout';
 export { arcAnchor, arcCentroid, arcPath, sliceAngles, VOLTA } from './arcs';
 export type { ArcAngles, ArcShape, SliceAnglesOptions } from './arcs';
+export { fitCenterText } from './centerText';
+export type { CenterText } from './centerText';
 export { CartesianFrame, ChartLegend } from './CartesianFrame';
 export type {
   CartesianAxis,
@@ -37,10 +39,10 @@ export { PlainFrame } from './PlainFrame';
 export type { PlainFrameProps } from './PlainFrame';
 export { RadialFrame, ringDiameter } from './RadialFrame';
 export type { RadialFrameProps } from './RadialFrame';
-export { areaPath, linePath } from './shapes';
+export { areaPath, linePath, roundedBarPath } from './shapes';
 export { groupSmallSlices } from './slices';
 export type { ChartSlice, GroupSmallSlicesOptions } from './slices';
-export type { ChartBand, ChartCurve, ChartPoint } from './shapes';
+export type { ChartBand, ChartCurve, ChartPoint, CornerRadii } from './shapes';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useSeriesToggle } from './useSeriesToggle';

@@ -4,8 +4,8 @@ import {
   VOLTA,
   arcPath,
   chartHeight,
+  fitCenterText,
   ringDiameter,
-  truncateToWidth,
   useChartMetrics,
   useSeriesToggle,
   useTweenedNumbers,
@@ -37,6 +37,8 @@ export interface ChartRadialProps {
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
   showCenter?: boolean;
   startAngle?: number;
+  /** Raio das pontas do arco. Sem valor, o token de raio pequeno. */
+  trackRadius?: number;
   /** Espessura de cada anel, em pixels. */
   thickness?: number;
   title: string;
@@ -45,13 +47,6 @@ export interface ChartRadialProps {
 
 /** Folga entre dois aneis vizinhos. */
 const ESPACO_ENTRE_ANEIS = 6;
-const CANTO = 4;
-
-const ESCALA_DO_CENTRO = [
-  { family: 'var(--pl-font-heading)', line: 44, size: 36 },
-  { family: 'var(--pl-font-heading)', line: 32, size: 24 },
-  { family: 'var(--pl-font-body)', line: 24, size: 16 },
-];
 
 function emRadianos(graus: number) {
   return (graus * Math.PI) / 180;
@@ -71,10 +66,11 @@ export function ChartRadial({
   showCenter = true,
   startAngle = 0,
   thickness = 16,
+  trackRadius,
   title,
   tracks,
 }: ChartRadialProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({
     defaultHiddenSeries: defaultHiddenTracks,
@@ -104,8 +100,11 @@ export function ChartRadial({
   const raioDe = (indice: number) => raioExterno - indice * (thickness + ESPACO_ENTRE_ANEIS);
   const raioInterno = raioDe(Math.max(tracks.length - 1, 0)) - thickness;
 
-  const escala = ESCALA_DO_CENTRO.find(({ size }) => size * 3.4 <= raioInterno * 2) ?? ESCALA_DO_CENTRO[2];
+  const canto = trackRadius ?? raioDoCanto;
   const destaque = tracks[0];
+  const centro = destaque
+    ? fitCenterText(formatValue(destaque.value), centerLabel ?? destaque.label, font, raioInterno * 2)
+    : undefined;
 
   return (
     <RadialFrame
@@ -136,7 +135,7 @@ export function ChartRadial({
             <path
               className={styles.track}
               d={arcPath({
-                cornerRadius: CANTO,
+                cornerRadius: canto,
                 endAngle: comeco + volta,
                 innerRadius: interno,
                 outerRadius: externo,
@@ -147,7 +146,7 @@ export function ChartRadial({
               <path
                 className={styles.fill}
                 d={arcPath({
-                  cornerRadius: CANTO,
+                  cornerRadius: canto,
                   endAngle: preenchido,
                   innerRadius: interno,
                   outerRadius: externo,
@@ -162,18 +161,18 @@ export function ChartRadial({
         );
       })}
 
-      {showCenter && destaque && (
+      {showCenter && centro && (
         <g className={styles.center}>
           <text
             className={styles.centerValue}
-            dy={escala.size * 0.1}
-            style={{ fontFamily: escala.family, fontSize: escala.size }}
+            dy={centro.size * 0.1}
+            style={{ fontFamily: centro.family, fontSize: centro.size }}
             textAnchor="middle"
           >
-            {formatValue(destaque.value)}
+            {centro.value}
           </text>
-          <text className={styles.centerLabel} dy={escala.line * 0.62} textAnchor="middle">
-            {truncateToWidth(centerLabel ?? destaque.label, font, raioInterno * 1.7)}
+          <text className={styles.centerLabel} dy={centro.lineHeight * 0.62} textAnchor="middle">
+            {centro.label}
           </text>
         </g>
       )}

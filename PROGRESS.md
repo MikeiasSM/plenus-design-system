@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-468 testes em 59 arquivos. Build da biblioteca e do Showcase validados.
+476 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -354,6 +354,19 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - No mapa de area, a legenda muda de papel conforme a cor: com `intentLabels` ela **nomeia as cores**, porque ali o que precisa ser explicado e o significado do status; sem ele, lista os grupos e desliga cada um.
 - A ligacao do sankey e desenhada como **traco**, nao como preenchimento: a espessura e que carrega o volume, e ela vem da propria medida do no.
 - `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
+- As pontas do arco sao arredondadas nos tres radiais, com o raio vindo do token e aberto por propriedade em cada um.
+- O valor do centro **desce de degrau da escala oficial ate caber**, e no ultimo degrau e cortado. O SVG nao quebra linha nem esconde o que transborda, entao quem precisa caber e o texto. O degrau depende do valor **e** do anel: um numero longo desce mesmo em anel grande.
+- A familia de display e lida do elemento, junto da de corpo, porque medir o valor do centro exige a fonte em que ele sera desenhado.
+
+**Barra**
+
+- O raio de cada canto e desenhado no **proprio caminho**, e nao pelo atributo `rx`, que arredonda os quatro de uma vez. Numa pilha isso separava visualmente os segmentos; agora so as duas pontas sao arredondadas e o meio fica reto, de modo que a pilha leia como uma barra so. Segmento de valor zero nao conta como ponta.
+- O caminho leva apenas pares de coordenadas, sem `H` nem `V`: fica uniforme e as medidas saem dele sem interpretar comando a comando.
+- O raio vem do token, lido do elemento junto da fonte, porque geometria de caminho nao le variavel CSS.
+
+**Grade**
+
+- A linha da base e a do eixo passam a usar `--pl-chart-baseline`, um passo acima da grade e bem abaixo da cor do texto do eixo. Elas estavam na cor do texto terciario, forte demais contra a grade.
 
 12. **Editor em blocos**
    - Componente complexo, previsto em `ARCHITECTURE.md` secao 6.3 entre os exemplos de editores, com State Motor proprio conforme a secao 7.

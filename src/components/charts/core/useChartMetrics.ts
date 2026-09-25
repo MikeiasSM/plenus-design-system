@@ -4,8 +4,20 @@ import { labelFontOf, type LabelFont } from './measureText';
 export interface ChartMetrics {
   font: LabelFont;
   height: number;
+  /** Raio dos cantos, lido do token: geometria de caminho nao le variavel CSS. */
+  radius: number;
   ref: (node: HTMLElement | null) => void;
   width: number;
+}
+
+const RAIO_PADRAO = 5;
+
+function raioDe(node: Element | null) {
+  if (!node || typeof getComputedStyle !== 'function') {
+    return RAIO_PADRAO;
+  }
+
+  return Number.parseFloat(getComputedStyle(node).getPropertyValue('--pl-radius-sm')) || RAIO_PADRAO;
 }
 
 /**
@@ -18,11 +30,12 @@ export interface ChartMetrics {
  * rotulo depende da fonte resolvida ali.
  */
 export function useChartMetrics(): ChartMetrics {
-  const [medida, setMedida] = useState<{ font: LabelFont; height: number; width: number }>(() => ({
-    font: labelFontOf(null),
-    height: 0,
-    width: 0,
-  }));
+  const [medida, setMedida] = useState<{
+    font: LabelFont;
+    height: number;
+    radius: number;
+    width: number;
+  }>(() => ({ font: labelFontOf(null), height: 0, radius: RAIO_PADRAO, width: 0 }));
   const elemento = useRef<HTMLElement | null>(null);
 
   const medir = useCallback(() => {
@@ -30,15 +43,17 @@ export function useChartMetrics(): ChartMetrics {
     const width = node?.clientWidth ?? 0;
     const height = node?.clientHeight ?? 0;
     const font = labelFontOf(node);
+    const radius = raioDe(node);
 
     setMedida((atual) =>
       atual.width === width &&
       atual.height === height &&
+      atual.radius === radius &&
       atual.font.family === font.family &&
       atual.font.size === font.size &&
       atual.font.lineHeight === font.lineHeight
         ? atual
-        : { font, height, width },
+        : { font, height, radius, width },
     );
   }, []);
 
@@ -63,5 +78,11 @@ export function useChartMetrics(): ChartMetrics {
     return () => observador.disconnect();
   }, [medir]);
 
-  return { font: medida.font, height: medida.height, ref, width: medida.width };
+  return {
+    font: medida.font,
+    height: medida.height,
+    radius: medida.radius,
+    ref,
+    width: medida.width,
+  };
 }

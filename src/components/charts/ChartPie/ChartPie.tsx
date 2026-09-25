@@ -29,6 +29,8 @@ export interface ChartPieProps {
   otherLabel?: string;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
+  /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
+  sliceRadius?: number;
   slices: readonly ChartSlice[];
   /** Fracao do total abaixo da qual a fatia entra no agrupamento. */
   smallSliceThreshold?: number;
@@ -48,11 +50,12 @@ export function ChartPie({
   otherLabel = 'Outros',
   showDataLabels = false,
   showLegendValues = false,
+  sliceRadius,
   slices,
   smallSliceThreshold = 0.02,
   title,
 }: ChartPieProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
 
   const anel = useSliceRing({
@@ -66,6 +69,7 @@ export function ChartPie({
   });
 
   const raio = ringDiameter(width, alturaDoDesenho) / 2;
+  const canto = sliceRadius ?? raioDoCanto;
 
   return (
     <RadialFrame
@@ -88,7 +92,7 @@ export function ChartPie({
       {anel.slices.map((fatia, indice) => (
         <path
           className={styles.slice}
-          d={arcPath({ ...anel.angles[indice], innerRadius: 0, outerRadius: raio })}
+          d={arcPath({ ...anel.angles[indice], cornerRadius: canto, innerRadius: 0, outerRadius: raio })}
           fill={anel.colors[indice]}
           key={fatia.label}
           onMouseEnter={() => anel.setFocused(indice)}

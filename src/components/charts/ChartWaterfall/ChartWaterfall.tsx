@@ -3,6 +3,7 @@ import {
   CartesianFrame,
   cartesianLayout,
   chartHeight,
+  roundedBarPath,
   useChartMetrics,
   useTweenedNumbers,
   valueLabelsFor,
@@ -92,7 +93,7 @@ export function ChartWaterfall({
   yAxis = 'visible',
   yAxisRight = 'hidden',
 }: ChartWaterfallProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const [passoEmFoco, setPassoEmFoco] = useState<number | null>(null);
 
@@ -219,19 +220,21 @@ export function ChartWaterfall({
         const altura = Math.abs(escalaValores(fim) - escalaValores(inicio));
 
         return (
-          <rect
+          <path
             className={styles.bar}
+            d={roundedBarPath(faixaDe(indice), topo, escalaPassos.bandwidth(), altura, [
+              raioDoCanto,
+              raioDoCanto,
+              raioDoCanto,
+              raioDoCanto,
+            ])}
             fill={cores[indice]}
-            height={altura}
             key={indice}
             onMouseEnter={() => setPassoEmFoco(indice)}
             onMouseLeave={() => setPassoEmFoco(null)}
-            width={escalaPassos.bandwidth()}
-            x={faixaDe(indice)}
-            y={topo}
           >
             <title>{`${passo.label}: ${rotuloDe(passo)}`}</title>
-          </rect>
+          </path>
         );
       })}
 

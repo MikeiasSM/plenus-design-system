@@ -20,6 +20,9 @@
   --pl-chart-cursor: rgba(24, 26, 28, 0.06);
 
   --pl-chart-grid: var(--pl-color-border);
+  /* A linha da base separa positivos de negativos, entao ela se destaca da
+     grade — mas so um passo, nao ate a cor do texto do eixo. */
+  --pl-chart-baseline: var(--pl-color-border-strong);
   --pl-chart-axis: var(--pl-color-text-tertiary);
   --pl-chart-label: var(--pl-color-text-secondary);
 }
@@ -38,4 +41,5 @@
   --pl-chart-neutral: #9A9DA1;
 
   --pl-chart-cursor: rgba(233, 234, 235, 0.08);
+  --pl-chart-baseline: var(--pl-color-border-strong);
 }

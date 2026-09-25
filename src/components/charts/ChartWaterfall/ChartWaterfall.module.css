@@ -1,5 +1,5 @@
 .bar {
-  rx: var(--pl-radius-sm);
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
 /* Liga o acumulado de um passo ao inicio do proximo. */

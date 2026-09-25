@@ -1,7 +1,7 @@
-/* A barra sempre tem raio. O atributo rx nao aceita variavel CSS, entao o valor
-   vem da propriedade, que le o token. */
+/* O raio de cada canto e desenhado no proprio caminho: numa pilha, so as duas
+   pontas sao arredondadas. */
 .bar {
-  rx: var(--pl-radius-sm);
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
 .series {

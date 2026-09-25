@@ -65,7 +65,7 @@
 }
 
 .axisLine {
-  stroke: var(--pl-chart-axis);
+  stroke: var(--pl-chart-baseline);
   stroke-width: 1;
 }
 
@@ -116,7 +116,7 @@
 }
 
 .gridBaseline {
-  stroke: var(--pl-chart-axis);
+  stroke: var(--pl-chart-baseline);
   stroke-width: 1;
 }
 

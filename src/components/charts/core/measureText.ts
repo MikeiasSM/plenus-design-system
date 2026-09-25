@@ -1,10 +1,17 @@
 export interface LabelFont {
   family: string;
+  /** Familia de display, usada onde o valor e um KPI. */
+  headingFamily: string;
   lineHeight: number;
   size: number;
 }
 
-const PADRAO: LabelFont = { family: 'sans-serif', lineHeight: 16, size: 12 };
+const PADRAO: LabelFont = {
+  family: 'sans-serif',
+  headingFamily: 'sans-serif',
+  lineHeight: 16,
+  size: 12,
+};
 
 /** Proporcao entre a largura media de um caractere e o corpo da fonte. */
 const LARGURA_POR_CARACTERE = 0.58;
@@ -20,10 +27,11 @@ export function labelFontOf(node: Element | null): LabelFont {
 
   const estilo = getComputedStyle(node);
   const family = estilo.getPropertyValue('--pl-font-body').trim() || estilo.fontFamily || PADRAO.family;
+  const headingFamily = estilo.getPropertyValue('--pl-font-heading').trim() || family;
   const size = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-size')) || PADRAO.size;
   const lineHeight = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-line-height'));
 
-  return { family, lineHeight: lineHeight || size * 1.34, size };
+  return { family, headingFamily, lineHeight: lineHeight || size * 1.34, size };
 }
 
 let contexto: CanvasRenderingContext2D | null | undefined;

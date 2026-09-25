@@ -14,9 +14,21 @@ function fixarLargura(largura = 640) {
 }
 
 function barras() {
-  return [...document.querySelectorAll('rect')].filter(
-    (no) => !no.getAttribute('class')?.includes('cursor'),
-  );
+  return [...document.querySelectorAll('path')];
+}
+
+/** Caixa que envolve o caminho da barra, a partir das coordenadas dele. */
+function caixaDe(barra: Element) {
+  const numeros = (barra.getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
+  const xs = numeros.filter((_, indice) => indice % 2 === 0);
+  const ys = numeros.filter((_, indice) => indice % 2 === 1);
+
+  return {
+    altura: Math.max(...ys) - Math.min(...ys),
+    largura: Math.max(...xs) - Math.min(...xs),
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+  };
 }
 
 function rotulosDoEixo() {
@@ -78,23 +90,40 @@ describe('ChartBar', () => {
 
   it('empilha as series quando pedido, somando a altura da categoria', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
-    const agrupada = Number(barras()[0].getAttribute('width'));
+    const agrupada = caixaDe(barras()[0]).largura;
 
     rerender(<ChartBar categories={periodos} series={dre} stacked title="DRE" />);
-    const empilhada = Number(barras()[0].getAttribute('width'));
+    const empilhada = caixaDe(barras()[0]).largura;
 
     expect(empilhada).toBeGreaterThan(agrupada);
   });
 
+  it('arredonda so as pontas da pilha, para os segmentos lerem como uma barra so', () => {
+    const cantos = (barra: Element) => (barra.getAttribute('d') ?? '').match(/Q/g)?.length ?? 0;
+
+    render(<ChartBar categories={periodos} series={dre} stacked title="DRE" />);
+
+    // Uma barra por serie e categoria, na ordem das series.
+    const [base, meio, topo] = [barras()[0], barras()[2], barras()[4]];
+
+    expect(cantos(base)).toBe(2);
+    expect(cantos(meio)).toBe(0);
+    expect(cantos(topo)).toBe(2);
+  });
+
+  it('arredonda os quatro cantos quando a barra nao empilha', () => {
+    render(<ChartBar categories={periodos} series={[dre[0]]} title="DRE" />);
+
+    expect((barras()[0].getAttribute('d') ?? '').match(/Q/g)).toHaveLength(4);
+  });
+
   it('vira as barras na horizontal', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
-    const vertical = barras()[0];
-    const alturaVertical = Number(vertical.getAttribute('height'));
+    const alturaVertical = caixaDe(barras()[0]).altura;
 
     rerender(<ChartBar categories={periodos} orientation="horizontal" series={dre} title="DRE" />);
-    const horizontal = barras()[0];
 
-    expect(Number(horizontal.getAttribute('width'))).toBeGreaterThan(alturaVertical);
+    expect(caixaDe(barras()[0]).largura).toBeGreaterThan(alturaVertical);
   });
 
   it('exibe a legenda a partir de duas series', () => {
