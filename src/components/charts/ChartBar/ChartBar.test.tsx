@@ -85,7 +85,7 @@ describe('ChartBar', () => {
       />,
     );
 
-    expect(barras()[0].querySelector('title')?.textContent).toBe('Receita, 08/2026: R$ 300.000');
+    expect(barras()[0].getAttribute('aria-label')).toBe('Receita, 08/2026: R$ 300.000');
   });
 
   it('empilha as series quando pedido, somando a altura da categoria', () => {

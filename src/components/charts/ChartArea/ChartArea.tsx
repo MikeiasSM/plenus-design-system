@@ -258,15 +258,14 @@ export function ChartArea({
 
               return (
                 <circle
+                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`}
                   className={showDots ? styles.dotVisible : styles.dot}
                   cx={faixa.x}
                   cy={faixa.y1}
                   fill={cores[indiceSerie]}
                   key={categoria}
                   r={4}
-                >
-                  <title>{`${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`}</title>
-                </circle>
+                />
               );
             })}
 

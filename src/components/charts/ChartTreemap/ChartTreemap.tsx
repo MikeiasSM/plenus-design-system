@@ -143,15 +143,14 @@ export function ChartTreemap({
         return (
           <g className={styles.cell} key={`${folha.data.label}-${folha.x0}-${folha.y0}`}>
             <rect
+              aria-label={`${folha.data.label}: ${formatValue(folha.value ?? 0)}`}
               className={styles.tile}
               fill={corDa(folha)}
               height={altura}
               width={largura}
               x={folha.x0}
               y={folha.y0}
-            >
-              <title>{`${folha.data.label}: ${formatValue(folha.value ?? 0)}`}</title>
-            </rect>
+            />
 
             {cabeORotulo && (
               <text className={styles.label} x={folha.x0 + CHART_LABEL_OFFSET} y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 0.6}>

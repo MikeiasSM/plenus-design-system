@@ -292,6 +292,7 @@ export function ChartSankey({
       <g className={styles.links}>
         {grafo.links.map((ligacao, indice) => (
           <path
+            aria-label={`${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`}
             className={classeDa(indice)}
             d={caminhoDa(ligacao)}
             key={`${ligacao.source.label}-${ligacao.target.label}`}
@@ -299,16 +300,13 @@ export function ChartSankey({
             onMouseLeave={() => setEmFoco(null)}
             stroke={corDa(ligacao)}
             strokeWidth={Math.max(ligacao.width, 1)}
-          >
-            <title>
-              {`${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`}
-            </title>
-          </path>
+          />
         ))}
       </g>
 
       {grafo.nodes.map((no) => (
         <rect
+          aria-label={no.label}
           className={styles.node}
           fill={corDoNo(no.index)}
           height={Math.max(no.y1 - no.y0, 1)}
@@ -316,9 +314,7 @@ export function ChartSankey({
           width={no.x1 - no.x0}
           x={no.x0}
           y={no.y0}
-        >
-          <title>{no.label}</title>
-        </rect>
+        />
       ))}
 
       {showFlowValues &&

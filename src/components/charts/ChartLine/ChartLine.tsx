@@ -196,15 +196,14 @@ export function ChartLine({
             {pontosPorSerie[indiceSerie].map((ponto, indice) =>
               ponto === null ? null : (
                 <circle
+                  aria-label={`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}
                   className={showDots ? styles.dotVisible : styles.dot}
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
                   key={categories[indice]}
                   r={4}
-                >
-                  <title>{`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}</title>
-                </circle>
+                />
               ),
             )}
 

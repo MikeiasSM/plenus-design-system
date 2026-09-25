@@ -38,7 +38,7 @@ describe('ChartPie', () => {
   it('descreve cada fatia pelo valor e pelo percentual', () => {
     render(<ChartPie slices={composicao} title="Receita" />);
 
-    expect(fatias()[0].querySelector('title')?.textContent).toBe('Serviços: 60 (60%)');
+    expect(fatias()[0].getAttribute('aria-label')).toBe('Serviços: 60 (60%)');
   });
 
   it('rotula a fatia quando pedido, e so onde o rotulo cabe', () => {
@@ -68,7 +68,7 @@ describe('ChartPie', () => {
     fireEvent.click(botao);
 
     expect(botao).toHaveAttribute('aria-pressed', 'false');
-    expect(fatias()[0].querySelector('title')?.textContent).toBe('Serviços: 60 (100%)');
+    expect(fatias()[0].getAttribute('aria-label')).toBe('Serviços: 60 (100%)');
   });
 
   it('anuncia a ausencia de dados em vez de desenhar uma pizza vazia', () => {

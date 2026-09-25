@@ -1766,7 +1766,7 @@ export function App() {
             />
             <p className="doc-note">Aqui o fluxo nao e uma arvore. Parte das propostas desvia para a analise manual logo no inicio e parte so desvia depois de reprovar na automatica, entao a analise manual recebe de duas colunas diferentes. <strong>Aprovado</strong> e <strong>Recusado</strong> recebem de tres colunas cada um, e a ligacao que sai da analise automatica direto para aprovado atravessa tres colunas por cima de todas as outras — e dai que vem o cruzamento.</p>
             <p className="doc-note">O alinhamento decide onde os nos sem saida se encostam: em <code>justify</code> eles vao para a borda direita, em <code>left</code> ficam onde a contagem de passos os coloca — repare no <strong>Recusado</strong> mudando de coluna. A cor da ligacao vem da origem, do destino ou de nenhum dos dois; com tanto cruzamento, <code>neutral</code> e o que deixa a estrutura mais legivel.</p>
-            <p className="doc-note">O valor da ligacao tem tres posicoes. O rotulo do no ocupa a faixa logo a direita dele, entao <code>start</code> disputa espaco com o rotulo da propria origem e <code>end</code> nunca disputa — por isso ele e o padrao. Em qualquer uma delas, o valor que ainda assim cruzaria um rotulo e omitido: dois textos sobrepostos nao informam nada, e o valor continua no <code>title</code> da ligacao.</p>
+            <p className="doc-note">O valor da ligacao tem tres posicoes. O rotulo do no ocupa a faixa logo a direita dele, entao <code>start</code> disputa espaco com o rotulo da propria origem e <code>end</code> nunca disputa — por isso ele e o padrao. Em qualquer uma delas, o valor que ainda assim cruzaria um rotulo e omitido: dois textos sobrepostos nao informam nada, e o valor continua no <code>aria-label</code> da ligacao.</p>
           </div>
           <div className="doc-subsection">
             <h3>O mesmo fluxo em arvore, para contraste</h3>
@@ -1789,7 +1789,7 @@ export function App() {
               showLabels={false}
               title="Analise de propostas"
             />
-            <p className="doc-note">Sem rotulos o fluxo ocupa a largura inteira, porque a banda reservada aos nomes dos nos de saida deixa de existir. O <code>title</code> de cada marca continua descrevendo o que ela representa.</p>
+            <p className="doc-note">Sem rotulos o fluxo ocupa a largura inteira, porque a banda reservada aos nomes dos nos de saida deixa de existir. O <code>aria-label</code> de cada marca continua descrevendo o que ela representa.</p>
           </div>
         </ComponentDoc>
 
@@ -1870,7 +1870,7 @@ export function App() {
             </ChartTooltip>
             <p className="doc-note">Duas colunas de medida, quantidade e valor, mais a coluna calculada ao fim. Por padrao ela e o percentual de cada linha sobre o total da ultima coluna — repare que 88,92% sai do valor e nao da quantidade. A linha de maior valor sobe de tom; as demais continuam legiveis.</p>
             <p className="doc-note">O totalizador nao e fixo em soma: cada coluna declara o proprio operador, porque somar quantidade faz sentido e somar um percentual medio nao faria. Alem de <code>sum</code> e <code>average</code>, a coluna aceita uma funcao propria ou <code>none</code>, que deixa a celula vazia.</p>
-            <p className="doc-note"><strong>Pendente:</strong> cada marca ainda traz o <code>title</code> nativo do SVG, que e a leitura acessivel dela. Com o ponteiro parado, o navegador mostra os dois. Decidir se o <code>title</code> sai ou vira <code>aria-label</code> faz parte de ligar o balao aos doze graficos, que ainda nao foi feito.</p>
+            <p className="doc-note">Cada marca descreve a si mesma por <code>aria-label</code>, e nao pelo <code>title</code> do SVG. O <code>title</code> desenhava um segundo balao, nativo, sempre que o ponteiro parava. Ele tambem nao chegava a leitor de tela nenhum: o desenho e <code>role=&quot;img&quot;</code>, e a tecnologia assistiva o apresenta como uma imagem so, sem entrar nos descendentes.</p>
           </div>
         </ComponentDoc>
 

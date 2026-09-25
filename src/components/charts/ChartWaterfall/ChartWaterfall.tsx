@@ -220,6 +220,7 @@ export function ChartWaterfall({
 
         return (
           <path
+            aria-label={`${passo.label}: ${rotuloDe(passo)}`}
             className={styles.bar}
             d={roundedBarPath(faixaDe(indice), topo, escalaPassos.bandwidth(), altura, [
               raioDoCanto,
@@ -231,9 +232,7 @@ export function ChartWaterfall({
             key={indice}
             onMouseEnter={() => focarPasso(indice)}
             onMouseLeave={() => focarPasso(null)}
-          >
-            <title>{`${passo.label}: ${rotuloDe(passo)}`}</title>
-          </path>
+          />
         );
       })}
 

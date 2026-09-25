@@ -94,7 +94,7 @@ describe('ChartTreemap', () => {
   it('descreve cada folha pelo valor, no formato do consumidor', () => {
     render(<ChartTreemap formatValue={(valor) => `R$ ${valor}`} nodes={produtos} title="Produtos" />);
 
-    expect(retangulos()[0].querySelector('title')?.textContent).toBe('Serviço A: R$ 400');
+    expect(retangulos()[0].getAttribute('aria-label')).toBe('Serviço A: R$ 400');
   });
 
   it('anuncia a ausencia de dados em vez de desenhar um mapa vazio', () => {

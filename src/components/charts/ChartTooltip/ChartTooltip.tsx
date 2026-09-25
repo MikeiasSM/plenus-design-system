@@ -93,8 +93,8 @@ function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
  * cursor enquanto este percorre a area e sai a qualquer outra interacao.
  *
  * Nao conhece grafico algum: recebe linhas e colunas, e quem as monta e quem o
- * usa. E decorativo para leitor de tela — a leitura acessivel de cada marca
- * continua no `<title>` que os graficos ja trazem.
+ * usa. E decorativo para leitor de tela: o desenho e `role="img"`, apresentado
+ * como imagem unica, e a leitura medida a medida cabe a visao em tabela.
  */
 export function ChartTooltip({
   children,

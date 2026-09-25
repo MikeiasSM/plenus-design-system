@@ -167,8 +167,8 @@ describe('ChartCombo', () => {
       />,
     );
 
-    expect(barras()[0].querySelector('title')?.textContent).toBe('Faturamento, 04/26: R$ 600');
-    expect(marcadores()[0].querySelector('title')?.textContent).toBe('Conversão, 04/26: 6%');
+    expect(barras()[0].getAttribute('aria-label')).toBe('Faturamento, 04/26: R$ 600');
+    expect(marcadores()[0].getAttribute('aria-label')).toBe('Conversão, 04/26: 6%');
   });
 
   it('desliga a serie pela legenda sem repintar as demais', () => {

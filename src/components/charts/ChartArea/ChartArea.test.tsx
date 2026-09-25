@@ -86,7 +86,7 @@ describe('ChartArea', () => {
       />,
     );
 
-    expect(document.querySelector('circle title')?.textContent).toBe('Serviços, 04/26: 40%');
+    expect(document.querySelector('circle')?.getAttribute('aria-label')).toBe('Serviços, 04/26: 40%');
   });
 
   it('anuncia a ausencia de dados em vez de desenhar um grafico vazio', () => {

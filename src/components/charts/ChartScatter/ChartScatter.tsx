@@ -197,6 +197,7 @@ export function ChartScatter({
 
             return (
               <circle
+                aria-label={descrever(serie, ponto)}
                 className={styles.bubble}
                 cx={x}
                 cy={y}
@@ -205,9 +206,7 @@ export function ChartScatter({
                 onMouseEnter={() => setGuia({ x, y })}
                 onMouseLeave={() => setGuia(null)}
                 r={ponto.z === undefined ? RAIO_SEM_Z : escalaRaio(ponto.z)}
-              >
-                <title>{descrever(serie, ponto)}</title>
-              </circle>
+              />
             );
           })}
         </g>

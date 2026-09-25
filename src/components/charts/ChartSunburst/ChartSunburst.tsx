@@ -211,6 +211,7 @@ export function ChartSunburst({
     >
       {arcos.map((arco) => (
         <path
+          aria-label={`${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(total > 0 ? (arco.value ?? 0) / total : 0)})`}
           className={`${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`}
           d={arcPath({
             cornerRadius: sliceRadius ?? raioDoCanto,
@@ -223,11 +224,7 @@ export function ChartSunburst({
           key={caminhoDe(arco)}
           onMouseEnter={() => setEmFoco(arco)}
           onMouseLeave={() => setEmFoco(null)}
-        >
-          <title>
-            {`${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(total > 0 ? (arco.value ?? 0) / total : 0)})`}
-          </title>
-        </path>
+        />
       ))}
 
       {showLabels &&

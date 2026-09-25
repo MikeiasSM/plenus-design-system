@@ -116,6 +116,7 @@ export function ChartDonut({
     >
       {anel.slices.map((fatia, indice) => (
         <path
+          aria-label={`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}
           className={styles.slice}
           d={arcPath({
             ...anel.angles[indice],
@@ -127,9 +128,7 @@ export function ChartDonut({
           key={fatia.label}
           onMouseEnter={() => anel.focus(indice)}
           onMouseLeave={() => anel.focus(null)}
-        >
-          <title>{`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}</title>
-        </path>
+        />
       ))}
 
       {showCenter && (

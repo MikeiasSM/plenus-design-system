@@ -73,7 +73,7 @@ describe('ChartScatter', () => {
       />,
     );
 
-    expect(bolhas()[0].querySelector('title')?.textContent).toBe(
+    expect(bolhas()[0].getAttribute('aria-label')).toBe(
       'Clientes, Aurora: 10% × 40 dias (R$ 25)',
     );
   });

@@ -62,7 +62,7 @@ describe('ChartSankey', () => {
   it('descreve a ligacao pela origem, pelo destino e pelo valor', () => {
     render(<ChartSankey flows={caixa} formatValue={(valor) => `R$ ${valor}`} title="Fluxo" />);
 
-    expect(ligacoes()[0].querySelector('title')?.textContent).toBe('Receita → Custos: R$ 600');
+    expect(ligacoes()[0].getAttribute('aria-label')).toBe('Receita → Custos: R$ 600');
   });
 
   it('acende a ligacao sob o ponteiro e apaga as demais', () => {
@@ -198,10 +198,10 @@ describe('ChartSankey', () => {
     );
 
     const aprovado = nos().find(
-      (no) => no.querySelector('title')?.textContent === 'Aprovado',
+      (no) => no.getAttribute('aria-label') === 'Aprovado',
     );
     const recusado = nos().find(
-      (no) => no.querySelector('title')?.textContent === 'Recusado',
+      (no) => no.getAttribute('aria-label') === 'Recusado',
     );
 
     // Um no so, com a altura das duas chegadas somadas: 420 contra 80.

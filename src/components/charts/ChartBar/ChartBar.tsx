@@ -282,6 +282,7 @@ export function ChartBar({
 
               return (
                 <path
+                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}
                   className={styles.bar}
                   d={roundedBarPath(
                     vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim),
@@ -294,9 +295,7 @@ export function ChartBar({
                   key={categoria}
                   onMouseEnter={() => focarFaixa(indiceCategoria)}
                   onMouseLeave={() => focarFaixa(null)}
-                >
-                  <title>{`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}</title>
-                </path>
+                />
               );
             })}
 

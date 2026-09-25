@@ -45,7 +45,7 @@ describe('ChartSunburst', () => {
 
   it('reparte o angulo do pai entre os filhos', () => {
     render(<ChartSunburst nodes={[despesas[0]]} title="Despesas" />);
-    const titulos = arcos().map((no) => no.querySelector('title')?.textContent);
+    const titulos = arcos().map((no) => no.getAttribute('aria-label'));
 
     expect(titulos[0]).toContain('Operacionais: 800 (100%)');
     expect(titulos.some((texto) => texto?.includes('Pessoal: 500'))).toBe(true);
@@ -78,7 +78,7 @@ describe('ChartSunburst', () => {
     render(<ChartSunburst nodes={despesas} title="Despesas" />);
     const apagado = (no: Element) => no.getAttribute('class')?.includes('arcDim') ?? false;
     const de = (rotulo: string) =>
-      arcos().find((no) => no.querySelector('title')?.textContent?.startsWith(`${rotulo}:`))!;
+      arcos().find((no) => no.getAttribute('aria-label')?.startsWith(`${rotulo}:`))!;
 
     expect(arcos().some(apagado)).toBe(false);
 
@@ -97,7 +97,7 @@ describe('ChartSunburst', () => {
     render(<ChartSunburst nodes={despesas} title="Despesas" />);
     const apagado = (no: Element) => no.getAttribute('class')?.includes('arcDim') ?? false;
     const de = (rotulo: string) =>
-      arcos().find((no) => no.querySelector('title')?.textContent?.startsWith(`${rotulo}:`))!;
+      arcos().find((no) => no.getAttribute('aria-label')?.startsWith(`${rotulo}:`))!;
 
     fireEvent.mouseEnter(de('Operacionais'));
 

@@ -120,7 +120,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 ### Ainda nao implementado
 
 - O `DataGrid` da etapa 10.
-- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`, e a decisao sobre o `<title>` por marca.
+- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`, A troca do `<title>` por `aria-label` ja esta feita.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -210,7 +210,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 
 - O eixo e a grade recebem as marcas **ja posicionadas**: converter valor em pixel pertence a escala, nao ao desenho. Isso os torna testaveis sem montar um grafico inteiro.
 - A linha da base tem estilo proprio na grade: ela separa positivos de negativos e nao e apenas mais uma marca.
-- O grafico e `role="img"` nomeado pelo titulo, e cada barra carrega um `title` com serie, categoria e valor formatado. A visao em tabela, que a `Table` ja permite, entra quando houver o primeiro consumidor pedindo.
+- O grafico e `role="img"` nomeado pelo titulo, e cada marca carrega a propria descricao em `aria-label`. A visao em tabela, que a `Table` ja permite, entra quando houver o primeiro consumidor pedindo — e e ela, nao a marca, o caminho da leitura medida a medida.
 - D3 entra como **calculo, nunca como renderizador**. `d3-scale` e `d3-array` para escalas e dominios; `d3-selection` e `d3-axis` ficam de fora por tocarem o DOM. Eixos, marcas e rotulos sao JSX, e o React continua dono da arvore. E a mesma fronteira ja firmada para o React Aria.
 - O sistema de escalas precede os graficos porque a ausencia dele e a causa raiz do duplo eixo em producao: sem escala confiavel, duas series de grandeza diferente acabam em dois eixos, e o cruzamento entre elas vira artefato da escala escolhida. `mergeDomains` une series num eixo unico.
 - O dominio inclui o zero por padrao. Barra que nao parte do zero exagera a diferenca entre os valores.
@@ -240,7 +240,8 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - **`ChartTooltip` implementado**, depois de adiado duas rodadas. Acompanha o ponteiro, em portal, e sai a qualquer outra interacao: ponteiro fora da area, rolagem, tecla ou a janela mudando de tamanho. Traz titulo, subtitulo, uma linha por medida com marcador, colunas numericas, uma coluna calculada e um totalizador com operador por coluna.
 - **Apesar do nome, o `ChartTooltip` nao conhece grafico algum.** Ele recebe linhas e colunas; quem as monta e quem o usa. O nome veio do shadcn, por decisao do mantenedor, e da referencia visual ja adotada para os graficos — mas o `ChartTooltip` de la e `const ChartTooltip = RechartsPrimitive.Tooltip`, um alias vazio, e o `ChartTooltipContent` que o acompanha nao tem subtitulo, nem multiplas colunas, nem campo calculado, nem totalizador. O nome e emprestado; o componente e nosso.
 - O balao **segue o ponteiro**, e nao a marca. Por isso nao usa `useOverlayPosition`, que ancora em elemento e nao em coordenada: a posicao sai do proprio evento, com giro para o lado oposto ao encostar na borda da janela.
-- O `ChartTooltip` e **decorativo** para leitor de tela, com `aria-hidden`. Uma grade que some a qualquer interacao nao e leitura acessivel; a de cada marca continua no `<title>` que os graficos trazem. Falta decidir se esse `<title>` sai ou vira `aria-label` quando o balao for ligado aos doze: com o ponteiro parado, o navegador mostra os dois.
+- O `ChartTooltip` e **decorativo** para leitor de tela, com `aria-hidden`. Uma grade que some a qualquer interacao nao e leitura acessivel.
+- **O `<title>` por marca deu lugar a `aria-label`**, nos doze graficos, por decisao do mantenedor. Ele desenhava um segundo balao, nativo, sempre que o ponteiro parava sobre a marca. E ele nunca foi leitura de leitor de tela: o desenho e `role="img"`, que apresenta o grafico como uma imagem unica e nao expoe os descendentes. A troca elimina o balao duplo e nao custa acessibilidade; o que falta para a leitura medida a medida e a visao em tabela.
 - A costura de hover vive em dois lugares, um por familia. `useHoveredBand` serve os cartesianos de faixa — `ChartBar`, `ChartCombo` e `ChartWaterfall` —, que expoem `onHoverCategory` ou, no caso do passo, `onHoverStep`. `useSliceRing` serve o anel, e expoe `onHoverSlice`.
 - **O anel entrega a fatia, e nao o indice.** As pequenas ja foram reunidas em "Outros" quando o ponteiro chega, entao o indice do anel nao corresponde ao que o consumidor informou. Entregar a fatia agrupada, com rotulo e valor, dispensa qualquer busca do lado de fora. O `setFocused` do hook virou `focus` na mesma mudanca: ele passou a avisar alem de gravar, e o nome anterior escondia isso.
 - `ChartLine` e `ChartArea` **nao** ganharam costura. Eles usam `pointScale`, sem faixa e sem estado de hover; avisar a categoria ali exige criar faixas de clique invisiveis sobre a area, com decisao de largura e de encaixe no ponto mais proximo. E desenho, nao fiacao. No `ChartScatter` o eixo X e numerico e categoria nao se aplica.

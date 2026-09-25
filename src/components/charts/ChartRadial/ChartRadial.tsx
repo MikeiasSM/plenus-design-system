@@ -139,6 +139,7 @@ export function ChartRadial({
         return (
           <g key={anel.label}>
             <path
+                aria-label={`${anel.label}: ${formatValue(anel.value)}`}
               className={styles.track}
               d={arcPath({
                 cornerRadius: canto,
@@ -159,9 +160,7 @@ export function ChartRadial({
                   startAngle: comeco,
                 })}
                 fill={cores[indice]}
-              >
-                <title>{`${anel.label}: ${formatValue(anel.value)}`}</title>
-              </path>
+              />
             )}
           </g>
         );

@@ -68,7 +68,7 @@ describe('ChartLine', () => {
       />,
     );
 
-    expect(marcadores()[0].querySelector('title')?.textContent).toBe('Serviços, 04/26: R$ 42.000');
+    expect(marcadores()[0].getAttribute('aria-label')).toBe('Serviços, 04/26: R$ 42.000');
   });
 
   it('marca um ponto por valor presente, e nenhum onde o valor falta', () => {

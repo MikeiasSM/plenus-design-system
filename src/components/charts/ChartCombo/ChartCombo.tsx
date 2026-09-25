@@ -288,6 +288,7 @@ export function ChartCombo({
 
               return (
                 <path
+                  aria-label={`${serie.label}, ${categoria}: ${formatar(valor)}`}
                   className={styles.bar}
                   d={roundedBarPath(
                     (escalaCategorias(categoria) ?? 0) + faixas[indiceSerie].offset,
@@ -300,9 +301,7 @@ export function ChartCombo({
                   key={categoria}
                   onMouseEnter={() => focarFaixa(indiceCategoria)}
                   onMouseLeave={() => focarFaixa(null)}
-                >
-                  <title>{`${serie.label}, ${categoria}: ${formatar(valor)}`}</title>
-                </path>
+                />
               );
             })}
 
@@ -368,15 +367,14 @@ export function ChartCombo({
             {pontos.map((ponto, indice) =>
               ponto === null ? null : (
                 <circle
+                  aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
                   className={showDots ? styles.dotVisible : styles.dot}
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
                   key={categories[indice]}
                   r={4}
-                >
-                  <title>{`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}</title>
-                </circle>
+                />
               ),
             )}
 
