@@ -193,7 +193,9 @@ function Balao({
   const colunas: readonly ChartTooltipColumn[] =
     columns ?? Array.from({ length: quantidadeDeColunas }, () => ({}));
 
-  const calculada = computed === 'none' ? undefined : computed ?? {};
+  // Sem coluna de onde derivar, nao ha o que calcular: linhas so com rotulo
+  // renderizariam um percentual tirado do nada.
+  const calculada = computed === 'none' || colunas.length === 0 ? undefined : computed ?? {};
   const colunaBase = calculada?.column ?? colunas.length - 1;
   const baseDoTotal = somar(rows.map((linha) => linha.values[colunaBase] ?? 0));
   const calcular = calculada?.compute ?? ((valor: number, total: number) => (total === 0 ? 0 : valor / total));

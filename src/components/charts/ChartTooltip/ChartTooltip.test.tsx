@@ -125,6 +125,14 @@ describe('ChartTooltip', () => {
     expect(celulas()).not.toContain('470');
   });
 
+  it('dispensa a coluna calculada quando a linha nao tem valor algum', () => {
+    montar({ rows: [{ label: 'Servicos', values: [] }, { label: 'Produtos', values: [] }] });
+    abrir();
+
+    expect(celulas()).toContain('Servicos');
+    expect(celulas().some((texto) => texto?.endsWith('%'))).toBe(false);
+  });
+
   it('abre adiante do ponteiro, para o cursor nao cobrir o texto', () => {
     montar();
     abrir();
