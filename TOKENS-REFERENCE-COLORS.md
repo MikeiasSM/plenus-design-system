@@ -207,6 +207,62 @@ color.primary -> brand.purple.50
 
 O mapeamento completo de cada tema devera definir tambem `on-primary`, containers, bordas, foco e estados para os modos claro e escuro.
 
+## Cores de dados
+
+As cores de serie de um grafico nao representam estado nem acao: elas identificam um dado. Sao uma terceira familia, ao lado das identidades de marca e das cores funcionais, e possuem tokens semanticos proprios com o prefixo `chart`.
+
+A regra de consumo e a mesma das demais: um grafico consome `chart.*`, nunca `brand.*`.
+
+### Paleta de series
+
+A ordem e fixa. A serie `N` usa sempre o mesmo token, para que um filtro que reduza as series nao repinte as restantes.
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `chart.series-1` | `brand.blue.50` | `brand.blue.40` |
+| `chart.series-2` | `brand.orange.50` | `brand.orange.40` |
+| `chart.series-3` | `brand.purple.50` | `brand.purple.40` |
+| `chart.series-4` | `brand.blue.40` | `brand.blue.30` |
+| `chart.series-5` | `brand.orange.70` | `brand.orange.50` |
+| `chart.series-6` | `brand.purple.40` | `brand.purple.30` |
+
+O tema escuro recebe tons proprios das mesmas rampas. A paleta do claro reprova em contraste contra a superficie escura.
+
+Acima de seis series a paleta se repete. Distinguir mais que isso por cor nao e legivel; a solucao e agrupar os dados, nao ampliar a paleta.
+
+### Cor de tema na paleta
+
+Uma aplicacao pode abrir a paleta com a identidade que o usuario escolheu. Ela ocupa a primeira posicao, e a posicao que repetiria essa cor e saltada.
+
+Derivar as demais series a partir da cor escolhida esta descartado: girar a matiz em passos iguais nao separa as series de forma perceptivel e reprova na verificacao de deficiencia de visao de cores.
+
+### Series com intencao
+
+Quando a serie declara intencao, a cor carrega significado e nao entra na rotacao categorica.
+
+| Token | Origem | Tema escuro |
+| --- | --- | --- |
+| `chart.positive` | `color.success` | igual |
+| `chart.negative` | `color.danger` | igual |
+| `chart.warning` | `color.warning` | igual |
+| `chart.neutral` | `neutral.gray` | tom proprio, porque o cinza medio mede 2,69:1 contra a superficie escura |
+
+### Cromo do grafico
+
+Grade, eixos e rotulos nao sao dado. Eles derivam dos tokens de superficie e de texto.
+
+| Token | Origem | Papel |
+| --- | --- | --- |
+| `chart.grid` | `color.border` | Linhas de grade |
+| `chart.baseline` | `color.border-strong` | Linha da base e linha do eixo, um passo acima da grade |
+| `chart.axis` | `color.text-tertiary` | Marcas e valores do eixo |
+| `chart.label` | `color.text-secondary` | Rotulos de categoria e de serie |
+| `chart.cursor` | Veu translucido | Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no escuro |
+
+### Validacao
+
+A separacao entre series e medida, nunca arbitrada a olho, e a medicao inclui simulacao de deficiencia de visao de cores. As cores institucionais, tomadas em conjunto, apresentam um pior par de 3,6 sob deuteranopia. A paleta definida acima leva esse pior par a 20,6.
+
 ## Contraste e validacao
 
 Nenhuma escala tonal deve ser considerada definitiva apenas por sua aparencia visual. Cada tema deve validar:
@@ -218,6 +274,7 @@ Nenhuma escala tonal deve ser considerada definitiva apenas por sua aparencia vi
 - Bordas necessarias para identificar controles.
 - Mensagens de sucesso, alerta, informacao e erro.
 - Combinacoes dos modos claro e escuro.
+- Separacao entre as series de dados, incluindo simulacao de deficiencia de visao de cores.
 
 A validacao deve ocorrer antes da publicacao de um tema ou da exposicao de seus tokens como parte da API publica.
 
