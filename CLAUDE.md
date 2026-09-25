@@ -202,10 +202,11 @@ Bibliotecas usadas como **referência de projeto**, não como dependências. Con
 
 | Referência | Papel | Endereço |
 | --- | --- | --- |
-| Untitled UI | Base visual | https://www.untitledui.com/react/docs/introduction |
+| Untitled UI | Base visual, exceto gráficos | https://www.untitledui.com/react/docs/introduction |
 | React Aria | Comportamento e acessibilidade | https://react-aria.adobe.com/ |
 | Radix UI | Composição e primitivos | https://www.radix-ui.com/ |
-| shadcn/ui | Composição e desenho de API | https://ui.shadcn.com/ |
+| shadcn/ui | Composição, desenho de API e base visual dos gráficos | https://ui.shadcn.com/ |
+| Metabase | Base visual de `ChartPie`, `ChartDonut` e `ChartSankey` | https://www.metabase.com/ |
 | AG Grid | Referência do `DataGrid` | https://www.ag-grid.com/ |
 | D3.js | Núcleo de gráficos | https://d3js.org/ |
 
@@ -215,7 +216,8 @@ Consultar uma referência não autoriza instalá-la. Adotar qualquer uma como de
 
 - **Comportamento** — React Aria entra **apenas como primitivo sem estado**: foco, posicionamento, rolagem, ponteiro e internacionalização. Onde o HTML nativo resolve, não entra.
 - **Estado** — máquinas de coleção, seleção e navegação são State Motors do Design System, conforme `ARCHITECTURE.md` §7. Não se adota `react-stately`, nem os hooks do `react-aria` que recebem um objeto de estado de coleção: `useSelect`, `useListBox`, `useMenu`, `useComboBox`, `useTable`, `useCalendar`, `useDatePicker`. Também não se adota `react-aria-components`.
-- **Visual** — Untitled UI sempre que houver referência correspondente.
+- **Visual** — Untitled UI sempre que houver referência correspondente, exceto nos gráficos.
+- **Visual dos gráficos** — base híbrida: shadcn/ui na maioria da família, Metabase em `ChartPie`, `ChartDonut` e `ChartSankey`, Untitled UI onde nenhum dos dois tiver correspondente. Abrir o código da referência, não apenas a página: decisões de desenho que a documentação não traz vivem nele.
 - **Estrutura, marcação e API pública** — sempre do Design System. Nenhuma referência define a árvore de elementos nem as propriedades públicas de um componente.
 
 Primitivos admitidos: `FocusScope`, `useOverlay`, `useOverlayPosition`, `usePreventScroll`, `DismissButton`, `usePress`, `useHover`, `useFocusRing`, `useKeyboard`, `useId`, `mergeProps`, `VisuallyHidden`, `useFilter`, `useCollator`, `useDateFormatter` e o pacote `@internationalized/date`, que não possui acoplamento com React.
