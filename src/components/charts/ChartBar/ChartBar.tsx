@@ -1,5 +1,12 @@
-import { useId, useMemo } from 'react';
-import { Axis, Grid, useChartSize, type AxisLabelRotation, type AxisTick } from '../core';
+import { useMemo } from 'react';
+import {
+  CartesianFrame,
+  plotBox,
+  useChartSize,
+  type AxisLabelRotation,
+  type AxisTick,
+  type ChartMargins,
+} from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
 import styles from './ChartBar.module.css';
@@ -25,7 +32,7 @@ export interface ChartBarProps {
   title: string;
 }
 
-const MARGENS = { top: 12, right: 16, bottom: 34, left: 52 };
+const MARGENS: ChartMargins = { top: 12, right: 16, bottom: 34, left: 52 };
 const ESPACO_ENTRE_BARRAS = 2;
 
 function somaEmpilhada(series: readonly ChartBarSeries[], indice: number) {
@@ -45,9 +52,9 @@ export function ChartBar({
   stacked = false,
   title,
 }: ChartBarProps) {
-  const tituloId = useId();
   const { ref, width } = useChartSize({ height });
   const vertical = orientation === 'vertical';
+  const plot = plotBox(width, height, MARGENS);
 
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
@@ -59,10 +66,8 @@ export function ChartBar({
     return mergeDomains(series.map((serie) => domainOf([...serie.values])));
   }, [categories, series, stacked]);
 
-  const larguraUtil = Math.max(width - MARGENS.left - MARGENS.right, 0);
-  const alturaUtil = Math.max(height - MARGENS.top - MARGENS.bottom, 0);
-  const comprimentoCategorias = vertical ? larguraUtil : alturaUtil;
-  const comprimentoValores = vertical ? alturaUtil : larguraUtil;
+  const comprimentoCategorias = vertical ? plot.width : plot.height;
+  const comprimentoValores = vertical ? plot.height : plot.width;
 
   const escalaCategorias = useMemo(
     () => bandScale({ domain: categories, range: [0, comprimentoCategorias] }),
@@ -79,12 +84,9 @@ export function ChartBar({
   );
 
   const marcasDeValor = ticksFor(escalaValores, comprimentoValores);
-  const base = escalaValores(0);
   const larguraDaBarra = stacked
     ? escalaCategorias.bandwidth()
     : Math.max((escalaCategorias.bandwidth() - ESPACO_ENTRE_BARRAS * (series.length - 1)) / series.length, 1);
-
-  const vazio = series.length === 0 || categories.length === 0;
 
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
@@ -97,118 +99,82 @@ export function ChartBar({
   }));
 
   return (
-    <figure className={styles.figure} ref={ref}>
-      <figcaption className={styles.title} id={tituloId}>
-        {title}
-      </figcaption>
+    <CartesianFrame
+      containerRef={ref}
+      empty={series.length === 0 || categories.length === 0}
+      emptyMessage={emptyMessage}
+      grid={[
+        {
+          baseline: escalaValores(0),
+          lines: marcasDeValor.map((valor) => escalaValores(valor)),
+          orientation: vertical ? 'horizontal' : 'vertical',
+        },
+      ]}
+      height={height}
+      legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
+      margins={MARGENS}
+      plot={plot}
+      title={title}
+      width={width}
+      xAxis={vertical ? { labelRotation, ticks: marcasCategoria } : { hideLine: true, ticks: marcasValor }}
+      yAxis={vertical ? { hideLine: true, ticks: marcasValor } : { ticks: marcasCategoria }}
+    >
+      {series.map((serie, indiceSerie) => (
+        <g key={serie.label}>
+          {categories.map((categoria, indiceCategoria) => {
+            const valor = serie.values[indiceCategoria] ?? 0;
+            const inicioCategoria = escalaCategorias(categoria) ?? 0;
+            const deslocamento = stacked ? 0 : indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
+            const anterior = stacked
+              ? series
+                  .slice(0, indiceSerie)
+                  .reduce((total, outra) => total + (outra.values[indiceCategoria] ?? 0), 0)
+              : 0;
+            const comeco = escalaValores(anterior);
+            const fim = escalaValores(anterior + valor);
+            const tamanho = Math.abs(fim - comeco);
 
-      {vazio || width === 0 ? (
-        <p className={styles.empty}>{emptyMessage}</p>
-      ) : (
-        <svg
-          aria-labelledby={tituloId}
-          className={styles.canvas}
-          height={height}
-          role="img"
-          viewBox={`0 0 ${width} ${height}`}
-          width={width}
-        >
-          <g transform={`translate(${MARGENS.left} ${MARGENS.top})`}>
-            <Grid
-              baseline={base}
-              length={vertical ? larguraUtil : alturaUtil}
-              lines={marcasDeValor.map((valor) => escalaValores(valor))}
-              orientation={vertical ? 'horizontal' : 'vertical'}
-            />
+            return (
+              <rect
+                className={styles.bar}
+                fill={cores[indiceSerie]}
+                height={vertical ? tamanho : larguraDaBarra}
+                key={categoria}
+                rx={2}
+                width={vertical ? larguraDaBarra : tamanho}
+                x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
+                y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
+              >
+                <title>{`${serie.label}, ${categoria}: ${formatValue(valor)}`}</title>
+              </rect>
+            );
+          })}
+        </g>
+      ))}
 
-            {series.map((serie, indiceSerie) => (
-              <g key={serie.label}>
-                {categories.map((categoria, indiceCategoria) => {
-                  const valor = serie.values[indiceCategoria] ?? 0;
-                  const inicioCategoria = escalaCategorias(categoria) ?? 0;
-                  const deslocamento = stacked ? 0 : indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
-                  const anterior = stacked
-                    ? series
-                        .slice(0, indiceSerie)
-                        .reduce((total, outra) => total + (outra.values[indiceCategoria] ?? 0), 0)
-                    : 0;
-                  const comeco = escalaValores(anterior);
-                  const fim = escalaValores(anterior + valor);
-                  const tamanho = Math.abs(fim - comeco);
+      {showValues &&
+        !stacked &&
+        series.map((serie, indiceSerie) =>
+          categories.map((categoria, indiceCategoria) => {
+            const valor = serie.values[indiceCategoria] ?? 0;
+            const inicioCategoria = escalaCategorias(categoria) ?? 0;
+            const deslocamento = indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
+            const ponta = escalaValores(valor);
 
-                  return (
-                    <rect
-                      className={styles.bar}
-                      fill={cores[indiceSerie]}
-                      height={vertical ? tamanho : larguraDaBarra}
-                      key={categoria}
-                      rx={2}
-                      width={vertical ? larguraDaBarra : tamanho}
-                      x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
-                      y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
-                    >
-                      <title>{`${serie.label}, ${categoria}: ${formatValue(valor)}`}</title>
-                    </rect>
-                  );
-                })}
-              </g>
-            ))}
-
-            {showValues &&
-              !stacked &&
-              series.map((serie, indiceSerie) =>
-                categories.map((categoria, indiceCategoria) => {
-                  const valor = serie.values[indiceCategoria] ?? 0;
-                  const inicioCategoria = escalaCategorias(categoria) ?? 0;
-                  const deslocamento = indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
-                  const ponta = escalaValores(valor);
-
-                  return (
-                    <text
-                      className={styles.value}
-                      dominantBaseline={vertical ? 'auto' : 'middle'}
-                      key={serie.label + categoria}
-                      textAnchor={vertical ? 'middle' : 'start'}
-                      x={vertical ? inicioCategoria + deslocamento + larguraDaBarra / 2 : ponta + 6}
-                      y={vertical ? ponta - 6 : inicioCategoria + deslocamento + larguraDaBarra / 2}
-                    >
-                      {formatValue(valor)}
-                    </text>
-                  );
-                }),
-              )}
-
-            <g transform={vertical ? `translate(0 ${alturaUtil})` : undefined}>
-              <Axis
-                labelRotation={labelRotation}
-                length={vertical ? larguraUtil : alturaUtil}
-                orientation={vertical ? 'bottom' : 'left'}
-                ticks={marcasCategoria}
-              />
-            </g>
-
-            <g transform={vertical ? undefined : `translate(0 ${alturaUtil})`}>
-              <Axis
-                hideLine
-                length={vertical ? alturaUtil : larguraUtil}
-                orientation={vertical ? 'left' : 'bottom'}
-                ticks={marcasValor}
-              />
-            </g>
-          </g>
-        </svg>
-      )}
-
-      {series.length > 1 && (
-        <ul className={styles.legend}>
-          {series.map((serie, indice) => (
-            <li className={styles.legendItem} key={serie.label}>
-              <span aria-hidden="true" className={styles.swatch} style={{ background: cores[indice] }} />
-              {serie.label}
-            </li>
-          ))}
-        </ul>
-      )}
-    </figure>
+            return (
+              <text
+                className={styles.valueLabel}
+                dominantBaseline={vertical ? 'auto' : 'middle'}
+                key={serie.label + categoria}
+                textAnchor={vertical ? 'middle' : 'start'}
+                x={vertical ? inicioCategoria + deslocamento + larguraDaBarra / 2 : ponta + 6}
+                y={vertical ? ponta - 6 : inicioCategoria + deslocamento + larguraDaBarra / 2}
+              >
+                {formatValue(valor)}
+              </text>
+            );
+          }),
+        )}
+    </CartesianFrame>
   );
 }

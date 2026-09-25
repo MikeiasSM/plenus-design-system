@@ -5,6 +5,7 @@ import {
   logScale,
   mergeDomains,
   pointScale,
+  radiusScale,
   ticksFor,
   timeScale,
 } from './scales';
@@ -108,6 +109,25 @@ describe('escalas categoricas', () => {
 
     expect(escala('a')).toBe(0);
     expect(escala('c')).toBe(200);
+  });
+});
+
+describe('escala de raio', () => {
+  it('parte do zero, para que valor nulo nao desenhe bolha alguma', () => {
+    const escala = radiusScale(100, [0, 20]);
+
+    expect(escala(0)).toBe(0);
+    expect(escala(100)).toBe(20);
+  });
+
+  it('cresce pela raiz, para a area acompanhar o dado e nao o raio', () => {
+    const escala = radiusScale(100, [0, 20]);
+
+    expect(escala(25)).toBe(10);
+  });
+
+  it('nao divide por zero quando nenhum ponto tem valor', () => {
+    expect(radiusScale(0, [4, 18])(0)).toBe(4);
   });
 });
 

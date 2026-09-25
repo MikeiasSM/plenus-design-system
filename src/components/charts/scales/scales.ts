@@ -1,4 +1,4 @@
-import { scaleBand, scaleLinear, scaleLog, scalePoint, scaleTime } from 'd3-scale';
+import { scaleBand, scaleLinear, scaleLog, scalePoint, scaleSqrt, scaleTime } from 'd3-scale';
 import { extent, max, min } from 'd3-array';
 
 export type ScaleKind = 'linear' | 'log' | 'time' | 'band' | 'point';
@@ -91,6 +91,15 @@ export function bandScale({ domain, padding = 0.2, range }: CategoricalScaleOpti
 /** Pontos sem largura, um por categoria. Serve linhas e dispersao. */
 export function pointScale({ domain, padding = 0.5, range }: CategoricalScaleOptions) {
   return scalePoint().domain([...domain]).range(range).padding(padding);
+}
+
+/**
+ * Raio pela raiz do valor, para que a area da bolha acompanhe o dado em vez do
+ * raio. Mapeando o valor direto ao raio, a area cresceria com o quadrado dele e
+ * exageraria a diferenca.
+ */
+export function radiusScale(maxValue: number, range: [number, number]) {
+  return scaleSqrt().domain([0, maxValue > 0 ? maxValue : 1]).range(range);
 }
 
 /**

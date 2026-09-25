@@ -5,6 +5,7 @@ export {
   logScale,
   mergeDomains,
   pointScale,
+  radiusScale,
   ticksFor,
   timeScale,
 } from './scales';
