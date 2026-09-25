@@ -76,6 +76,14 @@ export function Example() {
 }
 ```
 
+A folha de estilo do Design System acompanha o pacote e deve ser importada uma vez, no ponto de entrada da aplicação. Ela carrega os tokens, o reset e o estilo de todos os componentes:
+
+```ts
+import '@plenustech/design-system/styles.css';
+```
+
+Sem essa importação os componentes são renderizados sem estilo.
+
 Não é recomendado importar arquivos internos diretamente:
 
 ```tsx

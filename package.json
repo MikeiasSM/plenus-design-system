@@ -1,7 +1,6 @@
 {
   "name": "@plenustech/design-system",
   "version": "0.1.0",
-  "private": true,
   "description": "Design System centralizado para os produtos web da Plenustech.",
   "type": "module",
   "main": "./dist/plenus-design-system.cjs",

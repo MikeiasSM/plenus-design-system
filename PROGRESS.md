@@ -446,8 +446,8 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 14. **Integracao e distribuicao** — em andamento
    - `main`, `module`, `types` e `exports` configurados; declaracoes emitidas em `dist/types`; pacote
      construido validado por instalacao real num projeto separado, nos dois formatos.
-   - Falta decidir a publicacao: o pacote continua `private`, e o `README.md` ainda nao documenta a
-     importacao da folha de estilo.
+   - `private` removido por decisao do mantenedor, e a importacao da folha de estilo documentada na
+     secao de Uso do `README.md`. Falta definir o registro de publicacao.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
 ## Ordem recomendada de leitura da documentacao
