@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-509 testes em 62 arquivos. Build da biblioteca e do Showcase validados.
+509 testes em 63 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -16,7 +16,10 @@ Os componentes assinalados como disponiveis em `COMPONENTS-CATALOG.md` estao imp
 
 Outros modulos:
 
-- `src/components/forms/Field` — cromo de campo compartilhado. **Interno**, nao exportado.
+- `src/components/icons` — biblioteca oficial de icones. A base `Icon` e **interna** e fecha o conjunto; os icones
+  em si sao publicos, com nomenclatura de familia.
+- `src/components/forms/Field` — cromo de campo compartilhado. **Interno**, nao exportado. E o unico componente
+  sem arquivo de teste proprio: ele e exercitado pelos campos que o consomem.
 - `src/hooks/useCharacterCount` — contagem de caracteres, controlada ou nao. **Interno**, nao exportado. Serve apenas `InputText` e `Textarea`, os campos de texto plano.
 - `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion` e `List`. Alem das chaves escolhidas, retem os itens, para que a escolha sobreviva ao item sair da colecao filtrada.
 - `src/components/data-display/List/useListing` e `ListingOptions` — a listagem compartilhada: colecao, filtro, teclado, ARIA, marcacao e virtualizacao. **Internos**, nao exportados. Servem `List`, `Select` e `ComboBox`.
@@ -25,12 +28,12 @@ Outros modulos:
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
 - `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
-- `src/components/charts/core` — o que os onze graficos compartilham. Tres molduras: `CartesianFrame` para os que
-  tem eixo, `RadialFrame` para os que se organizam em torno de um centro e `PlainFrame` para os que ocupam a area
-  inteira. Ao lado delas, o calculo de layout de `cartesianLayout.ts`, a medida e o corte de texto de
-  `measureText.ts`, os caminhos de `shapes.ts` e `arcs.ts`, o agrupamento de `slices.ts`, `useChartMetrics`,
-  `useSliceRing`, `useSeriesToggle` e `useTweenedNumbers`. **Internos**, nao exportados, exceto os tipos que
-  aparecem na API publica dos graficos.
+- `src/components/charts/core` — o que os onze graficos compartilham. `ChartFrame` e a moldura de todos: titulo,
+  area de desenho, estado vazio e legenda. `CartesianFrame` e uma camada sobre ela, com grade e eixos. Ao lado,
+  `ChartLegend`, o calculo de layout de `cartesianLayout.ts`, as medidas de `spacing.ts`, a medida e o corte de
+  texto de `measureText.ts`, o texto de centro de `centerText.ts`, os caminhos de `shapes.ts` e `arcs.ts`, o
+  agrupamento de `slices.ts`, `useChartMetrics`, `useSliceRing`, `useSeriesToggle` e `useTweenedNumbers`.
+  **Internos**, nao exportados, exceto os tipos que aparecem na API publica dos graficos.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
 Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-sankey`. Todas externalizadas no build.
@@ -108,7 +111,8 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Registrar a paleta de series no `TOKENS-REFERENCE-COLORS.md`, que hoje nao preve nenhuma cor para dados. Os tokens ja existem em `src/tokens/semantic/chart.css`; falta o documento normativo, que exige aprovacao.
 - Registrar o token `--pl-chart-cursor` junto da paleta de series, no mesmo momento em que ela for ao `TOKENS-REFERENCE-COLORS.md`.
 - Registrar no `CLAUDE.md` que a referencia visual dos graficos e o shadcn/ui, num sistema hibrido com o Untitled UI. A tabela de referencias hoje da ao Untitled UI o papel de base visual e ao shadcn/ui apenas composicao e desenho de API. A informacao veio do mantenedor durante a implementacao dos cartesianos e ja orienta o codigo; falta o documento.
-- Acrescentar `charts/` a estrutura de diretorios do `README.md`, que lista as categorias de componentes e ainda nao a inclui.
+- Acrescentar `charts/` a estrutura de diretorios do `README.md`, que lista as categorias de componentes e ainda nao a inclui. `icons/` ja consta.
+- Confirmar ou retirar `paletteWithAccent`, `resolveSeriesColors` e `seriesColors` da API publica. Eles nao tem consumidor hoje, nem no Showcase, e o projeto ja retirou utilitarios nessa situacao. O argumento a favor de manter e concreto: a aplicacao monta as propriedades dos graficos a partir do manifesto e pode precisar das mesmas cores fora de um grafico — numa legenda compartilhada ou num cartao de indicador.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
@@ -392,6 +396,16 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - O raio de cada canto e desenhado no **proprio caminho**, e nao pelo atributo `rx`, que arredonda os quatro de uma vez. Numa pilha isso separava visualmente os segmentos; agora so as duas pontas sao arredondadas e o meio fica reto, de modo que a pilha leia como uma barra so. Segmento de valor zero nao conta como ponta.
 - O caminho leva apenas pares de coordenadas, sem `H` nem `V`: fica uniforme e as medidas saem dele sem interpretar comando a comando.
 - O raio vem do token, lido do elemento junto da fonte, porque geometria de caminho nao le variavel CSS.
+
+**Moldura**
+
+- Uma moldura so para os onze. As tres que existiam — cartesiana, radial e sem eixos — repetiam o mesmo cerco de
+  titulo, area de desenho, estado vazio e legenda; a radial e a sem eixos diferiam em quatro linhas. O que muda
+  entre as familias e o que se desenha dentro, nao o cerco.
+- A origem no centro virou modo da moldura, e nao componente proprio: ela nao acrescenta parte alguma a arvore,
+  so muda onde o filho comeca a contar, que e o criterio de `COMPONENTS.md` secao 4.
+- A legenda saiu para arquivo proprio. Ela servia as tres molduras e morava dentro da cartesiana, que nao e dona
+  dela.
 
 **Espaco e medidas**
 

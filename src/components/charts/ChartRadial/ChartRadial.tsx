@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import {
-  RadialFrame,
+  ChartFrame,
   VOLTA,
   arcPath,
   chartHeight,
@@ -107,7 +107,8 @@ export function ChartRadial({
     : undefined;
 
   return (
-    <RadialFrame
+    <ChartFrame
+      centerOrigin
       containerRef={ref}
       empty={tracks.length === 0}
       emptyMessage={emptyMessage}
@@ -121,6 +122,7 @@ export function ChartRadial({
       }))}
       legendPosition={tracks.length > 1 ? legend : 'none'}
       onToggleSeries={toggle}
+      swatch="dot"
       title={title}
       width={width}
     >
@@ -176,6 +178,6 @@ export function ChartRadial({
           </text>
         </g>
       )}
-    </RadialFrame>
+    </ChartFrame>
   );
 }

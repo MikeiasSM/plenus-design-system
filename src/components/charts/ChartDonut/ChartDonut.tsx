@@ -1,5 +1,5 @@
 import {
-  RadialFrame,
+  ChartFrame,
   arcPath,
   chartHeight,
   fitCenterText,
@@ -87,7 +87,8 @@ export function ChartDonut({
   );
 
   return (
-    <RadialFrame
+    <ChartFrame
+      centerOrigin
       containerRef={ref}
       empty={anel.slices.length === 0 || slices.every((fatia) => Math.max(fatia.value, 0) === 0)}
       emptyMessage={emptyMessage}
@@ -101,6 +102,7 @@ export function ChartDonut({
       }))}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
+      swatch="dot"
       title={title}
       width={width}
     >
@@ -137,6 +139,6 @@ export function ChartDonut({
           </text>
         </g>
       )}
-    </RadialFrame>
+    </ChartFrame>
   );
 }

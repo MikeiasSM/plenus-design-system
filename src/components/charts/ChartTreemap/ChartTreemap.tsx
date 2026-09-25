@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { hierarchy, treemap } from 'd3-hierarchy';
 import {
   CHART_LABEL_OFFSET,
-  PlainFrame,
+  ChartFrame,
   chartHeight,
   truncateToWidth,
   useChartMetrics,
@@ -117,7 +117,7 @@ export function ChartTreemap({
       }));
 
   return (
-    <PlainFrame
+    <ChartFrame
       containerRef={ref}
       empty={nodes.length === 0}
       emptyMessage={emptyMessage}
@@ -167,6 +167,6 @@ export function ChartTreemap({
           </g>
         );
       })}
-    </PlainFrame>
+    </ChartFrame>
   );
 }

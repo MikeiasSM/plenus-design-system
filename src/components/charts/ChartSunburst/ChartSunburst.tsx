@@ -3,7 +3,7 @@ import { hierarchy, partition, type HierarchyRectangularNode } from 'd3-hierarch
 import {
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
-  RadialFrame,
+  ChartFrame,
   VOLTA,
   arcAnchor,
   arcPath,
@@ -187,7 +187,8 @@ export function ChartSunburst({
   }
 
   return (
-    <RadialFrame
+    <ChartFrame
+      centerOrigin
       containerRef={ref}
       empty={nodes.length === 0}
       emptyMessage={emptyMessage}
@@ -200,6 +201,7 @@ export function ChartSunburst({
       }))}
       legendPosition={legend}
       onToggleSeries={toggle}
+      swatch="dot"
       title={title}
       width={width}
     >
@@ -254,6 +256,6 @@ export function ChartSunburst({
               </g>
             );
           })}
-    </RadialFrame>
+    </ChartFrame>
   );
 }

@@ -25,3 +25,8 @@ export const CHART_LABEL_BAND = 0.24;
 export function valueLabelRoom(font: LabelFont) {
   return font.lineHeight + CHART_LABEL_OFFSET / 2;
 }
+
+/** Diametro do anel: o lado menor da area disponivel, menos a folga. */
+export function ringDiameter(width: number, height: number) {
+  return Math.max(Math.min(width, height) - CHART_LABEL_OFFSET * 2, 0);
+}

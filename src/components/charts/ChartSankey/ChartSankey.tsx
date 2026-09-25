@@ -3,7 +3,7 @@ import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3
 import {
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
-  PlainFrame,
+  ChartFrame,
   chartHeight,
   measureLabel,
   truncateToWidth,
@@ -279,7 +279,7 @@ export function ChartSankey({
   }
 
   return (
-    <PlainFrame
+    <ChartFrame
       containerRef={ref}
       empty={flows.length === 0}
       emptyMessage={emptyMessage}
@@ -358,6 +358,6 @@ export function ChartSankey({
           {rotulo.texto}
         </text>
       ))}
-    </PlainFrame>
+    </ChartFrame>
   );
 }

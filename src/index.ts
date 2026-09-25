@@ -160,7 +160,6 @@ export type {
   ChartCurve,
   ChartHeight,
   ChartLegendPosition,
-  ChartSlice,
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

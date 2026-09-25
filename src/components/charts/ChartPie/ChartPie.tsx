@@ -1,5 +1,5 @@
 import {
-  RadialFrame,
+  ChartFrame,
   arcCentroid,
   arcPath,
   chartHeight,
@@ -72,7 +72,8 @@ export function ChartPie({
   const canto = sliceRadius ?? raioDoCanto;
 
   return (
-    <RadialFrame
+    <ChartFrame
+      centerOrigin
       containerRef={ref}
       empty={anel.slices.length === 0 || slices.every((fatia) => Math.max(fatia.value, 0) === 0)}
       emptyMessage={emptyMessage}
@@ -86,6 +87,7 @@ export function ChartPie({
       }))}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
+      swatch="dot"
       title={title}
       width={width}
     >
@@ -131,6 +133,6 @@ export function ChartPie({
             </text>
           );
         })}
-    </RadialFrame>
+    </ChartFrame>
   );
 }
