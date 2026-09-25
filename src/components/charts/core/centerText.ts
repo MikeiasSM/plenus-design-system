@@ -1,4 +1,5 @@
 import { measureLabel, truncateToWidth, type LabelFont } from './measureText';
+import { CHART_LABEL_OFFSET } from './spacing';
 
 export interface CenterText {
   family: string;
@@ -19,9 +20,6 @@ const DEGRAUS = [
   { display: false, lineHeight: 24, size: 16 },
 ];
 
-/** Folga entre o texto e a borda interna do anel. */
-const FOLGA = 8;
-
 /**
  * Valor e rotulo do centro, no maior degrau da escala em que o texto ainda cabe
  * dentro do anel. O SVG nao quebra linha nem corta o que transborda, entao quem
@@ -36,7 +34,7 @@ export function fitCenterText(
   // A largura util e a corda do circulo interno na altura do texto, e nao o
   // diametro: no centro do anel o texto tem o diametro inteiro, mas o rotulo,
   // logo abaixo, tem menos.
-  const disponivel = Math.max(innerDiameter - FOLGA * 2, 0);
+  const disponivel = Math.max(innerDiameter - CHART_LABEL_OFFSET * 2, 0);
 
   const degrau =
     DEGRAUS.find((candidato) =>

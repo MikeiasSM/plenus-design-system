@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { hierarchy, treemap } from 'd3-hierarchy';
 import {
+  CHART_LABEL_OFFSET,
   PlainFrame,
   chartHeight,
   truncateToWidth,
@@ -9,7 +10,7 @@ import {
   type ChartHeight,
   type ChartLegendPosition,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
+import { INTENT_TOKENS, resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
 import styles from './ChartTreemap.module.css';
 
 export interface ChartTreemapNode extends SeriesAppearance {
@@ -40,16 +41,6 @@ export interface ChartTreemapProps {
   title: string;
 }
 
-const INTENT_TOKENS: Record<SeriesIntent, string> = {
-  positive: 'var(--pl-chart-positive)',
-  negative: 'var(--pl-chart-negative)',
-  warning: 'var(--pl-chart-warning)',
-  neutral: 'var(--pl-chart-neutral)',
-};
-
-/** Espaco minimo para o rotulo caber sem encostar na borda do retangulo. */
-const RECUO = 6;
-const ALTURA_DA_LINHA = 14;
 
 export function ChartTreemap({
   accent,
@@ -141,9 +132,9 @@ export function ChartTreemap({
       {retangulos.map((folha) => {
         const largura = folha.x1 - folha.x0;
         const altura = folha.y1 - folha.y0;
-        const disponivel = largura - RECUO * 2;
-        const cabeORotulo = showDataLabels && disponivel > 0 && altura >= ALTURA_DA_LINHA + RECUO;
-        const cabeOValor = cabeORotulo && altura >= ALTURA_DA_LINHA * 2 + RECUO;
+        const disponivel = largura - CHART_LABEL_OFFSET * 2;
+        const cabeORotulo = showDataLabels && disponivel > 0 && altura >= font.lineHeight + CHART_LABEL_OFFSET;
+        const cabeOValor = cabeORotulo && altura >= font.lineHeight * 2 + CHART_LABEL_OFFSET;
 
         return (
           <g className={styles.cell} key={`${folha.data.label}-${folha.x0}-${folha.y0}`}>
@@ -159,7 +150,7 @@ export function ChartTreemap({
             </rect>
 
             {cabeORotulo && (
-              <text className={styles.label} x={folha.x0 + RECUO} y={folha.y0 + RECUO + ALTURA_DA_LINHA * 0.7}>
+              <text className={styles.label} x={folha.x0 + CHART_LABEL_OFFSET} y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 0.6}>
                 {truncateToWidth(folha.data.label, font, disponivel)}
               </text>
             )}
@@ -167,8 +158,8 @@ export function ChartTreemap({
             {cabeOValor && (
               <text
                 className={styles.value}
-                x={folha.x0 + RECUO}
-                y={folha.y0 + RECUO + ALTURA_DA_LINHA * 1.75}
+                x={folha.x0 + CHART_LABEL_OFFSET}
+                y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 1.6}
               >
                 {truncateToWidth(formatValue(folha.value ?? 0), font, disponivel)}
               </text>

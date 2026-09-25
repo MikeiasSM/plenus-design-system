@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { hierarchy, partition, type HierarchyRectangularNode } from 'd3-hierarchy';
 import {
+  CHART_LABEL_BAND,
+  CHART_LABEL_OFFSET,
   RadialFrame,
   VOLTA,
   arcAnchor,
@@ -47,14 +49,6 @@ type Arco = HierarchyRectangularNode<ChartSunburstNode>;
 /** Arco menor que isso nao comporta rotulo nem conector legivel. */
 const ANGULO_MINIMO_DO_ROTULO = 0.18;
 const COMPRIMENTO_DO_CONECTOR = 14;
-const RECUO_DO_ROTULO = 6;
-
-/**
- * Teto da banda de rotulos, como fracao da largura. Sem teto, um unico rotulo
- * longo encolheria o anel ate ele deixar de ser o assunto do grafico.
- */
-const BANDA_MAXIMA = 0.24;
-
 /**
  * Rotulos de cada nivel da arvore declarada. Medir a banda antes de montar o
  * anel exige saber os rotulos antes, e o nivel mais profundo declarado e o
@@ -136,9 +130,9 @@ export function ChartSunburst({
   }, [visiveis]);
 
   const larguraDoRotulo = showLabels
-    ? Math.min(widestLabel(rotulosExternos, font), width * BANDA_MAXIMA)
+    ? Math.min(widestLabel(rotulosExternos, font), width * CHART_LABEL_BAND)
     : 0;
-  const banda = showLabels ? COMPRIMENTO_DO_CONECTOR * 2 + RECUO_DO_ROTULO + larguraDoRotulo : 0;
+  const banda = showLabels ? COMPRIMENTO_DO_CONECTOR * 2 + CHART_LABEL_OFFSET + larguraDoRotulo : 0;
 
   const diametro = ringDiameter(Math.max(width - banda * 2, 0), alturaDoDesenho);
   const raio = diametro / 2;
@@ -252,7 +246,7 @@ export function ChartSunburst({
                   className={styles.label}
                   dominantBaseline="middle"
                   textAnchor={paraDireita ? 'start' : 'end'}
-                  x={xFim + (paraDireita ? RECUO_DO_ROTULO : -RECUO_DO_ROTULO)}
+                  x={xFim + (paraDireita ? CHART_LABEL_OFFSET : -CHART_LABEL_OFFSET)}
                   y={yCotovelo}
                 >
                   {truncateToWidth(arco.data.label, font, larguraDoRotulo)}

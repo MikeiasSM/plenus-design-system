@@ -5,6 +5,7 @@ import {
   type ChartLegendPosition,
   type ChartLegendSwatch,
 } from './CartesianFrame';
+import { CHART_LABEL_OFFSET } from './spacing';
 import styles from './Chart.module.css';
 
 export interface RadialFrameProps {
@@ -23,12 +24,9 @@ export interface RadialFrameProps {
   width: number;
 }
 
-/** Folga entre o anel e a borda da area, para o desenho nao encostar no limite. */
-const FOLGA = 8;
-
 /** Diametro do anel: o lado menor da area disponivel, menos a folga. */
 export function ringDiameter(width: number, height: number) {
-  return Math.max(Math.min(width, height) - FOLGA * 2, 0);
+  return Math.max(Math.min(width, height) - CHART_LABEL_OFFSET * 2, 0);
 }
 
 /**

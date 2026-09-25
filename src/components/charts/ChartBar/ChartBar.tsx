@@ -7,6 +7,7 @@ import {
   useChartMetrics,
   useSeriesToggle,
   useTweenedNumbers,
+  valueLabelRoom,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -48,7 +49,6 @@ export interface ChartBarProps {
 }
 
 const ESPACO_ENTRE_BARRAS = 2;
-const ALTURA_DO_ROTULO = 18;
 
 export function ChartBar({
   accent,
@@ -111,7 +111,7 @@ export function ChartBar({
     labelAngle,
     leftLabels: vertical ? rotulosDeValor : categories,
     rightLabels: vertical ? rotulosDeValor : categories,
-    topRoom: showDataLabels && vertical ? ALTURA_DO_ROTULO : 0,
+    topRoom: showDataLabels && vertical ? valueLabelRoom(font) : 0,
     width,
     xAxis,
     yAxis,

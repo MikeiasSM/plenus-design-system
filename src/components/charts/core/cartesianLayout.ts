@@ -1,4 +1,5 @@
 import { widestLabel, type LabelFont } from './measureText';
+import { CHART_EDGE_GAP, CHART_LABEL_OFFSET } from './spacing';
 import { linearScale, ticksFor, type NumericRange } from '../scales';
 
 export type AxisLabelRotation = 0 | 45 | 90;
@@ -60,14 +61,8 @@ export interface CartesianLayout {
   rotation: AxisLabelRotation;
 }
 
-/** Distancia entre a linha do eixo e o seu rotulo. */
-export const AXIS_LABEL_OFFSET = 8;
-
-/** Folga minima nas bordas, para o rotulo das pontas nao encostar no limite. */
-const FOLGA = 12;
-
 function calha(visibility: AxisVisibility, labels: readonly string[], font: LabelFont) {
-  return visibility === 'hidden' ? 0 : widestLabel(labels, font) + AXIS_LABEL_OFFSET;
+  return visibility === 'hidden' ? 0 : widestLabel(labels, font) + CHART_LABEL_OFFSET;
 }
 
 /**
@@ -84,7 +79,7 @@ export function bottomLabelRotation(
     return 0;
   }
 
-  if (widestLabel(labels, font) + AXIS_LABEL_OFFSET <= step) {
+  if (widestLabel(labels, font) + CHART_LABEL_OFFSET <= step) {
     return 0;
   }
 
@@ -103,13 +98,13 @@ function alturaDosRotulos(
   }
 
   if (rotation === 0) {
-    return font.lineHeight + AXIS_LABEL_OFFSET;
+    return font.lineHeight + CHART_LABEL_OFFSET;
   }
 
   const radianos = (rotation * Math.PI) / 180;
   const caixa = widestLabel(labels, font) * Math.sin(radianos) + font.lineHeight * Math.cos(radianos);
 
-  return caixa + AXIS_LABEL_OFFSET;
+  return caixa + CHART_LABEL_OFFSET;
 }
 
 /**
@@ -133,8 +128,8 @@ export function cartesianLayout({
 }: CartesianLayoutOptions): CartesianLayout {
   const meioRotulo = xAxis === 'hidden' ? 0 : widestLabel(bottomLabels, font) / 2;
 
-  const left = Math.max(calha(yAxis, leftLabels, font), FOLGA);
-  const right = Math.max(calha(yAxisRight, rightLabels, font), FOLGA);
+  const left = Math.max(calha(yAxis, leftLabels, font), CHART_EDGE_GAP);
+  const right = Math.max(calha(yAxisRight, rightLabels, font), CHART_EDGE_GAP);
   const plotWidth = Math.max(width - left - right, 0);
 
   const rotation =
@@ -149,7 +144,7 @@ export function cartesianLayout({
     bottom: alturaDosRotulos(bottomLabels, font, rotation, xAxis),
     left: Math.max(left, bordaLateral),
     right: Math.max(right, bordaLateral),
-    top: Math.max(topRoom, FOLGA),
+    top: Math.max(topRoom, CHART_EDGE_GAP),
   };
 
   return {

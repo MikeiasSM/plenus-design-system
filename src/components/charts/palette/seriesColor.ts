@@ -16,7 +16,8 @@ export interface ResolveSeriesColorsOptions {
   accent?: string;
 }
 
-const INTENT_TOKENS: Record<SeriesIntent, string> = {
+/** Token de cada intencao. A paleta e quem detem esse mapa. */
+export const INTENT_TOKENS: Record<SeriesIntent, string> = {
   positive: 'var(--pl-chart-positive)',
   negative: 'var(--pl-chart-negative)',
   warning: 'var(--pl-chart-warning)',

@@ -6,6 +6,7 @@ import {
   roundedBarPath,
   useChartMetrics,
   useTweenedNumbers,
+  valueLabelRoom,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -42,7 +43,6 @@ interface Trecho {
   inicio: number;
 }
 
-const ALTURA_DO_ROTULO = 20;
 
 /**
  * Cada passo ocupa a faixa entre o acumulado anterior e o novo acumulado. Um
@@ -118,7 +118,7 @@ export function ChartWaterfall({
     labelAngle,
     leftLabels: rotulosDeValor,
     rightLabels: rotulosDeValor,
-    topRoom: showDataLabels ? ALTURA_DO_ROTULO : 0,
+    topRoom: showDataLabels ? valueLabelRoom(font) : 0,
     width,
     xAxis,
     yAxis,

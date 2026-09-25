@@ -1,5 +1,6 @@
 import { bottomLabelRotation, cartesianLayout, chartHeight, valueLabelsFor } from './cartesianLayout';
 import { labelFontOf } from './measureText';
+import { valueLabelRoom } from './spacing';
 
 const fonte = labelFontOf(null);
 
@@ -93,6 +94,15 @@ describe('angulo dos rotulos de baixo', () => {
 
   it('dispensa a faixa de baixo quando o eixo x e desabilitado', () => {
     expect(layout({ xAxis: 'hidden' }).margins.bottom).toBe(0);
+  });
+});
+
+describe('espaco do rotulo de valor', () => {
+  it('acompanha a entrelinha medida, em vez de um numero fixo', () => {
+    const maior = { ...fonte, lineHeight: fonte.lineHeight * 2 };
+
+    expect(valueLabelRoom(maior)).toBeGreaterThan(valueLabelRoom(fonte));
+    expect(valueLabelRoom(fonte)).toBeGreaterThan(fonte.lineHeight);
   });
 });
 

@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-501 testes em 61 arquivos. Build da biblioteca e do Showcase validados.
+502 testes em 61 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -388,6 +388,12 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - O raio de cada canto e desenhado no **proprio caminho**, e nao pelo atributo `rx`, que arredonda os quatro de uma vez. Numa pilha isso separava visualmente os segmentos; agora so as duas pontas sao arredondadas e o meio fica reto, de modo que a pilha leia como uma barra so. Segmento de valor zero nao conta como ponta.
 - O caminho leva apenas pares de coordenadas, sem `H` nem `V`: fica uniforme e as medidas saem dele sem interpretar comando a comando.
 - O raio vem do token, lido do elemento junto da fonte, porque geometria de caminho nao le variavel CSS.
+
+**Espaco e medidas**
+
+- As medidas de espaco do desenho vivem em `core/spacing.ts`, e nao em cada grafico. Guardadas por arquivo, o mesmo conceito aparecia com valores diferentes em vizinhos: o recuo do rotulo era `8` no fluxo e `6` no anel, o teto da banda `0,22` e `0,24`, a folga de borda `12` num lugar e `8` em outros dois. Geometria em SVG nao le variavel CSS, entao continuam numeros — mas de um lugar so.
+- O espaco do rotulo de valor **sai da entrelinha medida**, nao de um numero fixo. Ele era `18` em tres graficos e `20` num quarto, sem que nada justificasse a diferenca; agora o rotulo ocupa o que o texto ocupa. O mesmo vale para as linhas do mapa de area.
+- O mapa de intencao para token tem **um dono**: a paleta. O mapa de area o havia redeclarado identico.
 
 **Grade**
 

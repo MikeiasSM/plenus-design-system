@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3-sankey';
 import {
+  CHART_LABEL_BAND,
+  CHART_LABEL_OFFSET,
   PlainFrame,
   chartHeight,
   measureLabel,
@@ -104,14 +106,6 @@ function caminhoDa(ligacao: LigacaoPosicionada) {
   return `M${saida},${ligacao.y0}C${meio},${ligacao.y0} ${meio},${ligacao.y1} ${chegada},${ligacao.y1}`;
 }
 
-const RECUO_DO_ROTULO = 8;
-
-/**
- * Teto da banda de rotulos, como fracao da largura. Sem teto, um nome longo
- * espremeria o fluxo, que e o assunto do grafico.
- */
-const BANDA_MAXIMA = 0.22;
-
 export function ChartSankey({
   accent,
   emptyMessage = 'Sem dados no período',
@@ -165,7 +159,7 @@ export function ChartSankey({
   }, [declarados, flows]);
 
   const bandaDireita = showLabels
-    ? Math.min(widestLabel(saidas, font), width * BANDA_MAXIMA) + RECUO_DO_ROTULO
+    ? Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET
     : 0;
 
   const grafo = useMemo(() => {
@@ -216,12 +210,12 @@ export function ChartSankey({
     const colunas = [...new Set(grafo.nodes.map((no) => no.x0))].sort((a, b) => a - b);
 
     if (colunas.length < 2) {
-      return width * BANDA_MAXIMA;
+      return width * CHART_LABEL_BAND;
     }
 
     const passo = Math.min(...colunas.slice(1).map((x, indice) => x - colunas[indice]));
 
-    return Math.max(passo - nodeWidth - RECUO_DO_ROTULO, 0);
+    return Math.max(passo - nodeWidth - CHART_LABEL_OFFSET, 0);
   })();
 
   function rotuloDoNo(no: NoPosicionado) {
@@ -229,9 +223,9 @@ export function ChartSankey({
     const texto = truncateToWidth(
       no.label,
       font,
-      (saida ? bandaDireita : larguraDaEtapa) - RECUO_DO_ROTULO,
+      (saida ? bandaDireita : larguraDaEtapa) - CHART_LABEL_OFFSET,
     );
-    const x = no.x1 + RECUO_DO_ROTULO;
+    const x = no.x1 + CHART_LABEL_OFFSET;
     const meio = (no.y0 + no.y1) / 2;
 
     return {
@@ -262,9 +256,9 @@ export function ChartSankey({
     const meio = (ligacao.y0 + ligacao.y1) / 2;
 
     const posicoes = {
-      end: { anchor: 'end' as const, x: chegada - RECUO_DO_ROTULO },
+      end: { anchor: 'end' as const, x: chegada - CHART_LABEL_OFFSET },
       middle: { anchor: 'middle' as const, x: (saida + chegada) / 2 },
-      start: { anchor: 'start' as const, x: saida + RECUO_DO_ROTULO },
+      start: { anchor: 'start' as const, x: saida + CHART_LABEL_OFFSET },
     };
 
     const { anchor, x } = posicoes[flowValuePosition];

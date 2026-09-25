@@ -3,7 +3,6 @@ export type { AxisOrientation, AxisProps, AxisTick } from './Axis';
 export { Grid } from './Grid';
 export type { GridOrientation, GridProps } from './Grid';
 export {
-  AXIS_LABEL_OFFSET,
   bottomLabelRotation,
   cartesianLayout,
   chartHeight,
@@ -34,6 +33,12 @@ export type {
   ChartLegendSwatch,
 } from './CartesianFrame';
 export { labelFontOf, measureLabel, truncateToWidth, widestLabel } from './measureText';
+export {
+  CHART_EDGE_GAP,
+  CHART_LABEL_BAND,
+  CHART_LABEL_OFFSET,
+  valueLabelRoom,
+} from './spacing';
 export type { LabelFont } from './measureText';
 export { PlainFrame } from './PlainFrame';
 export type { PlainFrameProps } from './PlainFrame';
