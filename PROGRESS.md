@@ -101,10 +101,10 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Em construcao
 
+- **O Showcase estatico foi removido, e a entrada oficial passa a ser unica: `showcase/app`.** Ele era o mock de uma implementacao anterior — 53 KB de HTML escrito a mao e 44 KB de CSS que reimplementava estilo de producao, exatamente o que `README.md` nega ao Showcase. Nenhum script o alcancava: a raiz do `vite.config.ts` ja era `app`, e a entrada React cobre 53 secoes contra 38 dele.
+- Saiu com ele a documentacao **visual** de fundamentos: cores, tipografia, espacamento, raios e sombras e estrategia de CSS. O conteudo continua normativo em `TOKENS.md` e nos dois documentos de referencia; o que se perdeu foi a pagina que o desenhava. Esta no historico do git, se for para repor.
 - Showcase sem formatador improvisado: as vinte e oito funcoes de formatacao escritas a mao nos graficos deram lugar aos formatadores de apresentacao. Sobraram duas, e ambas acrescentam unidade de dominio — `dias` — que nao pertence ao Design System.
 - Showcase com alternancia de tema no topo da barra lateral, para inspecionar o claro e o escuro lado a lado. A escolha guardada vence; sem ela, vale a preferencia do sistema. E inspecao manual, nao substitui o teste automatizado de tema escuro que continua pendente.
-- Showcase visual derivado de um mock de implementacao anterior.
-- Migracao gradual do Showcase estatico para componentes oficiais.
 - Expansao do Showcase React para os proximos componentes oficiais.
 - Consolidacao do bloco legado de `tokens.css` com as camadas primitiva e semantica.
 - Validacao da carga das familias e pesos tipograficos definidos.
@@ -126,7 +126,6 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
-- Definir qual Showcase e a referencia oficial e evitar divergencia entre a entrada estatica e a entrada React.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
 - Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
 
@@ -446,9 +445,11 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - Gutenberg, do WordPress, como referencia de funcionalidade e de modelo de blocos.
    - Escopo, nome e limites a definir antes da implementacao, com o levantamento da referencia como base.
 
-13. **Showcase como consumidor**
-   - Definir a entrada oficial unica e substituir os blocos estaticos por componentes oficiais.
+13. **Showcase como consumidor** — em andamento
+   - Entrada oficial unica definida: `showcase/app`, a aplicacao React que consome o Design System. O
+     Showcase estatico foi removido.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
+   - Repor as paginas visuais de fundamentos que sairam com o estatico, se forem desejadas.
 
 **Icones** — concluida. Biblioteca oficial criada e consumida pelos dez componentes que desenhavam o proprio SVG.
 
