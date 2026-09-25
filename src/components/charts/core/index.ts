@@ -33,7 +33,7 @@ export type {
   ChartLegendPosition,
   ChartLegendSwatch,
 } from './CartesianFrame';
-export { labelFontOf, measureLabel, truncateToWidth, widestLabel, wrapToWidth } from './measureText';
+export { labelFontOf, measureLabel, truncateToWidth, widestLabel } from './measureText';
 export type { LabelFont } from './measureText';
 export { PlainFrame } from './PlainFrame';
 export type { PlainFrameProps } from './PlainFrame';

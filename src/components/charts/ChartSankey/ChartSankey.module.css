@@ -6,15 +6,15 @@
    carrega o volume, e ela vem da propria medida do no.
 
    Em repouso ela fica lavada de proposito: o no e que carrega a cor cheia, e e
-   sobre a faixa lavada que o rotulo do no do meio continua legivel. */
+   sobre a faixa lavada que os rotulos continuam legiveis. */
 .link {
   opacity: 0.3;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
 /* A ligacao sob o ponteiro sobe um degrau, e nao ate a cor cheia: o realce
-   precisa apontar qual e, nao mudar o grafico de aparencia. Apagar as outras
-   sozinho tambem nao serve — ali o que se ve e o grafico inteiro sumindo. */
+   aponta qual e, nao muda o grafico de aparencia. Apagar as outras sozinho
+   tambem nao serve — ali o que se ve e o grafico inteiro sumindo. */
 .linkOn {
   opacity: 0.58;
 }
@@ -34,9 +34,17 @@
   pointer-events: none;
 }
 
-/* O rotulo do no do meio cai sobre o fluxo: o halo da cor da superficie e que o
-   separa do que passa por baixo. */
-.labelSobreFluxo {
+.flowValue {
+  fill: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* Texto que cai sobre a faixa: o halo da cor da superficie o separa do que
+   passa por baixo. */
+.sobreFluxo {
   paint-order: stroke;
   stroke: var(--pl-color-surface);
   stroke-width: 3px;

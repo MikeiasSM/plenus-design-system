@@ -120,7 +120,9 @@ export { ChartSunburst } from './components/charts/ChartSunburst';
 export type { ChartSunburstNode, ChartSunburstProps } from './components/charts/ChartSunburst';
 export { ChartSankey } from './components/charts/ChartSankey';
 export type {
+  ChartSankeyAlign,
   ChartSankeyFlow,
+  ChartSankeyFlowColor,
   ChartSankeyNode,
   ChartSankeyProps,
 } from './components/charts/ChartSankey';

@@ -1,6 +1,6 @@
 import { groupSmallSlices } from './slices';
 import { sliceAngles, VOLTA } from './arcs';
-import { truncateToWidth, labelFontOf, wrapToWidth } from './measureText';
+import { truncateToWidth, labelFontOf } from './measureText';
 
 const fonte = labelFontOf(null);
 
@@ -67,28 +67,6 @@ describe('angulos das fatias', () => {
     const [, desligada] = sliceAngles([100, 0]);
 
     expect(desligada.endAngle - desligada.startAngle).toBe(0);
-  });
-});
-
-describe('quebra de texto pela largura', () => {
-  it('mantem numa linha so quando o texto cabe', () => {
-    expect(wrapToWidth('Receita liquida', fonte, 400)).toEqual(['Receita liquida']);
-  });
-
-  it('quebra entre palavras quando nao cabe', () => {
-    expect(wrapToWidth('Receita liquida', fonte, 60)).toEqual(['Receita', 'liquida']);
-  });
-
-  it('corta a ultima linha quando o limite de linhas se esgota', () => {
-    const linhas = wrapToWidth('Custos das mercadorias vendidas no periodo', fonte, 60, 2);
-
-    expect(linhas).toHaveLength(2);
-    expect(linhas[1].endsWith('…')).toBe(true);
-  });
-
-  it('nao devolve linha alguma sem largura ou sem limite', () => {
-    expect(wrapToWidth('Receita', fonte, 0)).toEqual([]);
-    expect(wrapToWidth('Receita', fonte, 100, 0)).toEqual([]);
   });
 });
 

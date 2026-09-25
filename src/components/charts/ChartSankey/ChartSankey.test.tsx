@@ -13,24 +13,11 @@ function fixarTamanho(largura = 520, altura = 320) {
 }
 
 function ligacoes() {
-  return [...document.querySelectorAll('path')].filter((no) =>
-    no.getAttribute('class')?.includes('link'),
-  );
+  return [...document.querySelectorAll('path')];
 }
 
 function nos() {
-  return [...document.querySelectorAll('path')].filter((no) =>
-    no.getAttribute('class')?.includes('node'),
-  );
-}
-
-/** Caixa que envolve o caminho, a partir das coordenadas dele. */
-function caixaDe(no: Element) {
-  const numeros = (no.getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
-  const xs = numeros.filter((_, indice) => indice % 2 === 0);
-  const ys = numeros.filter((_, indice) => indice % 2 === 1);
-
-  return { altura: Math.max(...ys) - Math.min(...ys), x: Math.min(...xs) };
+  return [...document.querySelectorAll('rect')];
 }
 
 describe('ChartSankey', () => {
@@ -54,7 +41,7 @@ describe('ChartSankey', () => {
 
   it('da ao no altura proporcional ao volume que passa por ele', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const [receita, custos] = nos().map((no) => caixaDe(no).altura);
+    const [receita, custos] = nos().map((no) => Number(no.getAttribute('height')));
 
     expect(receita).toBeGreaterThan(custos);
   });
@@ -90,65 +77,73 @@ describe('ChartSankey', () => {
     expect(com('linkOn')).toBe(0);
   });
 
-  it('ancora o rotulo pelo papel do no: entrada a esquerda, saida a direita', () => {
+  it('poe todo rotulo a direita do no, como na referencia', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const rotulo = (texto: string) =>
-      [...document.querySelectorAll('text')].find((no) => no.textContent === texto)!;
+    const rotulos = [...document.querySelectorAll('text')];
 
-    // Nada desemboca em Receita, e nada parte de CMV.
-    expect(rotulo('Receita')).toHaveAttribute('text-anchor', 'end');
-    expect(rotulo('CMV')).toHaveAttribute('text-anchor', 'start');
+    expect(rotulos.every((no) => no.getAttribute('text-anchor') === 'start')).toBe(true);
+    expect(rotulos.map((no) => no.textContent)).toContain('Receita');
   });
 
-  it('da halo ao rotulo do no do meio, que cai sobre o fluxo', () => {
+  it('da halo ao rotulo que cai sobre o fluxo, e dispensa no de saida', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const comHalo = [...document.querySelectorAll('text')].filter((no) =>
-      no.getAttribute('class')?.includes('labelSobreFluxo'),
-    );
+    const comHalo = [...document.querySelectorAll('text')]
+      .filter((no) => no.getAttribute('class')?.includes('sobreFluxo'))
+      .map((no) => no.textContent);
 
-    // Custos e o unico no que recebe e entrega ao mesmo tempo.
-    expect(comHalo.map((no) => no.textContent)).toEqual(['Custos']);
+    // De CMV e Resultado nada parte: os rotulos deles caem na banda reservada.
+    expect(comHalo).toEqual(['Receita', 'Custos']);
   });
 
-  it('estende o no pelo raio em cada ponta, para o arredondamento nao encurta-lo', () => {
-    render(<ChartSankey flows={caixa} title="Fluxo" />);
-
-    // Por Custos passam 600, o mesmo da ligacao que chega nele: sem a extensao,
-    // a altura do no seria exatamente a espessura dela.
-    const custos = caixaDe(nos()[1]).altura;
-    const chegada = Number(ligacoes()[0].getAttribute('stroke-width'));
-
-    expect(custos).toBeGreaterThan(chegada);
-  });
-
-  it('quebra o rotulo do no do meio em linhas, para ele caber na etapa', () => {
-    render(
-      <ChartSankey
-        flows={[
-          { source: 'Receita', target: 'Receita liquida acumulada no periodo', value: 600 },
-          { source: 'Receita liquida acumulada no periodo', target: 'CMV', value: 600 },
-        ]}
-        title="Fluxo"
-      />,
-    );
-
-    const doMeio = [...document.querySelectorAll('text')].find((no) =>
-      no.getAttribute('class')?.includes('labelSobreFluxo'),
-    );
-
-    expect(doMeio?.querySelectorAll('tspan').length).toBeGreaterThan(1);
-    expect(doMeio?.textContent).toContain('Receita');
-  });
-
-  it('reserva a banda do rotulo antes do fluxo, em cada lado', () => {
-    const inicioDoFluxo = () => caixaDe(nos()[0]).x;
+  it('reserva a banda do rotulo de saida, que nao tem fluxo para escrever por cima', () => {
+    const fimDoFluxo = () => {
+      const ultimo = nos().at(-1)!;
+      return Number(ultimo.getAttribute('x')) + Number(ultimo.getAttribute('width'));
+    };
 
     const { rerender } = render(<ChartSankey flows={caixa} showLabels={false} title="Fluxo" />);
-    const semRotulo = inicioDoFluxo();
+    const semRotulo = fimDoFluxo();
 
     rerender(<ChartSankey flows={caixa} title="Fluxo" />);
 
-    expect(inicioDoFluxo()).toBeGreaterThan(semRotulo);
+    expect(fimDoFluxo()).toBeLessThan(semRotulo);
+  });
+
+  it('escreve o valor de cada ligacao quando pedido', () => {
+    const valores = () =>
+      [...document.querySelectorAll('text')]
+        .filter((no) => no.getAttribute('class')?.includes('flowValue'))
+        .map((no) => no.textContent);
+
+    const { rerender } = render(<ChartSankey flows={caixa} title="Fluxo" />);
+    expect(valores()).toHaveLength(0);
+
+    rerender(<ChartSankey flows={caixa} showFlowValues title="Fluxo" />);
+    expect(valores()).toEqual(['600', '400', '600']);
+  });
+
+  it('tira a cor da ligacao da origem, do destino ou de nenhum dos dois', () => {
+    const cores = () => ligacoes().map((no) => no.getAttribute('stroke'));
+
+    const { rerender } = render(<ChartSankey flows={caixa} title="Fluxo" />);
+    const daOrigem = cores();
+
+    rerender(<ChartSankey flowColor="target" flows={caixa} title="Fluxo" />);
+    expect(cores()).not.toEqual(daOrigem);
+
+    rerender(<ChartSankey flowColor="neutral" flows={caixa} title="Fluxo" />);
+    expect(new Set(cores())).toEqual(new Set(['var(--pl-chart-neutral)']));
+  });
+
+  it('encosta os nos conforme o alinhamento pedido', () => {
+    const inicios = () => nos().map((no) => Number(no.getAttribute('x')));
+
+    const { rerender } = render(<ChartSankey flows={caixa} title="Fluxo" />);
+    const justificado = inicios();
+
+    rerender(<ChartSankey flows={caixa} nodeAlign="left" title="Fluxo" />);
+
+    expect(inicios()).not.toEqual(justificado);
   });
 
   it('dispensa os rotulos quando pedido', () => {

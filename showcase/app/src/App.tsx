@@ -1466,7 +1466,26 @@ export function App() {
               height={320}
               title="Fluxo do resultado"
             />
-            <p className="doc-note">A altura do no e o volume que passa por ele, e a espessura da ligacao e o valor dela. O ponteiro sobre uma ligacao apaga as demais. O rotulo fica do lado de fora do no, ancorado conforme o lado em que ele esta.</p>
+            <p className="doc-note">A altura do no e o volume que passa por ele, e a espessura da ligacao e o valor dela. O ponteiro sobre uma ligacao sobe o tom dela e apaga as demais. O rotulo fica sempre a direita do no, como na referencia: o do no de saida cai na banda reservada, e os demais sobre o proprio fluxo, com um halo que os separa do que passa por baixo.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Valor na ligacao, cor pelo destino e nos a esquerda</h3>
+            <ChartSankey
+              accent={corDoTema}
+              flowColor="target"
+              flows={[
+                { source: 'Cadastro concluido', target: 'Lead gerado', value: 222 },
+                { source: 'Cadastro concluido', target: 'Sem lead', value: 136 },
+                { source: 'Lead gerado', target: 'Senha informada', value: 178 },
+                { source: 'Lead gerado', target: 'Senha redefinida', value: 44 },
+              ]}
+              formatValue={(valor) => String(valor)}
+              height={280}
+              nodeAlign="left"
+              showFlowValues
+              title="Jornada de cadastro"
+            />
+            <p className="doc-note">As opcoes seguem as da referencia: alinhamento dos nos entre <code>left</code>, <code>right</code>, <code>center</code> e <code>justify</code>; valor escrito sobre cada ligacao; e a cor da ligacao vinda da origem, do destino ou de nenhum dos dois.</p>
           </div>
         </ComponentDoc>
 

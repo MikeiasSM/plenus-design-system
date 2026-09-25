@@ -1,2 +1,8 @@
 export { ChartSankey } from './ChartSankey';
-export type { ChartSankeyFlow, ChartSankeyNode, ChartSankeyProps } from './ChartSankey';
+export type {
+  ChartSankeyAlign,
+  ChartSankeyFlow,
+  ChartSankeyFlowColor,
+  ChartSankeyNode,
+  ChartSankeyProps,
+} from './ChartSankey';
