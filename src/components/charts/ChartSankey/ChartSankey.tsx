@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
+import { sankey } from 'd3-sankey';
 import {
   PlainFrame,
   chartHeight,
@@ -51,6 +51,21 @@ interface LigacaoPosicionada {
   target: NoPosicionado;
   value: number;
   width: number;
+  y0: number;
+  y1: number;
+}
+
+/**
+ * Bezier cubica entre a borda de saida e a borda de entrada, com os pontos de
+ * controle no meio do vao. E o que da a ligacao a curva que sai e chega na
+ * horizontal, sem torcer perto dos nos.
+ */
+function caminhoDa(ligacao: LigacaoPosicionada) {
+  const saida = ligacao.source.x1;
+  const chegada = ligacao.target.x0;
+  const meio = (saida + chegada) / 2;
+
+  return `M${saida},${ligacao.y0}C${meio},${ligacao.y0} ${meio},${ligacao.y1} ${chegada},${ligacao.y1}`;
 }
 
 const RECUO_DO_ROTULO = 8;
@@ -122,7 +137,6 @@ export function ChartSankey({
     return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
   }, [alturaDoDesenho, declarados, flows, margem, nodePadding, nodeWidth, width]);
 
-  const caminhoDaLigacao = useMemo(() => sankeyLinkHorizontal(), []);
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
   return (
@@ -140,7 +154,7 @@ export function ChartSankey({
         {grafo.links.map((ligacao, indice) => (
           <path
             className={`${styles.link} ${emFoco !== null && emFoco !== indice ? styles.linkDim : ''}`}
-            d={caminhoDaLigacao(ligacao as never) ?? ''}
+            d={caminhoDa(ligacao)}
             key={`${ligacao.source.label}-${ligacao.target.label}`}
             onMouseEnter={() => setEmFoco(indice)}
             onMouseLeave={() => setEmFoco(null)}
