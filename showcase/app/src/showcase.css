@@ -32,6 +32,12 @@ body {
   margin-bottom: var(--pl-space-5);
 }
 
+.rail-theme {
+  padding: 0 var(--pl-space-2) var(--pl-space-4);
+  margin-bottom: var(--pl-space-2);
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
 .rail-brand strong,
 .rail-brand small {
   display: block;

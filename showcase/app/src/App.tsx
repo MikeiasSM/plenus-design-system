@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
@@ -44,6 +44,23 @@ const mesesDoSemestre = ['04/26', '05/26', '06/26', '07/26', '08/26', '09/26'];
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
+
+const CHAVE_DO_TEMA = 'plenus-showcase-tema';
+
+/** A escolha guardada vence; sem ela, a preferencia do sistema. */
+function lerTemaEscuro() {
+  try {
+    const guardado = localStorage.getItem(CHAVE_DO_TEMA);
+
+    if (guardado) {
+      return guardado === 'dark';
+    }
+  } catch {
+    // Sem acesso ao armazenamento, quem decide e o sistema.
+  }
+
+  return matchMedia('(prefers-color-scheme: dark)').matches;
+}
 
 function CodeBlock({ children }: { children: string }) {
   return <pre className="code-block"><code>{children}</code></pre>;
@@ -95,10 +112,21 @@ export function App() {
   const [ordemEquipe, setOrdemEquipe] = useState<OrdemTabela>({ column: 'nome', direction: 'ascending' });
   const [paginaEquipe, setPaginaEquipe] = useState(1);
   const [corDoTema, setCorDoTema] = useState('#F26B35');
+  const [temaEscuro, setTemaEscuro] = useState(lerTemaEscuro);
   const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
   const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
   const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = temaEscuro ? 'dark' : 'light';
+
+    try {
+      localStorage.setItem(CHAVE_DO_TEMA, temaEscuro ? 'dark' : 'light');
+    } catch {
+      // Guardar a escolha e conveniencia, nao requisito.
+    }
+  }, [temaEscuro]);
   const equipeOrdenada = [...equipe].sort((a, b) => {
     const campo = ordemEquipe.column === 'status' ? 'status' : 'nome';
     const comparacao = a[campo].localeCompare(b[campo], 'pt-BR');
@@ -111,6 +139,13 @@ export function App() {
         <div className="rail-brand">
           <span className="rail-mark">P</span>
           <div><strong>Plenustech DS</strong><small>Showcase React · v0.1.0</small></div>
+        </div>
+        <div className="rail-theme">
+          <Switch
+            checked={temaEscuro}
+            label="Tema escuro"
+            onChange={(evento) => setTemaEscuro(evento.currentTarget.checked)}
+          />
         </div>
         <nav aria-label="Navegacao da documentacao">
           <p className="rail-group">Fundamentos</p>

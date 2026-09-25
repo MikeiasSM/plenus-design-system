@@ -81,6 +81,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Em construcao
 
+- Showcase com alternancia de tema no topo da barra lateral, para inspecionar o claro e o escuro lado a lado. A escolha guardada vence; sem ela, vale a preferencia do sistema. E inspecao manual, nao substitui o teste automatizado de tema escuro que continua pendente.
 - Showcase visual derivado de um mock de implementacao anterior.
 - Migracao gradual do Showcase estatico para componentes oficiais.
 - Expansao do Showcase React para os proximos componentes oficiais.
