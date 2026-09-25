@@ -26,6 +26,7 @@
     "dev:showcase": "vite --config showcase/vite.config.ts",
     "build": "tsc -b && vite build && tsc -p tsconfig.build.json",
     "check:pacote": "node scripts/check-pacote.mjs",
+    "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build",
     "build:showcase": "vite build --config showcase/vite.config.ts",
     "test": "vitest run",

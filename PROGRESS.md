@@ -49,6 +49,14 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - `@react-aria/focus` e `@react-aria/overlays` sao externalizados no build, junto de `react/jsx-runtime`, para nao serem embutidos no pacote.
 - Untitled UI guia o visual sempre que houver referencia correspondente. Consultar **antes** de arbitrar tratamento visual, nao depois.
 
+**Validacao**
+
+- O contraste e medido por `scripts/check-contraste.mjs`, que le os tokens na ordem da cascata, resolve as cadeias de `var()` e mede os dois temas. Ele nao e um teste do Vitest porque nao ha componente envolvido: o que se verifica e o valor do token, e ligar o processamento de CSS no jsdom sairia caro para medir o que o arquivo ja declara.
+- As reprovacoes aceitas vivem declaradas **no script**, e nao so em prosa. Uma quinta reprovacao derruba o comando.
+- A ordem dos arquivos no script copia a de `tokens.css`: os `@import` primeiro e o bloco legado depois, porque e ele quem vence onde redeclara. Medir na ordem errada daria um laudo que nao corresponde ao que o navegador aplica.
+- O pacote construido e conferido por `scripts/check-pacote.mjs`, fora da suite: `dist/` nao existe antes do build, e um teste que se pula sozinho esconde a falha que deveria mostrar.
+- A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
+
 **Distribuicao**
 
 - `react` e `react-dom` sao **peer dependencies**, nao dependencias. Instalados como dependencia, o
@@ -121,7 +129,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ## Pendencias de correcao identificadas no review
 
-- Validar o contraste antes de publicar um tema ou expor os tokens como API publica, conforme exige `TOKENS-REFERENCE-COLORS.md`. As excecoes aceitas abaixo precisam ser revistas ou formalizadas nesse momento.
+- **`npm run check:contraste` reprova hoje**, com uma unica falha nao declarada: `--pl-chart-series-4` mede 2.55:1 contra a superficie clara, abaixo do piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico. Depende de decisao do mantenedor, porque o corpus normativo nao fixa piso para marca de dado e porque a alternativa tem custo: `brand.blue.60` levaria a serie a 7.77:1 contra a superficie, mas a separacao dela para a serie 1 cairia de 2.37:1 para 1.29:1.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
@@ -133,7 +141,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 Falhas conhecidas, mantidas por decisao visual do mantenedor apos comparacao lado a lado das alternativas.
 
-- `Button` variante `primary` solida: texto branco sobre `brand.orange.50` em 3.03:1, contra o minimo de 4.5:1. Mantido o laranja de marca.
+- `Button` variante `primary` solida: texto branco sobre `brand.orange.50` em 3.03:1, contra o minimo de 4.5:1. Mantido o laranja de marca. Vale nos **dois** temas: `color.primary` nao muda no escuro.
 - `Button` variante `primary` solida, contorno contra o fundo da pagina: 2.83:1 no tema claro, contra o minimo de 3:1. Passa em 6.03:1 no tema escuro.
 - `--pl-color-border-strong` como contorno de campo em repouso: 1.33:1 no claro e 1.57:1 no escuro, contra o minimo de 3:1. Mantida a borda discreta. No hover e no foco a borda alcanca 3.03:1 e 5.57:1.
 - Halo de foco em `primary-container`: 1.08:1, decorativo. O sinal acessivel do foco e a troca da borda, nao o halo. Consequencia: com ponteiro, foco e hover ficam visualmente iguais. Quem depende do indicador de foco navega por teclado e nao dispara hover.
