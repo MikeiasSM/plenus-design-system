@@ -4,6 +4,8 @@ import {
   cartesianLayout,
   chartHeight,
   useChartMetrics,
+  useSeriesToggle,
+  useTweenedNumbers,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -25,11 +27,14 @@ export interface ChartBarSeries extends SeriesAppearance {
 export interface ChartBarProps {
   accent?: string;
   categories: readonly string[];
+  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
   showDataLabels?: boolean;
@@ -43,18 +48,17 @@ export interface ChartBarProps {
 const ESPACO_ENTRE_BARRAS = 2;
 const ALTURA_DO_ROTULO = 18;
 
-function somaEmpilhada(series: readonly ChartBarSeries[], indice: number) {
-  return series.reduce((total, serie) => total + (serie.values[indice] ?? 0), 0);
-}
-
 export function ChartBar({
   accent,
   categories,
+  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 260,
+  hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  onHiddenSeriesChange,
   orientation = 'vertical',
   series,
   showDataLabels = false,
@@ -66,32 +70,45 @@ export function ChartBar({
 }: ChartBarProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
   const vertical = orientation === 'vertical';
 
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
+  // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
+  // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, entao a
+  // serie desligada encolhe enquanto as demais ocupam o lugar dela.
+  const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
+  const presenca = (indice: number) => presencas[indice] ?? 0;
+
   const dominio = useMemo(() => {
+    const visiveis = series.filter((serie) => !isHidden(serie.label));
+
     if (stacked) {
-      return domainOf(categories.map((_, indice) => somaEmpilhada(series, indice)));
+      return domainOf(
+        categories.map((_, indice) =>
+          visiveis.reduce((total, serie) => total + (serie.values[indice] ?? 0), 0),
+        ),
+      );
     }
 
-    return mergeDomains(series.map((serie) => domainOf([...serie.values])));
-  }, [categories, series, stacked]);
+    return mergeDomains(visiveis.map((serie) => domainOf([...serie.values])));
+  }, [categories, isHidden, series, stacked]);
 
   // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.
   const posicaoDaLegenda = !vertical && (legend === 'left' || legend === 'right') ? 'bottom' : legend;
 
   const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue);
-  const rotulosDeCategoria = categories;
 
-  const layout = cartesianLayout({
-    bottomLabels: vertical ? rotulosDeCategoria : rotulosDeValor,
+  const { margins, plot, rotation } = cartesianLayout({
+    bottomLabels: vertical ? categories : rotulosDeValor,
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: vertical ? rotulosDeValor : rotulosDeCategoria,
-    rightLabels: vertical ? rotulosDeValor : rotulosDeCategoria,
+    leftLabels: vertical ? rotulosDeValor : categories,
+    rightLabels: vertical ? rotulosDeValor : categories,
     topRoom: showDataLabels && vertical ? ALTURA_DO_ROTULO : 0,
     width,
     xAxis,
@@ -99,32 +116,66 @@ export function ChartBar({
     yAxisRight,
   });
 
-  const { margins, plot, rotation } = layout;
   const comprimentoCategorias = vertical ? plot.width : plot.height;
   const comprimentoValores = vertical ? plot.height : plot.width;
+  const inicioDaFaixa = vertical ? comprimentoValores : 0;
+  const fimDaFaixa = vertical ? 0 : comprimentoValores;
 
   const escalaCategorias = useMemo(
     () => bandScale({ domain: categories, range: [0, comprimentoCategorias] }),
     [categories, comprimentoCategorias],
   );
 
+  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
+  // duas, as marcas exibiriam valores quebrados durante a transicao.
+  const escalaAlvo = useMemo(
+    () => linearScale({ domain: dominio, range: [inicioDaFaixa, fimDaFaixa] }),
+    [dominio, fimDaFaixa, inicioDaFaixa],
+  );
+
+  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+
   const escalaValores = useMemo(
     () =>
       linearScale({
-        domain: dominio,
-        range: vertical ? [comprimentoValores, 0] : [0, comprimentoValores],
+        domain: { min: minimo, max: maximo },
+        nice: false,
+        range: [inicioDaFaixa, fimDaFaixa],
       }),
-    [comprimentoValores, dominio, vertical],
+    [fimDaFaixa, inicioDaFaixa, maximo, minimo],
   );
 
-  const marcasDeValor = ticksFor(escalaValores, comprimentoValores);
-  const larguraDaBarra = stacked
-    ? escalaCategorias.bandwidth()
-    : Math.max((escalaCategorias.bandwidth() - ESPACO_ENTRE_BARRAS * (series.length - 1)) / series.length, 1);
+  const marcasDeValor = ticksFor(escalaAlvo, comprimentoValores);
+
+  const vao = escalaCategorias.bandwidth();
+  const presencaTotal = presencas.reduce((total, valor) => total + valor, 0);
+  const unidade = Math.max(
+    (vao - ESPACO_ENTRE_BARRAS * Math.max(presencaTotal - 1, 0)) / Math.max(presencaTotal, 1),
+    0,
+  );
+
+  function espessuraDa(indiceSerie: number) {
+    return stacked ? vao : unidade * presenca(indiceSerie);
+  }
+
+  function deslocamentoDa(indiceSerie: number) {
+    if (stacked) {
+      return 0;
+    }
+
+    return presencas
+      .slice(0, indiceSerie)
+      .reduce((total, valor) => total + (unidade + ESPACO_ENTRE_BARRAS) * valor, 0);
+  }
+
+  /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto. */
+  function contribuicao(indiceSerie: number, indiceCategoria: number) {
+    return (series[indiceSerie].values[indiceCategoria] ?? 0) * (stacked ? presenca(indiceSerie) : 1);
+  }
 
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
-    position: (escalaCategorias(categoria) ?? 0) + escalaCategorias.bandwidth() / 2,
+    position: (escalaCategorias(categoria) ?? 0) + vao / 2,
   }));
 
   const marcasValor: AxisTick[] = marcasDeValor.map((valor) => ({
@@ -140,6 +191,7 @@ export function ChartBar({
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
+      fillHeight={fillHeight}
       grid={[
         {
           baseline: escalaValores(0),
@@ -147,11 +199,15 @@ export function ChartBar({
           orientation: vertical ? 'horizontal' : 'vertical',
         },
       ]}
-      fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
+      legend={series.map((serie, indice) => ({
+        color: cores[indice],
+        hidden: isHidden(serie.label),
+        label: serie.label,
+      }))}
       legendPosition={posicaoDaLegenda}
       margins={margins}
+      onToggleSeries={toggle}
       plot={plot}
       title={title}
       width={width}
@@ -162,70 +218,76 @@ export function ChartBar({
       {faixaEmFoco !== null && (
         <rect
           className={styles.cursor}
-          height={vertical ? plot.height : escalaCategorias.bandwidth()}
-          width={vertical ? escalaCategorias.bandwidth() : plot.width}
+          height={vertical ? plot.height : vao}
+          width={vertical ? vao : plot.width}
           x={vertical ? escalaCategorias(categories[faixaEmFoco]) ?? 0 : 0}
           y={vertical ? 0 : escalaCategorias(categories[faixaEmFoco]) ?? 0}
         />
       )}
 
-      {series.map((serie, indiceSerie) => (
-        <g key={serie.label}>
-          {categories.map((categoria, indiceCategoria) => {
-            const valor = serie.values[indiceCategoria] ?? 0;
-            const inicioCategoria = escalaCategorias(categoria) ?? 0;
-            const deslocamento = stacked ? 0 : indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
-            const anterior = stacked
-              ? series
-                  .slice(0, indiceSerie)
-                  .reduce((total, outra) => total + (outra.values[indiceCategoria] ?? 0), 0)
-              : 0;
-            const comeco = escalaValores(anterior);
-            const fim = escalaValores(anterior + valor);
-            const tamanho = Math.abs(fim - comeco);
+      {series.map((serie, indiceSerie) => {
+        const oculta = isHidden(serie.label);
 
-            return (
-              <rect
-                className={styles.bar}
-                fill={cores[indiceSerie]}
-                height={vertical ? tamanho : larguraDaBarra}
-                key={categoria}
-                onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
-                onMouseLeave={() => setFaixaEmFoco(null)}
-                width={vertical ? larguraDaBarra : tamanho}
-                x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
-                y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
-              >
-                <title>{`${serie.label}, ${categoria}: ${formatValue(valor)}`}</title>
-              </rect>
-            );
-          })}
-        </g>
-      ))}
+        return (
+          <g
+            aria-hidden={oculta || undefined}
+            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            key={serie.label}
+          >
+            {categories.map((categoria, indiceCategoria) => {
+              const inicioCategoria = escalaCategorias(categoria) ?? 0;
+              const anterior = stacked
+                ? series
+                    .slice(0, indiceSerie)
+                    .reduce((total, _, outra) => total + contribuicao(outra, indiceCategoria), 0)
+                : 0;
+              const comeco = escalaValores(anterior);
+              const fim = escalaValores(anterior + contribuicao(indiceSerie, indiceCategoria));
+              const tamanho = Math.abs(fim - comeco);
+              const espessura = espessuraDa(indiceSerie);
+              const deslocamento = deslocamentoDa(indiceSerie);
 
-      {showDataLabels &&
-        !stacked &&
-        series.map((serie, indiceSerie) =>
-          categories.map((categoria, indiceCategoria) => {
-            const valor = serie.values[indiceCategoria] ?? 0;
-            const inicioCategoria = escalaCategorias(categoria) ?? 0;
-            const deslocamento = indiceSerie * (larguraDaBarra + ESPACO_ENTRE_BARRAS);
-            const ponta = escalaValores(valor);
+              return (
+                <rect
+                  className={styles.bar}
+                  fill={cores[indiceSerie]}
+                  height={vertical ? tamanho : espessura}
+                  key={categoria}
+                  onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
+                  onMouseLeave={() => setFaixaEmFoco(null)}
+                  width={vertical ? espessura : tamanho}
+                  x={vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim)}
+                  y={vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento}
+                >
+                  <title>{`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}</title>
+                </rect>
+              );
+            })}
 
-            return (
-              <text
-                className={styles.valueLabel}
-                dominantBaseline={vertical ? 'auto' : 'middle'}
-                key={serie.label + categoria}
-                textAnchor={vertical ? 'middle' : 'start'}
-                x={vertical ? inicioCategoria + deslocamento + larguraDaBarra / 2 : ponta + 6}
-                y={vertical ? ponta - 6 : inicioCategoria + deslocamento + larguraDaBarra / 2}
-              >
-                {formatValue(valor)}
-              </text>
-            );
-          }),
-        )}
+            {showDataLabels &&
+              !stacked &&
+              categories.map((categoria, indiceCategoria) => {
+                const valor = serie.values[indiceCategoria] ?? 0;
+                const ponta = escalaValores(valor);
+                const centro =
+                  (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;
+
+                return (
+                  <text
+                    className={styles.valueLabel}
+                    dominantBaseline={vertical ? 'auto' : 'middle'}
+                    key={categoria}
+                    textAnchor={vertical ? 'middle' : 'start'}
+                    x={vertical ? centro : ponta + 6}
+                    y={vertical ? ponta - 6 : centro}
+                  >
+                    {formatValue(valor)}
+                  </text>
+                );
+              })}
+          </g>
+        );
+      })}
     </CartesianFrame>
   );
 }

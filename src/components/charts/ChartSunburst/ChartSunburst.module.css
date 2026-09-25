@@ -1,0 +1,33 @@
+.arc {
+  stroke: var(--pl-color-surface);
+  stroke-width: 1;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+/* Focar um ramo apaga os demais, que e como a hierarquia se le: o caminho do
+   arco sob o ponteiro ate a raiz permanece cheio, e os filhos dele tambem. */
+.arcDim {
+  opacity: 0.35;
+}
+
+.leader {
+  pointer-events: none;
+}
+
+.connector {
+  fill: none;
+  stroke: var(--pl-chart-axis);
+  stroke-width: 1;
+}
+
+.label {
+  fill: var(--pl-chart-label);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc {
+    transition: none;
+  }
+}

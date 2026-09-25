@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-400 testes em 51 arquivos. Build da biblioteca e do Showcase validados.
+468 testes em 59 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -25,13 +25,15 @@ Outros modulos:
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
 - `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
-- `src/components/charts/core` — moldura cartesiana compartilhada: `CartesianFrame`, `Axis`, `Grid`, o calculo de
-  layout de `cartesianLayout.ts`, a medida de texto de `measureText.ts`, `useChartMetrics` e os geradores de caminho
-  de `shapes.ts`. **Internos**, nao exportados, exceto os tipos que aparecem na API publica dos graficos.
-  Servem `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall`.
+- `src/components/charts/core` — o que os onze graficos compartilham. Tres molduras: `CartesianFrame` para os que
+  tem eixo, `RadialFrame` para os que se organizam em torno de um centro e `PlainFrame` para os que ocupam a area
+  inteira. Ao lado delas, o calculo de layout de `cartesianLayout.ts`, a medida e o corte de texto de
+  `measureText.ts`, os caminhos de `shapes.ts` e `arcs.ts`, o agrupamento de `slices.ts`, `useChartMetrics`,
+  `useSliceRing`, `useSeriesToggle` e `useTweenedNumbers`. **Internos**, nao exportados, exceto os tipos que
+  aparecem na API publica dos graficos.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array` e `d3-shape`. Todas externalizadas no build.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-sankey`. Todas externalizadas no build.
 
 ### Decisoes tomadas
 
@@ -87,7 +89,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Ainda nao implementado
 
-- Os seis graficos restantes da etapa 11 — os radiais, os hierarquicos e o fluxo —, e o `DataGrid` da etapa 10.
+- O combo de linhas e barras, que depende da decisao sobre o duplo eixo Y, e o `DataGrid` da etapa 10.
 - `formatarMoeda`, `formatarNumero` e `formatarPercentual`, previstos em `ARCHITECTURE.md` secao 9.1. `formatarData` e `formatarHora` ja existem.
 - State Motor da grade, para o `DataGrid`.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
@@ -202,7 +204,17 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Na cascata, a faixa de cada passo e indexada pela **posicao**, nao pelo rotulo: numa sequencia de passos o mesmo rotulo pode repetir, e a escala categorica funde dominios iguais, sobrepondo as barras.
 - Um passo marcado como total parte do zero e recebe intencao `neutral`: ele fecha a conta em vez de acrescentar a ela, e o rotulo dele dispensa o sinal.
 - **Tooltip de grafico por portal adiado por decisao do mantenedor.** Os cartesianos mantem o `<title>` por marca, com marcadores revelados no hover para dar a leitura por ponto. Ele entra quando o mantenedor decidir, e e o ponto que falta para a leitura no ponteiro se igualar a referencia.
-- **Legenda clicavel adiada.** Hoje a legenda e estatica nos cinco graficos. Ligar e desligar serie e comportamento, nao estrutura, e nenhum cenario concreto pediu ainda.
+- **Legenda clicavel implementada**, depois de adiada uma rodada. Cada entrada e um botao com `aria-pressed`, e o estado e controlado ou nao conforme `COMPONENTS.md` secao 6. Ela trabalha com rotulos, nao com indices: e o rotulo que a legenda exibe e o que o produto reconhece, e o indice mudaria de significado ao reordenar as series.
+
+**Movimento**
+
+- O movimento dos dados anima **o dominio da escala**, nao cada marca. Uma unica animacao move barras, curvas, grade e marcas do eixo, em vez de uma por elemento.
+- A escala alvo fixa as **marcas do eixo**; a animada posiciona o desenho. Sem separar as duas, o eixo exibiria valores quebrados durante a transicao.
+- Cada serie tem uma **presenca** entre zero e um, que tambem caminha. Nas barras ela reparte a faixa, entao a serie desligada encolhe e as demais ocupam o lugar dela; na area empilhada ela pesa a contribuicao, e a pilha acompanha. As duas animacoes tem a mesma duracao e a mesma curva, e por isso ficam em sincronia sem coordenacao explicita.
+- A serie desligada **permanece no DOM**, fora da arvore de acessibilidade. E a permanencia que permite transicao nos dois sentidos; removida, so a saida seria animavel.
+- A duracao do movimento dos dados e maior que a dos tokens de `speed`, que medem resposta a um gesto. Aqui o olho precisa acompanhar uma barra mudando de altura, nao apenas notar que algo respondeu.
+- Sem `matchMedia` nao ha navegador para animar, e sem preferencia conhecida o salto e a escolha segura. Isso respeita `prefers-reduced-motion` e mantem o resultado deterministico fora do navegador, onde nao existe quadro a quadro.
+- A cor de uma serie sai sempre da **lista inteira**, nunca das visiveis: desligar uma serie nao pode repintar as demais.
 
 **Elegancia dos graficos, a partir da revisao do mantenedor**
 
@@ -320,13 +332,28 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - `DatePicker`, `TimePicker` e `DateTimePicker` implementados sobre `@internationalized/date`, com State Motor de calendario proprio, testes, exportacao publica e Showcase.
    - `formatarData` e `formatarHora` criados conforme `ARCHITECTURE.md` secao 9.1, e exportados pela API publica. `formatarEntradaData` e `lerEntradaData` acompanham as mascaras de entrada ja existentes.
 
-11. **Graficos** — em andamento
+11. **Graficos** — concluida, exceto o combo de linhas e barras
    - Escalas, paleta, resolucao de cor por precedencia, medida do container, eixo e grade concluidos.
    - Moldura cartesiana compartilhada extraida, com `ChartBar` migrado sobre ela sem alteracao de teste nem de API.
    - `ChartBar` implementado, vertical e horizontal, agrupado e empilhado, com rotulos de valor, legenda, estado vazio e intencao semantica. Testado, exportado e documentado no Showcase.
    - `ChartLine`, `ChartArea`, `ChartScatter` e `ChartWaterfall` implementados sobre a moldura, com curva suave ou reta, interrupcao no valor ausente, gradiente e empilhamento, bolha pelo eixo Z com guias no ponto sob o ponteiro, e cascata com barra flutuante, conectores tracejados e rotulo de variacao. Testados, exportados e documentados no Showcase. A familia cartesiana esta concluida.
    - Revisao de elegancia do mantenedor aplicada aos cinco: margens derivadas dos rotulos, angulacao automatica, visibilidade de eixo em tres estados nos dois lados, legenda posicionavel, altura pelo contêiner, realce por faixa no lugar da opacidade e raio na barra.
-   - Proximos, por motor de calculo: os radiais — `ChartPie`, `ChartDonut` e `ChartRadial` —, depois os hierarquicos — `ChartTreemap` e `ChartSunburst` — e o fluxo, `ChartSankey`.
+   - `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` implementados, testados, exportados e documentados no Showcase. Os onze graficos do catalogo estao disponiveis.
+   - Falta apenas o combo de linhas e barras, que nao e um componente do catalogo e depende da decisao sobre o duplo eixo Y.
+
+**Graficos radiais, hierarquicos e de fluxo**
+
+- A referencia do anel e o **Metabase**, por decisao do mantenedor, e nao o shadcn/ui: anel vazado com o total no centro, centro trocado pelo valor da fatia sob o ponteiro, legenda em lista com o percentual alinhado numa coluna, e fatias pequenas reunidas em Outros por percentual minimo. Os demais graficos seguem o shadcn/ui.
+- O separador entre fatias e a propria superficie mostrando por baixo, como traco, e nao um angulo de folga. Assim a folga mantem largura constante em qualquer raio.
+- O valor do centro e um KPI, e `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a Poppins a esse papel. Em anel pequeno ele **desce na escala oficial** — display, depois headline, depois title — em vez de sair dela com um tamanho proprio.
+- A fatia reunida entra no lugar da primeira pequena, para a ordem das demais, que a legenda repete, permanecer a mesma, e recebe intencao neutra para nao disputar posicao na paleta.
+- Uma fatia pequena sozinha nao vira Outros: trocar o nome dela por um rotulo generico nao ganha nada.
+- `ChartPie` e `ChartDonut` nao se compoem: os dois compoem `useSliceRing`, que e o anel repartido. O que compartilham e o anel, nao o componente — a mesma regra ja firmada para `Select` e `ComboBox`.
+- O rotulo sobre a fatia so entra quando ela o comporta. Ate meia volta a largura disponivel e a corda no centro do arco; dali em diante a corda volta a encolher e quem manda e o raio. Sem essa virada, a fatia quase inteira ficava sem rotulo.
+- No sunburst, o filho nasce da cor do pai e clareia a cada anel, por `color-mix`. Sem isso os aneis externos repetiriam a cor do nivel zero e nada distinguiria um filho do outro. A legenda lista apenas o nivel zero, como na referencia.
+- No mapa de area, a legenda muda de papel conforme a cor: com `intentLabels` ela **nomeia as cores**, porque ali o que precisa ser explicado e o significado do status; sem ele, lista os grupos e desliga cada um.
+- A ligacao do sankey e desenhada como **traco**, nao como preenchimento: a espessura e que carrega o volume, e ela vem da propria medida do no.
+- `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
 
 12. **Editor em blocos**
    - Componente complexo, previsto em `ARCHITECTURE.md` secao 6.3 entre os exemplos de editores, com State Motor proprio conforme a secao 7.

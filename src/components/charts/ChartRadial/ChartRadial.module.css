@@ -1,0 +1,34 @@
+/* A pista mostra o quanto falta para a meta, entao ela precisa existir mesmo
+   com o arco vazio. */
+.track {
+  fill: var(--pl-color-surface-muted);
+}
+
+.fill {
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+svg:hover .fill:not(:hover) {
+  opacity: 0.82;
+}
+
+.center {
+  pointer-events: none;
+}
+
+.centerValue {
+  fill: var(--pl-color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.centerLabel {
+  fill: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

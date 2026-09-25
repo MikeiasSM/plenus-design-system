@@ -1,0 +1,41 @@
+.links {
+  fill: none;
+}
+
+/* A ligacao e desenhada como traco, nao como preenchimento: a espessura e que
+   carrega o volume, e ela vem da propria medida do no. */
+.link {
+  mix-blend-mode: multiply;
+  opacity: 0.42;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.link:hover {
+  opacity: 0.78;
+}
+
+.linkDim {
+  opacity: 0.16;
+}
+
+.node {
+  rx: 2;
+  animation: chartSeriesIn var(--pl-speed-2) var(--pl-ease) both;
+}
+
+.label {
+  fill: var(--pl-chart-label);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+
+  .node {
+    animation: none;
+  }
+}

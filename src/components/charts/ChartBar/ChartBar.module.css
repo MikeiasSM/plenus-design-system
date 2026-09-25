@@ -4,6 +4,14 @@
   rx: var(--pl-radius-sm);
 }
 
+.series {
+  composes: series from '../core/Chart.module.css';
+}
+
+.seriesOff {
+  composes: seriesOff from '../core/Chart.module.css';
+}
+
 .cursor {
   composes: cursor from '../core/Chart.module.css';
 }

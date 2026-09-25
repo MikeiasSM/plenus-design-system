@@ -13,7 +13,10 @@ export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
 
 export interface ChartLegendEntry {
   color: string;
+  hidden?: boolean;
   label: string;
+  /** Medida da entrada, alinhada a direita. Serve a legenda em lista do anel. */
+  value?: string;
 }
 
 export interface CartesianAxis {
@@ -39,6 +42,7 @@ export interface CartesianFrameProps {
   height: number;
   legend?: readonly ChartLegendEntry[];
   legendPosition: ChartLegendPosition;
+  onToggleSeries?: (label: string) => void;
   margins: ChartMargins;
   plot: ChartPlot;
   title: string;
@@ -111,17 +115,54 @@ function EixoComCalha({ axis, gutter, length, orientation }: EixoProps) {
   );
 }
 
-function Legenda({ entries, position }: { entries: readonly ChartLegendEntry[]; position: ChartLegendPosition }) {
+export type ChartLegendSwatch = 'square' | 'dot';
+
+interface LegendaProps {
+  entries: readonly ChartLegendEntry[];
+  onToggle?: (label: string) => void;
+  position: ChartLegendPosition;
+  swatch?: ChartLegendSwatch;
+}
+
+/**
+ * Legenda do grafico. Quando existe um alvo para o clique, cada entrada vira um
+ * botao que liga e desliga a serie, com o estado exposto por `aria-pressed`.
+ */
+export function ChartLegend({ entries, onToggle, position, swatch = 'square' }: LegendaProps) {
   const lateral = position === 'left' || position === 'right';
 
   return (
     <ul className={`${styles.legend} ${lateral ? styles.legendSide : ''}`}>
-      {entries.map((entrada) => (
-        <li className={styles.legendItem} key={entrada.label}>
-          <span aria-hidden="true" className={styles.swatch} style={{ background: entrada.color }} />
-          {entrada.label}
-        </li>
-      ))}
+      {entries.map((entrada) => {
+        const conteudo = (
+          <>
+            <span
+              aria-hidden="true"
+              className={`${styles.swatch} ${swatch === 'dot' ? styles.swatchDot : ''}`}
+              style={entrada.hidden ? undefined : { background: entrada.color }}
+            />
+            <span className={styles.legendLabel}>{entrada.label}</span>
+            {entrada.value !== undefined && <span className={styles.legendValue}>{entrada.value}</span>}
+          </>
+        );
+
+        return (
+          <li className={styles.legendItem} key={entrada.label}>
+            {onToggle ? (
+              <button
+                aria-pressed={!entrada.hidden}
+                className={`${styles.legendButton} ${entrada.hidden ? styles.legendOff : ''}`}
+                onClick={() => onToggle(entrada.label)}
+                type="button"
+              >
+                {conteudo}
+              </button>
+            ) : (
+              conteudo
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -143,6 +184,7 @@ export function CartesianFrame({
   legend,
   legendPosition,
   margins,
+  onToggleSeries,
   plot,
   title,
   width,
@@ -161,7 +203,7 @@ export function CartesianFrame({
 
       <div className={`${styles.body} ${DIRECAO_DO_CORPO[legendPosition]}`}>
         {comLegenda && (legendPosition === 'top' || legendPosition === 'left') && (
-          <Legenda entries={legend} position={legendPosition} />
+          <ChartLegend entries={legend} onToggle={onToggleSeries} position={legendPosition} />
         )}
 
         <div
@@ -225,7 +267,7 @@ export function CartesianFrame({
         </div>
 
         {comLegenda && (legendPosition === 'bottom' || legendPosition === 'right') && (
-          <Legenda entries={legend} position={legendPosition} />
+          <ChartLegend entries={legend} onToggle={onToggleSeries} position={legendPosition} />
         )}
       </div>
     </figure>

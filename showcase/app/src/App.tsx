@@ -3,7 +3,8 @@ import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
-  Card, ChartArea, ChartBar, ChartLine, ChartScatter, ChartWaterfall, DatePicker, DateTimePicker, List,
+  Card, ChartArea, ChartBar, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
+  ChartSunburst, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
@@ -148,6 +149,12 @@ export function App() {
           <a href="#chartarea">ChartArea</a>
           <a href="#chartscatter">ChartScatter</a>
           <a href="#chartwaterfall">ChartWaterfall</a>
+          <a href="#chartdonut">ChartDonut</a>
+          <a href="#chartpie">ChartPie</a>
+          <a href="#chartradial">ChartRadial</a>
+          <a href="#charttreemap">ChartTreemap</a>
+          <a href="#chartsunburst">ChartSunburst</a>
+          <a href="#chartsankey">ChartSankey</a>
           <p className="rail-group">Data display</p>
           <a href="#list">List</a>
           <a href="#table">Table</a>
@@ -914,6 +921,21 @@ export function App() {
             <p className="doc-note">A mesma escolha num grafico de barras horizontais cai para baixo quando pedida a esquerda ou a direita: ali a largura e o proprio desenho, e a legenda ao lado espremeria as barras.</p>
           </div>
           <div className="doc-subsection">
+            <h3>Desligar serie pela legenda</h3>
+            <ChartBar
+              accent={corDoTema}
+              categories={mesesDoSemestre}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              series={[
+                { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
+                { label: 'Assinaturas', values: [12000, 15000, 18000, 21000, 26000, 31000] },
+              ]}
+              title="Composicao do faturamento"
+            />
+            <p className="doc-note">Clique numa entrada da legenda. A serie recolhe, as demais repartem a faixa que sobrou e o eixo se ajusta a nova escala — tudo em movimento, porque o dominio e a presenca de cada serie caminham ate o alvo em vez de saltar. O componente guarda o que esta oculto quando o produto nao informa, e avisa a mudanca sempre.</p>
+          </div>
+          <div className="doc-subsection">
             <h3>Altura do contêiner</h3>
             <div style={{ height: 340, resize: 'vertical', overflow: 'auto', border: '1px dashed var(--pl-color-border-strong)', borderRadius: 'var(--pl-radius-md)', padding: 'var(--pl-space-4)' }}>
               <ChartBar
@@ -1140,6 +1162,311 @@ export function App() {
               title="Movimentacao do caixa"
             />
             <p className="doc-note">As linhas tracejadas ligam o acumulado de cada passo ao inicio do proximo, e a linha da base destaca o zero.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Composicao de um total, com o valor central em destaque."
+          id="chartdonut"
+          name="ChartDonut"
+          api={`<ChartDonut
+  title="Estrutura de custos"
+  slices={[
+    { label: 'Cmv - Custos das mercadorias', value: 6300000 },
+    { label: 'Devolucoes de vendas', value: 400000 },
+  ]}
+  formatValue={formatarMoeda}
+  smallSliceThreshold={0.02}
+  thickness={0.38}
+  legend="right"
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Anel com total no centro</h3>
+            <ChartDonut
+              accent={corDoTema}
+              formatValue={(valor) => `${(valor / 1000000).toFixed(1)}M`}
+              height={260}
+              slices={[
+                { label: 'Devolucoes de vendas', value: 400000 },
+                { label: 'Cmv - Custos das mercadorias', value: 6300000 },
+              ]}
+              title="Estrutura de custos"
+            />
+            <p className="doc-note">O centro mostra o total; ao passar o ponteiro sobre uma fatia ele passa a mostrar o valor e o rotulo dela. A legenda fica em lista a direita, com o percentual alinhado numa coluna, e clicar nela desliga a fatia: o anel se reparte entre as demais em movimento.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Fatias pequenas reunidas em Outros</h3>
+            <ChartDonut
+              accent={corDoTema}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={260}
+              slices={[
+                { label: 'Despesas fixas', value: 1760000 },
+                { label: 'Despesas variaveis', value: 352000 },
+                { label: 'Multas', value: 26000 },
+                { label: 'Tarifas bancarias', value: 22000 },
+                { label: 'Doacoes', value: 18000 },
+              ]}
+              smallSliceThreshold={0.05}
+              title="Estrutura de despesas"
+            />
+            <p className="doc-note">Abaixo do limiar a fatia deixa de ser legivel no anel e ainda ocupa uma linha da legenda. Ela entra no lugar da primeira pequena, para a ordem das demais permanecer a mesma, e recebe intencao neutra para nao disputar a paleta.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Anel fino, sem centro e com legenda embaixo</h3>
+            <ChartDonut
+              accent={corDoTema}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={240}
+              legend="bottom"
+              showCenter={false}
+              slices={[
+                { label: 'Servicos', value: 320000 },
+                { label: 'Produtos', value: 280000 },
+                { label: 'Assinaturas', value: 150000 },
+              ]}
+              thickness={0.22}
+              title="Composicao da receita"
+            />
+            <p className="doc-note">Espessura, centro, posicao da legenda e percentual na legenda sao todos configuraveis.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Composicao de um total em partes."
+          id="chartpie"
+          name="ChartPie"
+          api={`<ChartPie
+  title="Composicao da receita"
+  slices={[{ label: 'Servicos', value: 60 }]}
+  showDataLabels
+  formatPercent={(fracao) => \`\${Math.round(fracao * 100)}%\`}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Pizza com percentual na fatia</h3>
+            <ChartPie
+              accent={corDoTema}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={260}
+              showDataLabels
+              slices={[
+                { label: 'Servicos', value: 320000 },
+                { label: 'Produtos', value: 280000 },
+                { label: 'Assinaturas', value: 150000 },
+              ]}
+              title="Composicao da receita"
+            />
+            <p className="doc-note">O rotulo so entra quando a fatia o comporta: ate meia volta a largura disponivel e a corda no centro do arco, e dali em diante e o raio. Fatia estreita fica sem rotulo em vez de receber um texto que nao cabe.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Progresso de uma ou mais medidas contra a sua meta."
+          id="chartradial"
+          name="ChartRadial"
+          api={`<ChartRadial
+  title="Metas do trimestre"
+  tracks={[
+    { label: 'Vendas', value: 72, max: 100 },
+    { label: 'Servicos', value: 45, max: 100 },
+  ]}
+  formatValue={(valor) => \`\${valor}%\`}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Aneis concentricos contra a meta</h3>
+            <ChartRadial
+              accent={corDoTema}
+              formatValue={(valor) => `${valor}%`}
+              height={280}
+              title="Metas do trimestre"
+              tracks={[
+                { label: 'Vendas', max: 100, value: 72 },
+                { label: 'Servicos', max: 100, value: 45 },
+                { label: 'Assinaturas', max: 100, value: 88 },
+              ]}
+            />
+            <p className="doc-note">Cada anel tem pista de fundo, que e o quanto falta, e arco de preenchimento, que cresce ao aparecer. O centro traz o primeiro anel. A legenda aparece a partir de dois aneis e desliga o anel sem tirar a pista.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Meia-lua, um anel so</h3>
+            <ChartRadial
+              accent={corDoTema}
+              endAngle={90}
+              formatValue={(valor) => `${valor}%`}
+              height={220}
+              startAngle={-90}
+              thickness={22}
+              title="Atingimento da meta"
+              tracks={[{ label: 'Meta mensal', max: 100, value: 64 }]}
+            />
+            <p className="doc-note">Angulo inicial, angulo final e espessura sao configuraveis, entao a mesma composicao atende medidor e progresso.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Composicao hierarquica por area."
+          id="charttreemap"
+          name="ChartTreemap"
+          api={`<ChartTreemap
+  title="Produtos por margem"
+  nodes={[
+    { label: 'Margem alta', intent: 'positive', children: [...] },
+    { label: 'Margem baixa', intent: 'negative', children: [...] },
+  ]}
+  intentLabels={{ positive: 'Acima da meta', negative: 'Abaixo da meta' }}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Colorido por status, com a legenda nomeando as cores</h3>
+            <ChartTreemap
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={300}
+              intentLabels={{
+                positive: 'Margem acima da meta',
+                warning: 'Margem no limite',
+                negative: 'Margem abaixo da meta',
+              }}
+              nodes={[
+                {
+                  label: 'Acima',
+                  intent: 'positive',
+                  children: [
+                    { label: 'Consultoria', value: 420000 },
+                    { label: 'Implantacao', value: 260000 },
+                    { label: 'Treinamento', value: 120000 },
+                  ],
+                },
+                {
+                  label: 'No limite',
+                  intent: 'warning',
+                  children: [
+                    { label: 'Suporte', value: 180000 },
+                    { label: 'Manutencao', value: 90000 },
+                  ],
+                },
+                {
+                  label: 'Abaixo',
+                  intent: 'negative',
+                  children: [{ label: 'Revenda de hardware', value: 140000 }],
+                },
+              ]}
+              title="Produtos por margem"
+            />
+            <p className="doc-note">Quando a cor carrega status, o que a legenda precisa explicar e o significado dela, e nao a categoria. Com <code>intentLabels</code> a legenda nomeia as cores; sem ele, lista os grupos e desliga cada um.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Grupos categoricos, com legenda que desliga</h3>
+            <ChartTreemap
+              accent={corDoTema}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              gap={5}
+              height={280}
+              nodes={[
+                {
+                  label: 'Servicos',
+                  children: [
+                    { label: 'Consultoria', value: 420000 },
+                    { label: 'Implantacao', value: 260000 },
+                  ],
+                },
+                {
+                  label: 'Produtos',
+                  children: [
+                    { label: 'Licencas', value: 310000 },
+                    { label: 'Hardware', value: 140000 },
+                  ],
+                },
+              ]}
+              title="Faturamento por linha"
+            />
+            <p className="doc-note">O rotulo e o valor sao cortados conforme a area do retangulo: onde nao cabe o valor, fica so o rotulo; onde nao cabe nem o rotulo, fica so a area.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Composicao hierarquica por aneis concentricos."
+          id="chartsunburst"
+          name="ChartSunburst"
+          api={`<ChartSunburst
+  title="Estrutura de despesas"
+  nodes={[
+    { label: 'Operacionais', children: [{ label: 'Pessoal', value: 500 }] },
+  ]}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Aneis aninhados, com rotulo projetado</h3>
+            <ChartSunburst
+              accent={corDoTema}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={340}
+              nodes={[
+                {
+                  label: 'Operacionais',
+                  children: [
+                    { label: 'Pessoal', value: 520000 },
+                    { label: 'Aluguel', value: 180000 },
+                    { label: 'Energia', value: 90000 },
+                  ],
+                },
+                {
+                  label: 'Administrativas',
+                  children: [
+                    { label: 'Sistemas', value: 160000 },
+                    { label: 'Contabilidade', value: 80000 },
+                  ],
+                },
+                {
+                  label: 'Financeiras',
+                  children: [{ label: 'Juros', value: 120000 }],
+                },
+              ]}
+              title="Estrutura de despesas"
+            />
+            <p className="doc-note">Os filhos repartem o angulo do pai e nascem da cor dele, clareando a cada anel: sem isso os aneis externos repetiriam a cor do nivel zero e nada distinguiria um filho do outro. A legenda lista apenas o nivel zero, e o ponteiro sobre um arco apaga os ramos vizinhos.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Fluxo entre origens e destinos."
+          id="chartsankey"
+          name="ChartSankey"
+          api={`<ChartSankey
+  title="Fluxo do resultado"
+  flows={[
+    { source: 'Receita bruta', target: 'Deducoes', value: 420000 },
+    { source: 'Receita bruta', target: 'Receita liquida', value: 2580000 },
+  ]}
+  formatValue={formatarMoeda}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Da receita ao resultado</h3>
+            <ChartSankey
+              accent={corDoTema}
+              flows={[
+                { source: 'Receita bruta', target: 'Deducoes', value: 420000 },
+                { source: 'Receita bruta', target: 'Receita liquida', value: 2580000 },
+                { source: 'Receita liquida', target: 'CMV', value: 960000 },
+                { source: 'Receita liquida', target: 'Margem bruta', value: 1620000 },
+                { source: 'Margem bruta', target: 'Despesas', value: 502000 },
+                { source: 'Margem bruta', target: 'Resultado', value: 1118000 },
+              ]}
+              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              height={320}
+              title="Fluxo do resultado"
+            />
+            <p className="doc-note">A altura do no e o volume que passa por ele, e a espessura da ligacao e o valor dela. O ponteiro sobre uma ligacao apaga as demais. O rotulo fica do lado de fora do no, ancorado conforme o lado em que ele esta.</p>
           </div>
         </ComponentDoc>
 

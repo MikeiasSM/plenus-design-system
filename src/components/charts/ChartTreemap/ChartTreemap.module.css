@@ -1,0 +1,41 @@
+.cell {
+  animation: chartSeriesIn var(--pl-speed-2) var(--pl-ease) both;
+}
+
+.tile {
+  rx: var(--pl-radius-sm);
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+svg:hover .tile:not(:hover) {
+  opacity: 0.82;
+}
+
+/* O texto sobre o retangulo pinta sobre cor cheia, entao ele usa o tom de
+   contraste e nao o de superficie. */
+.label {
+  fill: var(--pl-color-on-primary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  pointer-events: none;
+}
+
+.value {
+  fill: var(--pl-color-on-primary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.86;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    animation: none;
+  }
+
+  .tile {
+    transition: none;
+  }
+}

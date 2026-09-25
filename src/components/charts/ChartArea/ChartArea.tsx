@@ -6,6 +6,8 @@ import {
   chartHeight,
   linePath,
   useChartMetrics,
+  useSeriesToggle,
+  useTweenedNumbers,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -29,11 +31,14 @@ export interface ChartAreaProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
+  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartAreaSeries[];
   showDataLabels?: boolean;
   showDots?: boolean;
@@ -46,19 +51,29 @@ export interface ChartAreaProps {
 
 const ALTURA_DO_ROTULO = 18;
 
-function somaAte(series: readonly ChartAreaSeries[], ateSerie: number, indice: number) {
-  return series.slice(0, ateSerie).reduce((total, serie) => total + (serie.values[indice] ?? 0), 0);
+function somaAte(
+  series: readonly ChartAreaSeries[],
+  ateSerie: number,
+  indice: number,
+  peso: (serie: number) => number,
+) {
+  return series
+    .slice(0, ateSerie)
+    .reduce((total, serie, ordem) => total + (serie.values[indice] ?? 0) * peso(ordem), 0);
 }
 
 export function ChartArea({
   accent,
   categories,
   curve = 'smooth',
+  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 260,
+  hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  onHiddenSeriesChange,
   series,
   showDataLabels = false,
   showDots = false,
@@ -71,16 +86,30 @@ export function ChartArea({
   const gradienteId = useId();
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
 
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
+  // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
+  // Presenca de cada serie, entre zero e um. Empilhadas, ela pesa a
+  // contribuicao, entao a faixa desligada encolhe e a pilha acompanha.
+  const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
+  const presenca = (indice: number) => presencas[indice] ?? 0;
+
   const dominio = useMemo(() => {
+    const visivel = (ordem: number) => (isHidden(series[ordem].label) ? 0 : 1);
+
     if (stacked) {
-      return domainOf(categories.map((_, indice) => somaAte(series, series.length, indice)));
+      return domainOf(categories.map((_, indice) => somaAte(series, series.length, indice, visivel)));
     }
 
-    return mergeDomains(series.map((serie) => domainOf(serie.values.filter((valor) => valor !== null))));
-  }, [categories, series, stacked]);
+    return mergeDomains(
+      series
+        .filter((serie) => !isHidden(serie.label))
+        .map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
+    );
+  }, [categories, isHidden, series, stacked]);
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
 
@@ -103,12 +132,21 @@ export function ChartArea({
     [categories, plot.width],
   );
 
-  const escalaValores = useMemo(
+  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
+  // duas, as marcas exibiriam valores quebrados durante a transicao.
+  const escalaAlvo = useMemo(
     () => linearScale({ domain: dominio, range: [plot.height, 0] }),
     [dominio, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaValores, plot.height);
+  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+
+  const escalaValores = useMemo(
+    () => linearScale({ domain: { min: minimo, max: maximo }, nice: false, range: [plot.height, 0] }),
+    [maximo, minimo, plot.height],
+  );
+
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
   const base = escalaValores(0);
 
   const faixasPorSerie = series.map((serie, indiceSerie) =>
@@ -119,12 +157,13 @@ export function ChartArea({
         return null;
       }
 
-      const abaixo = stacked ? somaAte(series, indiceSerie, indice) : 0;
+      const abaixo = stacked ? somaAte(series, indiceSerie, indice, presenca) : 0;
+      const contribuicao = stacked ? valor * presenca(indiceSerie) : valor;
 
       return {
         x: escalaCategorias(categoria) ?? 0,
         y0: stacked ? escalaValores(abaixo) : base,
-        y1: escalaValores(abaixo + valor),
+        y1: escalaValores(abaixo + contribuicao),
       };
     }),
   );
@@ -153,9 +192,14 @@ export function ChartArea({
       ]}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
+      legend={series.map((serie, indice) => ({
+        color: cores[indice],
+        hidden: isHidden(serie.label),
+        label: serie.label,
+      }))}
       legendPosition={legend}
       margins={margins}
+      onToggleSeries={toggle}
       plot={plot}
       title={title}
       width={width}
@@ -182,8 +226,14 @@ export function ChartArea({
           faixa === null ? null : { x: faixa.x, y: faixa.y1 },
         );
 
+        const oculta = isHidden(serie.label);
+
         return (
-          <g key={serie.label}>
+          <g
+            aria-hidden={oculta || undefined}
+            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            key={serie.label}
+          >
             <path
               d={areaPath(faixas, curve)}
               fill={stacked ? cores[indiceSerie] : `url(#${gradienteId}-${indiceSerie})`}

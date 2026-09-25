@@ -5,6 +5,8 @@ import {
   chartHeight,
   linePath,
   useChartMetrics,
+  useSeriesToggle,
+  useTweenedNumbers,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -27,11 +29,14 @@ export interface ChartLineProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
+  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
+  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartLineSeries[];
   showDataLabels?: boolean;
   showDots?: boolean;
@@ -47,11 +52,14 @@ export function ChartLine({
   accent,
   categories,
   curve = 'smooth',
+  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatValue = (valor) => String(valor),
   height = 260,
+  hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
+  onHiddenSeriesChange,
   series,
   showDataLabels = false,
   showDots = false,
@@ -62,12 +70,20 @@ export function ChartLine({
 }: ChartLineProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
 
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
+  // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
   const dominio = useMemo(
-    () => mergeDomains(series.map((serie) => domainOf(serie.values.filter((valor) => valor !== null)))),
-    [series],
+    () =>
+      mergeDomains(
+        series
+          .filter((serie) => !isHidden(serie.label))
+          .map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
+      ),
+    [isHidden, series],
   );
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
@@ -91,12 +107,21 @@ export function ChartLine({
     [categories, plot.width],
   );
 
-  const escalaValores = useMemo(
+  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
+  // duas, as marcas exibiriam valores quebrados durante a transicao.
+  const escalaAlvo = useMemo(
     () => linearScale({ domain: dominio, range: [plot.height, 0] }),
     [dominio, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaValores, plot.height);
+  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+
+  const escalaValores = useMemo(
+    () => linearScale({ domain: { min: minimo, max: maximo }, nice: false, range: [plot.height, 0] }),
+    [maximo, minimo, plot.height],
+  );
+
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
 
   const pontosPorSerie = series.map((serie) =>
     categories.map<ChartPoint | null>((categoria, indice) => {
@@ -125,6 +150,7 @@ export function ChartLine({
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
+      fillHeight={fillHeight}
       grid={[
         {
           baseline: escalaValores(0),
@@ -132,11 +158,15 @@ export function ChartLine({
           orientation: 'horizontal',
         },
       ]}
-      fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({ color: cores[indice], label: serie.label }))}
+      legend={series.map((serie, indice) => ({
+        color: cores[indice],
+        hidden: isHidden(serie.label),
+        label: serie.label,
+      }))}
       legendPosition={legend}
       margins={margins}
+      onToggleSeries={toggle}
       plot={plot}
       title={title}
       width={width}
@@ -144,46 +174,54 @@ export function ChartLine({
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
       yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
-      {series.map((serie, indiceSerie) => (
-        <g key={serie.label}>
-          <path
-            className={styles.line}
-            d={linePath(pontosPorSerie[indiceSerie], curve)}
-            fill="none"
-            stroke={cores[indiceSerie]}
-          />
+      {series.map((serie, indiceSerie) => {
+        const oculta = isHidden(serie.label);
 
-          {pontosPorSerie[indiceSerie].map((ponto, indice) =>
-            ponto === null ? null : (
-              <circle
-                className={showDots ? styles.dotVisible : styles.dot}
-                cx={ponto.x}
-                cy={ponto.y}
-                fill={cores[indiceSerie]}
-                key={categories[indice]}
-                r={4}
-              >
-                <title>{`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}</title>
-              </circle>
-            ),
-          )}
+        return (
+          <g
+            aria-hidden={oculta || undefined}
+            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            key={serie.label}
+          >
+            <path
+              className={styles.line}
+              d={linePath(pontosPorSerie[indiceSerie], curve)}
+              fill="none"
+              stroke={cores[indiceSerie]}
+            />
 
-          {showDataLabels &&
-            pontosPorSerie[indiceSerie].map((ponto, indice) =>
+            {pontosPorSerie[indiceSerie].map((ponto, indice) =>
               ponto === null ? null : (
-                <text
-                  className={styles.valueLabel}
+                <circle
+                  className={showDots ? styles.dotVisible : styles.dot}
+                  cx={ponto.x}
+                  cy={ponto.y}
+                  fill={cores[indiceSerie]}
                   key={categories[indice]}
-                  textAnchor="middle"
-                  x={ponto.x}
-                  y={ponto.y - 10}
+                  r={4}
                 >
-                  {formatValue(serie.values[indice] ?? 0)}
-                </text>
+                  <title>{`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}</title>
+                </circle>
               ),
             )}
-        </g>
-      ))}
+
+            {showDataLabels &&
+              pontosPorSerie[indiceSerie].map((ponto, indice) =>
+                ponto === null ? null : (
+                  <text
+                    className={styles.valueLabel}
+                    key={categories[indice]}
+                    textAnchor="middle"
+                    x={ponto.x}
+                    y={ponto.y - 10}
+                  >
+                    {formatValue(serie.values[indice] ?? 0)}
+                  </text>
+                ),
+              )}
+          </g>
+        );
+      })}
     </CartesianFrame>
   );
 }

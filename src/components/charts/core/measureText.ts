@@ -61,3 +61,26 @@ export function measureLabel(text: string, font: LabelFont) {
 export function widestLabel(labels: readonly string[], font: LabelFont) {
   return labels.reduce((maior, rotulo) => Math.max(maior, measureLabel(rotulo, font)), 0);
 }
+
+/**
+ * Texto cortado para caber na largura, com reticencia. Onde o desenho e o
+ * proprio espaco — o centro de um anel, o retangulo de um mapa de area — nao ha
+ * caixa que corte por conta propria.
+ */
+export function truncateToWidth(text: string, font: LabelFont, maxWidth: number) {
+  if (maxWidth <= 0) {
+    return '';
+  }
+
+  if (measureLabel(text, font) <= maxWidth) {
+    return text;
+  }
+
+  let corte = text.length;
+
+  while (corte > 0 && measureLabel(`${text.slice(0, corte)}…`, font) > maxWidth) {
+    corte -= 1;
+  }
+
+  return corte > 0 ? `${text.slice(0, corte)}…` : '';
+}

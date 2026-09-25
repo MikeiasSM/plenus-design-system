@@ -4,6 +4,7 @@ import {
   cartesianLayout,
   chartHeight,
   useChartMetrics,
+  useTweenedNumbers,
   valueLabelsFor,
   type AxisLabelAngle,
   type AxisTick,
@@ -132,12 +133,21 @@ export function ChartWaterfall({
 
   const faixaDe = (indice: number) => escalaPassos(String(indice)) ?? 0;
 
-  const escalaValores = useMemo(
+  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
+  // duas, as marcas exibiriam valores quebrados durante a transicao.
+  const escalaAlvo = useMemo(
     () => linearScale({ domain: dominio, range: [plot.height, 0] }),
     [dominio, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaValores, plot.height);
+  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+
+  const escalaValores = useMemo(
+    () => linearScale({ domain: { min: minimo, max: maximo }, nice: false, range: [plot.height, 0] }),
+    [maximo, minimo, plot.height],
+  );
+
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
 
   const marcasPassos: AxisTick[] = steps.map((passo, indice) => ({
     label: passo.label,

@@ -106,8 +106,24 @@ export type {
   ChartScatterProps,
   ChartScatterSeries,
 } from './components/charts/ChartScatter';
+export { ChartPie } from './components/charts/ChartPie';
+export type { ChartPieProps, ChartPieSlice } from './components/charts/ChartPie';
+export { ChartDonut } from './components/charts/ChartDonut';
+export type { ChartDonutProps, ChartDonutSlice } from './components/charts/ChartDonut';
+export { ChartRadial } from './components/charts/ChartRadial';
+export type { ChartRadialProps, ChartRadialTrack } from './components/charts/ChartRadial';
 export { ChartWaterfall } from './components/charts/ChartWaterfall';
 export type { ChartWaterfallProps, ChartWaterfallStep } from './components/charts/ChartWaterfall';
+export { ChartTreemap } from './components/charts/ChartTreemap';
+export type { ChartTreemapNode, ChartTreemapProps } from './components/charts/ChartTreemap';
+export { ChartSunburst } from './components/charts/ChartSunburst';
+export type { ChartSunburstNode, ChartSunburstProps } from './components/charts/ChartSunburst';
+export { ChartSankey } from './components/charts/ChartSankey';
+export type {
+  ChartSankeyFlow,
+  ChartSankeyNode,
+  ChartSankeyProps,
+} from './components/charts/ChartSankey';
 export type {
   AxisLabelAngle,
   AxisLabelRotation,
@@ -115,6 +131,7 @@ export type {
   ChartCurve,
   ChartHeight,
   ChartLegendPosition,
+  ChartSlice,
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

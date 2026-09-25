@@ -1,0 +1,32 @@
+/* O separador e a propria superficie mostrando entre as fatias, o que mantem a
+   folga com largura constante em qualquer raio. */
+.slice {
+  stroke: var(--pl-color-surface);
+  stroke-width: 2;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+svg:hover .slice:not(:hover) {
+  opacity: 0.82;
+}
+
+.center {
+  pointer-events: none;
+}
+
+.centerValue {
+  fill: var(--pl-color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.centerLabel {
+  fill: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slice {
+    transition: none;
+  }
+}

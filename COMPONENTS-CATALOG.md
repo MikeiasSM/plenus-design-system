@@ -81,18 +81,22 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `ChartBar` | Comparação por categoria, em barras verticais ou horizontais. | Disponível |
 | `ChartLine` | Evolução de uma medida ao longo do tempo. | Disponível |
 | `ChartArea` | Evolução com ênfase no volume acumulado. | Disponível |
-| `ChartPie` | Composição de um total em partes. | Previsto |
-| `ChartDonut` | Composição de um total, com o valor central em destaque. | Previsto |
+| `ChartPie` | Composição de um total em partes. | Disponível |
+| `ChartDonut` | Composição de um total, com o valor central em destaque. | Disponível |
 | `ChartWaterfall` | Formação de um resultado, passo a passo. | Disponível |
-| `ChartRadial` | Progresso de uma ou mais medidas contra a sua meta. | Previsto |
+| `ChartRadial` | Progresso de uma ou mais medidas contra a sua meta. | Disponível |
 | `ChartScatter` | Relação entre duas medidas numéricas. | Disponível |
-| `ChartTreemap` | Composição hierárquica por área. | Previsto |
-| `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Previsto |
-| `ChartSankey` | Fluxo entre origens e destinos. | Previsto |
+| `ChartTreemap` | Composição hierárquica por área. | Disponível |
+| `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Disponível |
+| `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
 
 A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
 
 Séries com intenção não entram na rotação categórica. Pintar uma despesa com a cor de tema escolhida pelo usuário trocaria o significado da barra a cada usuário.
+
+Séries, fatias, anéis e grupos são desligados pela legenda, que é um controle. O componente guarda quais estão ocultos quando o produto não informa, e avisa a mudança sempre.
+
+`ChartPie` e `ChartDonut` são a mesma composição com papéis distintos: o anel existe para abrigar um valor no centro, e é isso que o separa da pizza cheia. `ChartSunburst` estende o anel para a hierarquia, com os filhos repartindo o ângulo do pai e herdando a cor dele.
 
 O Design System entrega os gráficos. A tradução entre o manifesto de um dashboard e as propriedades de cada gráfico pertence à aplicação, conforme `ARCHITECTURE.md` §15.
 
