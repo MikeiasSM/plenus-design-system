@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-476 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
+479 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -351,6 +351,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - `ChartPie` e `ChartDonut` nao se compoem: os dois compoem `useSliceRing`, que e o anel repartido. O que compartilham e o anel, nao o componente — a mesma regra ja firmada para `Select` e `ComboBox`.
 - O rotulo sobre a fatia so entra quando ela o comporta. Ate meia volta a largura disponivel e a corda no centro do arco; dali em diante a corda volta a encolher e quem manda e o raio. Sem essa virada, a fatia quase inteira ficava sem rotulo.
 - No sunburst, o filho nasce da cor do pai e clareia a cada anel, por `color-mix`. Sem isso os aneis externos repetiriam a cor do nivel zero e nada distinguiria um filho do outro. A legenda lista apenas o nivel zero, como na referencia.
+- O ponteiro sobre uma fatia acende **ela e os arcos que a originaram**, ate a raiz, e apaga todo o resto — inclusive os filhos dela, que nao explicam nada sobre ela. O parentesco e testado pela identidade do no, nao por prefixo de rotulo: o caminho era montado da folha para a raiz e a comparacao nunca casava com o ancestral. O foco e conferido contra a arvore corrente, porque um redimensionamento a remonta e um no perdido apagaria o grafico inteiro.
 - No mapa de area, a legenda muda de papel conforme a cor: com `intentLabels` ela **nomeia as cores**, porque ali o que precisa ser explicado e o significado do status; sem ele, lista os grupos e desliga cada um.
 - A ligacao do sankey e desenhada como **traco**, nao como preenchimento: a espessura e que carrega o volume, e ela vem da propria medida do no.
 - `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.

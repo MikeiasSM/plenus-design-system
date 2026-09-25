@@ -4,8 +4,8 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* Focar um ramo apaga os demais, que e como a hierarquia se le: o caminho do
-   arco sob o ponteiro ate a raiz permanece cheio, e os filhos dele tambem. */
+/* Focar uma fatia apaga tudo que nao a originou. O que fica cheio e o caminho
+   dela ate a raiz, que e o que explica de onde ela veio. */
 .arcDim {
   opacity: 0.35;
 }

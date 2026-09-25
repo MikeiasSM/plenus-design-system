@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { hierarchy, partition } from 'd3-hierarchy';
+import { hierarchy, partition, type HierarchyRectangularNode } from 'd3-hierarchy';
 import {
   RadialFrame,
   VOLTA,
@@ -35,9 +35,13 @@ export interface ChartSunburstProps {
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Folga entre dois aneis vizinhos. */
   ringGap?: number;
+  /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
+  sliceRadius?: number;
   showLabels?: boolean;
   title: string;
 }
+
+type Arco = HierarchyRectangularNode<ChartSunburstNode>;
 
 /** Arco menor que isso nao comporta rotulo nem conector legivel. */
 const ANGULO_MINIMO_DO_ROTULO = 0.18;
@@ -72,22 +76,26 @@ export function ChartSunburst({
   onHiddenGroupsChange,
   ringGap = 2,
   showLabels = true,
+  sliceRadius,
   title,
 }: ChartSunburstProps) {
-  const { font, height: alturaMedida, ref, width } = useChartMetrics();
+  const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({
     defaultHiddenSeries: defaultHiddenGroups,
     hiddenSeries: hiddenGroups,
     onHiddenSeriesChange: onHiddenGroupsChange,
   });
-  const [emFoco, setEmFoco] = useState<string | null>(null);
+  const [emFoco, setEmFoco] = useState<Arco | null>(null);
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
   // repintar os demais.
   const coresDeNivelZero = useMemo(() => resolveSeriesColors(nodes, { accent }), [accent, nodes]);
 
-  const visiveis = nodes.filter((grupo) => !isHidden(grupo.label));
+  const visiveis = useMemo(
+    () => nodes.filter((grupo) => !isHidden(grupo.label)),
+    [isHidden, nodes],
+  );
 
   // O rotulo projetado precisa de margem lateral, entao o raio nao ocupa a area
   // inteira quando os rotulos estao ligados.
@@ -115,14 +123,27 @@ export function ChartSunburst({
     .filter((arco) => arco.depth === 1)
     .reduce((soma, arco) => soma + (arco.value ?? 0), 0);
 
-  function caminhoDe(arco: (typeof arcos)[number]) {
+  function caminhoDe(arco: Arco) {
     return arco
       .ancestors()
       .map((ancestral) => ancestral.data.label)
       .join('/');
   }
 
-  function corDe(arco: (typeof arcos)[number]) {
+  // O arco guardado deixa de existir quando a arvore e remontada, num
+  // redimensionamento por exemplo. Sem conferir, o foco perdido apagaria tudo.
+  const foco = emFoco && arcos.includes(emFoco) ? emFoco : null;
+
+  /**
+   * Acende o arco sob o ponteiro e os que o originaram. O caminho ate a raiz e
+   * o que explica de onde aquela fatia veio; os filhos dela nao explicam nada
+   * sobre ela, entao ficam apagados junto com o resto.
+   */
+  function aceso(arco: Arco) {
+    return foco === null || foco.ancestors().includes(arco);
+  }
+
+  function corDe(arco: Arco) {
     const raizDoRamo = arco.ancestors().find((ancestral) => ancestral.depth === 1)?.data;
     const base =
       raizDoRamo?.color ?? coresDeNivelZero[nodes.findIndex((no) => no.label === raizDoRamo?.label)];
@@ -147,30 +168,26 @@ export function ChartSunburst({
       title={title}
       width={width}
     >
-      {arcos.map((arco) => {
-        const caminho = caminhoDe(arco);
-        const apagado = emFoco !== null && !caminho.startsWith(emFoco) && !emFoco.startsWith(caminho);
-
-        return (
-          <path
-            className={`${styles.arc} ${apagado ? styles.arcDim : ''}`}
-            d={arcPath({
-              endAngle: arco.x1,
-              innerRadius: arco.y0 + (arco.depth > 1 ? ringGap : 0),
-              outerRadius: arco.y1,
-              startAngle: arco.x0,
-            })}
-            fill={corDe(arco)}
-            key={caminho}
-            onMouseEnter={() => setEmFoco(caminho)}
-            onMouseLeave={() => setEmFoco(null)}
-          >
-            <title>
-              {`${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(total > 0 ? (arco.value ?? 0) / total : 0)})`}
-            </title>
-          </path>
-        );
-      })}
+      {arcos.map((arco) => (
+        <path
+          className={`${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`}
+          d={arcPath({
+            cornerRadius: sliceRadius ?? raioDoCanto,
+            endAngle: arco.x1,
+            innerRadius: arco.y0 + (arco.depth > 1 ? ringGap : 0),
+            outerRadius: arco.y1,
+            startAngle: arco.x0,
+          })}
+          fill={corDe(arco)}
+          key={caminhoDe(arco)}
+          onMouseEnter={() => setEmFoco(arco)}
+          onMouseLeave={() => setEmFoco(null)}
+        >
+          <title>
+            {`${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(total > 0 ? (arco.value ?? 0) / total : 0)})`}
+          </title>
+        </path>
+      ))}
 
       {showLabels &&
         arcos

@@ -74,6 +74,49 @@ describe('ChartSunburst', () => {
     expect(arcos()).toHaveLength(3);
   });
 
+  it('acende o arco sob o ponteiro e os que o originaram, apagando o resto', () => {
+    render(<ChartSunburst nodes={despesas} title="Despesas" />);
+    const apagado = (no: Element) => no.getAttribute('class')?.includes('arcDim') ?? false;
+    const de = (rotulo: string) =>
+      arcos().find((no) => no.querySelector('title')?.textContent?.startsWith(`${rotulo}:`))!;
+
+    expect(arcos().some(apagado)).toBe(false);
+
+    fireEvent.mouseEnter(de('Pessoal'));
+
+    // A folha sob o ponteiro e o grupo que a originou ficam cheios.
+    expect(apagado(de('Pessoal'))).toBe(false);
+    expect(apagado(de('Operacionais'))).toBe(false);
+
+    // O irmao dela e o outro ramo apagam.
+    expect(apagado(de('Aluguel'))).toBe(true);
+    expect(apagado(de('Administrativas'))).toBe(true);
+  });
+
+  it('acende so ate o nivel do arco focado, sem incluir os filhos dele', () => {
+    render(<ChartSunburst nodes={despesas} title="Despesas" />);
+    const apagado = (no: Element) => no.getAttribute('class')?.includes('arcDim') ?? false;
+    const de = (rotulo: string) =>
+      arcos().find((no) => no.querySelector('title')?.textContent?.startsWith(`${rotulo}:`))!;
+
+    fireEvent.mouseEnter(de('Operacionais'));
+
+    expect(apagado(de('Operacionais'))).toBe(false);
+    expect(apagado(de('Pessoal'))).toBe(true);
+  });
+
+  it('arredonda as pontas de todos os aneis', () => {
+    const curvas = () =>
+      arcos().map((no) => (no.getAttribute('d') ?? '').match(/A/g)?.length ?? 0);
+
+    const { rerender } = render(<ChartSunburst nodes={despesas} sliceRadius={0} title="Despesas" />);
+    const semRaio = curvas();
+
+    rerender(<ChartSunburst nodes={despesas} sliceRadius={4} title="Despesas" />);
+
+    expect(curvas().every((com, indice) => com > semRaio[indice])).toBe(true);
+  });
+
   it('projeta o rotulo do anel externo com um conector de dois segmentos', () => {
     render(<ChartSunburst nodes={despesas} title="Despesas" />);
     const conector = document.querySelector('polyline');
