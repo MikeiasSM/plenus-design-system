@@ -55,3 +55,10 @@
   color: var(--pl-color-text-tertiary);
   text-align: center;
 }
+
+/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
+.page:focus-visible,
+.step:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}

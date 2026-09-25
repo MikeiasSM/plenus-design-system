@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import {
   BandCursor,
   CartesianFrame,
+  NO_BAR_SLOT,
   barSlots,
   cartesianLayout,
   chartHeight,
@@ -207,6 +208,7 @@ export function ChartCombo({
     vao,
     series.map((serie, indice) => (serie.kind === 'bar' ? presencas[indice] ?? 0 : 0)),
   );
+  const faixaDa = (indice: number) => faixas[indice] ?? NO_BAR_SLOT;
 
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
@@ -291,9 +293,9 @@ export function ChartCombo({
                   aria-label={`${serie.label}, ${categoria}: ${formatar(valor)}`}
                   className={styles.bar}
                   d={roundedBarPath(
-                    (escalaCategorias(categoria) ?? 0) + faixas[indiceSerie].offset,
+                    (escalaCategorias(categoria) ?? 0) + faixaDa(indiceSerie).offset,
                     Math.min(base, ponta),
-                    faixas[indiceSerie].thickness,
+                    faixaDa(indiceSerie).thickness,
                     Math.abs(ponta - base),
                     [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto],
                   )}
@@ -320,8 +322,8 @@ export function ChartCombo({
                     textAnchor="middle"
                     x={
                       (escalaCategorias(categoria) ?? 0) +
-                      faixas[indiceSerie].offset +
-                      faixas[indiceSerie].thickness / 2
+                      faixaDa(indiceSerie).offset +
+                      faixaDa(indiceSerie).thickness / 2
                     }
                     y={escala(valor) - 6}
                   >

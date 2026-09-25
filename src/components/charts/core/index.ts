@@ -42,6 +42,7 @@ export {
   CHART_EDGE_GAP,
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
+  NO_BAR_SLOT,
   barSlots,
   ringDiameter,
   valueLabelRoom,

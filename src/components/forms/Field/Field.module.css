@@ -8,6 +8,7 @@
 .hint,
 .errorMessage,
 .characterCount {
+  font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-caption-weight);
   line-height: var(--pl-type-caption-line-height);

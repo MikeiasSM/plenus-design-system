@@ -237,6 +237,16 @@ describe('ChartBar', () => {
     Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
   });
 
+  it('aceita uma serie nova sem quebrar, enquanto o movimento ainda nao a conhece', () => {
+    const { rerender } = render(<ChartBar categories={periodos} series={[dre[0]]} title="DRE" />);
+
+    // O tween devolve o array anterior por um render: a serie que entra nao tem
+    // presenca, e o indice dela ainda nao existe na reparticao da faixa.
+    rerender(<ChartBar categories={periodos} series={[dre[0], dre[1]]} title="DRE" />);
+
+    expect(barras()).toHaveLength(4);
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um grafico vazio', () => {
     render(<ChartBar categories={[]} series={[]} title="DRE" />);
 

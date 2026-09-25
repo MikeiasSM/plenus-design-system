@@ -1,5 +1,5 @@
 import './styles/tokens.css';
-import './styles/globals.css';
+import './styles/base.css';
 
 export {
   IconArrowDown,
@@ -17,6 +17,8 @@ export {
 export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './components/actions/Button';
+export { Field } from './components/forms/Field';
+export type { FieldProps, FieldWiring } from './components/forms/Field';
 export { Label } from './components/forms/Label';
 export type { LabelProps } from './components/forms/Label';
 export { InputText } from './components/forms/InputText';

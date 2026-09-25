@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import {
   BandCursor,
   CartesianFrame,
+  NO_BAR_SLOT,
   barSlots,
   cartesianLayout,
   chartHeight,
@@ -160,12 +161,16 @@ export function ChartBar({
   const faixas = barSlots(vao, presencas);
 
   // Empilhada, a serie ocupa a faixa inteira: quem reparte e a pilha, nao a faixa.
+  function faixaDa(indiceSerie: number) {
+    return faixas[indiceSerie] ?? NO_BAR_SLOT;
+  }
+
   function espessuraDa(indiceSerie: number) {
-    return stacked ? vao : faixas[indiceSerie].thickness;
+    return stacked ? vao : faixaDa(indiceSerie).thickness;
   }
 
   function deslocamentoDa(indiceSerie: number) {
-    return stacked ? 0 : faixas[indiceSerie].offset;
+    return stacked ? 0 : faixaDa(indiceSerie).offset;
   }
 
   /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto. */

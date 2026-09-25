@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-536 testes em 66 arquivos. Build da biblioteca e do Showcase validados.
+544 testes em 67 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -18,8 +18,7 @@ Outros modulos:
 
 - `src/components/icons` — biblioteca oficial de icones. A base `Icon` e **interna** e fecha o conjunto; os icones
   em si sao publicos, com nomenclatura de familia.
-- `src/components/forms/Field` — cromo de campo compartilhado. **Interno**, nao exportado. E o unico componente
-  sem arquivo de teste proprio: ele e exercitado pelos campos que o consomem.
+- `src/components/forms/Field` — cromo de campo compartilhado, agora **publico**, com testes proprios.
 - `src/hooks/useCharacterCount` — contagem de caracteres, controlada ou nao. **Interno**, nao exportado. Serve apenas `InputText` e `Textarea`, os campos de texto plano.
 - `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion` e `List`. Alem das chaves escolhidas, retem os itens, para que a escolha sobreviva ao item sair da colecao filtrada.
 - `src/components/data-display/List/useListing` e `ListingOptions` — a listagem compartilhada: colecao, filtro, teclado, ARIA, marcacao e virtualizacao. **Internos**, nao exportados. Servem `List`, `Select` e `ComboBox`.
@@ -59,6 +58,13 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - O pacote construido e conferido por `scripts/check-pacote.mjs`, fora da suite: `dist/` nao existe antes do build, e um teste que se pula sozinho esconde a falha que deveria mostrar.
 - A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
 
+**Fronteira com a aplicacao hospedeira**
+
+- **O CSS global foi partido em dois, por decisao do mantenedor, depois do primeiro consumo real.** `styles/base.css` viaja com os componentes e traz so o que eles exigem do documento; `styles/reset.css` e opcional, sai como arquivo proprio em `dist/reset.css` e carrega a base de pagina — corpo, titulos, links, controles nativos, selecao, barra de rolagem. Antes disso, instalar a biblioteca reescrevia o `body`, os titulos, o `select` nativo e a barra de rolagem do hospedeiro, que e o oposto do que o `README.md` promete quando diz que as aplicacoes consomem.
+- A regra e: **o que um componente precisa para estar correto mora no modulo dele.** Separar sem isso seria pior que nao separar, porque quem importasse so o CSS dos componentes receberia padding errado em silencio. Na pratica sobrou o `box-sizing` em `base.css`, e dois consertos: `Field` passou a declarar a propria familia tipografica, que herdava do `body`, e `Accordion` e `Pagination` ganharam anel de foco proprio, que era o unico par que dependia do `:focus-visible` global.
+- **Uma regra de pagina continua viajando com os componentes, de proposito**: o bloco de `prefers-reduced-motion` com `!important`. Dezoito modulos animam sem guarda propria, e sem ele a preferencia deixaria de valer para quase toda a biblioteca. Ele so age quando a pessoa pediu menos movimento, que e quando passar por cima do hospedeiro e o comportamento certo. Dar guarda propria aos dezoito e o que permitiria move-lo para o reset.
+- Medido no pacote construido: o CSS dos componentes nao tem mais nenhum seletor de elemento nu, e `body`, barra de rolagem e `select` nativo so existem no reset.
+
 **Distribuicao**
 
 - `react` e `react-dom` sao **peer dependencies**, nao dependencias. Instalados como dependencia, o
@@ -72,6 +78,8 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - `prepare` constroi o pacote, para que a instalacao direta do repositorio funcione: `dist/` e
   ignorado pelo git, e sem o script o consumidor receberia um pacote vazio. O custo e conhecido e
   aceito: o script tambem roda a cada `npm install` feito aqui dentro.
+- `prepare` chama `build:pacote`, e **nao** `build`. O `build` roda `tsc -b`, que inclui o projeto
+  do Showcase: um erro de tipo la impedia instalar o pacote. O `build:pacote` verifica apenas `src`.
 - A folha de estilo nao entra pelo bundle: o Vite a extrai, e o consumidor a importa por
   `@plenustech/design-system/styles.css`, um caminho do mapa de `exports`.
 
@@ -232,6 +240,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Uma segunda escala sem eixo para le-la e exatamente o duplo eixo que engana, entao o eixo direito do `ChartCombo` aparece por padrao assim que uma serie pertence a ele. O consumidor ainda pode impor os tres estados de visibilidade.
 - Os dois dominios do `ChartCombo` caminham numa **animacao so**, e por isso chegam juntos. Duas animacoes independentes descasariam as barras das linhas no meio da transicao.
 - No `ChartCombo` a linha passa pelo **centro da faixa**, que e onde a marca do eixo de categoria tambem fica. As duas formas compartilham a escala de faixas em vez de manterem cada uma a sua.
+- `barSlots` devolve uma faixa por presenca, e a presenca vem do tween. Quando entra uma serie nova, o tween devolve o array anterior por um render e o indice da nova ainda nao existe: o acesso passa por `NO_BAR_SLOT`. A extracao tinha perdido essa guarda, que existia antes como `presencas[i] ?? 0`, e o grafico quebrava com `Cannot read properties of undefined`.
 - O traco da linha e o marcador de ponto passaram para `core/Chart.module.css` quando o `ChartCombo` virou o terceiro consumidor deles. `ChartLine`, `ChartArea` e `ChartCombo` compoem a partir de la; `ChartArea` mantem o nome local `outline`.
 - A moldura cartesiana e um componente interno, nao uma camada preventiva: cinco graficos repetiam titulo, margens, area de desenho, estado vazio, colocacao dos dois eixos e legenda. Ela fala em **x e y**, nao em categoria e valor — e o grafico que decide qual eixo recebe cada marca. Foi o que dissolveu o ramo `vertical`/`horizontal` da colocacao de eixos do `ChartBar`.
 - `d3-shape` entrou pela mesma fronteira do restante do D3: ele devolve string de caminho, nao toca no DOM. Interpolacao cubica monotona e geracao de faixa com base variavel sao matematica sutil que nao vale reimplementar, e o pacote tambem serve os arcos dos radiais.

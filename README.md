@@ -76,13 +76,21 @@ export function Example() {
 }
 ```
 
-A folha de estilo do Design System acompanha o pacote e deve ser importada uma vez, no ponto de entrada da aplicação. Ela carrega os tokens, o reset e o estilo de todos os componentes:
+A folha de estilo do Design System acompanha o pacote e deve ser importada uma vez, no ponto de entrada da aplicação. Ela carrega os tokens e o estilo de todos os componentes:
 
 ```ts
 import '@plenustech/design-system/styles.css';
 ```
 
 Sem essa importação os componentes são renderizados sem estilo.
+
+Há uma segunda folha, **opcional**, com a base de página do sistema — tipografia do corpo, títulos, links, controles nativos e barra de rolagem:
+
+```ts
+import '@plenustech/design-system/reset.css';
+```
+
+Uma aplicação nova ganha a aparência completa do sistema importando as duas. Uma aplicação existente, que já tem a própria base, importa apenas a primeira: os componentes não dependem do reset.
 
 Não é recomendado importar arquivos internos diretamente:
 

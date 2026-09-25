@@ -13,6 +13,7 @@
       "require": "./dist/plenus-design-system.cjs"
     },
     "./styles.css": "./dist/design-system.css",
+    "./reset.css": "./dist/reset.css",
     "./package.json": "./package.json"
   },
   "sideEffects": [
@@ -27,13 +28,14 @@
     "build": "tsc -b && vite build && tsc -p tsconfig.build.json",
     "check:pacote": "node scripts/check-pacote.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
-    "prepare": "npm run build",
+    "prepare": "npm run build:pacote",
     "build:showcase": "vite build --config showcase/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
-    "preview:showcase": "vite preview --config showcase/vite.config.ts"
+    "preview:showcase": "vite preview --config showcase/vite.config.ts",
+    "build:pacote": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.4",

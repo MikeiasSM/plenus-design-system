@@ -35,6 +35,12 @@ export interface BarSlot {
 }
 
 /**
+ * Faixa de um indice que ainda nao existe. Quando entra uma serie, o tween
+ * devolve o array anterior por um render, e ali a nova nao tem presenca.
+ */
+export const NO_BAR_SLOT: BarSlot = { offset: 0, thickness: 0 };
+
+/**
  * Espessura e deslocamento de cada barra dentro da faixa, a partir da presenca
  * de cada serie. A barra desligada encolhe a zero e as demais ocupam o lugar
  * dela, sem deixar a folga sobrando no fim.

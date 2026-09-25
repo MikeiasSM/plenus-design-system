@@ -1,8 +1,20 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { copyFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      // O reset e opcional, entao nao entra pelo ponto de entrada e nao vai
+      // parar no bundle dos componentes. Ele viaja como arquivo proprio.
+      name: 'copia-o-reset',
+      closeBundle() {
+        copyFileSync(resolve(__dirname, 'src/styles/reset.css'), resolve(__dirname, 'dist/reset.css'));
+      },
+    },
+  ],
   build: {
     lib: {
       entry: 'src/index.ts',

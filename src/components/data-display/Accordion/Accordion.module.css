@@ -79,3 +79,9 @@
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
 }
+
+/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
+.trigger:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}

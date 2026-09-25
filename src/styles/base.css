@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Plenustech Design System — base.css
+   O minimo que os componentes exigem do documento para ficarem corretos.
+   Viaja junto do CSS dos componentes e nao e opcional.
+
+   Tudo o que e opiniao sobre a pagina do hospedeiro — corpo, titulos, links,
+   controles nativos, barra de rolagem — mora em `reset.css`, que o consumidor
+   importa se quiser.
+   ========================================================================== */
+
+/* As medidas dos componentes somam padding e borda dentro da largura. Sem
+   isto, todo campo e todo botao passam do tamanho declarado. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* A unica regra de pagina que viaja com os componentes, e de proposito:
+   dezoito modulos animam sem guarda propria, e sem isto a preferencia do
+   sistema operacional deixaria de valer para quase toda a biblioteca. Ela so
+   age quando a pessoa pediu menos movimento, que e quando passar por cima do
+   hospedeiro e o comportamento certo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
