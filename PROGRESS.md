@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-488 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
+489 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 

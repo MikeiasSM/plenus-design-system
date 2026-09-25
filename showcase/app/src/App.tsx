@@ -48,8 +48,28 @@ const vendas = [
 
 const mesesDoSemestre = ['04/26', '05/26', '06/26', '07/26', '08/26', '09/26'];
 
-// Jornada de cobranca com seis colunas, ramificacoes que terminam em
-// profundidades diferentes e ligacoes de ordens de grandeza distintas.
+// Analise de propostas: o fluxo desvia para uma etapa intermediaria e volta a
+// se encontrar colunas adiante, entao as ligacoes se cruzam. Aprovado recebe de
+// tres colunas distintas e Recusado de outras tres.
+const analiseDePropostas = [
+  { source: 'Propostas recebidas', target: 'Analise automatica', value: 7400 },
+  { source: 'Propostas recebidas', target: 'Analise manual', value: 1600 },
+  { source: 'Analise automatica', target: 'Aprovado', value: 4900 },
+  { source: 'Analise automatica', target: 'Analise manual', value: 1300 },
+  { source: 'Analise automatica', target: 'Recusado', value: 1200 },
+  { source: 'Analise manual', target: 'Aprovado', value: 1150 },
+  { source: 'Analise manual', target: 'Pendente de documento', value: 980 },
+  { source: 'Analise manual', target: 'Recusado', value: 770 },
+  { source: 'Pendente de documento', target: 'Aprovado', value: 610 },
+  { source: 'Pendente de documento', target: 'Recusado', value: 370 },
+  { source: 'Aprovado', target: 'Contratado', value: 5480 },
+  { source: 'Aprovado', target: 'Desistiu', value: 1180 },
+  { source: 'Contratado', target: 'Adimplente', value: 4930 },
+  { source: 'Contratado', target: 'Inadimplente', value: 550 },
+];
+
+// Cobranca em arvore: cada no tem um pai so, entao nada se cruza. Serve de
+// contraste com o de cima.
 const jornadaDeCobranca = [
   { source: 'Faturas emitidas', target: 'Enviadas', value: 4712 },
   { source: 'Faturas emitidas', target: 'Falha no envio', value: 108 },
@@ -61,7 +81,7 @@ const jornadaDeCobranca = [
   { source: 'Vencido', target: 'Negociado', value: 312 },
   { source: 'Vencido', target: 'Protestado', value: 138 },
   { source: 'Negociado', target: 'Quitado apos acordo', value: 241 },
-  { source: 'Negociado', target: 'Inadimplente', value: 71 },
+  { source: 'Negociado', target: 'Inadimplente do acordo', value: 71 },
 ];
 
 const alinhamentosDoSankey = ['justify', 'left', 'right', 'center'] as const;
@@ -1534,7 +1554,7 @@ export function App() {
             <p className="doc-note">A altura do no e o volume que passa por ele, e a espessura da ligacao e o valor dela. O ponteiro sobre uma ligacao sobe o tom dela e apaga as demais. O rotulo fica sempre a direita do no, como na referencia: o do no de saida cai na banda reservada, e os demais sobre o proprio fluxo, com um halo que os separa do que passa por baixo.</p>
           </div>
           <div className="doc-subsection">
-            <h3>Jornada com seis colunas</h3>
+            <h3>Fluxo com desvio e reencontro</h3>
             <div className="demo-grid">
               {alinhamentosDoSankey.map((alinhamento) => (
                 <Button
@@ -1582,24 +1602,37 @@ export function App() {
               accent={corDoTema}
               flowColor={corDaLigacao}
               flowValuePosition={posicaoDoValor}
-              flows={jornadaDeCobranca}
+              flows={analiseDePropostas}
               formatValue={(valor) => valor.toLocaleString('pt-BR')}
-              height={440}
+              height={460}
               nodeAlign={alinhamentoDoSankey}
               showFlowValues={valoresNaLigacao}
+              title="Analise de propostas"
+            />
+            <p className="doc-note">Aqui o fluxo nao e uma arvore. Parte das propostas desvia para a analise manual logo no inicio e parte so desvia depois de reprovar na automatica, entao a analise manual recebe de duas colunas diferentes. <strong>Aprovado</strong> e <strong>Recusado</strong> recebem de tres colunas cada um, e a ligacao que sai da analise automatica direto para aprovado atravessa tres colunas por cima de todas as outras — e dai que vem o cruzamento.</p>
+            <p className="doc-note">O alinhamento decide onde os nos sem saida se encostam: em <code>justify</code> eles vao para a borda direita, em <code>left</code> ficam onde a contagem de passos os coloca — repare no <strong>Recusado</strong> mudando de coluna. A cor da ligacao vem da origem, do destino ou de nenhum dos dois; com tanto cruzamento, <code>neutral</code> e o que deixa a estrutura mais legivel.</p>
+            <p className="doc-note">O valor da ligacao tem tres posicoes. O rotulo do no ocupa a faixa logo a direita dele, entao <code>start</code> disputa espaco com o rotulo da propria origem e <code>end</code> nunca disputa — por isso ele e o padrao. Em qualquer uma delas, o valor que ainda assim cruzaria um rotulo e omitido: dois textos sobrepostos nao informam nada, e o valor continua no <code>title</code> da ligacao.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>O mesmo fluxo em arvore, para contraste</h3>
+            <ChartSankey
+              accent={corDoTema}
+              flows={jornadaDeCobranca}
+              formatValue={(valor) => valor.toLocaleString('pt-BR')}
+              height={380}
+              showFlowValues
               title="Jornada de cobranca"
             />
-            <p className="doc-note">Seis colunas, ramos que terminam em profundidades diferentes e ligacoes de ordens de grandeza distintas — de 4.712 a 71. O alinhamento decide onde os nos sem saida se encostam: em <code>justify</code> eles vao para a borda direita, em <code>left</code> ficam onde a contagem de passos os coloca. A cor da ligacao vem da origem, do destino ou de nenhum dos dois.</p>
-            <p className="doc-note">O valor da ligacao tem tres posicoes. O rotulo do no ocupa a faixa logo a direita dele, entao <code>start</code> disputa espaco com o rotulo da propria origem e <code>end</code> nunca disputa — por isso ele e o padrao. Em qualquer uma delas, o valor que ainda assim cruzaria um rotulo e omitido: dois textos sobrepostos nao informam nada, e o valor continua no <code>title</code> da ligacao.</p>
+            <p className="doc-note">Aqui cada no tem um pai so, entao nenhuma ligacao cruza outra. Comparar os dois mostra o que o cruzamento custa em legibilidade — e por que o realce no hover existe.</p>
           </div>
           <div className="doc-subsection">
             <h3>Sem rotulo e sem valor</h3>
             <ChartSankey
               accent={corDoTema}
-              flows={jornadaDeCobranca}
+              flows={analiseDePropostas}
               height={300}
               showLabels={false}
-              title="Jornada de cobranca"
+              title="Analise de propostas"
             />
             <p className="doc-note">Sem rotulos o fluxo ocupa a largura inteira, porque a banda reservada aos nomes dos nos de saida deixa de existir. O <code>title</code> de cada marca continua descrevendo o que ela representa.</p>
           </div>

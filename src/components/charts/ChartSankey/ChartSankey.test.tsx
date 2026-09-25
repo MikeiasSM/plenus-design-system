@@ -183,6 +183,35 @@ describe('ChartSankey', () => {
     expect(document.querySelectorAll('text')).toHaveLength(0);
   });
 
+  it('reune num no so o que chega de colunas diferentes', () => {
+    // Aprovado recebe da primeira e da segunda coluna: o fluxo nao e uma arvore.
+    render(
+      <ChartSankey
+        flows={[
+          { source: 'Recebidas', target: 'Aprovado', value: 300 },
+          { source: 'Recebidas', target: 'Revisao', value: 200 },
+          { source: 'Revisao', target: 'Aprovado', value: 120 },
+          { source: 'Revisao', target: 'Recusado', value: 80 },
+        ]}
+        title="Analise"
+      />,
+    );
+
+    const aprovado = nos().find(
+      (no) => no.querySelector('title')?.textContent === 'Aprovado',
+    );
+    const recusado = nos().find(
+      (no) => no.querySelector('title')?.textContent === 'Recusado',
+    );
+
+    // Um no so, com a altura das duas chegadas somadas: 420 contra 80.
+    expect(nos()).toHaveLength(4);
+    expect(Number(aprovado?.getAttribute('height'))).toBeCloseTo(
+      Number(recusado?.getAttribute('height')) * (420 / 80),
+      0,
+    );
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um fluxo vazio', () => {
     render(<ChartSankey flows={[]} title="Fluxo" />);
 
