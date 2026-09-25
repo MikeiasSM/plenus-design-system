@@ -124,6 +124,14 @@ export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
 export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartTooltip } from './components/charts/ChartTooltip';
+export type {
+  ChartTooltipColumn,
+  ChartTooltipComputed,
+  ChartTooltipProps,
+  ChartTooltipRow,
+  ChartTooltipTotal,
+} from './components/charts/ChartTooltip';
 export { ChartCombo } from './components/charts/ChartCombo';
 export type {
   ChartComboAxis,

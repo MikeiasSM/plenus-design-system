@@ -41,6 +41,8 @@ export interface ChartBarProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
+  onHoverCategory?: (index: number | null) => void;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
   showDataLabels?: boolean;
@@ -63,6 +65,7 @@ export function ChartBar({
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
+  onHoverCategory,
   orientation = 'vertical',
   series,
   showDataLabels = false,
@@ -76,6 +79,11 @@ export function ChartBar({
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
+
+  const focarFaixa = (indice: number | null) => {
+    setFaixaEmFoco(indice);
+    onHoverCategory?.(indice);
+  };
   const vertical = orientation === 'vertical';
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -288,8 +296,8 @@ export function ChartBar({
                   )}
                   fill={cores[indiceSerie]}
                   key={categoria}
-                  onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
-                  onMouseLeave={() => setFaixaEmFoco(null)}
+                  onMouseEnter={() => focarFaixa(indiceCategoria)}
+                  onMouseLeave={() => focarFaixa(null)}
                 >
                   <title>{`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}</title>
                 </path>

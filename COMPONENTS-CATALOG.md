@@ -90,10 +90,17 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 | `ChartTreemap` | Composição hierárquica por área. | Disponível |
 | `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Disponível |
 | `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
+| `ChartTooltip` | Leitura das medidas sob o ponteiro, em lista. | Disponível |
 
 `ChartCombo` desenha barras e linhas sobre o mesmo eixo de categorias, e é a escolha quando uma categoria carrega duas leituras de naturezas diferentes — o volume em barra, a taxa em linha. Com um único tipo de marca, `ChartBar` e `ChartLine` continuam sendo os componentes certos.
 
 Cada série do `ChartCombo` declara a que eixo de valor pertence, e é essa declaração que cria o eixo direito. O gráfico nunca parte a escala por conta própria: um segundo eixo que aparece sozinho transforma o ponto de cruzamento entre as séries em artefato da escala escolhida, e não em fato do dado. Sem nenhuma série à direita, o domínio é único.
+
+`ChartTooltip` é a leitura no ponteiro: título, subtítulo opcional, uma linha por medida com marcador e colunas numéricas, uma coluna calculada e um totalizador com operador por coluna. Ele acompanha o cursor e sai a qualquer outra interação — ponteiro fora, rolagem ou tecla.
+
+A fronteira com `Tooltip` é o conteúdo, não o gráfico: `Tooltip` descreve **um** elemento em uma frase curta e nomeia esse elemento para quem usa leitor de tela; `ChartTooltip` exibe **várias** medidas em forma de grade e é decorativo, porque uma grade que some a qualquer interação não é leitura acessível. A leitura acessível de cada marca continua no `<title>` que os gráficos trazem.
+
+Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 
 A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
 

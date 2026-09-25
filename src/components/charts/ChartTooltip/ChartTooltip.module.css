@@ -1,0 +1,104 @@
+/* A area so existe para ouvir o ponteiro. Bloco de largura inteira, que e o que
+   o grafico ja ocupa, entao envolver nao muda o desenho. */
+.area {
+  display: block;
+  width: 100%;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 120;
+  padding: var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-2);
+  pointer-events: none;
+}
+
+.title {
+  margin: 0;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.subtitle {
+  margin: var(--pl-space-1) 0 0;
+  max-width: 280px;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.grid {
+  display: grid;
+  align-items: center;
+  gap: var(--pl-space-1) var(--pl-space-4);
+  margin-top: var(--pl-space-2);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: var(--pl-radius-full);
+}
+
+/* Valor de tabela e JetBrains Mono, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`:
+   e o monoespacado que alinha os digitos de uma coluna para outra. */
+.value {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-data-value-size);
+  font-weight: var(--pl-type-data-value-weight);
+  line-height: var(--pl-type-data-value-line-height);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* A coluna calculada e leitura secundaria: ela deriva das outras. */
+.computed {
+  composes: value;
+  color: var(--pl-color-text-tertiary);
+}
+
+/* A linha sob o ponteiro sobe de tom; as demais continuam legiveis. */
+.emphasis {
+  color: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+/* A regua atravessa a grade inteira, seja qual for a contagem de colunas. */
+.rule {
+  grid-column: 1 / -1;
+  margin: var(--pl-space-1) 0;
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.totalLabel {
+  color: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.totalValue {
+  color: var(--pl-color-text);
+}

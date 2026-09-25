@@ -4,7 +4,8 @@ import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
   Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
-  ChartSunburst, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
+  ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
+  resolveSeriesColors,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
 } from '@plenus/index';
@@ -61,6 +62,16 @@ const vendas = [
 ];
 
 const mesesDoSemestre = ['04/26', '05/26', '06/26', '07/26', '08/26', '09/26'];
+
+const faturamentoDoSemestre = [42000, 58000, 39000, 96000, 54000, 63000];
+const conversaoDoSemestre = [3.2, 4.1, 2.8, 6.4, 3.9, 4.6];
+
+/** Formas de pagamento por mes, com quantidade e valor, como no relatorio real. */
+const formasDePagamento = [
+  { label: 'Prazo', quantidades: [418, 402, 390, 455, 430, 441], valores: [164352.89, 158020.4, 149330.1, 180224.7, 170110.5, 174880.2] },
+  { label: 'C/ Sicredi 930-0', quantidades: [30, 28, 34, 41, 36, 39], valores: [11837.73, 10920.5, 13240.8, 16110.2, 14005.6, 15320.9] },
+  { label: 'Outros', quantidades: [22, 19, 25, 30, 27, 24], valores: [8632.09, 7410.3, 9880.4, 11720.6, 10240.8, 9115.4] },
+];
 
 // Analise de propostas: o fluxo desvia para uma etapa intermediaria e volta a
 // se encontrar colunas adiante, entao as ligacoes se cruzam. Aprovado recebe de
@@ -194,6 +205,15 @@ export function App() {
   const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
   const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
   const [alinhamentoDaLegenda, setAlinhamentoDaLegenda] = useState<ChartLegendAlign>('center');
+  const [faixaDoCombo, setFaixaDoCombo] = useState<number | null>(null);
+  const [faixaDasBarras, setFaixaDasBarras] = useState<number | null>(null);
+
+  // As mesmas cores que o grafico resolve, para o marcador do balao bater com a
+  // marca desenhada quando a cor de tema muda.
+  const coresDoCombo = resolveSeriesColors([{}, {}], { accent: corDoTema });
+  const coresDasFormas = resolveSeriesColors(formasDePagamento.map(() => ({})), { accent: corDoTema });
+  const maiorFormaEm = (indice: number) =>
+    Math.max(...formasDePagamento.map((forma) => forma.valores[indice]));
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
   const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
 
@@ -271,6 +291,7 @@ export function App() {
           <a href="#charttreemap">ChartTreemap</a>
           <a href="#chartsunburst">ChartSunburst</a>
           <a href="#chartsankey">ChartSankey</a>
+          <a href="#charttooltip">ChartTooltip</a>
           <p className="rail-group">Data display</p>
           <a href="#list">List</a>
           <a href="#table">Table</a>
@@ -1769,6 +1790,87 @@ export function App() {
               title="Analise de propostas"
             />
             <p className="doc-note">Sem rotulos o fluxo ocupa a largura inteira, porque a banda reservada aos nomes dos nos de saida deixa de existir. O <code>title</code> de cada marca continua descrevendo o que ela representa.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="charts"
+          description="Leitura das medidas sob o ponteiro, em lista."
+          id="charttooltip"
+          name="ChartTooltip"
+          api={`<ChartTooltip
+  title={categorias[faixa]}
+  rows={[
+    { color: cores[0], label: 'Faturamento', values: [420] },
+    { color: cores[1], label: 'Conversao', values: [3.2] },
+  ]}
+  columns={[{ format: formatarMoeda }]}
+  computed="none"
+>
+  <ChartBar ... onHoverCategory={setFaixa} />
+</ChartTooltip>`}
+        >
+          <div className="doc-subsection">
+            <h3>Uma medida por serie</h3>
+            <ChartTooltip
+              columns={[{ format: (valor) => (valor < 100 ? formatarPercentual(valor / 100, { casasDecimais: 1 }) : formatarMoeda(valor)) }]}
+              computed="none"
+              rows={
+                faixaDoCombo === null
+                  ? []
+                  : [
+                      { color: coresDoCombo[0], label: 'Faturamento', values: [faturamentoDoSemestre[faixaDoCombo]] },
+                      { color: coresDoCombo[1], label: 'Conversao', values: [conversaoDoSemestre[faixaDoCombo]] },
+                    ]
+              }
+              subtitle="Faturamento na escala da esquerda, conversao na da direita."
+              title={faixaDoCombo === null ? '' : mesesDoSemestre[faixaDoCombo]}
+            >
+              <ChartCombo
+                accent={corDoTema}
+                categories={mesesDoSemestre}
+                formatRightValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 1 })}
+                formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+                onHoverCategory={setFaixaDoCombo}
+                series={[
+                  { kind: 'bar', label: 'Faturamento', values: faturamentoDoSemestre },
+                  { axis: 'right', kind: 'line', label: 'Conversao', values: conversaoDoSemestre },
+                ]}
+                title="Faturamento e conversao"
+              />
+            </ChartTooltip>
+            <p className="doc-note">Passe o ponteiro sobre uma barra. O balao acompanha o cursor e some quando ele sai do grafico, rola a pagina ou voce toca no teclado. As cores das linhas saem de <code>resolveSeriesColors</code>, o mesmo utilitario que o grafico usa — e por isso o marcador do balao bate com a marca desenhada mesmo quando voce troca a cor de tema.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Varias colunas, campo calculado e totalizador</h3>
+            <ChartTooltip
+              columns={[{}, { format: formatarMoeda }]}
+              rows={
+                faixaDasBarras === null
+                  ? []
+                  : formasDePagamento.map((forma, indice) => ({
+                      color: coresDasFormas[indice],
+                      emphasis: forma.valores[faixaDasBarras] === maiorFormaEm(faixaDasBarras),
+                      label: forma.label,
+                      values: [forma.quantidades[faixaDasBarras], forma.valores[faixaDasBarras]],
+                    }))
+              }
+              showTotal
+              title={faixaDasBarras === null ? '' : `Distribuicao em ${mesesDoSemestre[faixaDasBarras]}`}
+            >
+              <ChartBar
+                accent={corDoTema}
+                categories={mesesDoSemestre}
+                formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+                onHoverCategory={setFaixaDasBarras}
+                series={formasDePagamento.map((forma) => ({ label: forma.label, values: forma.valores }))}
+                stacked
+                title="Faturamento por forma de pagamento"
+              />
+            </ChartTooltip>
+            <p className="doc-note">Duas colunas de medida, quantidade e valor, mais a coluna calculada ao fim. Por padrao ela e o percentual de cada linha sobre o total da ultima coluna — repare que 88,92% sai do valor e nao da quantidade. A linha de maior valor sobe de tom; as demais continuam legiveis.</p>
+            <p className="doc-note">O totalizador nao e fixo em soma: cada coluna declara o proprio operador, porque somar quantidade faz sentido e somar um percentual medio nao faria. Alem de <code>sum</code> e <code>average</code>, a coluna aceita uma funcao propria ou <code>none</code>, que deixa a celula vazia.</p>
+            <p className="doc-note"><strong>Pendente:</strong> cada marca ainda traz o <code>title</code> nativo do SVG, que e a leitura acessivel dela. Com o ponteiro parado, o navegador mostra os dois. Decidir se o <code>title</code> sai ou vira <code>aria-label</code> faz parte de ligar o balao aos doze graficos, que ainda nao foi feito.</p>
           </div>
         </ComponentDoc>
 

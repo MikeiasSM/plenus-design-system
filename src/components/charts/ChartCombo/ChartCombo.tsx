@@ -53,6 +53,8 @@ export interface ChartComboProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
+  onHoverCategory?: (index: number | null) => void;
   series: readonly ChartComboSeries[];
   showDataLabels?: boolean;
   showDots?: boolean;
@@ -98,6 +100,7 @@ export function ChartCombo({
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
+  onHoverCategory,
   series,
   showDataLabels = false,
   showDots = false,
@@ -110,6 +113,11 @@ export function ChartCombo({
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const [faixaEmFoco, setFaixaEmFoco] = useState<number | null>(null);
+
+  const focarFaixa = (indice: number | null) => {
+    setFaixaEmFoco(indice);
+    onHoverCategory?.(indice);
+  };
 
   const formatarDireita = formatRightValue ?? formatValue;
   const temEixoDireito = series.some((serie) => eixoDa(serie) === 'right');
@@ -299,8 +307,8 @@ export function ChartCombo({
                   )}
                   fill={cores[indiceSerie]}
                   key={categoria}
-                  onMouseEnter={() => setFaixaEmFoco(indiceCategoria)}
-                  onMouseLeave={() => setFaixaEmFoco(null)}
+                  onMouseEnter={() => focarFaixa(indiceCategoria)}
+                  onMouseLeave={() => focarFaixa(null)}
                 >
                   <title>{`${serie.label}, ${categoria}: ${formatar(valor)}`}</title>
                 </path>
