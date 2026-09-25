@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-523 testes em 65 arquivos. Build da biblioteca e do Showcase validados.
+534 testes em 66 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -112,6 +112,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 ### Ainda nao implementado
 
 - O `DataGrid` da etapa 10.
+- Ligacao do `ChartTooltip` aos doze graficos. Feita a costura dos dois cartesianos que o Showcase demonstra; faltam os demais e a decisao sobre o `<title>` por marca.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
@@ -229,7 +230,12 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Na cascata, o **sinal do rotulo pertence ao grafico**, que formata a magnitude. Delegar o sinal ao formatador do consumidor perdia a variacao com qualquer formatador que exibisse apenas o valor. O teste pegou isso.
 - Na cascata, a faixa de cada passo e indexada pela **posicao**, nao pelo rotulo: numa sequencia de passos o mesmo rotulo pode repetir, e a escala categorica funde dominios iguais, sobrepondo as barras.
 - Um passo marcado como total parte do zero e recebe intencao `neutral`: ele fecha a conta em vez de acrescentar a ela, e o rotulo dele dispensa o sinal.
-- **Tooltip de grafico por portal adiado por decisao do mantenedor.** Os cartesianos mantem o `<title>` por marca, com marcadores revelados no hover para dar a leitura por ponto. Ele entra quando o mantenedor decidir, e e o ponto que falta para a leitura no ponteiro se igualar a referencia.
+- **`ChartTooltip` implementado**, depois de adiado duas rodadas. Acompanha o ponteiro, em portal, e sai a qualquer outra interacao: ponteiro fora da area, rolagem, tecla ou a janela mudando de tamanho. Traz titulo, subtitulo, uma linha por medida com marcador, colunas numericas, uma coluna calculada e um totalizador com operador por coluna.
+- **Apesar do nome, o `ChartTooltip` nao conhece grafico algum.** Ele recebe linhas e colunas; quem as monta e quem o usa. O nome veio do shadcn, por decisao do mantenedor, e da referencia visual ja adotada para os graficos — mas o `ChartTooltip` de la e `const ChartTooltip = RechartsPrimitive.Tooltip`, um alias vazio, e o `ChartTooltipContent` que o acompanha nao tem subtitulo, nem multiplas colunas, nem campo calculado, nem totalizador. O nome e emprestado; o componente e nosso.
+- O balao **segue o ponteiro**, e nao a marca. Por isso nao usa `useOverlayPosition`, que ancora em elemento e nao em coordenada: a posicao sai do proprio evento, com giro para o lado oposto ao encostar na borda da janela.
+- O `ChartTooltip` e **decorativo** para leitor de tela, com `aria-hidden`. Uma grade que some a qualquer interacao nao e leitura acessivel; a de cada marca continua no `<title>` que os graficos trazem. Falta decidir se esse `<title>` sai ou vira `aria-label` quando o balao for ligado aos doze: com o ponteiro parado, o navegador mostra os dois.
+- `ChartBar` e `ChartCombo` ganharam `onHoverCategory`, a costura minima para o consumidor montar a leitura. Eles ja rastreavam a faixa sob o ponteiro; faltava avisar. A familia radial precisa de costura propria, porque o agrupamento de fatias pequenas desloca o indice em relacao ao que o consumidor informou.
+- Valor no balao e **JetBrains Mono**, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`: `type.data-value` cobre valores monetarios, percentuais e totais em tabelas. O rotulo da serie continua em Montserrat, que e conteudo de interface.
 - **Legenda clicavel implementada**, depois de adiada uma rodada. Cada entrada e um botao com `aria-pressed`, e o estado e controlado ou nao conforme `COMPONENTS.md` secao 6. Ela trabalha com rotulos, nao com indices: e o rotulo que a legenda exibe e o que o produto reconhece, e o indice mudaria de significado ao reordenar as series.
 
 **Movimento**
