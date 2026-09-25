@@ -8,7 +8,12 @@ import {
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora,
 } from '@plenus/index';
-import type { AxisVisibility, ChartLegendPosition } from '@plenus/index';
+import type {
+  AxisVisibility,
+  ChartLegendPosition,
+  ChartSankeyAlign,
+  ChartSankeyFlowColor,
+} from '@plenus/index';
 
 const estadosBrasileiros = [
   ['ac', 'Acre'], ['al', 'Alagoas'], ['ap', 'Amapa'], ['am', 'Amazonas'],
@@ -41,6 +46,25 @@ const vendas = [
 ];
 
 const mesesDoSemestre = ['04/26', '05/26', '06/26', '07/26', '08/26', '09/26'];
+
+// Jornada de cobranca com seis colunas, ramificacoes que terminam em
+// profundidades diferentes e ligacoes de ordens de grandeza distintas.
+const jornadaDeCobranca = [
+  { source: 'Faturas emitidas', target: 'Enviadas', value: 4712 },
+  { source: 'Faturas emitidas', target: 'Falha no envio', value: 108 },
+  { source: 'Enviadas', target: 'Boleto aberto', value: 3980 },
+  { source: 'Enviadas', target: 'Nao aberto', value: 732 },
+  { source: 'Boleto aberto', target: 'Pago no prazo', value: 2640 },
+  { source: 'Boleto aberto', target: 'Pago em atraso', value: 890 },
+  { source: 'Boleto aberto', target: 'Vencido', value: 450 },
+  { source: 'Vencido', target: 'Negociado', value: 312 },
+  { source: 'Vencido', target: 'Protestado', value: 138 },
+  { source: 'Negociado', target: 'Quitado apos acordo', value: 241 },
+  { source: 'Negociado', target: 'Inadimplente', value: 71 },
+];
+
+const alinhamentosDoSankey = ['justify', 'left', 'right', 'center'] as const;
+const coresDaLigacao = ['source', 'target', 'neutral'] as const;
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
 const badgeTones = ['ok', 'warn', 'info', 'danger', 'primary', 'neutral'] as const;
@@ -113,6 +137,9 @@ export function App() {
   const [paginaEquipe, setPaginaEquipe] = useState(1);
   const [corDoTema, setCorDoTema] = useState('#F26B35');
   const [temaEscuro, setTemaEscuro] = useState(lerTemaEscuro);
+  const [alinhamentoDoSankey, setAlinhamentoDoSankey] = useState<ChartSankeyAlign>('justify');
+  const [corDaLigacao, setCorDaLigacao] = useState<ChartSankeyFlowColor>('source');
+  const [valoresNaLigacao, setValoresNaLigacao] = useState(true);
   const [eixoDeValor, setEixoDeValor] = useState<AxisVisibility>('visible');
   const [ladoDaLegenda, setLadoDaLegenda] = useState<ChartLegendPosition>('bottom');
   const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
@@ -1504,23 +1531,60 @@ export function App() {
             <p className="doc-note">A altura do no e o volume que passa por ele, e a espessura da ligacao e o valor dela. O ponteiro sobre uma ligacao sobe o tom dela e apaga as demais. O rotulo fica sempre a direita do no, como na referencia: o do no de saida cai na banda reservada, e os demais sobre o proprio fluxo, com um halo que os separa do que passa por baixo.</p>
           </div>
           <div className="doc-subsection">
-            <h3>Valor na ligacao, cor pelo destino e nos a esquerda</h3>
+            <h3>Jornada com seis colunas</h3>
+            <div className="demo-grid">
+              {alinhamentosDoSankey.map((alinhamento) => (
+                <Button
+                  key={alinhamento}
+                  onClick={() => setAlinhamentoDoSankey(alinhamento)}
+                  size="sm"
+                  variant={alinhamentoDoSankey === alinhamento ? 'primary' : 'secondary'}
+                >
+                  {alinhamento}
+                </Button>
+              ))}
+            </div>
+            <div className="demo-grid">
+              {coresDaLigacao.map((origem) => (
+                <Button
+                  key={origem}
+                  onClick={() => setCorDaLigacao(origem)}
+                  size="sm"
+                  variant={corDaLigacao === origem ? 'primary' : 'secondary'}
+                >
+                  cor: {origem}
+                </Button>
+              ))}
+              <Button
+                onClick={() => setValoresNaLigacao((atual) => !atual)}
+                size="sm"
+                variant={valoresNaLigacao ? 'primary' : 'secondary'}
+              >
+                valores
+              </Button>
+            </div>
             <ChartSankey
               accent={corDoTema}
-              flowColor="target"
-              flows={[
-                { source: 'Cadastro concluido', target: 'Lead gerado', value: 222 },
-                { source: 'Cadastro concluido', target: 'Sem lead', value: 136 },
-                { source: 'Lead gerado', target: 'Senha informada', value: 178 },
-                { source: 'Lead gerado', target: 'Senha redefinida', value: 44 },
-              ]}
-              formatValue={(valor) => String(valor)}
-              height={280}
-              nodeAlign="left"
-              showFlowValues
-              title="Jornada de cadastro"
+              flowColor={corDaLigacao}
+              flows={jornadaDeCobranca}
+              formatValue={(valor) => valor.toLocaleString('pt-BR')}
+              height={440}
+              nodeAlign={alinhamentoDoSankey}
+              showFlowValues={valoresNaLigacao}
+              title="Jornada de cobranca"
             />
-            <p className="doc-note">As opcoes seguem as da referencia: alinhamento dos nos entre <code>left</code>, <code>right</code>, <code>center</code> e <code>justify</code>; valor escrito sobre cada ligacao; e a cor da ligacao vinda da origem, do destino ou de nenhum dos dois.</p>
+            <p className="doc-note">Seis colunas, ramos que terminam em profundidades diferentes e ligacoes de ordens de grandeza distintas — de 4.712 a 71. O alinhamento decide onde os nos sem saida se encostam: em <code>justify</code> eles vao para a borda direita, em <code>left</code> ficam onde a contagem de passos os coloca. A cor da ligacao vem da origem, do destino ou de nenhum dos dois.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Sem rotulo e sem valor</h3>
+            <ChartSankey
+              accent={corDoTema}
+              flows={jornadaDeCobranca}
+              height={300}
+              showLabels={false}
+              title="Jornada de cobranca"
+            />
+            <p className="doc-note">Sem rotulos o fluxo ocupa a largura inteira, porque a banda reservada aos nomes dos nos de saida deixa de existir. O <code>title</code> de cada marca continua descrevendo o que ela representa.</p>
           </div>
         </ComponentDoc>
 
