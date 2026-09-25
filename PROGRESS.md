@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-489 testes em 60 arquivos. Build da biblioteca e do Showcase validados.
+501 testes em 61 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -81,6 +81,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ### Em construcao
 
+- Showcase sem formatador improvisado: as vinte e oito funcoes de formatacao escritas a mao nos graficos deram lugar aos formatadores de apresentacao. Sobraram duas, e ambas acrescentam unidade de dominio — `dias` — que nao pertence ao Design System.
 - Showcase com alternancia de tema no topo da barra lateral, para inspecionar o claro e o escuro lado a lado. A escolha guardada vence; sem ela, vale a preferencia do sistema. E inspecao manual, nao substitui o teste automatizado de tema escuro que continua pendente.
 - Showcase visual derivado de um mock de implementacao anterior.
 - Migracao gradual do Showcase estatico para componentes oficiais.
@@ -91,7 +92,6 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 ### Ainda nao implementado
 
 - O combo de linhas e barras, que depende da decisao sobre o duplo eixo Y, e o `DataGrid` da etapa 10.
-- `formatarMoeda`, `formatarNumero` e `formatarPercentual`, previstos em `ARCHITECTURE.md` secao 9.1. `formatarData` e `formatarHora` ja existem.
 - State Motor da grade, para o `DataGrid`.
 - Biblioteca oficial de icones, prevista em `ARCHITECTURE.md` secao 12. Hoje cada componente desenha o SVG de que precisa.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
@@ -163,11 +163,16 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 
 ### Formatadores e localidade
 
-Os formatadores de entrada assumem a convencao pt-BR no codigo: virgula como decimal, ponto como milhar. Isso e escopo adequado ao momento, nao defeito, pelo mandamento 9.
+`formatarMoeda`, `formatarNumero` e `formatarPercentual` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `localidade` em pt-BR por padrao. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
 
-A localidade deve entrar quando o formatador de apresentacao previsto em `ARCHITECTURE.md` secao 9.1 for construido, com a assinatura que o documento ja define. Nesse momento, `Intl.NumberFormat` resolve separadores, simbolo e agrupamento sem dependencia externa, e vale revisar se as mascaras de entrada devem derivar os separadores da mesma fonte.
+- `formatarPercentual` recebe a **fracao**, nao o numero ja multiplicado: `0.42` vira `42%`. E a fracao que sai de uma divisao de duas medidas, e receber o valor pronto obrigaria cada consumidor a dividir antes de exibir.
+- A forma compacta sai da **localidade**, e nao de um sufixo proprio: em pt-BR um milhao e `1 mi`, nao `1M`. Inventar o sufixo quebraria em qualquer outra localidade.
+- Casas decimais so entram quando declaradas. Sem elas, quem decide e a localidade — e, na moeda, a propria moeda.
+- Nenhum deles memoriza o objeto do `Intl`: a construcao repetida e cara em tese, mas o motor ja a resolve para argumentos iguais, e uma cache propria duplicaria uma otimizacao que existe abaixo.
 
-Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao separavel entre o simbolo da moeda e o numero, diferente do espaco comum usado hoje.
+Os formatadores de entrada continuam assumindo a convencao pt-BR no codigo: virgula como decimal, ponto como milhar. Fazer os separadores deles derivarem da mesma fonte dos de apresentacao continua em aberto.
+
+Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa espaco nao separavel entre o simbolo da moeda e o numero, diferente do espaco comum das mascaras de entrada. O espaco nao separavel impede que a quebra de linha afaste o simbolo do valor, entao ele fica; a convergencia das duas formas e que precisa de decisao.
 
 ### Campos numericos e monetarios
 
@@ -251,6 +256,12 @@ Atencao a um detalhe de compatibilidade: `Intl.NumberFormat` usa espaco nao sepa
 - Tipografia: a `Table` usa **JetBrains Mono**, a familia que `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a tabelas e dados tecnicos, com `tabular-nums` para os digitos alinharem em coluna. `Table.Column` e `Table.Cell` mantem `numeric`, que aplica `type.data-value` em tamanho, peso e alinhamento a direita.
 - Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.
 - Pendente do Untitled UI: intervalo de datas, atalhos de periodo, visao de dois meses e rodape com cancelar e aplicar. Nenhum deles foi pedido por um cenario concreto ate agora.
+
+### Biblioteca de icones
+
+- A fonte e o **Bootstrap Icons**, por decisao do mantenedor. Ha preferencia pelas variantes preenchidas, sem que isso seja regra: onde a versao de contorno ler melhor, ela vale.
+- Hoje dez componentes desenham o proprio SVG — `Select`, `Accordion`, `Table`, `Dialog`, `Breadcrumb`, `Pagination`, `DatePicker`, `Calendar`, `TimePicker` e `DateTimePicker` —, com chevron, fechar e seta repetidos entre eles. E a duplicacao que a biblioteca resolve, conforme `ARCHITECTURE.md` secao 12.
+- Falta decidir se os icones entram como dependencia ou como copia dos caminhos de que o projeto precisa. O mandamento 13 pesa contra arrastar o conjunto inteiro para resolver uma duzia de simbolos.
 
 ### Familia de tabela: Table, Card e DataGrid
 

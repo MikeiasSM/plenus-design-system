@@ -6,7 +6,7 @@ import {
   Card, ChartArea, ChartBar, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
   ChartSunburst, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
-  TimePicker, Tooltip, formatarData, formatarHora,
+  TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
 } from '@plenus/index';
 import type {
   AxisVisibility,
@@ -913,7 +913,7 @@ export function App() {
             <h3>Intencao semantica</h3>
             <ChartBar
               categories={['08/2026', '09/2026']}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 { label: 'Receita', values: [300000, 210000], intent: 'positive' },
                 { label: 'Deducoes', values: [179000, 96000], intent: 'warning' },
@@ -928,7 +928,7 @@ export function App() {
             <h3>Series categoricas, empilhadas</h3>
             <ChartBar
               categories={['04/26', '05/26', '06/26', '07/26', '08/26', '09/26']}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 33000] },
                 { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 37000] },
@@ -943,7 +943,7 @@ export function App() {
             <h3>Horizontal, com valores na ponta</h3>
             <ChartBar
               categories={['Plenus Tecnologia', 'CDCE da Escola', 'S. P Ind. Com.', 'S M de Oliveira', 'Tres D Comercio']}
-              formatValue={(valor) => `${(valor / 1000).toFixed(1)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={220}
               orientation="horizontal"
               series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500] }]}
@@ -970,7 +970,7 @@ export function App() {
             <ChartBar
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
               title="Faturamento mensal"
               yAxis={eixoDeValor}
@@ -995,7 +995,7 @@ export function App() {
             <ChartBar
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               legend={ladoDaLegenda}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
@@ -1010,7 +1010,7 @@ export function App() {
             <ChartBar
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
                 { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
@@ -1026,7 +1026,7 @@ export function App() {
               <ChartBar
                 accent={corDoTema}
                 categories={mesesDoSemestre}
-                formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+                formatValue={(valor) => formatarNumero(valor, { compacto: true })}
                 height="fill"
                 series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
                 title="Faturamento mensal"
@@ -1039,7 +1039,7 @@ export function App() {
             <ChartBar
               accent={corDoTema}
               categories={['Plenus Tecnologia', 'CDCE da Escola', 'S. P Ind. Com.', 'S M de Oliveira', 'Tres D Comercio', 'Industria Belo']}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={300}
               series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500, 9200] }]}
               title="Faturamento por cliente"
@@ -1075,7 +1075,7 @@ export function App() {
             <ChartLine
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
                 { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
@@ -1090,7 +1090,7 @@ export function App() {
               accent={corDoTema}
               categories={mesesDoSemestre}
               curve="straight"
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={220}
               series={[{ label: 'Ticket medio', values: [1240, 1310, 1180, 1520, 1460, 1590] }]}
               showDots
@@ -1103,7 +1103,7 @@ export function App() {
             <ChartLine
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={220}
               series={[{ label: 'Servicos', values: [42000, 58000, null, null, 54000, 63000] }]}
               title="Faturamento com coleta interrompida"
@@ -1131,7 +1131,7 @@ export function App() {
             <ChartArea
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[{ label: 'Faturamento', values: [42000, 58000, 39000, 96000, 54000, 63000] }]}
               title="Volume faturado"
             />
@@ -1142,7 +1142,7 @@ export function App() {
             <ChartArea
               accent={corDoTema}
               categories={mesesDoSemestre}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
                 { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
@@ -1166,7 +1166,7 @@ export function App() {
     points: [{ label: 'Aurora', x: 18, y: 32, z: 26500 }],
   }]}
   formatX={(valor) => valor + ' dias'}
-  formatY={(valor) => valor + '%'}
+  formatY={(valor) => formatarPercentual(valor / 100)}
   formatZ={formatarMoeda}
 />`}
         >
@@ -1175,8 +1175,8 @@ export function App() {
             <ChartScatter
               accent={corDoTema}
               formatX={(valor) => `${valor} d`}
-              formatY={(valor) => `${valor}%`}
-              formatZ={(valor) => `${Math.round(valor / 1000)}k`}
+              formatY={(valor) => formatarPercentual(valor / 100)}
+              formatZ={(valor) => formatarNumero(valor, { compacto: true })}
               series={[
                 {
                   label: 'Industria',
@@ -1219,7 +1219,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Passos coloridos pela intencao</h3>
             <ChartWaterfall
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               steps={[
                 { label: 'Receita bruta', value: 300000 },
                 { label: 'Deducoes', value: -42000, intent: 'warning' },
@@ -1235,7 +1235,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Sem rotulo de variacao</h3>
             <ChartWaterfall
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={220}
               showDataLabels={false}
               steps={[
@@ -1271,7 +1271,7 @@ export function App() {
             <h3>Anel com total no centro</h3>
             <ChartDonut
               accent={corDoTema}
-              formatValue={(valor) => `${(valor / 1000000).toFixed(1)}M`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={260}
               slices={[
                 { label: 'Devolucoes de vendas', value: 400000 },
@@ -1285,7 +1285,7 @@ export function App() {
             <h3>Fatias pequenas reunidas em Outros</h3>
             <ChartDonut
               accent={corDoTema}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={260}
               slices={[
                 { label: 'Despesas fixas', value: 1760000 },
@@ -1303,7 +1303,7 @@ export function App() {
             <h3>Anel fino, sem centro e com legenda embaixo</h3>
             <ChartDonut
               accent={corDoTema}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={240}
               legend="bottom"
               showCenter={false}
@@ -1328,14 +1328,14 @@ export function App() {
   title="Composicao da receita"
   slices={[{ label: 'Servicos', value: 60 }]}
   showDataLabels
-  formatPercent={(fracao) => \`\${Math.round(fracao * 100)}%\`}
+  formatPercent={formatarPercentual}
 />`}
         >
           <div className="doc-subsection">
             <h3>Pizza com percentual na fatia</h3>
             <ChartPie
               accent={corDoTema}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={260}
               showDataLabels
               slices={[
@@ -1360,14 +1360,14 @@ export function App() {
     { label: 'Vendas', value: 72, max: 100 },
     { label: 'Servicos', value: 45, max: 100 },
   ]}
-  formatValue={(valor) => \`\${valor}%\`}
+  formatValue={(valor) => formatarPercentual(valor / 100)}
 />`}
         >
           <div className="doc-subsection">
             <h3>Aneis concentricos contra a meta</h3>
             <ChartRadial
               accent={corDoTema}
-              formatValue={(valor) => `${valor}%`}
+              formatValue={(valor) => formatarPercentual(valor / 100)}
               height={280}
               title="Metas do trimestre"
               tracks={[
@@ -1383,7 +1383,7 @@ export function App() {
             <ChartRadial
               accent={corDoTema}
               endAngle={90}
-              formatValue={(valor) => `${valor}%`}
+              formatValue={(valor) => formatarPercentual(valor / 100)}
               height={220}
               startAngle={-90}
               thickness={22}
@@ -1411,7 +1411,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Colorido por status, com a legenda nomeando as cores</h3>
             <ChartTreemap
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={300}
               intentLabels={{
                 positive: 'Margem acima da meta',
@@ -1450,7 +1450,7 @@ export function App() {
             <h3>Grupos categoricos, com legenda que desliga</h3>
             <ChartTreemap
               accent={corDoTema}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               gap={5}
               height={280}
               nodes={[
@@ -1492,7 +1492,7 @@ export function App() {
             <h3>Aneis aninhados, com rotulo projetado</h3>
             <ChartSunburst
               accent={corDoTema}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={340}
               nodes={[
                 {
@@ -1547,7 +1547,7 @@ export function App() {
                 { source: 'Margem bruta', target: 'Despesas', value: 502000 },
                 { source: 'Margem bruta', target: 'Resultado', value: 1118000 },
               ]}
-              formatValue={(valor) => `${Math.round(valor / 1000)}k`}
+              formatValue={(valor) => formatarNumero(valor, { compacto: true })}
               height={320}
               title="Fluxo do resultado"
             />
@@ -1603,7 +1603,7 @@ export function App() {
               flowColor={corDaLigacao}
               flowValuePosition={posicaoDoValor}
               flows={analiseDePropostas}
-              formatValue={(valor) => valor.toLocaleString('pt-BR')}
+              formatValue={formatarNumero}
               height={460}
               nodeAlign={alinhamentoDoSankey}
               showFlowValues={valoresNaLigacao}
@@ -1618,7 +1618,7 @@ export function App() {
             <ChartSankey
               accent={corDoTema}
               flows={jornadaDeCobranca}
-              formatValue={(valor) => valor.toLocaleString('pt-BR')}
+              formatValue={formatarNumero}
               height={380}
               showFlowValues
               title="Jornada de cobranca"

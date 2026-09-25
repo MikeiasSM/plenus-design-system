@@ -92,8 +92,20 @@ export { TimePicker } from './components/forms/TimePicker';
 export type { TimePickerProps, TimePickerSize } from './components/forms/TimePicker';
 export { DateTimePicker } from './components/forms/DateTimePicker';
 export type { DateTimePickerProps, DateTimePickerSize } from './components/forms/DateTimePicker';
-export { formatarData, formatarHora } from './utils/formatters';
-export type { OpcoesDeData, OpcoesDeHora } from './utils/formatters';
+export {
+  formatarData,
+  formatarHora,
+  formatarMoeda,
+  formatarNumero,
+  formatarPercentual,
+} from './utils/formatters';
+export type {
+  OpcoesDeData,
+  OpcoesDeHora,
+  OpcoesDeMoeda,
+  OpcoesDeNumero,
+  OpcoesDePercentual,
+} from './utils/formatters';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
