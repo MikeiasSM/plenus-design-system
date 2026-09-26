@@ -124,7 +124,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Distribuicao**
 
-- **Publicacao no npm publico, por decisao do mantenedor**, com a versao `0.1.0` mantida. `publishConfig.access` fica `public` no proprio pacote: escopado, ele nasceria restrito e o `publish` falharia sem a bandeira. O `repository` tambem entrou, porque o npm o usa na pagina do pacote.
+- **Publicacao no npm publico, por decisao do mantenedor**, na versao `0.1.1`. A `v0.1.0` continua apontando para a base conceitual, e a versao subiu para nao disputar o nome com ela. `publishConfig.access` fica `public` no proprio pacote: escopado, ele nasceria restrito e o `publish` falharia sem a bandeira. O `repository` tambem entrou, porque o npm o usa na pagina do pacote.
 - O `publish` e do mantenedor, com a conta dele. Nada aqui o executa.
 
 - O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
