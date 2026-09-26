@@ -12,8 +12,14 @@
       "import": "./dist/plenus-design-system.es.js",
       "require": "./dist/plenus-design-system.cjs"
     },
-    "./styles.css": "./dist/design-system.css",
-    "./reset.css": "./dist/reset.css",
+    "./styles.css": {
+      "types": "./dist/folha.d.ts",
+      "default": "./dist/design-system.css"
+    },
+    "./reset.css": {
+      "types": "./dist/folha.d.ts",
+      "default": "./dist/reset.css"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": [
@@ -25,7 +31,7 @@
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config showcase/vite.config.ts",
-    "build": "tsc -b && vite build && tsc -p tsconfig.build.json",
+    "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs",
     "check:pacote": "node scripts/check-pacote.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build:pacote",
@@ -35,12 +41,13 @@
     "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
     "preview:showcase": "vite preview --config showcase/vite.config.ts",
-    "build:pacote": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.build.json"
+    "build:pacote": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.4",
     "@react-aria/focus": "^3.22.1",
     "@react-aria/overlays": "^3.32.1",
+    "@types/d3-scale": "^4.0.9",
     "d3-array": "^3.2.4",
     "d3-hierarchy": "^3.1.2",
     "d3-sankey": "^0.12.3",
@@ -57,7 +64,6 @@
     "@types/d3-array": "^3.2.2",
     "@types/d3-hierarchy": "^3.1.7",
     "@types/d3-sankey": "^0.12.5",
-    "@types/d3-scale": "^4.0.9",
     "@types/d3-shape": "^3.2.0",
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.2",

@@ -67,6 +67,13 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Distribuicao**
 
+- O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
+- As declaracoes saem com **extensao explicita**, acrescentada no pos-build. Sem ela, `node16` e `nodenext` recusam cada import relativo — eram 97 erros. Corrigir no fonte custaria reescrever duzentos imports por uma exigencia de empacotamento.
+- `@types/d3-scale` e **dependencia**, e nao dependencia de desenvolvimento: a declaracao publica de `cartesianLayout` alcanca `scales`, cujo tipo de retorno vem do `d3-scale`. Tipo que aparece na API publica e dependencia de quem consome.
+- O `tsc` copia para a declaracao os imports de efeito colateral do ponto de entrada, inclusive os de CSS. Esses caminhos nao existem no pacote e sao removidos no pos-build.
+- As folhas publicadas tem declaracao propria, ligada pela condicao `types` do `exports`. Sem ela o consumidor com `noUncheckedSideEffectImports` reprova ao importar o CSS por subcaminho.
+- O build emite **sourcemap**. Sem ele, depurar a biblioteca dentro do consumidor era ler codigo minificado.
+
 - `react` e `react-dom` sao **peer dependencies**, nao dependencias. Instalados como dependencia, o
   consumidor receberia uma segunda copia do React e todo hook quebraria. Eles permanecem em
   `devDependencies` porque o build e a suite precisam deles aqui.
