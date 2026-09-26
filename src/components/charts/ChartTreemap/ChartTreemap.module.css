@@ -39,3 +39,12 @@ svg:hover .tile:not(:hover) {
     transition: none;
   }
 }
+
+/* O keyframe vive aqui, e nao num arquivo global: o CSS Modules renomeia o
+   nome na declaracao `animation` mesmo quando ele foi definido fora, e a
+   referencia deixava de casar com coisa alguma. */
+@keyframes chartSeriesIn {
+  from {
+    opacity: 0;
+  }
+}

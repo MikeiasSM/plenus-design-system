@@ -42,7 +42,38 @@ function exportsDaFonte() {
   return nomes;
 }
 
+/**
+ * Keyframe referenciado precisa existir no mesmo arquivo. O CSS Modules
+ * renomeia o nome na declaracao `animation` mesmo quando ele foi definido num
+ * arquivo global, e a referencia deixa de casar — em silencio, porque CSS nao
+ * reclama de animacao inexistente.
+ */
+function keyframesOrfaos() {
+  const css = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8');
+  const definidos = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
+  const palavraChave = new Set([
+    'both', 'forwards', 'backwards', 'infinite', 'linear', 'ease', 'ease-in',
+    'ease-out', 'ease-in-out', 'normal', 'none', 'alternate', 'reverse', 'paused', 'running',
+  ]);
+  const orfaos = new Set();
+
+  for (const declaracao of css.matchAll(/animation(?:-name)?:([^;}]+)/g)) {
+    for (const parte of declaracao[1].split(/[\s,]+/)) {
+      if (/^[_a-zA-Z][\w-]*$/.test(parte) && !palavraChave.has(parte) && !definidos.has(parte)) {
+        orfaos.add(parte);
+      }
+    }
+  }
+
+  return [...orfaos];
+}
+
 exigir(arquivoComConteudo('dist/types/index.d.ts', 100), 'dist/types/index.d.ts ausente ou vazio');
+exigir(arquivoComConteudo('dist/reset.css', 500), 'dist/reset.css ausente ou pequeno demais');
+
+for (const nome of keyframesOrfaos()) {
+  falhas.push(`a animacao \`${nome}\` nao tem @keyframes no CSS publicado`);
+}
 exigir(arquivoComConteudo('dist/design-system.css', 1000), 'dist/design-system.css ausente ou pequeno demais');
 
 const esm = await import('../dist/plenus-design-system.es.js').catch((erro) => {
@@ -78,5 +109,5 @@ if (falhas.length > 0) {
 
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
-    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}).`,
+    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}), e nenhuma animacao orfa no CSS.`,
 );

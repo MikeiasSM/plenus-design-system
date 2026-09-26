@@ -184,6 +184,3 @@
 }
 
 /* Animações compartilhadas (definidas uma vez, fora dos módulos) */
-@keyframes pl-spin { to { transform: rotate(360deg); } }
-@keyframes pl-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-@keyframes pl-indeterminate { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
