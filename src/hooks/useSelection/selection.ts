@@ -82,13 +82,22 @@ export function matchKey(items: readonly SelectionItem[], query: string, from: s
   return undefined;
 }
 
-export function select(state: SelectionState, key: string, mode: SelectionMode): SelectionState {
+export function select(
+  state: SelectionState,
+  key: string,
+  mode: SelectionMode,
+  { allowEmpty = false }: { allowEmpty?: boolean } = {},
+): SelectionState {
   if (mode === 'none') {
     return state;
   }
 
   if (mode === 'single') {
-    return { focusedKey: key, selectedKeys: new Set([key]) };
+    // Escolher de novo o que ja estava escolhido desfaz a escolha apenas onde o
+    // vazio e um estado valido: uma secao de acordeao fecha, uma aba nao.
+    const desfaz = allowEmpty && state.selectedKeys.has(key);
+
+    return { focusedKey: key, selectedKeys: desfaz ? new Set() : new Set([key]) };
   }
 
   const selectedKeys = new Set(state.selectedKeys);

@@ -17,6 +17,8 @@ import {
 } from './selection';
 
 export interface UseSelectionOptions {
+  /** Em modo unico, escolher de novo o mesmo item desfaz a escolha. */
+  allowEmpty?: boolean;
   defaultSelectedKeys?: Iterable<string>;
   items: readonly SelectionItem[];
   mode?: SelectionMode;
@@ -41,6 +43,7 @@ export interface UseSelectionResult extends SelectionState {
 }
 
 export function useSelection({
+  allowEmpty = false,
   defaultSelectedKeys,
   items,
   mode = 'single',
@@ -110,7 +113,7 @@ export function useSelection({
     focusLast: (extend?: boolean) => move(lastKey(items), extend),
     focusNext: (extend?: boolean) => move(nextKey(items, state.focusedKey) ?? state.focusedKey, extend),
     focusPrevious: (extend?: boolean) => move(previousKey(items, state.focusedKey) ?? state.focusedKey, extend),
-    select: (key: string) => applySelection(select(state, key, mode)),
+    select: (key: string) => applySelection(select(state, key, mode, { allowEmpty })),
     selectRange: (key: string) => applySelection(selectRange(state, key, items)),
     status: selectionStatus(state, items),
     toggleAll: () => applySelection(toggleAll(state, items)),

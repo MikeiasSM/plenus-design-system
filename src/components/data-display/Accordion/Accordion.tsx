@@ -40,6 +40,9 @@ export function Accordion({
     [items],
   );
   const selection = useSelection({
+    // Uma secao aberta fecha ao ser clicada de novo, e nenhuma aberta e um
+    // estado valido do acordeao — ao contrario de uma aba, que sempre tem uma.
+    allowEmpty: true,
     items: collection,
     mode: multiple ? 'multiple' : 'single',
     defaultSelectedKeys: expandedKeys === undefined ? defaultExpandedKeys : undefined,

@@ -91,4 +91,16 @@ describe('Accordion', () => {
 
     expect(onExpandedChange).toHaveBeenCalledWith(['suporte']);
   });
+
+  it('fecha a secao aberta quando ela e clicada de novo, em modo unico', () => {
+    render(<Accordion items={secoes} />);
+
+    const gatilho = screen.getAllByRole('button')[0];
+
+    fireEvent.click(gatilho);
+    expect(gatilho).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(gatilho);
+    expect(gatilho).toHaveAttribute('aria-expanded', 'false');
+  });
 });

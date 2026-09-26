@@ -314,7 +314,7 @@ export interface TableRowProps {
 }
 
 function TableRow({ children, disabled = false, id, label }: TableRowProps) {
-  const { selection } = useTableContext('Table.Row');
+  const { baseId, selection } = useTableContext('Table.Row');
   const selected = selection.mode !== 'none' && selection.isSelected(id);
 
   return (
@@ -329,7 +329,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
             checked={selected}
             className={[styles.control, selection.control === 'toggle' && styles.toggle].filter(Boolean).join(' ')}
             disabled={disabled}
-            name={selection.control === 'radio' ? 'table-selection' : undefined}
+            name={selection.control === 'radio' ? `${baseId}-selecao` : undefined}
             onChange={() => undefined}
             onClick={(event) => selection.toggle(id, event.shiftKey)}
             type={selection.control === 'radio' ? 'radio' : 'checkbox'}
