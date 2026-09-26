@@ -105,7 +105,8 @@ describe('DateTimePicker', () => {
 
     fireEvent.change(campo, { target: { value: '09032026184' } });
     expect(campo).toHaveValue('09/03/2026 18:4');
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 0, 0));
+    // Hora pela metade nao e valor: meia-noite seria uma hora que ninguem digitou.
+    expect(mudou).toHaveBeenLastCalledWith(undefined);
 
     fireEvent.change(campo, { target: { value: '090320261840' } });
     expect(campo).toHaveValue('09/03/2026 18:40');

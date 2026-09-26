@@ -67,13 +67,26 @@ export function lerEntradaDataHora(valor: string) {
     return undefined;
   }
 
-  // A hora so conta com os quatro digitos: aceitar 18:4 como 18:04 fixaria
-  // o valor no terceiro digito e impediria completar a dezena do minuto.
-  const completa = /^\d{2}:\d{2}$/.test(hora);
-  const [h, m] = completa ? hora.split(':').map(Number) : [0, 0];
-  const valida = completa && h < 24 && m < 60;
+  // Sem hora nenhuma, meia-noite e o valor: e a decisao ja fixada em teste, e a
+  // data sozinha e um instante legitimo.
+  if (hora === '') {
+    return new CalendarDateTime(dia.year, dia.month, dia.day, 0, 0);
+  }
 
-  return new CalendarDateTime(dia.year, dia.month, dia.day, valida ? h : 0, valida ? m : 0);
+  // Com hora pela metade ou impossivel, **nao ha valor**. Aceitar 18:4 como
+  // 18:04 fixaria o valor no terceiro digito, e 25:99 viraria meia-noite sem
+  // aviso — uma hora que ninguem digitou.
+  if (!/^\d{2}:\d{2}$/.test(hora)) {
+    return undefined;
+  }
+
+  const [h, m] = hora.split(':').map(Number);
+
+  if (h > 23 || m > 59) {
+    return undefined;
+  }
+
+  return new CalendarDateTime(dia.year, dia.month, dia.day, h, m);
 }
 
 function paraTexto(valor?: CalendarDateTime) {
@@ -155,13 +168,10 @@ export function DateTimePicker({
     setDigitando(true);
     setTexto(mascarado);
 
-    const lido = lerEntradaDataHora(mascarado);
-
-    if (lido) {
-      definir(lido);
-    } else if (mascarado === '') {
-      definir(undefined);
-    }
+    // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
+    // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
+    // consumidor com meia-noite enquanto a tela mostrava `18:4`.
+    definir(lerEntradaDataHora(mascarado));
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {

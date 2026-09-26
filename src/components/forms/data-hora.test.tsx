@@ -1,6 +1,7 @@
-import { CalendarDate, Time } from '@internationalized/date';
+import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
+import { lerEntradaDataHora } from './DateTimePicker/DateTimePicker';
 import { TimePicker } from './TimePicker';
 import { gerarHorarios } from './TimePicker/TimeSlots';
 
@@ -46,5 +47,24 @@ describe('calendario', () => {
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
 
     expect(screen.getByText(/agosto de 2027/i)).toBeInTheDocument();
+  });
+});
+
+describe('leitura de data e hora digitadas', () => {
+  it('assume meia-noite quando nao se digitou hora alguma', () => {
+    expect(lerEntradaDataHora('09/03/2026')).toEqual(new CalendarDateTime(2026, 3, 9, 0, 0));
+  });
+
+  it('nao tem valor enquanto a hora esta pela metade', () => {
+    expect(lerEntradaDataHora('09/03/2026 18:4')).toBeUndefined();
+  });
+
+  it('nao transforma hora impossivel em meia-noite', () => {
+    expect(lerEntradaDataHora('09/03/2026 25:99')).toBeUndefined();
+    expect(lerEntradaDataHora('09/03/2026 24:00')).toBeUndefined();
+  });
+
+  it('le a data e hora inteiras', () => {
+    expect(lerEntradaDataHora('09/03/2026 18:40')).toEqual(new CalendarDateTime(2026, 3, 9, 18, 40));
   });
 });
