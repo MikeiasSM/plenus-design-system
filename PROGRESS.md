@@ -125,7 +125,11 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 **Distribuicao**
 
 - **Publicacao no npm publico, por decisao do mantenedor**, na versao `0.1.1`. A `v0.1.0` continua apontando para a base conceitual, e a versao subiu para nao disputar o nome com ela. `publishConfig.access` fica `public` no proprio pacote: escopado, ele nasceria restrito e o `publish` falharia sem a bandeira. O `repository` tambem entrou, porque o npm o usa na pagina do pacote.
-- O `publish` e do mantenedor, com a conta dele. Nada aqui o executa.
+- **A publicacao e disparada pelo git.** `.github/workflows/publicar.yml` publica ao receber uma tag `vX.Y.Z`; nada publica a partir de um commit solto na `main`.
+- O fluxo repete as comportas locais antes de publicar: tipos, suite, build, `check:pacote` e `check:contraste`. Uma reprovacao em qualquer uma impede a publicacao, e e de proposito — o laudo de contraste e exigencia do `TOKENS-REFERENCE-COLORS.md` antes de expor os tokens.
+- **A tag e o `package.json` tem de dizer a mesma coisa.** Sem essa comporta, empurrar `v0.2.0` com o pacote em `0.1.1` publicaria a versao errada sob um nome que promete outra.
+- O segredo do repositorio chama-se `NPM_TOKEN` e precisa ser um token **granular**, com escrita no escopo `@plenustech` e a dispensa de 2FA marcada. O token classico exige o codigo de seis digitos, que nenhuma automacao responde — foi exatamente o que barrou a primeira tentativa manual.
+- **Sem procedencia (`--provenance`).** A atestacao do npm exige repositorio publico; este e privado, e pedi-la faria o fluxo falhar.
 
 - O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
 - As declaracoes saem com **extensao explicita**, acrescentada no pos-build. Sem ela, `node16` e `nodenext` recusam cada import relativo — eram 97 erros. Corrigir no fonte custaria reescrever duzentos imports por uma exigencia de empacotamento.

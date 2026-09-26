@@ -1,0 +1,70 @@
+name: Publicar no npm
+
+# A publicacao e disparada pelo git: empurrar uma tag `vX.Y.Z` publica essa
+# versao. Nada publica a partir de um commit solto na `main`.
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Duas tags empurradas juntas nao disputam o registro.
+concurrency:
+  group: publicar-npm
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          # Escreve o `.npmrc` que o `npm publish` le, apontando para o registro
+          # publico. O token entra por `NODE_AUTH_TOKEN`, mais abaixo.
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # A tag e o `package.json` tem de dizer a mesma coisa. Sem esta comporta,
+      # empurrar `v0.2.0` com o pacote em `0.1.1` publicaria a versao errada sob
+      # um nome que promete outra.
+      - name: Conferir que a tag corresponde a versao do pacote
+        run: |
+          versao=$(node -p "require('./package.json').version")
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$versao" != "$tag" ]; then
+            echo "A tag $GITHUB_REF_NAME nao corresponde a versao $versao do package.json."
+            exit 1
+          fi
+          echo "Publicando $versao."
+
+      - name: Verificar tipos
+        run: npx tsc -b
+
+      - name: Rodar a suite
+        run: npx vitest run
+
+      - name: Construir
+        run: npm run build
+
+      - name: Conferir o pacote construido
+        run: npm run check:pacote
+
+      - name: Conferir o contraste dos tokens
+        run: npm run check:contraste
+
+      # O token precisa ser **granular**, com escrita no escopo `@plenustech` e
+      # a dispensa de 2FA marcada: o token classico exige o codigo de seis
+      # digitos, que nenhuma automacao consegue responder.
+      - name: Publicar
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
