@@ -33,4 +33,20 @@ describe('lerEntradaData', () => {
     expect(lerEntradaData('')).toBeUndefined();
     expect(lerEntradaData('nao e data')).toBeUndefined();
   });
+
+  it('entende data colada sem zero a esquerda', () => {
+    expect(formatarEntradaData('1/3/2026')).toBe('01/03/2026');
+    expect(formatarEntradaData('9/12/2026')).toBe('09/12/2026');
+    expect(formatarEntradaData('09/03/2026')).toBe('09/03/2026');
+  });
+
+  it('reordena a data colada em ISO', () => {
+    expect(formatarEntradaData('2026-03-09')).toBe('09/03/2026');
+    expect(formatarEntradaData('2026-3-9')).toBe('09/03/2026');
+  });
+
+  it('nao confunde a digitacao comum com data colada', () => {
+    expect(formatarEntradaData('09032026')).toBe('09/03/2026');
+    expect(formatarEntradaData('090')).toBe('09/0');
+  });
 });

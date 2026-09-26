@@ -1,8 +1,33 @@
 import { CalendarDate } from '@internationalized/date';
 
+/** Data ja separada por barra, traco ou ponto, com ou sem zero a esquerda. */
+const DATA_DELIMITADA = /^\s*(\d{1,4})[/\-.](\d{1,2})[/\-.](\d{1,4})\s*$/;
+
+/**
+ * Digitos de uma data colada. Sem isto, `1/3/2026` perdia os separadores e
+ * virava `13/20/26`: a mascara nao sabe onde cada parte comeca quando falta o
+ * zero a esquerda. ISO, com o ano na frente, e reordenado.
+ */
+function digitosDeDataColada(valor: string) {
+  const partes = valor.match(DATA_DELIMITADA);
+
+  if (!partes) {
+    return undefined;
+  }
+
+  const [, primeira, meio, ultima] = partes;
+  const [dia, mes, ano] = primeira.length === 4 ? [ultima, meio, primeira] : [primeira, meio, ultima];
+
+  if (ano.length !== 4) {
+    return undefined;
+  }
+
+  return dia.padStart(2, '0') + mes.padStart(2, '0') + ano;
+}
+
 /** Aplica a mascara dia/mes/ano conforme o usuario digita. */
 export function formatarEntradaData(valor: string) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 8);
+  const digitos = (digitosDeDataColada(valor) ?? valor.replace(/\D/g, '')).slice(0, 8);
 
   if (digitos.length <= 2) {
     return digitos;
