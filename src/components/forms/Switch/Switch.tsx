@@ -1,7 +1,7 @@
-import { useId, type InputHTMLAttributes } from 'react';
+import { useId, type ComponentPropsWithRef } from 'react';
 import styles from './Switch.module.css';
 
-export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
   error?: string;
   hint?: string;
   label: string;
@@ -14,6 +14,7 @@ export function Switch({
   hint,
   id: providedId,
   label,
+  ref,
   ...props
 }: SwitchProps) {
   const generatedId = useId();
@@ -29,6 +30,7 @@ export function Switch({
       <label className={styles.control} htmlFor={id}>
         <input
           {...props}
+          ref={ref}
           className={classes}
           id={id}
           aria-describedby={describedBy}

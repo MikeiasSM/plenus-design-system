@@ -1,11 +1,12 @@
-import { type ChangeEvent, type TextareaHTMLAttributes } from 'react';
+import { type ChangeEvent, type ComponentPropsWithRef } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import styles from './Textarea.module.css';
 
 export type TextareaSize = 'sm' | 'md';
 
-export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+export interface TextareaProps extends Omit<ComponentPropsWithRef<'textarea'>, 'size'> {
   error?: string;
   hint?: string;
   label?: string;
@@ -29,6 +30,7 @@ export function Textarea({
   defaultValue,
   onChange,
   value,
+  ref,
   ...props
 }: TextareaProps) {
   const { ref: textareaRef, count, updateCount } = useCharacterCount<HTMLTextAreaElement>(value, defaultValue);
@@ -58,7 +60,7 @@ export function Textarea({
           {...props}
           defaultValue={defaultValue}
           id={id}
-          ref={textareaRef}
+          ref={mergeRefs(textareaRef, ref)}
           aria-describedby={describedBy}
           aria-invalid={invalid || ariaInvalid}
           className={classes}

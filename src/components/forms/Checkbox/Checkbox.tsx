@@ -1,7 +1,8 @@
-import { useCallback, useId, type InputHTMLAttributes } from 'react';
+import { useCallback, useId, type ComponentPropsWithRef } from 'react';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import styles from './Checkbox.module.css';
 
-export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
   error?: string;
   hint?: string;
   indeterminate?: boolean;
@@ -16,6 +17,7 @@ export function Checkbox({
   id: providedId,
   indeterminate = false,
   label,
+  ref,
   ...props
 }: CheckboxProps) {
   const generatedId = useId();
@@ -40,7 +42,7 @@ export function Checkbox({
       <label className={styles.control} htmlFor={id}>
         <input
           {...props}
-          ref={aplicarIndeterminado}
+          ref={mergeRefs(aplicarIndeterminado, ref)}
           className={classes}
           id={id}
           aria-describedby={describedBy}

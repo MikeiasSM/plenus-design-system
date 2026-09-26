@@ -5,12 +5,13 @@ import {
   type ChangeEvent,
   type ClipboardEvent,
   type FocusEvent,
-  type InputHTMLAttributes,
+  type ComponentPropsWithRef,
 } from 'react';
 import { Field } from '../Field';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import styles from './InputPassword.module.css';
 
-export interface InputPasswordProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+export interface InputPasswordProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
   error?: string;
   hint?: string;
   label?: string;
@@ -45,6 +46,7 @@ export function InputPassword({
   validate,
   validateOnBlur = true,
   value,
+  ref,
   ...props
 }: InputPasswordProps) {
   const [visible, setVisible] = useState(false);
@@ -127,7 +129,7 @@ export function InputPassword({
             defaultValue={defaultValue}
             disabled={disabled}
             id={id}
-            ref={inputRef}
+            ref={mergeRefs(inputRef, ref)}
             aria-describedby={describedBy}
             aria-invalid={invalid || ariaInvalid}
             maxLength={maxLength}

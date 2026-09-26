@@ -1,11 +1,12 @@
-import { type ChangeEvent, type InputHTMLAttributes } from 'react';
+import { type ChangeEvent, type ComponentPropsWithRef } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import styles from './InputText.module.css';
 
 export type InputTextSize = 'sm' | 'md';
 
-export interface InputTextProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputTextProps extends Omit<ComponentPropsWithRef<'input'>, 'size'> {
   error?: string;
   hint?: string;
   label?: string;
@@ -28,6 +29,7 @@ export function InputText({
   defaultValue,
   onChange,
   value,
+  ref,
   ...props
 }: InputTextProps) {
   const { ref: inputRef, count, updateCount } = useCharacterCount<HTMLInputElement>(value, defaultValue);
@@ -57,7 +59,7 @@ export function InputText({
           {...props}
           defaultValue={defaultValue}
           id={id}
-          ref={inputRef}
+          ref={mergeRefs(inputRef, ref)}
           aria-describedby={describedBy}
           aria-invalid={invalid || ariaInvalid}
           className={classes}
