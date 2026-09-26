@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-544 testes em 67 arquivos. Build da biblioteca e do Showcase validados.
+557 testes em 68 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -57,6 +57,17 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - A ordem dos arquivos no script copia a de `tokens.css`: os `@import` primeiro e o bloco legado depois, porque e ele quem vence onde redeclara. Medir na ordem errada daria um laudo que nao corresponde ao que o navegador aplica.
 - O pacote construido e conferido por `scripts/check-pacote.mjs`, fora da suite: `dist/` nao existe antes do build, e um teste que se pula sozinho esconde a falha que deveria mostrar.
 - A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
+
+**Correcoes vindas do primeiro consumo real**
+
+- Um relatorio de integracao com o PlenusLAB, sobre o commit `a9df04c`, levantou cerca de cento e cinquenta pontos. As afirmacoes de maior peso foram reproduzidas antes de qualquer conserto, e uma delas **nao reproduziu**: `formatarHora('00:05', 'en-US')` devolve `00:05` no Node 24, e nao `24:05` — deve depender da versao do ICU. A troca de `hour12` por `hourCycle` foi feita assim mesmo, porque esta certa.
+- Tres dos achados eram regressoes desta mesma sessao: o `ChartBar` quebrando com serie nova, o `chartSeriesIn` sem definicao e o `prepare` arrastando o Showcase. Os tres corrigidos.
+- **O ponto e ambiguo e nao pode ser descartado sem olhar.** Em pt-BR ele separa milhar, mas teclado numerico e texto colado de origem inglesa o usam como decimal. `formatarEntradaDecimal` passou a le-lo como decimal quando e o unico e o que vem depois nao forma grupo de milhar. Antes, colar `12.50` gravava `1250`.
+- **Numero que vem de fora arredonda; o que esta sendo digitado trunca.** Sao coisas diferentes: no primeiro caso o valor esta pronto e truncar e perda; no segundo ele esta pela metade.
+- **Data sem hora entra pelo fuso local; o resto vai inteiro para o `Date`.** O corte por hifen engolia o `T` e devolvia vazio para tudo que sai de `toISOString()`.
+- **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de chamar o `d3-sankey`, que lancava e derrubava a arvore. Anuncia em vez de descartar ligacao pelas costas.
+- **Com sinais mistos, o total nao define a pilha.** `+10` e `-5` somam `5`, mas o segmento positivo chega a `10` e era desenhado por cima do titulo. `stackedExtremes` devolve o caminho do acumulado, e nao so o fim dele.
+- **O React 19 trata `ref` como propriedade**, entao os campos passaram a aceita-lo sem `forwardRef`, com `mergeRefs` juntando o interno ao de fora. Antes nenhum campo entregava o elemento nativo.
 
 **Fronteira com a aplicacao hospedeira**
 
