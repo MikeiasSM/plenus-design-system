@@ -83,5 +83,7 @@
 /* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
 .trigger:focus-visible {
   outline: 2px solid var(--pl-color-primary);
-  outline-offset: 2px;
+  /* O anel desenha para dentro: `.divided` recorta por `overflow: hidden`, e um
+     anel para fora sumiria no primeiro e no ultimo item. */
+  outline-offset: -2px;
 }
