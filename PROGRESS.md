@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-557 testes em 68 arquivos. Build da biblioteca e do Showcase validados.
+567 testes em 71 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -67,6 +67,13 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - **Data sem hora entra pelo fuso local; o resto vai inteiro para o `Date`.** O corte por hifen engolia o `T` e devolvia vazio para tudo que sai de `toISOString()`.
 - **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de chamar o `d3-sankey`, que lancava e derrubava a arvore. Anuncia em vez de descartar ligacao pelas costas.
 - **Com sinais mistos, o total nao define a pilha.** `+10` e `-5` somam `5`, mas o segmento positivo chega a `10` e era desenhado por cima do titulo. `stackedExtremes` devolve o caminho do acumulado, e nao so o fim dele.
+- **Cada keyframe vive no modulo que o usa.** O CSS Modules renomeia o nome na declaracao `animation` mesmo quando ele foi definido num arquivo global, e a referencia deixava de casar — em silencio, porque CSS nao reclama de animacao inexistente. No pacote publicado, Spinner nao girava, Progress indeterminado nao andava e as entradas de Sankey e Treemap nao animavam. O `check:pacote` agora compara definidos contra referenciados.
+- **Numero invalido tem o mesmo destino do ausente: nao se desenha.** `NaN` virava `y = 0`, que o eixo le como o maximo, entao a curva afirmava o contrario do dado. Uma fatia invalida zerava o anel inteiro.
+- **O formato padrao dos graficos e pt-BR.** `String(valor)` mostrava `1234.5` numa biblioteca cuja terminologia, documentacao e formatadores sao em portugues.
+- **Overlay dentro de Dialog declara-se camada de cima.** O `ariaHideOutside` do Dialog esconde de leitor de tela tudo que nasce fora dele, e Menu, Popover e Tooltip montam portal no `body`. O Menu tambem ganhou escopo de foco proprio, sem o qual o `FocusScope contain` do Dialog puxava o foco de volta — e o retorno do foco ao gatilho passou a acontecer **depois** da desmontagem, pelo mesmo motivo.
+- **O gatilho nao e "fora".** Sem `shouldCloseOnInteractOutside`, o ponteiro fechava o menu e o clique do gatilho reabria em seguida. E o `cloneElement` deixou de descartar `ref`, `onClick` e `onKeyDown` de quem escreveu o gatilho.
+- **Em modo unico, o vazio e valido no acordeao e invalido na aba.** `useSelection` ganhou `allowEmpty`, que so o Accordion liga: a secao aberta fecha ao ser clicada de novo.
+- O grupo de radio da `Table` deriva do `baseId`. Fixo em `table-selection`, duas tabelas na mesma pagina viravam um grupo so.
 - **O React 19 trata `ref` como propriedade**, entao os campos passaram a aceita-lo sem `forwardRef`, com `mergeRefs` juntando o interno ao de fora. Antes nenhum campo entregava o elemento nativo.
 
 **Fronteira com a aplicacao hospedeira**
