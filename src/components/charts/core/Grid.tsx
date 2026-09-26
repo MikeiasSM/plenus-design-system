@@ -18,10 +18,10 @@ export function Grid({ baseline, length, lines, orientation }: GridProps) {
 
   return (
     <g aria-hidden="true">
-      {lines.map((posicao) => (
+      {lines.map((posicao, indice) => (
         <line
           className={posicao === baseline ? styles.gridBaseline : styles.gridLine}
-          key={posicao}
+          key={indice}
           x1={horizontal ? 0 : posicao}
           x2={horizontal ? length : posicao}
           y1={horizontal ? posicao : 0}

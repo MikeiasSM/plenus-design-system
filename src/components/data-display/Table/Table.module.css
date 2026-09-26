@@ -153,10 +153,26 @@
   margin: 0;
 }
 
+/* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
+   tabela define o limite, por `className` ou `style`. */
+.sticky {
+  overflow-y: auto;
+}
+
 .sticky .head {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+/* O botao de ordenacao ocupa a largura da celula, entao e ele que precisa
+   distribuir o conteudo conforme o alinhamento da coluna. */
+.end .sortButton {
+  justify-content: flex-end;
+}
+
+.center .sortButton {
+  justify-content: center;
 }
 
 @media (max-width: 640px) {

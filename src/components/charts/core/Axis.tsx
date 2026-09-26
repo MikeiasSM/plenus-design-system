@@ -42,11 +42,11 @@ export function Axis({ hideLine = false, labelRotation = 0, length, orientation,
           y2={deBaixo ? 0 : length}
         />
       )}
-      {ticks.map((marca) => (
+      {ticks.map((marca, indice) => (
         <text
           className={styles.axisLabel}
           dominantBaseline={deBaixo ? 'hanging' : 'middle'}
-          key={marca.label + marca.position}
+          key={indice}
           textAnchor={deBaixo && labelRotation !== 0 ? 'end' : ANCORA[orientation]}
           transform={
             deBaixo && labelRotation !== 0
