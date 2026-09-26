@@ -14,14 +14,26 @@ const ESTILOS: Record<NonNullable<OpcoesDeData['formato']>, Intl.DateTimeFormatO
   longo: { day: '2-digit', month: 'long', year: 'numeric' },
 };
 
+/** Data sem hora, que precisa ser lida no fuso local. */
+const DATA_SIMPLES = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Data sem hora entra pelo fuso local: lida como UTC, ela recua um dia em
+ * qualquer fuso negativo. Qualquer outra cadeia — a comecar pelo que sai de
+ * `toISOString()` — vai inteira para o `Date`, que sabe ler o deslocamento.
+ */
 function paraData(valor: Date | string) {
   if (valor instanceof Date) {
     return valor;
   }
 
-  const partes = valor.split('-').map(Number);
+  if (DATA_SIMPLES.test(valor)) {
+    const [ano, mes, dia] = valor.split('-').map(Number);
 
-  return partes.length === 3 ? new Date(partes[0], partes[1] - 1, partes[2]) : new Date(valor);
+    return new Date(ano, mes - 1, dia);
+  }
+
+  return new Date(valor);
 }
 
 export function formatarData(valor: Date | string, { localidade = 'pt-BR', formato = 'numerico' }: OpcoesDeData = {}) {
@@ -45,6 +57,6 @@ export function formatarHora(valor: Date | string, { localidade = 'pt-BR', segun
     hour: '2-digit',
     minute: '2-digit',
     second: segundos ? '2-digit' : undefined,
-    hour12: false,
+    hourCycle: 'h23',
   }).format(data);
 }
