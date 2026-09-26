@@ -12,6 +12,7 @@ import {
   type ChartLegendPosition,
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartTreemap.module.css';
 
 export interface ChartTreemapNode extends SeriesAppearance {
@@ -48,7 +49,7 @@ export function ChartTreemap({
   accent,
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   gap = 5,
   height = 280,
   hiddenGroups,

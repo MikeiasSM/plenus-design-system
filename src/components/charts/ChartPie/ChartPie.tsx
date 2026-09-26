@@ -12,6 +12,7 @@ import {
   type ChartLegendPosition,
   type ChartSlice,
 } from '../core';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartPie.module.css';
 
 export type { ChartSlice as ChartPieSlice };
@@ -46,7 +47,7 @@ export function ChartPie({
   defaultHiddenSlices,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSlices,
   legend = 'bottom',

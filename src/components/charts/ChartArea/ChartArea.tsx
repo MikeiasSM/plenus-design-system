@@ -22,6 +22,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, stackedExtremes, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartArea.module.css';
 
 export interface ChartAreaSeries extends SeriesAppearance {
@@ -70,7 +71,7 @@ export function ChartArea({
   curve = 'smooth',
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',
@@ -160,7 +161,7 @@ export function ChartArea({
     categories.map<ChartBand | null>((categoria, indice) => {
       const valor = serie.values[indice];
 
-      if (valor === null || valor === undefined) {
+      if (valor === null || valor === undefined || !Number.isFinite(valor)) {
         return null;
       }
 

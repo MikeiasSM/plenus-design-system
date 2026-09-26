@@ -25,6 +25,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartCombo.module.css';
 
 export type ChartComboKind = 'bar' | 'line';
@@ -96,7 +97,7 @@ export function ChartCombo({
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatRightValue,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',
@@ -282,7 +283,7 @@ export function ChartCombo({
             {categories.map((categoria, indiceCategoria) => {
               const valor = serie.values[indiceCategoria];
 
-              if (valor === null || valor === undefined) {
+              if (valor === null || valor === undefined || !Number.isFinite(valor)) {
                 return null;
               }
 
@@ -311,7 +312,7 @@ export function ChartCombo({
               categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
 
-                if (valor === null || valor === undefined) {
+                if (valor === null || valor === undefined || !Number.isFinite(valor)) {
                   return null;
                 }
 
@@ -346,7 +347,7 @@ export function ChartCombo({
         const pontos = categories.map<ChartPoint | null>((categoria, indice) => {
           const valor = serie.values[indice];
 
-          if (valor === null || valor === undefined) {
+          if (valor === null || valor === undefined || !Number.isFinite(valor)) {
             return null;
           }
 

@@ -12,6 +12,7 @@ import {
   type ChartHeight,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartSankey.module.css';
 
 export interface ChartSankeyNode extends SeriesAppearance {
@@ -149,7 +150,7 @@ export function ChartSankey({
   flowColor = 'source',
   flowValuePosition = 'end',
   flows,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 320,
   nodeAlign = 'justify',
   nodes,

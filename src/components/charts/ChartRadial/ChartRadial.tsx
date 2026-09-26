@@ -14,6 +14,7 @@ import {
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartRadial.module.css';
 
 export interface ChartRadialTrack extends SeriesAppearance {
@@ -60,7 +61,7 @@ export function ChartRadial({
   defaultHiddenTracks,
   emptyMessage = 'Sem dados no período',
   endAngle = 360,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenTracks,
   legend = 'bottom',

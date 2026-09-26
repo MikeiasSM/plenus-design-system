@@ -61,7 +61,7 @@ describe('ChartDonut', () => {
     render(<ChartDonut slices={custos} title="Custos" />);
 
     fireEvent.mouseEnter(fatias()[1]);
-    expect(textosDoCentro()).toEqual(['6300', 'CMV']);
+    expect(textosDoCentro()).toEqual(['6.300', 'CMV']);
 
     fireEvent.mouseLeave(fatias()[1]);
     expect(textosDoCentro()).toEqual(['6700', 'Total']);

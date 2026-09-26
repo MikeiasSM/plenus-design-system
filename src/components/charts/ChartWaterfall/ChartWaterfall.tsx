@@ -17,6 +17,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartWaterfall.module.css';
 
 export interface ChartWaterfallStep {
@@ -87,7 +88,7 @@ function comSinal(value: number, formatValue: (value: number) => string) {
 
 export function ChartWaterfall({
   emptyMessage = 'Sem dados no período',
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 280,
   labelAngle = 'auto',
   onHoverStep,

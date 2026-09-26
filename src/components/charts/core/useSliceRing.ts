@@ -61,7 +61,9 @@ export function useSliceRing({
   // repintar as demais.
   const colors = useMemo(() => resolveSeriesColors(reunidas, { accent }), [accent, reunidas]);
 
-  const values = reunidas.map((fatia) => (isHidden(fatia.label) ? 0 : Math.max(fatia.value, 0)));
+  const values = reunidas.map((fatia) =>
+    isHidden(fatia.label) || !Number.isFinite(fatia.value) ? 0 : Math.max(fatia.value, 0),
+  );
   const total = values.reduce((soma, valor) => soma + valor, 0);
 
   // Os angulos caminham ate o alvo, entao desligar uma fatia reparte o anel em

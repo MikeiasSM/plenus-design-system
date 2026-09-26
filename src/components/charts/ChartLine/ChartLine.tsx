@@ -20,6 +20,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartLine.module.css';
 
 export interface ChartLineSeries extends SeriesAppearance {
@@ -55,7 +56,7 @@ export function ChartLine({
   curve = 'smooth',
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',
@@ -129,7 +130,7 @@ export function ChartLine({
     categories.map<ChartPoint | null>((categoria, indice) => {
       const valor = serie.values[indice];
 
-      if (valor === null || valor === undefined) {
+      if (valor === null || valor === undefined || !Number.isFinite(valor)) {
         return null;
       }
 

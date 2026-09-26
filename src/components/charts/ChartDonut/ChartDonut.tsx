@@ -11,6 +11,7 @@ import {
   type ChartLegendPosition,
   type ChartSlice,
 } from '../core';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartDonut.module.css';
 
 export type { ChartSlice as ChartDonutSlice };
@@ -50,7 +51,7 @@ export function ChartDonut({
   defaultHiddenSlices,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSlices,
   legend = 'right',

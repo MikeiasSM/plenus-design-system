@@ -24,7 +24,7 @@ function curveOf(curve: ChartCurve) {
 export function linePath(points: readonly (ChartPoint | null)[], curve: ChartCurve) {
   return (
     line<ChartPoint | null>()
-      .defined((ponto) => ponto !== null)
+      .defined((ponto) => ponto !== null && Number.isFinite(ponto.x) && Number.isFinite(ponto.y))
       .x((ponto) => ponto?.x ?? 0)
       .y((ponto) => ponto?.y ?? 0)
       .curve(curveOf(curve))(points) ?? ''
@@ -35,7 +35,7 @@ export function linePath(points: readonly (ChartPoint | null)[], curve: ChartCur
 export function areaPath(bands: readonly (ChartBand | null)[], curve: ChartCurve) {
   return (
     area<ChartBand | null>()
-      .defined((banda) => banda !== null)
+      .defined((banda) => banda !== null && Number.isFinite(banda.y0) && Number.isFinite(banda.y1))
       .x((banda) => banda?.x ?? 0)
       .y0((banda) => banda?.y0 ?? 0)
       .y1((banda) => banda?.y1 ?? 0)

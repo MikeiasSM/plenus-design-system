@@ -18,6 +18,7 @@ import {
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartSunburst.module.css';
 
 export interface ChartSunburstNode extends SeriesAppearance {
@@ -92,7 +93,7 @@ export function ChartSunburst({
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 320,
   hiddenGroups,
   legend = 'bottom',

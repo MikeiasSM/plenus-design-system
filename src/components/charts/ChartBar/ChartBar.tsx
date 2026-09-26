@@ -23,6 +23,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, stackedExtremes, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartBar.module.css';
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
@@ -61,7 +62,7 @@ export function ChartBar({
   categories,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
-  formatValue = (valor) => String(valor),
+  formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',
@@ -174,8 +175,12 @@ export function ChartBar({
   }
 
   /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto. */
+  /** Valor invalido conta como zero: desenha-lo daria `MNaN,NaN` no caminho. */
   function contribuicao(indiceSerie: number, indiceCategoria: number) {
-    return (series[indiceSerie].values[indiceCategoria] ?? 0) * (stacked ? presenca(indiceSerie) : 1);
+    const valor = series[indiceSerie].values[indiceCategoria];
+    const real = Number.isFinite(valor) ? (valor as number) : 0;
+
+    return real * (stacked ? presenca(indiceSerie) : 1);
   }
 
   /**

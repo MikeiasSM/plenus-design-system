@@ -284,6 +284,6 @@ describe('ChartBar', () => {
     expect(rotulosDeBarra()).toHaveLength(0);
 
     rerender(<ChartBar categories={periodos} series={[dre[0]]} showDataLabels title="DRE" />);
-    expect(rotulosDeBarra()).toEqual(['300000', '210000']);
+    expect(rotulosDeBarra()).toEqual(['300.000', '210.000']);
   });
 });
