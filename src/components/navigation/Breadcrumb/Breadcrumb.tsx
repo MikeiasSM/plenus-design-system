@@ -5,6 +5,11 @@ import { IconChevronRight } from '../../icons';
 export interface BreadcrumbItem {
   href?: string;
   label: string;
+  /**
+   * Propriedades entregues inteiras ao componente de link. Serve ao roteador
+   * que nao usa `href` — o do React Router pede `to`.
+   */
+  linkProps?: Record<string, unknown>;
 }
 
 export interface BreadcrumbProps extends ComponentPropsWithRef<'nav'> {
@@ -34,7 +39,7 @@ export function Breadcrumb({
                   {item.label}
                 </span>
               ) : (
-                <Link className={styles.link} href={item.href}>
+                <Link className={styles.link} href={item.href} {...item.linkProps}>
                   {item.label}
                 </Link>
               )}

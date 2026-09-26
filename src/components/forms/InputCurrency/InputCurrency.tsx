@@ -1,4 +1,6 @@
-import { useState, type ChangeEvent, type FocusEvent } from 'react';
+import { useState, type ChangeEvent, type FocusEvent, type Ref } from 'react';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatarEntradaDecimal, formatarEntradaMonetaria } from '../../../utils/formatters';
 
@@ -22,6 +24,11 @@ export function InputCurrency({
 }: InputCurrencyProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(() => formatarEntradaDecimal(defaultValue, decimalScale));
   const [focused, setFocused] = useState(false);
+  // O `reset` do formulario volta o DOM ao inicial; o texto exibido vive em
+  // estado do React e precisa ser avisado.
+  const refDoCampo = useFormReset<HTMLInputElement>(() =>
+    setUncontrolledValue(formatarEntradaDecimal(defaultValue, decimalScale)),
+  );
   const rawValue = value === undefined ? uncontrolledValue : formatarEntradaDecimal(value, decimalScale);
   const displayValue = focused || !rawValue ? rawValue : formatarEntradaMonetaria(rawValue, currency, decimalScale);
 
@@ -45,6 +52,7 @@ export function InputCurrency({
   return (
     <InputText
       {...props}
+      ref={mergeRefs(refDoCampo, props.ref as Ref<HTMLInputElement>)}
       inputMode="decimal"
       onBlur={handleBlur}
       onChange={handleChange}

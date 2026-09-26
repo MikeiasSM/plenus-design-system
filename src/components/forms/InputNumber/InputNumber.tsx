@@ -1,4 +1,6 @@
-import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useState, type ChangeEvent, type KeyboardEvent, type Ref } from 'react';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatarEntradaDecimal } from '../../../utils/formatters';
 
@@ -18,6 +20,11 @@ export function InputNumber({
   ...props
 }: InputNumberProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(() => formatarEntradaDecimal(defaultValue, decimalScale));
+  // O `reset` do formulario volta o DOM ao inicial; o texto exibido vive em
+  // estado do React e precisa ser avisado.
+  const refDoCampo = useFormReset<HTMLInputElement>(() =>
+    setUncontrolledValue(formatarEntradaDecimal(defaultValue, decimalScale)),
+  );
   const currentValue = value === undefined ? uncontrolledValue : formatarEntradaDecimal(value, decimalScale);
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -37,6 +44,7 @@ export function InputNumber({
   return (
     <InputText
       {...props}
+      ref={mergeRefs(refDoCampo, props.ref as Ref<HTMLInputElement>)}
       inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
       onChange={handleChange}
       onKeyDown={handleKeyDown}

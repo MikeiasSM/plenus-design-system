@@ -114,7 +114,7 @@ export function ChartRadial({
   const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, PISO_DO_RAIO);
 
   const canto = trackRadius ?? raioDoCanto;
-  const destaque = tracks[0];
+  const destaque = tracks.find((anel) => !isHidden(anel.label)) ?? tracks[0];
   const centro = destaque
     ? fitCenterText(formatValue(destaque.value), centerLabel ?? destaque.label, font, raioInterno * 2)
     : undefined;
