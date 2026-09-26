@@ -23,11 +23,12 @@ describe('useVirtualWindow', () => {
     expect(result.current.padding).toEqual({ before: 0, after: 0 });
   });
 
-  it('renderiza tudo enquanto a altura do item nao foi medida', () => {
+  it('monta so o suficiente para medir, antes de conhecer o passo', () => {
     const { result } = renderHook(() => useVirtualWindow(10000, 320));
 
+    // Montar dez mil nos para medir um item custava o primeiro render inteiro.
     expect(result.current.active).toBe(false);
-    expect(result.current.end).toBe(10000);
+    expect(result.current.end).toBe(24);
   });
 
   it('limita a janela ao que cabe na altura, com folga', () => {

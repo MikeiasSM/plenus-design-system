@@ -2,6 +2,13 @@ import { useCallback, useRef, useState } from 'react';
 
 const OVERSCAN = 6;
 
+/**
+ * Quantos itens entram antes da primeira medida. A janela so liga depois de
+ * conhecer o passo entre itens, e o passo sai do DOM — montar a colecao inteira
+ * para medir um item custava dez mil nos num primeiro render.
+ */
+const PRIMEIRA_JANELA = 24;
+
 export function useVirtualWindow(total: number, height?: number) {
   const scrollElement = useRef<HTMLElement | null>(null);
   const [itemHeight, setItemHeight] = useState(0);
@@ -32,6 +39,7 @@ export function useVirtualWindow(total: number, height?: number) {
   }, []);
 
   const active = height !== undefined && itemHeight > 0 && total * itemHeight > height;
+  const medindo = height !== undefined && itemHeight === 0;
 
   const scrollToIndex = useCallback(
     (index: number) => {
@@ -62,7 +70,7 @@ export function useVirtualWindow(total: number, height?: number) {
       padding: { before: 0, after: 0 },
       scrollToIndex,
       start: 0,
-      end: total,
+      end: medindo ? Math.min(total, PRIMEIRA_JANELA) : total,
     };
   }
 
