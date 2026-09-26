@@ -124,6 +124,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Distribuicao**
 
+- **Publicacao no npm publico, por decisao do mantenedor**, com a versao `0.1.0` mantida. `publishConfig.access` fica `public` no proprio pacote: escopado, ele nasceria restrito e o `publish` falharia sem a bandeira. O `repository` tambem entrou, porque o npm o usa na pagina do pacote.
+- O `publish` e do mantenedor, com a conta dele. Nada aqui o executa.
+
 - O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
 - As declaracoes saem com **extensao explicita**, acrescentada no pos-build. Sem ela, `node16` e `nodenext` recusam cada import relativo — eram 97 erros. Corrigir no fonte custaria reescrever duzentos imports por uma exigencia de empacotamento.
 - `@types/d3-scale` e **dependencia**, e nao dependencia de desenvolvimento: a declaracao publica de `cartesianLayout` alcanca `scales`, cujo tipo de retorno vem do `d3-scale`. Tipo que aparece na API publica e dependencia de quem consome.
@@ -205,7 +208,8 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 ## Pendencias de correcao identificadas no review
 
-- **`npm run check:contraste` reprova hoje**, com uma unica falha nao declarada: `--pl-chart-series-4` mede 2.55:1 contra a superficie clara, abaixo do piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico. Depende de decisao do mantenedor, porque o corpus normativo nao fixa piso para marca de dado e porque a alternativa tem custo: `brand.blue.60` levaria a serie a 7.77:1 contra a superficie, mas a separacao dela para a serie 1 cairia de 2.37:1 para 1.29:1.
+- **`npm run check:contraste` passa.** A serie 4 era a unica reprovacao, com 2.55:1 contra a superficie clara. A escolha saiu da propria paleta: ela ja aceita 1.77:1 entre a serie 2 e a serie 5, que sao o laranja claro e o escuro. `brand.blue.70` da 1.66:1 contra a serie 1 — o mesmo padrao — e 10.05:1 contra a superficie. `brand.blue.60`, cogitado antes, daria 1.29:1 e ficaria abaixo do que a casa aceita.
+- **No tema claro, o segundo tom de cada matiz desce.** Um azul claro sobre superficie clara nao alcanca o piso de 3:1 da WCAG 1.4.11. E o que o laranja ja fazia; o azul passou a fazer igual.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - A escala tipografica paralela foi **removida**: `--pl-size-*` e os pesos `--pl-weight-bold` e `--pl-weight-medium` nao existem mais, e nada os referencia.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.

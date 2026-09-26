@@ -222,7 +222,7 @@ A ordem e fixa. A serie `N` usa sempre o mesmo token, para que um filtro que red
 | `chart.series-1` | `brand.blue.50` | `brand.blue.40` |
 | `chart.series-2` | `brand.orange.50` | `brand.orange.40` |
 | `chart.series-3` | `brand.purple.50` | `brand.purple.40` |
-| `chart.series-4` | `brand.blue.40` | `brand.blue.30` |
+| `chart.series-4` | `brand.blue.70` | `brand.blue.30` |
 | `chart.series-5` | `brand.orange.70` | `brand.orange.50` |
 | `chart.series-6` | `brand.purple.40` | `brand.purple.30` |
 
@@ -260,6 +260,8 @@ Grade, eixos e rotulos nao sao dado. Eles derivam dos tokens de superficie e de 
 | `chart.cursor` | Veu translucido | Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no escuro |
 
 ### Validacao
+
+No tema claro, as series 4, 5 e 6 sao o **segundo tom** de cada matiz, e no claro esse segundo tom desce em vez de subir: um azul claro sobre superficie clara nao alcanca o piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico.
 
 A separacao entre series e medida, nunca arbitrada a olho, e a medicao inclui simulacao de deficiencia de visao de cores. As cores institucionais, tomadas em conjunto, apresentam um pior par de 3,6 sob deuteranopia. A paleta definida acima leva esse pior par a 20,6.
 

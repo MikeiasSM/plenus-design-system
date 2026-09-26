@@ -2,6 +2,13 @@
   "name": "@plenustech/design-system",
   "version": "0.1.0",
   "description": "Design System centralizado para os produtos web da Plenustech.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeiasSM/plenus-design-system.git"
+  },
   "type": "module",
   "main": "./dist/plenus-design-system.cjs",
   "module": "./dist/plenus-design-system.es.js",

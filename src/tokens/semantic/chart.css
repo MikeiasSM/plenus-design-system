@@ -4,7 +4,10 @@
   --pl-chart-series-1: var(--pl-brand-blue-50);
   --pl-chart-series-2: var(--pl-brand-orange-50);
   --pl-chart-series-3: var(--pl-brand-purple-50);
-  --pl-chart-series-4: var(--pl-brand-blue-40);
+  /* O azul claro media 2,55:1 contra a superficie clara, abaixo do piso de 3:1
+     que a WCAG 1.4.11 pede a objeto grafico. O segundo tom desce, como ja
+     acontece no laranja: a serie 5 e a escura da sua matiz. */
+  --pl-chart-series-4: var(--pl-brand-blue-70);
   --pl-chart-series-5: var(--pl-brand-orange-70);
   --pl-chart-series-6: var(--pl-brand-purple-40);
 
