@@ -22,7 +22,7 @@ import {
   type CornerRadii,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
+import { bandScale, domainOf, linearScale, mergeDomains, stackedExtremes, ticksFor } from '../scales';
 import styles from './ChartBar.module.css';
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
@@ -98,8 +98,8 @@ export function ChartBar({
 
     if (stacked) {
       return domainOf(
-        categories.map((_, indice) =>
-          visiveis.reduce((total, serie) => total + (serie.values[indice] ?? 0), 0),
+        categories.flatMap((_, indice) =>
+          stackedExtremes(visiveis.map((serie) => serie.values[indice] ?? 0)),
         ),
       );
     }

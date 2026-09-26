@@ -247,6 +247,26 @@ describe('ChartBar', () => {
     expect(barras()).toHaveLength(4);
   });
 
+  it('empilha sinais mistos dentro da area, e nao por cima do titulo', () => {
+    render(
+      <ChartBar
+        categories={['jan']}
+        series={[{ label: 'Entrada', values: [10] }, { label: 'Saida', values: [-5] }]}
+        stacked
+        title="Caixa"
+      />,
+    );
+
+    // Somar +10 e -5 dava dominio 0..5, e o segmento positivo subia a -263.
+    const ys = barras().flatMap((barra) =>
+      ((barra.getAttribute('d') ?? '').match(/-?\d+(\.\d+)?/g) ?? [])
+        .map(Number)
+        .filter((_, indice) => indice % 2 === 1),
+    );
+
+    expect(Math.min(...ys)).toBeGreaterThanOrEqual(0);
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um grafico vazio', () => {
     render(<ChartBar categories={[]} series={[]} title="DRE" />);
 

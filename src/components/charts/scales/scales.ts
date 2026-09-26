@@ -41,6 +41,24 @@ export function domainOf(values: readonly number[], { includeZero = true } = {})
 }
 
 /** Une varias series na mesma faixa, para que compartilhem um unico eixo. */
+/**
+ * Extremos que uma pilha alcanca, e nao apenas onde ela termina. Com sinais
+ * mistos o total engana: `+10` e `-5` somam `5`, mas o segmento positivo chega
+ * a `10` e ficaria desenhado fora da area. O dominio precisa do caminho do
+ * acumulado, incluindo o zero de onde ele parte.
+ */
+export function stackedExtremes(contributions: readonly number[]) {
+  const extremos = [0];
+  let acumulado = 0;
+
+  for (const valor of contributions) {
+    acumulado += Number.isFinite(valor) ? valor : 0;
+    extremos.push(acumulado);
+  }
+
+  return extremos;
+}
+
 export function mergeDomains(domains: readonly NumericRange[]): NumericRange {
   if (domains.length === 0) {
     return { min: 0, max: 0 };

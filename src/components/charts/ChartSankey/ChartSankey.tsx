@@ -39,6 +39,8 @@ export type ChartSankeyFlowValuePosition = 'start' | 'middle' | 'end';
 
 export interface ChartSankeyProps {
   accent?: string;
+  /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
+  cyclicMessage?: string;
   emptyMessage?: string;
   flowColor?: ChartSankeyFlowColor;
   flowValuePosition?: ChartSankeyFlowValuePosition;
@@ -106,8 +108,43 @@ function caminhoDa(ligacao: LigacaoPosicionada) {
   return `M${saida},${ligacao.y0}C${meio},${ligacao.y0} ${meio},${ligacao.y1} ${chegada},${ligacao.y1}`;
 }
 
+/**
+ * Busca em profundidade atras de aresta de retorno. Um autolaco tambem conta:
+ * o no seria origem e destino do mesmo caminho.
+ */
+function temCiclo(flows: readonly ChartSankeyFlow[]) {
+  const saidas = new Map<string, string[]>();
+
+  for (const fluxo of flows) {
+    saidas.set(fluxo.source, [...(saidas.get(fluxo.source) ?? []), fluxo.target]);
+  }
+
+  const encerrados = new Set<string>();
+  const noCaminho = new Set<string>();
+
+  function alcanca(no: string): boolean {
+    if (noCaminho.has(no)) {
+      return true;
+    }
+
+    if (encerrados.has(no)) {
+      return false;
+    }
+
+    noCaminho.add(no);
+    const achou = (saidas.get(no) ?? []).some(alcanca);
+    noCaminho.delete(no);
+    encerrados.add(no);
+
+    return achou;
+  }
+
+  return [...saidas.keys()].some(alcanca);
+}
+
 export function ChartSankey({
   accent,
+  cyclicMessage = 'O fluxo volta sobre si mesmo e não pode ser desenhado',
   emptyMessage = 'Sem dados no período',
   flowColor = 'source',
   flowValuePosition = 'end',
@@ -162,10 +199,19 @@ export function ChartSankey({
     ? Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET
     : 0;
 
+  // Um diagrama de fluxo e aciclico por definicao, e o `d3-sankey` lanca ao
+  // encontrar um ciclo. Detectar antes troca a queda da arvore inteira por uma
+  // mensagem, sem descartar ligacao nenhuma pelas costas.
+  const ciclico = useMemo(() => temCiclo(flows), [flows]);
+  const totalDoFluxo = useMemo(
+    () => flows.reduce((soma, fluxo) => soma + (Number.isFinite(fluxo.value) ? Math.max(fluxo.value, 0) : 0), 0),
+    [flows],
+  );
+
   const grafo = useMemo(() => {
     const util = width - bandaDireita;
 
-    if (util <= 0 || alturaDoDesenho <= 0 || flows.length === 0) {
+    if (util <= 0 || alturaDoDesenho <= 0 || flows.length === 0 || ciclico || totalDoFluxo <= 0) {
       return { links: [] as LigacaoPosicionada[], nodes: [] as NoPosicionado[] };
     }
 
@@ -180,12 +226,15 @@ export function ChartSankey({
       ]);
 
     const resultado = posicionar({
-      links: flows.map((fluxo) => ({ ...fluxo, value: Math.max(fluxo.value, 0) })),
+      links: flows.map((fluxo) => ({
+        ...fluxo,
+        value: Number.isFinite(fluxo.value) ? Math.max(fluxo.value, 0) : 0,
+      })),
       nodes: declarados.map((no) => ({ label: no.label })),
     });
 
     return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
-  }, [alturaDoDesenho, bandaDireita, declarados, flows, nodeAlign, nodePadding, nodeWidth, width]);
+  }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
@@ -281,8 +330,8 @@ export function ChartSankey({
   return (
     <ChartFrame
       containerRef={ref}
-      empty={flows.length === 0}
-      emptyMessage={emptyMessage}
+      empty={flows.length === 0 || ciclico || totalDoFluxo <= 0}
+      emptyMessage={ciclico ? cyclicMessage : emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
       legendPosition="none"

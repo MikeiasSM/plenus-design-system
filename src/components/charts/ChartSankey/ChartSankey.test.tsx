@@ -27,6 +27,32 @@ function valores() {
 }
 
 describe('ChartSankey', () => {
+  it('anuncia o ciclo em vez de derrubar a arvore', () => {
+    render(
+      <ChartSankey
+        flows={[
+          { source: 'a', target: 'b', value: 5 },
+          { source: 'b', target: 'a', value: 3 },
+        ]}
+        title="Fluxo"
+      />,
+    );
+
+    expect(screen.getByText(/volta sobre si mesmo/)).toBeInTheDocument();
+  });
+
+  it('trata o autolaco como ciclo', () => {
+    render(<ChartSankey flows={[{ source: 'a', target: 'a', value: 5 }]} title="Fluxo" />);
+
+    expect(screen.getByText(/volta sobre si mesmo/)).toBeInTheDocument();
+  });
+
+  it('anuncia a ausencia quando todo fluxo vale zero, em vez de gerar geometria invalida', () => {
+    render(<ChartSankey flows={[{ source: 'a', target: 'b', value: 0 }]} title="Fluxo" />);
+
+    expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
+  });
+
   beforeEach(() => fixarTamanho());
   afterEach(() => {
     Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');

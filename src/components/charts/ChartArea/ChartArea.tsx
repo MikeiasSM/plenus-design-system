@@ -21,7 +21,7 @@ import {
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
+import { domainOf, linearScale, mergeDomains, pointScale, stackedExtremes, ticksFor } from '../scales';
 import styles from './ChartArea.module.css';
 
 export interface ChartAreaSeries extends SeriesAppearance {
@@ -104,7 +104,11 @@ export function ChartArea({
     const visivel = (ordem: number) => (isHidden(series[ordem].label) ? 0 : 1);
 
     if (stacked) {
-      return domainOf(categories.map((_, indice) => somaAte(series, series.length, indice, visivel)));
+      return domainOf(
+        categories.flatMap((_, indice) =>
+          stackedExtremes(series.map((serie, ordem) => (serie.values[indice] ?? 0) * visivel(ordem))),
+        ),
+      );
     }
 
     return mergeDomains(
