@@ -21,7 +21,9 @@ describe('InputNumber', () => {
 
     expect(input.dispatchEvent(commaEvent)).toBe(false);
     expect(input.dispatchEvent(dotEvent)).toBe(false);
-    expect(input).toHaveAttribute('pattern', '[0-9]*');
+    // O hifen entra no padrao: o formatador aceita negativo, e o padrao barrava
+    // no envio o que o campo deixava digitar.
+    expect(input).toHaveAttribute('pattern', '-?[0-9]*');
   });
 
   it('preserves the comma and limits decimal places', () => {

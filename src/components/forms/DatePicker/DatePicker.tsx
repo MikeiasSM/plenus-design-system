@@ -117,7 +117,15 @@ export function DatePicker({
   }
 
   const { overlayProps } = useOverlay(
-    { isOpen: open, onClose: () => fechar(false), isDismissable: true, shouldCloseOnBlur: false },
+    {
+      isOpen: open,
+      onClose: () => fechar(false),
+      isDismissable: true,
+      shouldCloseOnBlur: false,
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
+      // clique dele reabre em seguida, e ele pisca sem abrir.
+      shouldCloseOnInteractOutside: (elemento) => !fieldRef.current?.contains(elemento),
+    },
     panelRef,
   );
   const { overlayProps: positionProps } = useOverlayPosition({

@@ -40,7 +40,7 @@ export function InputNumber({
       inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      pattern={decimalScale > 0 ? undefined : '[0-9]*'}
+      pattern={decimalScale > 0 ? undefined : '-?[0-9]*'}
       type="text"
       value={currentValue}
     />

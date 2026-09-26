@@ -145,7 +145,15 @@ function SelectListbox({
   const baseId = useRef('listbox-' + Math.random().toString(36).slice(2, 9)).current;
 
   const { overlayProps } = useOverlay(
-    { isOpen: true, onClose, isDismissable: true, shouldCloseOnBlur: false },
+    {
+      isOpen: true,
+      onClose,
+      isDismissable: true,
+      shouldCloseOnBlur: false,
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
+      // clique dele reabre em seguida, e ele pisca sem abrir.
+      shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
+    },
     panelRef,
   );
   const { overlayProps: positionProps } = useOverlayPosition({

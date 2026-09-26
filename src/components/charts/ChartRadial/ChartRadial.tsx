@@ -51,6 +51,9 @@ export interface ChartRadialProps {
 /** Folga entre dois aneis vizinhos. */
 const ESPACO_ENTRE_ANEIS = 6;
 
+/** Raio minimo do vazio central, para o texto ainda caber. */
+const PISO_DO_RAIO = 8;
+
 function emRadianos(graus: number) {
   return (graus * Math.PI) / 180;
 }
@@ -101,8 +104,14 @@ export function ChartRadial({
   const volta = Math.min(emRadianos(endAngle) - comeco, VOLTA);
 
   const raioExterno = ringDiameter(width, alturaDoDesenho) / 2;
-  const raioDe = (indice: number) => raioExterno - indice * (thickness + ESPACO_ENTRE_ANEIS);
-  const raioInterno = raioDe(Math.max(tracks.length - 1, 0)) - thickness;
+  // Com muitos aneis a conta passava do centro e devolvia raio negativo, que o
+  // SVG nao desenha. A espessura cede antes disso.
+  const espessuraCabivel = Math.min(
+    thickness,
+    Math.max((raioExterno - PISO_DO_RAIO) / Math.max(tracks.length, 1) - ESPACO_ENTRE_ANEIS, 1),
+  );
+  const raioDe = (indice: number) => raioExterno - indice * (espessuraCabivel + ESPACO_ENTRE_ANEIS);
+  const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, PISO_DO_RAIO);
 
   const canto = trackRadius ?? raioDoCanto;
   const destaque = tracks[0];
@@ -133,7 +142,7 @@ export function ChartRadial({
     >
       {tracks.map((anel, indice) => {
         const externo = raioDe(indice);
-        const interno = externo - thickness;
+        const interno = externo - espessuraCabivel;
         const fracao = animadas[indice] ?? 0;
         const preenchido = comeco + volta * fracao;
 
