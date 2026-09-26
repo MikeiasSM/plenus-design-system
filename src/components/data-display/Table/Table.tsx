@@ -296,7 +296,7 @@ function TableBody<T>({ children, empty, items }: TableBodyProps<T>) {
 
   if (items.length === 0 && !loading && empty !== undefined) {
     return (
-      <tbody className={styles.body}>
+      <tbody>
         <tr>
           <td className={styles.empty} colSpan={countColumns()}>
             {empty}
@@ -306,7 +306,7 @@ function TableBody<T>({ children, empty, items }: TableBodyProps<T>) {
     );
   }
 
-  return <tbody className={styles.body}>{items.map(children)}</tbody>;
+  return <tbody>{items.map(children)}</tbody>;
 }
 
 export interface TableRowProps {

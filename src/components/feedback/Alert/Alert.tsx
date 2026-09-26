@@ -14,7 +14,7 @@ export function Alert({ children, className, title, tone = 'info', ...props }: A
   const urgente = tone === 'danger' || tone === 'warning';
 
   return (
-    <div {...props} className={classes} role={urgente ? 'alert' : 'status'}>
+    <div role={urgente ? 'alert' : 'status'} {...props} className={classes}>
       {title && <strong className={styles.title}>{title}</strong>}
       {children && <div className={styles.body}>{children}</div>}
     </div>

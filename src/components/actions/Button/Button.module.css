@@ -29,7 +29,7 @@
   cursor: not-allowed;
 }
 
-.button:focus-visible {
+.button:not(:disabled):not([aria-disabled='true']):focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--pl-color-primary-container), 0 0 0 1px var(--pl-color-primary);
 }

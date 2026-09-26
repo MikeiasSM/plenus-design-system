@@ -23,14 +23,16 @@ interface DesenhoProps extends IconProps {
  * A cor vem de `currentColor`, entao o icone herda a cor do texto em que esta.
  */
 export function Icon({ children, label, size = '1em', ...props }: DesenhoProps) {
+  const nome = label ?? props['aria-label'];
+
   return (
     <svg
-      aria-hidden={label ? undefined : true}
-      aria-label={label}
+      aria-hidden={nome ? undefined : true}
+      aria-label={nome}
       fill="currentColor"
       focusable="false"
       height={size}
-      role={label ? 'img' : undefined}
+      role={nome ? 'img' : undefined}
       viewBox="0 0 16 16"
       width={size}
       xmlns="http://www.w3.org/2000/svg"

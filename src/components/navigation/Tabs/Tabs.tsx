@@ -117,7 +117,7 @@ export function Tabs({
             type="button"
             role="tab"
             id={`${baseId}-${item.key}`}
-            aria-controls={`${baseId}-${item.key}-panel`}
+            aria-controls={ativa === item.key ? `${baseId}-${item.key}-panel` : undefined}
             aria-selected={ativa === item.key}
             disabled={item.disabled}
             tabIndex={ativa === item.key ? 0 : -1}
