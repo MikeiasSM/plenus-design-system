@@ -36,7 +36,11 @@ export interface DateTimePickerProps {
   placeholder?: string;
   required?: boolean;
   size?: DateTimePickerSize;
-  value?: CalendarDateTime;
+  /**
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
+   */
+  value?: CalendarDateTime | null;
 }
 
 const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
@@ -107,7 +111,7 @@ export function DateTimePicker({
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [texto, setTexto] = useState(() => paraTexto(defaultValue));
   const [digitando, setDigitando] = useState(false);
-  const escolhido = value ?? internalValue;
+  const escolhido = value === undefined ? internalValue : value ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
 
   useEffect(() => {

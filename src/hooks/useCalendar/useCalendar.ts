@@ -1,5 +1,5 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
-import { getLocalTimeZone, startOfMonth, today, type CalendarDate } from '@internationalized/date';
+import { endOfMonth, getLocalTimeZone, startOfMonth, today, type CalendarDate } from '@internationalized/date';
 import { buildMonth, clamp, isUnavailable, moveFocus, sameDay, type CalendarDay, type CalendarLimits } from './calendar';
 
 export interface UseCalendarOptions extends CalendarLimits {
@@ -9,6 +9,8 @@ export interface UseCalendarOptions extends CalendarLimits {
 }
 
 export interface UseCalendarResult {
+  /** Leva o foco a uma data e traz o mes dela para a grade. */
+  focus: (date: CalendarDate) => void;
   focusedDate: CalendarDate;
   goToMonth: (offset: number) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
@@ -32,6 +34,15 @@ export function useCalendar({
   const [focusedDate, setFocusedDate] = useState(() => clamp(value ?? hoje, limits));
   const anchor = value ?? focusedDate;
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(anchor));
+  const [ultimoValor, setUltimoValor] = useState(value);
+
+  // O mes visivel segue o valor quando ele muda de fora. Sem isto, digitar uma
+  // data e abrir o painel mostrava o mes corrente, e nao o da data digitada.
+  if (value && (!ultimoValor || value.compare(ultimoValor) !== 0)) {
+    setUltimoValor(value);
+    setVisibleMonth(startOfMonth(value));
+    setFocusedDate(clamp(value, limits));
+  }
 
   const weeks = useMemo(() => buildMonth(visibleMonth, locale, limits), [locale, visibleMonth, max, min, isDateUnavailable]);
 
@@ -53,8 +64,18 @@ export function useCalendar({
   }
 
   return {
+    focus,
     focusedDate,
-    goToMonth: (offset) => setVisibleMonth(startOfMonth(visibleMonth.add({ months: offset }))),
+    goToMonth: (offset) => {
+      const destino = startOfMonth(visibleMonth.add({ months: offset }));
+
+      setVisibleMonth(destino);
+      // O foco acompanha o mes; parado, a proxima seta devolvia a grade ao mes
+      // anterior no quadro seguinte.
+      setFocusedDate(
+        clamp(destino.set({ day: Math.min(focusedDate.day, endOfMonth(destino).day) }), limits),
+      );
+    },
     handleKeyDown: (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();

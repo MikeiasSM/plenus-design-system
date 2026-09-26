@@ -44,6 +44,10 @@ export function lerEntradaHora(valor: string) {
 
 /** Horarios do dia inteiro, do primeiro ao ultimo que couber no passo. */
 export function gerarHorarios(step: number, min = new Time(0, 0), max = new Time(23, 59)) {
+  if (step <= 0) {
+    return [];
+  }
+
   const inicio = min.hour * 60 + min.minute;
   const fim = max.hour * 60 + max.minute;
   const horarios: Time[] = [];
@@ -105,7 +109,14 @@ export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step
         type="text"
         value={digitando ? texto : escolhido}
       />
-      <ListingOptions baseId={baseId} className={styles.slotList} label={label} listing={listagem} />
+      <ListingOptions
+        baseId={baseId}
+        className={styles.slotList}
+        holdsFocus
+        label={label}
+        listing={listagem}
+        onKeyDown={listagem.handleKeyDown}
+      />
     </div>
   );
 }

@@ -26,7 +26,11 @@ export interface DatePickerProps {
   placeholder?: string;
   required?: boolean;
   size?: DatePickerSize;
-  value?: CalendarDate;
+  /**
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
+   */
+  value?: CalendarDate | null;
 }
 
 export function DatePicker({
@@ -51,7 +55,7 @@ export function DatePicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue);
-  const escolhido = value ?? internalValue;
+  const escolhido = value === undefined ? internalValue : value ?? undefined;
   const [texto, setTexto] = useState(() => (escolhido ? formatarEntradaData(escolhido.toString().split('-').reverse().join('')) : ''));
   const [digitando, setDigitando] = useState(false);
   const [rascunho, setRascunho] = useState(escolhido);

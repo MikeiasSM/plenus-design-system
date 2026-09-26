@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
@@ -23,7 +23,11 @@ export interface TimePickerProps {
   placeholder?: string;
   required?: boolean;
   size?: TimePickerSize;
-  value?: Time;
+  /**
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
+   */
+  value?: Time | null;
 }
 
 export function TimePicker({
@@ -44,12 +48,14 @@ export function TimePicker({
 }: TimePickerProps) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Sem isto, dois seletores de hora na mesma pagina dividiam os ids das opcoes.
+  const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [texto, setTexto] = useState(() => paraTextoDeHora(defaultValue));
   const [digitando, setDigitando] = useState(false);
-  const escolhido = value ?? internalValue;
+  const escolhido = value === undefined ? internalValue : value ?? undefined;
   const exibido = digitando ? texto : paraTextoDeHora(escolhido);
 
   function definir(proximo?: Time) {
@@ -154,7 +160,7 @@ export function TimePicker({
                 style={positionProps.style}
               >
                 <TimeSlots
-                  baseId={providedId ?? 'hora'}
+                  baseId={providedId ?? idDaLista}
                   max={max}
                   min={min}
                   onChange={(hora) => {

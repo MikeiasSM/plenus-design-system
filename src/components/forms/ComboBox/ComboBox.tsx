@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
@@ -51,7 +51,7 @@ export function ComboBox({
 }: ComboBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const baseId = useRef('combobox-' + Math.random().toString(36).slice(2, 9)).current;
+  const baseId = `combobox-${useId()}`;
   const [open, setOpen] = useState(false);
   const [filtering, setFiltering] = useState(false);
 
