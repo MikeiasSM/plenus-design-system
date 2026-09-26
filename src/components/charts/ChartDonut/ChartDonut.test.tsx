@@ -64,7 +64,7 @@ describe('ChartDonut', () => {
     expect(textosDoCentro()).toEqual(['6.300', 'CMV']);
 
     fireEvent.mouseLeave(fatias()[1]);
-    expect(textosDoCentro()).toEqual(['6700', 'Total']);
+    expect(textosDoCentro()).toEqual(['6.700', 'Total']);
   });
 
   it('dispensa o centro quando pedido', () => {
