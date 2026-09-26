@@ -1,7 +1,8 @@
+import { type ComponentPropsWithRef } from 'react';
 import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
 
-export interface PaginationProps {
+export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   label?: string;
   onPageChange: (page: number) => void;
   page: number;
@@ -11,11 +12,13 @@ export interface PaginationProps {
 }
 
 export function Pagination({
+  className,
   label = 'Paginacao',
   onPageChange,
   page,
   pageCount,
   siblings = 1,
+  ...props
 }: PaginationProps) {
   if (pageCount <= 1) {
     return null;
@@ -25,7 +28,7 @@ export function Pagination({
   const paginas = montarFaixa(atual, pageCount, siblings);
 
   return (
-    <nav className={styles.pagination} aria-label={label}>
+    <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
       <button
         className={styles.step}
         type="button"

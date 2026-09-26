@@ -1,4 +1,4 @@
-import type { ElementType } from 'react';
+import type { ComponentPropsWithRef, ElementType } from 'react';
 import styles from './Breadcrumb.module.css';
 import { IconChevronRight } from '../../icons';
 
@@ -7,16 +7,22 @@ export interface BreadcrumbItem {
   label: string;
 }
 
-export interface BreadcrumbProps {
+export interface BreadcrumbProps extends ComponentPropsWithRef<'nav'> {
   /** Componente de link da aplicacao, para nao acoplar o sistema a um roteador. */
   as?: ElementType;
   items: readonly BreadcrumbItem[];
   label?: string;
 }
 
-export function Breadcrumb({ as: Link = 'a', items, label = 'Trilha de navegacao' }: BreadcrumbProps) {
+export function Breadcrumb({
+  as: Link = 'a',
+  className,
+  items,
+  label = 'Trilha de navegacao',
+  ...props
+}: BreadcrumbProps) {
   return (
-    <nav aria-label={label}>
+    <nav {...props} aria-label={label} className={className}>
       <ol className={styles.list}>
         {items.map((item, index) => {
           const atual = index === items.length - 1;

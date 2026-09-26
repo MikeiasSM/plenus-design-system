@@ -1,4 +1,12 @@
-import { useEffect, useId, useMemo, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  type ComponentPropsWithRef,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Tabs.module.css';
 
@@ -11,7 +19,7 @@ export interface TabItem {
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 
-export interface TabsProps {
+export interface TabsProps extends ComponentPropsWithRef<'div'> {
   defaultSelectedKey?: string;
   items: readonly TabItem[];
   label: string;
@@ -21,12 +29,14 @@ export interface TabsProps {
 }
 
 export function Tabs({
+  className,
   defaultSelectedKey,
   items,
   label,
   onSelectionChange,
   orientation = 'horizontal',
   selectedKey,
+  ...props
 }: TabsProps) {
   const baseId = `tabs-${useId()}`;
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -85,7 +95,7 @@ export function Tabs({
   }
 
   return (
-    <div className={[styles.tabs, styles[orientation]].join(' ')}>
+    <div {...props} className={[styles.tabs, styles[orientation], className].filter(Boolean).join(' ')}>
       <div
         className={styles.list}
         role="tablist"

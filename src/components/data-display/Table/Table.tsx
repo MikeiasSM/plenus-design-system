@@ -1,5 +1,6 @@
 import {
   createContext,
+  type ComponentPropsWithRef,
   useContext,
   useId,
   useMemo,
@@ -28,7 +29,7 @@ export interface TableSort {
   direction: SortDirection;
 }
 
-export interface TableProps {
+export interface TableProps extends ComponentPropsWithRef<'div'> {
   children: ReactNode;
   defaultSort?: TableSort;
   divider?: boolean;
@@ -83,6 +84,7 @@ function useTableContext(part: string) {
 
 export function Table({
   children,
+  className,
   defaultSort,
   divider = true,
   highlightSelectedRow = true,
@@ -99,6 +101,7 @@ export function Table({
   sort,
   stickyHeader = false,
   striped = false,
+  ...props
 }: TableProps) {
   const baseId = useId();
   const [internalSort, setInternalSort] = useState(defaultSort);
@@ -174,7 +177,7 @@ export function Table({
     .join(' ');
 
   return (
-    <div className={styles.scroll}>
+    <div {...props} className={[styles.scroll, className].filter(Boolean).join(' ')}>
       <table aria-busy={loading || undefined} aria-label={label} className={classes}>
         <TableContext.Provider value={context}>{children}</TableContext.Provider>
       </table>

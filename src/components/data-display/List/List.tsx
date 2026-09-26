@@ -1,4 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from 'react';
 import { Checkbox } from '../../forms/Checkbox';
 import { ListingOptions, optionId } from './ListingOptions';
 import { useListing, type Listing, type ListingItem, type ListingSelectionMode } from './useListing';
@@ -7,7 +16,7 @@ import styles from './List.module.css';
 export type ListSelectionMode = ListingSelectionMode;
 export type ListItem = ListingItem;
 
-export interface ListProps {
+export interface ListProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue'> {
   children: ReactNode;
   defaultValue?: readonly ListItem[];
   items: readonly ListItem[];
@@ -44,6 +53,7 @@ function useListContext(part: string) {
 
 export function List({
   children,
+  className,
   defaultValue,
   items,
   label,
@@ -53,6 +63,7 @@ export function List({
   onSelectionChange,
   selectionMode = 'none',
   value,
+  ...props
 }: ListProps) {
   const baseId = useId();
   const [searchPresent, setSearchPresent] = useState(false);
@@ -69,7 +80,7 @@ export function List({
   };
 
   return (
-    <div className={styles.list}>
+    <div {...props} className={[styles.list, className].filter(Boolean).join(' ')}>
       <ListContext.Provider value={context}>{children}</ListContext.Provider>
     </div>
   );

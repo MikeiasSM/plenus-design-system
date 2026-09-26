@@ -1,4 +1,11 @@
-import { useId, useMemo, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useId,
+  useMemo,
+  useRef,
+  type ComponentPropsWithRef,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Accordion.module.css';
 import { IconMinusCircle, IconPlusCircle } from '../../icons';
@@ -12,7 +19,7 @@ export interface AccordionItem {
 
 export type AccordionIconPosition = 'left' | 'right';
 
-export interface AccordionProps {
+export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   defaultExpandedKeys?: readonly string[];
   expandedKeys?: readonly string[];
   items: readonly AccordionItem[];
@@ -25,6 +32,7 @@ export interface AccordionProps {
 }
 
 export function Accordion({
+  className,
   defaultExpandedKeys,
   expandedKeys,
   items,
@@ -32,6 +40,7 @@ export function Accordion({
   onExpandedChange,
   iconPosition = 'right',
   divider = true,
+  ...props
 }: AccordionProps) {
   const baseId = `accordion-${useId()}`;
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -70,7 +79,10 @@ export function Accordion({
   }
 
   return (
-    <div className={[styles.accordion, divider && styles.divided].filter(Boolean).join(' ')}>
+    <div
+      {...props}
+      className={[styles.accordion, divider && styles.divided, className].filter(Boolean).join(' ')}
+    >
       {items.map((item) => {
         const aberto = selection.selectedKeys.has(item.key);
 

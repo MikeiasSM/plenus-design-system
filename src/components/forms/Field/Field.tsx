@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { Label } from '../Label';
 import styles from './Field.module.css';
 
@@ -8,7 +8,7 @@ export interface FieldWiring {
   invalid: boolean;
 }
 
-export interface FieldProps {
+export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   'aria-describedby'?: string;
   characterCount?: number;
   children: (wiring: FieldWiring) => ReactNode;
@@ -23,6 +23,7 @@ export interface FieldProps {
 
 export function Field({
   'aria-describedby': ariaDescribedBy,
+  className,
   characterCount = 0,
   children,
   error,
@@ -32,6 +33,7 @@ export function Field({
   maxLength,
   required = false,
   showCharacterCount = false,
+  ...props
 }: FieldProps) {
   const generatedId = useId();
   const id = providedId ?? `field-${generatedId}`;
@@ -46,7 +48,7 @@ export function Field({
     .join(' ') || undefined;
 
   return (
-    <div className={styles.field}>
+    <div {...props} className={[styles.field, className].filter(Boolean).join(' ')}>
       {label && <Label htmlFor={id} required={required}>{label}</Label>}
       {children({ id, describedBy, invalid: Boolean(error) })}
       {(error || hint) && (

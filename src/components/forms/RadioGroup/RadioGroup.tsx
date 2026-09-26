@@ -1,4 +1,4 @@
-import { createContext, useContext, useId, type ReactNode } from 'react';
+import { createContext, useContext, useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import styles from './RadioGroup.module.css';
 
 interface RadioGroupContexto {
@@ -22,7 +22,7 @@ export function useRadioGroupContexto() {
   return contexto;
 }
 
-export interface RadioGroupProps {
+export interface RadioGroupProps extends Omit<ComponentPropsWithRef<'fieldset'>, 'onChange'> {
   children: ReactNode;
   defaultValue?: string;
   disabled?: boolean;
@@ -37,6 +37,7 @@ export interface RadioGroupProps {
 
 export function RadioGroup({
   children,
+  className,
   defaultValue,
   disabled = false,
   error,
@@ -46,6 +47,7 @@ export function RadioGroup({
   onValueChange,
   required = false,
   value,
+  ...props
 }: RadioGroupProps) {
   const generatedId = useId();
   const name = providedName ?? `radio-group-${generatedId}`;
@@ -57,7 +59,8 @@ export function RadioGroup({
       value={{ defaultValue, disabled, invalid: Boolean(error), name, onValueChange, value }}
     >
       <fieldset
-        className={styles.group}
+        {...props}
+        className={[styles.group, className].filter(Boolean).join(' ')}
         role="radiogroup"
         aria-describedby={describedBy}
         aria-required={required || undefined}

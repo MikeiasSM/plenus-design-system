@@ -1,9 +1,18 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from 'react';
 import styles from './Card.module.css';
 
 export type CardHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-export interface CardProps {
+export interface CardProps extends ComponentPropsWithRef<'section'> {
   children: ReactNode;
 }
 
@@ -24,7 +33,7 @@ function useCardContext(part: string) {
   return context;
 }
 
-export function Card({ children }: CardProps) {
+export function Card({ children, className, ...props }: CardProps) {
   const baseId = useId();
   const [titled, setTitled] = useState(false);
   const titleId = baseId + '-title';
@@ -35,7 +44,11 @@ export function Card({ children }: CardProps) {
   };
 
   return (
-    <section aria-labelledby={titled ? titleId : undefined} className={styles.card}>
+    <section
+      {...props}
+      aria-labelledby={titled ? titleId : undefined}
+      className={[styles.card, className].filter(Boolean).join(' ')}
+    >
       <CardContext.Provider value={context}>{children}</CardContext.Provider>
     </section>
   );
