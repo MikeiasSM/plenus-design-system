@@ -61,6 +61,20 @@ jobs:
       - name: Conferir o contraste dos tokens
         run: npm run check:contraste
 
+      # Falhar aqui, com o motivo escrito, vale mais do que falhar no `publish`
+      # com um codigo de saida mudo.
+      - name: Conferir a credencial
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::O segredo NPM_TOKEN chegou vazio."
+            echo "Confira que ele esta em Settings > Secrets and variables > Actions,"
+            echo "na aba **Secrets** e nao na aba **Variables**, com o nome exato NPM_TOKEN."
+            exit 1
+          fi
+          echo "Autenticado no npm como: $(npm whoami)"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       # O token precisa ser **granular**, com escrita no escopo `@plenustech` e
       # a dispensa de 2FA marcada: o token classico exige o codigo de seis
       # digitos, que nenhuma automacao consegue responder.
