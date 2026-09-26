@@ -68,6 +68,12 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Zero na cascata nao leva sinal, e a entrada desligada da legenda muda de cor em vez de desbotar — a opacidade derrubava o contraste abaixo do minimo.
 - A `List` retem toda opcao ja vista: com busca assincrona, resolver a escolha so contra a colecao corrente descartava o que veio de uma busca anterior. E o primeiro render monta so o suficiente para medir, em vez de dez mil nos.
 
+**A biblioteca nao se molda a uma aplicacao**
+
+- **As incompatibilidades levantadas pelo PlenusLAB estao encerradas, por decisao do mantenedor.** Tema por classe propria em vez de `:root[data-theme]`, `@container` no lugar de `@media`, ponte entre os tokens dos dois lados, indicador de aba, `radius-full` e a cor `#F87500`: sao regras daquele produto contra decisoes deste. Quem se adapta e a aplicacao.
+- O que veio do mesmo relatorio e **era defeito** foi corrigido, e esta registrado nos blocos abaixo. A fronteira e essa: defeito reproduzivel entra; preferencia de um consumidor, nao.
+- Uma unica excecao ja estava decidida antes e continua valendo: separar o CSS de pagina do CSS dos componentes. Ela nao e preferencia do PlenusLAB — e o `README.md` dizendo que as aplicacoes consomem, e uma biblioteca que reescreve o `body` do hospedeiro nao esta sendo consumida.
+
 **Contrato publico dos componentes**
 
 - **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. A regra ja valia nos campos e passou a valer nos conteineres: `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`. Sem isso o consumidor nao posicionava, nao identificava e nao instrumentava componente algum.

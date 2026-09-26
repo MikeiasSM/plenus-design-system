@@ -77,17 +77,19 @@ Decisões que você fechou nesta sessão: manter `paletteWithAccent`, `resolveSe
    maior item pendente da família e é o `ListTooltip` que você descreveu.
 2. **`DataGrid`** — escopo levantado a partir do AG Grid, sem data. Você quer conversar no momento
    certo.
-3. **`--pl-chart-series-4` reprova em contraste no tema claro**, com 2,55:1 contra o piso de 3:1
+3. **Publicacao.** O pacote esta pronto e validado por instalacao real, mas falta decidir o registro
+   e resolver o contraste da serie 4. Detalhe no bloco abaixo.
+4. **`--pl-chart-series-4` reprova em contraste no tema claro**, com 2,55:1 contra o piso de 3:1
    da WCAG 1.4.11. O `npm run check:contraste` falha por causa disso. A troca tem custo:
    `brand.blue.60` levaria a série a 7,77:1, mas a separação dela para a série 1 cairia de 2,37:1
    para 1,29:1 — as duas ficariam quase iguais. Mexer aqui altera o `TOKENS-REFERENCE-COLORS.md`.
-4. **Registro de publicação.** O pacote já é publicável, mas nada obriga a publicar: a instalação
+5. **Registro de publicação.** O pacote já é publicável, mas nada obriga a publicar: a instalação
    direta do repositório privado foi validada e resolve o consumo em outra máquina. Publicar no npm
    só se passar a haver mais de um consumidor ou necessidade de versão fixada. O `README.md`
    descreve o mecanismo como variável.
-5. **Qual Showcase é o oficial** — existem duas entradas, a estática e a React. A divergência está
+6. **Qual Showcase é o oficial** — existem duas entradas, a estática e a React. A divergência está
    registrada como pendência.
-6. **Editor em blocos** — adiado. Você já tem implementação funcional em outro projeto.
+7. **Editor em blocos** — adiado. Você já tem implementação funcional em outro projeto.
 
 ---
 
