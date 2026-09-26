@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-567 testes em 71 arquivos. Build da biblioteca e do Showcase validados.
+580 testes em 72 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -59,6 +59,17 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
 
 **Correcoes vindas do primeiro consumo real**
+
+**Data e hora**
+
+- **O valor acompanha o texto.** Enquanto o que esta escrito nao e uma data e hora inteiras e permitidas, o campo nao tem valor. Antes, `18:4` na tela convivia com meia-noite no consumidor, e uma data fora dos limites ficava com o valor anterior. A regra vale nos tres seletores, e substitui a decisao anterior de ficar em silencio durante a digitacao: silencio deixava texto e valor discordando.
+- Sem hora nenhuma, meia-noite continua sendo o valor. E decisao ja fixada em teste, e a data sozinha e um instante legitimo.
+- **`null` e "controlado e vazio".** Devolver a propriedade a `undefined` nao limpa o campo, porque ali ele volta a ser nao controlado — era assim que um `form.reset()` ficava sem efeito nos tres seletores.
+- **Data digitada respeita `min`, `max` e `isDateUnavailable`.** O calendario ja as recusava; o campo era a porta dos fundos.
+- **O mes visivel segue o valor.** Digitar uma data e abrir o painel mostrava o mes corrente. E `goToMonth` leva o foco junto, senao a seta seguinte devolvia a grade ao mes anterior.
+- **Data colada sem zero a esquerda.** `1/3/2026` virava `13/20/26`: a mascara descartava os separadores e nao sabia onde cada parte comecava. ISO tambem e aceito, com o ano reordenado.
+- Passo nao positivo na lista de horarios travava a aba num laco sem fim, e a lista nao andava por teclado — faltava passar o proprio teclado ao `ListingOptions`.
+- Ids de listbox saem de `useId`: `Math.random` no `ComboBox` mudava entre servidor e cliente, e o `'hora'` fixo fazia dois seletores dividirem os ids das opcoes.
 
 - **Havia duas escalas de tamanho respondendo a mesma pergunta.** `--pl-type-*`, documentada, com nove papeis; e `--pl-size-*`, herdada do mock v8, com 11, 13 e 15 — degraus que a escala oficial nao tem. Trinta e quatro modulos usavam a documentada e oito usavam a legada, entao um botao saia com 13px ao lado de uma aba com 14px, mesmo papel e mesmo peso. O `TOKENS-REFERENCE-TYPOGRAPHY.md` tem secao propria proibindo escala paralela; ela existia. Os oito migraram, e a legada foi apagada.
 - Consequencia visivel, aceita pelo mantenedor: botao vai de 13px para 14px, botao grande de 15px para 16px e **badge de 11px para 14px** — o documento nomeia o badge junto de botoes e abas, em `type.label`.
