@@ -7,6 +7,7 @@ import {
   Time,
   getLocalTimeZone,
   now,
+  toCalendarDate,
   toCalendarDateTime,
   today,
 } from '@internationalized/date';
@@ -14,6 +15,7 @@ import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { TimeSlots } from '../TimePicker/TimeSlots';
+import { isUnavailable } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
 import styles from './DateTimePicker.module.css';
 import { IconCalendar } from '../../icons';
@@ -171,7 +173,10 @@ export function DateTimePicker({
     // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
     // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
     // consumidor com meia-noite enquanto a tela mostrava `18:4`.
-    definir(lerEntradaDataHora(mascarado));
+    const lido = lerEntradaDataHora(mascarado);
+    const dia = lido && toCalendarDate(lido);
+
+    definir(dia && !isUnavailable(dia, { isDateUnavailable, max, min }) ? lido : undefined);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {

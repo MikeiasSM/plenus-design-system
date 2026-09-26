@@ -33,13 +33,25 @@ describe('DatePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 9));
   });
 
-  it('nao reporta enquanto a data digitada nao existe', () => {
+  it('reporta ausencia enquanto a data digitada nao existe', () => {
     const mudou = vi.fn();
     const campo = montar({ onValueChange: mudou });
 
     fireEvent.change(campo, { target: { value: '3102' } });
 
-    expect(mudou).not.toHaveBeenCalled();
+    // O valor acompanha o texto: enquanto ele nao e uma data, nao ha data.
+    expect(mudou).toHaveBeenLastCalledWith(undefined);
+  });
+
+  it('recusa por digitacao a data que o calendario ja recusa', () => {
+    const mudou = vi.fn();
+    const campo = montar({ max: new CalendarDate(2026, 3, 31), onValueChange: mudou });
+
+    fireEvent.change(campo, { target: { value: '09032026' } });
+    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 9));
+
+    fireEvent.change(campo, { target: { value: '09092030' } });
+    expect(mudou).toHaveBeenLastCalledWith(undefined);
   });
 
   it('abre o calendario pela seta para baixo e escolhe um dia', () => {
