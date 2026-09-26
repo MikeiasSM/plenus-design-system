@@ -7,6 +7,7 @@ import { Field } from './forms/Field';
 import { List } from './data-display/List';
 import { Pagination } from './navigation/Pagination';
 import { RadioGroup } from './forms/RadioGroup';
+import { Radio } from './forms/RadioGroup/Radio';
 import { Table } from './data-display/Table';
 import { Tabs } from './navigation/Tabs';
 
@@ -33,7 +34,9 @@ describe('passagem de propriedades nativas', () => {
       <>
         <Accordion data-testid="acordeao" id="secoes" items={[]} />
         <Tabs data-testid="abas" items={abas} label="Abas" ref={referencia} />
-        <List data-testid="lista" items={[]} label="Lista" />
+        <List data-testid="lista" items={[]} label="Lista">
+          <List.Options />
+        </List>
         <Pagination data-testid="paginas" onPageChange={() => undefined} page={1} pageCount={3} />
       </>,
     );
@@ -49,12 +52,18 @@ describe('passagem de propriedades nativas', () => {
     render(
       <>
         <Breadcrumb data-testid="trilha" items={[{ label: 'Inicio' }]} />
-        <RadioGroup data-testid="grupo" label="Escolha" name="e" />
+        <RadioGroup data-testid="grupo" label="Escolha" name="e">
+          <Radio label="Um" value="um" />
+        </RadioGroup>
         <Table data-testid="tabela" label="Tabela" rows={[]}>
           <Table.Header>
             <Table.Column id="a">A</Table.Column>
           </Table.Header>
-          <Table.Body items={[]}>{() => <Table.Row id="x" />}</Table.Body>
+          <Table.Body items={[]}>{() => (
+              <Table.Row id="x">
+                <Table.Cell>A</Table.Cell>
+              </Table.Row>
+            )}</Table.Body>
         </Table>
         <Field data-testid="campo" label="Campo">
           {({ id }) => <input id={id} />}
