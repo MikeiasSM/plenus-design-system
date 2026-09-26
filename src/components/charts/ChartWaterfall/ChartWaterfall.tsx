@@ -83,6 +83,10 @@ function intencaoDe(step: ChartWaterfallStep): SeriesIntent {
  * sinal perderia a variacao com qualquer formatador que exiba apenas o valor.
  */
 function comSinal(value: number, formatValue: (value: number) => string) {
+  if (value === 0) {
+    return formatValue(0);
+  }
+
   return `${value < 0 ? '-' : '+'}${formatValue(Math.abs(value))}`;
 }
 

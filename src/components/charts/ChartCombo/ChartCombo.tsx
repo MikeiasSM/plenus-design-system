@@ -27,6 +27,14 @@ import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartCombo.module.css';
+/**
+ * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
+ * marcador so no hover deixaria o dado invisivel — entao ele aparece sempre.
+ */
+function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
+  return pontos[indice] !== null && !pontos[indice - 1] && !pontos[indice + 1];
+}
+
 
 export type ChartComboKind = 'bar' | 'line';
 
@@ -371,7 +379,7 @@ export function ChartCombo({
               ponto === null ? null : (
                 <circle
                   aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
-                  className={showDots ? styles.dotVisible : styles.dot}
+                  className={showDots || isolado(pontos, indice) ? styles.dotVisible : styles.dot}
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}

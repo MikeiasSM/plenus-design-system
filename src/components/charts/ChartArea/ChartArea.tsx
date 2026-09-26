@@ -24,6 +24,14 @@ import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, stackedExtremes, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartArea.module.css';
+/**
+ * Faixa sem vizinha desenhada. O contorno entre ela e o nada nao tem tracado, e
+ * o marcador so no hover deixaria o dado invisivel.
+ */
+function isolada(faixas: readonly (ChartBand | null)[], indice: number) {
+  return faixas[indice] !== null && !faixas[indice - 1] && !faixas[indice + 1];
+}
+
 
 export interface ChartAreaSeries extends SeriesAppearance {
   label: string;
@@ -271,7 +279,7 @@ export function ChartArea({
               return (
                 <circle
                   aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`}
-                  className={showDots ? styles.dotVisible : styles.dot}
+                  className={showDots || isolada(faixas, indice) ? styles.dotVisible : styles.dot}
                   cx={faixa.x}
                   cy={faixa.y1}
                   fill={cores[indiceSerie]}

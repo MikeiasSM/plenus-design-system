@@ -239,8 +239,11 @@ svg:hover .dot {
 }
 
 /* Desligada, a entrada perde cor mas continua legivel: ela e o caminho de volta. */
+/* Desligada, a entrada muda de cor em vez de desbotar: opacidade derrubava o
+   contraste abaixo do minimo, e ela precisa continuar legivel para ser o
+   caminho de volta. */
 .legendOff {
-  opacity: 0.45;
+  color: var(--pl-color-text-tertiary);
 }
 
 .legendOff .swatch {

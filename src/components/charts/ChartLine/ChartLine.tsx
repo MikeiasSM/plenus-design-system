@@ -22,6 +22,14 @@ import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartLine.module.css';
+/**
+ * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
+ * marcador so no hover deixaria o dado invisivel — entao ele aparece sempre.
+ */
+function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
+  return pontos[indice] !== null && !pontos[indice - 1] && !pontos[indice + 1];
+}
+
 
 export interface ChartLineSeries extends SeriesAppearance {
   label: string;
@@ -205,7 +213,11 @@ export function ChartLine({
               ponto === null ? null : (
                 <circle
                   aria-label={`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}
-                  className={showDots ? styles.dotVisible : styles.dot}
+                  className={
+                    showDots || isolado(pontosPorSerie[indiceSerie], indice)
+                      ? styles.dotVisible
+                      : styles.dot
+                  }
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
