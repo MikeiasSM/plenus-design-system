@@ -16,6 +16,11 @@ export interface TimePickerProps {
   hint?: string;
   id?: string;
   label?: string;
+  /**
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
+   * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
+   */
+  name?: string;
   max?: Time;
   min?: Time;
   step?: number;
@@ -32,6 +37,7 @@ export interface TimePickerProps {
 
 export function TimePicker({
   defaultValue,
+  name,
   disabled = false,
   error,
   hint,
@@ -113,6 +119,7 @@ export function TimePicker({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
+          {name !== undefined && <input name={name} type="hidden" value={escolhido ? paraTextoDeHora(escolhido) : ''} />}
           <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
             <input
               aria-describedby={describedBy}

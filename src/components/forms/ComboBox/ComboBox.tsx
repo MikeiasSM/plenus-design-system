@@ -22,6 +22,11 @@ export interface ComboBoxProps {
   hint?: string;
   id?: string;
   label?: string;
+  /**
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
+   * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
+   */
+  name?: string;
   loading?: boolean;
   onSearch?: (term: string) => void;
   onValueChange?: (value: string) => void;
@@ -34,6 +39,7 @@ export interface ComboBoxProps {
 
 export function ComboBox({
   defaultValue,
+  name,
   disabled = false,
   emptyMessage = 'Nenhum resultado',
   error,
@@ -130,6 +136,7 @@ export function ComboBox({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
+          {name !== undefined && <input name={name} type="hidden" value={chosen?.value ?? ''} />}
           <input
             ref={inputRef}
             className={[styles.input, styles[size], error && styles.error].filter(Boolean).join(' ')}

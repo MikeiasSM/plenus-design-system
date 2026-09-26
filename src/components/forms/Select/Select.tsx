@@ -22,6 +22,11 @@ export interface SelectProps {
   hint?: string;
   id?: string;
   label?: string;
+  /**
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
+   * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
+   */
+  name?: string;
   onValueChange?: (value: string) => void;
   options: readonly SelectOption[];
   placeholder?: string;
@@ -32,6 +37,7 @@ export interface SelectProps {
 
 export function Select({
   defaultValue,
+  name,
   disabled = false,
   error,
   hint,
@@ -88,6 +94,7 @@ export function Select({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
+          {name !== undefined && <input name={name} type="hidden" value={chosen?.value ?? ''} />}
           <button
             ref={triggerRef}
             className={[styles.trigger, styles[size], error && styles.error].filter(Boolean).join(' ')}

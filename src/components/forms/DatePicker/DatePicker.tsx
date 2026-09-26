@@ -20,6 +20,11 @@ export interface DatePickerProps {
   id?: string;
   isDateUnavailable?: (date: CalendarDate) => boolean;
   label?: string;
+  /**
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
+   * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
+   */
+  name?: string;
   locale?: string;
   max?: CalendarDate;
   min?: CalendarDate;
@@ -36,6 +41,7 @@ export interface DatePickerProps {
 
 export function DatePicker({
   defaultValue,
+  name,
   disabled = false,
   error,
   hint,
@@ -127,6 +133,7 @@ export function DatePicker({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
+          {name !== undefined && <input name={name} type="hidden" value={escolhido?.toString() ?? ''} />}
           <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
             <input
               aria-describedby={describedBy}
