@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useSelection, type SelectionItem, type SelectionStatus } from '../../../hooks/useSelection';
 import { containsTerm } from '../../../utils/textSearch';
 
@@ -65,12 +65,24 @@ export function useListing({
     [visible],
   );
 
+  // Toda opcao ja vista fica registrada. Com busca assincrona, `items` e
+  // trocada a cada consulta, e resolver a escolha so contra ela descartava o
+  // que veio de uma busca anterior.
+  const conhecidos = useRef(new Map<string, ListingItem>());
+
+  for (const item of items) {
+    conhecidos.current.set(item.value, item);
+  }
+
   const selection = useSelection({
     items: collection,
     mode: selectionMode,
     defaultSelectedKeys: defaultValue?.map((item) => item.value),
     selectedKeys: value?.map((item) => item.value),
-    onSelectionChange: (keys) => onSelectionChange?.(items.filter((item) => keys.has(item.value))),
+    onSelectionChange: (keys) =>
+      onSelectionChange?.(
+        [...keys].map((chave) => conhecidos.current.get(chave)).filter((item) => item !== undefined),
+      ),
   });
 
   const selected = value ?? selection.selectedItems.map(toListingItem);
