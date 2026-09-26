@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-580 testes em 72 arquivos. Build da biblioteca e do Showcase validados.
+598 testes em 79 arquivos. Build da biblioteca e do Showcase validados.
 
 ### Inventario
 
@@ -59,6 +59,22 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
 
 **Correcoes vindas do primeiro consumo real**
+
+- **Nenhuma medida, nenhum anuncio.** O grafico sem largura — SSR, aba escondida, contêiner recolhido — esperava dizendo "sem dados". Os dados estavam la; o que faltava era largura.
+- **O zero no eixo passou a ser opcional** em `ChartLine`, `ChartArea` e `ChartScatter`. Ele continua ligado por padrao, porque marca que nao parte do zero exagera a diferenca; mas um eixo de anos ia de 0 a 2200.
+- **Ponto sem vizinho aparece sempre.** A curva entre ele e o nada nao tem tracado, e o marcador so no hover deixava o dado invisivel.
+- A marca do eixo e a linha da grade sao identificadas pela **ordem**, nao pela posicao animada: com a posicao na chave, cada quadro do movimento remontava a lista inteira.
+- O centro do `ChartRadial` segue o primeiro anel **visivel**, e a espessura cede antes de o raio ficar negativo.
+- Zero na cascata nao leva sinal, e a entrada desligada da legenda muda de cor em vez de desbotar — a opacidade derrubava o contraste abaixo do minimo.
+- A `List` retem toda opcao ja vista: com busca assincrona, resolver a escolha so contra a colecao corrente descartava o que veio de uma busca anterior. E o primeiro render monta so o suficiente para medir, em vez de dez mil nos.
+
+**Contrato publico dos componentes**
+
+- **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. A regra ja valia nos campos e passou a valer nos conteineres: `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`. Sem isso o consumidor nao posicionava, nao identificava e nao instrumentava componente algum.
+- **`ref` e propriedade, nao `forwardRef`.** O React 19 a trata assim, e `mergeRefs` junta o ref interno ao de fora — sem ele, um dos dois se perdia: o interno, sobrescrito por `{...props}`, ou o de fora, sobrescrito pelo componente.
+- **`name` leva o valor ao `FormData`.** `Select`, `ComboBox` e os tres seletores nao tem controle nativo por baixo, entao um input oculto carrega o valor. Sem ele o campo simplesmente nao era enviado.
+- **O gatilho nao conta como "fora".** Em `Menu`, `Select` e nos tres seletores, o ponteiro fechava o painel e o clique do gatilho reabria em seguida. `shouldCloseOnInteractOutside` resolve nos cinco.
+- O `Breadcrumb` entrega `linkProps` inteiras ao componente de link, para o roteador que pede `to` em vez de `href`.
 
 **Data e hora**
 
