@@ -8,7 +8,9 @@ import {
   type ReactElement,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Menu.module.css';
 
@@ -25,10 +27,19 @@ export interface MenuProps {
   label: string;
 }
 
+/** Encadeia o manipulador do gatilho ao do menu, em vez de substitui-lo. */
+function encadear<E>(proprio: ((evento: E) => void) | undefined, seguinte: (evento: E) => void) {
+  return (evento: E) => {
+    proprio?.(evento);
+    seguinte(evento);
+  };
+}
+
 export function Menu({ children, items, label }: MenuProps) {
   const triggerRef = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
   const [openedWith, setOpenedWith] = useState<'first' | 'last'>('first');
+  const devolverFoco = useRef(false);
 
   function abrir(from: 'first' | 'last') {
     setOpenedWith(from);
@@ -36,21 +47,33 @@ export function Menu({ children, items, label }: MenuProps) {
   }
 
   function fechar() {
+    devolverFoco.current = true;
     setOpen(false);
-    triggerRef.current?.focus();
   }
 
+  // O foco volta ao gatilho **depois** que o menu sai. Enquanto ele esta na
+  // tela, o `FocusScope contain` puxa o foco de volta para dentro.
+  useEffect(() => {
+    if (!open && devolverFoco.current) {
+      devolverFoco.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
+  const dono = children.props;
   const trigger = cloneElement(children, {
-    ref: triggerRef,
+    ref: mergeRefs(triggerRef, (children as { ref?: React.Ref<HTMLElement> }).ref),
     'aria-haspopup': 'menu',
     'aria-expanded': open,
-    onClick: () => (open ? fechar() : abrir('first')),
-    onKeyDown: (event: KeyboardEvent) => {
+    onClick: encadear(dono.onClick as (evento: unknown) => void, () =>
+      open ? fechar() : abrir('first'),
+    ),
+    onKeyDown: encadear(dono.onKeyDown as (evento: KeyboardEvent) => void, (event: KeyboardEvent) => {
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         abrir(event.key === 'ArrowDown' ? 'first' : 'last');
       }
-    },
+    }),
   });
 
   return (
@@ -58,13 +81,18 @@ export function Menu({ children, items, label }: MenuProps) {
       {trigger}
       {open &&
         createPortal(
-          <MenuList
-            items={items}
-            label={label}
-            openedWith={openedWith}
-            onClose={fechar}
-            triggerRef={triggerRef}
-          />,
+          // O escopo proprio e o que da foco ao menu dentro de um Dialog, cujo
+          // `FocusScope contain` puxaria o foco de volta. Sem `restoreFocus`:
+          // quem devolve o foco ao gatilho e o proprio `fechar`.
+          <FocusScope contain>
+            <MenuList
+              items={items}
+              label={label}
+              openedWith={openedWith}
+              onClose={fechar}
+              triggerRef={triggerRef}
+            />
+          </FocusScope>,
           document.body,
         )}
     </>
@@ -95,7 +123,18 @@ function MenuList({
 
   // useOverlayPosition entrega toda a altura disponivel; limitamos para que
   // uma lista longa nao ocupe a tela inteira.
-  const { overlayProps } = useOverlay({ isOpen: true, onClose, isDismissable: true, shouldCloseOnBlur: false }, ref);
+  // Sem isto o gatilho conta como "fora": o ponteiro fecha o menu e o clique
+  // dele reabre em seguida, e o menu pisca sem abrir.
+  const { overlayProps } = useOverlay(
+    {
+      isOpen: true,
+      onClose,
+      isDismissable: true,
+      shouldCloseOnBlur: false,
+      shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
+    },
+    ref,
+  );
   const { overlayProps: positionProps } = useOverlayPosition({
     targetRef: triggerRef,
     overlayRef: ref,
@@ -155,6 +194,7 @@ function MenuList({
   return (
     <div
       {...overlayProps}
+      data-react-aria-top-layer="true"
       ref={ref}
       className={styles.menu}
       style={{ ...positionProps.style, maxHeight: alturaMaxima }}

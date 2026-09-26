@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
+import { mergeRefs } from '../../../utils/mergeRefs';
 import styles from './Tooltip.module.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -46,8 +47,8 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
 
   const props = children.props;
   const trigger = cloneElement(children, {
-    ref: triggerRef,
-    'aria-describedby': open ? id : undefined,
+    ref: mergeRefs(triggerRef, (children as { ref?: React.Ref<HTMLElement> }).ref),
+    'aria-describedby': open ? [props['aria-describedby'], id].filter(Boolean).join(' ') : props['aria-describedby'],
     onMouseEnter: chain(props.onMouseEnter as (e: MouseEvent) => void, () => {
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setOpen(true), delay);
@@ -91,7 +92,14 @@ function TooltipBubble({
   });
 
   return (
-    <div ref={ref} className={styles.tooltip} id={id} role="tooltip" style={overlayProps.style}>
+    <div
+      ref={ref}
+      className={styles.tooltip}
+      data-react-aria-top-layer="true"
+      id={id}
+      role="tooltip"
+      style={overlayProps.style}
+    >
       {content}
     </div>
   );

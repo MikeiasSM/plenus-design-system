@@ -59,6 +59,7 @@ function PopoverContent({
 
   return (
     <FocusScope contain restoreFocus autoFocus>
+      {/* Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara. */}
       <div
         {...overlayProps}
         ref={ref}
