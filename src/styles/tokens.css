@@ -67,18 +67,8 @@
   --pl-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
 
   /* Escala normalizada (aprovada) — UI densa, não cresce em telas grandes */
-  --pl-size-xs:   11px;   /* badges, kickers caps           */
-  --pl-size-sm:   12px;   /* metadados, labels auxiliares   */
-  --pl-size-md:   13px;   /* interface geral e tabelas      */
-  --pl-size-base: 14px;   /* parágrafo padrão               */
-  --pl-size-lg:   15px;   /* títulos de card, botões grandes */
-  --pl-size-xl:   18px;   /* títulos de seção               */
-  --pl-size-2xl:  24px;   /* títulos de página              */
-  --pl-size-3xl:  34px;   /* hero                           */
 
-  --pl-weight-medium:    500;
   --pl-weight-semibold:  600;
-  --pl-weight-bold:      700;
 
   --pl-leading-tight: 1.2;
   --pl-leading:       1.6;

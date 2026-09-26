@@ -60,6 +60,12 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Correcoes vindas do primeiro consumo real**
 
+- **Havia duas escalas de tamanho respondendo a mesma pergunta.** `--pl-type-*`, documentada, com nove papeis; e `--pl-size-*`, herdada do mock v8, com 11, 13 e 15 — degraus que a escala oficial nao tem. Trinta e quatro modulos usavam a documentada e oito usavam a legada, entao um botao saia com 13px ao lado de uma aba com 14px, mesmo papel e mesmo peso. O `TOKENS-REFERENCE-TYPOGRAPHY.md` tem secao propria proibindo escala paralela; ela existia. Os oito migraram, e a legada foi apagada.
+- Consequencia visivel, aceita pelo mantenedor: botao vai de 13px para 14px, botao grande de 15px para 16px e **badge de 11px para 14px** — o documento nomeia o badge junto de botoes e abas, em `type.label`.
+- **A coluna numerica da `Table` pegava o peso do papel sem a familia.** `data-value` e JetBrains Mono, unica familia carregada no peso 500; aplicar o peso sobre Montserrat dava seminegrito sintetizado, justamente onde o monoespacado serve para alinhar digito com digito. Medido em navegador: a celula agora sai em `JetBrains Mono` 500.
+- **As familias nao tinham defeito algum.** Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500 batem com o que a referencia manda carregar, e os nove pesos da camada semantica cabem nessa importacao.
+- O Showcase passou a importar `reset.css`. Separado o CSS de pagina, ele deixou de herdar a base tipografica e o corpo voltava aos 16px do navegador — o consumidor precisa pedir o reset, e o Showcase e um consumidor.
+
 - Um relatorio de integracao com o PlenusLAB, sobre o commit `a9df04c`, levantou cerca de cento e cinquenta pontos. As afirmacoes de maior peso foram reproduzidas antes de qualquer conserto, e uma delas **nao reproduziu**: `formatarHora('00:05', 'en-US')` devolve `00:05` no Node 24, e nao `24:05` — deve depender da versao do ICU. A troca de `hour12` por `hourCycle` foi feita assim mesmo, porque esta certa.
 - Tres dos achados eram regressoes desta mesma sessao: o `ChartBar` quebrando com serie nova, o `chartSeriesIn` sem definicao e o `prepare` arrastando o Showcase. Os tres corrigidos.
 - **O ponto e ambiguo e nao pode ser descartado sem olhar.** Em pt-BR ele separa milhar, mas teclado numerico e texto colado de origem inglesa o usam como decimal. `formatarEntradaDecimal` passou a le-lo como decimal quando e o unico e o que vem depois nao forma grupo de milhar. Antes, colar `12.50` gravava `1250`.
@@ -168,6 +174,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 - **`npm run check:contraste` reprova hoje**, com uma unica falha nao declarada: `--pl-chart-series-4` mede 2.55:1 contra a superficie clara, abaixo do piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico. Depende de decisao do mantenedor, porque o corpus normativo nao fixa piso para marca de dado e porque a alternativa tem custo: `brand.blue.60` levaria a serie a 7.77:1 contra a superficie, mas a separacao dela para a serie 1 cairia de 2.37:1 para 1.29:1.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
+- A escala tipografica paralela foi **removida**: `--pl-size-*` e os pesos `--pl-weight-bold` e `--pl-weight-medium` nao existem mais, e nada os referencia.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.

@@ -118,7 +118,11 @@
   vertical-align: middle;
 }
 
+/* O papel `data-value` e JetBrains Mono, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
+   Pegar o peso 500 sem a familia dava Montserrat sintetizada, porque so a mono
+   e carregada nesse peso — e o monoespacado e o que alinha os digitos. */
 .numeric {
+  font-family: var(--pl-font-mono);
   font-size: var(--pl-type-data-value-size);
   font-weight: var(--pl-type-data-value-weight);
   line-height: var(--pl-type-data-value-line-height);

@@ -47,7 +47,7 @@
 .sm {
   min-height: 32px;
   padding: 7px 10px;
-  font-size: var(--pl-size-sm);
+  font-size: var(--pl-type-caption-size);
 }
 
 .md {

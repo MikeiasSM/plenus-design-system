@@ -44,13 +44,13 @@ body {
 }
 
 .rail-brand strong {
-  font-size: var(--pl-size-md);
+  font-size: var(--pl-type-label-size);
 }
 
 .rail-brand small {
   margin-top: 2px;
   color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-size-xs);
+  font-size: var(--pl-type-caption-size);
 }
 
 .rail-mark {
@@ -68,7 +68,7 @@ body {
 .rail-group {
   margin: var(--pl-space-4) var(--pl-space-2) var(--pl-space-1);
   color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-size-xs);
+  font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -79,7 +79,7 @@ body {
   padding: 7px var(--pl-space-2);
   border-radius: var(--pl-radius-sm);
   color: var(--pl-color-text-secondary);
-  font-size: var(--pl-size-md);
+  font-size: var(--pl-type-label-size);
   text-decoration: none;
 }
 
@@ -103,7 +103,7 @@ body {
 .component-category {
   margin: 0 0 var(--pl-space-2);
   color: var(--pl-color-primary);
-  font-size: var(--pl-size-xs);
+  font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-weight-semibold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -157,7 +157,7 @@ body {
   align-items: center;
   gap: var(--pl-space-1);
   color: var(--pl-color-text-secondary);
-  font-size: var(--pl-size-sm);
+  font-size: var(--pl-type-caption-size);
 }
 
 .token-swatch {
@@ -183,7 +183,7 @@ body {
   align-self: flex-start;
   color: var(--pl-color-text-tertiary);
   font-family: var(--pl-font-mono);
-  font-size: var(--pl-size-xs);
+  font-size: var(--pl-type-caption-size);
   white-space: nowrap;
 }
 
@@ -230,7 +230,7 @@ body {
   background: var(--pl-color-ink);
   color: var(--pl-color-on-ink);
   font-family: var(--pl-font-mono);
-  font-size: var(--pl-size-sm);
+  font-size: var(--pl-type-caption-size);
   line-height: 1.6;
 }
 
@@ -294,7 +294,7 @@ body {
 .eyebrow {
   margin-bottom: 8px;
   color: var(--pl-color-primary);
-  font-size: var(--pl-size-sm);
+  font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;

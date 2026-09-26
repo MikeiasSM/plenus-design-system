@@ -8,7 +8,7 @@
   border: 1px solid transparent;
   border-radius: var(--pl-radius-md);
   font-family: var(--pl-font-body);
-  font-size: var(--pl-size-md);
+  font-size: var(--pl-type-label-size);
   font-weight: var(--pl-weight-semibold);
   line-height: 1.2;
   cursor: pointer;
@@ -90,7 +90,7 @@
 
 .sm {
   padding: 6px 12px;
-  font-size: var(--pl-size-sm);
+  font-size: var(--pl-type-caption-size);
 }
 
 .md {
@@ -99,5 +99,5 @@
 
 .lg {
   padding: 13px 26px;
-  font-size: var(--pl-size-lg);
+  font-size: var(--pl-type-title-size);
 }

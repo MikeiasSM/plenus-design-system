@@ -17,7 +17,7 @@ body {
   background: var(--pl-bg);
   color: var(--pl-text);
   font-family: var(--pl-font-body);
-  font-size: var(--pl-size-base);
+  font-size: var(--pl-type-body-size);
   line-height: var(--pl-leading);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
