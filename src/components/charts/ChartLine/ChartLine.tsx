@@ -35,6 +35,12 @@ export interface ChartLineProps {
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatValue?: (value: number) => string;
+  /**
+   * Inclui o zero no dominio do eixo de valor. Ligado por padrao, porque marca
+   * que nao parte do zero exagera a diferenca; para medidas que nao se comparam
+   * a ele — um ano, uma temperatura — desligue.
+   */
+  includeZero?: boolean;
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
@@ -58,6 +64,7 @@ export function ChartLine({
   emptyMessage = 'Sem dados no período',
   formatValue = formatarNumero,
   height = 260,
+  includeZero = true,
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
@@ -84,9 +91,9 @@ export function ChartLine({
       mergeDomains(
         series
           .filter((serie) => !isHidden(serie.label))
-          .map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
+          .map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero })),
       ),
-    [isHidden, series],
+    [includeZero, isHidden, series],
   );
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);

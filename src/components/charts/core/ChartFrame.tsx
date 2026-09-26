@@ -80,9 +80,12 @@ export function ChartFrame({
           ref={containerRef}
           style={fillHeight ? undefined : { minHeight: height }}
         >
-          {empty || width === 0 || height === 0 ? (
+          {/* Sem medida ainda — SSR, aba escondida, contêiner recolhido — o
+              desenho espera. Anunciar ausencia de dados ali seria mentira: eles
+              estao la, e o que falta e largura. */}
+          {empty ? (
             <p className={styles.empty}>{emptyMessage}</p>
-          ) : (
+          ) : width === 0 || height === 0 ? null : (
             <svg
               aria-labelledby={tituloId}
               className={styles.canvas}

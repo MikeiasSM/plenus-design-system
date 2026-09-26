@@ -36,6 +36,12 @@ export interface ChartScatterProps {
   formatX?: (value: number) => string;
   formatY?: (value: number) => string;
   formatZ?: (value: number) => string;
+  /**
+   * Inclui o zero no dominio dos eixos. Ligado por padrao, porque barra que nao
+   * parte do zero exagera a diferenca; para medidas que nao se comparam a ele —
+   * um ano, uma temperatura — desligue.
+   */
+  includeZero?: boolean;
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
@@ -64,6 +70,7 @@ export function ChartScatter({
   formatY = (valor) => String(valor),
   formatZ = (valor) => String(valor),
   height = 280,
+  includeZero = true,
   hiddenSeries,
   legend = 'bottom',
   legendAlign,
@@ -86,13 +93,15 @@ export function ChartScatter({
   const visiveis = useMemo(() => series.filter((serie) => !isHidden(serie.label)), [isHidden, series]);
 
   const dominioX = useMemo(
-    () => mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((ponto) => ponto.x)))),
-    [visiveis],
+    () =>
+      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.x), { includeZero }))),
+    [includeZero, visiveis],
   );
 
   const dominioY = useMemo(
-    () => mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((ponto) => ponto.y)))),
-    [visiveis],
+    () =>
+      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.y), { includeZero }))),
+    [includeZero, visiveis],
   );
 
   const maiorZ = useMemo(
