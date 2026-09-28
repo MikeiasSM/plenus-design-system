@@ -53,6 +53,9 @@
 .gap {
   min-width: 24px;
   color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
   text-align: center;
 }
 

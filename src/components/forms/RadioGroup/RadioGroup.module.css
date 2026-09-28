@@ -78,7 +78,8 @@
   cursor: not-allowed;
 }
 
-.error {
+.error,
+.error:checked {
   border-color: var(--pl-color-danger);
 }
 
@@ -93,16 +94,11 @@
   line-height: var(--pl-type-body-line-height);
 }
 
-.hint,
-.errorMessage {
-  font-size: var(--pl-type-caption-size);
-  line-height: var(--pl-type-caption-line-height);
-}
-
+/* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
 .hint {
-  color: var(--pl-color-text-tertiary);
+  composes: hint from '../Field/Field.module.css';
 }
 
 .errorMessage {
-  color: var(--pl-color-danger-text);
+  composes: errorMessage from '../Field/Field.module.css';
 }

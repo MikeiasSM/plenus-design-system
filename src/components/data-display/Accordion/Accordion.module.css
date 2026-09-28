@@ -83,7 +83,11 @@
 /* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
 .trigger:focus-visible {
   outline: 2px solid var(--pl-color-primary);
-  /* O anel desenha para dentro: `.divided` recorta por `overflow: hidden`, e um
-     anel para fora sumiria no primeiro e no ultimo item. */
+  outline-offset: 2px;
+}
+
+/* `.divided` recorta por `overflow: hidden`: ali o anel desenha para dentro, sobre o padding do item.
+   Sem divisor nao ha padding lateral, e para dentro ele caia sobre o rotulo. */
+.divided .trigger:focus-visible {
   outline-offset: -2px;
 }

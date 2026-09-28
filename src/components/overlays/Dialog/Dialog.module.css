@@ -75,6 +75,12 @@
   color: var(--pl-color-text);
 }
 
+/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
+.close:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
 .description {
   margin: 0;
   color: var(--pl-color-text-secondary);

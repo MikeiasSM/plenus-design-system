@@ -76,6 +76,12 @@
   cursor: not-allowed;
 }
 
+/* Anel de foco proprio, para dentro: a lista horizontal rola e recortaria um anel para fora. */
+.tab:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: -2px;
+}
+
 .active {
   color: var(--pl-color-on-primary-container);
 }

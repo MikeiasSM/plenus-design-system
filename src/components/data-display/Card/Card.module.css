@@ -6,6 +6,10 @@
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
 }
 
 .header {
