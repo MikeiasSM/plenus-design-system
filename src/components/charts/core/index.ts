@@ -23,7 +23,7 @@ export type {
 } from './cartesianLayout';
 export { arcAnchor, arcCentroid, arcPath, sliceAngles, VOLTA } from './arcs';
 export type { ArcAngles, ArcShape, SliceAnglesOptions } from './arcs';
-export { fitCenterText } from './centerText';
+export { centerTextRadius, fitCenterText } from './centerText';
 export type { CenterText } from './centerText';
 export { CartesianFrame } from './CartesianFrame';
 export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './CartesianFrame';

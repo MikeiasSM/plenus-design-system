@@ -4,6 +4,7 @@ import {
   VOLTA,
   arcPath,
   chartHeight,
+  centerTextRadius,
   fitCenterText,
   ringDiameter,
   useChartMetrics,
@@ -38,6 +39,7 @@ export interface ChartRadialProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
+  /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
   startAngle?: number;
   /** Raio das pontas do arco. Sem valor, o token de raio pequeno. */
@@ -51,7 +53,7 @@ export interface ChartRadialProps {
 /** Folga entre dois aneis vizinhos. */
 const ESPACO_ENTRE_ANEIS = 6;
 
-/** Raio minimo do vazio central, para o texto ainda caber. */
+/** Raio minimo do vazio central, com ou sem texto nele. */
 const PISO_DO_RAIO = 8;
 
 function emRadianos(graus: number) {
@@ -106,19 +108,26 @@ export function ChartRadial({
   const volta = Math.min(emRadianos(endAngle) - comeco, VOLTA);
 
   const raioExterno = ringDiameter(width, alturaDoDesenho) / 2;
+  const destaque = tracks.find((anel) => !isHidden(anel.label));
+  const valorDoCentro = showCenter && destaque ? formatValue(destaque.value) : undefined;
+  // O centro reserva o que o valor pede no menor degrau da escala, ate metade do raio; quem cede e a espessura dos aneis.
+  const piso =
+    valorDoCentro === undefined
+      ? PISO_DO_RAIO
+      : Math.max(PISO_DO_RAIO, Math.min(centerTextRadius(valorDoCentro, font), raioExterno / 2));
   // Com muitos aneis, espessura e folga cedem na mesma proporcao ate caber; so a espessura cedia, e os ultimos
   // aneis passavam do centro.
-  const cabe = Math.min(1, Math.max(raioExterno - PISO_DO_RAIO, 0) / (Math.max(tracks.length, 1) * (thickness + ESPACO_ENTRE_ANEIS)));
+  const cabe = Math.min(1, Math.max(raioExterno - piso, 0) / (Math.max(tracks.length, 1) * (thickness + ESPACO_ENTRE_ANEIS)));
   const espessuraCabivel = Math.max(thickness * cabe, 1);
   const folga = ESPACO_ENTRE_ANEIS * cabe;
   const raioDe = (indice: number) => raioExterno - indice * (espessuraCabivel + folga);
-  const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, PISO_DO_RAIO);
+  const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, piso);
 
   const canto = trackRadius ?? raioDoCanto;
-  const destaque = tracks.find((anel) => !isHidden(anel.label));
-  const centro = destaque
-    ? fitCenterText(formatValue(destaque.value), centerLabel ?? destaque.label, font, raioInterno * 2)
-    : undefined;
+  const centro =
+    destaque && valorDoCentro !== undefined
+      ? fitCenterText(valorDoCentro, centerLabel ?? destaque.label, font, raioInterno * 2)
+      : undefined;
 
   return (
     <ChartFrame
@@ -180,7 +189,7 @@ export function ChartRadial({
         );
       })}
 
-      {showCenter && centro && (
+      {centro && (
         <g className={styles.center}>
           <text
             className={styles.centerValue}

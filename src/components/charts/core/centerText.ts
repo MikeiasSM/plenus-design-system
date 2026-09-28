@@ -9,6 +9,18 @@ export interface CenterText {
   value: string;
 }
 
+/** Raio do vazio central em que o valor cabe inteiro no menor degrau da escala. */
+export function centerTextRadius(value: string, font: LabelFont) {
+  const menor = font.centerSteps[font.centerSteps.length - 1];
+  const largura = measureLabel(value, {
+    ...font,
+    family: menor.display ? font.headingFamily : font.family,
+    size: menor.size,
+  });
+
+  return largura / 2 + CHART_LABEL_OFFSET;
+}
+
 /**
  * Valor e rotulo do centro, no maior degrau da escala oficial em que o texto ainda cabe dentro do anel: o valor e um
  * KPI, e anel pequeno desce na escala em vez de sair dela. O SVG nao corta o que transborda; no ultimo degrau, corta-se.

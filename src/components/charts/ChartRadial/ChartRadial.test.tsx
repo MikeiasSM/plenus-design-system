@@ -84,6 +84,14 @@ describe('ChartRadial', () => {
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
 
+  it('reserva o centro para o valor inteiro, mesmo com muitos aneis', () => {
+    const oito = Array.from({ length: 8 }, (_, indice) => ({ label: 'Anel ' + indice, max: 100, value: 50 }));
+
+    render(<ChartRadial formatValue={(valor) => `${valor}%`} title="Metas" tracks={oito} />);
+
+    expect([...document.querySelectorAll('text')].map((no) => no.textContent)).toContain('50%');
+  });
+
   it('cabe com muitos aneis, cedendo espessura e folga juntas', () => {
     const muitos = Array.from({ length: 20 }, (_, indice) => ({ label: 'Anel ' + indice, max: 100, value: 50 }));
 
