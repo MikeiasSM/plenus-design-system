@@ -8,7 +8,7 @@ import {
   resolveSeriesColors,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
-} from '@plenus/index';
+} from '@plenustech/design-system';
 import {
   IconArrowDown,
   IconArrowUp,
@@ -21,7 +21,7 @@ import {
   IconClose,
   IconMinusCircle,
   IconPlusCircle,
-} from '@plenus/index';
+} from '@plenustech/design-system';
 import type {
   AxisVisibility,
   ChartLegendAlign,
@@ -29,7 +29,7 @@ import type {
   ChartSankeyAlign,
   ChartSankeyFlowColor,
   ChartSankeyFlowValuePosition,
-} from '@plenus/index';
+} from '@plenustech/design-system';
 
 const estadosBrasileiros = [
   ['ac', 'Acre'], ['al', 'Alagoas'], ['ap', 'Amapa'], ['am', 'Amazonas'],

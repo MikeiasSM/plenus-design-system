@@ -42,7 +42,7 @@
     "check:pacote": "node scripts/check-pacote.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build:pacote",
-    "build:showcase": "vite build --config showcase/vite.config.ts",
+    "build:showcase": "npm run build:pacote && vite build --config showcase/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
