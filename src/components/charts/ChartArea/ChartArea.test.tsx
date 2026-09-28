@@ -35,6 +35,18 @@ describe('ChartArea', () => {
     expect(preenchimentos()[0]).toMatch(/^url\(#/);
   });
 
+  it('clareia o gradiente rumo ao zero, e nao rumo a base, quando a serie tem negativo', () => {
+    render(<ChartArea categories={meses} series={[{ label: 'Saldo', values: [10, -10, 10] }]} title="Saldo" />);
+    const paradas = [...document.querySelectorAll('stop')].map((parada) => [
+      Number(parada.getAttribute('offset')),
+      Number(parada.getAttribute('stop-opacity')),
+    ]);
+
+    expect(paradas).toHaveLength(3);
+    expect(paradas[1]).toEqual([0.5, 0.05]);
+    expect(paradas[2][1]).toBe(0.6);
+  });
+
   it('preenche com cor solida quando as areas empilham, onde o gradiente se somaria', () => {
     render(<ChartArea categories={meses} series={series} stacked title="Volume" />);
 

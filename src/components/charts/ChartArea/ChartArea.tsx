@@ -32,6 +32,14 @@ function isolada(faixas: readonly (ChartBand | null)[], indice: number) {
   return faixas[indice] !== null && !faixas[indice - 1] && !faixas[indice + 1];
 }
 
+/** Altura do zero dentro da area da serie, de 0 no topo a 1 na base. O degrade clareia rumo a ele pelos dois lados. */
+function alturaDoZero(faixas: readonly (ChartBand | null)[], base: number) {
+  const pontas = faixas.flatMap((faixa) => (faixa === null ? [] : [faixa.y1]));
+  const topo = Math.min(base, ...pontas);
+  const fundo = Math.max(base, ...pontas);
+
+  return fundo > topo ? (base - topo) / (fundo - topo) : 1;
+}
 
 export interface ChartAreaSeries extends SeriesAppearance {
   label: string;
@@ -227,12 +235,17 @@ export function ChartArea({
           baixo. O contorno em cor cheia e que marca o limite de cada faixa. */}
       {!stacked && (
         <defs>
-          {series.map((serie, indice) => (
-            <linearGradient id={`${gradienteId}-${indice}`} key={indice} x1="0" x2="0" y1="0" y2="1">
-              <stop offset="5%" stopColor={cores[indice]} stopOpacity={0.6} />
-              <stop offset="95%" stopColor={cores[indice]} stopOpacity={0.05} />
-            </linearGradient>
-          ))}
+          {series.map((serie, indice) => {
+            const zero = alturaDoZero(faixasPorSerie[indice], base);
+
+            return (
+              <linearGradient id={`${gradienteId}-${indice}`} key={indice} x1="0" x2="0" y1="0" y2="1">
+                {zero > 0 && <stop offset={zero * 0.05} stopColor={cores[indice]} stopOpacity={0.6} />}
+                <stop offset={zero} stopColor={cores[indice]} stopOpacity={0.05} />
+                {zero < 1 && <stop offset={zero + (1 - zero) * 0.95} stopColor={cores[indice]} stopOpacity={0.6} />}
+              </linearGradient>
+            );
+          })}
         </defs>
       )}
 
