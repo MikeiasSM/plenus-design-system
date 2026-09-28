@@ -131,3 +131,67 @@ describe('participacao no formulario', () => {
     expect(campo.current).toBe(screen.getByRole('combobox', { name: 'Cidade' }));
   });
 });
+
+describe('propriedades nativas dos campos sem controle nativo', () => {
+  it('nomeia, descreve e ouve o controle de Select, ComboBox e seletores', () => {
+    const saiu = vi.fn();
+
+    render(
+      <>
+        <span id="fora">Obrigatorio para faturar</span>
+        <Select aria-describedby="fora" aria-label="Status" onBlur={saiu} options={opcoes} />
+        <ComboBox aria-describedby="fora" aria-label="Cidade" onBlur={saiu} options={opcoes} />
+        <DatePicker aria-describedby="fora" aria-label="Vencimento" onBlur={saiu} />
+        <TimePicker aria-describedby="fora" aria-label="Inicio" onBlur={saiu} />
+        <DateTimePicker aria-describedby="fora" aria-label="Agenda" onBlur={saiu} />
+      </>,
+    );
+
+    const controles = [
+      screen.getByRole('combobox', { name: 'Status' }),
+      screen.getByRole('combobox', { name: 'Cidade' }),
+      screen.getByRole('textbox', { name: 'Vencimento' }),
+      screen.getByRole('textbox', { name: 'Inicio' }),
+      screen.getByRole('textbox', { name: 'Agenda' }),
+    ];
+
+    for (const controle of controles) {
+      expect(controle).toHaveAccessibleDescription('Obrigatorio para faturar');
+      fireEvent.blur(controle);
+    }
+
+    expect(saiu).toHaveBeenCalledTimes(controles.length);
+  });
+
+  it('entrega o ref do campo de texto dos seletores e soma a classe a caixa', () => {
+    const campo = createRef<HTMLInputElement>();
+
+    render(<DatePicker className="largo" label="Vencimento" ref={campo} />);
+
+    expect(campo.current).toBe(screen.getByLabelText('Vencimento'));
+    expect(campo.current?.parentElement).toHaveClass('largo');
+  });
+
+  it('barra o envio do campo obrigatorio vazio e libera com o valor', () => {
+    const { rerender } = render(
+      <form data-testid="formulario">
+        <Select label="Status" name="status" options={opcoes} required />
+        <DatePicker label="Vencimento" name="vencimento" required />
+      </form>,
+    );
+
+    const formulario = screen.getByTestId('formulario') as HTMLFormElement;
+
+    expect(formulario.checkValidity()).toBe(false);
+
+    rerender(
+      <form data-testid="formulario">
+        <Select label="Status" name="status" options={opcoes} required value="ativo" />
+        <DatePicker label="Vencimento" name="vencimento" required value={new CalendarDate(2026, 3, 9)} />
+      </form>,
+    );
+
+    expect(formulario.checkValidity()).toBe(true);
+    expect(enviado()).toEqual({ status: 'ativo', vencimento: '2026-03-09' });
+  });
+});

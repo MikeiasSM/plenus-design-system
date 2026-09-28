@@ -1,4 +1,13 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react';
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
@@ -6,6 +15,7 @@ import { useListing, type Listing } from '../../data-display/List/useListing';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Field } from '../Field';
+import { FormValue } from '../Field/FormValue';
 import styles from './Select.module.css';
 import { IconChevronDown } from '../../icons';
 
@@ -17,12 +27,12 @@ export interface SelectOption {
   value: string;
 }
 
-export interface SelectProps {
+/** As propriedades nativas vao ao gatilho, que e o controle; o `className` soma ao do sistema. */
+export interface SelectProps
+  extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'defaultValue' | 'name' | 'onChange' | 'type' | 'value'> {
   defaultValue?: string;
-  disabled?: boolean;
   error?: string;
   hint?: string;
-  id?: string;
   label?: string;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
@@ -32,13 +42,14 @@ export interface SelectProps {
   onValueChange?: (value: string) => void;
   options: readonly SelectOption[];
   placeholder?: string;
-  ref?: Ref<HTMLButtonElement>;
   required?: boolean;
   size?: SelectSize;
   value?: string;
 }
 
 export function Select({
+  'aria-describedby': ariaDescribedBy,
+  className,
   defaultValue,
   name,
   disabled = false,
@@ -46,6 +57,8 @@ export function Select({
   hint,
   id: providedId,
   label,
+  onClick,
+  onKeyDown,
   onValueChange,
   options,
   placeholder = 'Selecione',
@@ -53,6 +66,7 @@ export function Select({
   required = false,
   size = 'md',
   value,
+  ...props
 }: SelectProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -91,20 +105,39 @@ export function Select({
   }
 
   function handleTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    onKeyDown?.(event);
+
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
       event.preventDefault();
       abrir();
     }
   }
 
+  function handleTriggerClick(event: MouseEvent<HTMLButtonElement>) {
+    onClick?.(event);
+
+    if (open) {
+      fechar();
+    } else {
+      abrir();
+    }
+  }
+
   return (
-    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input disabled={disabled} name={name} type="hidden" value={chosen?.value ?? ''} />}
+          <FormValue
+            disabled={disabled}
+            name={name}
+            onFocus={() => triggerRef.current?.focus()}
+            required={required}
+            value={chosen?.value ?? ''}
+          />
           <button
+            {...props}
             ref={mergedRef}
-            className={[styles.trigger, styles[size], error && styles.error].filter(Boolean).join(' ')}
+            className={[styles.trigger, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
             type="button"
             id={id}
             role="combobox"
@@ -114,7 +147,7 @@ export function Select({
             aria-expanded={open}
             aria-required={required || undefined}
             disabled={disabled}
-            onClick={() => (open ? fechar() : abrir())}
+            onClick={handleTriggerClick}
             onKeyDown={handleTriggerKeyDown}
           >
             <span className={chosen?.label ? styles.value : styles.placeholder}>{chosen?.label || placeholder}</span>

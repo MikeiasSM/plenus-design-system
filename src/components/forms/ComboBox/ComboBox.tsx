@@ -1,4 +1,13 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react';
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type FocusEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
@@ -6,6 +15,7 @@ import { useListing } from '../../data-display/List/useListing';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Field } from '../Field';
+import { FormValue } from '../Field/FormValue';
 import styles from './ComboBox.module.css';
 
 export type ComboBoxSize = 'sm' | 'md';
@@ -16,13 +26,13 @@ export interface ComboBoxOption {
   value: string;
 }
 
-export interface ComboBoxProps {
+/** As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma ao do sistema. */
+export interface ComboBoxProps
+  extends Omit<ComponentPropsWithRef<'input'>, 'defaultValue' | 'name' | 'onChange' | 'size' | 'type' | 'value'> {
   defaultValue?: string;
-  disabled?: boolean;
   emptyMessage?: string;
   error?: string;
   hint?: string;
-  id?: string;
   label?: string;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
@@ -33,14 +43,13 @@ export interface ComboBoxProps {
   onSearch?: (term: string) => void;
   onValueChange?: (value: string) => void;
   options: readonly ComboBoxOption[];
-  placeholder?: string;
-  ref?: Ref<HTMLInputElement>;
-  required?: boolean;
   size?: ComboBoxSize;
   value?: string;
 }
 
 export function ComboBox({
+  'aria-describedby': ariaDescribedBy,
+  className,
   defaultValue,
   name,
   disabled = false,
@@ -50,6 +59,9 @@ export function ComboBox({
   id: providedId,
   label,
   loading = false,
+  onBlur,
+  onClick,
+  onKeyDown,
   onSearch,
   onValueChange,
   options,
@@ -58,6 +70,7 @@ export function ComboBox({
   required = false,
   size = 'md',
   value,
+  ...props
 }: ComboBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -116,6 +129,8 @@ export function ComboBox({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    onKeyDown?.(event);
+
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
@@ -143,13 +158,20 @@ export function ComboBox({
   }
 
   return (
-    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input disabled={disabled} name={name} type="hidden" value={chosen?.value ?? ''} />}
+          <FormValue
+            disabled={disabled}
+            name={name}
+            onFocus={() => inputRef.current?.focus()}
+            required={required}
+            value={chosen?.value ?? ''}
+          />
           <input
+            {...props}
             ref={mergedRef}
-            className={[styles.input, styles[size], error && styles.error].filter(Boolean).join(' ')}
+            className={[styles.input, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
             id={id}
             type="text"
             role="combobox"
@@ -165,13 +187,19 @@ export function ComboBox({
             placeholder={placeholder}
             value={texto}
             // Sair do campo desfaz a busca: o texto volta a dizer o que esta escolhido.
-            onBlur={fechar}
+            onBlur={(event: FocusEvent<HTMLInputElement>) => {
+              fechar();
+              onBlur?.(event);
+            }}
             onChange={(event) => {
               setFiltering(true);
               setOpen(true);
               listing.filter(event.target.value);
             }}
-            onClick={() => setOpen(true)}
+            onClick={(event: MouseEvent<HTMLInputElement>) => {
+              setOpen(true);
+              onClick?.(event);
+            }}
             onKeyDown={handleKeyDown}
           />
           {open &&

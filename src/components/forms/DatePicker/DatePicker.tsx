@@ -1,19 +1,29 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { isUnavailable } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
+import { FormValue } from '../Field/FormValue';
 import { Calendar } from './Calendar';
 import styles from './DatePicker.module.css';
 import { IconCalendar } from '../../icons';
 
 export type DatePickerSize = 'sm' | 'md';
 
-export interface DatePickerProps {
+/**
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * se posiciona e dimensiona.
+ */
+export interface DatePickerProps
+  extends Omit<
+    ComponentPropsWithRef<'input'>,
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value'
+  > {
   defaultValue?: CalendarDate;
   disabled?: boolean;
   error?: string;
@@ -42,6 +52,8 @@ export interface DatePickerProps {
 }
 
 export function DatePicker({
+  'aria-describedby': ariaDescribedBy,
+  className,
   defaultValue,
   name,
   disabled = false,
@@ -54,10 +66,14 @@ export function DatePicker({
   max,
   min,
   onValueChange,
+  onBlur,
+  onKeyDown,
   placeholder = 'dd/mm/aaaa',
   required = false,
   size = 'md',
+  ref,
   value,
+  ...props
 }: DatePickerProps) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -67,10 +83,12 @@ export function DatePicker({
   const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
-  const inputRef = useFormReset<HTMLInputElement>(() => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(defaultValue ?? null);
     setDigitando(false);
   });
+  const mergedRef = useMergedRefs(inputRef, resetRef, ref);
   const [rascunho, setRascunho] = useState(escolhido);
   const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
 
@@ -115,6 +133,8 @@ export function DatePicker({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    onKeyDown?.(event);
+
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
@@ -145,14 +165,22 @@ export function DatePicker({
   });
 
   return (
-    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && (
-            <input disabled={disabled} name={name} type="hidden" value={escolhido?.toString() ?? ''} />
-          )}
-          <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
+          <FormValue
+            disabled={disabled}
+            name={name}
+            onFocus={() => inputRef.current?.focus()}
+            required={required}
+            value={escolhido?.toString() ?? ''}
+          />
+          <div
+            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            ref={fieldRef}
+          >
             <input
+              {...props}
               aria-describedby={describedBy}
               aria-invalid={invalid || undefined}
               aria-required={required || undefined}
@@ -161,11 +189,14 @@ export function DatePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={() => setDigitando(false)}
+              onBlur={(event) => {
+                setDigitando(false);
+                onBlur?.(event);
+              }}
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              ref={inputRef}
+              ref={mergedRef}
               type="text"
               value={exibido}
             />

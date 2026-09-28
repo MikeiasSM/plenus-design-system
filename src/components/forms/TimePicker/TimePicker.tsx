@@ -1,17 +1,27 @@
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
 import { Field } from '../Field';
+import { FormValue } from '../Field/FormValue';
 import { TimeSlots, isTimeAllowed, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 import { IconClock } from '../../icons';
 
 export type TimePickerSize = 'sm' | 'md';
 
-export interface TimePickerProps {
+/**
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * se posiciona e dimensiona.
+ */
+export interface TimePickerProps
+  extends Omit<
+    ComponentPropsWithRef<'input'>,
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
+  > {
   defaultValue?: Time;
   disabled?: boolean;
   error?: string;
@@ -39,6 +49,8 @@ export interface TimePickerProps {
 }
 
 export function TimePicker({
+  'aria-describedby': ariaDescribedBy,
+  className,
   defaultValue,
   name,
   disabled = false,
@@ -50,10 +62,14 @@ export function TimePicker({
   min,
   step = 30,
   onValueChange,
+  onBlur,
+  onKeyDown,
   placeholder = 'hh:mm',
   required = false,
   size = 'md',
+  ref,
   value,
+  ...props
 }: TimePickerProps) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -66,10 +82,12 @@ export function TimePicker({
   const [digitando, setDigitando] = useState(false);
   const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const exibido = digitando ? texto : paraTextoDeHora(escolhido);
-  const inputRef = useFormReset<HTMLInputElement>(() => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(defaultValue ?? null);
     setDigitando(false);
   });
+  const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: Time | null) {
@@ -98,6 +116,8 @@ export function TimePicker({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    onKeyDown?.(event);
+
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
@@ -128,14 +148,22 @@ export function TimePicker({
   });
 
   return (
-    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && (
-            <input disabled={disabled} name={name} type="hidden" value={paraTextoDeHora(escolhido)} />
-          )}
-          <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
+          <FormValue
+            disabled={disabled}
+            name={name}
+            onFocus={() => inputRef.current?.focus()}
+            required={required}
+            value={paraTextoDeHora(escolhido)}
+          />
+          <div
+            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            ref={fieldRef}
+          >
             <input
+              {...props}
               aria-describedby={describedBy}
               aria-invalid={invalid || undefined}
               aria-required={required || undefined}
@@ -144,11 +172,14 @@ export function TimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={() => setDigitando(false)}
+              onBlur={(event) => {
+                setDigitando(false);
+                onBlur?.(event);
+              }}
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              ref={inputRef}
+              ref={mergedRef}
               type="text"
               value={exibido}
             />

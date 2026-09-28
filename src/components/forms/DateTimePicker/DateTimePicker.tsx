@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import {
@@ -12,18 +12,28 @@ import {
   today,
 } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatarEntradaDataHora, lerEntradaDataHora } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { TimeSlots } from '../TimePicker/TimeSlots';
 import { isUnavailable } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
+import { FormValue } from '../Field/FormValue';
 import styles from './DateTimePicker.module.css';
 import { IconCalendar } from '../../icons';
 
 export type DateTimePickerSize = 'sm' | 'md';
 
-export interface DateTimePickerProps {
+/**
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * se posiciona e dimensiona.
+ */
+export interface DateTimePickerProps
+  extends Omit<
+    ComponentPropsWithRef<'input'>,
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
+  > {
   defaultValue?: CalendarDateTime;
   disabled?: boolean;
   error?: string;
@@ -65,6 +75,8 @@ function paraTexto(valor?: CalendarDateTime) {
 }
 
 export function DateTimePicker({
+  'aria-describedby': ariaDescribedBy,
+  className,
   defaultValue,
   name,
   disabled = false,
@@ -78,10 +90,14 @@ export function DateTimePicker({
   min,
   step = 30,
   onValueChange,
+  onBlur,
+  onKeyDown,
   placeholder = 'dd/mm/aaaa hh:mm',
   required = false,
   size = 'md',
+  ref,
   value,
+  ...props
 }: DateTimePickerProps) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -95,10 +111,12 @@ export function DateTimePicker({
   const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
   const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
-  const inputRef = useFormReset<HTMLInputElement>(() => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(defaultValue ?? null);
     setDigitando(false);
   });
+  const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
   useEffect(() => {
     if (open) {
@@ -149,6 +167,8 @@ export function DateTimePicker({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    onKeyDown?.(event);
+
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
@@ -179,14 +199,22 @@ export function DateTimePicker({
   });
 
   return (
-    <Field error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && (
-            <input disabled={disabled} name={name} type="hidden" value={escolhido?.toString() ?? ''} />
-          )}
-          <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
+          <FormValue
+            disabled={disabled}
+            name={name}
+            onFocus={() => inputRef.current?.focus()}
+            required={required}
+            value={escolhido?.toString() ?? ''}
+          />
+          <div
+            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            ref={fieldRef}
+          >
             <input
+              {...props}
               aria-describedby={describedBy}
               aria-invalid={invalid || undefined}
               aria-required={required || undefined}
@@ -195,11 +223,14 @@ export function DateTimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={() => setDigitando(false)}
+              onBlur={(event) => {
+                setDigitando(false);
+                onBlur?.(event);
+              }}
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              ref={inputRef}
+              ref={mergedRef}
               type="text"
               value={exibido}
             />

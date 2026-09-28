@@ -26,3 +26,12 @@
   align-self: flex-end;
   color: var(--pl-color-text-tertiary);
 }
+
+/* O valor obrigatorio vai ao envio sem aparecer; o balao do navegador nasce logo abaixo do controle. */
+.formValue {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
