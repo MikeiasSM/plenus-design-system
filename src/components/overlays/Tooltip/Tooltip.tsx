@@ -10,10 +10,11 @@ import {
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Tooltip.module.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -46,8 +47,9 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const props = children.props;
+  const mergedTriggerRef = useMergedRefs(triggerRef, props.ref as Ref<HTMLElement> | undefined);
   const trigger = cloneElement(children, {
-    ref: mergeRefs(triggerRef, (children as { ref?: React.Ref<HTMLElement> }).ref),
+    ref: mergedTriggerRef,
     'aria-describedby': open ? [props['aria-describedby'], id].filter(Boolean).join(' ') : props['aria-describedby'],
     onMouseEnter: chain(props.onMouseEnter as (e: MouseEvent) => void, () => {
       clearTimeout(timer.current);

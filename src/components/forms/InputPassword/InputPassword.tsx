@@ -8,7 +8,7 @@ import {
   type ComponentPropsWithRef,
 } from 'react';
 import { Field } from '../Field';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './InputPassword.module.css';
 
 export interface InputPasswordProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
@@ -53,6 +53,7 @@ export function InputPassword({
   const [blurred, setBlurred] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
+  const mergedRef = useMergedRefs(inputRef, ref);
   const displayedError = error ?? validationMessage;
   const inputClasses = [styles.input, styles[size], displayedError && styles.error, className]
     .filter(Boolean)
@@ -129,7 +130,7 @@ export function InputPassword({
             defaultValue={defaultValue}
             disabled={disabled}
             id={id}
-            ref={mergeRefs(inputRef, ref)}
+            ref={mergedRef}
             aria-describedby={describedBy}
             aria-invalid={invalid || ariaInvalid}
             maxLength={maxLength}

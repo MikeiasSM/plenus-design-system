@@ -1,7 +1,7 @@
 import { type ChangeEvent, type ComponentPropsWithRef } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './InputText.module.css';
 
 export type InputTextSize = 'sm' | 'md';
@@ -33,6 +33,7 @@ export function InputText({
   ...props
 }: InputTextProps) {
   const { ref: inputRef, count, updateCount } = useCharacterCount<HTMLInputElement>(value, defaultValue);
+  const mergedRef = useMergedRefs(inputRef, ref);
   const classes = [styles.input, styles[size], error && styles.error, className]
     .filter(Boolean)
     .join(' ');
@@ -59,7 +60,7 @@ export function InputText({
           {...props}
           defaultValue={defaultValue}
           id={id}
-          ref={mergeRefs(inputRef, ref)}
+          ref={mergedRef}
           aria-describedby={describedBy}
           aria-invalid={invalid || ariaInvalid}
           className={classes}

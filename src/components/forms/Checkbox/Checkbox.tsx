@@ -1,5 +1,5 @@
 import { useCallback, useId, type ComponentPropsWithRef } from 'react';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Checkbox.module.css';
 
 export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
@@ -36,13 +36,14 @@ export function Checkbox({
     },
     [indeterminate],
   );
+  const mergedRef = useMergedRefs(aplicarIndeterminado, ref);
 
   return (
     <div className={styles.field}>
       <label className={styles.control} htmlFor={id}>
         <input
           {...props}
-          ref={mergeRefs(aplicarIndeterminado, ref)}
+          ref={mergedRef}
           className={classes}
           id={id}
           aria-describedby={describedBy}

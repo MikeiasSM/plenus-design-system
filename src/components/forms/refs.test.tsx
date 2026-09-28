@@ -67,4 +67,37 @@ describe('ref dos campos', () => {
 
     expect(vistos).toEqual(['consumidor']);
   });
+
+  it('liga o ref uma vez so, e nao a cada render', () => {
+    const chamadas: (HTMLInputElement | null)[] = [];
+    const registrar = (elemento: HTMLInputElement | null) => {
+      chamadas.push(elemento);
+    };
+
+    const { rerender, unmount } = render(<InputText hint="Um" label="Texto" ref={registrar} />);
+    rerender(<InputText hint="Dois" label="Texto" ref={registrar} />);
+
+    expect(chamadas).toHaveLength(1);
+    expect(chamadas[0]).toBeInstanceOf(HTMLInputElement);
+
+    unmount();
+
+    expect(chamadas).toEqual([expect.any(HTMLInputElement), null]);
+  });
+
+  it('roda a limpeza devolvida pelo ref, como o React 19 faz no elemento nativo', () => {
+    const eventos: string[] = [];
+    const registrar = () => {
+      eventos.push('liga');
+      return () => {
+        eventos.push('limpa');
+      };
+    };
+
+    const { rerender, unmount } = render(<InputNumber label="Numero" ref={registrar} />);
+    rerender(<InputNumber hint="Outro" label="Numero" ref={registrar} />);
+    unmount();
+
+    expect(eventos).toEqual(['liga', 'limpa']);
+  });
 });

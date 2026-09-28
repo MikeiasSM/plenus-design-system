@@ -1,4 +1,4 @@
-import { createRef } from 'react';
+import { createRef, type ComponentPropsWithRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../actions/Button';
 import { Dialog } from './Dialog';
@@ -6,6 +6,15 @@ import { Menu } from './Menu';
 import { Tooltip } from './Tooltip';
 
 const acoes = [{ key: 'editar', label: 'Editar' }];
+
+// O React avisa uma vez por tipo de elemento; um tipo so destes testes nao herda o aviso ja dado.
+function GatilhoDoMenu(props: ComponentPropsWithRef<'button'>) {
+  return <button type="button" {...props} />;
+}
+
+function AlvoDoTooltip(props: ComponentPropsWithRef<'button'>) {
+  return <button type="button" {...props} />;
+}
 
 describe('overlays aninhados em Dialog', () => {
   it('declara-se camada de cima, para o Dialog nao os esconder do leitor de tela', () => {
@@ -46,6 +55,19 @@ describe('gatilho do Menu', () => {
     expect(cliques).toEqual(['consumidor']);
     expect(screen.getByRole('menu')).toBeInTheDocument();
   });
+
+  it('le o ref do gatilho pelas propriedades, sem o aviso do React 19', () => {
+    const aviso = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    render(
+      <Menu items={acoes} label="Acoes">
+        <GatilhoDoMenu ref={createRef<HTMLButtonElement>()}>Acoes</GatilhoDoMenu>
+      </Menu>,
+    );
+
+    expect(aviso).not.toHaveBeenCalled();
+    aviso.mockRestore();
+  });
 });
 
 describe('Tooltip', () => {
@@ -80,5 +102,18 @@ describe('Tooltip', () => {
     );
 
     expect(referencia.current).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('le o ref do filho pelas propriedades, sem o aviso do React 19', () => {
+    const aviso = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    render(
+      <Tooltip content="Explicacao">
+        <AlvoDoTooltip ref={createRef<HTMLButtonElement>()}>Alvo</AlvoDoTooltip>
+      </Tooltip>,
+    );
+
+    expect(aviso).not.toHaveBeenCalled();
+    aviso.mockRestore();
   });
 });

@@ -6,11 +6,12 @@ import {
   useState,
   type KeyboardEvent,
   type ReactElement,
+  type Ref,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Menu.module.css';
 
@@ -61,8 +62,9 @@ export function Menu({ children, items, label }: MenuProps) {
   }, [open]);
 
   const dono = children.props;
+  const mergedTriggerRef = useMergedRefs(triggerRef, dono.ref as Ref<HTMLElement> | undefined);
   const trigger = cloneElement(children, {
-    ref: mergeRefs(triggerRef, (children as { ref?: React.Ref<HTMLElement> }).ref),
+    ref: mergedTriggerRef,
     'aria-haspopup': 'menu',
     'aria-expanded': open,
     onClick: encadear(dono.onClick as (evento: unknown) => void, () =>

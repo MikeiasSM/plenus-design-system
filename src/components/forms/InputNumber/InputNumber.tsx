@@ -1,6 +1,6 @@
 import { type FocusEvent, type KeyboardEvent, type Ref } from 'react';
 import { useDecimalInput } from '../../../hooks/useDecimalInput';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { InputText, type InputTextProps } from '../InputText';
 
 export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
@@ -20,6 +20,7 @@ export function InputNumber({
   ...props
 }: InputNumberProps) {
   const decimalInput = useDecimalInput({ decimalScale, defaultValue, onValueChange, value });
+  const mergedRef = useMergedRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>);
 
   function handleBlur(event: FocusEvent<HTMLInputElement>) {
     decimalInput.endEditing();
@@ -36,7 +37,7 @@ export function InputNumber({
   return (
     <InputText
       {...props}
-      ref={mergeRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>)}
+      ref={mergedRef}
       inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
       onBlur={handleBlur}
       onChange={decimalInput.handleChange}

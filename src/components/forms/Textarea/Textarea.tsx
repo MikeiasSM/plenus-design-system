@@ -1,7 +1,7 @@
 import { type ChangeEvent, type ComponentPropsWithRef } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
-import { mergeRefs } from '../../../utils/mergeRefs';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Textarea.module.css';
 
 export type TextareaSize = 'sm' | 'md';
@@ -34,6 +34,7 @@ export function Textarea({
   ...props
 }: TextareaProps) {
   const { ref: textareaRef, count, updateCount } = useCharacterCount<HTMLTextAreaElement>(value, defaultValue);
+  const mergedRef = useMergedRefs(textareaRef, ref);
   const classes = [styles.textarea, styles[size], error && styles.error, className]
     .filter(Boolean)
     .join(' ');
@@ -60,7 +61,7 @@ export function Textarea({
           {...props}
           defaultValue={defaultValue}
           id={id}
-          ref={mergeRefs(textareaRef, ref)}
+          ref={mergedRef}
           aria-describedby={describedBy}
           aria-invalid={invalid || ariaInvalid}
           className={classes}
