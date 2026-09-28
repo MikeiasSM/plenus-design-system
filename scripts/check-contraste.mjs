@@ -40,6 +40,10 @@ const PARES = [
   ['--pl-color-on-primary-container', '--pl-color-primary-container', TEXTO_MINIMO, 'texto no container'],
   ['--pl-color-on-ink', '--pl-color-ink', TEXTO_MINIMO, 'texto sobre tinta'],
   ['--pl-color-on-success-container', '--pl-color-success-container', TEXTO_MINIMO, 'mensagem de sucesso'],
+  ['--pl-color-on-warning-container', '--pl-color-warning-container', TEXTO_MINIMO, 'mensagem de atencao'],
+  ['--pl-color-on-danger-container', '--pl-color-danger-container', TEXTO_MINIMO, 'mensagem de perigo'],
+  ['--pl-color-on-info-container', '--pl-color-info-container', TEXTO_MINIMO, 'mensagem informativa'],
+  ['--pl-color-danger-text', '--pl-color-surface', TEXTO_MINIMO, 'erro sob o campo'],
   ['--pl-color-primary', '--pl-color-background', CONTROLE_MINIMO, 'contorno do botao'],
   ['--pl-color-border-strong', '--pl-color-surface', CONTROLE_MINIMO, 'contorno do campo'],
   ['--pl-chart-series-1', '--pl-color-surface', CONTROLE_MINIMO, 'serie 1 no desenho'],
@@ -70,7 +74,10 @@ function declaracoesPorTema() {
   const escuro = new Map();
 
   for (const arquivo of ARQUIVOS) {
-    const css = readFileSync(resolve(raiz, arquivo), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    // Sem os `@import`: juntos do primeiro seletor, eles faziam o bloco inteiro ser descartado como regra `@`.
+    const css = readFileSync(resolve(raiz, arquivo), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/@import[^;]+;/g, '');
 
     for (const bloco of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
       const seletor = bloco[1].trim();
@@ -79,7 +86,8 @@ function declaracoesPorTema() {
         continue;
       }
 
-      const alvos = seletor.includes('data-theme') ? [escuro] : [claro, escuro];
+      // Uma lista com `:root` puro vale nos dois temas; so a que e toda escura vale so no escuro.
+      const alvos = seletor.split(',').every((parte) => parte.includes('data-theme')) ? [escuro] : [claro, escuro];
 
       for (const declaracao of bloco[2].matchAll(/(--pl-[\w-]+)\s*:\s*([^;]+);/g)) {
         for (const alvo of alvos) {
