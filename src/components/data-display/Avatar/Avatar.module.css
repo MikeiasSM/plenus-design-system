@@ -7,7 +7,7 @@
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
   font-family: var(--pl-font-body);
-  font-weight: var(--pl-weight-semibold);
+  font-weight: var(--pl-type-label-weight);
   object-fit: cover;
 }
 

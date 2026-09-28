@@ -14,20 +14,21 @@ html {
 
 body {
   margin: 0;
-  background: var(--pl-bg);
-  color: var(--pl-text);
+  background: var(--pl-color-background);
+  color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
-  line-height: var(--pl-leading);
+  line-height: var(--pl-type-body-line-height);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+/* O tamanho de cada titulo e da pagina; a entrelinha acompanha o tamanho, qualquer que seja. */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-family: var(--pl-font-heading);
-  font-weight: var(--pl-weight-semibold);
-  line-height: var(--pl-leading-tight);
+  font-weight: var(--pl-type-headline-medium-weight);
+  line-height: 1.2;
 }
 
 p, figure, blockquote { margin: 0; }
@@ -58,8 +59,8 @@ select {
 }
 
 ::selection {
-  background: var(--pl-primary);
-  color: var(--pl-on-primary);
+  background: var(--pl-color-primary);
+  color: var(--pl-color-on-primary);
 }
 
 /* Foco visivel para o que a pagina traz. Os componentes do sistema definem o
@@ -72,7 +73,7 @@ select {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--pl-border-strong);
+  background: var(--pl-color-border-strong);
   border-radius: var(--pl-radius-md);
   border: 3px solid transparent;
   background-clip: content-box;

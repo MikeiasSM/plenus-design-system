@@ -27,13 +27,14 @@
   background: var(--pl-color-surface-subtle);
 }
 
+/* O cabecalho e mono como o resto da tabela, e a mono so e carregada no peso 500. */
 .column {
   height: var(--table-head-height);
   padding: 0 var(--pl-space-3);
   border-bottom: 1px solid var(--pl-color-border);
   color: var(--pl-color-text-secondary);
   font-size: var(--pl-type-label-size);
-  font-weight: var(--pl-type-label-weight);
+  font-weight: var(--pl-type-data-value-weight);
   line-height: var(--pl-type-label-line-height);
   white-space: nowrap;
 }

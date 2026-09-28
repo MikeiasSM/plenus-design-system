@@ -64,7 +64,6 @@
 
   /* ---- Tipografia -------------------------------------------------------- */
   --pl-font-ui:   'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --pl-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
 
   /* Escala normalizada (aprovada) — UI densa, não cresce em telas grandes */
 
@@ -173,4 +172,3 @@
   --pl-font-ui: var(--pl-font-body);
 }
 
-/* Animações compartilhadas (definidas uma vez, fora dos módulos) */

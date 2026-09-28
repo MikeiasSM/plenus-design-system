@@ -9,7 +9,7 @@
   border-radius: var(--pl-radius-md);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
-  font-weight: var(--pl-weight-semibold);
+  font-weight: var(--pl-type-label-weight);
   line-height: 1.2;
   cursor: pointer;
   transition:

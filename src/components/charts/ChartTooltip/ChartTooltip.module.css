@@ -81,9 +81,13 @@
   color: var(--pl-color-text-tertiary);
 }
 
-/* A linha sob o ponteiro sobe de tom; as demais continuam legiveis. */
+/* A linha sob o ponteiro sobe de tom; as demais continuam legiveis. So o rotulo ganha peso:
+   a mono dos valores so e carregada em 500. */
 .emphasis {
   color: var(--pl-color-text);
+}
+
+.label.emphasis {
   font-weight: var(--pl-type-label-weight);
 }
 
