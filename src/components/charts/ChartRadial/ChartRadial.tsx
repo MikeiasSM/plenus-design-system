@@ -106,13 +106,12 @@ export function ChartRadial({
   const volta = Math.min(emRadianos(endAngle) - comeco, VOLTA);
 
   const raioExterno = ringDiameter(width, alturaDoDesenho) / 2;
-  // Com muitos aneis a conta passava do centro e devolvia raio negativo, que o
-  // SVG nao desenha. A espessura cede antes disso.
-  const espessuraCabivel = Math.min(
-    thickness,
-    Math.max((raioExterno - PISO_DO_RAIO) / Math.max(tracks.length, 1) - ESPACO_ENTRE_ANEIS, 1),
-  );
-  const raioDe = (indice: number) => raioExterno - indice * (espessuraCabivel + ESPACO_ENTRE_ANEIS);
+  // Com muitos aneis, espessura e folga cedem na mesma proporcao ate caber; so a espessura cedia, e os ultimos
+  // aneis passavam do centro.
+  const cabe = Math.min(1, Math.max(raioExterno - PISO_DO_RAIO, 0) / (Math.max(tracks.length, 1) * (thickness + ESPACO_ENTRE_ANEIS)));
+  const espessuraCabivel = Math.max(thickness * cabe, 1);
+  const folga = ESPACO_ENTRE_ANEIS * cabe;
+  const raioDe = (indice: number) => raioExterno - indice * (espessuraCabivel + folga);
   const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, PISO_DO_RAIO);
 
   const canto = trackRadius ?? raioDoCanto;

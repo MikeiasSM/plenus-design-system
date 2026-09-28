@@ -26,6 +26,9 @@ export interface TooltipProps {
   placement?: TooltipPlacement;
 }
 
+/** Tempo para o ponteiro atravessar a folga entre o gatilho e o balao. */
+const TRAVESSIA = 120;
+
 function chain<E>(own: ((event: E) => void) | undefined, next: (event: E) => void) {
   return (event: E) => {
     own?.(event);
@@ -44,6 +47,12 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
     setOpen(false);
   }, []);
 
+  // O balao aceita o ponteiro (WCAG 1.4.13): sair do gatilho espera a travessia ate ele antes de fechar.
+  const hideSoon = useCallback(() => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen(false), TRAVESSIA);
+  }, []);
+
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const props = children.props;
@@ -55,7 +64,7 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setOpen(true), delay);
     }),
-    onMouseLeave: chain(props.onMouseLeave as (e: MouseEvent) => void, hide),
+    onMouseLeave: chain(props.onMouseLeave as (e: MouseEvent) => void, hideSoon),
     onFocus: chain(props.onFocus as (e: FocusEvent) => void, () => setOpen(true)),
     onBlur: chain(props.onBlur as (e: FocusEvent) => void, hide),
     onKeyDown: chain(props.onKeyDown as (e: KeyboardEvent) => void, (event) => {
@@ -68,7 +77,18 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
   return (
     <>
       {trigger}
-      {open && createPortal(<TooltipBubble content={content} id={id} placement={placement} triggerRef={triggerRef} />, document.body)}
+      {open &&
+        createPortal(
+          <TooltipBubble
+            content={content}
+            id={id}
+            onMouseEnter={() => clearTimeout(timer.current)}
+            onMouseLeave={hide}
+            placement={placement}
+            triggerRef={triggerRef}
+          />,
+          document.body,
+        )}
     </>
   );
 }
@@ -76,11 +96,15 @@ export function Tooltip({ children, content, delay = 500, placement = 'top' }: T
 function TooltipBubble({
   content,
   id,
+  onMouseEnter,
+  onMouseLeave,
   placement,
   triggerRef,
 }: {
   content: ReactNode;
   id: string;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
   placement: TooltipPlacement;
   triggerRef: React.RefObject<HTMLElement | null>;
 }) {
@@ -99,6 +123,8 @@ function TooltipBubble({
       className={styles.tooltip}
       data-react-aria-top-layer="true"
       id={id}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       role="tooltip"
       style={overlayProps.style}
     >

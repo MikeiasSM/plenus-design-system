@@ -51,4 +51,28 @@ describe('Tooltip', () => {
     expect(onFocus).toHaveBeenCalled();
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
   });
+
+  it('continua aberto enquanto o ponteiro atravessa ate o balao, como pede a WCAG 1.4.13', () => {
+    vi.useFakeTimers();
+    render(
+      <Tooltip content="Explicacao" delay={0}>
+        <button type="button">Alvo</button>
+      </Tooltip>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.mouseEnter(alvo);
+    act(() => vi.runAllTimers());
+    fireEvent.mouseLeave(alvo);
+    fireEvent.mouseEnter(screen.getByRole('tooltip'));
+    act(() => vi.runAllTimers());
+
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.mouseLeave(screen.getByRole('tooltip'));
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
 });

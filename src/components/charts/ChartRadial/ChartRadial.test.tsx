@@ -83,4 +83,16 @@ describe('ChartRadial', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
+
+  it('cabe com muitos aneis, cedendo espessura e folga juntas', () => {
+    const muitos = Array.from({ length: 20 }, (_, indice) => ({ label: 'Anel ' + indice, max: 100, value: 50 }));
+
+    render(<ChartRadial title="Metas" tracks={muitos} />);
+
+    // O anel que passa do centro vira um ponto, `M0,0Z`: so a espessura cedia, e os ultimos sumiam.
+    const degenerados = pistas().filter((pista) => /^M0,0Z?$/.test(pista.getAttribute('d') ?? ''));
+
+    expect(pistas()).toHaveLength(20);
+    expect(degenerados).toHaveLength(0);
+  });
 });

@@ -9,12 +9,12 @@ describe('InputPassword', () => {
     const toggle = screen.getByRole('button', { name: 'Mostrar senha' });
 
     expect(input).toHaveAttribute('type', 'password');
-    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).not.toHaveAttribute('aria-pressed');
 
     fireEvent.click(toggle);
 
     expect(input).toHaveAttribute('type', 'text');
-    expect(screen.getByRole('button', { name: 'Ocultar senha' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Ocultar senha' })).toHaveTextContent('Ocultar');
   });
 
   it('preserves native password behavior and autocomplete', () => {
@@ -29,6 +29,7 @@ describe('InputPassword', () => {
     const input = screen.getByLabelText('Senha');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAccessibleDescription('Senha obrigatoria.');
+    expect(screen.queryByText(/\/20/)).not.toBeInTheDocument();
   });
 
   it('hides the password again when the form is submitted', () => {

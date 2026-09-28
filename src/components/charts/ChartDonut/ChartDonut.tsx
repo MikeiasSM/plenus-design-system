@@ -83,7 +83,7 @@ export function ChartDonut({
 
   const diametro = ringDiameter(width, alturaDoDesenho);
   const raio = diametro / 2;
-  const raioInterno = raio * (1 - thickness);
+  const raioInterno = raio * (1 - Math.min(Math.max(thickness, 0), 1));
 
   const canto = sliceRadius ?? raioDoCanto;
   const focada = anel.focused === null ? undefined : anel.slices[anel.focused];

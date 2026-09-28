@@ -10,8 +10,9 @@ describe('formatarEntradaMonetaria', () => {
     expect(formatarEntradaMonetaria('165789,50')).toBe('R$ 165.789,50');
   });
 
-  it('aceita outra moeda sem alterar a regra decimal', () => {
-    expect(formatarEntradaMonetaria('1234,5', 'USD')).toBe('USD 1.234,50');
+  it('aceita outra moeda sem alterar a regra decimal, com o simbolo dela', () => {
+    expect(formatarEntradaMonetaria('1234,5', 'USD')).toBe('US$ 1.234,50');
+    expect(formatarEntradaMonetaria('1234,5', 'XYZ1')).toBe('XYZ1 1.234,50');
   });
 
   it('formata a entrada vazia como zero', () => {

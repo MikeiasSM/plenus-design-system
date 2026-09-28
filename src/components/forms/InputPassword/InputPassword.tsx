@@ -147,7 +147,6 @@ export function InputPassword({
               className={styles.toggle}
               type="button"
               aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
-              aria-pressed={visible}
               disabled={disabled}
               onClick={() => setVisible((current) => !current)}
             >
