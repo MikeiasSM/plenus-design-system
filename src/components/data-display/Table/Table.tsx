@@ -257,7 +257,7 @@ function TableHeader({ children }: TableHeaderProps) {
             <input
               aria-label="Selecionar todas as linhas"
               checked={selection.status === 'all'}
-              className={styles.control}
+              className={styles.checkbox}
               disabled={selection.empty}
               onChange={selection.toggleAll}
               ref={(node) => {
@@ -377,7 +377,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
           <input
             aria-label={label ?? 'Selecionar linha'}
             checked={selected}
-            className={[styles.control, selection.control === 'toggle' && styles.toggle].filter(Boolean).join(' ')}
+            className={styles[selection.control]}
             disabled={disabled}
             name={selection.control === 'radio' ? `${baseId}-selecao` : undefined}
             onChange={() => undefined}

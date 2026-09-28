@@ -220,26 +220,25 @@
   text-align: center;
 }
 
-.control {
-  width: 1rem;
-  height: 1rem;
-  accent-color: var(--pl-color-primary);
-  cursor: pointer;
+/* Os controles de selecao tem o visual dos do sistema, sem trocar o elemento nativo. */
+.checkbox {
+  composes: input from '../../forms/Checkbox/Checkbox.module.css';
 }
 
-.control:disabled {
-  cursor: not-allowed;
-}
-
-/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
-.control:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
-  outline-offset: 2px;
+.radio {
+  composes: input from '../../forms/RadioGroup/RadioGroup.module.css';
 }
 
 .toggle {
-  width: 2rem;
-  height: 1.125rem;
+  composes: input from '../../forms/Switch/Switch.module.css';
+}
+
+.checkbox,
+.radio,
+.toggle {
+  margin: 0;
+  vertical-align: middle;
+  cursor: pointer;
 }
 
 .selected,
