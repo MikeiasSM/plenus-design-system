@@ -59,6 +59,8 @@ export function Tabs({
   });
   const [ativa] = selection.selectedKeys;
   const painel = items.find((item) => item.key === ativa);
+  // A lista sempre tem uma parada de Tab: com a escolhida inexistente ou desabilitada, nenhuma aba era alcancavel.
+  const parada = collection.some((item) => item.key === ativa && !item.disabled) ? ativa : primeira;
 
   useEffect(() => {
     if (selection.focusedKey) {
@@ -120,7 +122,7 @@ export function Tabs({
             aria-controls={ativa === item.key ? `${baseId}-${item.key}-panel` : undefined}
             aria-selected={ativa === item.key}
             disabled={item.disabled}
-            tabIndex={ativa === item.key ? 0 : -1}
+            tabIndex={parada === item.key ? 0 : -1}
             onClick={() => selection.select(item.key)}
           >
             {item.label}

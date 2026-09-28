@@ -88,4 +88,18 @@ describe('Tabs', () => {
     rerender(<Tabs label="Config" items={abas} selectedKey="logs" onSelectionChange={onSelectionChange} />);
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de logs');
   });
+
+  it('mantem uma aba alcancavel pelo Tab quando a escolhida nao existe ou esta desabilitada', () => {
+    const abas = [
+      { content: 'Um', disabled: true, key: 'um', label: 'Um' },
+      { content: 'Dois', key: 'dois', label: 'Dois' },
+    ];
+    const { rerender } = render(<Tabs defaultSelectedKey="um" items={abas} label="Secoes" />);
+
+    expect(screen.getByRole('tab', { name: 'Dois' })).toHaveAttribute('tabindex', '0');
+
+    rerender(<Tabs items={abas} label="Secoes" selectedKey="sumiu" />);
+
+    expect(screen.getByRole('tab', { name: 'Dois' })).toHaveAttribute('tabindex', '0');
+  });
 });
