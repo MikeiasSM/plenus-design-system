@@ -42,25 +42,32 @@ function exportsDaFonte() {
   return nomes;
 }
 
+/** Palavras-chave de `animation`, que nao sao nome de keyframe. CSS nao distingue caixa nelas. */
+const PALAVRAS_DE_ANIMACAO = new Set([
+  'alternate', 'alternate-reverse', 'backwards', 'both', 'ease', 'ease-in', 'ease-in-out', 'ease-out',
+  'forwards', 'infinite', 'inherit', 'initial', 'linear', 'none', 'normal', 'paused', 'revert',
+  'revert-layer', 'reverse', 'running', 'step-end', 'step-start', 'unset',
+]);
+
+/** Seletores sem classe que o CSS dos componentes pode ter: tokens no documento e o `box-sizing`. */
+const SELETORES_GLOBAIS = new Set([':root', ':root[data-theme=dark]', '*', '*:before', '*:after']);
+
 /**
  * Keyframe referenciado precisa existir no mesmo arquivo. O CSS Modules
  * renomeia o nome na declaracao `animation` mesmo quando ele foi definido num
  * arquivo global, e a referencia deixa de casar — em silencio, porque CSS nao
- * reclama de animacao inexistente.
+ * reclama de animacao inexistente. Nome por `var()` escapa a conferencia.
  */
-function keyframesOrfaos() {
-  const css = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8');
-  const definidos = new Set([...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]));
-  const palavraChave = new Set([
-    'both', 'forwards', 'backwards', 'infinite', 'linear', 'ease', 'ease-in',
-    'ease-out', 'ease-in-out', 'normal', 'none', 'alternate', 'reverse', 'paused', 'running',
-  ]);
+function keyframesOrfaos(css) {
+  const definidos = new Set([...css.matchAll(/@keyframes\s+["']?([\w-]+)/g)].map((m) => m[1]));
   const orfaos = new Set();
 
   for (const declaracao of css.matchAll(/animation(?:-name)?:([^;}]+)/g)) {
     for (const parte of declaracao[1].split(/[\s,]+/)) {
-      if (/^[_a-zA-Z][\w-]*$/.test(parte) && !palavraChave.has(parte) && !definidos.has(parte)) {
-        orfaos.add(parte);
+      const nome = parte.replace(/^["']|["']$/g, '');
+
+      if (/^[_a-zA-Z][\w-]*$/.test(nome) && !PALAVRAS_DE_ANIMACAO.has(nome.toLowerCase()) && !definidos.has(nome)) {
+        orfaos.add(nome);
       }
     }
   }
@@ -68,13 +75,50 @@ function keyframesOrfaos() {
   return [...orfaos];
 }
 
+/** Variavel usada sem ser declarada em lugar algum do CSS publicado: a regra cai no valor inicial, em silencio. */
+function variaveisSemDefinicao(css) {
+  const definidas = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
+
+  return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]))].filter((nome) => !definidas.has(nome));
+}
+
+/** Seletor sem classe no CSS dos componentes reescreve a pagina do hospedeiro; o lugar dele e o `reset.css`. */
+function seletoresDePagina(css) {
+  const semKeyframes = css.replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '');
+  const seletores = new Set();
+
+  for (const regra of semKeyframes.matchAll(/([^{}@;]+)\{[^{}]*\}/g)) {
+    for (const parte of regra[1].split(',')) {
+      const seletor = parte.trim();
+
+      if (seletor && !seletor.includes('.') && !SELETORES_GLOBAIS.has(seletor)) {
+        seletores.add(seletor);
+      }
+    }
+  }
+
+  return [...seletores];
+}
+
 exigir(arquivoComConteudo('dist/types/index.d.ts', 100), 'dist/types/index.d.ts ausente ou vazio');
 exigir(arquivoComConteudo('dist/reset.css', 500), 'dist/reset.css ausente ou pequeno demais');
-
-for (const nome of keyframesOrfaos()) {
-  falhas.push(`a animacao \`${nome}\` nao tem @keyframes no CSS publicado`);
-}
 exigir(arquivoComConteudo('dist/design-system.css', 1000), 'dist/design-system.css ausente ou pequeno demais');
+
+if (arquivoComConteudo('dist/design-system.css', 1)) {
+  const css = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+  for (const nome of keyframesOrfaos(css)) {
+    falhas.push(`a animacao \`${nome}\` nao tem @keyframes no CSS publicado`);
+  }
+
+  for (const nome of variaveisSemDefinicao(css)) {
+    falhas.push(`a variavel \`${nome}\` e usada no CSS publicado e nao e declarada nele`);
+  }
+
+  for (const seletor of seletoresDePagina(css)) {
+    falhas.push(`o seletor \`${seletor}\` no CSS dos componentes alcanca a pagina do hospedeiro`);
+  }
+}
 
 const esm = await import('../dist/plenus-design-system.es.js').catch((erro) => {
   falhas.push(`a entrada ESM nao carregou: ${erro.message}`);
@@ -109,5 +153,6 @@ if (falhas.length > 0) {
 
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
-    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}), e nenhuma animacao orfa no CSS.`,
+    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); no CSS, nenhuma animacao orfa, variavel sem declaracao ` +
+    'ou seletor de pagina.',
 );
