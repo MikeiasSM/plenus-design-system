@@ -40,26 +40,21 @@ export function Menu({ children, items, label }: MenuProps) {
   const triggerRef = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
   const [openedWith, setOpenedWith] = useState<'first' | 'last'>('first');
-  const devolverFoco = useRef(false);
 
   function abrir(from: 'first' | 'last') {
     setOpenedWith(from);
     setOpen(true);
   }
 
-  function fechar() {
-    devolverFoco.current = true;
+  // O foco volta na hora, antes de o `onSelect` montar o que vem depois, como um campo com `autoFocus` ou
+  // um Dialog, que guarda o elemento em foco para devolver. Clique fora nao devolve: o foco e de quem foi clicado.
+  function fechar(devolverFoco: boolean) {
     setOpen(false);
-  }
 
-  // O foco volta ao gatilho **depois** que o menu sai. Enquanto ele esta na
-  // tela, o `FocusScope contain` puxa o foco de volta para dentro.
-  useEffect(() => {
-    if (!open && devolverFoco.current) {
-      devolverFoco.current = false;
+    if (devolverFoco) {
       triggerRef.current?.focus();
     }
-  }, [open]);
+  }
 
   const dono = children.props;
   const mergedTriggerRef = useMergedRefs(triggerRef, dono.ref as Ref<HTMLElement> | undefined);
@@ -68,7 +63,7 @@ export function Menu({ children, items, label }: MenuProps) {
     'aria-haspopup': 'menu',
     'aria-expanded': open,
     onClick: encadear(dono.onClick as (evento: unknown) => void, () =>
-      open ? fechar() : abrir('first'),
+      open ? fechar(true) : abrir('first'),
     ),
     onKeyDown: encadear(dono.onKeyDown as (evento: KeyboardEvent) => void, (event: KeyboardEvent) => {
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -83,10 +78,9 @@ export function Menu({ children, items, label }: MenuProps) {
       {trigger}
       {open &&
         createPortal(
-          // O escopo proprio e o que da foco ao menu dentro de um Dialog, cujo
-          // `FocusScope contain` puxaria o foco de volta. Sem `restoreFocus`:
-          // quem devolve o foco ao gatilho e o proprio `fechar`.
-          <FocusScope contain>
+          // O escopo proprio poe o menu na arvore de escopos do Dialog, cujo `contain` puxaria o foco de volta.
+          // Sem `contain` aqui: ele disputaria o foco com o gatilho quando o menu fecha.
+          <FocusScope>
             <MenuList
               items={items}
               label={label}
@@ -110,7 +104,7 @@ function MenuList({
 }: {
   items: readonly MenuItem[];
   label: string;
-  onClose: () => void;
+  onClose: (devolverFoco: boolean) => void;
   openedWith: 'first' | 'last';
   triggerRef: React.RefObject<HTMLElement | null>;
 }) {
@@ -130,7 +124,7 @@ function MenuList({
   const { overlayProps } = useOverlay(
     {
       isOpen: true,
-      onClose,
+      onClose: () => onClose(false),
       isDismissable: true,
       shouldCloseOnBlur: false,
       shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
@@ -169,8 +163,8 @@ function MenuList({
       return;
     }
 
+    onClose(true);
     item.onSelect?.();
-    onClose();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -187,7 +181,7 @@ function MenuList({
       event.preventDefault();
       focusLast();
     } else if (event.key === 'Escape' || event.key === 'Tab') {
-      onClose();
+      onClose(true);
     } else if (event.key.length === 1 && !event.metaKey && !event.ctrlKey) {
       search(event.key);
     }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
 import { Menu, type MenuItem } from './Menu';
@@ -75,5 +76,68 @@ describe('Menu', () => {
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(gatilho).toHaveFocus();
+  });
+
+  it('devolve o foco ao gatilho antes do onSelect, para o que ele abrir guardar o gatilho', () => {
+    let emFoco: Element | null = null;
+
+    render(
+      <Menu items={[{ key: 'novo', label: 'Novo', onSelect: () => (emFoco = document.activeElement) }]} label="Acoes">
+        <Button>Acoes</Button>
+      </Menu>,
+    );
+
+    const gatilho = screen.getByRole('button', { name: 'Acoes' });
+
+    fireEvent.click(gatilho);
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Novo' }));
+
+    // O Dialog aberto pelo onSelect guardava o item do menu, que sai da tela, e devolvia o foco ao body.
+    expect(emFoco).toBe(gatilho);
+  });
+
+  it('nao tira o foco do campo que o onSelect acabou de mostrar', () => {
+    function Tela() {
+      const [editando, setEditando] = useState(false);
+
+      return (
+        <>
+          <Menu items={[{ key: 'renomear', label: 'Renomear', onSelect: () => setEditando(true) }]} label="Acoes">
+            <Button>Acoes</Button>
+          </Menu>
+          {editando && <input aria-label="Nome" autoFocus />}
+        </>
+      );
+    }
+
+    render(<Tela />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Renomear' }));
+
+    expect(screen.getByLabelText('Nome')).toHaveFocus();
+  });
+
+  it('deixa o foco no campo clicado fora do menu', () => {
+    render(
+      <>
+        <Menu items={itens} label="Acoes do modulo">
+          <Button>Acoes</Button>
+        </Menu>
+        <input aria-label="Busca" />
+      </>,
+    );
+
+    const busca = screen.getByLabelText('Busca');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+    fireEvent.pointerDown(busca);
+    fireEvent.mouseDown(busca);
+    busca.focus();
+    fireEvent.pointerUp(busca);
+    fireEvent.mouseUp(busca);
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(busca).toHaveFocus();
   });
 });
