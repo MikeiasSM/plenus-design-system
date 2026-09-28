@@ -52,4 +52,53 @@ describe('RadioGroup', () => {
 
     erro.mockRestore();
   });
+
+  it('keeps the consumer description next to its own', () => {
+    render(
+      <>
+        <span id="fora">Aparece na fatura</span>
+        <RadioGroup aria-describedby="fora" hint="Escolha uma." label="Forma de pagamento">
+          <Radio label="Pix" value="pix" />
+        </RadioGroup>
+      </>,
+    );
+
+    expect(screen.getByRole('radiogroup')).toHaveAccessibleDescription('Aparece na fatura Escolha uma.');
+  });
+
+  it('does not share the message id between groups with the same name', () => {
+    render(
+      <>
+        <RadioGroup hint="Primeiro" label="A" name="forma">
+          <Radio label="Pix" value="pix" />
+        </RadioGroup>
+        <RadioGroup hint="Segundo" label="B" name="forma">
+          <Radio label="Boleto" value="boleto" />
+        </RadioGroup>
+      </>,
+    );
+
+    const [primeiro, segundo] = screen.getAllByRole('radiogroup');
+
+    expect(primeiro).toHaveAccessibleDescription('Primeiro');
+    expect(segundo).toHaveAccessibleDescription('Segundo');
+  });
+
+  it('blocks an empty required group on submit and marks the error', () => {
+    render(
+      <form data-testid="formulario">
+        <RadioGroup error="Escolha uma opcao." label="Forma de pagamento" required>
+          <Radio label="Pix" value="pix" />
+          <Radio label="Boleto" value="boleto" />
+        </RadioGroup>
+      </form>,
+    );
+
+    expect((screen.getByTestId('formulario') as HTMLFormElement).checkValidity()).toBe(false);
+    expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-invalid', 'true');
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Pix' }));
+
+    expect((screen.getByTestId('formulario') as HTMLFormElement).checkValidity()).toBe(true);
+  });
 });

@@ -9,6 +9,7 @@ export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type'
 
 export function Switch({
   'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   className,
   error,
   hint,
@@ -34,7 +35,7 @@ export function Switch({
           className={classes}
           id={id}
           aria-describedby={describedBy}
-          aria-invalid={error ? true : undefined}
+          aria-invalid={error ? true : ariaInvalid}
           role="switch"
           type="checkbox"
         />

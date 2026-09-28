@@ -34,6 +34,7 @@ export function Radio({
         defaultChecked={controlado ? undefined : grupo.defaultValue === value}
         disabled={disabled ?? grupo.disabled}
         name={grupo.name}
+        required={grupo.required}
         onChange={(evento: ChangeEvent<HTMLInputElement>) => {
           grupo.onValueChange?.(value);
           onChange?.(evento);

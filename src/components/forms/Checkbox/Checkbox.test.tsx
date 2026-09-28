@@ -27,4 +27,10 @@ describe('Checkbox', () => {
     expect(caixa).toHaveAttribute('aria-invalid', 'true');
     expect(caixa).toHaveAccessibleDescription('Campo obrigatorio.');
   });
+
+  it('keeps the invalid state the consumer declares', () => {
+    render(<Checkbox aria-invalid label="Aceito os termos" />);
+
+    expect(screen.getByRole('checkbox', { name: 'Aceito os termos' })).toHaveAttribute('aria-invalid', 'true');
+  });
 });

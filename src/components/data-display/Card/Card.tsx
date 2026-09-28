@@ -17,7 +17,7 @@ export interface CardProps extends ComponentPropsWithRef<'section'> {
 }
 
 interface CardContextValue {
-  registerTitle: () => void;
+  registerTitle: () => () => void;
   titleId: string;
 }
 
@@ -33,20 +33,24 @@ function useCardContext(part: string) {
   return context;
 }
 
-export function Card({ children, className, ...props }: CardProps) {
+export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, ...props }: CardProps) {
   const baseId = useId();
   const [titled, setTitled] = useState(false);
   const titleId = baseId + '-title';
 
+  // O titulo que sai da tela desfaz o registro; senao o cartao apontava para um id que nao existe mais.
   const context: CardContextValue = {
-    registerTitle: useCallback(() => setTitled(true), []),
+    registerTitle: useCallback(() => {
+      setTitled(true);
+      return () => setTitled(false);
+    }, []),
     titleId,
   };
 
   return (
     <section
       {...props}
-      aria-labelledby={titled ? titleId : undefined}
+      aria-labelledby={ariaLabelledBy ?? (titled ? titleId : undefined)}
       className={[styles.card, className].filter(Boolean).join(' ')}
     >
       <CardContext.Provider value={context}>{children}</CardContext.Provider>

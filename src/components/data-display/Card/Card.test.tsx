@@ -61,4 +61,33 @@ describe('Card', () => {
 
     expect(container.querySelector('[class*="bodyFlush"]')).toBeInTheDocument();
   });
+
+  it('respeita o nome que o consumidor da ao cartao', () => {
+    render(
+      <>
+        <h2 id="de-fora">Resumo do mes</h2>
+        <Card aria-labelledby="de-fora">
+          <Card.Header title="Membros da equipe" />
+        </Card>
+      </>,
+    );
+
+    expect(screen.getByRole('region', { name: 'Resumo do mes' })).toBeInTheDocument();
+  });
+
+  it('perde o nome quando o cabecalho sai, em vez de apontar para um id que nao existe', () => {
+    const { rerender } = render(
+      <Card>
+        <Card.Header title="Membros da equipe" />
+      </Card>,
+    );
+
+    rerender(
+      <Card>
+        <Card.Body>Somente conteudo</Card.Body>
+      </Card>,
+    );
+
+    expect(screen.queryByRole('region')).not.toBeInTheDocument();
+  });
 });

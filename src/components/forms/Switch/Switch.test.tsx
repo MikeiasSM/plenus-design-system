@@ -25,4 +25,10 @@ describe('Switch', () => {
 
     expect(screen.getByRole('switch', { name: 'Sincronizacao' })).toBeDisabled();
   });
+
+  it('keeps the invalid state the consumer declares', () => {
+    render(<Switch aria-invalid label="Sincronizacao" />);
+
+    expect(screen.getByRole('switch', { name: 'Sincronizacao' })).toHaveAttribute('aria-invalid', 'true');
+  });
 });

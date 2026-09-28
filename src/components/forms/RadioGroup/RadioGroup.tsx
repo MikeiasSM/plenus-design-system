@@ -7,6 +7,7 @@ interface RadioGroupContexto {
   invalid: boolean;
   name: string;
   onValueChange?: (value: string) => void;
+  required: boolean;
   value?: string;
 }
 
@@ -36,6 +37,8 @@ export interface RadioGroupProps extends Omit<ComponentPropsWithRef<'fieldset'>,
 }
 
 export function RadioGroup({
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   children,
   className,
   defaultValue,
@@ -51,18 +54,20 @@ export function RadioGroup({
 }: RadioGroupProps) {
   const generatedId = useId();
   const name = providedName ?? `radio-group-${generatedId}`;
-  const messageId = `${name}-message`;
-  const describedBy = error || hint ? messageId : undefined;
+  // Do `useId`, e nao do nome: dois grupos com o mesmo nome dividiam o id da mensagem.
+  const messageId = `radio-group-${generatedId}-message`;
+  const describedBy = [ariaDescribedBy, error || hint ? messageId : undefined].filter(Boolean).join(' ') || undefined;
 
   return (
     <RadioGroupContexto.Provider
-      value={{ defaultValue, disabled, invalid: Boolean(error), name, onValueChange, value }}
+      value={{ defaultValue, disabled, invalid: Boolean(error), name, onValueChange, required, value }}
     >
       <fieldset
         {...props}
         className={[styles.group, className].filter(Boolean).join(' ')}
         role="radiogroup"
         aria-describedby={describedBy}
+        aria-invalid={error ? true : ariaInvalid}
         aria-required={required || undefined}
       >
         <legend className={styles.legend}>

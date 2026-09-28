@@ -11,6 +11,7 @@ export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'typ
 
 export function Checkbox({
   'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   className,
   error,
   hint,
@@ -47,7 +48,7 @@ export function Checkbox({
           className={classes}
           id={id}
           aria-describedby={describedBy}
-          aria-invalid={error ? true : undefined}
+          aria-invalid={error ? true : ariaInvalid}
           type="checkbox"
         />
         <span className={styles.text}>{label}</span>
