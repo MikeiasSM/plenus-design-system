@@ -1,13 +1,15 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Dialog.module.css';
 import { IconClose } from '../../icons';
 
 export type DialogSize = 'sm' | 'md' | 'lg';
 
-export interface DialogProps {
+/** As propriedades nativas vao ao elemento do dialogo; o `className` soma ao do sistema. */
+export interface DialogProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'title'> {
   children?: ReactNode;
   description?: string;
   dismissable?: boolean;
@@ -29,14 +31,18 @@ export function Dialog({ open, ...props }: DialogProps) {
 
 function DialogContent({
   children,
+  className,
   description,
   dismissable = true,
   footer,
   onClose,
+  ref: refDoConsumidor,
   size = 'md',
   title,
+  ...props
 }: Omit<DialogProps, 'open'>) {
   const ref = useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRefs(ref, refDoConsumidor);
   const generatedId = useId();
   const titleId = `${generatedId}-title`;
   const descriptionId = `${generatedId}-description`;
@@ -59,9 +65,10 @@ function DialogContent({
     <div {...underlayProps} className={styles.underlay}>
       <FocusScope contain restoreFocus autoFocus>
         <div
+          {...props}
           {...overlayProps}
-          ref={ref}
-          className={[styles.dialog, styles[size]].join(' ')}
+          ref={mergedRef}
+          className={[styles.dialog, styles[size], className].filter(Boolean).join(' ')}
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}

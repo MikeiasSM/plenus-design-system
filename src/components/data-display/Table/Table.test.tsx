@@ -222,4 +222,10 @@ describe('Table', () => {
 
     expect(screen.getByText('Vazio').closest('td')).toHaveAttribute('colspan', '1');
   });
+
+  it('comeca com a escolha inicial no modo nao controlado', () => {
+    montar({ defaultSelectedIds: ['2'], selectionMode: 'multiple' });
+
+    expect(screen.getByRole('checkbox', { name: 'Selecionar Bruno Dias' })).toBeChecked();
+  });
 });

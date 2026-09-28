@@ -78,4 +78,16 @@ describe('Dialog', () => {
 
     expect(abrir.closest('[aria-hidden="true"]')).not.toBeNull();
   });
+
+  it('leva id, data-* e classe ao elemento do dialogo', () => {
+    render(
+      <Dialog className="largo" data-origem="cadastro" id="dialogo-cadastro" onClose={() => undefined} open title="Cadastro" />,
+    );
+
+    const dialogo = screen.getByRole('dialog', { name: 'Cadastro' });
+
+    expect(dialogo).toHaveAttribute('id', 'dialogo-cadastro');
+    expect(dialogo).toHaveAttribute('data-origem', 'cadastro');
+    expect(dialogo).toHaveClass('largo');
+  });
 });

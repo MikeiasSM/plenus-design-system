@@ -33,6 +33,8 @@ export interface TableSort {
 
 export interface TableProps extends ComponentPropsWithRef<'div'> {
   children: ReactNode;
+  /** Escolha inicial no modo nao controlado. */
+  defaultSelectedIds?: readonly string[];
   defaultSort?: TableSort;
   divider?: boolean;
   label?: string;
@@ -88,6 +90,7 @@ function useTableContext(part: string) {
 export function Table({
   children,
   className,
+  defaultSelectedIds,
   defaultSort,
   divider = true,
   highlightSelectedRow = true,
@@ -147,6 +150,7 @@ export function Table({
   const selection = useSelection({
     // Caixa e chave desmarcam ao clicar de novo; o radio, nao.
     allowEmpty: control !== 'radio',
+    defaultSelectedKeys: defaultSelectedIds,
     items: collection,
     mode: selectionMode,
     selectedKeys: selectedIds,

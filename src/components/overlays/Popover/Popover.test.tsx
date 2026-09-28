@@ -109,4 +109,24 @@ describe('Popover', () => {
     expect(cliques).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('leva id e data-* ao elemento do painel', () => {
+    function ComId() {
+      const gatilho = useRef<HTMLButtonElement>(null);
+
+      return (
+        <>
+          <Button ref={gatilho}>Filtros</Button>
+          <Popover aria-label="Filtros" data-origem="grade" id="painel" onClose={() => undefined} open triggerRef={gatilho}>
+            <Button>Aplicar</Button>
+          </Popover>
+        </>
+      );
+    }
+
+    render(<ComId />);
+
+    expect(screen.getByRole('dialog', { name: 'Filtros' })).toHaveAttribute('id', 'painel');
+    expect(screen.getByRole('dialog', { name: 'Filtros' })).toHaveAttribute('data-origem', 'grade');
+  });
 });

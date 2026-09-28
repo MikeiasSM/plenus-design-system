@@ -1,7 +1,8 @@
-import { useRef, type ReactNode, type RefObject } from 'react';
+import { useRef, type ComponentPropsWithRef, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Popover.module.css';
 
 export type PopoverPlacement =
@@ -14,9 +15,8 @@ export type PopoverPlacement =
   | 'left'
   | 'right';
 
-export interface PopoverProps {
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
+/** As propriedades nativas vao ao elemento do painel; o `className` soma ao do sistema. */
+export interface PopoverProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   children: ReactNode;
   offset?: number;
   onClose: () => void;
@@ -35,15 +35,18 @@ export function Popover({ open, ...props }: PopoverProps) {
 }
 
 function PopoverContent({
-  'aria-label': ariaLabel,
-  'aria-labelledby': ariaLabelledBy,
   children,
+  className,
   offset = 8,
   onClose,
   placement = 'bottom start',
+  ref: refDoConsumidor,
+  style,
   triggerRef,
+  ...props
 }: Omit<PopoverProps, 'open'>) {
   const ref = useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRefs(ref, refDoConsumidor);
 
   const { overlayProps } = useOverlay(
     {
@@ -70,15 +73,14 @@ function PopoverContent({
   return (
     <FocusScope restoreFocus autoFocus>
       <div
+        {...props}
         {...overlayProps}
-        ref={ref}
-        className={styles.popover}
+        ref={mergedRef}
+        className={[styles.popover, className].filter(Boolean).join(' ')}
         // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
         data-react-aria-top-layer="true"
-        style={positionProps.style}
+        style={{ ...style, ...positionProps.style }}
         role="dialog"
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
       >
         {children}
       </div>
