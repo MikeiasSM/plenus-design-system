@@ -217,4 +217,16 @@ describe('List', () => {
 
     expect(screen.queryByRole('checkbox', { name: 'Selecionar todos' })).not.toBeInTheDocument();
   });
+
+  it('monta todas as opcoes quando nao ha medida, e nao so a janela inicial', () => {
+    const muitas = Array.from({ length: 100 }, (_, indice) => ({ value: String(indice), label: 'Item ' + indice }));
+
+    render(
+      <List items={muitas} label="Itens" selectionMode="single">
+        <List.Options height={320} />
+      </List>,
+    );
+
+    expect(screen.getAllByRole('option')).toHaveLength(100);
+  });
 });

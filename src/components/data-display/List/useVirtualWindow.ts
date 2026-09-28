@@ -2,55 +2,75 @@ import { useCallback, useRef, useState } from 'react';
 
 const OVERSCAN = 6;
 
-/**
- * Quantos itens entram antes da primeira medida. A janela so liga depois de
- * conhecer o passo entre itens, e o passo sai do DOM — montar a colecao inteira
- * para medir um item custava dez mil nos num primeiro render.
- */
+/** Quantos itens entram antes da primeira medida: montar dez mil nos para medir um custava o primeiro render. */
 const PRIMEIRA_JANELA = 24;
+
+/** O passo entre itens inclui o espaco que o container coloca entre eles; so a altura acumulava erro. */
+function medirPasso(node: HTMLElement) {
+  const proximo = node.nextElementSibling as HTMLElement | null;
+
+  return proximo ? proximo.offsetTop - node.offsetTop : node.offsetHeight;
+}
 
 export function useVirtualWindow(total: number, height?: number) {
   const scrollElement = useRef<HTMLElement | null>(null);
-  const [itemHeight, setItemHeight] = useState(0);
+  const firstItem = useRef<HTMLElement | null>(null);
+  const firstIndex = useRef(0);
+  const observer = useRef<ResizeObserver | null>(null);
+  // `null` e "ainda nao medido"; zero e "sem layout", como no jsdom ou na lista montada escondida.
+  const [itemHeight, setItemHeight] = useState<number | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
 
-  // O passo entre itens inclui o espaco que o container coloca entre eles.
-  // Medir apenas a altura do item acumula erro e faz a janela descolar da
-  // rolagem conforme a lista avanca.
   const measureItem = useCallback((node: HTMLElement | null) => {
-    if (!node) {
-      return;
-    }
+    firstItem.current = node;
 
-    const proximo = node.nextElementSibling as HTMLElement | null;
-    const passo = proximo ? proximo.offsetTop - node.offsetTop : node.offsetHeight;
-
-    if (passo > 0) {
-      setItemHeight((current) => (current === passo ? current : passo));
+    if (node) {
+      const passo = medirPasso(node);
+      setItemHeight((current) => (passo > 0 ? passo : (current ?? 0)));
     }
   }, []);
 
   const attachScroll = useCallback((node: HTMLElement | null) => {
     scrollElement.current = node;
+    observer.current?.disconnect();
+    observer.current = null;
+
+    if (!node || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    // Montada escondida, a lista mede zero; quando aparece, o tamanho muda e ela mede de novo.
+    observer.current = new ResizeObserver(() => {
+      const passo = firstItem.current ? medirPasso(firstItem.current) : 0;
+
+      if (passo > 0) {
+        setItemHeight(passo);
+      }
+    });
+    observer.current.observe(node);
   }, []);
 
   const onScroll = useCallback(() => {
     setScrollTop(scrollElement.current?.scrollTop ?? 0);
   }, []);
 
-  const active = height !== undefined && itemHeight > 0 && total * itemHeight > height;
-  const medindo = height !== undefined && itemHeight === 0;
+  const passo = itemHeight ?? 0;
+  const active = height !== undefined && passo > 0 && total * passo > height;
+  const medindo = height !== undefined && itemHeight === null;
 
   const scrollToIndex = useCallback(
     (index: number) => {
       const element = scrollElement.current;
+      const primeiro = firstItem.current;
 
-      if (!element || index < 0) {
+      if (!element || !primeiro || index < 0 || passo <= 0) {
         return;
       }
 
-      const top = index * itemHeight;
-      const bottom = top + itemHeight;
+      // A conta parte do primeiro item montado, e nao do topo: antes dele pode haver o grupo de selecionados.
+      const topoDoPrimeiro = primeiro.getBoundingClientRect().top - element.getBoundingClientRect().top + element.scrollTop;
+      const top = topoDoPrimeiro + (index - firstIndex.current) * passo;
+      const bottom = top + passo;
 
       if (top < element.scrollTop) {
         element.scrollTop = top;
@@ -58,10 +78,12 @@ export function useVirtualWindow(total: number, height?: number) {
         element.scrollTop = bottom - element.clientHeight;
       }
     },
-    [itemHeight],
+    [passo],
   );
 
   if (!active) {
+    firstIndex.current = 0;
+
     return {
       active,
       attachScroll,
@@ -74,16 +96,18 @@ export function useVirtualWindow(total: number, height?: number) {
     };
   }
 
-  const perScreen = Math.ceil(height / itemHeight);
-  const start = Math.max(0, Math.floor(scrollTop / itemHeight) - OVERSCAN);
+  const perScreen = Math.ceil(height / passo);
+  const start = Math.max(0, Math.floor(scrollTop / passo) - OVERSCAN);
   const end = Math.min(total, start + perScreen + OVERSCAN * 2);
+
+  firstIndex.current = start;
 
   return {
     active,
     attachScroll,
     measureItem,
     onScroll,
-    padding: { before: start * itemHeight, after: (total - end) * itemHeight },
+    padding: { before: start * passo, after: (total - end) * passo },
     scrollToIndex,
     start,
     end,

@@ -70,4 +70,62 @@ describe('useVirtualWindow', () => {
     expect(result.current.active).toBe(true);
     expect(result.current.padding.after).toBe((10000 - result.current.end) * 32);
   });
+
+  it('desliga a janela quando a medida e zero, como no jsdom', () => {
+    const { result } = renderHook(() => useVirtualWindow(100, 320));
+
+    medir(result.current.measureItem, 0);
+
+    // Presa na janela de medida, a lista mostrava 24 opcoes para sempre.
+    expect(result.current.active).toBe(false);
+    expect(result.current.end).toBe(100);
+  });
+
+  it('mede de novo quando a lista montada escondida aparece', () => {
+    let avisar = () => undefined;
+
+    class Observador {
+      constructor(aviso: () => undefined) {
+        avisar = aviso;
+      }
+
+      observe() {}
+
+      disconnect() {}
+    }
+
+    Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: Observador });
+
+    const { result } = renderHook(() => useVirtualWindow(10000, 320));
+    const item = { offsetHeight: 0, offsetTop: 0, nextElementSibling: null } as unknown as HTMLElement;
+
+    act(() => result.current.attachScroll({} as HTMLElement));
+    act(() => result.current.measureItem(item));
+
+    Object.assign(item, { offsetHeight: 32 });
+    act(() => avisar());
+
+    expect(result.current.active).toBe(true);
+    expect(result.current.end).toBe(22);
+
+    Reflect.deleteProperty(globalThis, 'ResizeObserver');
+  });
+
+  it('rola ate o item contando o que vem antes dele, como o grupo de selecionados', () => {
+    const { result } = renderHook(() => useVirtualWindow(10000, 320));
+    const lista = { scrollTop: 0, clientHeight: 320, getBoundingClientRect: () => ({ top: 100 }) } as unknown as HTMLElement;
+    const primeiro = {
+      offsetHeight: 32,
+      offsetTop: 0,
+      nextElementSibling: null,
+      getBoundingClientRect: () => ({ top: 100 + 108 }),
+    } as unknown as HTMLElement;
+
+    act(() => result.current.attachScroll(lista));
+    act(() => result.current.measureItem(primeiro));
+    act(() => result.current.scrollToIndex(20));
+
+    // O item 20 comeca em 108 + 20 x 32 e termina 32 depois; a rolagem o deixa encostado embaixo.
+    expect(lista.scrollTop).toBe(108 + 21 * 32 - 320);
+  });
 });
