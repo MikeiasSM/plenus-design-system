@@ -1,7 +1,8 @@
 {
   "name": "@plenustech/design-system",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Design System centralizado para os produtos web da Plenustech.",
+  "license": "UNLICENSED",
   "publishConfig": {
     "access": "public"
   },

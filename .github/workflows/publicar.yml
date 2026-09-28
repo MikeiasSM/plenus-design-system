@@ -14,6 +14,8 @@ concurrency:
 
 permissions:
   contents: read
+  # A atestacao de procedencia assina com a identidade do fluxo.
+  id-token: write
 
 jobs:
   publicar:
@@ -94,7 +96,9 @@ jobs:
       # digitos, que nenhuma automacao consegue responder.
       # Sem scripts: o `prepare` reconstruiria o pacote depois de o
       # `check:pacote` aprovar outro build, e o publicado nao seria o conferido.
+      # A procedencia so existe para repositorio publico; no privado, pedi-la
+      # derrubaria a publicacao.
       - name: Publicar
-        run: npm publish --ignore-scripts
+        run: npm publish --ignore-scripts ${{ !github.event.repository.private && '--provenance' || '' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
