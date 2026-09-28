@@ -268,7 +268,7 @@ export function ChartBar({
           <g
             aria-hidden={oculta || undefined}
             className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={serie.label}
+            key={indiceSerie}
           >
             {categories.map((categoria, indiceCategoria) => {
               if (!Number.isFinite(serie.values[indiceCategoria])) {
@@ -295,7 +295,7 @@ export function ChartBar({
                     cantosDa(indiceSerie, indiceCategoria),
                   )}
                   fill={cores[indiceSerie]}
-                  key={categoria}
+                  key={indiceCategoria}
                   onMouseEnter={() => focarFaixa(indiceCategoria)}
                   onMouseLeave={() => focarFaixa(null)}
                 />
@@ -321,7 +321,7 @@ export function ChartBar({
                   <text
                     className={styles.valueLabel}
                     dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
-                    key={categoria}
+                    key={indiceCategoria}
                     textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
                     x={vertical ? centro : ponta + (negativo ? -6 : 6)}
                     y={vertical ? ponta + (negativo ? 6 : -6) : centro}

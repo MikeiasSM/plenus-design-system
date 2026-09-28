@@ -208,7 +208,7 @@ export function ChartScatter({
         <g
           aria-hidden={isHidden(serie.label) || undefined}
           className={`${styles.series} ${isHidden(serie.label) ? styles.seriesOff : ''}`}
-          key={serie.label}
+          key={indiceSerie}
         >
           {serie.points.map((ponto, indice) => {
             if (!Number.isFinite(ponto.x) || !Number.isFinite(ponto.y)) {

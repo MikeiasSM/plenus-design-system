@@ -210,8 +210,8 @@ function Balao({
       {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
 
       <div className={styles.grid} style={{ gridTemplateColumns: celulas }}>
-        {rows.map((linha) => (
-          <Fragment key={linha.label}>
+        {rows.map((linha, indiceDaLinha) => (
+          <Fragment key={indiceDaLinha}>
             <span className={`${styles.label} ${linha.emphasis ? styles.emphasis : ''}`}>
               {linha.color !== undefined && (
                 <span className={styles.swatch} style={{ background: linha.color }} />

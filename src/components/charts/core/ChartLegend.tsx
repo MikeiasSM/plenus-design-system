@@ -44,7 +44,7 @@ export function ChartLegend({
 
   return (
     <ul className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}>
-      {entries.map((entrada) => {
+      {entries.map((entrada, indice) => {
         const conteudo = (
           <>
             <span
@@ -58,7 +58,7 @@ export function ChartLegend({
         );
 
         return (
-          <li className={styles.legendItem} key={entrada.label}>
+          <li className={styles.legendItem} key={indice}>
             {onToggle ? (
               <button
                 aria-pressed={!entrada.hidden}

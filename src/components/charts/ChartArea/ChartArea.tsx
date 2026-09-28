@@ -228,7 +228,7 @@ export function ChartArea({
       {!stacked && (
         <defs>
           {series.map((serie, indice) => (
-            <linearGradient id={`${gradienteId}-${indice}`} key={serie.label} x1="0" x2="0" y1="0" y2="1">
+            <linearGradient id={`${gradienteId}-${indice}`} key={indice} x1="0" x2="0" y1="0" y2="1">
               <stop offset="5%" stopColor={cores[indice]} stopOpacity={0.6} />
               <stop offset="95%" stopColor={cores[indice]} stopOpacity={0.05} />
             </linearGradient>
@@ -248,7 +248,7 @@ export function ChartArea({
           <g
             aria-hidden={oculta || undefined}
             className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={serie.label}
+            key={indiceSerie}
           >
             <path
               d={areaPath(faixas, curve)}
@@ -277,7 +277,7 @@ export function ChartArea({
                   cx={faixa.x}
                   cy={faixa.y1}
                   fill={cores[indiceSerie]}
-                  key={categoria}
+                  key={indice}
                   r={4}
                 >
                   <title>{descricao}</title>
@@ -296,7 +296,7 @@ export function ChartArea({
                 return (
                   <text
                     className={styles.valueLabel}
-                    key={categoria}
+                    key={indice}
                     textAnchor="middle"
                     x={faixa.x}
                     y={faixa.y1 - 10}

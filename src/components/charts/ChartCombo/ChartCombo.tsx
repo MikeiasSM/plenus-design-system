@@ -292,7 +292,7 @@ export function ChartCombo({
           <g
             aria-hidden={oculta || undefined}
             className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={serie.label}
+            key={indiceSerie}
           >
             {categories.map((categoria, indiceCategoria) => {
               const valor = serie.values[indiceCategoria];
@@ -315,7 +315,7 @@ export function ChartCombo({
                     [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto],
                   )}
                   fill={cores[indiceSerie]}
-                  key={categoria}
+                  key={indiceCategoria}
                   onMouseEnter={() => focarFaixa(indiceCategoria)}
                   onMouseLeave={() => focarFaixa(null)}
                 />
@@ -333,7 +333,7 @@ export function ChartCombo({
                 return (
                   <text
                     className={styles.valueLabel}
-                    key={categoria}
+                    key={indiceCategoria}
                     textAnchor="middle"
                     x={
                       (escalaCategorias(categoria) ?? 0) +
@@ -372,7 +372,7 @@ export function ChartCombo({
           <g
             aria-hidden={oculta || undefined}
             className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={serie.label}
+            key={indiceSerie}
           >
             <path
               className={styles.line}
@@ -389,7 +389,7 @@ export function ChartCombo({
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
-                  key={categories[indice]}
+                  key={indice}
                   r={4}
                 />
               ),
@@ -400,7 +400,7 @@ export function ChartCombo({
                 ponto === null ? null : (
                   <text
                     className={styles.valueLabel}
-                    key={categories[indice]}
+                    key={indice}
                     textAnchor="middle"
                     x={ponto.x}
                     y={ponto.y - 10}

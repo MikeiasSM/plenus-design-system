@@ -200,7 +200,7 @@ export function ChartLine({
           <g
             aria-hidden={oculta || undefined}
             className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={serie.label}
+            key={indiceSerie}
           >
             <path
               className={styles.line}
@@ -227,7 +227,7 @@ export function ChartLine({
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
-                  key={categories[indice]}
+                  key={indice}
                   r={4}
                 >
                   <title>{descricao}</title>
@@ -240,7 +240,7 @@ export function ChartLine({
                 ponto === null ? null : (
                   <text
                     className={styles.valueLabel}
-                    key={categories[indice]}
+                    key={indice}
                     textAnchor="middle"
                     x={ponto.x}
                     y={ponto.y - 10}

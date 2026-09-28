@@ -126,7 +126,7 @@ export function ChartDonut({
             outerRadius: raio,
           })}
           fill={anel.colors[indice]}
-          key={fatia.label}
+          key={indice}
           onMouseEnter={() => anel.focus(indice)}
           onMouseLeave={() => anel.focus(null)}
         />

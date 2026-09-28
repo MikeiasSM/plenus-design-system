@@ -107,7 +107,7 @@ export function ChartPie({
           className={styles.slice}
           d={arcPath({ ...anel.angles[indice], cornerRadius: canto, innerRadius: 0, outerRadius: raio })}
           fill={anel.colors[indice]}
-          key={fatia.label}
+          key={indice}
           onMouseEnter={() => anel.focus(indice)}
           onMouseLeave={() => anel.focus(null)}
         />
@@ -134,7 +134,7 @@ export function ChartPie({
               className={styles.sliceLabel}
               dominantBaseline="middle"
               fill={textColorOn(anel.colors[indice])}
-              key={fatia.label}
+              key={indice}
               textAnchor="middle"
               x={x}
               y={y}

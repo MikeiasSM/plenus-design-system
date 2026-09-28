@@ -158,7 +158,7 @@ export function ChartRadial({
         const descricao = valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label;
 
         return (
-          <g key={anel.label}>
+          <g key={indice}>
             <path
               aria-label={descricao}
               className={styles.track}
