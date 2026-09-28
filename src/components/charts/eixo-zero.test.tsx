@@ -48,6 +48,20 @@ describe('zero no eixo', () => {
     expect(rotulos()).not.toContain('0');
   });
 
+  it('separa o zero por eixo na dispersao, para o ano ficar sem ele e o valor com ele', () => {
+    render(
+      <ChartScatter
+        formatX={String}
+        includeZero="y"
+        series={[{ label: 'Clientes', points: [{ label: 'a', x: 2000, y: 40 }, { label: 'b', x: 2020, y: 80 }] }]}
+        title="x"
+      />,
+    );
+
+    expect(rotulos()).toContain('2010');
+    expect(rotulos()).toContain('0');
+  });
+
   it('desce a area ate o limite do eixo, e nao ate um zero fora do desenho', () => {
     render(
       <ChartArea

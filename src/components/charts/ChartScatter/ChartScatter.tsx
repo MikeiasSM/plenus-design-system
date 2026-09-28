@@ -38,11 +38,11 @@ export interface ChartScatterProps {
   formatY?: (value: number) => string;
   formatZ?: (value: number) => string;
   /**
-   * Inclui o zero no dominio dos eixos. Ligado por padrao, porque barra que nao
-   * parte do zero exagera a diferenca; para medidas que nao se comparam a ele —
-   * um ano, uma temperatura — desligue; um ano pede tambem um formato sem separador de milhar em `formatX` ou `formatY`.
+   * Inclui o zero no dominio: `true` nos dois eixos, `'x'` ou `'y'` so naquele, `false` em nenhum.
+   * Medida que nao se compara ao zero — um ano, uma temperatura — fica com o eixo dela de fora;
+   * um ano pede tambem um formato sem separador de milhar em `formatX` ou `formatY`.
    */
-  includeZero?: boolean;
+  includeZero?: boolean | 'x' | 'y';
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
@@ -98,16 +98,19 @@ export function ChartScatter({
 
   const visiveis = useMemo(() => series.filter((serie) => !isHidden(serie.label)), [isHidden, series]);
 
+  const zeroEmX = includeZero === true || includeZero === 'x';
+  const zeroEmY = includeZero === true || includeZero === 'y';
+
   const dominioX = useMemo(
     () =>
-      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.x), { includeZero }))),
-    [includeZero, visiveis],
+      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.x), { includeZero: zeroEmX }))),
+    [visiveis, zeroEmX],
   );
 
   const dominioY = useMemo(
     () =>
-      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.y), { includeZero }))),
-    [includeZero, visiveis],
+      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.y), { includeZero: zeroEmY }))),
+    [visiveis, zeroEmY],
   );
 
   const maiorZ = useMemo(
