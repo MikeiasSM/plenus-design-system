@@ -10,7 +10,7 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
-  line-height: 1.2;
+  line-height: var(--pl-type-label-line-height);
   cursor: pointer;
   transition:
     background var(--pl-speed-1) var(--pl-ease),
@@ -88,9 +88,11 @@
   filter: brightness(0.9);
 }
 
+/* Com a entrelinha da escala, o medio tem 42px, a altura do `InputText`; o pequeno e o grande ficam onde estavam. */
 .sm {
-  padding: 6px 12px;
+  padding: 5px 12px;
   font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
 }
 
 .md {
@@ -98,6 +100,7 @@
 }
 
 .lg {
-  padding: 13px 26px;
+  padding: 11px 26px;
   font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
 }
