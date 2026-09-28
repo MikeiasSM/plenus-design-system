@@ -270,4 +270,20 @@ describe('List', () => {
       { value: 'rj', label: 'Rio de Janeiro' },
     ]);
   });
+
+  it('deixa o clique levar o foco a lista sem busca, que e quem o detem', () => {
+    render(
+      <List items={cidades} label="Cidades" selectionMode="single">
+        <List.Options />
+      </List>,
+    );
+
+    expect(fireEvent.mouseDown(screen.getByRole('option', { name: 'Goiânia' }))).toBe(true);
+  });
+
+  it('segura o foco no campo de busca ao clicar numa opcao', () => {
+    montar({ selectionMode: 'single' });
+
+    expect(fireEvent.mouseDown(screen.getByRole('option', { name: 'Goiânia' }))).toBe(false);
+  });
 });

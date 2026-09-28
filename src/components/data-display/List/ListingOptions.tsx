@@ -121,7 +121,8 @@ export function ListingOptions({
         id={position > 0 ? optionId(baseId, position - 1) : undefined}
         key={item.value}
         onClick={(event) => choose(item, event.shiftKey)}
-        onMouseDown={(event) => event.preventDefault()}
+        // So segura o foco onde ele esta quando quem o tem e o campo de busca; a lista que detem o foco o recebe.
+        onMouseDown={holdsFocus ? undefined : (event) => event.preventDefault()}
         ref={measured ? measureItem : undefined}
         role="option"
       >
