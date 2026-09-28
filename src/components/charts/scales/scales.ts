@@ -79,9 +79,7 @@ function parteNegativa({ min: menor, max: maior }: NumericRange) {
 }
 
 /** Estende a faixa do lado que falta para o zero ficar na altura pedida, em fracao do eixo. */
-function levarZeroA(faixa: NumericRange, altura: number): NumericRange {
-  const parte = parteNegativa(faixa) ?? altura;
-
+function levarZeroA(faixa: NumericRange, parte: number, altura: number): NumericRange {
   if (parte > altura) {
     return { min: faixa.min, max: (-faixa.min * (1 - altura)) / altura };
   }
@@ -107,7 +105,7 @@ export function alignZeros(a: NumericRange, b: NumericRange): [NumericRange, Num
 
   const altura = Math.max(parteA, parteB) / (1 + Math.abs(parteA - parteB));
 
-  return [levarZeroA(a, altura), levarZeroA(b, altura)];
+  return [levarZeroA(a, parteA, altura), levarZeroA(b, parteB, altura)];
 }
 
 function guardFlat({ min: menor, max: maior }: NumericRange): [number, number] {
