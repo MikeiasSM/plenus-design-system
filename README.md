@@ -92,6 +92,22 @@ import '@plenustech/design-system/reset.css';
 
 Uma aplicação nova ganha a aparência completa do sistema importando as duas. Uma aplicação existente, que já tem a própria base, importa apenas a primeira: os componentes não dependem do reset.
 
+### Fontes
+
+Os componentes usam três famílias, nos pesos definidos em [TOKENS-REFERENCE-TYPOGRAPHY.md](TOKENS-REFERENCE-TYPOGRAPHY.md): Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500.
+
+O pacote declara as famílias, mas **não carrega os arquivos de fonte**: o carregamento é da aplicação, conforme a infraestrutura dela. Sem ele, o texto cai nas famílias de reserva do navegador, `sans-serif` e `monospace`.
+
+Exemplo com o Google Fonts, no `<head>` da aplicação:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Montserrat:wght@400;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+```
+
+Qualquer outra estratégia, como servir os arquivos da própria aplicação, deve carregar exatamente essas famílias e esses pesos.
+
 Não é recomendado importar arquivos internos diretamente:
 
 ```tsx
@@ -132,9 +148,9 @@ plenus-design-system/
 │   │   └── semantic/
 │   │
 │   ├── styles/
-│   │   ├── globals.css
-│   │   ├── reset.css
-│   │   └── themes/
+│   │   ├── tokens.css
+│   │   ├── base.css
+│   │   └── reset.css
 │   │
 │   ├── hooks/
 │   │
