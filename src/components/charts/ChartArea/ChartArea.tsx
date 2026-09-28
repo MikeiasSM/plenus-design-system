@@ -268,16 +268,20 @@ export function ChartArea({
                 return null;
               }
 
+              const descricao = `${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`;
+
               return (
                 <circle
-                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`}
+                  aria-label={descricao}
                   className={showDots || isolada(faixas, indice) ? styles.dotVisible : styles.dot}
                   cx={faixa.x}
                   cy={faixa.y1}
                   fill={cores[indiceSerie]}
                   key={categoria}
                   r={4}
-                />
+                >
+                  <title>{descricao}</title>
+                </circle>
               );
             })}
 

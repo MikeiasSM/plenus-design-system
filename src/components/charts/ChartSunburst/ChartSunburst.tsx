@@ -190,6 +190,12 @@ export function ChartSunburst({
     return tomDoNivel(base ?? 'var(--pl-chart-neutral)', arco.depth);
   }
 
+  function descreverArco(arco: Arco) {
+    const fracao = total > 0 ? (arco.value ?? 0) / total : 0;
+
+    return `${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(fracao)})`;
+  }
+
   return (
     <ChartFrame
       centerOrigin
@@ -212,7 +218,7 @@ export function ChartSunburst({
     >
       {arcos.map((arco) => (
         <path
-          aria-label={`${arco.data.label}: ${formatValue(arco.value ?? 0)} (${formatPercent(total > 0 ? (arco.value ?? 0) / total : 0)})`}
+          aria-label={descreverArco(arco)}
           className={`${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`}
           d={arcPath({
             cornerRadius: sliceRadius ?? raioDoCanto,
@@ -225,7 +231,9 @@ export function ChartSunburst({
           key={caminhoDe(arco)}
           onMouseEnter={() => setEmFoco(arco)}
           onMouseLeave={() => setEmFoco(null)}
-        />
+        >
+          <title>{descreverArco(arco)}</title>
+        </path>
       ))}
 
       {showLabels &&

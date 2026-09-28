@@ -85,10 +85,11 @@ describe('ChartSankey', () => {
     expect(espessuras[0]).toBeGreaterThan(espessuras[1]);
   });
 
-  it('descreve a ligacao pela origem, pelo destino e pelo valor', () => {
+  it('descreve a ligacao pela origem, pelo destino e pelo valor, tambem sob o ponteiro', () => {
     render(<ChartSankey flows={caixa} formatValue={(valor) => `R$ ${valor}`} title="Fluxo" />);
 
     expect(ligacoes()[0].getAttribute('aria-label')).toBe('Receita → Custos: R$ 600');
+    expect(ligacoes()[0].querySelector('title')?.textContent).toBe('Receita → Custos: R$ 600');
   });
 
   it('acende a ligacao sob o ponteiro e apaga as demais', () => {

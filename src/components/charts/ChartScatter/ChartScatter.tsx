@@ -227,7 +227,9 @@ export function ChartScatter({
                 onMouseEnter={() => setGuia({ x, y })}
                 onMouseLeave={() => setGuia(null)}
                 r={z === undefined ? RAIO_SEM_Z : escalaRaio(z)}
-              />
+              >
+                <title>{descrever(serie, ponto)}</title>
+              </circle>
             );
           })}
         </g>

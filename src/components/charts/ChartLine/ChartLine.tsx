@@ -209,10 +209,16 @@ export function ChartLine({
               stroke={cores[indiceSerie]}
             />
 
-            {pontosPorSerie[indiceSerie].map((ponto, indice) =>
-              ponto === null ? null : (
+            {pontosPorSerie[indiceSerie].map((ponto, indice) => {
+              if (ponto === null) {
+                return null;
+              }
+
+              const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
+
+              return (
                 <circle
-                  aria-label={`${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`}
+                  aria-label={descricao}
                   className={
                     showDots || isolado(pontosPorSerie[indiceSerie], indice)
                       ? styles.dotVisible
@@ -223,9 +229,11 @@ export function ChartLine({
                   fill={cores[indiceSerie]}
                   key={categories[indice]}
                   r={4}
-                />
-              ),
-            )}
+                >
+                  <title>{descricao}</title>
+                </circle>
+              );
+            })}
 
             {showDataLabels &&
               pontosPorSerie[indiceSerie].map((ponto, indice) =>

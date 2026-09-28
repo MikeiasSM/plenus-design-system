@@ -247,6 +247,10 @@ export function ChartSankey({
     return corDoNo(flowColor === 'target' ? ligacao.target.index : ligacao.source.index);
   }
 
+  function descreverLigacao(ligacao: LigacaoPosicionada) {
+    return `${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`;
+  }
+
   function classeDa(indice: number) {
     if (emFoco === null) {
       return styles.link;
@@ -342,7 +346,7 @@ export function ChartSankey({
       <g className={styles.links}>
         {grafo.links.map((ligacao, indice) => (
           <path
-            aria-label={`${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`}
+            aria-label={descreverLigacao(ligacao)}
             className={classeDa(indice)}
             d={caminhoDa(ligacao)}
             key={indice}
@@ -350,7 +354,9 @@ export function ChartSankey({
             onMouseLeave={() => setEmFoco(null)}
             stroke={corDa(ligacao)}
             strokeWidth={Math.max(ligacao.width, 1)}
-          />
+          >
+            <title>{descreverLigacao(ligacao)}</title>
+          </path>
         ))}
       </g>
 
@@ -364,7 +370,9 @@ export function ChartSankey({
           width={no.x1 - no.x0}
           x={no.x0}
           y={no.y0}
-        />
+        >
+          <title>{no.label}</title>
+        </rect>
       ))}
 
       {showFlowValues &&

@@ -105,7 +105,7 @@ Cada série do `ChartCombo` declara a que eixo de valor pertence, e é essa decl
 
 A fronteira com `Tooltip` é o conteúdo, não o gráfico: `Tooltip` descreve **um** elemento em uma frase curta e nomeia esse elemento para quem usa leitor de tela; `ChartTooltip` exibe **várias** medidas em forma de grade e é decorativo, porque uma grade que some a qualquer interação não é leitura acessível.
 
-Cada marca carrega a própria descrição em `aria-label`. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
+Cada marca carrega a própria descrição em `aria-label`. Nos gráficos sem costura para o `ChartTooltip` — `ChartLine`, `ChartArea`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` —, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela. Onde há costura, o `<title>` ficaria de fora: seria um segundo balão sobre o `ChartTooltip`. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
 
 Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 

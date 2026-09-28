@@ -146,11 +146,12 @@ export function ChartRadial({
         const interno = externo - espessuraCabivel;
         const fracao = animadas[indice] ?? 0;
         const preenchido = comeco + volta * fracao;
+        const descricao = valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label;
 
         return (
           <g key={anel.label}>
             <path
-              aria-label={valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label}
+              aria-label={descricao}
               className={styles.track}
               d={arcPath({
                 cornerRadius: canto,
@@ -159,7 +160,9 @@ export function ChartRadial({
                 outerRadius: externo,
                 startAngle: comeco,
               })}
-            />
+            >
+              <title>{descricao}</title>
+            </path>
             {fracao > 0 && (
               <path
                 className={styles.fill}
