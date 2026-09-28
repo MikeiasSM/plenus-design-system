@@ -33,4 +33,19 @@ describe('Breadcrumb', () => {
 
     expect(screen.getByRole('link', { name: 'Inicio' })).toHaveAttribute('data-roteador', 'app');
   });
+
+  it('gera o link so com linkProps, para o roteador que pede to em vez de href', () => {
+    function LinkComTo({ to, children, ...props }: { to: string; children: React.ReactNode }) {
+      return <a {...props} href={to}>{children}</a>;
+    }
+
+    render(
+      <Breadcrumb
+        as={LinkComTo}
+        items={[{ label: 'Inicio', linkProps: { to: '/' } }, { label: 'Clientes' }]}
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
+  });
 });

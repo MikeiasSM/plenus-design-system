@@ -34,7 +34,7 @@ export function Breadcrumb({
 
           return (
             <li className={styles.item} key={`${item.label}-${index}`}>
-              {atual || !item.href ? (
+              {atual || (item.href === undefined && item.linkProps === undefined) ? (
                 <span className={styles.current} aria-current={atual ? 'page' : undefined}>
                   {item.label}
                 </span>
