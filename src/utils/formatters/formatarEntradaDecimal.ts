@@ -15,11 +15,8 @@ function ladosDoPontoUnico(texto: string) {
 }
 
 /**
- * O ponto e ambiguo. Em pt-BR ele separa milhar, mas teclado numerico e texto
- * colado de origem inglesa o usam como decimal. Ele so vale como decimal quando
- * e o unico da cadeia, nao ha virgula, e o que vem depois dele nao forma um
- * grupo de milhar, ou o que vem antes e zero. Descarta-lo sem olhar
- * multiplicava o valor por dez ou cem.
+ * O ponto separa milhar em pt-BR e e decimal no teclado numerico e no texto colado: vale como decimal so quando e o
+ * unico, sem virgula, e o que vem depois nao forma grupo de milhar ou o que vem antes e zero.
  */
 function normalizarPonto(texto: string) {
   const lados = ladosDoPontoUnico(texto);
@@ -70,9 +67,8 @@ export function formatarEntradaDecimal(valor: string | number, casasDecimais = 0
 }
 
 /**
- * O texto do campo enquanto se digita. Um ponto unico com menos de tres digitos
- * depois ainda pode virar milhar na proxima tecla: ele fica como foi digitado,
- * e o valor o le como decimal ate la. Decidido na hora, `1.234` virava `1,23`.
+ * O texto do campo enquanto se digita: o ponto que ainda pode virar milhar na proxima tecla fica como foi digitado, e
+ * o valor o le como decimal ate la. Decidido na hora, `1.234` virava `1,23`.
  */
 export function formatarEdicaoDecimal(texto: string, casasDecimais = 0): string {
   const lados = ladosDoPontoUnico(texto);
