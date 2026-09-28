@@ -89,11 +89,13 @@ export function ChartRadial({
   // repintar os demais.
   const cores = useMemo(() => resolveSeriesColors(tracks, { accent }), [accent, tracks]);
 
-  const maiorValor = tracks.reduce((maior, anel) => Math.max(maior, anel.value), 0);
+  // Valor invalido tem o destino do ausente: nao entra no maximo nem preenche o anel.
+  const valido = (anel: ChartRadialTrack) => Number.isFinite(anel.value);
+  const maiorValor = tracks.reduce((maior, anel) => (valido(anel) ? Math.max(maior, anel.value) : maior), 0);
   const fracoes = tracks.map((anel) => {
     const meta = anel.max ?? maiorValor;
 
-    return isHidden(anel.label) || meta <= 0 ? 0 : Math.min(Math.max(anel.value, 0) / meta, 1);
+    return isHidden(anel.label) || !valido(anel) || !(meta > 0) ? 0 : Math.min(Math.max(anel.value, 0) / meta, 1);
   });
 
   // As fracoes caminham ate o alvo, entao o arco cresce ao aparecer e recolhe
@@ -114,7 +116,7 @@ export function ChartRadial({
   const raioInterno = Math.max(raioDe(Math.max(tracks.length - 1, 0)) - espessuraCabivel, PISO_DO_RAIO);
 
   const canto = trackRadius ?? raioDoCanto;
-  const destaque = tracks.find((anel) => !isHidden(anel.label)) ?? tracks[0];
+  const destaque = tracks.find((anel) => !isHidden(anel.label));
   const centro = destaque
     ? fitCenterText(formatValue(destaque.value), centerLabel ?? destaque.label, font, raioInterno * 2)
     : undefined;
@@ -131,7 +133,7 @@ export function ChartRadial({
         color: cores[indice],
         hidden: isHidden(anel.label),
         label: anel.label,
-        value: formatValue(anel.value),
+        value: valido(anel) ? formatValue(anel.value) : undefined,
       }))}
       legendAlign={legendAlign}
       legendPosition={tracks.length > 1 ? legend : 'none'}
@@ -149,7 +151,7 @@ export function ChartRadial({
         return (
           <g key={anel.label}>
             <path
-                aria-label={`${anel.label}: ${formatValue(anel.value)}`}
+              aria-label={valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label}
               className={styles.track}
               d={arcPath({
                 cornerRadius: canto,

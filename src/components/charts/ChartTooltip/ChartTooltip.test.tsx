@@ -113,7 +113,7 @@ describe('ChartTooltip', () => {
     abrir();
 
     // Media de 418, 30 e 22; soma dos valores.
-    expect(celulas()).toContain('156.66666666666666');
+    expect(celulas()).toContain('156,667');
     expect(celulas()).toContain('184822.71');
   });
 

@@ -15,6 +15,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartScatter.module.css';
 
 export interface ChartScatterPoint {
@@ -62,13 +63,18 @@ interface Guia {
   y: number;
 }
 
+/** Tamanho invalido tem o destino do ausente: a bolha fica no raio padrao. */
+function zValido(ponto: ChartScatterPoint) {
+  return ponto.z !== undefined && Number.isFinite(ponto.z) ? ponto.z : undefined;
+}
+
 export function ChartScatter({
   accent,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
-  formatX = (valor) => String(valor),
-  formatY = (valor) => String(valor),
-  formatZ = (valor) => String(valor),
+  formatX = formatarNumero,
+  formatY = formatarNumero,
+  formatZ = formatarNumero,
   height = 280,
   includeZero = true,
   hiddenSeries,
@@ -107,7 +113,7 @@ export function ChartScatter({
   const maiorZ = useMemo(
     () =>
       series.reduce(
-        (maior, serie) => serie.points.reduce((parcial, ponto) => Math.max(parcial, ponto.z ?? 0), maior),
+        (maior, serie) => serie.points.reduce((parcial, ponto) => Math.max(parcial, zValido(ponto) ?? 0), maior),
         0,
       ),
     [series],
@@ -156,8 +162,9 @@ export function ChartScatter({
   function descrever(serie: ChartScatterSeries, ponto: ChartScatterPoint) {
     const inicio = ponto.label ? `${serie.label}, ${ponto.label}` : serie.label;
     const posicao = `${formatX(ponto.x)} × ${formatY(ponto.y)}`;
+    const z = zValido(ponto);
 
-    return ponto.z === undefined ? `${inicio}: ${posicao}` : `${inicio}: ${posicao} (${formatZ(ponto.z)})`;
+    return z === undefined ? `${inicio}: ${posicao}` : `${inicio}: ${posicao} (${formatZ(z)})`;
   }
 
   return (
@@ -201,8 +208,13 @@ export function ChartScatter({
           key={serie.label}
         >
           {serie.points.map((ponto, indice) => {
+            if (!Number.isFinite(ponto.x) || !Number.isFinite(ponto.y)) {
+              return null;
+            }
+
             const x = escalaX(ponto.x);
             const y = escalaY(ponto.y);
+            const z = zValido(ponto);
 
             return (
               <circle
@@ -214,7 +226,7 @@ export function ChartScatter({
                 key={indice}
                 onMouseEnter={() => setGuia({ x, y })}
                 onMouseLeave={() => setGuia(null)}
-                r={ponto.z === undefined ? RAIO_SEM_Z : escalaRaio(ponto.z)}
+                r={z === undefined ? RAIO_SEM_Z : escalaRaio(z)}
               />
             );
           })}

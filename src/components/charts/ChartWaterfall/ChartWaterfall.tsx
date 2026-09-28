@@ -48,15 +48,18 @@ interface Trecho {
   inicio: number;
 }
 
-
 /**
- * Cada passo ocupa a faixa entre o acumulado anterior e o novo acumulado. Um
- * passo marcado como total parte do zero: ele nao acrescenta, ele fecha a conta.
+ * Cada passo ocupa a faixa entre o acumulado anterior e o novo acumulado; o total parte do zero, porque
+ * fecha a conta. Passo invalido e ausente: nao se desenha nem move o acumulado.
  */
-function trechosDe(steps: readonly ChartWaterfallStep[]): Trecho[] {
+function trechosDe(steps: readonly ChartWaterfallStep[]): (Trecho | null)[] {
   let acumulado = 0;
 
   return steps.map((passo) => {
+    if (!Number.isFinite(passo.value)) {
+      return null;
+    }
+
     const inicio = passo.total ? 0 : acumulado;
     const fim = inicio + passo.value;
     acumulado = fim;
@@ -115,7 +118,7 @@ export function ChartWaterfall({
   );
 
   const dominio = useMemo(
-    () => domainOf(trechos.flatMap((trecho) => [trecho.inicio, trecho.fim])),
+    () => domainOf(trechos.flatMap((trecho) => (trecho ? [trecho.inicio, trecho.fim] : []))),
     [trechos],
   );
 
@@ -203,6 +206,10 @@ export function ChartWaterfall({
 
       <g aria-hidden="true">
         {trechos.slice(0, -1).map((trecho, indice) => {
+          if (!trecho || !trechos[indice + 1]) {
+            return null;
+          }
+
           const nivel = escalaValores(trecho.fim);
 
           return (
@@ -219,9 +226,14 @@ export function ChartWaterfall({
       </g>
 
       {steps.map((passo, indice) => {
-        const { fim, inicio } = trechos[indice];
-        const topo = Math.min(escalaValores(inicio), escalaValores(fim));
-        const altura = Math.abs(escalaValores(fim) - escalaValores(inicio));
+        const trecho = trechos[indice];
+
+        if (!trecho) {
+          return null;
+        }
+
+        const topo = Math.min(escalaValores(trecho.inicio), escalaValores(trecho.fim));
+        const altura = Math.abs(escalaValores(trecho.fim) - escalaValores(trecho.inicio));
 
         return (
           <path
@@ -243,8 +255,13 @@ export function ChartWaterfall({
 
       {showDataLabels &&
         steps.map((passo, indice) => {
-          const { fim, inicio } = trechos[indice];
-          const topo = Math.min(escalaValores(inicio), escalaValores(fim));
+          const trecho = trechos[indice];
+
+          if (!trecho) {
+            return null;
+          }
+
+          const topo = Math.min(escalaValores(trecho.inicio), escalaValores(trecho.fim));
 
           return (
             <text

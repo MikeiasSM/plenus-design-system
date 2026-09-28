@@ -18,17 +18,22 @@ export interface GroupSmallSlicesOptions {
  * A fatia reunida entra no lugar da primeira pequena, para que a ordem das
  * demais, que a legenda repete, permaneca a mesma.
  */
+/** Valor que a fatia ocupa no anel. Invalido tem o destino do ausente; um so desligava o agrupamento. */
+function ocupacao(fatia: ChartSlice) {
+  return Number.isFinite(fatia.value) ? Math.max(fatia.value, 0) : 0;
+}
+
 export function groupSmallSlices(
   slices: readonly ChartSlice[],
   { label, threshold }: GroupSmallSlicesOptions,
 ): readonly ChartSlice[] {
-  const total = slices.reduce((soma, fatia) => soma + Math.max(fatia.value, 0), 0);
+  const total = slices.reduce((soma, fatia) => soma + ocupacao(fatia), 0);
 
   if (threshold <= 0 || total <= 0) {
     return slices;
   }
 
-  const pequena = (fatia: ChartSlice) => Math.max(fatia.value, 0) / total < threshold;
+  const pequena = (fatia: ChartSlice) => Number.isFinite(fatia.value) && ocupacao(fatia) / total < threshold;
   const pequenas = slices.filter(pequena);
 
   if (pequenas.length < 2) {
@@ -38,7 +43,7 @@ export function groupSmallSlices(
   const reunida: ChartSlice = {
     intent: 'neutral',
     label,
-    value: pequenas.reduce((soma, fatia) => soma + Math.max(fatia.value, 0), 0),
+    value: pequenas.reduce((soma, fatia) => soma + ocupacao(fatia), 0),
   };
 
   let inserida = false;

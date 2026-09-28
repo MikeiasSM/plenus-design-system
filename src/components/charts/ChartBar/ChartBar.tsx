@@ -271,6 +271,10 @@ export function ChartBar({
             key={serie.label}
           >
             {categories.map((categoria, indiceCategoria) => {
+              if (!Number.isFinite(serie.values[indiceCategoria])) {
+                return null;
+              }
+
               const inicioCategoria = escalaCategorias(categoria) ?? 0;
               const [de, ate] = segmentoDa(indiceSerie, indiceCategoria);
               const comeco = escalaValores(de);
@@ -281,7 +285,7 @@ export function ChartBar({
 
               return (
                 <path
-                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria] ?? 0)}`}
+                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria])}`}
                   className={styles.bar}
                   d={roundedBarPath(
                     vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim),
@@ -301,7 +305,12 @@ export function ChartBar({
             {showDataLabels &&
               !stacked &&
               categories.map((categoria, indiceCategoria) => {
-                const valor = serie.values[indiceCategoria] ?? 0;
+                const valor = serie.values[indiceCategoria];
+
+                if (!Number.isFinite(valor)) {
+                  return null;
+                }
+
                 const ponta = escalaValores(valor);
                 const centro =
                   (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;

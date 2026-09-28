@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { formatarPercentual } from '../../../utils/formatters';
+import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import styles from './ChartTooltip.module.css';
 
 export interface ChartTooltipRow {
@@ -221,7 +221,7 @@ function Balao({
 
             {colunas.map((coluna, indice) => (
               <span className={`${styles.value} ${linha.emphasis ? styles.emphasis : ''}`} key={indice}>
-                {(coluna.format ?? String)(linha.values[indice] ?? 0)}
+                {(coluna.format ?? formatarNumero)(linha.values[indice] ?? 0)}
               </span>
             ))}
 
@@ -242,7 +242,7 @@ function Balao({
               <span className={`${styles.value} ${styles.totalValue}`} key={indice}>
                 {coluna.total === 'none'
                   ? ''
-                  : (coluna.format ?? String)(
+                  : (coluna.format ?? formatarNumero)(
                       totalizar(coluna.total ?? 'sum', rows.map((linha) => linha.values[indice] ?? 0)),
                     )}
               </span>

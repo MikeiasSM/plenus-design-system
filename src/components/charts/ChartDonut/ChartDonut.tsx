@@ -98,7 +98,7 @@ export function ChartDonut({
     <ChartFrame
       centerOrigin
       containerRef={ref}
-      empty={anel.slices.length === 0 || slices.every((fatia) => Math.max(fatia.value, 0) === 0)}
+      empty={anel.slices.length === 0 || slices.every((fatia) => !(fatia.value > 0))}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
