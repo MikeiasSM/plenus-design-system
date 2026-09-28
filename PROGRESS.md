@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-598 testes em 79 arquivos. Build da biblioteca e do Showcase validados.
+687 testes em 80 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -20,6 +20,10 @@ Outros modulos:
   em si sao publicos, com nomenclatura de familia.
 - `src/components/forms/Field` — cromo de campo compartilhado, agora **publico**, com testes proprios.
 - `src/hooks/useCharacterCount` — contagem de caracteres, controlada ou nao. **Interno**, nao exportado. Serve apenas `InputText` e `Textarea`, os campos de texto plano.
+- `src/hooks/useDecimalInput` — estado dos campos decimais: valor, texto em edicao e reinicio do formulario. **Interno**. Serve `InputNumber` e `InputCurrency`.
+- `src/hooks/useMergedRefs` — junta o ref interno ao de fora numa funcao estavel, com a limpeza do React 19. **Interno**. Substituiu o utilitario `mergeRefs`, que criava funcao nova a cada render.
+- `src/hooks/useFormReset` — avisa o componente do `reset` do formulario. **Interno**.
+- `src/components/forms/Field/FormValue` — leva ao formulario o valor de `Select`, `ComboBox` e dos tres seletores: oculto, ou validavel pelo navegador quando obrigatorio. **Interno**.
 - `src/hooks/useSelection` — State Motor de selecao, com `selection.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `Menu`, `Select`, `ComboBox`, `Tabs`, `Accordion` e `List`. Alem das chaves escolhidas, retem os itens, para que a escolha sobreviva ao item sair da colecao filtrada.
 - `src/components/data-display/List/useListing` e `ListingOptions` — a listagem compartilhada: colecao, filtro, teclado, ARIA, marcacao e virtualizacao. **Internos**, nao exportados. Servem `List`, `Select` e `ComboBox`.
 - `src/components/data-display/List/useVirtualWindow` — janela virtual da listagem. **Interno**, pertence ao componente conforme `ARCHITECTURE.md` secao 8.
@@ -28,7 +32,7 @@ Outros modulos:
 - `src/hooks/useCalendar` — State Motor de calendario, com `calendar.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `DatePicker` e, por ele, `DateTimePicker`.
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
-- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal`, `formatarEntradaMonetaria` e `formatarEntradaData` com `lerEntradaData`, **nao exportadas**, e os formatadores de apresentacao `formatarData` e `formatarHora`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
+- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal` e `formatarEdicaoDecimal`, `formatarEntradaMonetaria`, `formatarEntradaData` com `lerEntradaData`, `formatarEntradaHora` com `lerEntradaHora` e `formatarEntradaDataHora` com `lerEntradaDataHora`, as tres ultimas sobre `mascararPartes`, **nao exportadas**, e os formatadores de apresentacao `formatarData`, `formatarHora`, `formatarMoeda`, `formatarNumero` e `formatarPercentual`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
 - `src/components/charts/core` — o que os onze graficos compartilham. `ChartFrame` e a moldura de todos: titulo,
   area de desenho, estado vazio e legenda. `CartesianFrame` e uma camada sobre ela, com grade e eixos. Ao lado,
   `ChartLegend`, o calculo de layout de `cartesianLayout.ts`, as medidas de `spacing.ts`, a medida e o corte de
@@ -53,8 +57,10 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 **Validacao**
 
 - O contraste e medido por `scripts/check-contraste.mjs`, que le os tokens na ordem da cascata, resolve as cadeias de `var()` e mede os dois temas. Ele nao e um teste do Vitest porque nao ha componente envolvido: o que se verifica e o valor do token, e ligar o processamento de CSS no jsdom sairia caro para medir o que o arquivo ja declara.
-- As reprovacoes aceitas vivem declaradas **no script**, e nao so em prosa. Uma quinta reprovacao derruba o comando.
-- A ordem dos arquivos no script copia a de `tokens.css`: os `@import` primeiro e o bloco legado depois, porque e ele quem vence onde redeclara. Medir na ordem errada daria um laudo que nao corresponde ao que o navegador aplica.
+- As reprovacoes aceitas vivem declaradas **no script**, e nao so em prosa. Uma reprovacao fora da lista derruba o comando.
+- A ordem dos arquivos no script copia a de `tokens.css`: os `@import` primeiro e o bloco legado depois, porque e ele quem vence onde redeclara. Medir na ordem errada daria um laudo que nao corresponde ao que o navegador aplica. Ate a reverificacao da 0.1.1 o bloco legado era descartado: preso aos `@import` no mesmo trecho, ele parecia uma regra `@`. E o bloco `:root, :root[data-theme]` de aliases ia so para o escuro.
+- O laudo mede tambem as mensagens de estado — sucesso, atencao, perigo, informacao e o erro sob o campo —, que o comentario do script prometia e nao media.
+- O `check:pacote` confere, alem das exportacoes e dos keyframes, que nenhuma variavel do CSS publicado fica sem declaracao e que nenhum seletor sem classe alcanca a pagina do hospedeiro. As duas regras eram conferidas a mao.
 - O pacote construido e conferido por `scripts/check-pacote.mjs`, fora da suite: `dist/` nao existe antes do build, e um teste que se pula sozinho esconde a falha que deveria mostrar.
 - A separacao entre series sob deficiencia de visao de cores **nao** entra nesses scripts. Ela foi medida a parte e continua sem ferramenta no repositorio.
 
@@ -64,9 +70,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - **O zero no eixo passou a ser opcional** em `ChartLine`, `ChartArea` e `ChartScatter`. Ele continua ligado por padrao, porque marca que nao parte do zero exagera a diferenca; mas um eixo de anos ia de 0 a 2200.
 - **Ponto sem vizinho aparece sempre.** A curva entre ele e o nada nao tem tracado, e o marcador so no hover deixava o dado invisivel.
 - A marca do eixo e a linha da grade sao identificadas pela **ordem**, nao pela posicao animada: com a posicao na chave, cada quadro do movimento remontava a lista inteira.
-- O centro do `ChartRadial` segue o primeiro anel **visivel**, e a espessura cede antes de o raio ficar negativo.
+- O centro do `ChartRadial` segue o primeiro anel **visivel**, e some quando todos estao desligados. Com muitos aneis, espessura e folga cedem na mesma proporcao antes de o raio ficar negativo.
 - Zero na cascata nao leva sinal, e a entrada desligada da legenda muda de cor em vez de desbotar — a opacidade derrubava o contraste abaixo do minimo.
-- A `List` retem toda opcao ja vista: com busca assincrona, resolver a escolha so contra a colecao corrente descartava o que veio de uma busca anterior. E o primeiro render monta so o suficiente para medir, em vez de dez mil nos.
+- A `List` retem toda opcao ja vista: com busca assincrona, resolver a escolha so contra a colecao corrente descartava o que veio de uma busca anterior. E o primeiro render monta so o suficiente para medir, em vez de dez mil nos; se a medida der zero — jsdom, lista montada escondida — a janela desliga e monta tudo, e mede de novo quando a lista aparece.
 
 **A biblioteca nao se molda a uma aplicacao**
 
@@ -76,49 +82,91 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Contrato publico dos componentes**
 
-- **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. A regra ja valia nos campos e passou a valer nos conteineres: `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`. Sem isso o consumidor nao posicionava, nao identificava e nao instrumentava componente algum.
-- **`ref` e propriedade, nao `forwardRef`.** O React 19 a trata assim, e `mergeRefs` junta o ref interno ao de fora — sem ele, um dos dois se perdia: o interno, sobrescrito por `{...props}`, ou o de fora, sobrescrito pelo componente.
-- **`name` leva o valor ao `FormData`.** `Select`, `ComboBox` e os tres seletores nao tem controle nativo por baixo, entao um input oculto carrega o valor. Sem ele o campo simplesmente nao era enviado.
-- **O gatilho nao conta como "fora".** Em `Menu`, `Select` e nos tres seletores, o ponteiro fechava o painel e o clique do gatilho reabria em seguida. `shouldCloseOnInteractOutside` resolve nos cinco.
-- O `Breadcrumb` entrega `linkProps` inteiras ao componente de link, para o roteador que pede `to` em vez de `href`.
+- **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. Nos campos o elemento e o controle: o `input` nos de texto, o gatilho no `Select`, o campo de texto no `ComboBox` e nos seletores, onde o `className` vai a caixa do campo. Nos conteineres, `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`, e o elemento de fora; no `Dialog` e no `Popover`, o elemento do dialogo. `Menu` e `Tooltip` ainda nao levam `id` nem `data-*` ao painel: a raiz deles e o gatilho do consumidor.
+- **`ref` e propriedade, nao `forwardRef`.** O React 19 a trata assim, e `useMergedRefs` junta o ref interno ao de fora — sem ele, um dos dois se perdia: o interno, sobrescrito por `{...props}`, ou o de fora, sobrescrito pelo componente.
+- **`name` leva o valor ao `FormData`.** `Select`, `ComboBox` e os tres seletores nao tem controle nativo por baixo, entao um input oculto carrega o valor. Sem ele o campo simplesmente nao era enviado. Ele respeita `disabled`, como o controle nativo, e o reinicio do formulario.
+- **Obrigatorio barra o envio.** Input oculto fica fora da validacao do navegador, e o formulario vazio passava. Com `required`, o valor vai num campo validavel e invisivel, que devolve o foco ao controle quando o navegador aponta o erro.
+- **O gatilho nao conta como "fora".** Em `Menu`, `Select`, `Popover` e nos tres seletores, o ponteiro fechava o painel e o clique do gatilho reabria em seguida. `shouldCloseOnInteractOutside` resolve nos seis.
+- O `Breadcrumb` entrega `linkProps` inteiras ao componente de link, para o roteador que pede `to` em vez de `href`. `linkProps` sozinhas bastam para o item virar link.
 
 **Data e hora**
 
-- **O valor acompanha o texto.** Enquanto o que esta escrito nao e uma data e hora inteiras e permitidas, o campo nao tem valor. Antes, `18:4` na tela convivia com meia-noite no consumidor, e uma data fora dos limites ficava com o valor anterior. A regra vale nos tres seletores, e substitui a decisao anterior de ficar em silencio durante a digitacao: silencio deixava texto e valor discordando.
+- **O valor acompanha o texto.** Enquanto o que esta escrito nao e uma data e hora inteiras e permitidas, o campo nao tem valor. Antes, `18:4` na tela convivia com meia-noite no consumidor, e uma data fora dos limites ficava com o valor anterior. A regra vale nos tres seletores, e substitui a decisao anterior de ficar em silencio durante a digitacao: silencio deixava texto e valor discordando. A hora digitada tambem respeita `min` e `max`.
 - Sem hora nenhuma, meia-noite continua sendo o valor. E decisao ja fixada em teste, e a data sozinha e um instante legitimo.
 - **`null` e "controlado e vazio".** Devolver a propriedade a `undefined` nao limpa o campo, porque ali ele volta a ser nao controlado — era assim que um `form.reset()` ficava sem efeito nos tres seletores.
+- **O campo sem valor emite `null`, e nao `undefined`.** O laco `value={v} onValueChange={setV}` recebia `undefined`, voltava ao modo nao controlado e ressuscitava o ultimo valor interno. O estado interno tambem acompanha o que foi emitido, mesmo controlado. **Mudanca incompativel** no tipo de `onValueChange` dos tres seletores.
 - **Data digitada respeita `min`, `max` e `isDateUnavailable`.** O calendario ja as recusava; o campo era a porta dos fundos.
 - **O mes visivel segue o valor.** Digitar uma data e abrir o painel mostrava o mes corrente. E `goToMonth` leva o foco junto, senao a seta seguinte devolvia a grade ao mes anterior.
-- **Data colada sem zero a esquerda.** `1/3/2026` virava `13/20/26`: a mascara descartava os separadores e nao sabia onde cada parte comecava. ISO tambem e aceito, com o ano reordenado.
+- **O separador digitado fecha a parte.** `1/3/2026`, colado ou tecla a tecla, e dia 1 e mes 3, e o campo mostra como foi digitado ate sair dele. Editar o dia no meio da data nao empurra digitos para o mes: selecionar `09` e digitar `15` gravava 1 de marco. Sem separador, a parte fecha ao encher. A mesma mascara, `mascararPartes`, serve data, hora e data com hora, e o `DateTimePicker` passou a entender `1/3/2026 18:40`. ISO tambem e aceito, com o ano reordenado.
 - Passo nao positivo na lista de horarios travava a aba num laco sem fim, e a lista nao andava por teclado — faltava passar o proprio teclado ao `ListingOptions`.
-- Ids de listbox saem de `useId`: `Math.random` no `ComboBox` mudava entre servidor e cliente, e o `'hora'` fixo fazia dois seletores dividirem os ids das opcoes.
+- Ids de listbox saem de `useId`: `Math.random` no `Select` mudava entre servidor e cliente, e o `'hora'` fixo fazia dois seletores dividirem os ids das opcoes — no `TimePicker` e no `DateTimePicker`.
+- **O painel de horas recebe o foco ao abrir**, e o teclado parte do horario escolhido, como no `Select`. Antes a seta abria o painel e deixava o foco no campo, onde nem seta nem Enter faziam nada, e a lista partia da meia-noite. Escape fecha o painel tambem com o foco no campo.
+- **O foco do calendario mora no dia.** A grade tinha o foco e so o desenho apontava o dia, entao o leitor de tela nao ouvia nada ao andar pelas setas. Agora o dia em foco e a parada de Tab, recebe o foco de verdade e o dia indisponivel usa `aria-disabled`, para continuar alcancavel. O foco so anda com o dia se ja estava na grade: o `ref` em linha chamava `focus()` a cada render, e o segundo Enter em "Proximo mes" escolhia um dia.
+- **Hoje e Agora levam a grade ao mes corrente**, mesmo com o rascunho ja em hoje: o calendario so seguia o valor quando ele mudava, e ficava no mes navegado.
 
 - **Havia duas escalas de tamanho respondendo a mesma pergunta.** `--pl-type-*`, documentada, com nove papeis; e `--pl-size-*`, herdada do mock v8, com 11, 13 e 15 — degraus que a escala oficial nao tem. Trinta e quatro modulos usavam a documentada e oito usavam a legada, entao um botao saia com 13px ao lado de uma aba com 14px, mesmo papel e mesmo peso. O `TOKENS-REFERENCE-TYPOGRAPHY.md` tem secao propria proibindo escala paralela; ela existia. Os oito migraram, e a legada foi apagada.
 - Consequencia visivel, aceita pelo mantenedor: botao vai de 13px para 14px, botao grande de 15px para 16px e **badge de 11px para 14px** — o documento nomeia o badge junto de botoes e abas, em `type.label`.
 - **A coluna numerica da `Table` pegava o peso do papel sem a familia.** `data-value` e JetBrains Mono, unica familia carregada no peso 500; aplicar o peso sobre Montserrat dava seminegrito sintetizado, justamente onde o monoespacado serve para alinhar digito com digito. Medido em navegador: a celula agora sai em `JetBrains Mono` 500.
-- **As familias nao tinham defeito algum.** Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500 batem com o que a referencia manda carregar, e os nove pesos da camada semantica cabem nessa importacao.
+- **As familias nao tinham defeito algum.** Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500 batem com o que a referencia manda carregar, e os nove pesos da camada semantica cabem nessa importacao. Dois usos pediam a mono em 600, que nao e carregada, e saiam em negrito sintetizado: o cabecalho da `Table` e a linha em destaque do `ChartTooltip`. Os dois voltaram ao peso carregado.
+- `--pl-font-mono` era declarado duas vezes, e o bloco legado vencia com uma pilha fora da referencia. Ficou a da camada semantica.
 - O Showcase passou a importar `reset.css`. Separado o CSS de pagina, ele deixou de herdar a base tipografica e o corpo voltava aos 16px do navegador — o consumidor precisa pedir o reset, e o Showcase e um consumidor.
 
 - Um relatorio de integracao com o PlenusLAB, sobre o commit `a9df04c`, levantou cerca de cento e cinquenta pontos. As afirmacoes de maior peso foram reproduzidas antes de qualquer conserto, e uma delas **nao reproduziu**: `formatarHora('00:05', 'en-US')` devolve `00:05` no Node 24, e nao `24:05` — deve depender da versao do ICU. A troca de `hour12` por `hourCycle` foi feita assim mesmo, porque esta certa.
 - Tres dos achados eram regressoes desta mesma sessao: o `ChartBar` quebrando com serie nova, o `chartSeriesIn` sem definicao e o `prepare` arrastando o Showcase. Os tres corrigidos.
-- **O ponto e ambiguo e nao pode ser descartado sem olhar.** Em pt-BR ele separa milhar, mas teclado numerico e texto colado de origem inglesa o usam como decimal. `formatarEntradaDecimal` passou a le-lo como decimal quando e o unico e o que vem depois nao forma grupo de milhar. Antes, colar `12.50` gravava `1250`.
+- **O ponto e ambiguo e nao pode ser descartado sem olhar.** Em pt-BR ele separa milhar, mas teclado numerico e texto colado de origem inglesa o usam como decimal. `formatarEntradaDecimal` o le como decimal quando e o unico, sem virgula, e o que vem depois nao forma grupo de milhar — ou o que vem antes e zero, porque ninguem escreve `0.500` para quinhentos. Antes, colar `12.50` gravava `1250`.
+- **Digitado, o ponto espera a proxima tecla.** Decidido na hora, `1.` virava `1,` e `1.234,56` tecla a tecla terminava em `1,23`. Com menos de tres digitos depois, o ponto fica na tela como foi digitado e o valor o le como decimal; o terceiro digito, ou a virgula, decide. Ao sair do campo, o ponto indeciso vira virgula. Quem mostra e `formatarEdicaoDecimal`, e o estado vive em `useDecimalInput`, que `InputNumber` e `InputCurrency` compartilham.
 - **Numero que vem de fora arredonda; o que esta sendo digitado trunca.** Sao coisas diferentes: no primeiro caso o valor esta pronto e truncar e perda; no segundo ele esta pela metade.
 - **Data sem hora entra pelo fuso local; o resto vai inteiro para o `Date`.** O corte por hifen engolia o `T` e devolvia vazio para tudo que sai de `toISOString()`.
 - **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de chamar o `d3-sankey`, que lancava e derrubava a arvore. Anuncia em vez de descartar ligacao pelas costas.
 - **Com sinais mistos, o total nao define a pilha.** `+10` e `-5` somam `5`, mas o segmento positivo chega a `10` e era desenhado por cima do titulo. `stackedExtremes` devolve o caminho do acumulado, e nao so o fim dele.
 - **Cada keyframe vive no modulo que o usa.** O CSS Modules renomeia o nome na declaracao `animation` mesmo quando ele foi definido num arquivo global, e a referencia deixava de casar — em silencio, porque CSS nao reclama de animacao inexistente. No pacote publicado, Spinner nao girava, Progress indeterminado nao andava e as entradas de Sankey e Treemap nao animavam. O `check:pacote` agora compara definidos contra referenciados.
-- **Numero invalido tem o mesmo destino do ausente: nao se desenha.** `NaN` virava `y = 0`, que o eixo le como o maximo, entao a curva afirmava o contrario do dado. Uma fatia invalida zerava o anel inteiro.
-- **O formato padrao dos graficos e pt-BR.** `String(valor)` mostrava `1234.5` numa biblioteca cuja terminologia, documentacao e formatadores sao em portugues.
-- **Overlay dentro de Dialog declara-se camada de cima.** O `ariaHideOutside` do Dialog esconde de leitor de tela tudo que nasce fora dele, e Menu, Popover e Tooltip montam portal no `body`. O Menu tambem ganhou escopo de foco proprio, sem o qual o `FocusScope contain` do Dialog puxava o foco de volta — e o retorno do foco ao gatilho passou a acontecer **depois** da desmontagem, pelo mesmo motivo.
+- **Numero invalido tem o mesmo destino do ausente: nao se desenha.** `NaN` virava `y = 0`, que o eixo le como o maximo, entao a curva afirmava o contrario do dado. Uma fatia invalida zerava o anel inteiro. A regra chegou depois a cascata, onde o passo invalido nao desenha nem move o acumulado; a dispersao, que desenhava o ponto em `x = 0`; o radial, cujo maximo virava `NaN`; a area empilhada, onde um invalido embaixo partia a serie de cima; o agrupamento em "Outros"; e aos rotulos e descricoes da barra e do anel. Anel ou mapa sem valor positivo anuncia vazio.
+- **O formato padrao dos graficos e pt-BR.** `String(valor)` mostrava `1234.5` numa biblioteca cuja terminologia, documentacao e formatadores sao em portugues. Vale tambem na dispersao e no `ChartTooltip`. Ano em eixo de valor pede formato sem separador de milhar, e a documentacao de `includeZero` avisa.
+- Os formatadores de apresentacao nao poem sinal no zero: `-0`, e o que arredonda para zero, saiam `-0` e `-0,00`.
+- **Overlay dentro de Dialog declara-se camada de cima.** O `ariaHideOutside` do Dialog esconde de leitor de tela tudo que nasce fora dele, e Menu, Popover e Tooltip montam portal no `body`. O atributo faltava no Popover, que so tinha o comentario; o teste agora espera o `MutationObserver`, antes do qual passava com o overlay escondido. O Menu tem escopo de foco proprio, **sem `contain`**: o escopo o poe na arvore do Dialog, e o `contain` disputava o foco com o gatilho. Por isso o foco volta ao gatilho **na hora e antes do `onSelect`** — um campo com `autoFocus` ou um Dialog aberto por ele guardavam o item do menu, que sai da tela, e o foco ia ao `body`. O clique fora fecha sem devolver o foco, que e de quem foi clicado.
+- **O Popover nao prende o foco**, como o catalogo o define: sem bloquear a pagina. Sem `contain`, o `restoreFocus` do `FocusScope` leva o Tab da borda ao elemento seguinte ao gatilho. Ele renderiza no servidor sem `document`, como o Dialog.
 - **O gatilho nao e "fora".** Sem `shouldCloseOnInteractOutside`, o ponteiro fechava o menu e o clique do gatilho reabria em seguida. E o `cloneElement` deixou de descartar `ref`, `onClick` e `onKeyDown` de quem escreveu o gatilho.
 - **Em modo unico, o vazio e valido no acordeao e invalido na aba.** `useSelection` ganhou `allowEmpty`, que so o Accordion liga: a secao aberta fecha ao ser clicada de novo.
 - O grupo de radio da `Table` deriva do `baseId`. Fixo em `table-selection`, duas tabelas na mesma pagina viravam um grupo so.
 - **O React 19 trata `ref` como propriedade**, entao os campos passaram a aceita-lo sem `forwardRef`, com `mergeRefs` juntando o interno ao de fora. Antes nenhum campo entregava o elemento nativo.
 
+**Correcoes vindas da reverificacao da 0.1.1**
+
+A reverificacao de 28/09, sobre a 0.1.1 do registro, trouxe 38 achados novos e o estado dos 125 do relatorio anterior. Cada defeito de comportamento ganhou um teste que falha no codigo anterior; os de CSS foram conferidos no pacote construido, que o jsdom nao estiliza. O que depende de decisao esta na lista de pendencias, e nao foi implementado.
+
+- **Pilha com sinais mistos e divergente**: o positivo sobe do zero sobre os positivos e o negativo desce dele sob os negativos, na barra e na area. `stackedExtremes` corrigiu o dominio e nao o desenho, que seguia a soma corrida: `+10` e `-5` pintavam a saida de 10 a 5, por cima da entrada. `stackDiverging` resolve os dois, e cada pilha arredonda as proprias pontas.
+- **Sem o zero no dominio, a area desce ate o limite do eixo.** A base em `escala(0)` levava o preenchimento centenas de pixels para fora do desenho, por cima do eixo e da pagina.
+- **O `ref` e ligado uma vez so.** `mergeRefs` criava funcao nova a cada render, e o React desligava e religava o elemento em todo render, sem rodar a limpeza que o React 19 permite devolver. E o ref do gatilho de `Menu` e `Tooltip` e lido das propriedades: `children.ref` avisa no React 19.
+- **A escolha de `Select` e `ComboBox` e a chave.** Resolvida contra `options`, ela sumia da tela e do envio enquanto as opcoes nao chegavam; a listagem registra tambem os itens que so vieram pelo valor, e a `List` controlada deixou de perder a escolha que nao esta entre os itens.
+- **Home, End e Espaco editam o campo de busca**, em vez de navegar ou escolher. Sair do `ComboBox` no meio de uma busca devolve o texto da escolha, e o clique no painel, fora de uma opcao, nao fecha a lista.
+- **A lista que detem o foco o recebe no clique.** So o campo de busca segura o foco onde ele esta.
+- **Tabela**: a ajuda da coluna saiu de dentro do botao de ordenacao, porque controle dentro de controle nao e HTML valido; caixa e chave desmarcam na selecao unica; marcar todas fica desabilitado sem `rows`, onde so apagava a escolha; a chave e anunciada como chave; a linha perdeu `aria-selected`, que so vale em grade; a coluna que sai da tela sai do registro; a linha marcada mantem o destaque na zebra; `defaultSelectedIds` da a escolha inicial; e o descarte de colunas usa os breakpoints do sistema, 900, 1180 e 1280, e nao uma escala propria de 640, 768 e 1024, como `COMPONENTS.md` secao 9 pede.
+- **A lista de abas sempre tem uma parada de Tab.** Com a escolhida inexistente ou desabilitada, nenhuma aba era alcancavel.
+- **A faixa de paginas tem sempre as mesmas vagas**, e reticencia nunca esconde uma pagina so. Perto da ponta ela encolhia, e a reticencia chegava a ocupar o lugar so do 2.
+- **O Tooltip aceita o ponteiro**, como pede a WCAG 1.4.13: sair do gatilho espera a travessia ate o balao.
+- O botao de mostrar senha diz o estado pelo rotulo, que acompanha o texto visivel; `aria-pressed` junto dizia duas vezes.
+- A mascara monetaria escreve o simbolo da moeda que o `Intl` da em pt-BR, `US$` para o dolar; antes so o real tinha simbolo, e as demais mostravam o codigo.
+- Os tres seletores tem a caixa do `InputText` — raio, altura de 42px, estados de erro e de desabilitado —, num lugar so: `TimePicker` e `DateTimePicker` compoem do `DatePicker`, em vez de repetir o CSS com raio e altura proprios.
+- Graficos: o mapa de area sem grupo visivel nao desenha o bloco cinza da raiz; a chave das ligacoes do sankey e a posicao, porque `a-b` para `c` e `a` para `b-c` colidiam; o rotulo do negativo fica alem da ponta, e nao dentro da barra; o balao tem largura maxima; os degraus e o peso do valor do centro saem dos tokens tipograficos; e o `ChartDonut` recusa espessura fora de 0 a 1, que deixava o raio interno negativo.
+- **O tema dos graficos e o do documento**, `:root[data-theme]`, como o das demais camadas. Com `[data-theme]` sozinho, uma subarvore escura trocava as series e nada mais.
+- `logScale` e `timeScale` sairam, por nao terem consumidor.
+- A suite deixou de escrever dezoito erros de canvas do jsdom, que escondiam os verdadeiros: o setup devolve contexto nulo, e a medida ja cai na estimativa.
+
+Mudancas incompativeis desta rodada, conforme `CONTRIBUTING.md` secao 11:
+
+- `onValueChange` de `DatePicker`, `TimePicker` e `DateTimePicker` emite `null`, e nao `undefined`, quando nao ha valor.
+- `Popover` nao prende mais o foco, e o clique no gatilho e do consumidor. As propriedades `aria-label` e `aria-labelledby` continuam, agora como parte das nativas.
+- Na `Table`, a linha nao tem `aria-selected`, caixa e chave desmarcam na selecao unica e os breakpoints de `hideBelow` passaram a 900, 1180 e 1280.
+- Passos da `Pagination` e dias indisponiveis do calendario usam `aria-disabled`, e nao `disabled`.
+- O botao de senha nao tem `aria-pressed`.
+- Os seletores mudaram de raio e de altura, para a do `InputText`.
+- O `Select`, o `ComboBox` e os seletores obrigatorios barram o envio vazio.
+
 **Fronteira com a aplicacao hospedeira**
 
 - **O CSS global foi partido em dois, por decisao do mantenedor, depois do primeiro consumo real.** `styles/base.css` viaja com os componentes e traz so o que eles exigem do documento; `styles/reset.css` e opcional, sai como arquivo proprio em `dist/reset.css` e carrega a base de pagina — corpo, titulos, links, controles nativos, selecao, barra de rolagem. Antes disso, instalar a biblioteca reescrevia o `body`, os titulos, o `select` nativo e a barra de rolagem do hospedeiro, que e o oposto do que o `README.md` promete quando diz que as aplicacoes consomem.
-- A regra e: **o que um componente precisa para estar correto mora no modulo dele.** Separar sem isso seria pior que nao separar, porque quem importasse so o CSS dos componentes receberia padding errado em silencio. Na pratica sobrou o `box-sizing` em `base.css`, e dois consertos: `Field` passou a declarar a propria familia tipografica, que herdava do `body`, e `Accordion` e `Pagination` ganharam anel de foco proprio, que era o unico par que dependia do `:focus-visible` global.
+- A regra e: **o que um componente precisa para estar correto mora no modulo dele.** Separar sem isso seria pior que nao separar, porque quem importasse so o CSS dos componentes receberia padding errado em silencio. Na pratica sobrou o `box-sizing` em `base.css`, e dois consertos: `Field` passou a declarar a propria familia tipografica, que herdava do `body`, e `Accordion` e `Pagination` ganharam anel de foco proprio. Eles nao eram os unicos que dependiam do `:focus-visible` global, como se registrou aqui.
+- Na reverificacao da 0.1.1 ela ainda falhava em varios: ajuda e erro de `Checkbox`, `RadioGroup` e `Switch` sem familia — agora compostos do `Field` —, anel de foco proprio que faltava em `Tabs`, `Breadcrumb`, no fechar do `Dialog`, no `Button` em carregamento e nos controles da `Table`, e texto sem familia ou cor no carregamento da `Table`, na reticencia da `Pagination` e no conteudo do `Card`. O `reset.css` passou a usar so tokens semanticos, e a consolidacao do bloco legado nao o quebra mais.
 - **Uma regra de pagina continua viajando com os componentes, de proposito**: o bloco de `prefers-reduced-motion` com `!important`. Dezoito modulos animam sem guarda propria, e sem ele a preferencia deixaria de valer para quase toda a biblioteca. Ele so age quando a pessoa pediu menos movimento, que e quando passar por cima do hospedeiro e o comportamento certo. Dar guarda propria aos dezoito e o que permitiria move-lo para o reset.
 - Medido no pacote construido: o CSS dos componentes nao tem mais nenhum seletor de elemento nu, e `body`, barra de rolagem e `select` nativo so existem no reset.
 
@@ -129,7 +177,8 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - O fluxo repete as comportas locais antes de publicar: tipos, suite, build, `check:pacote` e `check:contraste`. Uma reprovacao em qualquer uma impede a publicacao, e e de proposito — o laudo de contraste e exigencia do `TOKENS-REFERENCE-COLORS.md` antes de expor os tokens.
 - **A tag e o `package.json` tem de dizer a mesma coisa.** Sem essa comporta, empurrar `v0.2.0` com o pacote em `0.1.1` publicaria a versao errada sob um nome que promete outra.
 - O segredo do repositorio chama-se `NPM_TOKEN` e precisa ser um token **granular**, com escrita no escopo `@plenustech` e a dispensa de 2FA marcada. O token classico exige o codigo de seis digitos, que nenhuma automacao responde — foi exatamente o que barrou a primeira tentativa manual.
-- **Sem procedencia (`--provenance`).** A atestacao do npm exige repositorio publico; este e privado, e pedi-la faria o fluxo falhar.
+- **Sem procedencia (`--provenance`).** A atestacao do npm exige repositorio publico, e este foi declarado privado. A reverificacao de 28/09 afirma que ele e publico (`"private": false` na API do GitHub); conferir e decidir — publico, a procedencia fica viavel com `id-token: write`.
+- A publicacao da 0.1.2 falhou, e o fluxo corrigido nunca rodou: a tag `v0.1.2` aponta para o commit anterior a checagem da credencial. O fluxo agora publica com `--ignore-scripts` — o `prepare` reconstruia o pacote depois de o `check:pacote` aprovar outro build —, derruba o passo quando o `whoami` falha, o que dentro da substituicao nao acontecia, e recusa tag posta fora da `main`. Exercita-lo pede uma tag nova, empurrada pelo mantenedor.
 
 - O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
 - As declaracoes saem com **extensao explicita**, acrescentada no pos-build. Sem ela, `node16` e `nodenext` recusam cada import relativo — eram 97 erros. Corrigir no fonte custaria reescrever duzentos imports por uma exigencia de empacotamento.
@@ -165,8 +214,9 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 - `Field` concentra rotulo, ajuda, erro, contador e a fiacao de `id` e `aria-describedby`. O valor da contagem fica em cada controle, que e quem detem o valor.
 - Campos **derivam** o valor exibido em vez de espelhar estado em efeito.
-- Os formatadores de entrada sao mascaras, distintas do `formatarMoeda` de apresentacao previsto em `ARCHITECTURE.md` secao 9.1, que ainda nao existe.
+- Os formatadores de entrada sao mascaras, distintas do `formatarMoeda` de apresentacao de `ARCHITECTURE.md` secao 9.1.
 - `Menu` e `Select` devolvem o foco ao gatilho por conta propria. O `restoreFocus` do `FocusScope` nao era observavel em teste e mascarava a ausencia.
+- Controle desabilitado na borda usa `aria-disabled`, e nao `disabled`: o botao desabilitado perde o foco de quem acabou de usa-lo. Vale nos passos da `Pagination` e nos dias indisponiveis do calendario.
 - Espalhar `overlayProps` e declarar `onKeyDown` em seguida **substitui** o manipulador da biblioteca. Encadear, sempre.
 - A contagem de caracteres nao controlada vive em `useCharacterCount`, que ouve o evento `reset` do formulario e restaura a contagem inicial. Sem isso, a contagem ficava presa ao ultimo valor digitado enquanto o campo voltava ao inicial.
 - A API do `Avatar` aceita apenas atributos validos nos dois elementos que ele pode renderizar. Atributos exclusivos de `img` acabavam no `span` de fallback.
@@ -199,6 +249,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Expansao do Showcase React para os proximos componentes oficiais.
 - Consolidacao do bloco legado de `tokens.css` com as camadas primitiva e semantica.
 - Validacao da carga das familias e pesos tipograficos definidos.
+- **Nada da reverificacao da 0.1.1 foi conferido em navegador real.** O relatorio viu em Chromium a pilha de sinais mistos, a area abaixo do eixo, a lista escondida no Accordion, o foco do Menu e do Popover e o cabecalho fixo. Os consertos estao cobertos no jsdom, mas geometria, foco em portal e `:has()` pedem o navegador.
 
 ### Ainda nao implementado
 
@@ -206,8 +257,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`, A troca do `<title>` por `aria-label` ja esta feita.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
-- Testes de tema escuro, de importacao do pacote construido e verificacao automatizada de contraste.
-- Pipeline de validacao e publicacao do pacote.
+- Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
 - Showcase consumindo o pacote como aplicacao externa, em vez do alias local.
 
 ## Pendencias de correcao identificadas no review
@@ -221,6 +271,28 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
 - Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
+
+## Decisoes pendentes da reverificacao da 0.1.1
+
+Levantadas no relatorio de 28/09 e **nao implementadas**, por dependerem do mantenedor ou por contrariarem documento normativo.
+
+- **Leitura da marca sob o ponteiro.** Sem `<title>`, `ChartLine`, `ChartArea`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` ficaram sem leitura alguma do valor no hover, e o valor que o sankey omite por colisao nao tem onde aparecer. A troca foi decisao do mantenedor, justificada pelo balao duplicado, que so existe onde ha `ChartTooltip`. Caminhos: devolver o `<title>` onde nao ha costura, ou ligar o `ChartTooltip` nesses graficos, pendencia ja registrada.
+- **`includeZero` por eixo na dispersao.** Um so valor vale para x e y, e tirar o zero dos anos tira tambem o do valor. Separar muda a forma da propriedade.
+- **Licenca.** O `package.json` nao declara `license`, e o repositorio tambem nao tem licenca: pacote publico sem licenca nao concede uso. Se a intencao e proprietaria, `"license": "UNLICENSED"`.
+- **Visibilidade do repositorio e procedencia.** Ver a secao de distribuicao.
+- **Versao e tag da proxima publicacao.** A `v0.1.2` ja existe e aponta para um commit sem os consertos; a proxima tag precisa de versao nova. As mudancas incompativeis acima pedem `0.2.0` pela convencao de 0.x.
+- **Cabecalho fixo da `Table` com a rolagem da pagina.** Ele gruda quando a propria tabela rola; com a rolagem da pagina, nao, porque o envoltorio com `overflow-x: auto` e um conteiner de rolagem, e sticky cola nele. Rolar na horizontal dentro da tabela e colar na rolagem da pagina sao excludentes em CSS: e preciso escolher.
+- **Controles de selecao da `Table`** sao os nativos com `accent-color`, e nao o visual do `Checkbox`. Compor o CSS dele e possivel, sem trocar o elemento.
+- **Entrelinha do `Button`.** `1.2` esta fora da escala; o papel `type.label` e 20px, o que leva o botao medio de 39px para 42px, a altura do `InputText`, e mexe nos demais tamanhos.
+- **Fontes fora do pacote.** Nem o `README.md` nem o `dist` dizem como carregar Poppins, Montserrat e JetBrains Mono; so o `TOKENS-REFERENCE-TYPOGRAPHY.md`, que nao vai no pacote. Documentar no `README.md` pede aprovacao.
+- **`README.md` diverge do repositorio**: cita `globals.css`, `themes/` e `.editorconfig`, que nao existem, e nao cita `base.css`; e diz que o Showcase consome como consumidor externo, quando ele usa alias para `src`. Documento normativo: alterar pede aprovacao.
+- **Seletor de tema nos exemplos normativos.** `TOKENS.md` e `ARCHITECTURE.md` secao 5 mostram `[data-theme='dark']`, que vale em subarvore; a implementacao, e agora tambem a dos graficos, usa `:root[data-theme]`.
+- **Tipos de `@internationalized/date` na API publica** — `CalendarDate`, `Time`, `CalendarDateTime`. O `CLAUDE.md` admite o pacote como primitivo e veda tipo do React Aria em propriedade publica; e preciso dizer se a veda o alcanca.
+- **Contraste dos rotulos sobre as series.** `ChartPie` e `ChartTreemap` escrevem em branco sobre a cor da serie, abaixo de 4,5:1 em varias delas nos dois temas. Resolver pede um token de texto por serie, o que mexe no `TOKENS-REFERENCE-COLORS.md`.
+- **Duas bases no `ChartCombo`.** A barra do eixo direito cresce do zero dele, que nao coincide com o do esquerdo. Alinhar os zeros dos dois dominios e uma regra nova de escala.
+- **Teclado e toque nos graficos**, rotulo na barra empilhada, degrade da area negativa, rotulos repetidos — que a legenda, por decisao, trata como a mesma serie —, API comum entre os `Chart*` e as copias antigas de `d3-array` e `d3-shape` que o `d3-sankey` arrasta.
+- **API ainda aberta**: `id` e `data-*` no painel de `Menu` e `Tooltip`, cuja raiz e o gatilho; `Menu` controlado; `title` do `Alert`, que sombreia o atributo nativo; `className` e propriedades do `Progress` em elementos diferentes; e `InputCurrency` emitindo texto em pt-BR, e nao numero.
+- **Centro do `ChartRadial` com muitos aneis.** O vazio central tem piso de 8px, e a partir de seis aneis o valor do centro nao cabe. Reservar o centro custa espessura de anel.
 
 ## Excecoes de contraste aceitas
 
@@ -501,7 +573,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - `mix-blend-mode: multiply` saiu das ligacoes: contra a superficie escura do tema escuro ele as levava ao preto.
 - A ligacao fica **lavada em repouso**, e nao em cor cheia: o no e que carrega a cor, e e sobre a faixa lavada que o rotulo do no do meio continua legivel. Em cor cheia o rotulo desaparecia no fundo saturado.
 - **A referencia do sankey e o Metabase**, como a do anel. Dela saem tanto a forma quanto as opcoes: o rotulo fica sempre a direita do no — a referencia nao oferece escolha de posicao —, e as opcoes que ela oferece sao o alinhamento dos nos, o valor escrito sobre a ligacao e a origem da cor da ligacao. Sao essas que o componente expoe.
-- O valor da ligacao tem tres posicoes — `start`, `middle` e `end` —, com `end` por padrao. O rotulo do no ocupa a faixa logo a direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da propria origem. Em qualquer posicao, o valor que ainda assim cruzaria um rotulo e **omitido**: dois textos sobrepostos nao informam nada, e o valor continua no `title` da ligacao.
+- O valor da ligacao tem tres posicoes — `start`, `middle` e `end` —, com `end` por padrao. O rotulo do no ocupa a faixa logo a direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da propria origem. Em qualquer posicao, o valor que ainda assim cruzaria um rotulo e **omitido**: dois textos sobrepostos nao informam nada. Desde a troca do `<title>` por `aria-label`, o valor omitido nao tem leitura alguma no desenho — ver as decisoes pendentes.
 - So o rotulo do no de **saida** tem banda reservada: ele nao tem fluxo a direita para escrever por cima. Os demais caem sobre o proprio fluxo, e ali o halo da cor da superficie e que os separa do que passa por baixo.
 - Rotulo por papel do no, rotulo quebrado em linhas e no arredondado e estendido foram **implementados e descartados**, por divergirem da referencia. O `wrapToWidth` do nucleo saiu junto, por ficar sem consumidor.
 - O realce do hover **sobe um degrau**, e nao ate a cor cheia: o realce aponta qual ligacao e, nao muda o grafico de aparencia.
@@ -556,7 +628,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
    - `main`, `module`, `types` e `exports` configurados; declaracoes emitidas em `dist/types`; pacote
      construido validado por instalacao real num projeto separado, nos dois formatos.
    - `private` removido por decisao do mantenedor, e a importacao da folha de estilo documentada na
-     secao de Uso do `README.md`. Falta definir o registro de publicacao.
+     secao de Uso do `README.md`. Publicado no npm publico, por tag, pelo fluxo `publicar.yml`.
    - Revisar as excecoes de contraste aceitas, conforme exige `TOKENS-REFERENCE-COLORS.md`.
 
 ## Ordem recomendada de leitura da documentacao
