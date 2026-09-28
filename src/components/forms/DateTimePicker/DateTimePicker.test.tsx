@@ -117,16 +117,19 @@ describe('DateTimePicker', () => {
     const mudou = vi.fn();
     render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
 
+    // Entre um instante e outro o relogio pode virar de minuto: o valor fica entre os dois, e nao igual ao segundo.
+    const minutoCheio = () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 });
+    const antes = minutoCheio();
+
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agora' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    const agora = toCalendarDateTime(now(getLocalTimeZone()));
+    const depois = minutoCheio();
     const aplicado = mudou.mock.lastCall?.[0] as CalendarDateTime;
 
-    expect(aplicado.day).toBe(agora.day);
-    expect(aplicado.hour).toBe(agora.hour);
-    expect(aplicado.minute).toBe(agora.minute);
+    expect(aplicado.compare(antes)).toBeGreaterThanOrEqual(0);
+    expect(aplicado.compare(depois)).toBeLessThanOrEqual(0);
     expect(aplicado.second).toBe(0);
   });
 });
