@@ -2,13 +2,11 @@ import {
   bandScale,
   domainOf,
   linearScale,
-  logScale,
   mergeDomains,
   pointScale,
   radiusScale,
   stackDiverging,
   ticksFor,
-  timeScale,
 } from './scales';
 
 describe('dominio', () => {
@@ -79,33 +77,6 @@ describe('escala linear', () => {
     const escala = linearScale({ domain: { min: 0, max: 10 }, range: [0, 100], clamp: true, nice: false });
 
     expect(escala(20)).toBe(100);
-  });
-});
-
-describe('escala logaritmica', () => {
-  it('recorta o dominio para o primeiro valor positivo', () => {
-    const escala = logScale({ domain: { min: 0, max: 1000 }, range: [0, 100], nice: false });
-
-    expect(escala.domain()[0]).toBe(1);
-    expect(escala(1)).toBe(0);
-    expect(escala(1000)).toBe(100);
-  });
-
-  it('acomoda dominio com um unico valor', () => {
-    const escala = logScale({ domain: { min: 10, max: 10 }, range: [0, 100], nice: false });
-
-    expect(escala.domain()).toEqual([10, 100]);
-  });
-});
-
-describe('escala de tempo', () => {
-  it('mapeia instantes na faixa de pixels', () => {
-    const inicio = new Date(2026, 0, 1).getTime();
-    const fim = new Date(2026, 0, 31).getTime();
-    const escala = timeScale({ domain: { min: inicio, max: fim }, range: [0, 300], nice: false });
-
-    expect(escala(new Date(inicio))).toBe(0);
-    expect(escala(new Date(fim))).toBe(300);
   });
 });
 

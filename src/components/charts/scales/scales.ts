@@ -1,7 +1,5 @@
-import { scaleBand, scaleLinear, scaleLog, scalePoint, scaleSqrt, scaleTime } from 'd3-scale';
+import { scaleBand, scaleLinear, scalePoint, scaleSqrt } from 'd3-scale';
 import { extent, max, min } from 'd3-array';
-
-export type ScaleKind = 'linear' | 'log' | 'time' | 'band' | 'point';
 
 export interface NumericRange {
   max: number;
@@ -81,27 +79,6 @@ function guardFlat({ min: menor, max: maior }: NumericRange): [number, number] {
 
 export function linearScale({ clamp = false, domain, nice = true, range }: ContinuousScaleOptions) {
   const escala = scaleLinear().domain(guardFlat(domain)).range(range).clamp(clamp);
-
-  return nice ? escala.nice() : escala;
-}
-
-/**
- * Escala logaritmica. Nao existe log de zero ou de negativo, entao o dominio
- * e recortado para o primeiro valor positivo.
- */
-export function logScale({ clamp = false, domain, nice = true, range }: ContinuousScaleOptions) {
-  const menor = domain.min > 0 ? domain.min : 1;
-  const maior = domain.max > menor ? domain.max : menor * 10;
-  const escala = scaleLog().domain([menor, maior]).range(range).clamp(clamp);
-
-  return nice ? escala.nice() : escala;
-}
-
-export function timeScale({ clamp = false, domain, nice = true, range }: ContinuousScaleOptions) {
-  const escala = scaleTime()
-    .domain(guardFlat(domain).map((valor) => new Date(valor)))
-    .range(range)
-    .clamp(clamp);
 
   return nice ? escala.nice() : escala;
 }
