@@ -28,6 +28,9 @@ function notacao(compacto?: boolean) {
   return compacto ? ({ compactDisplay: 'short', notation: 'compact' } as const) : {};
 }
 
+/** Sinal so no negativo de fato: `-0`, e o que arredonda para zero, saiam como `-0`. */
+const SINAL = { signDisplay: 'negative' } as const;
+
 export function formatarNumero(
   valor: number,
   { casasDecimais, compacto, localidade = 'pt-BR' }: OpcoesDeNumero = {},
@@ -36,7 +39,7 @@ export function formatarNumero(
     return '';
   }
 
-  return new Intl.NumberFormat(localidade, { ...notacao(compacto), ...casas(casasDecimais) }).format(valor);
+  return new Intl.NumberFormat(localidade, { ...SINAL, ...notacao(compacto), ...casas(casasDecimais) }).format(valor);
 }
 
 /**
@@ -54,6 +57,7 @@ export function formatarMoeda(
   }
 
   return new Intl.NumberFormat(localidade, {
+    ...SINAL,
     currency: moeda,
     style: 'currency',
     ...notacao(compacto),
@@ -74,5 +78,5 @@ export function formatarPercentual(
     return '';
   }
 
-  return new Intl.NumberFormat(localidade, { style: 'percent', ...casas(casasDecimais) }).format(valor);
+  return new Intl.NumberFormat(localidade, { ...SINAL, style: 'percent', ...casas(casasDecimais) }).format(valor);
 }

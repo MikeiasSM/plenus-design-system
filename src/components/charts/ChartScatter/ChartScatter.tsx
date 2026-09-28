@@ -40,7 +40,7 @@ export interface ChartScatterProps {
   /**
    * Inclui o zero no dominio dos eixos. Ligado por padrao, porque barra que nao
    * parte do zero exagera a diferenca; para medidas que nao se comparam a ele —
-   * um ano, uma temperatura — desligue.
+   * um ano, uma temperatura — desligue; um ano pede tambem um formato sem separador de milhar em `formatX` ou `formatY`.
    */
   includeZero?: boolean;
   height?: ChartHeight;

@@ -21,6 +21,13 @@ describe('formatarNumero', () => {
     expect(formatarNumero(1200000, { compacto: true, localidade: 'en-US' })).toBe('1.2M');
   });
 
+  it('nao poe sinal no zero negativo nem no que arredonda para zero', () => {
+    expect(formatarNumero(-0)).toBe('0');
+    expect(formatarNumero(-0.0001, { casasDecimais: 2 })).toBe('0,00');
+    expect(formatarMoeda(-0.001)).toMatch(/^R\$\s0,00$/);
+    expect(formatarPercentual(-0.001)).toBe('0%');
+  });
+
   it('devolve vazio para o que nao e numero finito', () => {
     expect(formatarNumero(Number.NaN)).toBe('');
     expect(formatarNumero(Number.POSITIVE_INFINITY)).toBe('');

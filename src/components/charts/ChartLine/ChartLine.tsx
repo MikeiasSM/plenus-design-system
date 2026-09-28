@@ -46,7 +46,7 @@ export interface ChartLineProps {
   /**
    * Inclui o zero no dominio do eixo de valor. Ligado por padrao, porque marca
    * que nao parte do zero exagera a diferenca; para medidas que nao se comparam
-   * a ele — um ano, uma temperatura — desligue.
+   * a ele — um ano, uma temperatura — desligue; um ano pede tambem um formato sem separador de milhar em `formatValue`.
    */
   includeZero?: boolean;
   height?: ChartHeight;
