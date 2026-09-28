@@ -98,12 +98,30 @@ describe('List', () => {
   });
 
   it('pula o item desabilitado ao percorrer com End', () => {
-    montar({ selectionMode: 'single' });
+    render(
+      <List items={cidades} label="Cidades" selectionMode="single">
+        <List.Options />
+      </List>,
+    );
+
+    const lista = screen.getByRole('listbox');
+    fireEvent.keyDown(lista, { key: 'End' });
+
+    expect(lista).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Goiânia' }).id);
+  });
+
+  it('deixa Home, End e Espaco editarem o texto da busca', () => {
+    const escolhido = vi.fn();
+    montar({ onSelectionChange: escolhido, selectionMode: 'single' });
 
     const busca = screen.getByRole('searchbox');
-    fireEvent.keyDown(busca, { key: 'End' });
+    fireEvent.keyDown(busca, { key: 'ArrowDown' });
 
-    expect(busca).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Goiânia' }).id);
+    for (const tecla of ['Home', 'End', ' ']) {
+      expect(fireEvent.keyDown(busca, { key: tecla })).toBe(true);
+    }
+
+    expect(escolhido).not.toHaveBeenCalled();
   });
 
   it('declara total e posicao de cada opcao', () => {
@@ -228,5 +246,28 @@ describe('List', () => {
     );
 
     expect(screen.getAllByRole('option')).toHaveLength(100);
+  });
+
+  it('nao perde a escolha controlada que nao esta entre os itens', () => {
+    const escolhido = vi.fn();
+
+    render(
+      <List
+        items={[{ value: 'rj', label: 'Rio de Janeiro' }]}
+        label="Cidades"
+        onSelectionChange={escolhido}
+        selectionMode="multiple"
+        value={[{ value: 'sp', label: 'São Paulo' }]}
+      >
+        <List.Options />
+      </List>,
+    );
+
+    fireEvent.click(screen.getByRole('option', { name: /Rio de Janeiro/ }));
+
+    expect(escolhido).toHaveBeenLastCalledWith([
+      { value: 'sp', label: 'São Paulo' },
+      { value: 'rj', label: 'Rio de Janeiro' },
+    ]);
   });
 });

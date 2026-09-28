@@ -1,5 +1,6 @@
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
-import { render, screen } from '@testing-library/react';
+import { act, createRef } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ComboBox } from './ComboBox';
 import { DatePicker } from './DatePicker';
 import { DateTimePicker } from './DateTimePicker';
@@ -60,5 +61,73 @@ describe('participacao no formulario', () => {
     );
 
     expect(enviado()).toEqual({ vencimento: '' });
+  });
+
+  it('nao envia o valor de Select e ComboBox desabilitados', () => {
+    render(
+      <form data-testid="formulario">
+        <Select disabled label="Status" name="status" options={opcoes} value="ativo" />
+        <ComboBox disabled label="Cidade" name="cidade" options={opcoes} value="inativo" />
+      </form>,
+    );
+
+    expect(enviado()).toEqual({});
+  });
+
+  it('volta Select e ComboBox ao valor inicial no reset do formulario', () => {
+    render(
+      <form data-testid="formulario">
+        <Select defaultValue="ativo" label="Status" name="status" options={opcoes} />
+        <ComboBox defaultValue="ativo" label="Cidade" name="cidade" options={opcoes} />
+      </form>,
+    );
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Status' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Inativo' }));
+    fireEvent.click(screen.getByRole('combobox', { name: 'Cidade' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Inativo' }));
+
+    expect(enviado()).toEqual({ status: 'inativo', cidade: 'inativo' });
+
+    act(() => (screen.getByTestId('formulario') as HTMLFormElement).reset());
+
+    expect(enviado()).toEqual({ status: 'ativo', cidade: 'ativo' });
+    expect(screen.getByRole('combobox', { name: 'Cidade' })).toHaveValue('Ativo');
+  });
+
+  it('mantem a escolha enquanto as opcoes ainda nao chegaram', () => {
+    const { rerender } = render(
+      <form data-testid="formulario">
+        <Select label="Status" name="status" options={[]} value="ativo" />
+        <ComboBox defaultValue="inativo" label="Cidade" name="cidade" options={[]} />
+      </form>,
+    );
+
+    expect(enviado()).toEqual({ status: 'ativo', cidade: 'inativo' });
+
+    rerender(
+      <form data-testid="formulario">
+        <Select label="Status" name="status" options={opcoes} value="ativo" />
+        <ComboBox defaultValue="inativo" label="Cidade" name="cidade" options={opcoes} />
+      </form>,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent('Ativo');
+    expect(screen.getByRole('combobox', { name: 'Cidade' })).toHaveValue('Inativo');
+  });
+
+  it('entrega o ref do controle de Select e ComboBox', () => {
+    const gatilho = createRef<HTMLButtonElement>();
+    const campo = createRef<HTMLInputElement>();
+
+    render(
+      <>
+        <Select label="Status" options={opcoes} ref={gatilho} />
+        <ComboBox label="Cidade" options={opcoes} ref={campo} />
+      </>,
+    );
+
+    expect(gatilho.current).toBe(screen.getByRole('combobox', { name: 'Status' }));
+    expect(campo.current).toBe(screen.getByRole('combobox', { name: 'Cidade' }));
   });
 });

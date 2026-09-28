@@ -35,6 +35,7 @@ export interface UseSelectionResult extends SelectionState {
   focusLast: (extend?: boolean) => void;
   focusNext: (extend?: boolean) => void;
   focusPrevious: (extend?: boolean) => void;
+  reset: () => void;
   search: (character: string) => void;
   select: (key: string) => void;
   selectRange: (key: string) => void;
@@ -113,6 +114,8 @@ export function useSelection({
     focusLast: (extend?: boolean) => move(lastKey(items), extend),
     focusNext: (extend?: boolean) => move(nextKey(items, state.focusedKey) ?? state.focusedKey, extend),
     focusPrevious: (extend?: boolean) => move(previousKey(items, state.focusedKey) ?? state.focusedKey, extend),
+    // Volta a escolha inicial sem avisar, como o `reset` do formulario faz num controle nativo.
+    reset: () => setInternal({ selectedKeys: new Set(defaultSelectedKeys ?? []) }),
     select: (key: string) => applySelection(select(state, key, mode, { allowEmpty })),
     selectRange: (key: string) => applySelection(selectRange(state, key, items)),
     status: selectionStatus(state, items),

@@ -1,8 +1,10 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
 import { useListing } from '../../data-display/List/useListing';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Field } from '../Field';
 import styles from './ComboBox.module.css';
 
@@ -32,6 +34,7 @@ export interface ComboBoxProps {
   onValueChange?: (value: string) => void;
   options: readonly ComboBoxOption[];
   placeholder?: string;
+  ref?: Ref<HTMLInputElement>;
   required?: boolean;
   size?: ComboBoxSize;
   value?: string;
@@ -51,6 +54,7 @@ export function ComboBox({
   onValueChange,
   options,
   placeholder,
+  ref,
   required = false,
   size = 'md',
   value,
@@ -60,12 +64,18 @@ export function ComboBox({
   const baseId = `combobox-${useId()}`;
   const [open, setOpen] = useState(false);
   const [filtering, setFiltering] = useState(false);
+  const resetRef = useFormReset<HTMLInputElement>(() => {
+    listing.reset();
+    fechar();
+  });
+  const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
+  // O valor e a chave, e nao a opcao: com opcoes que chegam depois, filtrar por elas perdia a escolha.
   const listing = useListing({
     items: options,
     selectionMode: 'single',
-    defaultValue: defaultValue === undefined ? undefined : options.filter((option) => option.value === defaultValue),
-    value: value === undefined ? undefined : options.filter((option) => option.value === value),
+    defaultValue: defaultValue === undefined ? undefined : [{ value: defaultValue, label: '' }],
+    value: value === undefined ? undefined : [{ value, label: '' }],
     onSearch,
     onSelectionChange: (chosen) => {
       const [first] = chosen;
@@ -136,9 +146,9 @@ export function ComboBox({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input name={name} type="hidden" value={chosen?.value ?? ''} />}
+          {name !== undefined && <input disabled={disabled} name={name} type="hidden" value={chosen?.value ?? ''} />}
           <input
-            ref={inputRef}
+            ref={mergedRef}
             className={[styles.input, styles[size], error && styles.error].filter(Boolean).join(' ')}
             id={id}
             type="text"
@@ -154,7 +164,8 @@ export function ComboBox({
             disabled={disabled}
             placeholder={placeholder}
             value={texto}
-            onBlur={() => setOpen(false)}
+            // Sair do campo desfaz a busca: o texto volta a dizer o que esta escolhido.
+            onBlur={fechar}
             onChange={(event) => {
               setFiltering(true);
               setOpen(true);
@@ -168,6 +179,8 @@ export function ComboBox({
               <div
                 ref={panelRef}
                 className={styles.panel}
+                // O clique no painel, fora de uma opcao, nao tira o foco do campo nem fecha a lista.
+                onMouseDown={(event) => event.preventDefault()}
                 style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
               >
                 <ListingOptions

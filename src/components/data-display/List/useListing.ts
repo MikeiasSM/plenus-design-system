@@ -28,6 +28,7 @@ export interface Listing {
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   isSelected: (value: string) => boolean;
   filter: (term: string) => void;
+  reset: () => void;
   typeahead: (character: string) => void;
   select: (item: ListingItem, extend?: boolean) => void;
   selected: readonly ListingItem[];
@@ -38,9 +39,8 @@ export interface Listing {
   visible: readonly ListingItem[];
 }
 
-function toListingItem(item: SelectionItem): ListingItem {
-  return { value: item.key, label: item.textValue ?? item.key };
-}
+/** Teclas que, num campo de texto, editam o texto; nele, a listagem nao as toma para si. */
+const TECLAS_DE_EDICAO = ['Home', 'End', ' '];
 
 export function useListing({
   defaultValue,
@@ -65,27 +65,33 @@ export function useListing({
     [visible],
   );
 
-  // Toda opcao ja vista fica registrada. Com busca assincrona, `items` e
-  // trocada a cada consulta, e resolver a escolha so contra ela descartava o
-  // que veio de uma busca anterior.
+  // Toda opcao ja vista fica registrada, inclusive a que so chegou pelo valor. Com busca assincrona, `items`
+  // e trocada a cada consulta, e resolver a escolha so contra ela descartava o que veio de outra consulta.
   const conhecidos = useRef(new Map<string, ListingItem>());
+
+  for (const item of [...(defaultValue ?? []), ...(value ?? [])]) {
+    if (!conhecidos.current.has(item.value)) {
+      conhecidos.current.set(item.value, item);
+    }
+  }
 
   for (const item of items) {
     conhecidos.current.set(item.value, item);
   }
+
+  const conhecido = (chave: string): ListingItem => conhecidos.current.get(chave) ?? { value: chave, label: '' };
 
   const selection = useSelection({
     items: collection,
     mode: selectionMode,
     defaultSelectedKeys: defaultValue?.map((item) => item.value),
     selectedKeys: value?.map((item) => item.value),
-    onSelectionChange: (keys) =>
-      onSelectionChange?.(
-        [...keys].map((chave) => conhecidos.current.get(chave)).filter((item) => item !== undefined),
-      ),
+    onSelectionChange: (keys) => onSelectionChange?.([...keys].map(conhecido)),
   });
 
-  const selected = value ?? selection.selectedItems.map(toListingItem);
+  const selected = (value ?? selection.selectedItems.map((item) => ({ value: item.key, label: '' }))).map((item) =>
+    conhecido(item.value),
+  );
 
   const detached = useMemo(() => {
     if (!term || selectionMode !== 'multiple') {
@@ -98,7 +104,7 @@ export function useListing({
   }, [selected, selectionMode, term, visible]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (selectionMode === 'none') {
+    if (selectionMode === 'none' || (event.target instanceof HTMLInputElement && TECLAS_DE_EDICAO.includes(event.key))) {
       return;
     }
 
@@ -143,6 +149,7 @@ export function useListing({
       selection.focus(undefined);
       onSearch?.(nextTerm);
     },
+    reset: selection.reset,
     typeahead: selection.search,
     select: (item, extend) => {
       if (item.disabled) {

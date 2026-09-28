@@ -101,4 +101,25 @@ describe('ComboBox', () => {
     expect(screen.getByText('Carregando')).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado')).not.toBeInTheDocument();
   });
+
+  it('volta ao texto da escolha quando o campo perde o foco no meio de uma busca', () => {
+    render(<ComboBox defaultValue="rj" label="Cidade" options={[{ label: 'Rio de Janeiro', value: 'rj' }]} />);
+
+    const campo = screen.getByRole('combobox', { name: 'Cidade' });
+
+    fireEvent.change(campo, { target: { value: 'xyz' } });
+    fireEvent.blur(campo);
+
+    expect(campo).toHaveValue('Rio de Janeiro');
+  });
+
+  it('nao fecha a lista pelo clique no painel fora de uma opcao', () => {
+    render(<ComboBox label="Cidade" options={[{ label: 'Rio de Janeiro', value: 'rj' }]} />);
+
+    const campo = screen.getByRole('combobox', { name: 'Cidade' });
+
+    fireEvent.change(campo, { target: { value: 'xyz' } });
+
+    expect(fireEvent.mouseDown(screen.getByText('Nenhum resultado'))).toBe(false);
+  });
 });

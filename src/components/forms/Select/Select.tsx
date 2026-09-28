@@ -1,8 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type Listing } from '../../data-display/List/useListing';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Field } from '../Field';
 import styles from './Select.module.css';
 import { IconChevronDown } from '../../icons';
@@ -30,6 +32,7 @@ export interface SelectProps {
   onValueChange?: (value: string) => void;
   options: readonly SelectOption[];
   placeholder?: string;
+  ref?: Ref<HTMLButtonElement>;
   required?: boolean;
   size?: SelectSize;
   value?: string;
@@ -46,18 +49,22 @@ export function Select({
   onValueChange,
   options,
   placeholder = 'Selecione',
+  ref,
   required = false,
   size = 'md',
   value,
 }: SelectProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const resetRef = useFormReset<HTMLButtonElement>(() => listing.reset());
+  const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
 
+  // O valor e a chave, e nao a opcao: com opcoes que chegam depois, filtrar por elas perdia a escolha.
   const listing = useListing({
     items: options,
     selectionMode: 'single',
-    defaultValue: defaultValue === undefined ? undefined : options.filter((option) => option.value === defaultValue),
-    value: value === undefined ? undefined : options.filter((option) => option.value === value),
+    defaultValue: defaultValue === undefined ? undefined : [{ value: defaultValue, label: '' }],
+    value: value === undefined ? undefined : [{ value, label: '' }],
     onSelectionChange: (chosen) => {
       const [first] = chosen;
 
@@ -94,9 +101,9 @@ export function Select({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input name={name} type="hidden" value={chosen?.value ?? ''} />}
+          {name !== undefined && <input disabled={disabled} name={name} type="hidden" value={chosen?.value ?? ''} />}
           <button
-            ref={triggerRef}
+            ref={mergedRef}
             className={[styles.trigger, styles[size], error && styles.error].filter(Boolean).join(' ')}
             type="button"
             id={id}
@@ -110,7 +117,7 @@ export function Select({
             onClick={() => (open ? fechar() : abrir())}
             onKeyDown={handleTriggerKeyDown}
           >
-            <span className={chosen ? styles.value : styles.placeholder}>{chosen?.label ?? placeholder}</span>
+            <span className={chosen?.label ? styles.value : styles.placeholder}>{chosen?.label || placeholder}</span>
             <IconChevronDown className={styles.chevron} size={14} />
           </button>
           {open &&
@@ -142,7 +149,8 @@ function SelectListbox({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const listboxRef = useRef<HTMLElement | null>(null);
-  const baseId = useRef('listbox-' + Math.random().toString(36).slice(2, 9)).current;
+  // `Math.random` mudava entre servidor e cliente.
+  const baseId = `listbox-${useId()}`;
 
   const { overlayProps } = useOverlay(
     {
