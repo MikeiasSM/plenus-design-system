@@ -309,6 +309,28 @@ describe('ChartBar', () => {
     expect(rotulosDeBarra()).toEqual(['300.000', '210.000']);
   });
 
+  it('rotula a pilha pelo total da categoria, alem da ponta dela', () => {
+    render(
+      <ChartBar
+        categories={['jan']}
+        series={[
+          { label: 'Entrada', values: [10] },
+          { label: 'Saida', values: [-4] },
+          { label: 'Ajuste', values: [5] },
+        ]}
+        showDataLabels
+        stacked
+        title="Caixa"
+      />,
+    );
+
+    const rotulos = [...document.querySelectorAll('text')].filter((no) => no.getAttribute('class')?.includes('value'));
+    const topoDaPilha = Math.min(...barras().map((barra) => caixaDe(barra).y));
+
+    expect(rotulos.map((no) => no.textContent)).toEqual(['11']);
+    expect(Number(rotulos[0].getAttribute('y'))).toBeLessThan(topoDaPilha);
+  });
+
   it('escreve o rotulo do negativo alem da ponta, e nao dentro da barra', () => {
     render(
       <ChartBar categories={['jan']} series={[{ label: 'Saldo', values: [-50] }]} showDataLabels title="Caixa" />,

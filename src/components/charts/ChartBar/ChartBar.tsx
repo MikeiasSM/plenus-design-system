@@ -49,6 +49,7 @@ export interface ChartBarProps {
   onHoverCategory?: (index: number | null) => void;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
+  /** Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. */
   showDataLabels?: boolean;
   stacked?: boolean;
   title: string;
@@ -209,6 +210,24 @@ export function ChartBar({
     return vertical ? [maior, maior, menor, menor] : [menor, maior, maior, menor];
   }
 
+  /** Rotulo alem da ponta da barra: no negativo ela esta embaixo, ou a esquerda. */
+  function rotuloAlemDaPonta(valor: number, ponta: number, centro: number, chave: number) {
+    const negativo = valor < 0;
+
+    return (
+      <text
+        className={styles.valueLabel}
+        dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
+        key={chave}
+        textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
+        x={vertical ? centro : ponta + (negativo ? -6 : 6)}
+        y={vertical ? ponta + (negativo ? 6 : -6) : centro}
+      >
+        {formatValue(valor)}
+      </text>
+    );
+  }
+
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
     position: (escalaCategorias(categoria) ?? 0) + vao / 2,
@@ -311,28 +330,33 @@ export function ChartBar({
                   return null;
                 }
 
-                const ponta = escalaValores(valor);
                 const centro =
                   (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;
-                // O rotulo fica alem da ponta: no negativo ela esta embaixo, ou a esquerda.
-                const negativo = valor < 0;
 
-                return (
-                  <text
-                    className={styles.valueLabel}
-                    dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
-                    key={indiceCategoria}
-                    textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
-                    x={vertical ? centro : ponta + (negativo ? -6 : 6)}
-                    y={vertical ? ponta + (negativo ? 6 : -6) : centro}
-                  >
-                    {formatValue(valor)}
-                  </text>
-                );
+                return rotuloAlemDaPonta(valor, escalaValores(valor), centro, indiceCategoria);
               })}
           </g>
         );
       })}
+
+      {showDataLabels &&
+        stacked &&
+        categories.map((categoria, indiceCategoria) => {
+          const presentes = series.filter(
+            (serie) => !isHidden(serie.label) && Number.isFinite(serie.values[indiceCategoria]),
+          );
+
+          if (presentes.length === 0) {
+            return null;
+          }
+
+          const total = presentes.reduce((soma, serie) => soma + serie.values[indiceCategoria], 0);
+          const pontas = pilhas[indiceCategoria].map(([, ate]) => ate);
+          const extremo = total < 0 ? Math.min(0, ...pontas) : Math.max(0, ...pontas);
+          const centro = (escalaCategorias(categoria) ?? 0) + vao / 2;
+
+          return rotuloAlemDaPonta(total, escalaValores(extremo), centro, indiceCategoria);
+        })}
     </CartesianFrame>
   );
 }
