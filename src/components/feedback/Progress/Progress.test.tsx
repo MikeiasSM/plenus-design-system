@@ -23,6 +23,14 @@ describe('Progress', () => {
     expect(screen.getByRole('progressbar', { name: 'Envio' })).toHaveAttribute('aria-valuenow', '100');
   });
 
+  it('takes native props and className on the same element, the progressbar', () => {
+    render(<Progress className="upload" data-testid="envio" label="Envio" value={30} />);
+
+    const bar = screen.getByTestId('envio');
+    expect(bar).toHaveAttribute('role', 'progressbar');
+    expect(bar.className).toContain('upload');
+  });
+
   it('can show the percentage next to the track', () => {
     render(<Progress label="Envio" value={30} max={60} showValue />);
 

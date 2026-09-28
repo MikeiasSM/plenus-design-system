@@ -1,9 +1,9 @@
-import type { HTMLAttributes } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 import styles from './Progress.module.css';
 
 export type ProgressSize = 'sm' | 'md';
 
-export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface ProgressProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   label: string;
   max?: number;
   showValue?: boolean;
@@ -18,16 +18,16 @@ export function Progress({ className, label, max = 100, showValue = false, size 
   const classes = [styles.progress, styles[size], className].filter(Boolean).join(' ');
 
   return (
-    <div className={classes}>
-      <div
-        {...props}
-        className={styles.track}
-        role="progressbar"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={max}
-        aria-valuenow={indeterminate ? undefined : limitado}
-      >
+    <div
+      {...props}
+      className={classes}
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuenow={indeterminate ? undefined : limitado}
+    >
+      <div className={styles.track}>
         <div
           className={indeterminate ? styles.indeterminate : styles.fill}
           style={indeterminate ? undefined : { width: `${percentual}%` }}
