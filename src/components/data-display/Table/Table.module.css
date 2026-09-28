@@ -3,6 +3,10 @@
   overflow-x: auto;
 }
 
+.noScroll {
+  overflow: visible;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -169,10 +173,6 @@
 
 /* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
    tabela define o limite, por `className` ou `style`. */
-.sticky {
-  overflow-y: auto;
-}
-
 .sticky .head {
   position: sticky;
   top: 0;

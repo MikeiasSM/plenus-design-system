@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
@@ -49,6 +50,7 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   selectionMode?: TableSelectionMode;
   size?: TableSize;
   sort?: TableSort;
+  /** Cabecalho colado no topo da rolagem da pagina; com a tabela mais larga ou mais alta que o espaco, no dela. */
   stickyHeader?: boolean;
   striped?: boolean;
 }
@@ -107,6 +109,7 @@ export function Table({
   sort,
   stickyHeader = false,
   striped = false,
+  ref,
   ...props
 }: TableProps) {
   const baseId = useId();
@@ -114,6 +117,30 @@ export function Table({
   const [columns, setColumns] = useState<ReadonlySet<string>>(() => new Set());
   const currentSort = sort ?? internalSort;
   const control = selectionControl ?? (selectionMode === 'single' ? 'radio' : 'checkbox');
+
+  // Rolar dentro da tabela e colar o cabecalho na rolagem da pagina se excluem em CSS: o envoltorio so
+  // continua conteiner de rolagem quando a tabela transborda dele.
+  const [precisaRolar, setPrecisaRolar] = useState(true);
+  const observarTransbordo = useCallback((envoltorio: HTMLDivElement | null) => {
+    if (!envoltorio || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observador = new ResizeObserver(() =>
+      setPrecisaRolar(
+        envoltorio.scrollWidth > envoltorio.clientWidth || envoltorio.scrollHeight > envoltorio.clientHeight,
+      ),
+    );
+
+    observador.observe(envoltorio);
+
+    if (envoltorio.firstElementChild) {
+      observador.observe(envoltorio.firstElementChild);
+    }
+
+    return () => observador.disconnect();
+  }, []);
+  const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, ref);
 
   // A coluna se registra enquanto esta na tela e sai quando sai: registrada para sempre, o vazio ocupava colunas
   // que nao existiam mais.
@@ -195,7 +222,11 @@ export function Table({
     .join(' ');
 
   return (
-    <div {...props} className={[styles.scroll, className].filter(Boolean).join(' ')}>
+    <div
+      {...props}
+      className={[styles.scroll, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
+      ref={envoltorioRef}
+    >
       <table aria-busy={loading || undefined} aria-label={label} className={classes}>
         <TableContext.Provider value={context}>{children}</TableContext.Provider>
       </table>

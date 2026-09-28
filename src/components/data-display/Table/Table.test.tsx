@@ -223,6 +223,40 @@ describe('Table', () => {
     expect(screen.getByText('Vazio').closest('td')).toHaveAttribute('colspan', '1');
   });
 
+  describe('cabecalho fixo', () => {
+    function observarNaHora() {
+      class Observador {
+        constructor(private aviso: () => void) {}
+        observe() {
+          this.aviso();
+        }
+        disconnect() {}
+      }
+
+      Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: Observador });
+    }
+
+    afterEach(() => {
+      Reflect.deleteProperty(globalThis, 'ResizeObserver');
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+    });
+
+    it('deixa de ser conteiner de rolagem enquanto a tabela cabe, para o cabecalho colar na da pagina', () => {
+      observarNaHora();
+      const { container } = montar({ stickyHeader: true });
+
+      expect(container.firstElementChild?.getAttribute('class')).toContain('noScroll');
+    });
+
+    it('rola por dentro a tabela que transborda, e o cabecalho cola nessa rolagem', () => {
+      observarNaHora();
+      Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, value: 900 });
+      const { container } = montar({ stickyHeader: true });
+
+      expect(container.firstElementChild?.getAttribute('class')).not.toContain('noScroll');
+    });
+  });
+
   it('comeca com a escolha inicial no modo nao controlado', () => {
     montar({ defaultSelectedIds: ['2'], selectionMode: 'multiple' });
 
