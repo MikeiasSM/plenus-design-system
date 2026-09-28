@@ -1,4 +1,4 @@
-import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
 
@@ -18,7 +18,7 @@ describe('DatePicker', () => {
   });
 
   it('exibe o valor recebido na convencao brasileira', () => {
-    const campo = montar({ value: new CalendarDate(2026, 3, 9) });
+    const campo = montar({ value: '2026-03-09' });
 
     expect(campo).toHaveValue('09/03/2026');
   });
@@ -30,7 +30,7 @@ describe('DatePicker', () => {
     fireEvent.change(campo, { target: { value: '09032026' } });
 
     expect(campo).toHaveValue('09/03/2026');
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 9));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09');
   });
 
   it('reporta ausencia enquanto a data digitada nao existe', () => {
@@ -45,10 +45,10 @@ describe('DatePicker', () => {
 
   it('recusa por digitacao a data que o calendario ja recusa', () => {
     const mudou = vi.fn();
-    const campo = montar({ max: new CalendarDate(2026, 3, 31), onValueChange: mudou });
+    const campo = montar({ max: '2026-03-31', onValueChange: mudou });
 
     fireEvent.change(campo, { target: { value: '09032026' } });
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 9));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09');
 
     fireEvent.change(campo, { target: { value: '09092030' } });
     expect(mudou).toHaveBeenLastCalledWith(null);
@@ -56,7 +56,7 @@ describe('DatePicker', () => {
 
   it('abre o calendario pela seta para baixo e escolhe um dia', () => {
     const mudou = vi.fn();
-    const campo = montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+    const campo = montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.keyDown(campo, { key: 'ArrowDown' });
 
@@ -64,12 +64,12 @@ describe('DatePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 12));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-12');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('navega entre os meses pelo cabecalho', () => {
-    montar({ value: new CalendarDate(2026, 3, 9) });
+    montar({ value: '2026-03-09' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     expect(screen.getByRole('grid')).toHaveAccessibleName(/março de 2026/i);
@@ -79,7 +79,7 @@ describe('DatePicker', () => {
   });
 
   it('desabilita os dias fora da faixa permitida', () => {
-    montar({ value: new CalendarDate(2026, 3, 9), min: new CalendarDate(2026, 3, 5) });
+    montar({ value: '2026-03-09', min: '2026-03-05' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
@@ -88,7 +88,7 @@ describe('DatePicker', () => {
   });
 
   it('marca o dia escolhido e fecha com Escape devolvendo o foco', () => {
-    montar({ value: new CalendarDate(2026, 3, 9) });
+    montar({ value: '2026-03-09' });
 
     const gatilho = screen.getByRole('button', { name: 'Abrir calendário' });
     fireEvent.click(gatilho);
@@ -103,7 +103,7 @@ describe('DatePicker', () => {
 
   it('anda pelo teclado dentro da grade e confirma com Enter', () => {
     const mudou = vi.fn();
-    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+    montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
@@ -112,12 +112,12 @@ describe('DatePicker', () => {
     fireEvent.keyDown(grade, { key: 'Enter' });
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 10));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-10');
   });
 
   it('nao aplica nada antes de confirmar', () => {
     const mudou = vi.fn();
-    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+    montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
@@ -127,7 +127,7 @@ describe('DatePicker', () => {
 
   it('descarta a escolha ao cancelar', () => {
     const mudou = vi.fn();
-    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+    montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
@@ -140,13 +140,13 @@ describe('DatePicker', () => {
   it('leva o calendario para hoje sem aplicar', () => {
     const mudou = vi.fn();
     const hoje = today(getLocalTimeZone());
-    montar({ value: new CalendarDate(2026, 3, 9), onValueChange: mudou });
+    montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: 'Hoje' }));
     expect(mudou).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
-    expect(mudou).toHaveBeenLastCalledWith(hoje);
+    expect(mudou).toHaveBeenLastCalledWith(hoje.toString());
   });
 });

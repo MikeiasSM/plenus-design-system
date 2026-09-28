@@ -1,24 +1,16 @@
-import {
-  CalendarDate,
-  CalendarDateTime,
-  Time,
-  getLocalTimeZone,
-  now,
-  toCalendarDateTime,
-  today,
-} from '@internationalized/date';
+import { getLocalTimeZone, now, toCalendarDateTime, today } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DateTimePicker } from './DateTimePicker';
 
 describe('DateTimePicker', () => {
   it('apresenta data e hora no mesmo campo', () => {
-    render(<DateTimePicker label="Agendamento" value={new CalendarDateTime(2026, 3, 9, 14, 30)} />);
+    render(<DateTimePicker label="Agendamento" value={'2026-03-09T14:30'} />);
 
     expect(screen.getByLabelText('Agendamento')).toHaveValue('09/03/2026 14:30');
   });
 
   it('traz calendario e horas no mesmo painel', () => {
-    render(<DateTimePicker label="Agendamento" value={new CalendarDateTime(2026, 3, 9, 14, 30)} />);
+    render(<DateTimePicker label="Agendamento" value={'2026-03-09T14:30'} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
@@ -29,27 +21,27 @@ describe('DateTimePicker', () => {
   it('escolhe a hora no painel preservando a data', () => {
     const mudou = vi.fn();
     render(
-      <DateTimePicker label="Agendamento" defaultValue={new CalendarDateTime(2026, 3, 9, 14, 30)} onValueChange={mudou} />,
+      <DateTimePicker label="Agendamento" defaultValue={'2026-03-09T14:30'} onValueChange={mudou} />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('option', { name: '08:30' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 8, 30));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09T08:30');
   });
 
   it('escolhe a data pelo calendario preservando a hora', () => {
     const mudou = vi.fn();
     render(
-      <DateTimePicker label="Agendamento" defaultValue={new CalendarDateTime(2026, 3, 9, 14, 30)} onValueChange={mudou} />,
+      <DateTimePicker label="Agendamento" defaultValue={'2026-03-09T14:30'} onValueChange={mudou} />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 12, 14, 30));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-12T14:30');
   });
 
   it('aceita data e hora digitadas no mesmo campo', () => {
@@ -60,7 +52,7 @@ describe('DateTimePicker', () => {
     fireEvent.change(campo, { target: { value: '090320261415' } });
 
     expect(campo).toHaveValue('09/03/2026 14:15');
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 14, 15));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09T14:15');
   });
 
   it('assume meia-noite quando a data vem antes da hora', () => {
@@ -69,15 +61,15 @@ describe('DateTimePicker', () => {
 
     fireEvent.change(screen.getByLabelText('Agendamento'), { target: { value: '09032026' } });
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 0, 0));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09T00:00');
   });
 
   it('desabilita no calendario os dias fora dos limites', () => {
     render(
       <DateTimePicker
         label="Agendamento"
-        value={new CalendarDateTime(2026, 3, 9, 14, 30)}
-        min={new CalendarDate(2026, 3, 5)}
+        value={'2026-03-09T14:30'}
+        min={'2026-03-05'}
       />,
     );
 
@@ -94,7 +86,7 @@ describe('DateTimePicker', () => {
     fireEvent.click(screen.getByRole('option', { name: '09:00' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(hoje.year, hoje.month, hoje.day, 9, 0));
+    expect(mudou).toHaveBeenLastCalledWith(`${hoje.toString()}T09:00`);
   });
 
   it('nao fixa a hora antes dos quatro digitos', () => {
@@ -110,7 +102,7 @@ describe('DateTimePicker', () => {
 
     fireEvent.change(campo, { target: { value: '090320261840' } });
     expect(campo).toHaveValue('09/03/2026 18:40');
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 9, 18, 40));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09T18:40');
   });
 
   it('preenche data e hora correntes pelo Agora', () => {
@@ -118,7 +110,7 @@ describe('DateTimePicker', () => {
     render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
 
     // Entre um instante e outro o relogio pode virar de minuto: o valor fica entre os dois, e nao igual ao segundo.
-    const minutoCheio = () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 });
+    const minutoCheio = () => toCalendarDateTime(now(getLocalTimeZone())).toString().slice(0, 16);
     const antes = minutoCheio();
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
@@ -126,10 +118,10 @@ describe('DateTimePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
 
     const depois = minutoCheio();
-    const aplicado = mudou.mock.lastCall?.[0] as CalendarDateTime;
+    const aplicado = String(mudou.mock.lastCall?.[0]);
 
-    expect(aplicado.compare(antes)).toBeGreaterThanOrEqual(0);
-    expect(aplicado.compare(depois)).toBeLessThanOrEqual(0);
-    expect(aplicado.second).toBe(0);
+    // No mesmo formato ISO, a ordem do texto e a do tempo.
+    expect(aplicado >= antes && aplicado <= depois).toBe(true);
+    expect(aplicado).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
   });
 });

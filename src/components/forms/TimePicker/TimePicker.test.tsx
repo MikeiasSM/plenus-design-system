@@ -1,12 +1,3 @@
-import {
-  CalendarDate,
-  CalendarDateTime,
-  Time,
-  getLocalTimeZone,
-  now,
-  toCalendarDateTime,
-  today,
-} from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TimePicker } from './TimePicker';
 
@@ -19,7 +10,7 @@ describe('TimePicker', () => {
 
     fireEvent.change(campo, { target: { value: '0945' } });
     expect(campo).toHaveValue('09:45');
-    expect(mudou).toHaveBeenLastCalledWith(new Time(9, 45));
+    expect(mudou).toHaveBeenLastCalledWith('09:45');
 
     fireEvent.change(campo, { target: { value: '' } });
     expect(mudou).toHaveBeenLastCalledWith(null);
@@ -27,18 +18,18 @@ describe('TimePicker', () => {
 
   it('escolhe hora e minuto no painel proprio, sem o seletor nativo', () => {
     const mudou = vi.fn();
-    render(<TimePicker label="Inicio" defaultValue={new Time(9, 45)} onValueChange={mudou} />);
+    render(<TimePicker label="Inicio" defaultValue={'09:45'} onValueChange={mudou} />);
 
     expect(screen.getByLabelText('Inicio')).toHaveAttribute('type', 'text');
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
     fireEvent.click(screen.getByRole('option', { name: '14:30' }));
 
-    expect(mudou).toHaveBeenLastCalledWith(new Time(14, 30));
+    expect(mudou).toHaveBeenLastCalledWith('14:30');
   });
 
   it('oferece so as horas dentro da faixa', () => {
-    render(<TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />);
+    render(<TimePicker label="Inicio" min={'08:00'} max={'18:00'} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
 
@@ -75,6 +66,6 @@ describe('TimePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
     fireEvent.change(screen.getByLabelText('Horário em horas e minutos'), { target: { value: '2147' } });
 
-    expect(mudou).toHaveBeenLastCalledWith(new Time(21, 47));
+    expect(mudou).toHaveBeenLastCalledWith('21:47');
   });
 });

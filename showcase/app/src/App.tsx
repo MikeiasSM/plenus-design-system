@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
@@ -214,8 +213,8 @@ export function App() {
   const coresDasFormas = resolveSeriesColors(formasDePagamento.map(() => ({})), { accent: corDoTema });
   const maiorFormaEm = (indice: number) =>
     Math.max(...formasDePagamento.map((forma) => forma.valores[indice]));
-  const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | null>(new CalendarDate(2026, 3, 9));
-  const [agendamento, setAgendamento] = useState<CalendarDateTime | null>(null);
+  const [dataEscolhida, setDataEscolhida] = useState<string | null>('2026-03-09');
+  const [agendamento, setAgendamento] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = temaEscuro ? 'dark' : 'light';
@@ -484,7 +483,7 @@ export function App() {
   label="Vencimento"
   value={data}
   onValueChange={setData}
-  min={hoje}
+  min="2026-03-01"
 />`}
         >
           <div className="doc-subsection">
@@ -493,7 +492,7 @@ export function App() {
               <DatePicker label="Vencimento" value={dataEscolhida} onValueChange={setDataEscolhida} />
               <DatePicker label="Com ajuda" hint="Digite ou escolha no calendario." />
               <DatePicker label="Com erro" error="Informe o vencimento." />
-              <DatePicker label="Desabilitado" disabled value={new CalendarDate(2026, 3, 9)} />
+              <DatePicker label="Desabilitado" disabled value="2026-03-09" />
             </div>
             <p className="doc-note">Digite com barras, tracos, pontos ou espacos: a mascara se encarrega do resto. A seta para baixo abre o calendario; nele as setas andam por dia e semana, PageUp e PageDown trocam o mes, com Shift trocam o ano, Enter escolhe e Escape fecha devolvendo o foco. Cada dia anuncia a data por extenso.</p>
           </div>
@@ -502,27 +501,27 @@ export function App() {
             <div className="demo-grid">
               <DatePicker
                 label="A partir de hoje"
-                min={new CalendarDate(2026, 3, 1)}
-                max={new CalendarDate(2026, 3, 31)}
+                min="2026-03-01"
+                max="2026-03-31"
               />
               <DatePicker
                 label="Sem fins de semana"
-                isDateUnavailable={(data) => [0, 6].includes(data.toDate('UTC').getUTCDay())}
+                isDateUnavailable={(data) => [0, 6].includes(new Date(`${data}T00:00`).getDay())}
               />
             </div>
-            <p className="doc-note">Os limites e o predicado desabilitam os dias na grade e impedem que o teclado passe deles.</p>
+            <p className="doc-note">Os limites e o predicado desabilitam os dias na grade e impedem que o teclado passe deles. Datas e horas entram e saem em texto ISO — `2026-03-09`, `09:30`, `2026-03-09T09:30` —, o mesmo que vai ao FormData.</p>
           </div>
           <div className="doc-subsection">
             <h3>Hora e data com hora</h3>
             <div className="demo-grid">
-              <TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />
+              <TimePicker label="Inicio" min="08:00" max="18:00" />
               <TimePicker label="De 15 em 15 minutos" step={15} />
               <TimePicker label="Com erro" error="Informe a hora." />
             </div>
             <DateTimePicker label="Agendamento" value={agendamento} onValueChange={setAgendamento} />
             <p className="doc-note">
               {agendamento
-                ? `Escolhido: ${formatarData(agendamento.toString().slice(0, 10), { formato: 'longo' })} as ${formatarHora(agendamento.toString().slice(11, 16))}`
+                ? `Escolhido: ${formatarData(agendamento.slice(0, 10), { formato: 'longo' })} as ${formatarHora(agendamento.slice(11, 16))}`
                 : 'Nada escolhido ainda.'}
             </p>
             <p className="doc-note">Campo unico para data e hora, com calendario e coluna de horarios no mesmo painel, e um campo hh:mm para informar a hora sem percorrer a lista. A hora segue 24 horas em qualquer sistema, porque o seletor e do proprio Design System e nao o do navegador. Escolher a data preserva a hora e vice-versa; quando a data vem primeiro, a hora comeca em meia-noite. O botao Agora preenche data e hora correntes. Nada e aplicado ate confirmar. O texto acima usa formatarData e formatarHora.</p>

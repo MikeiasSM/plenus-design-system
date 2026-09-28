@@ -16,8 +16,9 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatarEntradaDataHora, lerEntradaDataHora } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
+import { readIsoDate, readIsoDateTime, toIsoDateTime } from '../DatePicker/iso';
 import { TimeSlots } from '../TimePicker/TimeSlots';
-import { isUnavailable } from '../../../hooks/useCalendar/calendar';
+import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './DateTimePicker.module.css';
@@ -34,12 +35,13 @@ export interface DateTimePickerProps
     ComponentPropsWithRef<'input'>,
     'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
-  defaultValue?: CalendarDateTime;
+  /** Data e hora em ISO, `2026-03-09T18:40`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
+  defaultValue?: string;
   disabled?: boolean;
   error?: string;
   hint?: string;
   id?: string;
-  isDateUnavailable?: (date: CalendarDate) => boolean;
+  isDateUnavailable?: (date: string) => boolean;
   label?: string;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
@@ -47,11 +49,12 @@ export interface DateTimePickerProps
    */
   name?: string;
   locale?: string;
-  max?: CalendarDate;
-  min?: CalendarDate;
+  /** Limites de data, em `2026-03-09`. */
+  max?: string;
+  min?: string;
   step?: number;
   /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
-  onValueChange?: (value: CalendarDateTime | null) => void;
+  onValueChange?: (value: string | null) => void;
   placeholder?: string;
   required?: boolean;
   size?: DateTimePickerSize;
@@ -59,7 +62,7 @@ export interface DateTimePickerProps
    * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
    * limpa o campo, porque ali ele volta a ser nao controlado.
    */
-  value?: CalendarDateTime | null;
+  value?: string | null;
 }
 
 const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
@@ -105,15 +108,21 @@ export function DateTimePicker({
   // Fixo, o id fazia dois seletores dividirem os ids das opcoes de hora.
   const idDaLista = `datetime-hora-${useId()}`;
   const [open, setOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const limites: CalendarLimits = {
+    isDateUnavailable: isDateUnavailable && ((data) => isDateUnavailable(data.toString())),
+    max: readIsoDate(max),
+    min: readIsoDate(min),
+  };
+  const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(() => readIsoDateTime(defaultValue) ?? null);
   const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
-  const escolhido = (value === undefined ? internalValue : value) ?? undefined;
+  const controlado = value === undefined ? undefined : (readIsoDateTime(value) ?? null);
+  const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
   const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
-    setInternalValue(defaultValue ?? null);
+    setInternalValue(readIsoDateTime(defaultValue) ?? null);
     setDigitando(false);
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
@@ -128,7 +137,7 @@ export function DateTimePicker({
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDateTime | null) {
     setInternalValue(proximo);
-    onValueChange?.(proximo);
+    onValueChange?.(proximo ? toIsoDateTime(proximo) : null);
   }
 
   function rascunharData(data: CalendarDate) {
@@ -163,7 +172,7 @@ export function DateTimePicker({
     const lido = lerEntradaDataHora(mascarado);
     const dia = lido && toCalendarDate(lido);
 
-    definir(lido && dia && !isUnavailable(dia, { isDateUnavailable, max, min }) ? lido : null);
+    definir(lido && dia && !isUnavailable(dia, limites) ? lido : null);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -207,7 +216,7 @@ export function DateTimePicker({
             name={name}
             onFocus={() => inputRef.current?.focus()}
             required={required}
-            value={escolhido?.toString() ?? ''}
+            value={escolhido ? toIsoDateTime(escolhido) : ''}
           />
           <div
             className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
@@ -267,10 +276,10 @@ export function DateTimePicker({
                   <Calendar
                     autoFocus
                     key={versaoDoCalendario}
-                    isDateUnavailable={isDateUnavailable}
+                    isDateUnavailable={limites.isDateUnavailable}
                     locale={locale}
-                    max={max}
-                    min={min}
+                    max={limites.max}
+                    min={limites.min}
                     onSelect={rascunharData}
                     value={rascunho && new CalendarDate(rascunho.year, rascunho.month, rascunho.day)}
                   />

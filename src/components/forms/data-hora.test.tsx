@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
+import { CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
 import { DateTimePicker } from './DateTimePicker';
@@ -7,10 +7,34 @@ import { lerEntradaDataHora } from '../../utils/formatters';
 import { TimePicker } from './TimePicker';
 import { gerarHorarios } from './TimePicker/TimeSlots';
 
+describe('API em texto ISO', () => {
+  it('recebe e devolve a data em texto, e trata texto invalido como vazio', () => {
+    const mudou = vi.fn();
+    const { rerender } = render(
+      <DatePicker
+        isDateUnavailable={(data) => data === '2026-03-10'}
+        label="Vencimento"
+        onValueChange={mudou}
+        value="2026-03-09"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /calend/i }));
+    expect(screen.getByRole('button', { name: '10 de março de 2026' })).toHaveAttribute('aria-disabled', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-12');
+
+    rerender(<DatePicker label="Vencimento" value="nao e data" />);
+    expect(screen.getByLabelText('Vencimento')).toHaveValue('');
+  });
+});
+
 describe('valor controlado vazio', () => {
   it('limpa a data quando o produto devolve null', () => {
     const { rerender } = render(
-      <DatePicker label="Vencimento" value={new CalendarDate(2026, 8, 15)} />,
+      <DatePicker label="Vencimento" value={'2026-08-15'} />,
     );
 
     expect(screen.getByLabelText('Vencimento')).toHaveValue('15/08/2026');
@@ -21,7 +45,7 @@ describe('valor controlado vazio', () => {
   });
 
   it('limpa a hora quando o produto devolve null', () => {
-    const { rerender } = render(<TimePicker label="Início" value={new Time(9, 30)} />);
+    const { rerender } = render(<TimePicker label="Início" value={'09:30'} />);
 
     expect(screen.getByLabelText('Início')).toHaveValue('09:30');
 
@@ -44,7 +68,7 @@ describe('lista de horarios', () => {
 
 describe('calendario', () => {
   it('abre no mes da data escolhida, e nao no mes corrente', () => {
-    render(<DatePicker label="Vencimento" value={new CalendarDate(2027, 8, 15)} />);
+    render(<DatePicker label="Vencimento" value={'2027-08-15'} />);
 
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
 
@@ -52,7 +76,7 @@ describe('calendario', () => {
   });
 
   it('poe o foco no dia, e ele anda com as setas, para o leitor de tela anunciar cada dia', () => {
-    render(<DatePicker label="Vencimento" value={new CalendarDate(2026, 3, 9)} />);
+    render(<DatePicker label="Vencimento" value={'2026-03-09'} />);
 
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
 
@@ -68,7 +92,7 @@ describe('calendario', () => {
 
   it('nao puxa o foco para a grade ao trocar de mes pelo botao', () => {
     const mudou = vi.fn();
-    render(<DatePicker label="Vencimento" onValueChange={mudou} value={new CalendarDate(2026, 3, 9)} />);
+    render(<DatePicker label="Vencimento" onValueChange={mudou} value={'2026-03-09'} />);
 
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
 
@@ -85,7 +109,7 @@ describe('calendario', () => {
     const hoje = today(getLocalTimeZone());
     const mesDeHoje = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(hoje.toDate(getLocalTimeZone()));
 
-    render(<DatePicker label="Vencimento" value={hoje} />);
+    render(<DatePicker label="Vencimento" value={hoje.toString()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Próximo mês' }));
@@ -130,13 +154,13 @@ function apagar(campo: HTMLElement) {
 
 describe('laco controlado com o proprio setter', () => {
   function DataControlada() {
-    const [data, setData] = useState<CalendarDate | null>(null);
+    const [data, setData] = useState<string | null>(null);
 
     return <DatePicker label="Vencimento" name="vencimento" onValueChange={setData} value={data} />;
   }
 
   function HoraControlada() {
-    const [hora, setHora] = useState<Time | null>(null);
+    const [hora, setHora] = useState<string | null>(null);
 
     return <TimePicker label="Início" name="inicio" onValueChange={setHora} value={hora} />;
   }
@@ -181,7 +205,7 @@ describe('laco controlado com o proprio setter', () => {
 describe('o valor da hora acompanha o texto', () => {
   it('nao guarda a hora anterior enquanto a nova esta pela metade ou e impossivel', () => {
     const mudou = vi.fn();
-    render(<TimePicker defaultValue={new Time(18, 40)} label="Início" onValueChange={mudou} />);
+    render(<TimePicker defaultValue={'18:40'} label="Início" onValueChange={mudou} />);
 
     const campo = screen.getByLabelText('Início');
 
@@ -195,7 +219,7 @@ describe('o valor da hora acompanha o texto', () => {
 
   it('recusa por digitacao a hora que a lista ja recusa', () => {
     const mudou = vi.fn();
-    render(<TimePicker label="Início" max={new Time(18, 0)} min={new Time(8, 0)} onValueChange={mudou} />);
+    render(<TimePicker label="Início" max={'18:00'} min={'08:00'} onValueChange={mudou} />);
 
     fireEvent.change(screen.getByLabelText('Início'), { target: { value: '2300' } });
     expect(mudou).toHaveBeenLastCalledWith(null);
@@ -211,9 +235,9 @@ describe('participacao dos seletores no formulario', () => {
   it('nao envia o valor de um seletor desabilitado', () => {
     render(
       <form data-testid="formulario">
-        <DatePicker disabled label="Vencimento" name="vencimento" value={new CalendarDate(2026, 3, 9)} />
-        <TimePicker disabled label="Início" name="inicio" value={new Time(9, 30)} />
-        <DateTimePicker disabled label="Agenda" name="agenda" value={new CalendarDateTime(2026, 3, 9, 9, 30)} />
+        <DatePicker disabled label="Vencimento" name="vencimento" value={'2026-03-09'} />
+        <TimePicker disabled label="Início" name="inicio" value={'09:30'} />
+        <DateTimePicker disabled label="Agenda" name="agenda" value={'2026-03-09T09:30'} />
       </form>,
     );
 
@@ -223,9 +247,9 @@ describe('participacao dos seletores no formulario', () => {
   it('volta ao valor inicial no reset do formulario', () => {
     render(
       <form data-testid="formulario">
-        <DatePicker defaultValue={new CalendarDate(2026, 3, 9)} label="Vencimento" name="vencimento" />
-        <TimePicker defaultValue={new Time(9, 30)} label="Início" name="inicio" />
-        <DateTimePicker defaultValue={new CalendarDateTime(2026, 3, 9, 9, 30)} label="Agenda" name="agenda" />
+        <DatePicker defaultValue={'2026-03-09'} label="Vencimento" name="vencimento" />
+        <TimePicker defaultValue={'09:30'} label="Início" name="inicio" />
+        <DateTimePicker defaultValue={'2026-03-09T09:30'} label="Agenda" name="agenda" />
       </form>,
     );
 
@@ -238,14 +262,14 @@ describe('participacao dos seletores no formulario', () => {
     expect(screen.getByLabelText('Vencimento')).toHaveValue('09/03/2026');
     expect(screen.getByLabelText('Início')).toHaveValue('09:30');
     expect(screen.getByLabelText('Agenda')).toHaveValue('09/03/2026 09:30');
-    expect(enviado()).toEqual({ vencimento: '2026-03-09', inicio: '09:30', agenda: '2026-03-09T09:30:00' });
+    expect(enviado()).toEqual({ vencimento: '2026-03-09', inicio: '09:30', agenda: '2026-03-09T09:30' });
   });
 });
 
 describe('edicao da data digitada', () => {
   it('reescreve o dia no meio da data sem gravar outra', () => {
     const mudou = vi.fn();
-    render(<DatePicker defaultValue={new CalendarDate(2026, 3, 9)} label="Vencimento" onValueChange={mudou} />);
+    render(<DatePicker defaultValue={'2026-03-09'} label="Vencimento" onValueChange={mudou} />);
 
     const campo = screen.getByLabelText('Vencimento');
 
@@ -253,7 +277,7 @@ describe('edicao da data digitada', () => {
     expect(campo).toHaveValue('1/03/2026');
 
     fireEvent.change(campo, { target: { value: '15/03/2026' } });
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 15));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-15');
   });
 
   it('le dia e mes sem zero a esquerda digitados tecla a tecla', () => {
@@ -263,7 +287,7 @@ describe('edicao da data digitada', () => {
     const campo = screen.getByLabelText('Vencimento');
 
     digitar(campo, '1/3/2026');
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 1));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-01');
 
     fireEvent.blur(campo);
     expect(campo).toHaveValue('01/03/2026');
@@ -275,14 +299,14 @@ describe('edicao da data digitada', () => {
 
     fireEvent.change(screen.getByLabelText('Agenda'), { target: { value: '1/3/2026 18:40' } });
 
-    expect(mudou).toHaveBeenLastCalledWith(new CalendarDateTime(2026, 3, 1, 18, 40));
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-01T18:40');
   });
 });
 
 describe('teclado do painel de horas', () => {
   it('leva o foco para a lista ao abrir, partindo do horario escolhido', () => {
     const mudou = vi.fn();
-    render(<TimePicker defaultValue={new Time(10, 30)} label="Início" onValueChange={mudou} />);
+    render(<TimePicker defaultValue={'10:30'} label="Início" onValueChange={mudou} />);
 
     fireEvent.keyDown(screen.getByLabelText('Início'), { key: 'ArrowDown' });
 
@@ -295,7 +319,7 @@ describe('teclado do painel de horas', () => {
     fireEvent.keyDown(lista, { key: 'ArrowDown' });
     fireEvent.keyDown(lista, { key: 'Enter' });
 
-    expect(mudou).toHaveBeenLastCalledWith(new Time(11, 0));
+    expect(mudou).toHaveBeenLastCalledWith('11:00');
   });
 
   it('fecha com Escape mesmo com o foco no campo', () => {

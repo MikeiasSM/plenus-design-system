@@ -1,12 +1,13 @@
 import { useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { Time } from '@internationalized/date';
+import type { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
+import { readIsoTime, toIsoTime } from '../DatePicker/iso';
 import { TimeSlots, isTimeAllowed, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 import { IconClock } from '../../icons';
@@ -22,7 +23,8 @@ export interface TimePickerProps
     ComponentPropsWithRef<'input'>,
     'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
-  defaultValue?: Time;
+  /** Hora em `HH:mm`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
+  defaultValue?: string;
   disabled?: boolean;
   error?: string;
   hint?: string;
@@ -33,11 +35,11 @@ export interface TimePickerProps
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
-  max?: Time;
-  min?: Time;
+  max?: string;
+  min?: string;
   step?: number;
   /** Sem hora inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
-  onValueChange?: (value: Time | null) => void;
+  onValueChange?: (value: string | null) => void;
   placeholder?: string;
   required?: boolean;
   size?: TimePickerSize;
@@ -45,7 +47,7 @@ export interface TimePickerProps
    * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
    * limpa o campo, porque ali ele volta a ser nao controlado.
    */
-  value?: Time | null;
+  value?: string | null;
 }
 
 export function TimePicker({
@@ -77,14 +79,17 @@ export function TimePicker({
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const horaMinima = readIsoTime(min);
+  const horaMaxima = readIsoTime(max);
+  const [internalValue, setInternalValue] = useState<Time | null>(() => readIsoTime(defaultValue) ?? null);
   const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
-  const escolhido = (value === undefined ? internalValue : value) ?? undefined;
+  const controlado = value === undefined ? undefined : (readIsoTime(value) ?? null);
+  const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
   const exibido = digitando ? texto : paraTextoDeHora(escolhido);
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
-    setInternalValue(defaultValue ?? null);
+    setInternalValue(readIsoTime(defaultValue) ?? null);
     setDigitando(false);
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
@@ -92,7 +97,7 @@ export function TimePicker({
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: Time | null) {
     setInternalValue(proximo);
-    onValueChange?.(proximo);
+    onValueChange?.(proximo ? toIsoTime(proximo) : null);
   }
 
   function fechar(devolverFoco = true) {
@@ -112,7 +117,7 @@ export function TimePicker({
     // O valor acompanha o texto: `18:4` ou `25:99` na tela nao convivem com a hora anterior.
     const lido = lerEntradaHora(mascarado);
 
-    definir(lido && isTimeAllowed(lido, min, max) ? lido : null);
+    definir(lido && isTimeAllowed(lido, horaMinima, horaMaxima) ? lido : null);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -215,8 +220,8 @@ export function TimePicker({
                 <TimeSlots
                   autoFocus
                   baseId={providedId ?? idDaLista}
-                  max={max}
-                  min={min}
+                  max={horaMaxima}
+                  min={horaMinima}
                   onChange={(hora) => {
                     definir(hora);
                     setDigitando(false);

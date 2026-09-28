@@ -1,4 +1,3 @@
-import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import { act, createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ComboBox } from './ComboBox';
@@ -24,12 +23,12 @@ describe('participacao no formulario', () => {
       <form data-testid="formulario">
         <Select label="Status" name="status" options={opcoes} value="ativo" />
         <ComboBox label="Cidade" name="cidade" options={opcoes} value="inativo" />
-        <DatePicker label="Vencimento" name="vencimento" value={new CalendarDate(2026, 3, 9)} />
-        <TimePicker label="Início" name="inicio" value={new Time(9, 30)} />
+        <DatePicker label="Vencimento" name="vencimento" value={'2026-03-09'} />
+        <TimePicker label="Início" name="inicio" value={'09:30'} />
         <DateTimePicker
           label="Agendamento"
           name="agendamento"
-          value={new CalendarDateTime(2026, 3, 9, 18, 40)}
+          value={'2026-03-09T18:40'}
         />
       </form>,
     );
@@ -39,7 +38,7 @@ describe('participacao no formulario', () => {
       cidade: 'inativo',
       vencimento: '2026-03-09',
       inicio: '09:30',
-      agendamento: '2026-03-09T18:40:00',
+      agendamento: '2026-03-09T18:40',
     });
   });
 
@@ -187,7 +186,7 @@ describe('propriedades nativas dos campos sem controle nativo', () => {
     rerender(
       <form data-testid="formulario">
         <Select label="Status" name="status" options={opcoes} required value="ativo" />
-        <DatePicker label="Vencimento" name="vencimento" required value={new CalendarDate(2026, 3, 9)} />
+        <DatePicker label="Vencimento" name="vencimento" required value={'2026-03-09'} />
       </form>,
     );
 
