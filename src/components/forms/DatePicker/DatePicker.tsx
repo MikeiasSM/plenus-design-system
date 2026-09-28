@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
+import { useFormReset } from '../../../hooks/useFormReset';
 import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { isUnavailable } from '../../../hooks/useCalendar/calendar';
@@ -28,7 +29,8 @@ export interface DatePickerProps {
   locale?: string;
   max?: CalendarDate;
   min?: CalendarDate;
-  onValueChange?: (value?: CalendarDate) => void;
+  /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
+  onValueChange?: (value: CalendarDate | null) => void;
   placeholder?: string;
   required?: boolean;
   size?: DatePickerSize;
@@ -61,10 +63,14 @@ export function DatePicker({
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue);
-  const escolhido = value === undefined ? internalValue : value ?? undefined;
-  const [texto, setTexto] = useState(() => (escolhido ? formatarEntradaData(escolhido.toString().split('-').reverse().join('')) : ''));
+  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const escolhido = (value === undefined ? internalValue : value) ?? undefined;
+  const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
+  const inputRef = useFormReset<HTMLInputElement>(() => {
+    setInternalValue(defaultValue ?? null);
+    setDigitando(false);
+  });
   const [rascunho, setRascunho] = useState(escolhido);
 
   useEffect(() => {
@@ -79,11 +85,9 @@ export function DatePicker({
       ? [String(escolhido.day).padStart(2, '0'), String(escolhido.month).padStart(2, '0'), escolhido.year].join('/')
       : '';
 
-  function definir(proximo?: CalendarDate) {
-    if (value === undefined) {
-      setInternalValue(proximo);
-    }
-
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
+  function definir(proximo: CalendarDate | null) {
+    setInternalValue(proximo);
     onValueChange?.(proximo);
   }
 
@@ -104,7 +108,7 @@ export function DatePicker({
     // Data fora dos limites nao se grava: o calendario ja a recusa, e o campo
     // digitado nao pode ser a porta dos fundos dela.
     const lido = lerEntradaData(mascarado);
-    const permitido = lido && !isUnavailable(lido, { isDateUnavailable, max, min }) ? lido : undefined;
+    const permitido = lido && !isUnavailable(lido, { isDateUnavailable, max, min }) ? lido : null;
 
     definir(permitido);
   }
@@ -113,6 +117,8 @@ export function DatePicker({
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
+    } else if (event.key === 'Escape' && open) {
+      fechar(false);
     }
   }
 
@@ -141,7 +147,9 @@ export function DatePicker({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input name={name} type="hidden" value={escolhido?.toString() ?? ''} />}
+          {name !== undefined && (
+            <input disabled={disabled} name={name} type="hidden" value={escolhido?.toString() ?? ''} />
+          )}
           <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
             <input
               aria-describedby={describedBy}
@@ -156,6 +164,7 @@ export function DatePicker({
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
+              ref={inputRef}
               type="text"
               value={exibido}
             />
@@ -207,7 +216,7 @@ export function DatePicker({
                     </Button>
                     <Button
                       onClick={() => {
-                        definir(rascunho);
+                        definir(rascunho ?? null);
                         setDigitando(false);
                         fechar();
                       }}

@@ -2,8 +2,10 @@ import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time } from '@internationalized/date';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
 import { Field } from '../Field';
-import { TimeSlots, formatarEntradaHora, lerEntradaHora, paraTextoDeHora } from './TimeSlots';
+import { TimeSlots, isTimeAllowed, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 import { IconClock } from '../../icons';
 
@@ -24,7 +26,8 @@ export interface TimePickerProps {
   max?: Time;
   min?: Time;
   step?: number;
-  onValueChange?: (value?: Time) => void;
+  /** Sem hora inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
+  onValueChange?: (value: Time | null) => void;
   placeholder?: string;
   required?: boolean;
   size?: TimePickerSize;
@@ -58,17 +61,19 @@ export function TimePicker({
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue);
-  const [texto, setTexto] = useState(() => paraTextoDeHora(defaultValue));
+  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
-  const escolhido = value === undefined ? internalValue : value ?? undefined;
+  const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const exibido = digitando ? texto : paraTextoDeHora(escolhido);
+  const inputRef = useFormReset<HTMLInputElement>(() => {
+    setInternalValue(defaultValue ?? null);
+    setDigitando(false);
+  });
 
-  function definir(proximo?: Time) {
-    if (value === undefined) {
-      setInternalValue(proximo);
-    }
-
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
+  function definir(proximo: Time | null) {
+    setInternalValue(proximo);
     onValueChange?.(proximo);
   }
 
@@ -86,19 +91,18 @@ export function TimePicker({
     setDigitando(true);
     setTexto(mascarado);
 
+    // O valor acompanha o texto: `18:4` ou `25:99` na tela nao convivem com a hora anterior.
     const lido = lerEntradaHora(mascarado);
 
-    if (lido) {
-      definir(lido);
-    } else if (mascarado === '') {
-      definir(undefined);
-    }
+    definir(lido && isTimeAllowed(lido, min, max) ? lido : null);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
+    } else if (event.key === 'Escape' && open) {
+      fechar(false);
     }
   }
 
@@ -127,7 +131,9 @@ export function TimePicker({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input name={name} type="hidden" value={escolhido ? paraTextoDeHora(escolhido) : ''} />}
+          {name !== undefined && (
+            <input disabled={disabled} name={name} type="hidden" value={paraTextoDeHora(escolhido)} />
+          )}
           <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
             <input
               aria-describedby={describedBy}
@@ -142,6 +148,7 @@ export function TimePicker({
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
+              ref={inputRef}
               type="text"
               value={exibido}
             />
@@ -175,6 +182,7 @@ export function TimePicker({
                 style={positionProps.style}
               >
                 <TimeSlots
+                  autoFocus
                   baseId={providedId ?? idDaLista}
                   max={max}
                   min={min}

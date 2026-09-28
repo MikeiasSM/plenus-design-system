@@ -214,8 +214,8 @@ export function App() {
   const coresDasFormas = resolveSeriesColors(formasDePagamento.map(() => ({})), { accent: corDoTema });
   const maiorFormaEm = (indice: number) =>
     Math.max(...formasDePagamento.map((forma) => forma.valores[indice]));
-  const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | undefined>(new CalendarDate(2026, 3, 9));
-  const [agendamento, setAgendamento] = useState<CalendarDateTime | undefined>();
+  const [dataEscolhida, setDataEscolhida] = useState<CalendarDate | null>(new CalendarDate(2026, 3, 9));
+  const [agendamento, setAgendamento] = useState<CalendarDateTime | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = temaEscuro ? 'dark' : 'light';

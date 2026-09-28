@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Time } from '@internationalized/date';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type ListingItem } from '../../data-display/List/useListing';
+import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
 import styles from './TimePicker.module.css';
 
 export interface TimeSlotsProps {
+  autoFocus?: boolean;
   baseId: string;
   label?: string;
   max?: Time;
@@ -20,26 +22,9 @@ export function paraTextoDeHora(hora?: Time) {
   return hora ? doisDigitos(hora.hour) + ':' + doisDigitos(hora.minute) : '';
 }
 
-/** Aplica a mascara hora:minuto conforme o usuario digita. */
-export function formatarEntradaHora(valor: string) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 4);
-
-  return digitos.length <= 2 ? digitos : digitos.slice(0, 2) + ':' + digitos.slice(2);
-}
-
-/**
- * So devolve a hora quando os quatro digitos foram informados. Aceitar
- * 18:4 como 18:04 fixaria o valor no terceiro digito e impediria completar
- * a dezena do minuto.
- */
-export function lerEntradaHora(valor: string) {
-  if (!/^\d{2}:\d{2}$/.test(valor)) {
-    return undefined;
-  }
-
-  const [hora, minuto] = valor.split(':').map(Number);
-
-  return hora > 23 || minuto > 59 ? undefined : new Time(hora, minuto);
+/** A hora digitada respeita os limites que a lista ja respeita. */
+export function isTimeAllowed(time: Time, min?: Time, max?: Time) {
+  return (!min || time.compare(min) >= 0) && (!max || time.compare(max) <= 0);
 }
 
 /** Horarios do dia inteiro, do primeiro ao ultimo que couber no passo. */
@@ -59,9 +44,10 @@ export function gerarHorarios(step: number, min = new Time(0, 0), max = new Time
   return horarios;
 }
 
-export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step = 30, value }: TimeSlotsProps) {
+export function TimeSlots({ autoFocus = false, baseId, label = 'Horário', max, min, onChange, step = 30, value }: TimeSlotsProps) {
   const [texto, setTexto] = useState(() => paraTextoDeHora(value));
   const [digitando, setDigitando] = useState(false);
+  const listboxRef = useRef<HTMLElement | null>(null);
 
   const horarios = useMemo<ListingItem[]>(
     () => gerarHorarios(step, min, max).map((hora) => ({ value: paraTextoDeHora(hora), label: paraTextoDeHora(hora) })),
@@ -83,6 +69,15 @@ export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step
     },
   });
 
+  // Na abertura, o teclado parte do horario escolhido, como no Select; sem isso, partia da meia-noite.
+  useEffect(() => {
+    listagem.focus(horarios.some((horario) => horario.value === escolhido) ? escolhido : undefined);
+
+    if (autoFocus) {
+      listboxRef.current?.focus();
+    }
+  }, []);
+
   function handleChange(entrada: string) {
     const mascarado = formatarEntradaHora(entrada);
 
@@ -91,7 +86,7 @@ export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step
 
     const lido = lerEntradaHora(mascarado);
 
-    if (lido) {
+    if (lido && isTimeAllowed(lido, min, max)) {
       onChange(lido);
     }
   }
@@ -112,6 +107,7 @@ export function TimeSlots({ baseId, label = 'Horário', max, min, onChange, step
       <ListingOptions
         baseId={baseId}
         className={styles.slotList}
+        elementRef={listboxRef}
         holdsFocus
         label={label}
         listing={listagem}

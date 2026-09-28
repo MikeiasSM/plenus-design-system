@@ -40,7 +40,7 @@ describe('DatePicker', () => {
     fireEvent.change(campo, { target: { value: '3102' } });
 
     // O valor acompanha o texto: enquanto ele nao e uma data, nao ha data.
-    expect(mudou).toHaveBeenLastCalledWith(undefined);
+    expect(mudou).toHaveBeenLastCalledWith(null);
   });
 
   it('recusa por digitacao a data que o calendario ja recusa', () => {
@@ -51,7 +51,7 @@ describe('DatePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith(new CalendarDate(2026, 3, 9));
 
     fireEvent.change(campo, { target: { value: '09092030' } });
-    expect(mudou).toHaveBeenLastCalledWith(undefined);
+    expect(mudou).toHaveBeenLastCalledWith(null);
   });
 
   it('abre o calendario pela seta para baixo e escolhe um dia', () => {

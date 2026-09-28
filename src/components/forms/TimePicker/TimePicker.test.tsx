@@ -22,7 +22,7 @@ describe('TimePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith(new Time(9, 45));
 
     fireEvent.change(campo, { target: { value: '' } });
-    expect(mudou).toHaveBeenLastCalledWith(undefined);
+    expect(mudou).toHaveBeenLastCalledWith(null);
   });
 
   it('escolhe hora e minuto no painel proprio, sem o seletor nativo', () => {
@@ -37,7 +37,7 @@ describe('TimePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith(new Time(14, 30));
   });
 
-  it('desabilita as horas fora da faixa', () => {
+  it('oferece so as horas dentro da faixa', () => {
     render(<TimePicker label="Inicio" min={new Time(8, 0)} max={new Time(18, 0)} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));

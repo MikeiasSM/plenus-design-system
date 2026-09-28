@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import {
@@ -11,7 +11,8 @@ import {
   toCalendarDateTime,
   today,
 } from '@internationalized/date';
-import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
+import { useFormReset } from '../../../hooks/useFormReset';
+import { formatarEntradaDataHora, lerEntradaDataHora } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { TimeSlots } from '../TimePicker/TimeSlots';
@@ -39,7 +40,8 @@ export interface DateTimePickerProps {
   max?: CalendarDate;
   min?: CalendarDate;
   step?: number;
-  onValueChange?: (value?: CalendarDateTime) => void;
+  /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
+  onValueChange?: (value: CalendarDateTime | null) => void;
   placeholder?: string;
   required?: boolean;
   size?: DateTimePickerSize;
@@ -51,50 +53,6 @@ export interface DateTimePickerProps {
 }
 
 const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
-
-/** Aplica a mascara dia/mes/ano hora:minuto conforme o usuario digita. */
-export function formatarEntradaDataHora(valor: string) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 12);
-  const data = formatarEntradaData(digitos.slice(0, 8));
-
-  if (digitos.length <= 8) {
-    return data;
-  }
-
-  const hora = digitos.slice(8);
-
-  return data + ' ' + (hora.length <= 2 ? hora : hora.slice(0, 2) + ':' + hora.slice(2));
-}
-
-export function lerEntradaDataHora(valor: string) {
-  const [data, hora = ''] = valor.trim().split(/\s+/);
-  const dia = lerEntradaData(data);
-
-  if (!dia) {
-    return undefined;
-  }
-
-  // Sem hora nenhuma, meia-noite e o valor: e a decisao ja fixada em teste, e a
-  // data sozinha e um instante legitimo.
-  if (hora === '') {
-    return new CalendarDateTime(dia.year, dia.month, dia.day, 0, 0);
-  }
-
-  // Com hora pela metade ou impossivel, **nao ha valor**. Aceitar 18:4 como
-  // 18:04 fixaria o valor no terceiro digito, e 25:99 viraria meia-noite sem
-  // aviso — uma hora que ninguem digitou.
-  if (!/^\d{2}:\d{2}$/.test(hora)) {
-    return undefined;
-  }
-
-  const [h, m] = hora.split(':').map(Number);
-
-  if (h > 23 || m > 59) {
-    return undefined;
-  }
-
-  return new CalendarDateTime(dia.year, dia.month, dia.day, h, m);
-}
 
 function paraTexto(valor?: CalendarDateTime) {
   if (!valor) {
@@ -128,12 +86,18 @@ export function DateTimePicker({
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Fixo, o id fazia dois seletores dividirem os ids das opcoes de hora.
+  const idDaLista = `datetime-hora-${useId()}`;
   const [open, setOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue);
-  const [texto, setTexto] = useState(() => paraTexto(defaultValue));
+  const [internalValue, setInternalValue] = useState(defaultValue ?? null);
+  const [texto, setTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
-  const escolhido = value === undefined ? internalValue : value ?? undefined;
+  const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
+  const inputRef = useFormReset<HTMLInputElement>(() => {
+    setInternalValue(defaultValue ?? null);
+    setDigitando(false);
+  });
 
   useEffect(() => {
     if (open) {
@@ -142,11 +106,9 @@ export function DateTimePicker({
   }, [open]);
   const exibido = digitando ? texto : paraTexto(escolhido);
 
-  function definir(proximo?: CalendarDateTime) {
-    if (value === undefined) {
-      setInternalValue(proximo);
-    }
-
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
+  function definir(proximo: CalendarDateTime | null) {
+    setInternalValue(proximo);
     onValueChange?.(proximo);
   }
 
@@ -182,13 +144,15 @@ export function DateTimePicker({
     const lido = lerEntradaDataHora(mascarado);
     const dia = lido && toCalendarDate(lido);
 
-    definir(dia && !isUnavailable(dia, { isDateUnavailable, max, min }) ? lido : undefined);
+    definir(lido && dia && !isUnavailable(dia, { isDateUnavailable, max, min }) ? lido : null);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
       setOpen(true);
+    } else if (event.key === 'Escape' && open) {
+      fechar(false);
     }
   }
 
@@ -217,7 +181,9 @@ export function DateTimePicker({
     <Field error={error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
-          {name !== undefined && <input name={name} type="hidden" value={escolhido?.toString() ?? ''} />}
+          {name !== undefined && (
+            <input disabled={disabled} name={name} type="hidden" value={escolhido?.toString() ?? ''} />
+          )}
           <div className={[styles.field, styles[size], error && styles.error].filter(Boolean).join(' ')} ref={fieldRef}>
             <input
               aria-describedby={describedBy}
@@ -232,6 +198,7 @@ export function DateTimePicker({
               onChange={(event) => handleChange(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
+              ref={inputRef}
               type="text"
               value={exibido}
             />
@@ -275,7 +242,7 @@ export function DateTimePicker({
                     value={rascunho && new CalendarDate(rascunho.year, rascunho.month, rascunho.day)}
                   />
                   <TimeSlots
-                    baseId={(providedId ?? 'datetime') + '-hora'}
+                    baseId={idDaLista}
                     onChange={rascunharHora}
                     step={step}
                     value={rascunho && new Time(rascunho.hour, rascunho.minute)}
@@ -296,7 +263,7 @@ export function DateTimePicker({
                     </Button>
                     <Button
                       onClick={() => {
-                        definir(rascunho);
+                        definir(rascunho ?? null);
                         setDigitando(false);
                         fechar();
                       }}
