@@ -72,6 +72,7 @@ export function DatePicker({
     setDigitando(false);
   });
   const [rascunho, setRascunho] = useState(escolhido);
+  const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
 
   useEffect(() => {
     if (open) {
@@ -199,6 +200,7 @@ export function DatePicker({
               >
                 <Calendar
                   autoFocus
+                  key={versaoDoCalendario}
                   isDateUnavailable={isDateUnavailable}
                   locale={locale}
                   max={max}
@@ -207,7 +209,16 @@ export function DatePicker({
                   value={rascunho}
                 />
                 <div className={styles.footer}>
-                  <Button onClick={() => setRascunho(today(getLocalTimeZone()))} size="sm" variant="ghost" type="button">
+                  <Button
+                    onClick={() => {
+                      // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
+                      setRascunho(today(getLocalTimeZone()));
+                      setVersaoDoCalendario((versao) => versao + 1);
+                    }}
+                    size="sm"
+                    variant="ghost"
+                    type="button"
+                  >
                     Hoje
                   </Button>
                   <div className={styles.actions}>

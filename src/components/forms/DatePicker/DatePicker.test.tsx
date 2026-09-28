@@ -83,8 +83,8 @@ describe('DatePicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
-    expect(screen.getByRole('button', { name: '4 de março de 2026' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '5 de março de 2026' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '4 de março de 2026' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: '5 de março de 2026' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('marca o dia escolhido e fecha com Escape devolvendo o foco', () => {

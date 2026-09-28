@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
+import { CalendarDate, CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DatePicker } from './DatePicker';
 import { DateTimePicker } from './DateTimePicker';
@@ -49,6 +49,49 @@ describe('calendario', () => {
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
 
     expect(screen.getByText(/agosto de 2027/i)).toBeInTheDocument();
+  });
+
+  it('poe o foco no dia, e ele anda com as setas, para o leitor de tela anunciar cada dia', () => {
+    render(<DatePicker label="Vencimento" value={new CalendarDate(2026, 3, 9)} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /calend/i }));
+
+    expect(screen.getByRole('button', { name: '9 de março de 2026' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowRight' });
+
+    const dez = screen.getByRole('button', { name: '10 de março de 2026' });
+
+    expect(dez).toHaveFocus();
+    expect(dez).toHaveAttribute('tabindex', '0');
+  });
+
+  it('nao puxa o foco para a grade ao trocar de mes pelo botao', () => {
+    const mudou = vi.fn();
+    render(<DatePicker label="Vencimento" onValueChange={mudou} value={new CalendarDate(2026, 3, 9)} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /calend/i }));
+
+    const proximo = screen.getByRole('button', { name: 'Próximo mês' });
+
+    proximo.focus();
+    fireEvent.click(proximo);
+
+    // Com o foco roubado, o segundo Enter no botao escolhia um dia.
+    expect(proximo).toHaveFocus();
+  });
+
+  it('leva a grade ao mes de hoje pelo Hoje, mesmo com o rascunho ja em hoje', () => {
+    const hoje = today(getLocalTimeZone());
+    const mesDeHoje = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(hoje.toDate(getLocalTimeZone()));
+
+    render(<DatePicker label="Vencimento" value={hoje} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /calend/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo mês' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hoje' }));
+
+    expect(screen.getByRole('grid')).toHaveAccessibleName(mesDeHoje);
   });
 });
 

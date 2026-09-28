@@ -83,7 +83,7 @@ describe('DateTimePicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
 
-    expect(screen.getByRole('button', { name: '4 de março de 2026' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '4 de março de 2026' })).toHaveAttribute('aria-disabled', 'true');
   });
   it('apoia a hora em hoje quando ainda nao ha data', () => {
     const mudou = vi.fn();

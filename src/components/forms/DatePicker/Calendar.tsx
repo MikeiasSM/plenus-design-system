@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, type FocusEvent } from 'react';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useCalendar, type CalendarLimits } from '../../../hooks/useCalendar';
 import styles from './DatePicker.module.css';
@@ -27,6 +27,29 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
   }, [calendario.weeks, fuso, locale]);
 
   const titulo = nomeDoMes.format(calendario.visibleMonth.toDate(fuso));
+  const diaEmFoco = useRef<HTMLButtonElement>(null);
+  const gradeComFoco = useRef(false);
+  const chaveEmFoco = calendario.focusedDate.toString();
+
+  useEffect(() => {
+    if (autoFocus) {
+      diaEmFoco.current?.focus();
+    }
+  }, []);
+
+  // O foco do teclado anda com o dia, mas so se ja estava na grade: o clique no mes seguinte nao o puxa para ca.
+  useEffect(() => {
+    if (gradeComFoco.current) {
+      diaEmFoco.current?.focus();
+    }
+  }, [chaveEmFoco]);
+
+  // Sem destino, o foco saiu com o dia que deixou a grade na troca de mes, e nao da grade.
+  function handleBlur(event: FocusEvent<HTMLTableElement>) {
+    if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) {
+      gradeComFoco.current = false;
+    }
+  }
 
   return (
     <div className={styles.calendar}>
@@ -54,14 +77,10 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
       <table
         aria-label={titulo}
         className={styles.grid}
+        onBlur={handleBlur}
+        onFocus={() => (gradeComFoco.current = true)}
         onKeyDown={calendario.handleKeyDown}
         role="grid"
-        tabIndex={0}
-        ref={(node) => {
-          if (autoFocus) {
-            node?.focus();
-          }
-        }}
       >
         <thead>
           <tr>
@@ -77,25 +96,22 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
             <tr key={semana[0].date.toString()}>
               {semana.map((dia) => {
                 const selecionado = calendario.isSelected(dia.date);
-                const focado = dia.date.compare(calendario.focusedDate) === 0;
+                const focado = dia.date.toString() === chaveEmFoco;
 
                 return (
                   <td className={styles.dayCell} key={dia.date.toString()}>
+                    {/* Dia indisponivel continua focavel, como o teclado o alcanca; quem recusa a escolha e o motor. */}
                     <button
                       aria-current={calendario.isToday(dia.date) ? 'date' : undefined}
+                      aria-disabled={dia.unavailable || undefined}
                       aria-label={nomeDoDia.format(dia.date.toDate(fuso))}
                       aria-pressed={selecionado}
-                      className={[
-                        styles.day,
-                        dia.outside && styles.outside,
-                        selecionado && styles.selectedDay,
-                        focado && styles.focusedDay,
-                      ]
+                      className={[styles.day, dia.outside && styles.outside, selecionado && styles.selectedDay]
                         .filter(Boolean)
                         .join(' ')}
-                      disabled={dia.unavailable}
                       onClick={() => calendario.select(dia.date)}
-                      tabIndex={-1}
+                      ref={focado ? diaEmFoco : undefined}
+                      tabIndex={focado ? 0 : -1}
                       type="button"
                     >
                       {dia.date.day}

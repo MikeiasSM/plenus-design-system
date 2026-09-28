@@ -94,6 +94,7 @@ export function DateTimePicker({
   const [digitando, setDigitando] = useState(false);
   const escolhido = (value === undefined ? internalValue : value) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
+  const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
   const inputRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(defaultValue ?? null);
     setDigitando(false);
@@ -234,6 +235,7 @@ export function DateTimePicker({
                 <div className={styles.columns}>
                   <Calendar
                     autoFocus
+                    key={versaoDoCalendario}
                     isDateUnavailable={isDateUnavailable}
                     locale={locale}
                     max={max}
@@ -250,7 +252,11 @@ export function DateTimePicker({
                 </div>
                 <div className={styles.footer}>
                   <Button
-                    onClick={() => setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }))}
+                    onClick={() => {
+                      // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
+                      setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }));
+                      setVersaoDoCalendario((versao) => versao + 1);
+                    }}
                     size="sm"
                     variant="ghost"
                     type="button"

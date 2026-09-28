@@ -130,10 +130,6 @@
   border-collapse: collapse;
 }
 
-.grid:focus-visible {
-  outline: none;
-}
-
 .weekday {
   width: 2.5rem;
   padding-bottom: var(--pl-space-1);
@@ -160,12 +156,12 @@
   cursor: pointer;
 }
 
-.day:hover:not(:disabled) {
+.day:hover:not([aria-disabled='true']) {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
 }
 
-.day:disabled {
+.day[aria-disabled='true'] {
   color: var(--pl-color-text-tertiary);
   cursor: not-allowed;
 }
@@ -181,13 +177,14 @@
 }
 
 .selectedDay,
-.selectedDay:hover:not(:disabled) {
+.selectedDay:hover:not([aria-disabled='true']) {
   background: var(--pl-color-primary);
   border-color: var(--pl-color-primary);
   color: var(--pl-color-on-primary);
 }
 
-.grid:focus-visible .focusedDay {
+.day:focus-visible {
+  outline: none;
   border-color: var(--pl-color-primary);
   box-shadow: 0 0 0 2px var(--pl-color-primary-container);
 }
