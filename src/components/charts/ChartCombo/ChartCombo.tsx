@@ -24,7 +24,7 @@ import {
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { bandScale, domainOf, linearScale, mergeDomains, ticksFor } from '../scales';
+import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartCombo.module.css';
 /**
@@ -93,6 +93,13 @@ function dominioDoEixo(
   );
 }
 
+/** Dominio com os limites arredondados que o eixo mostraria sozinho. */
+function arredondado(dominio: NumericRange): NumericRange {
+  const [min = 0, max = 0] = linearScale({ domain: dominio, range: [0, 1] }).domain();
+
+  return { max, min };
+}
+
 /**
  * Barras e linhas sobre o mesmo eixo de categorias. Uma serie declara a que
  * eixo de valor pertence; sem nenhuma a direita, o dominio e unico e o eixo
@@ -137,15 +144,14 @@ export function ChartCombo({
   // barra desligada encolhe enquanto as demais ocupam o lugar dela.
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
 
-  const dominioEsquerda = useMemo(
-    () => dominioDoEixo(series, 'left', isHidden),
-    [isHidden, series],
-  );
+  // Com serie a direita, o zero fica na mesma altura nos dois eixos: as barras crescem da mesma base.
+  const [dominioEsquerda, dominioDireita] = useMemo(() => {
+    const esquerda = arredondado(dominioDoEixo(series, 'left', isHidden));
 
-  const dominioDireita = useMemo(
-    () => (temEixoDireito ? dominioDoEixo(series, 'right', isHidden) : dominioEsquerda),
-    [dominioEsquerda, isHidden, series, temEixoDireito],
-  );
+    return temEixoDireito
+      ? alignZeros(esquerda, arredondado(dominioDoEixo(series, 'right', isHidden)))
+      : [esquerda, esquerda];
+  }, [isHidden, series, temEixoDireito]);
 
   // Uma segunda escala sem eixo para le-la e o duplo eixo que engana. Havendo
   // serie a direita, o eixo aparece sem ninguem pedir.
@@ -175,12 +181,12 @@ export function ChartCombo({
   // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
   // duas, as marcas exibiriam valores quebrados durante a transicao.
   const alvoEsquerda = useMemo(
-    () => linearScale({ domain: dominioEsquerda, range: [plot.height, 0] }),
+    () => linearScale({ domain: dominioEsquerda, nice: false, range: [plot.height, 0] }),
     [dominioEsquerda, plot.height],
   );
 
   const alvoDireita = useMemo(
-    () => linearScale({ domain: dominioDireita, range: [plot.height, 0] }),
+    () => linearScale({ domain: dominioDireita, nice: false, range: [plot.height, 0] }),
     [dominioDireita, plot.height],
   );
 

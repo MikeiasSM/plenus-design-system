@@ -81,6 +81,22 @@ describe('ChartCombo', () => {
     expect(amplitudeDaCurva()).toBeGreaterThan(alturaDoDesenho() / 3);
   });
 
+  it('alinha o zero dos dois eixos, para as barras de cada um crescerem da mesma base', () => {
+    render(
+      <ChartCombo
+        categories={meses}
+        series={[
+          { kind: 'bar', label: 'Resultado', values: [-400, 600, 1000] },
+          { axis: 'right', kind: 'bar', label: 'Margem', values: [5, 8, 10] },
+        ]}
+        title="Resultado e margem"
+      />,
+    );
+    const base = (barra: Element) => Math.max(...alturasDa(barra));
+
+    expect(base(barras()[4])).toBeCloseTo(base(barras()[1]));
+  });
+
   it('achata a serie contra a base quando ela compartilha o eixo esquerdo', () => {
     render(
       <ChartCombo

@@ -1,4 +1,5 @@
 export {
+  alignZeros,
   bandScale,
   domainOf,
   linearScale,

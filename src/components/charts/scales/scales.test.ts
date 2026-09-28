@@ -1,4 +1,5 @@
 import {
+  alignZeros,
   bandScale,
   domainOf,
   linearScale,
@@ -7,6 +8,7 @@ import {
   radiusScale,
   stackDiverging,
   ticksFor,
+  type NumericRange,
 } from './scales';
 
 describe('dominio', () => {
@@ -29,6 +31,32 @@ describe('dominio', () => {
 
   it('une series para que compartilhem um unico eixo', () => {
     expect(mergeDomains([domainOf([10, 40]), domainOf([-5, 90])])).toEqual({ min: -5, max: 90 });
+  });
+});
+
+describe('zeros alinhados', () => {
+  const alturaDoZero = (faixa: NumericRange) => -faixa.min / (faixa.max - faixa.min);
+
+  it('leva o zero a mesma altura nos dois eixos, crescendo cada um so do lado que precisa', () => {
+    const [esquerda, direita] = alignZeros({ min: -50, max: 100 }, { min: 0, max: 40 });
+
+    expect(alturaDoZero(esquerda)).toBeCloseTo(alturaDoZero(direita));
+    expect(esquerda.min).toBe(-50);
+    expect(direita.max).toBe(40);
+  });
+
+  it('poe o zero no meio quando um eixo e todo negativo e o outro todo positivo', () => {
+    expect(alignZeros({ min: -10, max: 0 }, { min: 0, max: 40 })).toEqual([
+      { min: -10, max: 10 },
+      { min: -40, max: 40 },
+    ]);
+  });
+
+  it('mantem os dominios que ja tem o zero na mesma altura', () => {
+    expect(alignZeros({ min: 0, max: 1000 }, { min: 0, max: 10 })).toEqual([
+      { min: 0, max: 1000 },
+      { min: 0, max: 10 },
+    ]);
   });
 });
 

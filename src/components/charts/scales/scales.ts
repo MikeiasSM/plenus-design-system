@@ -73,6 +73,43 @@ export function mergeDomains(domains: readonly NumericRange[]): NumericRange {
   };
 }
 
+/** Parte da faixa abaixo do zero; sem amplitude, nao ha o que alinhar. */
+function parteNegativa({ min: menor, max: maior }: NumericRange) {
+  return maior > menor ? -menor / (maior - menor) : undefined;
+}
+
+/** Estende a faixa do lado que falta para o zero ficar na altura pedida, em fracao do eixo. */
+function levarZeroA(faixa: NumericRange, altura: number): NumericRange {
+  const parte = parteNegativa(faixa) ?? altura;
+
+  if (parte > altura) {
+    return { min: faixa.min, max: (-faixa.min * (1 - altura)) / altura };
+  }
+
+  if (parte < altura) {
+    return { min: (-faixa.max * altura) / (1 - altura), max: faixa.max };
+  }
+
+  return faixa;
+}
+
+/**
+ * Estende dois dominios que contem o zero para que ele caia na mesma altura nos
+ * dois eixos. Cada um cresce so do lado que precisa, e a folga sai igual nos dois.
+ */
+export function alignZeros(a: NumericRange, b: NumericRange): [NumericRange, NumericRange] {
+  const parteA = parteNegativa(a);
+  const parteB = parteNegativa(b);
+
+  if (parteA === undefined || parteB === undefined) {
+    return [a, b];
+  }
+
+  const altura = Math.max(parteA, parteB) / (1 + Math.abs(parteA - parteB));
+
+  return [levarZeroA(a, altura), levarZeroA(b, altura)];
+}
+
 function guardFlat({ min: menor, max: maior }: NumericRange): [number, number] {
   return menor === maior ? [menor, menor + 1] : [menor, maior];
 }
