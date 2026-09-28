@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-687 testes em 80 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+707 testes em 81 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -82,7 +82,10 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 
 **Contrato publico dos componentes**
 
-- **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. Nos campos o elemento e o controle: o `input` nos de texto, o gatilho no `Select`, o campo de texto no `ComboBox` e nos seletores, onde o `className` vai a caixa do campo. Nos conteineres, `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`, e o elemento de fora; no `Dialog` e no `Popover`, o elemento do dialogo. `Menu` e `Tooltip` ainda nao levam `id` nem `data-*` ao painel: a raiz deles e o gatilho do consumidor.
+- **Cada componente aceita as propriedades nativas do elemento que renderiza como raiz**, e o `className` **soma** em vez de substituir o do sistema. Nos campos o elemento e o controle: o `input` nos de texto, o gatilho no `Select`, o campo de texto no `ComboBox` e nos seletores, onde o `className` vai a caixa do campo. Nos conteineres, `Accordion`, `Card`, `List`, `Table`, `Tabs`, `Pagination`, `Breadcrumb`, `RadioGroup` e `Field`, e o elemento de fora; no `Dialog` e no `Popover`, o elemento do dialogo; no `Progress`, o proprio `progressbar`, que passou a ser o elemento de fora — o `className` ia ao envoltorio e o resto a trilha.
+- **`Menu` e `Tooltip` nao levam `id` nem `data-*` ao painel, por decisao.** A raiz deles e o gatilho, que ja e do consumidor e recebe o que ele quiser. O painel e interno e se alcanca pelo papel e pelo nome, `menu` e `tooltip`; abrir uma segunda porta de propriedades para ele seria API sem problema concreto.
+- **`Menu` aceita `open`, `defaultOpen` e `onOpenChange`**, o mesmo trio dos demais estados controlados ou nao da biblioteca. Controlado, ele pede a mudanca e espera o consumidor; o foco volta ao gatilho no pedido de fechar, como no modo nao controlado.
+- **`title` e o titulo do componente em toda a biblioteca** — graficos, `Card`, `Dialog`, `Alert` e `ChartTooltip`. No `Alert` ele sombreia o atributo nativo, o balao do navegador, e isso fica assim: trocar o nome so ali quebraria a convencao de dezesseis componentes para devolver um atributo que ninguem pediu.
 - **`ref` e propriedade, nao `forwardRef`.** O React 19 a trata assim, e `useMergedRefs` junta o ref interno ao de fora — sem ele, um dos dois se perdia: o interno, sobrescrito por `{...props}`, ou o de fora, sobrescrito pelo componente.
 - **`name` leva o valor ao `FormData`.** `Select`, `ComboBox` e os tres seletores nao tem controle nativo por baixo, entao um input oculto carrega o valor. Sem ele o campo simplesmente nao era enviado. Ele respeita `disabled`, como o controle nativo, e o reinicio do formulario.
 - **Obrigatorio barra o envio.** Input oculto fica fora da validacao do navegador, e o formulario vazio passava. Com `required`, o valor vai num campo validavel e invisivel, que devolve o foco ao controle quando o navegador aponta o erro.
@@ -103,9 +106,11 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - **O painel de horas recebe o foco ao abrir**, e o teclado parte do horario escolhido, como no `Select`. Antes a seta abria o painel e deixava o foco no campo, onde nem seta nem Enter faziam nada, e a lista partia da meia-noite. Escape fecha o painel tambem com o foco no campo.
 - **O foco do calendario mora no dia.** A grade tinha o foco e so o desenho apontava o dia, entao o leitor de tela nao ouvia nada ao andar pelas setas. Agora o dia em foco e a parada de Tab, recebe o foco de verdade e o dia indisponivel usa `aria-disabled`, para continuar alcancavel. O foco so anda com o dia se ja estava na grade: o `ref` em linha chamava `focus()` a cada render, e o segundo Enter em "Proximo mes" escolhia um dia.
 - **Hoje e Agora levam a grade ao mes corrente**, mesmo com o rascunho ja em hoje: o calendario so seguia o valor quando ele mudava, e ficava no mes navegado.
+- **A API dos seletores fala em texto ISO**: `'2026-03-09'` no `DatePicker`, `'18:40'` no `TimePicker` e `'2026-03-09T18:40'` no `DateTimePicker`, em `value`, `defaultValue`, `min`, `max`, `isDateUnavailable` e `onValueChange`. E o mesmo texto que vai ao `FormData`, sem segundos, que os seletores nao escolhem. Os tipos do `@internationalized/date` ficaram por dentro: o `CLAUDE.md` admite o pacote como primitivo e veda tipo de terceiro em propriedade publica, e a veda o alcanca. Texto que nao e data valida conta como ausente, em vez de derrubar o componente.
 
 - **Havia duas escalas de tamanho respondendo a mesma pergunta.** `--pl-type-*`, documentada, com nove papeis; e `--pl-size-*`, herdada do mock v8, com 11, 13 e 15 — degraus que a escala oficial nao tem. Trinta e quatro modulos usavam a documentada e oito usavam a legada, entao um botao saia com 13px ao lado de uma aba com 14px, mesmo papel e mesmo peso. O `TOKENS-REFERENCE-TYPOGRAPHY.md` tem secao propria proibindo escala paralela; ela existia. Os oito migraram, e a legada foi apagada.
 - Consequencia visivel, aceita pelo mantenedor: botao vai de 13px para 14px, botao grande de 15px para 16px e **badge de 11px para 14px** — o documento nomeia o badge junto de botoes e abas, em `type.label`.
+- **A entrelinha do `Button` tambem saiu da escala.** Com `1.2`, o botao medio media 39px ao lado dos 42px do `InputText`. Cada tamanho usa agora a entrelinha do proprio papel — `caption`, `label` e `title` —, e o medio fica na altura do campo. O pequeno e o grande tiveram o respiro vertical ajustado para ficar perto de onde estavam, em 28px e 48px.
 - **A coluna numerica da `Table` pegava o peso do papel sem a familia.** `data-value` e JetBrains Mono, unica familia carregada no peso 500; aplicar o peso sobre Montserrat dava seminegrito sintetizado, justamente onde o monoespacado serve para alinhar digito com digito. Medido em navegador: a celula agora sai em `JetBrains Mono` 500.
 - **As familias nao tinham defeito algum.** Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500 batem com o que a referencia manda carregar, e os nove pesos da camada semantica cabem nessa importacao. Dois usos pediam a mono em 600, que nao e carregada, e saiam em negrito sintetizado: o cabecalho da `Table` e a linha em destaque do `ChartTooltip`. Os dois voltaram ao peso carregado.
 - `--pl-font-mono` era declarado duas vezes, e o bloco legado vencia com uma pilha fora da referencia. Ficou a da camada semantica.
@@ -162,6 +167,31 @@ Mudancas incompativeis desta rodada, conforme `CONTRIBUTING.md` secao 11:
 - Os seletores mudaram de raio e de altura, para a do `InputText`.
 - O `Select`, o `ComboBox` e os seletores obrigatorios barram o envio vazio.
 
+**Pendencias da reverificacao resolvidas na 0.2.0**
+
+A pedido do mantenedor, a lista de decisoes pendentes da reverificacao foi resolvida, exceto o que muda contrato ou pede desenho. Cada conserto de comportamento ganhou um teste que falha no codigo anterior.
+
+- **O `<title>` voltou onde nao ha `ChartTooltip`**: `ChartLine`, `ChartArea`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey`, ao lado do `aria-label`. O balao duplo que justificou a troca so existe onde ha costura; sem ela, o `<title>` era a unica leitura do valor sob o ponteiro, e o valor que o sankey omite por colisao ficava sem leitura alguma.
+- **`includeZero` da dispersao aceita o eixo**: `true` nos dois, `'x'` ou `'y'` so naquele, `false` em nenhum. Um ano no X ja nao leva junto o zero do valor no Y.
+- **O texto sobre a cor da serie tem token proprio**, `chart.on-*`, um por cor da paleta e por intencao, medido nos dois temas pelo `check:contraste`. O branco fixo do `ChartPie` e do `ChartTreemap` ficava abaixo de 4,5:1 em cinco das dez cores do claro e em todas as do escuro. A cor informada em hexadecimal, como a cor de tema, e medida pelo componente. O valor do mapa perdeu a opacidade, que diluia o contraste medido.
+- **Os dois eixos do `ChartCombo` tem o zero na mesma altura**, e as barras de cada um crescem da mesma base. `alignZeros` estende cada dominio so do lado que precisa, com a mesma folga nos dois.
+- **O centro do `ChartRadial` reserva o espaco do valor** no menor degrau da escala, ate metade do raio. Com o piso de 8px, o valor sumia a partir de seis aneis; agora quem cede e a espessura deles.
+- **As marcas dos graficos sao chaveadas pela posicao**, como a presenca e a cor ja eram. Rotulo repetido — que a legenda, por decisao, continua tratando como a mesma serie — colidia a chave do React.
+- **A barra empilhada rotula o total da categoria**, alem da ponta da pilha. `showDataLabels` nao fazia nada com `stacked`.
+- **O degrade da area clareia rumo ao zero pelos dois lados.** Ancorado no topo, o trecho negativo, que e o mais distante do zero, saia quase transparente.
+- **O cabecalho fixo da `Table` cola na rolagem da pagina enquanto a tabela cabe.** Rolar dentro da tabela e colar na rolagem de fora se excluem em CSS; o envoltorio so continua conteiner de rolagem quando a tabela transborda dele, na largura ou numa altura imposta, e ai o cabecalho cola nessa rolagem. Sem `ResizeObserver`, fica o comportamento antigo. O `overflow-y` que caia no `<table>` saiu.
+- **Os controles de selecao da `Table` tem o visual do sistema**, compondo o CSS de `Checkbox`, `Radio` e `Switch` sobre o mesmo `input` nativo.
+- **O pacote declara as familias e a aplicacao carrega as fontes**, como o `TOKENS-REFERENCE-TYPOGRAPHY.md` ja dizia. O `README.md` agora explica o carregamento, com o exemplo do Google Fonts, e descreve a estrutura real de estilos — `tokens.css`, `base.css` e `reset.css`. O `.editorconfig` que ele citava foi criado.
+- **O seletor de tema fica `:root[data-theme]`.** Os exemplos de `TOKENS.md` e `ARCHITECTURE.md` secao 5, com `[data-theme='dark']`, sao conceituais, como o `CLAUDE.md` registra, e o documento especializado de cores nao fixa seletor. Tema por subarvore nao e suportado; se for pedido, a mudanca e nos tokens, e nao nos exemplos.
+- **O Showcase importa pelo nome do pacote.** No desenvolvimento o nome aponta para `src`, para o recarregamento instantaneo; no build, para o `dist`, e o `build:showcase` constroi o pacote antes. O que o Showcase publicado mostra e o que o consumidor recebe.
+
+Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
+
+- `DatePicker`, `TimePicker` e `DateTimePicker` recebem e emitem texto ISO, e nao os tipos do `@internationalized/date`.
+- As propriedades nativas do `Progress` vao ao elemento de fora, que agora e o `progressbar`, e nao mais a trilha.
+- O `Button` medio passou de 39px para 42px.
+- O rotulo sobre a fatia e o retangulo passou a preto nas cores claras, e o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero.
+
 **Fronteira com a aplicacao hospedeira**
 
 - **O CSS global foi partido em dois, por decisao do mantenedor, depois do primeiro consumo real.** `styles/base.css` viaja com os componentes e traz so o que eles exigem do documento; `styles/reset.css` e opcional, sai como arquivo proprio em `dist/reset.css` e carrega a base de pagina — corpo, titulos, links, controles nativos, selecao, barra de rolagem. Antes disso, instalar a biblioteca reescrevia o `body`, os titulos, o `select` nativo e a barra de rolagem do hospedeiro, que e o oposto do que o `README.md` promete quando diz que as aplicacoes consomem.
@@ -172,12 +202,14 @@ Mudancas incompativeis desta rodada, conforme `CONTRIBUTING.md` secao 11:
 
 **Distribuicao**
 
+- **A proxima publicacao e a `0.2.0`.** As mudancas incompativeis das duas rodadas da reverificacao pedem versao menor nova pela convencao de 0.x, e a `v0.1.2` ja existe apontando para um commit sem os consertos. A tag e empurrada pelo mantenedor.
+- **`"license": "UNLICENSED"`.** O pacote e publico no registro, mas o repositorio nao concede uso, e sem o campo nada dizia isso. Escolher uma licenca aberta e decisao do mantenedor.
 - **Publicacao no npm publico, por decisao do mantenedor**, na versao `0.1.1`. A `v0.1.0` continua apontando para a base conceitual, e a versao subiu para nao disputar o nome com ela. `publishConfig.access` fica `public` no proprio pacote: escopado, ele nasceria restrito e o `publish` falharia sem a bandeira. O `repository` tambem entrou, porque o npm o usa na pagina do pacote.
 - **A publicacao e disparada pelo git.** `.github/workflows/publicar.yml` publica ao receber uma tag `vX.Y.Z`; nada publica a partir de um commit solto na `main`.
 - O fluxo repete as comportas locais antes de publicar: tipos, suite, build, `check:pacote` e `check:contraste`. Uma reprovacao em qualquer uma impede a publicacao, e e de proposito — o laudo de contraste e exigencia do `TOKENS-REFERENCE-COLORS.md` antes de expor os tokens.
 - **A tag e o `package.json` tem de dizer a mesma coisa.** Sem essa comporta, empurrar `v0.2.0` com o pacote em `0.1.1` publicaria a versao errada sob um nome que promete outra.
 - O segredo do repositorio chama-se `NPM_TOKEN` e precisa ser um token **granular**, com escrita no escopo `@plenustech` e a dispensa de 2FA marcada. O token classico exige o codigo de seis digitos, que nenhuma automacao responde — foi exatamente o que barrou a primeira tentativa manual.
-- **Sem procedencia (`--provenance`).** A atestacao do npm exige repositorio publico, e este foi declarado privado. A reverificacao de 28/09 afirma que ele e publico (`"private": false` na API do GitHub); conferir e decidir — publico, a procedencia fica viavel com `id-token: write`.
+- **Procedencia (`--provenance`) enquanto o repositorio for publico.** A atestacao do npm exige repositorio publico; o fluxo le a visibilidade no proprio evento e so pede a procedencia quando ela e possivel, com `id-token: write`. Se o repositorio voltar a ser privado, a publicacao segue sem ela, em vez de falhar.
 - A publicacao da 0.1.2 falhou, e o fluxo corrigido nunca rodou: a tag `v0.1.2` aponta para o commit anterior a checagem da credencial. O fluxo agora publica com `--ignore-scripts` — o `prepare` reconstruia o pacote depois de o `check:pacote` aprovar outro build —, derruba o passo quando o `whoami` falha, o que dentro da substituicao nao acontecia, e recusa tag posta fora da `main`. Exercita-lo pede uma tag nova, empurrada pelo mantenedor.
 
 - O pacote foi conferido por instalacao real sob a configuracao mais severa que um consumidor pode usar: `moduleResolution: nodenext`, `skipLibCheck: false` e `noUncheckedSideEffectImports`. Zero erros. Antes disso reprovava em quatro frentes.
@@ -254,11 +286,10 @@ Mudancas incompativeis desta rodada, conforme `CONTRIBUTING.md` secao 11:
 ### Ainda nao implementado
 
 - O `DataGrid` da etapa 10.
-- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`, A troca do `<title>` por `aria-label` ja esta feita.
+- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`. Enquanto nao ha costura, a marca leva o `<title>`, que sai quando ela chegar.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
-- Showcase consumindo o pacote como aplicacao externa, em vez do alias local.
 
 ## Pendencias de correcao identificadas no review
 
@@ -274,25 +305,12 @@ Mudancas incompativeis desta rodada, conforme `CONTRIBUTING.md` secao 11:
 
 ## Decisoes pendentes da reverificacao da 0.1.1
 
-Levantadas no relatorio de 28/09 e **nao implementadas**, por dependerem do mantenedor ou por contrariarem documento normativo.
+O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que segue muda contrato ou pede desenho, e depende do mantenedor.
 
-- **Leitura da marca sob o ponteiro.** Sem `<title>`, `ChartLine`, `ChartArea`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` ficaram sem leitura alguma do valor no hover, e o valor que o sankey omite por colisao nao tem onde aparecer. A troca foi decisao do mantenedor, justificada pelo balao duplicado, que so existe onde ha `ChartTooltip`. Caminhos: devolver o `<title>` onde nao ha costura, ou ligar o `ChartTooltip` nesses graficos, pendencia ja registrada.
-- **`includeZero` por eixo na dispersao.** Um so valor vale para x e y, e tirar o zero dos anos tira tambem o do valor. Separar muda a forma da propriedade.
-- **Licenca.** O `package.json` nao declara `license`, e o repositorio tambem nao tem licenca: pacote publico sem licenca nao concede uso. Se a intencao e proprietaria, `"license": "UNLICENSED"`.
-- **Visibilidade do repositorio e procedencia.** Ver a secao de distribuicao.
-- **Versao e tag da proxima publicacao.** A `v0.1.2` ja existe e aponta para um commit sem os consertos; a proxima tag precisa de versao nova. As mudancas incompativeis acima pedem `0.2.0` pela convencao de 0.x.
-- **Cabecalho fixo da `Table` com a rolagem da pagina.** Ele gruda quando a propria tabela rola; com a rolagem da pagina, nao, porque o envoltorio com `overflow-x: auto` e um conteiner de rolagem, e sticky cola nele. Rolar na horizontal dentro da tabela e colar na rolagem da pagina sao excludentes em CSS: e preciso escolher.
-- **Controles de selecao da `Table`** sao os nativos com `accent-color`, e nao o visual do `Checkbox`. Compor o CSS dele e possivel, sem trocar o elemento.
-- **Entrelinha do `Button`.** `1.2` esta fora da escala; o papel `type.label` e 20px, o que leva o botao medio de 39px para 42px, a altura do `InputText`, e mexe nos demais tamanhos.
-- **Fontes fora do pacote.** Nem o `README.md` nem o `dist` dizem como carregar Poppins, Montserrat e JetBrains Mono; so o `TOKENS-REFERENCE-TYPOGRAPHY.md`, que nao vai no pacote. Documentar no `README.md` pede aprovacao.
-- **`README.md` diverge do repositorio**: cita `globals.css`, `themes/` e `.editorconfig`, que nao existem, e nao cita `base.css`; e diz que o Showcase consome como consumidor externo, quando ele usa alias para `src`. Documento normativo: alterar pede aprovacao.
-- **Seletor de tema nos exemplos normativos.** `TOKENS.md` e `ARCHITECTURE.md` secao 5 mostram `[data-theme='dark']`, que vale em subarvore; a implementacao, e agora tambem a dos graficos, usa `:root[data-theme]`.
-- **Tipos de `@internationalized/date` na API publica** — `CalendarDate`, `Time`, `CalendarDateTime`. O `CLAUDE.md` admite o pacote como primitivo e veda tipo do React Aria em propriedade publica; e preciso dizer se a veda o alcanca.
-- **Contraste dos rotulos sobre as series.** `ChartPie` e `ChartTreemap` escrevem em branco sobre a cor da serie, abaixo de 4,5:1 em varias delas nos dois temas. Resolver pede um token de texto por serie, o que mexe no `TOKENS-REFERENCE-COLORS.md`.
-- **Duas bases no `ChartCombo`.** A barra do eixo direito cresce do zero dele, que nao coincide com o do esquerdo. Alinhar os zeros dos dois dominios e uma regra nova de escala.
-- **Teclado e toque nos graficos**, rotulo na barra empilhada, degrade da area negativa, rotulos repetidos — que a legenda, por decisao, trata como a mesma serie —, API comum entre os `Chart*` e as copias antigas de `d3-array` e `d3-shape` que o `d3-sankey` arrasta.
-- **API ainda aberta**: `id` e `data-*` no painel de `Menu` e `Tooltip`, cuja raiz e o gatilho; `Menu` controlado; `title` do `Alert`, que sombreia o atributo nativo; `className` e propriedades do `Progress` em elementos diferentes; e `InputCurrency` emitindo texto em pt-BR, e nao numero.
-- **Centro do `ChartRadial` com muitos aneis.** O vazio central tem piso de 8px, e a partir de seis aneis o valor do centro nao cabe. Reservar o centro custa espessura de anel.
+- **Valor de `InputNumber` e `InputCurrency`.** Eles emitem texto em pt-BR, `'1234,56'`, e o consumidor converte antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
+- **Teclado e toque nos graficos.** O hover so ouve o mouse, e no toque nao ha passar por cima. Tocar para fixar o realce e o balao e tocar fora para soltar e um modelo de interacao a desenhar. O teclado segue o catalogo: o grafico e uma imagem so, e a leitura medida a medida vem pela visao em tabela.
+- **API comum entre os `Chart*`.** `series`, `slices`, `tracks`, `nodes` e `flows`, e `onHoverCategory`, `onHoverStep` e `onHoverSlice`, seguem a forma do dado de cada grafico; a unificacao feita cobre so os cartesianos. Unificar o resto quebra quase todos os graficos, e pede o desenho da API antes.
+- **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter.
 
 ## Excecoes de contraste aceitas
 
@@ -367,10 +385,10 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 
 - O eixo e a grade recebem as marcas **ja posicionadas**: converter valor em pixel pertence a escala, nao ao desenho. Isso os torna testaveis sem montar um grafico inteiro.
 - A linha da base tem estilo proprio na grade: ela separa positivos de negativos e nao e apenas mais uma marca.
-- O grafico e `role="img"` nomeado pelo titulo, e cada marca carrega a propria descricao em `aria-label`. A visao em tabela, que a `Table` ja permite, entra quando houver o primeiro consumidor pedindo — e e ela, nao a marca, o caminho da leitura medida a medida.
+- O grafico e `role="img"` nomeado pelo titulo, e cada marca carrega a propria descricao em `aria-label`; sem costura para o `ChartTooltip`, tambem no `<title>`. A visao em tabela, que a `Table` ja permite, entra quando houver o primeiro consumidor pedindo — e e ela, nao a marca, o caminho da leitura medida a medida.
 - D3 entra como **calculo, nunca como renderizador**. `d3-scale` e `d3-array` para escalas e dominios; `d3-selection` e `d3-axis` ficam de fora por tocarem o DOM. Eixos, marcas e rotulos sao JSX, e o React continua dono da arvore. E a mesma fronteira ja firmada para o React Aria.
 - O sistema de escalas precede os graficos porque a ausencia dele e a causa raiz do duplo eixo em producao: sem escala confiavel, duas series de grandeza diferente acabam em dois eixos, e o cruzamento entre elas vira artefato da escala escolhida. `mergeDomains` une series num eixo unico.
-- O dominio inclui o zero por padrao. Barra que nao parte do zero exagera a diferenca entre os valores.
+- O dominio inclui o zero por padrao. Barra que nao parte do zero exagera a diferenca entre os valores. Na dispersao, `includeZero` escolhe o eixo.
 - Paleta de series em `src/tokens/semantic/chart.css`, com seis posicoes fixas e tons proprios por tema. A serie N usa sempre o mesmo token, para que um filtro que reduza as series nao repinte as restantes.
 - As oito cores institucionais nao formam paleta de dados: tres sao status, duas sao neutras e sobram tres matizes. Medidas em conjunto, reprovam em separacao para deficiencia de visao de cores (3,6 no par laranja e verde), em separacao para visao plena (9,7 no par cinza e azul) e em contraste nos dois temas. A paleta de series usa tons das rampas de marca e leva o pior par de 3,6 para 20,6.
 - Verde, vermelho e amarelo permanecem reservados a status, e sao a escolha certa quando o dado **e** status, como o mapa de produtos por margem e o DRE.
@@ -384,6 +402,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - **O duplo eixo Y e declarado, nunca inferido.** No `ChartCombo` a serie diz a que eixo pertence, e e essa declaracao que faz nascer o eixo direito. Isso nao reabre a decisao registrada acima: o que ela condena e o eixo duplo que *acontece* por falta de escala confiavel, e e justamente a divisao automatica que fica proibida. O `Split y-axis when necessary` do Metabase e esse mecanismo automatico; o shadcn, pelo Recharts, exige `yAxisId` em cada eixo, e e esse o caminho adotado. Sem serie a direita, o dominio e unico e o eixo direito espelha o esquerdo.
 - Uma segunda escala sem eixo para le-la e exatamente o duplo eixo que engana, entao o eixo direito do `ChartCombo` aparece por padrao assim que uma serie pertence a ele. O consumidor ainda pode impor os tres estados de visibilidade.
 - Os dois dominios do `ChartCombo` caminham numa **animacao so**, e por isso chegam juntos. Duas animacoes independentes descasariam as barras das linhas no meio da transicao.
+- Com os dois eixos, **o zero cai na mesma altura nos dois**. Cada dominio e arredondado como o eixo o mostraria sozinho e depois estendido so do lado que precisa, com a mesma folga nos dois; arredondar depois de alinhar desfaria o alinhamento.
 - No `ChartCombo` a linha passa pelo **centro da faixa**, que e onde a marca do eixo de categoria tambem fica. As duas formas compartilham a escala de faixas em vez de manterem cada uma a sua.
 - `barSlots` devolve uma faixa por presenca, e a presenca vem do tween. Quando entra uma serie nova, o tween devolve o array anterior por um render e o indice da nova ainda nao existe: o acesso passa por `NO_BAR_SLOT`. A extracao tinha perdido essa guarda, que existia antes como `presencas[i] ?? 0`, e o grafico quebrava com `Cannot read properties of undefined`.
 - O traco da linha e o marcador de ponto passaram para `core/Chart.module.css` quando o `ChartCombo` virou o terceiro consumidor deles. `ChartLine`, `ChartArea` e `ChartCombo` compoem a partir de la; `ChartArea` mantem o nome local `outline`.
@@ -391,6 +410,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - `d3-shape` entrou pela mesma fronteira do restante do D3: ele devolve string de caminho, nao toca no DOM. Interpolacao cubica monotona e geracao de faixa com base variavel sao matematica sutil que nao vale reimplementar, e o pacote tambem serve os arcos dos radiais.
 - Valor ausente **interrompe** a curva, em vez de emendar sobre o buraco. Emendar desenharia um trecho que o dado nao afirma. Vale para `ChartLine` e para a faixa do `ChartArea`.
 - Area empilhada recebe **cor solida**, nao gradiente: gradientes sobrepostos somam opacidade e a faixa de cima escurece a de baixo. O contorno permanece nos dois casos, porque e ele que separa uma faixa da vizinha.
+- O gradiente da area clareia **rumo ao zero**, pelos dois lados quando a serie tem negativo. E a distancia do zero que o tom cheio marca, e nao a altura no desenho.
 - O raio da bolha do `ChartScatter` cresce pela **raiz** do valor, para que a area acompanhe o dado. Mapeando o valor direto ao raio, a area cresceria com o quadrado dele.
 - Na cascata, o **sinal do rotulo pertence ao grafico**, que formata a magnitude. Delegar o sinal ao formatador do consumidor perdia a variacao com qualquer formatador que exibisse apenas o valor. O teste pegou isso.
 - Na cascata, a faixa de cada passo e indexada pela **posicao**, nao pelo rotulo: numa sequencia de passos o mesmo rotulo pode repetir, e a escala categorica funde dominios iguais, sobrepondo as barras.
@@ -400,11 +420,14 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - O balao **segue o ponteiro**, e nao a marca. Por isso nao usa `useOverlayPosition`, que ancora em elemento e nao em coordenada: a posicao sai do proprio evento, com giro para o lado oposto ao encostar na borda da janela.
 - O `ChartTooltip` e **decorativo** para leitor de tela, com `aria-hidden`. Uma grade que some a qualquer interacao nao e leitura acessivel.
 - **O `<title>` por marca deu lugar a `aria-label`**, nos doze graficos, por decisao do mantenedor. Ele desenhava um segundo balao, nativo, sempre que o ponteiro parava sobre a marca. E ele nunca foi leitura de leitor de tela: o desenho e `role="img"`, que apresenta o grafico como uma imagem unica e nao expoe os descendentes. A troca elimina o balao duplo e nao custa acessibilidade; o que falta para a leitura medida a medida e a visao em tabela.
+- **O `<title>` voltou nos sete graficos sem costura**, ao lado do `aria-label`. O balao duplo so existe onde ha `ChartTooltip`; nos demais, o `<title>` era a unica leitura do valor sob o ponteiro.
 - A costura de hover vive em dois lugares, um por familia. `useHoveredBand` serve os cartesianos de faixa — `ChartBar`, `ChartCombo` e `ChartWaterfall` —, que expoem `onHoverCategory` ou, no caso do passo, `onHoverStep`. `useSliceRing` serve o anel, e expoe `onHoverSlice`.
 - **O anel entrega a fatia, e nao o indice.** As pequenas ja foram reunidas em "Outros" quando o ponteiro chega, entao o indice do anel nao corresponde ao que o consumidor informou. Entregar a fatia agrupada, com rotulo e valor, dispensa qualquer busca do lado de fora. O `setFocused` do hook virou `focus` na mesma mudanca: ele passou a avisar alem de gravar, e o nome anterior escondia isso.
 - `ChartLine` e `ChartArea` **nao** ganharam costura. Eles usam `pointScale`, sem faixa e sem estado de hover; avisar a categoria ali exige criar faixas de clique invisiveis sobre a area, com decisao de largura e de encaixe no ponto mais proximo. E desenho, nao fiacao. No `ChartScatter` o eixo X e numerico e categoria nao se aplica.
 - Valor no balao e **JetBrains Mono**, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`: `type.data-value` cobre valores monetarios, percentuais e totais em tabelas. O rotulo da serie continua em Montserrat, que e conteudo de interface.
+- O texto escrito sobre a cor da serie — a porcentagem na fatia, o rotulo e o valor no retangulo — usa **`chart.on-*`**, o token de texto daquela cor, medido nos dois temas. O preto, e nao `color.ink`, e o texto sobre cor clara: a tinta do tema claro mede 4,39:1 contra a serie 6 e 3,63:1 contra o vermelho. A cor em hexadecimal e medida pelo componente, pela luminancia em que branco e preto empatam; em outro formato, fica o branco.
 - **Legenda clicavel implementada**, depois de adiada uma rodada. Cada entrada e um botao com `aria-pressed`, e o estado e controlado ou nao conforme `COMPONENTS.md` secao 6. Ela trabalha com rotulos, nao com indices: e o rotulo que a legenda exibe e o que o produto reconhece, e o indice mudaria de significado ao reordenar as series.
+- **As marcas, ao contrario, sao chaveadas pela posicao**, como a presenca e a cor. A legenda trata rotulo repetido como a mesma serie, por decisao, mas o desenho continua com uma marca para cada uma, e a chave pelo rotulo as colidia.
 
 **Movimento**
 
@@ -431,7 +454,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - A altura aceita `fill`, que a toma do contêiner. E o que permite um grafico ocupar a celula de um painel sem ninguem repetir a medida em JavaScript. A area de desenho fica fora do fluxo, para que a medida seja o que o layout concedeu e nao o que o proprio desenho ocupou, e um piso de altura evita o grafico sumir por medir zero quando quem envolve nao impoe altura alguma.
 - **Hover nao apaga as outras marcas.** A opacidade reduzida nas barras vizinhas foi implementada e descartada pelo mantenedor: o realce agora e um veu discreto atras da faixa sob o ponteiro, como o cursor da referencia. O token `--pl-chart-cursor` escurece no tema claro e clareia no escuro, porque um veu escuro sobre superficie escura nao apareceria.
 - Barra sempre com raio, pelo token. O atributo `rx` nao aceita variavel CSS, entao o valor vem da propriedade `rx` no modulo, que le o token.
-- Marcadores e rotulos de valor sao opcionais em toda a familia, com os mesmos nomes: `showDots` e `showDataLabels`. `ChartScatter` fica de fora dos dois, porque ali a bolha ja e a marca e rotulo por ponto se atropela assim que as bolhas se aproximam.
+- Marcadores e rotulos de valor sao opcionais em toda a familia, com os mesmos nomes: `showDots` e `showDataLabels`. Na barra empilhada, o rotulo e o total da categoria, alem da ponta da pilha. `ChartScatter` fica de fora dos dois, porque ali a bolha ja e a marca e rotulo por ponto se atropela assim que as bolhas se aproximam.
 
 ### Datas
 
@@ -475,6 +498,8 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - A coluna de selecao e inserida pelo componente, nao escrita pelo consumidor. O controle segue o modo: radio na escolha unica, caixa de marcacao na multipla, com `toggle` disponivel por propriedade.
 - `highlightSelectedRow` segue a referencia e vem ligado. A `List` mantem a decisao oposta, destaque apenas na marcacao, porque ali o item nao e uma linha de tabela.
 - Ordenacao e estado, nao algoritmo. Com o consumidor dono das linhas, quem reordena os dados e ele ou o servidor. O componente guarda a direcao, declara `aria-sort` e avisa a mudanca, como a referencia.
+- **O cabecalho fixo cola na rolagem da pagina enquanto a tabela cabe.** O envoltorio so e conteiner de rolagem quando a tabela transborda dele, medido por `ResizeObserver`; ai o cabecalho cola na rolagem da propria tabela. Os dois nao convivem em CSS.
+- Os controles de selecao compoem o CSS de `Checkbox`, `Radio` e `Switch` sobre o `input` nativo, em vez do `accent-color`.
 - O descarte de colunas em telas estreitas usa `hideBelow` com media query e atributo de dado, sem hook de breakpoint. O `useBreakpoint` previsto em `ARCHITECTURE.md` secao 8 nasce quando um componente exigir medida em tempo de execucao.
 - O `DataGrid` tem escopo levantado a partir do AG Grid Community: colunas fixas, redimensionaveis e reordenaveis, filtro por coluna, edicao de celula, virtualizacao de linha e coluna, e navegacao bidimensional. Exportacao para planilha, graficos integrados e area de transferencia dependem de decisao sobre dependencia, conforme o mandamento 13, e conversam com a escolha do D3 como nucleo de graficos.
 
@@ -573,7 +598,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - `mix-blend-mode: multiply` saiu das ligacoes: contra a superficie escura do tema escuro ele as levava ao preto.
 - A ligacao fica **lavada em repouso**, e nao em cor cheia: o no e que carrega a cor, e e sobre a faixa lavada que o rotulo do no do meio continua legivel. Em cor cheia o rotulo desaparecia no fundo saturado.
 - **A referencia do sankey e o Metabase**, como a do anel. Dela saem tanto a forma quanto as opcoes: o rotulo fica sempre a direita do no — a referencia nao oferece escolha de posicao —, e as opcoes que ela oferece sao o alinhamento dos nos, o valor escrito sobre a ligacao e a origem da cor da ligacao. Sao essas que o componente expoe.
-- O valor da ligacao tem tres posicoes — `start`, `middle` e `end` —, com `end` por padrao. O rotulo do no ocupa a faixa logo a direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da propria origem. Em qualquer posicao, o valor que ainda assim cruzaria um rotulo e **omitido**: dois textos sobrepostos nao informam nada. Desde a troca do `<title>` por `aria-label`, o valor omitido nao tem leitura alguma no desenho — ver as decisoes pendentes.
+- O valor da ligacao tem tres posicoes — `start`, `middle` e `end` —, com `end` por padrao. O rotulo do no ocupa a faixa logo a direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da propria origem. Em qualquer posicao, o valor que ainda assim cruzaria um rotulo e **omitido**: dois textos sobrepostos nao informam nada. O valor omitido continua no `<title>` da ligacao, que o navegador mostra sob o ponteiro.
 - So o rotulo do no de **saida** tem banda reservada: ele nao tem fluxo a direita para escrever por cima. Os demais caem sobre o proprio fluxo, e ali o halo da cor da superficie e que os separa do que passa por baixo.
 - Rotulo por papel do no, rotulo quebrado em linhas e no arredondado e estendido foram **implementados e descartados**, por divergirem da referencia. O `wrapToWidth` do nucleo saiu junto, por ficar sem consumidor.
 - O realce do hover **sobe um degrau**, e nao ate a cor cheia: o realce aponta qual ligacao e, nao muda o grafico de aparencia.
@@ -582,6 +607,7 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - Entrada e saida saem das proprias ligacoes, antes do posicionamento: e isso que permite reservar a banda de cada lado.
 - `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
 - As pontas do arco sao arredondadas nos tres radiais, com o raio vindo do token e aberto por propriedade em cada um.
+- Quando mostrado, **o centro reserva o espaco do valor** no menor degrau, ate metade do raio: com muitos aneis, quem cede e a espessura deles.
 - O valor do centro **desce de degrau da escala oficial ate caber**, e no ultimo degrau e cortado. O SVG nao quebra linha nem esconde o que transborda, entao quem precisa caber e o texto. O degrau depende do valor **e** do anel: um numero longo desce mesmo em anel grande.
 - A familia de display e lida do elemento, junto da de corpo, porque medir o valor do centro exige a fonte em que ele sera desenhado.
 
