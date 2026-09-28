@@ -1,4 +1,4 @@
-import { formatarEntradaDecimal } from './formatarEntradaDecimal';
+import { formatarEdicaoDecimal, formatarEntradaDecimal } from './formatarEntradaDecimal';
 
 describe('formatarEntradaDecimal', () => {
   it('mantem o valor inteiro quando nao ha casas decimais', () => {
@@ -41,6 +41,12 @@ describe('formatarEntradaDecimal', () => {
     expect(formatarEntradaDecimal('1.234.567', 2)).toBe('1234567');
   });
 
+  it('le como decimal o ponto que vem depois de zero, que nao separa milhar', () => {
+    expect(formatarEntradaDecimal('0.125', 3)).toBe('0,125');
+    expect(formatarEntradaDecimal('0.500', 2)).toBe('0,50');
+    expect(formatarEntradaDecimal('.500', 2)).toBe(',50');
+  });
+
   it('arredonda o numero que vem pronto, em vez de trunca-lo', () => {
     expect(formatarEntradaDecimal(12.345, 2)).toBe('12,35');
     expect(formatarEntradaDecimal(19.999, 2)).toBe('20');
@@ -59,5 +65,25 @@ describe('formatarEntradaDecimal', () => {
   it('preserva o sinal negativo', () => {
     expect(formatarEntradaDecimal('-50', 2)).toBe('-50');
     expect(formatarEntradaDecimal(-12.34, 2)).toBe('-12,34');
+  });
+});
+
+describe('formatarEdicaoDecimal', () => {
+  it('mantem como digitado o ponto que a proxima tecla ainda pode fazer milhar', () => {
+    expect(formatarEdicaoDecimal('1.', 2)).toBe('1.');
+    expect(formatarEdicaoDecimal('1.2', 2)).toBe('1.2');
+    expect(formatarEdicaoDecimal('1.23', 1)).toBe('1.23');
+    expect(formatarEdicaoDecimal('-1.2', 2)).toBe('-1.2');
+  });
+
+  it('entrega o valor quando o papel do ponto ja esta decidido', () => {
+    expect(formatarEdicaoDecimal('1.234', 2)).toBe('1234');
+    expect(formatarEdicaoDecimal('1.2,5', 2)).toBe('12,5');
+    expect(formatarEdicaoDecimal('0.5', 2)).toBe('0,5');
+    expect(formatarEdicaoDecimal('12.5055', 2)).toBe('12,50');
+  });
+
+  it('nao guarda ponto no modo inteiro, onde ele nunca e decimal', () => {
+    expect(formatarEdicaoDecimal('1.', 0)).toBe('1');
   });
 });

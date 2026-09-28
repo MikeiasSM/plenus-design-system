@@ -1,8 +1,7 @@
-import { useState, type ChangeEvent, type KeyboardEvent, type Ref } from 'react';
-import { useFormReset } from '../../../hooks/useFormReset';
+import { type FocusEvent, type KeyboardEvent, type Ref } from 'react';
+import { useDecimalInput } from '../../../hooks/useDecimalInput';
 import { mergeRefs } from '../../../utils/mergeRefs';
 import { InputText, type InputTextProps } from '../InputText';
-import { formatarEntradaDecimal } from '../../../utils/formatters';
 
 export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
   decimalScale?: number;
@@ -14,24 +13,17 @@ export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 
 export function InputNumber({
   decimalScale = 0,
   defaultValue = '',
+  onBlur,
   onKeyDown,
   onValueChange,
   value,
   ...props
 }: InputNumberProps) {
-  const [uncontrolledValue, setUncontrolledValue] = useState(() => formatarEntradaDecimal(defaultValue, decimalScale));
-  // O `reset` do formulario volta o DOM ao inicial; o texto exibido vive em
-  // estado do React e precisa ser avisado.
-  const refDoCampo = useFormReset<HTMLInputElement>(() =>
-    setUncontrolledValue(formatarEntradaDecimal(defaultValue, decimalScale)),
-  );
-  const currentValue = value === undefined ? uncontrolledValue : formatarEntradaDecimal(value, decimalScale);
+  const decimalInput = useDecimalInput({ decimalScale, defaultValue, onValueChange, value });
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextValue = formatarEntradaDecimal(event.target.value, decimalScale);
-
-    setUncontrolledValue(nextValue);
-    onValueChange?.(nextValue);
+  function handleBlur(event: FocusEvent<HTMLInputElement>) {
+    decimalInput.endEditing();
+    onBlur?.(event);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -44,13 +36,14 @@ export function InputNumber({
   return (
     <InputText
       {...props}
-      ref={mergeRefs(refDoCampo, props.ref as Ref<HTMLInputElement>)}
+      ref={mergeRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>)}
       inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
-      onChange={handleChange}
+      onBlur={handleBlur}
+      onChange={decimalInput.handleChange}
       onKeyDown={handleKeyDown}
       pattern={decimalScale > 0 ? undefined : '-?[0-9]*'}
       type="text"
-      value={currentValue}
+      value={decimalInput.text}
     />
   );
 }

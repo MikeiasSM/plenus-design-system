@@ -1,8 +1,8 @@
-import { useState, type ChangeEvent, type FocusEvent, type Ref } from 'react';
-import { useFormReset } from '../../../hooks/useFormReset';
+import { useState, type FocusEvent, type Ref } from 'react';
+import { useDecimalInput } from '../../../hooks/useDecimalInput';
 import { mergeRefs } from '../../../utils/mergeRefs';
 import { InputText, type InputTextProps } from '../InputText';
-import { formatarEntradaDecimal, formatarEntradaMonetaria } from '../../../utils/formatters';
+import { formatarEntradaMonetaria } from '../../../utils/formatters';
 
 export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
   currency?: string;
@@ -22,22 +22,10 @@ export function InputCurrency({
   value,
   ...props
 }: InputCurrencyProps) {
-  const [uncontrolledValue, setUncontrolledValue] = useState(() => formatarEntradaDecimal(defaultValue, decimalScale));
+  const decimalInput = useDecimalInput({ decimalScale, defaultValue, onValueChange, value });
   const [focused, setFocused] = useState(false);
-  // O `reset` do formulario volta o DOM ao inicial; o texto exibido vive em
-  // estado do React e precisa ser avisado.
-  const refDoCampo = useFormReset<HTMLInputElement>(() =>
-    setUncontrolledValue(formatarEntradaDecimal(defaultValue, decimalScale)),
-  );
-  const rawValue = value === undefined ? uncontrolledValue : formatarEntradaDecimal(value, decimalScale);
-  const displayValue = focused || !rawValue ? rawValue : formatarEntradaMonetaria(rawValue, currency, decimalScale);
-
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextValue = formatarEntradaDecimal(event.target.value, decimalScale);
-
-    setUncontrolledValue(nextValue);
-    onValueChange?.(nextValue);
-  }
+  const displayValue =
+    focused || !decimalInput.value ? decimalInput.text : formatarEntradaMonetaria(decimalInput.value, currency, decimalScale);
 
   function handleFocus(event: FocusEvent<HTMLInputElement>) {
     setFocused(true);
@@ -46,16 +34,17 @@ export function InputCurrency({
 
   function handleBlur(event: FocusEvent<HTMLInputElement>) {
     setFocused(false);
+    decimalInput.endEditing();
     onBlur?.(event);
   }
 
   return (
     <InputText
       {...props}
-      ref={mergeRefs(refDoCampo, props.ref as Ref<HTMLInputElement>)}
+      ref={mergeRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>)}
       inputMode="decimal"
       onBlur={handleBlur}
-      onChange={handleChange}
+      onChange={decimalInput.handleChange}
       onFocus={handleFocus}
       type="text"
       value={displayValue}

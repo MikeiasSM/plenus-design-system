@@ -1,6 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { InputNumber } from './InputNumber';
 
+function typeKeys(input: HTMLElement, keys: string) {
+  for (const key of keys) {
+    fireEvent.change(input, { target: { value: (input as HTMLInputElement).value + key } });
+  }
+}
+
 describe('InputNumber', () => {
   it('accepts integer values only by default', () => {
     render(<InputNumber label="Quantidade" />);
@@ -65,5 +71,27 @@ describe('InputNumber', () => {
     );
 
     expect(screen.getByRole('textbox', { name: 'Controlado' })).toHaveValue('165789,50');
+  });
+
+  it('keeps typed thousands separators from turning into decimals', () => {
+    const onValueChange = vi.fn();
+    render(<InputNumber label="Valor" decimalScale={2} onValueChange={onValueChange} />);
+
+    typeKeys(screen.getByRole('textbox', { name: 'Valor' }), '1.234.567');
+
+    expect(onValueChange).toHaveBeenLastCalledWith('1234567');
+  });
+
+  it('settles an undecided dot as the decimal comma on blur', () => {
+    render(<InputNumber label="Valor" decimalScale={2} />);
+
+    const input = screen.getByRole('textbox', { name: 'Valor' });
+    typeKeys(input, '12.5');
+
+    expect(input).toHaveValue('12.5');
+
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue('12,5');
   });
 });
