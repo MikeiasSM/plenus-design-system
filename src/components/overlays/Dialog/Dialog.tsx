@@ -19,7 +19,8 @@ export interface DialogProps {
 }
 
 export function Dialog({ open, ...props }: DialogProps) {
-  if (!open) {
+  // No servidor nao ha `document` para o portal; o Dialog nasce na hidratacao.
+  if (!open || typeof document === 'undefined') {
     return null;
   }
 

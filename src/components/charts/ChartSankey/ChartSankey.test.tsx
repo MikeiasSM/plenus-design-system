@@ -243,4 +243,23 @@ describe('ChartSankey', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
+
+  it('nao confunde ligacoes cujos rotulos se emendam iguais', () => {
+    const aviso = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    render(
+      <ChartSankey
+        flows={[
+          { source: 'a-b', target: 'c', value: 10 },
+          { source: 'a', target: 'b-c', value: 5 },
+        ]}
+        title="Fluxo"
+      />,
+    );
+
+    const chaveRepetida = aviso.mock.calls.some(([mensagem]) => String(mensagem).includes('same key'));
+
+    aviso.mockRestore();
+    expect(chaveRepetida).toBe(false);
+  });
 });

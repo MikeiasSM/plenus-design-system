@@ -308,4 +308,15 @@ describe('ChartBar', () => {
     rerender(<ChartBar categories={periodos} series={[dre[0]]} showDataLabels title="DRE" />);
     expect(rotulosDeBarra()).toEqual(['300.000', '210.000']);
   });
+
+  it('escreve o rotulo do negativo alem da ponta, e nao dentro da barra', () => {
+    render(
+      <ChartBar categories={['jan']} series={[{ label: 'Saldo', values: [-50] }]} showDataLabels title="Caixa" />,
+    );
+
+    const barra = caixaDe(document.querySelector('[aria-label^="Saldo"]')!);
+    const rotulo = [...document.querySelectorAll('text')].find((no) => no.getAttribute('dominant-baseline') === 'hanging');
+
+    expect(Number(rotulo?.getAttribute('y'))).toBeGreaterThan(barra.y + barra.altura);
+  });
 });

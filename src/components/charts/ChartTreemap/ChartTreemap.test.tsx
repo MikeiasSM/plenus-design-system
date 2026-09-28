@@ -102,4 +102,20 @@ describe('ChartTreemap', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
+
+  it('anuncia vazio quando nenhum valor e positivo', () => {
+    render(<ChartTreemap nodes={[{ label: 'A', children: [{ label: 'a', value: 0 }] }]} title="Produtos" />);
+
+    expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
+  });
+
+  it('nao desenha bloco algum com todos os grupos desligados, e mantem a legenda para a volta', () => {
+    render(<ChartTreemap nodes={produtos} title="Produtos" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Margem alta/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Margem baixa/ }));
+
+    expect(retangulos()).toHaveLength(0);
+    expect(screen.getByRole('button', { name: /Margem alta/ })).toBeInTheDocument();
+  });
 });

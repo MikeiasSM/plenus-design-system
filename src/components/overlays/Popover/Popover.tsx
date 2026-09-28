@@ -26,7 +26,8 @@ export interface PopoverProps {
 }
 
 export function Popover({ open, ...props }: PopoverProps) {
-  if (!open) {
+  // No servidor nao ha `document` para o portal; o Popover nasce na hidratacao.
+  if (!open || typeof document === 'undefined') {
     return null;
   }
 

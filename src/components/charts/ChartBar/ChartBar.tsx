@@ -314,15 +314,17 @@ export function ChartBar({
                 const ponta = escalaValores(valor);
                 const centro =
                   (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;
+                // O rotulo fica alem da ponta: no negativo ela esta embaixo, ou a esquerda.
+                const negativo = valor < 0;
 
                 return (
                   <text
                     className={styles.valueLabel}
-                    dominantBaseline={vertical ? 'auto' : 'middle'}
+                    dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
                     key={categoria}
-                    textAnchor={vertical ? 'middle' : 'start'}
-                    x={vertical ? centro : ponta + 6}
-                    y={vertical ? ponta - 6 : centro}
+                    textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
+                    x={vertical ? centro : ponta + (negativo ? -6 : 6)}
+                    y={vertical ? ponta + (negativo ? 6 : -6) : centro}
                   >
                     {formatValue(valor)}
                   </text>

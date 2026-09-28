@@ -45,6 +45,11 @@ export interface ChartTreemapProps {
 }
 
 
+/** Area que o no ocupa. Invalido ou negativo nao ocupa nada. */
+function ocupacao(no: ChartTreemapNode) {
+  return Number.isFinite(no.value) ? Math.max(no.value ?? 0, 0) : 0;
+}
+
 export function ChartTreemap({
   accent,
   defaultHiddenGroups,
@@ -73,15 +78,21 @@ export function ChartTreemap({
   // repintar os demais.
   const coresDeGrupo = useMemo(() => resolveSeriesColors(nodes, { accent }), [accent, nodes]);
 
-  const visiveis = nodes.filter((grupo) => !isHidden(grupo.label));
+  // Sem valor positivo nao ha area a repartir: anuncia vazio. Desligar todos os grupos, nao: a legenda e a volta.
+  const semValor = useMemo(
+    () => !((hierarchy<ChartTreemapNode>({ children: nodes, label: '' }).sum(ocupacao).value ?? 0) > 0),
+    [nodes],
+  );
 
   const retangulos = useMemo(() => {
-    if (width === 0 || alturaDoDesenho === 0) {
+    const visiveis = nodes.filter((grupo) => !isHidden(grupo.label));
+
+    if (width === 0 || alturaDoDesenho === 0 || visiveis.length === 0) {
       return [];
     }
 
     const arvore = hierarchy<ChartTreemapNode>({ children: visiveis, label: '' })
-      .sum((no) => Math.max(no.value ?? 0, 0))
+      .sum(ocupacao)
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const posicionar = treemap<ChartTreemapNode>()
@@ -90,7 +101,7 @@ export function ChartTreemap({
       .round(true);
 
     return posicionar(arvore).leaves();
-  }, [alturaDoDesenho, gap, visiveis, width]);
+  }, [alturaDoDesenho, gap, isHidden, nodes, width]);
 
   /** A folha herda a cor do grupo, e a intencao propria vence a herdada. */
   function corDa(folha: (typeof retangulos)[number]) {
@@ -123,7 +134,7 @@ export function ChartTreemap({
   return (
     <ChartFrame
       containerRef={ref}
-      empty={nodes.length === 0}
+      empty={nodes.length === 0 || semValor}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}

@@ -8,6 +8,7 @@
 .tooltip {
   position: fixed;
   z-index: 120;
+  max-width: min(360px, calc(100vw - 16px));
   padding: var(--pl-space-3);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);

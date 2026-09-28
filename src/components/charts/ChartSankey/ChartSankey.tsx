@@ -345,7 +345,7 @@ export function ChartSankey({
             aria-label={`${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`}
             className={classeDa(indice)}
             d={caminhoDa(ligacao)}
-            key={`${ligacao.source.label}-${ligacao.target.label}`}
+            key={indice}
             onMouseEnter={() => setEmFoco(indice)}
             onMouseLeave={() => setEmFoco(null)}
             stroke={corDa(ligacao)}
@@ -368,7 +368,7 @@ export function ChartSankey({
       ))}
 
       {showFlowValues &&
-        grafo.links.map((ligacao) => {
+        grafo.links.map((ligacao, indice) => {
           const valor = valorDa(ligacao);
 
           if (!valor) {
@@ -379,7 +379,7 @@ export function ChartSankey({
             <text
               className={`${styles.flowValue} ${styles.sobreFluxo}`}
               dominantBaseline="middle"
-              key={`valor-${ligacao.source.label}-${ligacao.target.label}`}
+              key={indice}
               textAnchor={valor.anchor}
               x={valor.x}
               y={valor.y}
