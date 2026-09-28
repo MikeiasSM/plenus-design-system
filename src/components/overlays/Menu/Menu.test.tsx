@@ -118,6 +118,39 @@ describe('Menu', () => {
     expect(screen.getByLabelText('Nome')).toHaveFocus();
   });
 
+  it('abre pela escolha inicial e avisa cada mudanca', () => {
+    const mudou = vi.fn();
+
+    render(
+      <Menu defaultOpen items={itens} label="Acoes do modulo" onOpenChange={mudou}>
+        <Button>Acoes</Button>
+      </Menu>,
+    );
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+
+    expect(mudou).toHaveBeenLastCalledWith(false);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('respeita a abertura controlada, sem decidir por conta propria', () => {
+    const mudou = vi.fn();
+
+    render(
+      <Menu items={itens} label="Acoes do modulo" onOpenChange={mudou} open>
+        <Button>Acoes</Button>
+      </Menu>,
+    );
+
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Duplicar' }));
+
+    expect(mudou).toHaveBeenLastCalledWith(false);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Acoes' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('deixa o foco no campo clicado fora do menu', () => {
     render(
       <>

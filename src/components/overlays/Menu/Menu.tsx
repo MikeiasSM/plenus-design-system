@@ -24,8 +24,14 @@ export interface MenuItem {
 
 export interface MenuProps {
   children: ReactElement<Record<string, unknown>>;
+  /** Abertura inicial no modo nao controlado. */
+  defaultOpen?: boolean;
   items: readonly MenuItem[];
   label: string;
+  /** Avisa cada abertura e fechamento pedidos pelo gatilho, pelo teclado, pela opcao ou pelo clique fora. */
+  onOpenChange?: (open: boolean) => void;
+  /** Controla a abertura; sem ele, o menu guarda o proprio estado. */
+  open?: boolean;
 }
 
 /** Encadeia o manipulador do gatilho ao do menu, em vez de substitui-lo. */
@@ -36,10 +42,16 @@ function encadear<E>(proprio: ((evento: E) => void) | undefined, seguinte: (even
   };
 }
 
-export function Menu({ children, items, label }: MenuProps) {
+export function Menu({ children, defaultOpen = false, items, label, onOpenChange, open: controlledOpen }: MenuProps) {
   const triggerRef = useRef<HTMLElement>(null);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const [openedWith, setOpenedWith] = useState<'first' | 'last'>('first');
+  const open = controlledOpen ?? internalOpen;
+
+  function setOpen(proximo: boolean) {
+    setInternalOpen(proximo);
+    onOpenChange?.(proximo);
+  }
 
   function abrir(from: 'first' | 'last') {
     setOpenedWith(from);
