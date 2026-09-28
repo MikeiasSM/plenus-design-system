@@ -1,4 +1,13 @@
+/** Um degrau da escala tipografica para o valor do centro de um anel. */
+export interface CenterStep {
+  display: boolean;
+  lineHeight: number;
+  size: number;
+}
+
 export interface LabelFont {
+  /** Degraus do valor do centro, do maior ao menor: display, headline e title. */
+  centerSteps: readonly CenterStep[];
   family: string;
   /** Familia de display, usada onde o valor e um KPI. */
   headingFamily: string;
@@ -6,7 +15,15 @@ export interface LabelFont {
   size: number;
 }
 
+/** Os papeis de cada degrau do centro e o valor deles na referencia tipografica, para quando nao ha CSS. */
+const DEGRAUS_DO_CENTRO = [
+  { display: true, papel: 'display-large', size: 36, lineHeight: 44 },
+  { display: true, papel: 'headline-medium', size: 24, lineHeight: 32 },
+  { display: false, papel: 'title', size: 16, lineHeight: 24 },
+];
+
 const PADRAO: LabelFont = {
+  centerSteps: DEGRAUS_DO_CENTRO.map(({ display, lineHeight, size }) => ({ display, lineHeight, size })),
   family: 'sans-serif',
   headingFamily: 'sans-serif',
   lineHeight: 16,
@@ -30,8 +47,14 @@ export function labelFontOf(node: Element | null): LabelFont {
   const headingFamily = estilo.getPropertyValue('--pl-font-heading').trim() || family;
   const size = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-size')) || PADRAO.size;
   const lineHeight = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-line-height'));
+  const token = (nome: string) => Number.parseFloat(estilo.getPropertyValue(`--pl-type-${nome}`));
+  const centerSteps = DEGRAUS_DO_CENTRO.map((degrau) => ({
+    display: degrau.display,
+    lineHeight: token(`${degrau.papel}-line-height`) || degrau.lineHeight,
+    size: token(`${degrau.papel}-size`) || degrau.size,
+  }));
 
-  return { family, headingFamily, lineHeight: lineHeight || size * 1.34, size };
+  return { centerSteps, family, headingFamily, lineHeight: lineHeight || size * 1.34, size };
 }
 
 let contexto: CanvasRenderingContext2D | null | undefined;

@@ -51,7 +51,8 @@ export function useChartMetrics(): ChartMetrics {
       atual.radius === radius &&
       atual.font.family === font.family &&
       atual.font.size === font.size &&
-      atual.font.lineHeight === font.lineHeight
+      atual.font.lineHeight === font.lineHeight &&
+      atual.font.centerSteps.every((degrau, indice) => degrau.size === font.centerSteps[indice]?.size)
         ? atual
         : { font, height, radius, width },
     );

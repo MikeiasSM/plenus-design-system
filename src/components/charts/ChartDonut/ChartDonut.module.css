@@ -16,6 +16,7 @@ svg:hover .slice:not(:hover) {
 
 .centerValue {
   fill: var(--pl-color-text);
+  font-weight: var(--pl-type-display-large-weight);
   font-variant-numeric: tabular-nums;
 }
 

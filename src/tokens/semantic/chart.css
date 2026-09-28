@@ -31,8 +31,9 @@
 }
 
 /* O tema escuro recebe tons proprios das mesmas rampas. A paleta do claro
-   reprova em contraste contra a superficie escura. */
-[data-theme='dark'] {
+   reprova em contraste contra a superficie escura. O seletor e o das demais
+   camadas: o tema e do documento, e numa subarvore so os graficos trocariam. */
+:root[data-theme='dark'] {
   --pl-chart-series-1: var(--pl-brand-blue-40);
   --pl-chart-series-2: var(--pl-brand-orange-40);
   --pl-chart-series-3: var(--pl-brand-purple-40);
@@ -44,5 +45,4 @@
   --pl-chart-neutral: #9A9DA1;
 
   --pl-chart-cursor: rgba(233, 234, 235, 0.08);
-  --pl-chart-baseline: var(--pl-color-border-strong);
 }

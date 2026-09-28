@@ -10,20 +10,8 @@ export interface CenterText {
 }
 
 /**
- * Degraus oficiais para o valor do centro, do maior para o menor. O valor e um
- * KPI, e `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a Poppins a esse papel; anel
- * pequeno desce na escala em vez de sair dela com um tamanho proprio.
- */
-const DEGRAUS = [
-  { display: true, lineHeight: 44, size: 36 },
-  { display: true, lineHeight: 32, size: 24 },
-  { display: false, lineHeight: 24, size: 16 },
-];
-
-/**
- * Valor e rotulo do centro, no maior degrau da escala em que o texto ainda cabe
- * dentro do anel. O SVG nao quebra linha nem corta o que transborda, entao quem
- * precisa caber e o texto: ele desce de degrau e, no ultimo, e cortado.
+ * Valor e rotulo do centro, no maior degrau da escala oficial em que o texto ainda cabe dentro do anel: o valor e um
+ * KPI, e anel pequeno desce na escala em vez de sair dela. O SVG nao corta o que transborda; no ultimo degrau, corta-se.
  */
 export function fitCenterText(
   value: string,
@@ -36,14 +24,15 @@ export function fitCenterText(
   // logo abaixo, tem menos.
   const disponivel = Math.max(innerDiameter - CHART_LABEL_OFFSET * 2, 0);
 
+  const degraus = font.centerSteps;
   const degrau =
-    DEGRAUS.find((candidato) =>
+    degraus.find((candidato) =>
       measureLabel(value, {
         ...font,
         family: candidato.display ? font.headingFamily : font.family,
         size: candidato.size,
       }) <= disponivel,
-    ) ?? DEGRAUS[DEGRAUS.length - 1];
+    ) ?? degraus[degraus.length - 1];
 
   const family = degrau.display ? font.headingFamily : font.family;
 
