@@ -130,7 +130,7 @@ Neutros nao representam identidades de marca. Eles sustentam superficies, textos
 | `neutral.graphite` | `#373435` | Texto forte e superficies escuras |
 | `neutral.gray` | `#606062` | Texto secundario e metadados |
 | `neutral.white` | `#FFFFFF` | Superficie clara e texto sobre cores escuras |
-| `neutral.black` | `#000000` | Referencia tecnica e scrim |
+| `neutral.black` | `#000000` | Referencia tecnica, scrim e texto sobre cores claras de dados |
 
 Os neutros deverao receber uma escala propria antes da implementacao definitiva dos temas claro e escuro.
 

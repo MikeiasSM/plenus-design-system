@@ -187,10 +187,16 @@ A pedido do mantenedor, a lista de decisoes pendentes da reverificacao foi resol
 
 Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 
-- `DatePicker`, `TimePicker` e `DateTimePicker` recebem e emitem texto ISO, e nao os tipos do `@internationalized/date`.
+- `DatePicker`, `TimePicker` e `DateTimePicker` recebem e emitem texto ISO, e nao os tipos do `@internationalized/date`. O `DateTimePicker` envia ao `FormData` o texto sem segundos, `2026-03-09T18:40`, como o `datetime-local` nativo.
 - As propriedades nativas do `Progress` vao ao elemento de fora, que agora e o `progressbar`, e nao mais a trilha.
 - O `Button` medio passou de 39px para 42px.
-- O rotulo sobre a fatia e o retangulo passou a preto nas cores claras, e o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero.
+- Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
+- Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
+
+**Corrigido depois da publicacao da 0.2.0**, para a proxima versao:
+
+- **O `Menu` aberto na primeira renderizacao quebrava no servidor.** Com `defaultOpen` ou `open`, ele montava o portal sem `document`. Ganhou a guarda do `Dialog` e do `Popover`, e o teste de servidor passou a cobri-lo.
+- **Os arcos e rotulos do `ChartSunburst` sao chaveados pela posicao**, como os dos demais graficos. O caminho de rotulos, usado antes, colidia com dois filhos de mesmo nome.
 
 **Fronteira com a aplicacao hospedeira**
 
