@@ -12,7 +12,7 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
-  line-height: 1.5;
+  line-height: var(--pl-type-label-line-height);
 }
 
 .dot {

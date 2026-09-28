@@ -101,7 +101,8 @@
   height: 1rem;
   border: 1px solid var(--pl-color-border-strong);
   border-radius: var(--pl-radius-full);
-  font-size: 0.625rem;
+  font-size: var(--pl-type-caption-size);
+  line-height: 1;
   cursor: help;
 }
 
