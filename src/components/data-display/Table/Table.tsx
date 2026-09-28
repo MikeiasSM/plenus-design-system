@@ -1,7 +1,9 @@
 import {
   createContext,
   type ComponentPropsWithRef,
+  useCallback,
   useContext,
+  useEffect,
   useId,
   useMemo,
   useState,
@@ -53,7 +55,7 @@ interface TableContextValue {
   baseId: string;
   countColumns: () => number;
   loading: boolean;
-  registerColumn: (id: string) => number;
+  registerColumn: (id: string) => () => void;
   requestSort: (column: string) => void;
   selection: TableSelection;
   size: TableSize;
@@ -62,6 +64,7 @@ interface TableContextValue {
 
 interface TableSelection {
   control: TableSelectionControl;
+  empty: boolean;
   highlight: boolean;
   isSelected: (id: string) => boolean;
   mode: TableSelectionMode;
@@ -105,8 +108,22 @@ export function Table({
 }: TableProps) {
   const baseId = useId();
   const [internalSort, setInternalSort] = useState(defaultSort);
-  const columns = useMemo(() => new Map<string, number>(), []);
+  const [columns, setColumns] = useState<ReadonlySet<string>>(() => new Set());
   const currentSort = sort ?? internalSort;
+  const control = selectionControl ?? (selectionMode === 'single' ? 'radio' : 'checkbox');
+
+  // A coluna se registra enquanto esta na tela e sai quando sai: registrada para sempre, o vazio ocupava colunas
+  // que nao existiam mais.
+  const registerColumn = useCallback((id: string) => {
+    setColumns((atuais) => new Set(atuais).add(id));
+
+    return () =>
+      setColumns((atuais) => {
+        const restantes = new Set(atuais);
+        restantes.delete(id);
+        return restantes;
+      });
+  }, []);
 
   function requestSort(column: string) {
     const next: TableSort = {
@@ -128,6 +145,8 @@ export function Table({
   );
 
   const selection = useSelection({
+    // Caixa e chave desmarcam ao clicar de novo; o radio, nao.
+    allowEmpty: control !== 'radio',
     items: collection,
     mode: selectionMode,
     selectedKeys: selectedIds,
@@ -138,16 +157,11 @@ export function Table({
     baseId,
     countColumns: () => Math.max(columns.size, 1),
     loading,
-    registerColumn: (id) => {
-      if (!columns.has(id)) {
-        columns.set(id, columns.size);
-      }
-
-      return columns.get(id) as number;
-    },
+    registerColumn,
     requestSort,
     selection: {
-      control: selectionControl ?? (selectionMode === 'single' ? 'radio' : 'checkbox'),
+      control,
+      empty: rows.length === 0,
       highlight: highlightSelectedRow,
       isSelected: (id) => selection.selectedKeys.has(id),
       mode: selectionMode,
@@ -197,19 +211,19 @@ export interface TableHeaderProps {
 function TableHeader({ children }: TableHeaderProps) {
   const { registerColumn, selection } = useTableContext('Table.Header');
 
-  if (selection.mode !== 'none') {
-    registerColumn('__selecao__');
-  }
+  useEffect(() => (selection.mode === 'none' ? undefined : registerColumn('__selecao__')), [registerColumn, selection.mode]);
 
   return (
     <thead className={styles.head}>
       <tr>
         {selection.mode === 'multiple' && (
           <th className={[styles.column, styles.lead].join(' ')} scope="col">
+            {/* Sem `rows` nao ha o que marcar, e o clique so apagava a escolha que ja havia. */}
             <input
               aria-label="Selecionar todas as linhas"
               checked={selection.status === 'all'}
               className={styles.control}
+              disabled={selection.empty}
               onChange={selection.toggleAll}
               ref={(node) => {
                 if (node) {
@@ -241,27 +255,17 @@ export interface TableColumnProps {
 function TableColumn({ align, children, help, hideBelow, id, numeric = false, sortable = false, width }: TableColumnProps) {
   const { registerColumn, requestSort, sort } = useTableContext('Table.Column');
 
-  registerColumn(id);
+  useEffect(() => registerColumn(id), [id, registerColumn]);
 
   const sorted = sort?.column === id ? sort.direction : undefined;
 
-  const content = (
-    <>
-      {children}
-      {help && (
-        <Tooltip content={help}>
-          <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
-            ?
-          </span>
-        </Tooltip>
-      )}
-      {sortable && (
-        <IconArrowUp
-          className={[styles.sortIcon, sorted === 'descending' && styles.sortDescending].filter(Boolean).join(' ')}
-          size={12}
-        />
-      )}
-    </>
+  // A ajuda e focavel e fica fora do botao de ordenacao: controle dentro de controle nao e HTML valido.
+  const ajuda = help && (
+    <Tooltip content={help}>
+      <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
+        ?
+      </span>
+    </Tooltip>
   );
 
   return (
@@ -275,11 +279,21 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
       style={{ width }}
     >
       {sortable ? (
-        <button className={styles.sortButton} onClick={() => requestSort(id)} type="button">
-          {content}
-        </button>
+        <div className={styles.sortHeader}>
+          <button className={styles.sortButton} onClick={() => requestSort(id)} type="button">
+            {children}
+            <IconArrowUp
+              className={[styles.sortIcon, sorted === 'descending' && styles.sortDescending].filter(Boolean).join(' ')}
+              size={12}
+            />
+          </button>
+          {ajuda}
+        </div>
       ) : (
-        content
+        <>
+          {children}
+          {ajuda}
+        </>
       )}
     </th>
   );
@@ -321,10 +335,8 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
   const selected = selection.mode !== 'none' && selection.isSelected(id);
 
   return (
-    <tr
-      aria-selected={selection.mode === 'none' ? undefined : selected}
-      className={[styles.row, selected && selection.highlight && styles.selected].filter(Boolean).join(' ')}
-    >
+    // Sem `aria-selected` na linha: ele so vale em grade, e numa tabela quem anuncia a marcacao e o controle.
+    <tr className={[styles.row, selected && selection.highlight && styles.selected].filter(Boolean).join(' ')}>
       {selection.mode !== 'none' && (
         <td className={[styles.cell, styles.lead].join(' ')}>
           <input
@@ -335,6 +347,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
             name={selection.control === 'radio' ? `${baseId}-selecao` : undefined}
             onChange={() => undefined}
             onClick={(event) => selection.toggle(id, event.shiftKey)}
+            role={selection.control === 'toggle' ? 'switch' : undefined}
             type={selection.control === 'radio' ? 'radio' : 'checkbox'}
           />
         </td>

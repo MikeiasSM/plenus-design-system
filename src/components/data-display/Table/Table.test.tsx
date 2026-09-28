@@ -118,7 +118,7 @@ describe('Table', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
 
     expect(escolheu).toHaveBeenLastCalledWith(['1']);
-    expect(screen.getAllByRole('row')[1]).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' })).toBeChecked();
   });
 
   it('usa radio na selecao unica e substitui a escolha', () => {
@@ -160,7 +160,66 @@ describe('Table', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
 
     const linha = screen.getAllByRole('row')[1];
-    expect(linha).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' })).toBeChecked();
     expect(linha.className).not.toContain('selected');
+  });
+
+  it('desmarca pela caixa na selecao unica, e anuncia a chave como chave', () => {
+    const escolheu = vi.fn();
+    montar({ selectionControl: 'toggle', selectionMode: 'single', onSelectionChange: escolheu });
+
+    const chave = screen.getByRole('switch', { name: 'Selecionar Ana Prado' });
+
+    fireEvent.click(chave);
+    fireEvent.click(chave);
+
+    expect(escolheu).toHaveBeenLastCalledWith([]);
+  });
+
+  it('nao oferece marcar todas sem as linhas para marcar', () => {
+    montar({ rows: undefined, selectionMode: 'multiple' });
+
+    expect(screen.getByRole('checkbox', { name: 'Selecionar todas as linhas' })).toBeDisabled();
+  });
+
+  it('deixa a ajuda da coluna fora do botao de ordenacao', () => {
+    render(
+      <Table label="Membros" rows={membros}>
+        <Table.Header>
+          <Table.Column help="Nome civil" id="nome" sortable>
+            Nome
+          </Table.Column>
+        </Table.Header>
+        <Table.Body items={membros}>{(membro) => <Table.Row id={membro.id}><Table.Cell>{membro.nome}</Table.Cell></Table.Row>}</Table.Body>
+      </Table>,
+    );
+
+    const ajuda = screen.getByRole('img', { name: 'Nome civil' });
+
+    expect(ajuda.closest('button')).toBeNull();
+  });
+
+  it('ajusta o vazio as colunas que ficaram', () => {
+    function Tabela({ colunas }: { colunas: string[] }) {
+      return (
+        <Table label="Membros">
+          <Table.Header>
+            {colunas.map((coluna) => (
+              <Table.Column id={coluna} key={coluna}>
+                {coluna}
+              </Table.Column>
+            ))}
+          </Table.Header>
+          <Table.Body empty={<span>Vazio</span>} items={[]}>
+            {() => null}
+          </Table.Body>
+        </Table>
+      );
+    }
+
+    const { rerender } = render(<Tabela colunas={['a', 'b', 'c']} />);
+    rerender(<Tabela colunas={['a']} />);
+
+    expect(screen.getByText('Vazio').closest('td')).toHaveAttribute('colspan', '1');
   });
 });

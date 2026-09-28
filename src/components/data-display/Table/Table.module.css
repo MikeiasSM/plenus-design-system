@@ -43,11 +43,21 @@
   padding: 0;
 }
 
+.sortHeader {
+  display: flex;
+  align-items: center;
+}
+
+.sortHeader > .help {
+  margin-right: var(--pl-space-3);
+}
+
 .sortButton {
   display: inline-flex;
+  flex: 1;
   align-items: center;
   gap: var(--pl-space-1);
-  width: 100%;
+  min-width: 0;
   height: var(--table-head-height);
   padding: 0 var(--pl-space-3);
   border: 0;
@@ -178,19 +188,20 @@
   justify-content: center;
 }
 
-@media (max-width: 640px) {
+/* Os breakpoints do sistema, `--pl-bp-*` em `tokens.css`; variavel CSS nao entra em @media. */
+@media (max-width: 900px) {
   .table [data-hide-below='sm'] {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1180px) {
   .table [data-hide-below='md'] {
     display: none;
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .table [data-hide-below='lg'] {
     display: none;
   }
@@ -230,7 +241,8 @@
   height: 1.125rem;
 }
 
-.selected {
+.selected,
+.striped .selected:nth-child(even) {
   background: var(--pl-color-primary-container);
 }
 
