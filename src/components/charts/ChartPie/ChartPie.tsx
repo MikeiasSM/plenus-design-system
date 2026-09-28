@@ -12,6 +12,7 @@ import {
   type ChartLegendPosition,
   type ChartSlice,
 } from '../core';
+import { textColorOn } from '../palette';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartPie.module.css';
 
@@ -132,6 +133,7 @@ export function ChartPie({
             <text
               className={styles.sliceLabel}
               dominantBaseline="middle"
+              fill={textColorOn(anel.colors[indice])}
               key={fatia.label}
               textAnchor="middle"
               x={x}

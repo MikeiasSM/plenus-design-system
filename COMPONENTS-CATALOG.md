@@ -113,6 +113,8 @@ A cor de uma série se resolve em três níveis: a cor informada pelo consumidor
 
 Séries com intenção não entram na rotação categórica. Pintar uma despesa com a cor de tema escolhida pelo usuário trocaria o significado da barra a cada usuário.
 
+O texto escrito sobre a cor da série — a porcentagem na fatia do `ChartPie`, o rótulo e o valor no retângulo do `ChartTreemap` — usa o token de texto daquela cor, `chart.on-*`, medido nos dois temas. A cor informada em hexadecimal é medida pelo componente; em outro formato, o texto fica branco.
+
 Séries, fatias, anéis e grupos são desligados pela legenda, que é um controle. O componente guarda quais estão ocultos quando o produto não informa, e avisa a mudança sempre.
 
 `ChartPie` e `ChartDonut` são a mesma composição com papéis distintos: o anel existe para abrigar um valor no centro, e é isso que o separa da pizza cheia. `ChartSunburst` estende o anel para a hierarquia, com os filhos repartindo o ângulo do pai e herdando a cor dele.

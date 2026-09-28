@@ -1,4 +1,4 @@
-import { resolveSeriesColors } from './seriesColor';
+import { resolveSeriesColors, textColorOn } from './seriesColor';
 
 describe('cor de cada serie', () => {
   it('usa a paleta do sistema quando nada e informado', () => {
@@ -60,6 +60,23 @@ describe('cor de cada serie', () => {
 
   it('aceita colecao vazia', () => {
     expect(resolveSeriesColors([])).toEqual([]);
+  });
+});
+
+describe('texto sobre a cor da serie', () => {
+  it('usa o token de texto da cor da paleta e da intencao, medido em cada tema', () => {
+    expect(textColorOn('var(--pl-chart-series-2)')).toBe('var(--pl-chart-on-series-2)');
+    expect(textColorOn('var(--pl-chart-negative)')).toBe('var(--pl-chart-on-negative)');
+  });
+
+  it('mede a cor informada em hexadecimal e escreve do lado que contrasta mais', () => {
+    expect(textColorOn('#30416A')).toBe('var(--pl-chart-on-dark)');
+    expect(textColorOn('#FCB52F')).toBe('var(--pl-chart-on-light)');
+    expect(textColorOn('#fff')).toBe('var(--pl-chart-on-light)');
+  });
+
+  it('mantem o texto branco sobre a cor que nao sabe medir', () => {
+    expect(textColorOn('var(--marca-da-aplicacao)')).toBe('var(--pl-chart-on-dark)');
   });
 });
 

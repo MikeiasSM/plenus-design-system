@@ -64,6 +64,13 @@ describe('ChartTreemap', () => {
     expect(cores.filter((cor) => cor === 'var(--pl-chart-negative)')).toHaveLength(1);
   });
 
+  it('escreve o rotulo na cor de texto propria do retangulo', () => {
+    render(<ChartTreemap nodes={produtos} title="Produtos" />);
+    const cores = new Set([...document.querySelectorAll('text')].map((no) => no.getAttribute('fill')));
+
+    expect(cores).toEqual(new Set(['var(--pl-chart-on-positive)', 'var(--pl-chart-on-negative)']));
+  });
+
   it('nomeia as cores na legenda quando o mapa e colorido por status', () => {
     render(
       <ChartTreemap

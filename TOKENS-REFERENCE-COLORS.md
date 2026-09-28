@@ -247,6 +247,32 @@ Quando a serie declara intencao, a cor carrega significado e nao entra na rotaca
 | `chart.warning` | `color.warning` | igual |
 | `chart.neutral` | `neutral.gray` | tom proprio, porque o cinza medio mede 2,69:1 contra a superficie escura |
 
+### Texto sobre a cor
+
+O rotulo escrito dentro da marca — a porcentagem na fatia, o nome no retangulo — pinta sobre a cor da serie, e nao sobre a superficie. Cada cor da paleta e cada intencao tem o seu token de texto, que aponta para o lado que mede mais contraste contra ela em cada tema.
+
+| Token | Origem | Papel |
+| --- | --- | --- |
+| `chart.on-dark` | `neutral.white` | Texto sobre cor escura |
+| `chart.on-light` | `neutral.black` | Texto sobre cor clara |
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `chart.on-series-1` | `chart.on-dark` | `chart.on-light` |
+| `chart.on-series-2` | `chart.on-light` | `chart.on-light` |
+| `chart.on-series-3` | `chart.on-dark` | `chart.on-light` |
+| `chart.on-series-4` | `chart.on-dark` | `chart.on-light` |
+| `chart.on-series-5` | `chart.on-dark` | `chart.on-light` |
+| `chart.on-series-6` | `chart.on-light` | `chart.on-light` |
+| `chart.on-positive` | `chart.on-light` | `chart.on-light` |
+| `chart.on-negative` | `chart.on-light` | `chart.on-light` |
+| `chart.on-warning` | `chart.on-light` | `chart.on-light` |
+| `chart.on-neutral` | `chart.on-dark` | `chart.on-light` |
+
+A cor informada pelo consumidor e a cor de tema nao tem token. Em hexadecimal, o componente mede a luminancia e escolhe entre `chart.on-dark` e `chart.on-light`; em outro formato, o texto fica em `chart.on-dark`.
+
+O texto sobre cor clara e o preto, e nao `color.ink`: a tinta do tema claro mede 4,39:1 contra a serie 6 e 3,63:1 contra `chart.negative`, abaixo do minimo de texto.
+
 ### Cromo do grafico
 
 Grade, eixos e rotulos nao sao dado. Eles derivam dos tokens de superficie e de texto.
@@ -277,6 +303,7 @@ Nenhuma escala tonal deve ser considerada definitiva apenas por sua aparencia vi
 - Mensagens de sucesso, alerta, informacao e erro.
 - Combinacoes dos modos claro e escuro.
 - Separacao entre as series de dados, incluindo simulacao de deficiencia de visao de cores.
+- Texto escrito sobre as cores de dados.
 
 A validacao deve ocorrer antes da publicacao de um tema ou da exposicao de seus tokens como parte da API publica.
 

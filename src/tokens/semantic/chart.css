@@ -18,6 +18,21 @@
   --pl-chart-warning: var(--pl-color-warning);
   --pl-chart-neutral: var(--pl-neutral-gray);
 
+  /* Texto escrito sobre a propria cor, como a porcentagem dentro da fatia. Cada
+     cor aponta para o lado que mede mais contraste contra ela, em cada tema. */
+  --pl-chart-on-dark: var(--pl-neutral-white);
+  --pl-chart-on-light: var(--pl-neutral-black);
+  --pl-chart-on-series-1: var(--pl-chart-on-dark);
+  --pl-chart-on-series-2: var(--pl-chart-on-light);
+  --pl-chart-on-series-3: var(--pl-chart-on-dark);
+  --pl-chart-on-series-4: var(--pl-chart-on-dark);
+  --pl-chart-on-series-5: var(--pl-chart-on-dark);
+  --pl-chart-on-series-6: var(--pl-chart-on-light);
+  --pl-chart-on-positive: var(--pl-chart-on-light);
+  --pl-chart-on-negative: var(--pl-chart-on-light);
+  --pl-chart-on-warning: var(--pl-chart-on-light);
+  --pl-chart-on-neutral: var(--pl-chart-on-dark);
+
   /* Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no
      escuro: um veu escuro sobre superficie escura nao apareceria. */
   --pl-chart-cursor: rgba(24, 26, 28, 0.06);
@@ -43,6 +58,13 @@
 
   /* O cinza medio some contra a superficie escura, em 2,69:1. */
   --pl-chart-neutral: #9A9DA1;
+
+  /* Os tons do escuro sao todos claros, e o texto sobre eles e o preto. */
+  --pl-chart-on-series-1: var(--pl-chart-on-light);
+  --pl-chart-on-series-3: var(--pl-chart-on-light);
+  --pl-chart-on-series-4: var(--pl-chart-on-light);
+  --pl-chart-on-series-5: var(--pl-chart-on-light);
+  --pl-chart-on-neutral: var(--pl-chart-on-light);
 
   --pl-chart-cursor: rgba(233, 234, 235, 0.08);
 }

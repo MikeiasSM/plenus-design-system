@@ -11,10 +11,7 @@ svg:hover .tile:not(:hover) {
   opacity: 0.82;
 }
 
-/* O texto sobre o retangulo pinta sobre cor cheia, entao ele usa o tom de
-   contraste e nao o de superficie. */
 .label {
-  fill: var(--pl-color-on-primary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
@@ -22,11 +19,9 @@ svg:hover .tile:not(:hover) {
 }
 
 .value {
-  fill: var(--pl-color-on-primary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-variant-numeric: tabular-nums;
-  opacity: 0.86;
   pointer-events: none;
 }
 

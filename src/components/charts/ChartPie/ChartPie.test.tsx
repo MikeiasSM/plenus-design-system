@@ -61,6 +61,15 @@ describe('ChartPie', () => {
     expect(rotulos()).toEqual(['100%']);
   });
 
+  it('escreve o rotulo na cor de texto propria da fatia', () => {
+    render(<ChartPie showDataLabels slices={composicao} title="Receita" />);
+
+    expect([...document.querySelectorAll('text')].map((no) => no.getAttribute('fill'))).toEqual([
+      'var(--pl-chart-on-series-1)',
+      'var(--pl-chart-on-series-2)',
+    ]);
+  });
+
   it('desliga a fatia pela legenda', () => {
     render(<ChartPie slices={composicao} title="Receita" />);
     const botao = screen.getByRole('button', { name: /Produtos/ });
