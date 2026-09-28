@@ -89,6 +89,7 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
     <>
       {trigger}
       {open &&
+        typeof document !== 'undefined' &&
         createPortal(
           // O escopo proprio poe o menu na arvore de escopos do Dialog, cujo `contain` puxaria o foco de volta.
           // Sem `contain` aqui: ele disputaria o foco com o gatilho quando o menu fecha.
