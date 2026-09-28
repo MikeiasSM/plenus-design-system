@@ -1,13 +1,15 @@
+/* A caixa do campo e a mesma do `InputText`: raio, altura, borda e estados. Os tres seletores compoem daqui. */
 .field {
   display: flex;
   align-items: center;
   width: 100%;
   border: 1px solid var(--pl-color-border-strong);
-  border-radius: var(--pl-radius-sm);
+  border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
+  transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
 }
 
-.field:hover:not(.error) {
+.field:not(.error):hover:not(:has(.input:disabled)) {
   border-color: var(--pl-color-primary);
   box-shadow: var(--pl-sh-1);
 }
@@ -17,16 +19,21 @@
   box-shadow: 0 0 0 3px var(--pl-color-primary-container);
 }
 
+.field:has(.input:disabled) {
+  background: var(--pl-color-surface-muted);
+  opacity: 0.7;
+}
+
 .error {
   border-color: var(--pl-color-danger);
 }
 
-.sm .input {
-  padding: var(--pl-space-2) var(--pl-space-3);
+.error:hover:not(:has(.input:disabled)) {
+  box-shadow: var(--pl-sh-1);
 }
 
-.md .input {
-  padding: var(--pl-space-3);
+.error:focus-within {
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
 }
 
 .input {
@@ -40,11 +47,25 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+.input::placeholder {
+  color: var(--pl-color-text-tertiary);
+}
+
+.sm .input {
+  padding: 7px 10px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.md .input {
+  padding: 10px 12px;
+}
+
 .input:focus-visible {
   outline: none;
 }
 
 .input:disabled {
+  color: var(--pl-color-text-secondary);
   cursor: not-allowed;
 }
 
