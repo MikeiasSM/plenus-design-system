@@ -6,7 +6,7 @@ export {
   mergeDomains,
   pointScale,
   radiusScale,
-  stackedExtremes,
+  stackDiverging,
   ticksFor,
   timeScale,
 } from './scales';

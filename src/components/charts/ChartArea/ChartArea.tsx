@@ -21,7 +21,7 @@ import {
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { domainOf, linearScale, mergeDomains, pointScale, stackedExtremes, ticksFor } from '../scales';
+import { domainOf, linearScale, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartArea.module.css';
 /**
@@ -68,17 +68,6 @@ export interface ChartAreaProps {
 }
 
 
-function somaAte(
-  series: readonly ChartAreaSeries[],
-  ateSerie: number,
-  indice: number,
-  peso: (serie: number) => number,
-) {
-  return series
-    .slice(0, ateSerie)
-    .reduce((total, serie, ordem) => total + (serie.values[indice] ?? 0) * peso(ordem), 0);
-}
-
 export function ChartArea({
   accent,
   categories,
@@ -122,7 +111,7 @@ export function ChartArea({
     if (stacked) {
       return domainOf(
         categories.flatMap((_, indice) =>
-          stackedExtremes(series.map((serie, ordem) => (serie.values[indice] ?? 0) * visivel(ordem))),
+          stackDiverging(series.map((serie, ordem) => (serie.values[indice] ?? 0) * visivel(ordem))).flat(),
         ),
       );
     }
@@ -170,7 +159,11 @@ export function ChartArea({
   );
 
   const marcasDeValor = ticksFor(escalaAlvo, plot.height);
-  const base = escalaValores(0);
+  // Sem o zero no dominio, a area desce ate o limite do eixo, e nao ate um zero fora do desenho.
+  const base = escalaValores(Math.min(Math.max(0, minimo), maximo));
+  const pilhas = categories.map((_, indice) =>
+    stackDiverging(series.map((serie, ordem) => (serie.values[indice] ?? 0) * presenca(ordem))),
+  );
 
   const faixasPorSerie = series.map((serie, indiceSerie) =>
     categories.map<ChartBand | null>((categoria, indice) => {
@@ -180,13 +173,12 @@ export function ChartArea({
         return null;
       }
 
-      const abaixo = stacked ? somaAte(series, indiceSerie, indice, presenca) : 0;
-      const contribuicao = stacked ? valor * presenca(indiceSerie) : valor;
+      const [de, ate] = pilhas[indice][indiceSerie];
 
       return {
         x: escalaCategorias(categoria) ?? 0,
-        y0: stacked ? escalaValores(abaixo) : base,
-        y1: escalaValores(abaixo + contribuicao),
+        y0: stacked ? escalaValores(de) : base,
+        y1: stacked ? escalaValores(ate) : escalaValores(valor),
       };
     }),
   );
@@ -208,7 +200,7 @@ export function ChartArea({
       emptyMessage={emptyMessage}
       grid={[
         {
-          baseline: base,
+          baseline: escalaValores(0),
           lines: marcasDeValor.map((valor) => escalaValores(valor)),
           orientation: 'horizontal',
         },

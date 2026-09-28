@@ -40,25 +40,30 @@ export function domainOf(values: readonly number[], { includeZero = true } = {})
   };
 }
 
-/** Une varias series na mesma faixa, para que compartilhem um unico eixo. */
 /**
- * Extremos que uma pilha alcanca, e nao apenas onde ela termina. Com sinais
- * mistos o total engana: `+10` e `-5` somam `5`, mas o segmento positivo chega
- * a `10` e ficaria desenhado fora da area. O dominio precisa do caminho do
- * acumulado, incluindo o zero de onde ele parte.
+ * Pilha divergente: positivos sobem do zero e negativos descem dele, cada sinal com o proprio acumulado.
+ * Na soma corrida, `+10` e `-5` desenhavam o negativo por cima do positivo.
  */
-export function stackedExtremes(contributions: readonly number[]) {
-  const extremos = [0];
-  let acumulado = 0;
+export function stackDiverging(contributions: readonly number[]): [number, number][] {
+  let positivos = 0;
+  let negativos = 0;
 
-  for (const valor of contributions) {
-    acumulado += Number.isFinite(valor) ? valor : 0;
-    extremos.push(acumulado);
-  }
+  return contributions.map((valor) => {
+    const parcela = Number.isFinite(valor) ? valor : 0;
 
-  return extremos;
+    if (parcela < 0) {
+      const inicio = negativos;
+      negativos += parcela;
+      return [inicio, negativos];
+    }
+
+    const inicio = positivos;
+    positivos += parcela;
+    return [inicio, positivos];
+  });
 }
 
+/** Une varias series na mesma faixa, para que compartilhem um unico eixo. */
 export function mergeDomains(domains: readonly NumericRange[]): NumericRange {
   if (domains.length === 0) {
     return { min: 0, max: 0 };

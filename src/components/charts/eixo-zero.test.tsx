@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { ChartArea } from './ChartArea';
 import { ChartLine } from './ChartLine';
 import { ChartScatter } from './ChartScatter';
 
@@ -45,5 +46,23 @@ describe('zero no eixo', () => {
     );
 
     expect(rotulos()).not.toContain('0');
+  });
+
+  it('desce a area ate o limite do eixo, e nao ate um zero fora do desenho', () => {
+    render(
+      <ChartArea
+        categories={['a', 'b', 'c']}
+        includeZero={false}
+        series={[{ label: 'Temperatura', values: [20, 25, 22] }]}
+        title="x"
+      />,
+    );
+
+    const alturas = (d: string) => (d.match(/-?\d+(\.\d+)?/g) ?? []).map(Number).filter((_, indice) => indice % 2 === 1);
+    const area = alturas(document.querySelector('path')?.getAttribute('d') ?? '');
+    const fundo = Math.max(...[...document.querySelectorAll('line')].map((linha) => Number(linha.getAttribute('y1'))));
+
+    // Com a base no zero, o caminho descia a y=1119 num desenho de 224.
+    expect(Math.max(...area)).toBeLessThanOrEqual(fundo + 0.5);
   });
 });

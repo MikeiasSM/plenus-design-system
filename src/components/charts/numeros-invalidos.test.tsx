@@ -58,4 +58,25 @@ describe('numero invalido nos dados', () => {
     expect(caminhos().some((d) => d.includes('NaN'))).toBe(false);
     expect(caminhos().some((d) => d.length > 10)).toBe(true);
   });
+
+  it('nao apaga a serie de cima da area empilhada por causa de um invalido na de baixo', () => {
+    render(
+      <ChartArea
+        categories={['a', 'b', 'c']}
+        series={[
+          { label: 'Baixo', values: [10, NaN, 10] },
+          { label: 'Cima', values: [5, 5, 5] },
+        ]}
+        stacked
+        title="x"
+      />,
+    );
+
+    const marcadorDoMeio = document.querySelector('[aria-label^="Cima, b"]');
+    const areaDeCima = marcadorDoMeio?.closest('g')?.querySelector('path')?.getAttribute('d') ?? '';
+
+    // A de cima se partia em dois trechos de largura zero, e o marcador ficava sem posicao.
+    expect(marcadorDoMeio).toHaveAttribute('cy', expect.stringMatching(/^\d/));
+    expect(areaDeCima.match(/M/g)).toHaveLength(1);
+  });
 });

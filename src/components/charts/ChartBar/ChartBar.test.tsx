@@ -267,6 +267,28 @@ describe('ChartBar', () => {
     expect(Math.min(...ys)).toBeGreaterThanOrEqual(0);
   });
 
+  it('desce o negativo da pilha abaixo do zero, sem cobrir o positivo', () => {
+    const series = [
+      { label: 'Entrada', values: [10] },
+      { label: 'Saida', values: [-5] },
+    ];
+    const { rerender } = render(<ChartBar categories={['jan']} series={series} stacked title="Caixa" />);
+
+    let entrada = caixaDe(document.querySelector('[aria-label^="Entrada"]')!);
+    let saida = caixaDe(document.querySelector('[aria-label^="Saida"]')!);
+
+    // Na soma corrida, a saida era pintada de 10 a 5, por cima da entrada.
+    expect(saida.y).toBeCloseTo(entrada.y + entrada.altura);
+    expect(saida.altura).toBeCloseTo(entrada.altura / 2);
+
+    rerender(<ChartBar categories={['jan']} orientation="horizontal" series={series} stacked title="Caixa" />);
+
+    entrada = caixaDe(document.querySelector('[aria-label^="Entrada"]')!);
+    saida = caixaDe(document.querySelector('[aria-label^="Saida"]')!);
+
+    expect(saida.x + saida.largura).toBeCloseTo(entrada.x);
+  });
+
   it('anuncia a ausencia de dados em vez de desenhar um grafico vazio', () => {
     render(<ChartBar categories={[]} series={[]} title="DRE" />);
 

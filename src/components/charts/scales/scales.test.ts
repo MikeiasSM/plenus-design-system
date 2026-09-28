@@ -6,6 +6,7 @@ import {
   mergeDomains,
   pointScale,
   radiusScale,
+  stackDiverging,
   ticksFor,
   timeScale,
 } from './scales';
@@ -30,6 +31,25 @@ describe('dominio', () => {
 
   it('une series para que compartilhem um unico eixo', () => {
     expect(mergeDomains([domainOf([10, 40]), domainOf([-5, 90])])).toEqual({ min: -5, max: 90 });
+  });
+});
+
+describe('pilha divergente', () => {
+  it('sobe os positivos e desce os negativos, cada sinal a partir do zero', () => {
+    expect(stackDiverging([10, -5, 3, -2])).toEqual([
+      [0, 10],
+      [0, -5],
+      [10, 13],
+      [-5, -7],
+    ]);
+  });
+
+  it('nao empilha o invalido', () => {
+    expect(stackDiverging([10, NaN, 5])).toEqual([
+      [0, 10],
+      [10, 10],
+      [10, 15],
+    ]);
   });
 });
 

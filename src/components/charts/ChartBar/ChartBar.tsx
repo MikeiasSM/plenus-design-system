@@ -22,7 +22,7 @@ import {
   type CornerRadii,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { bandScale, domainOf, linearScale, mergeDomains, stackedExtremes, ticksFor } from '../scales';
+import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartBar.module.css';
 
@@ -99,9 +99,7 @@ export function ChartBar({
 
     if (stacked) {
       return domainOf(
-        categories.flatMap((_, indice) =>
-          stackedExtremes(visiveis.map((serie) => serie.values[indice] ?? 0)),
-        ),
+        categories.flatMap((_, indice) => stackDiverging(visiveis.map((serie) => serie.values[indice] ?? 0)).flat()),
       );
     }
 
@@ -174,8 +172,7 @@ export function ChartBar({
     return stacked ? 0 : faixaDa(indiceSerie).offset;
   }
 
-  /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto. */
-  /** Valor invalido conta como zero: desenha-lo daria `MNaN,NaN` no caminho. */
+  /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto; invalido conta zero. */
   function contribuicao(indiceSerie: number, indiceCategoria: number) {
     const valor = series[indiceSerie].values[indiceCategoria];
     const real = Number.isFinite(valor) ? (valor as number) : 0;
@@ -183,37 +180,33 @@ export function ChartBar({
     return real * (stacked ? presenca(indiceSerie) : 1);
   }
 
+  const pilhas = categories.map((_, indiceCategoria) =>
+    stacked ? stackDiverging(series.map((_, indiceSerie) => contribuicao(indiceSerie, indiceCategoria))) : [],
+  );
+
+  function segmentoDa(indiceSerie: number, indiceCategoria: number): [number, number] {
+    return pilhas[indiceCategoria][indiceSerie] ?? [0, contribuicao(indiceSerie, indiceCategoria)];
+  }
+
   /**
-   * Cantos de um segmento. Empilhado, so as duas pontas da pilha sao
-   * arredondadas e o meio fica reto, para os segmentos lerem como uma barra so.
+   * Cantos de um segmento. Empilhado, so as pontas de cada pilha, a de cima do zero e a de baixo,
+   * sao arredondadas e o meio fica reto, para os segmentos lerem como uma barra so.
    */
   function cantosDa(indiceSerie: number, indiceCategoria: number): CornerRadii {
+    const [inicio, fim] = segmentoDa(indiceSerie, indiceCategoria);
+
     if (!stacked) {
       return [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto];
     }
 
-    const naPilha = series
-      .map((_, ordem) => ordem)
-      .filter((ordem) => contribuicao(ordem, indiceCategoria) !== 0);
-    const abre = naPilha[0] === indiceSerie;
-    const fecha = naPilha.at(-1) === indiceSerie;
+    const pilha = pilhas[indiceCategoria];
+    const extremo = fim < inicio ? Math.min(...pilha.map(([, ate]) => ate)) : Math.max(...pilha.map(([, ate]) => ate));
+    const abre = fim !== inicio && inicio === 0 ? raioDoCanto : 0;
+    const fecha = fim !== inicio && fim === extremo ? raioDoCanto : 0;
+    // Na tela, o lado de maior valor fica em cima na vertical e a direita na horizontal.
+    const [menor, maior] = fim < inicio ? [fecha, abre] : [abre, fecha];
 
-    if (vertical) {
-      // A pilha cresce para cima: quem abre encosta na base, quem fecha e o topo.
-      return [
-        fecha ? raioDoCanto : 0,
-        fecha ? raioDoCanto : 0,
-        abre ? raioDoCanto : 0,
-        abre ? raioDoCanto : 0,
-      ];
-    }
-
-    return [
-      abre ? raioDoCanto : 0,
-      fecha ? raioDoCanto : 0,
-      fecha ? raioDoCanto : 0,
-      abre ? raioDoCanto : 0,
-    ];
+    return vertical ? [maior, maior, menor, menor] : [menor, maior, maior, menor];
   }
 
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
@@ -279,13 +272,9 @@ export function ChartBar({
           >
             {categories.map((categoria, indiceCategoria) => {
               const inicioCategoria = escalaCategorias(categoria) ?? 0;
-              const anterior = stacked
-                ? series
-                    .slice(0, indiceSerie)
-                    .reduce((total, _, outra) => total + contribuicao(outra, indiceCategoria), 0)
-                : 0;
-              const comeco = escalaValores(anterior);
-              const fim = escalaValores(anterior + contribuicao(indiceSerie, indiceCategoria));
+              const [de, ate] = segmentoDa(indiceSerie, indiceCategoria);
+              const comeco = escalaValores(de);
+              const fim = escalaValores(ate);
               const tamanho = Math.abs(fim - comeco);
               const espessura = espessuraDa(indiceSerie);
               const deslocamento = deslocamentoDa(indiceSerie);
