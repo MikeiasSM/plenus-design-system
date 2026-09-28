@@ -58,4 +58,55 @@ describe('Popover', () => {
     expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-modal', 'true');
     expect(screen.getByRole('button', { name: 'Depois' })).toBeInTheDocument();
   });
+
+  it('nao prende o foco: o Tab na borda segue a pagina a partir do gatilho', () => {
+    render(<Host />);
+    abrir();
+    const aplicar = screen.getByRole('button', { name: 'Aplicar' });
+
+    aplicar.focus();
+    fireEvent.keyDown(aplicar, { key: 'Tab' });
+
+    expect(screen.getByRole('button', { name: 'Depois' })).toHaveFocus();
+  });
+
+  it('deixa o clique do gatilho com o consumidor, sem fechar antes dele', () => {
+    const cliques = vi.fn();
+
+    function Alternavel() {
+      const gatilho = useRef<HTMLButtonElement>(null);
+      const [open, setOpen] = useState(false);
+
+      return (
+        <>
+          <Button
+            ref={gatilho}
+            onClick={() => {
+              cliques();
+              setOpen((aberto) => !aberto);
+            }}
+          >
+            Filtros
+          </Button>
+          <Popover aria-label="Filtros" onClose={() => setOpen(false)} open={open} triggerRef={gatilho}>
+            <Button>Aplicar</Button>
+          </Popover>
+        </>
+      );
+    }
+
+    render(<Alternavel />);
+
+    const gatilho = screen.getByRole('button', { name: 'Filtros' });
+
+    fireEvent.click(gatilho);
+    fireEvent.pointerDown(gatilho);
+    fireEvent.mouseDown(gatilho);
+    fireEvent.pointerUp(gatilho);
+    fireEvent.mouseUp(gatilho);
+    fireEvent.click(gatilho);
+
+    expect(cliques).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 });

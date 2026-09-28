@@ -1,8 +1,9 @@
-import { createRef, type ComponentPropsWithRef } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { createRef, useRef, useState, type ComponentPropsWithRef } from 'react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../actions/Button';
 import { Dialog } from './Dialog';
 import { Menu } from './Menu';
+import { Popover } from './Popover';
 import { Tooltip } from './Tooltip';
 
 const acoes = [{ key: 'editar', label: 'Editar' }];
@@ -16,8 +17,14 @@ function AlvoDoTooltip(props: ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
 }
 
+// O `ariaHideOutside` esconde o que entra depois do Dialog num MutationObserver, que roda em microtarefa:
+// conferir antes dele passava tambem com o overlay escondido.
+async function esperarOObservador() {
+  await act(async () => undefined);
+}
+
 describe('overlays aninhados em Dialog', () => {
-  it('declara-se camada de cima, para o Dialog nao os esconder do leitor de tela', () => {
+  it('declara-se camada de cima, para o Dialog nao os esconder do leitor de tela', async () => {
     render(
       <Dialog onClose={() => undefined} open title="Cadastro">
         <Menu items={acoes} label="Acoes">
@@ -27,11 +34,37 @@ describe('overlays aninhados em Dialog', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+    await esperarOObservador();
 
     const menu = screen.getByRole('menu');
 
     expect(menu).toHaveAttribute('data-react-aria-top-layer', 'true');
     expect(menu.closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('vale tambem para o Popover', async () => {
+    function Tela() {
+      const gatilho = useRef<HTMLButtonElement>(null);
+      const [aberto, setAberto] = useState(false);
+
+      return (
+        <Dialog onClose={() => undefined} open title="Cadastro">
+          <Button onClick={() => setAberto(true)} ref={gatilho}>
+            Filtros
+          </Button>
+          <Popover aria-label="Painel de filtros" onClose={() => setAberto(false)} open={aberto} triggerRef={gatilho}>
+            <Button>Aplicar</Button>
+          </Popover>
+        </Dialog>
+      );
+    }
+
+    render(<Tela />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filtros' }));
+    await esperarOObservador();
+
+    expect(screen.getByRole('dialog', { name: 'Painel de filtros' }).closest('[aria-hidden="true"]')).toBeNull();
   });
 });
 

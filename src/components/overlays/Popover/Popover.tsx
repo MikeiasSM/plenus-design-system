@@ -45,7 +45,14 @@ function PopoverContent({
   const ref = useRef<HTMLDivElement>(null);
 
   const { overlayProps } = useOverlay(
-    { isOpen: true, onClose, isDismissable: true, shouldCloseOnBlur: false },
+    {
+      isOpen: true,
+      onClose,
+      isDismissable: true,
+      shouldCloseOnBlur: false,
+      // O gatilho nao conta como "fora": o clique dele e do consumidor, que decide se alterna.
+      shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
+    },
     ref,
   );
 
@@ -57,13 +64,16 @@ function PopoverContent({
     isOpen: true,
   });
 
+  // Sem `contain`: o Popover nao bloqueia a pagina. O `restoreFocus` leva o Tab da borda ao elemento seguinte
+  // ao gatilho, e nao ao fim do `body`, onde o painel vive.
   return (
-    <FocusScope contain restoreFocus autoFocus>
-      {/* Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara. */}
+    <FocusScope restoreFocus autoFocus>
       <div
         {...overlayProps}
         ref={ref}
         className={styles.popover}
+        // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+        data-react-aria-top-layer="true"
         style={positionProps.style}
         role="dialog"
         aria-label={ariaLabel}
