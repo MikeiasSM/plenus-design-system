@@ -162,13 +162,6 @@ export function ChartSunburst({
     .filter((arco) => arco.depth === 1)
     .reduce((soma, arco) => soma + (arco.value ?? 0), 0);
 
-  function caminhoDe(arco: Arco) {
-    return arco
-      .ancestors()
-      .map((ancestral) => ancestral.data.label)
-      .join('/');
-  }
-
   // O arco guardado deixa de existir quando a arvore e remontada, num
   // redimensionamento por exemplo. Sem conferir, o foco perdido apagaria tudo.
   const foco = emFoco && arcos.includes(emFoco) ? emFoco : null;
@@ -216,7 +209,7 @@ export function ChartSunburst({
       title={title}
       width={width}
     >
-      {arcos.map((arco) => (
+      {arcos.map((arco, indice) => (
         <path
           aria-label={descreverArco(arco)}
           className={`${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`}
@@ -228,7 +221,7 @@ export function ChartSunburst({
             startAngle: arco.x0,
           })}
           fill={corDe(arco)}
-          key={caminhoDe(arco)}
+          key={indice}
           onMouseEnter={() => setEmFoco(arco)}
           onMouseLeave={() => setEmFoco(null)}
         >
@@ -241,7 +234,7 @@ export function ChartSunburst({
           .filter(
             (arco) => arco.depth === profundidadeMaxima && arco.x1 - arco.x0 >= ANGULO_MINIMO_DO_ROTULO,
           )
-          .map((arco) => {
+          .map((arco, indice) => {
             const angulos = { endAngle: arco.x1, startAngle: arco.x0 };
             const [xBorda, yBorda] = arcAnchor(angulos, arco.y1);
             const [xCotovelo, yCotovelo] = arcAnchor(angulos, arco.y1 + COMPRIMENTO_DO_CONECTOR);
@@ -249,7 +242,7 @@ export function ChartSunburst({
             const xFim = xCotovelo + (paraDireita ? COMPRIMENTO_DO_CONECTOR : -COMPRIMENTO_DO_CONECTOR);
 
             return (
-              <g className={styles.leader} key={`rotulo-${caminhoDe(arco)}`}>
+              <g className={styles.leader} key={indice}>
                 <polyline
                   className={styles.connector}
                   points={`${xBorda},${yBorda} ${xCotovelo},${yCotovelo} ${xFim},${yCotovelo}`}

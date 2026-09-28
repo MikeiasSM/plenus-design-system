@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { ChartBar } from './ChartBar';
 import { ChartLine } from './ChartLine';
 import { ChartPie } from './ChartPie';
+import { ChartSunburst } from './ChartSunburst';
 
 function medir() {
   Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 640 });
@@ -25,6 +26,12 @@ describe('rotulos repetidos', () => {
     render(<ChartLine categories={['jan', 'jan']} series={repetidas} title="Linha" />);
     render(<ChartBar categories={['jan', 'jan']} series={repetidas} title="Barra" />);
     render(<ChartPie slices={[{ label: 'A', value: 1 }, { label: 'A', value: 2 }]} title="Pizza" />);
+    render(
+      <ChartSunburst
+        nodes={[{ label: 'Grupo', children: [{ label: 'A', value: 1 }, { label: 'A', value: 2 }] }]}
+        title="Explosao"
+      />,
+    );
 
     expect(document.querySelectorAll('circle')).toHaveLength(4);
     expect(erro).not.toHaveBeenCalled();
