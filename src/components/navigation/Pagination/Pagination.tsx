@@ -29,12 +29,13 @@ export function Pagination({
 
   return (
     <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
+      {/* `aria-disabled`, e nao `disabled`: desabilitado na borda, o botao perdia o foco de quem acabou de usa-lo. */}
       <button
         className={styles.step}
         type="button"
         aria-label="Pagina anterior"
-        disabled={atual === 1}
-        onClick={() => onPageChange(atual - 1)}
+        aria-disabled={atual === 1 || undefined}
+        onClick={() => atual > 1 && onPageChange(atual - 1)}
       >
         <IconChevronLeft size={14} />
       </button>
@@ -63,8 +64,8 @@ export function Pagination({
         className={styles.step}
         type="button"
         aria-label="Proxima pagina"
-        disabled={atual === pageCount}
-        onClick={() => onPageChange(atual + 1)}
+        aria-disabled={atual === pageCount || undefined}
+        onClick={() => atual < pageCount && onPageChange(atual + 1)}
       >
         <IconChevronRight size={14} />
       </button>
@@ -72,34 +73,20 @@ export function Pagination({
   );
 }
 
-// Primeira e ultima pagina sempre visiveis; null representa a reticencia.
+/**
+ * Primeira e ultima pagina sempre visiveis; null representa a reticencia. A faixa tem sempre as mesmas vagas: perto
+ * da ponta a janela encosta nela em vez de encolher, e reticencia nunca esconde uma pagina so.
+ */
 export function montarFaixa(atual: number, total: number, vizinhos: number): (number | null)[] {
-  // Abaixo deste limite a reticencia nao economizaria espaco algum.
-  const limite = vizinhos * 2 + 5;
+  const vagas = vizinhos * 2 + 5;
 
-  if (total <= limite) {
+  if (total <= vagas) {
     return Array.from({ length: total }, (_, indice) => indice + 1);
   }
 
-  const inicio = Math.max(2, atual - vizinhos);
-  const fim = Math.min(total - 1, atual + vizinhos);
-  const faixa: (number | null)[] = [1];
+  const inicio = Math.max(Math.min(atual - vizinhos, total - vizinhos * 2 - 2), 3);
+  const fim = Math.min(Math.max(atual + vizinhos, vizinhos * 2 + 3), total - 2);
+  const janela = Array.from({ length: fim - inicio + 1 }, (_, indice) => inicio + indice);
 
-  if (inicio > 2) {
-    faixa.push(null);
-  }
-
-  for (let i = inicio; i <= fim; i += 1) {
-    faixa.push(i);
-  }
-
-  if (fim < total - 1) {
-    faixa.push(null);
-  }
-
-  if (total > 1) {
-    faixa.push(total);
-  }
-
-  return faixa;
+  return [1, inicio > 3 ? null : 2, ...janela, fim < total - 2 ? null : total - 1, total];
 }

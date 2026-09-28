@@ -33,12 +33,12 @@
 }
 
 .page:hover:not(.current),
-.step:hover:not(:disabled) {
+.step:hover:not([aria-disabled='true']) {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
 }
 
-.step:disabled {
+.step[aria-disabled='true'] {
   color: var(--pl-color-text-tertiary);
   cursor: not-allowed;
 }

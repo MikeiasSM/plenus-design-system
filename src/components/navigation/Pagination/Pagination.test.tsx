@@ -6,8 +6,13 @@ describe('montarFaixa', () => {
     expect(montarFaixa(1, 5, 1)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('abre reticencia a direita quando a atual esta no inicio', () => {
-    expect(montarFaixa(2, 20, 1)).toEqual([1, 2, 3, null, 20]);
+  it('abre reticencia a direita quando a atual esta no inicio, sem encolher a faixa', () => {
+    expect(montarFaixa(2, 20, 1)).toEqual([1, 2, 3, 4, 5, null, 20]);
+    expect(montarFaixa(1, 10, 1)).toEqual([1, 2, 3, 4, 5, null, 10]);
+  });
+
+  it('nao esconde uma pagina so atras da reticencia', () => {
+    expect(montarFaixa(4, 10, 1)).toEqual([1, 2, 3, 4, 5, null, 10]);
   });
 
   it('abre reticencia dos dois lados no meio', () => {
@@ -15,7 +20,7 @@ describe('montarFaixa', () => {
   });
 
   it('abre reticencia a esquerda quando a atual esta no fim', () => {
-    expect(montarFaixa(19, 20, 1)).toEqual([1, null, 18, 19, 20]);
+    expect(montarFaixa(19, 20, 1)).toEqual([1, null, 16, 17, 18, 19, 20]);
   });
 
   it('respeita a quantidade de vizinhos', () => {
@@ -34,14 +39,23 @@ describe('Pagination', () => {
     render(<Pagination page={1} pageCount={10} onPageChange={() => undefined} />);
 
     expect(screen.getByRole('button', { name: 'Pagina 1' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Pagina anterior' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Proxima pagina' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Pagina anterior' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Proxima pagina' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('desabilita o proximo no fim', () => {
     render(<Pagination page={10} pageCount={10} onPageChange={() => undefined} />);
 
-    expect(screen.getByRole('button', { name: 'Proxima pagina' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Proxima pagina' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('nao passa da borda pelo passo que continua focavel nela', () => {
+    const onPageChange = vi.fn();
+    render(<Pagination page={1} pageCount={10} onPageChange={onPageChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pagina anterior' }));
+
+    expect(onPageChange).not.toHaveBeenCalled();
   });
 
   it('reporta a pagina escolhida e os passos', () => {
