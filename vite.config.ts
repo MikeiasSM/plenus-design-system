@@ -11,10 +11,13 @@ export default defineConfig({
       formats: ['es', 'cjs'],
       // A extensao decide o formato: com `type: module` no pacote, um `.js`
       // e lido como ESM, e o bundle CommonJS nao exportaria nada.
-      fileName: (format) => (format === 'es' ? 'plenus-design-system.es.js' : 'plenus-design-system.cjs'),
+      fileName: (format, modulo) => `${modulo}.${format === 'es' ? 'js' : 'cjs'}`,
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime', /^@react-aria\//, /^@internationalized\//, /^d3-/],
+      // Um modulo por arquivo: num arquivo so, o empacotador do consumidor poe na primeira visita tudo o que
+      // qualquer tela carregada sob demanda usa da biblioteca.
+      output: { preserveModules: true, preserveModulesRoot: 'src', exports: 'named' },
     },
   },
   test: {

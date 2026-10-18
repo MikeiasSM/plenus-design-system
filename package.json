@@ -11,14 +11,14 @@
     "url": "git+https://github.com/MikeiasSM/plenus-design-system.git"
   },
   "type": "module",
-  "main": "./dist/plenus-design-system.cjs",
-  "module": "./dist/plenus-design-system.es.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/plenus-design-system.es.js",
-      "require": "./dist/plenus-design-system.cjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./styles.css": {
       "types": "./dist/folha.d.ts",

@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => {
   const pacote =
     command === 'build'
       ? {
-          entrada: resolve(raiz, 'dist/plenus-design-system.es.js'),
+          entrada: resolve(raiz, 'dist/index.js'),
           estilos: resolve(raiz, 'dist/design-system.css'),
           reset: resolve(raiz, 'dist/reset.css'),
         }

@@ -120,7 +120,7 @@ if (arquivoComConteudo('dist/design-system.css', 1)) {
   }
 }
 
-const esm = await import('../dist/plenus-design-system.es.js').catch((erro) => {
+const esm = await import('../dist/index.js').catch((erro) => {
   falhas.push(`a entrada ESM nao carregou: ${erro.message}`);
 
   return {};
@@ -129,7 +129,7 @@ const esm = await import('../dist/plenus-design-system.es.js').catch((erro) => {
 let cjs = {};
 
 try {
-  cjs = require('../dist/plenus-design-system.cjs');
+  cjs = require('../dist/index.cjs');
 } catch (erro) {
   falhas.push(`a entrada CommonJS nao carregou: ${erro.message}`);
 }
