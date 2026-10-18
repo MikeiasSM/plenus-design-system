@@ -131,6 +131,11 @@ O Design System entrega os gráficos. A tradução entre o manifesto de um dashb
 | `Alert` | Mensagem de estado dirigida ao usuário. | Disponível |
 | `Progress` | Progresso de uma operação, determinado ou não. | Disponível |
 | `Spinner` | Indicação de atividade em curso. | Disponível |
+| `EmptyState` | Ocupa o lugar do conteúdo que não há: sem registros, sem resultado ou falha ao carregar. | Disponível |
+
+A fronteira entre `EmptyState` e `Alert` é o lugar. O `Alert` acompanha o conteúdo e fala de uma operação; o `EmptyState` está no lugar do conteúdo que faltou e diz por que ele não está ali e o que fazer. Por isso a falha ao carregar uma lista é `EmptyState` em tom de erro, e a falha ao salvar um formulário é `Alert`.
+
+Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` mantém a frase curta, porque a lista dele é um painel que acompanha o campo e não comporta um bloco.
 
 ## 8. Navegação
 

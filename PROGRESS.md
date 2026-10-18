@@ -193,7 +193,7 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
 
-**Depois da 0.2.1**, para a proxima versao: o `CodeBlock`, que entra no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao. O `Card` com corpo sem respiro separa o cabecalho do corpo por uma linha, com o mesmo respiro em cima e embaixo: a faixa do cabecalho de uma tabela comecava colada a descricao do cartao. A linha nao foi para a faixa da `Table`: sem cabecalho, ela encostaria na borda do cartao e sairia dupla. A `Table` sem registros mostra o vazio desenhado — icone de busca, *Nenhum registro encontrado* e um subtitulo que sugere rever a busca e os filtros —, e carregando troca as linhas por esqueleto, na mesma quantidade das que estavam na tela, com a mensagem so para o leitor de tela. O `Badge` desceu a 12px, como no Untitled UI, com o raio do sistema. Na `List`, o marcar todos ganhou o respiro da opcao e a caixa desenhada das opcoes passou de 16px a 18px, a do `Checkbox`: as caixas e os textos estavam fora de prumo. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `Table.Body` troca `empty` por `emptyTitle` e `emptyDescription`, e o vazio aparece mesmo sem eles; o `Badge` passa de 14px a 12px; o texto da `Table` sai da mono para a Montserrat.
+**Depois da 0.2.1**, para a proxima versao: o `CodeBlock` e o `EmptyState`, que entram no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao. O `Card` com corpo sem respiro separa o cabecalho do corpo por uma linha, com o mesmo respiro em cima e embaixo: a faixa do cabecalho de uma tabela comecava colada a descricao do cartao. A linha nao foi para a faixa da `Table`: sem cabecalho, ela encostaria na borda do cartao e sairia dupla. A `Table` sem registros mostra o vazio desenhado — icone de busca, *Nenhum registro encontrado* e um subtitulo que sugere rever a busca e os filtros —, e carregando troca as linhas por esqueleto, na mesma quantidade das que estavam na tela, com a mensagem so para o leitor de tela. O `Badge` desceu a 12px, como no Untitled UI, com o raio do sistema. Na `List`, o marcar todos ganhou o respiro da opcao e a caixa desenhada das opcoes passou de 16px a 18px, a do `Checkbox`: as caixas e os textos estavam fora de prumo. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `Table.Body` troca `empty` por `emptyTitle` e `emptyDescription`, e o vazio aparece mesmo sem eles; o `Badge` passa de 14px a 12px; o texto da `Table` sai da mono para a Montserrat.
 
 **Corrigido depois da publicacao da 0.2.0**, na `0.2.1`. A versao sobe so a correcao por decisao do mantenedor, embora traga as mudancas incompativeis listadas abaixo; quem declara `^0.2.0` as recebe na proxima instalacao.
 
@@ -344,7 +344,7 @@ O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que se
 
 Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segura. Nenhuma foi implementada.
 
-- **Componentes novos**: botao so de icone, controle segmentado, gaveta lateral, etapas, estado vazio e esqueleto de carregamento. `COMPONENTS-CATALOG.md` so admite componente por decisao aprovada, e nenhum deles esta previsto.
+- **Componentes novos**: botao so de icone, controle segmentado, gaveta lateral, etapas e esqueleto de carregamento. O estado vazio entrou como `EmptyState`, em 18/10/2026. `COMPONENTS-CATALOG.md` so admite componente por decisao aprovada, e nenhum deles esta previsto.
 - **`Tabs` como links e `Badge` clicavel.** O catalogo define `Tabs` como alternancia entre paineis e `Badge` como rotulo de estado; os dois pedidos mudam o papel do componente.
 - **Icones de interface geral e a base `Icon` exportada.** O catalogo, secao 10, limita o conjunto ao que os componentes usam; `ARCHITECTURE.md` secao 12 manda as aplicacoes usarem a biblioteca oficial. As duas leituras precisam ser conciliadas antes de o conjunto crescer.
 - **`Dialog` so com nome acessivel**, sem titulo visivel nem botao de fechar. O cabecalho e parte, e desliga-lo por booleano e o que `COMPONENTS.md` secao 4 manda evitar; a saida e composicao, que quebra o contrato atual.
@@ -529,6 +529,17 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Sem medida declarada o icone acompanha o tamanho do texto ao redor, e a cor vem sempre de `currentColor`: ele herda a cor de onde esta em vez de fixar a propria.
 - Sem `label` o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com `label`, ganha nome acessivel para o caso em que carrega o significado sozinho.
 - O conjunto cobre o que os componentes usam, e cresce quando um componente precisar de um simbolo que ainda nao existe.
+
+### EmptyState
+
+Entrou no catalogo por decisao do mantenedor em 18/10/2026, desenhado num artefato a partir dos estados vazios do Untitled UI: entendidos, nao copiados.
+
+- **Ocupa o lugar do conteudo que faltou.** A fronteira com o `Alert` e o lugar: falha ao carregar uma lista e `EmptyState` em tom de erro; falha ao salvar e `Alert`.
+- **O fundo e de cartoes fantasma.** Dois cartoes vazios, inclinados, flutuam devagar atras do icone: o conteudo que ainda nao chegou. Os aneis concentricos da referencia e uma malha de pontos com onda foram descartados pelo mantenedor. A animacao para com `prefers-reduced-motion`.
+- **Tres tamanhos.** `sm` para listas, paineis e graficos, sem os cartoes; `md` para tabelas e cartoes; `lg` para pagina inteira, com o titulo em `type.headline-medium`.
+- **Dois tons.** `neutral` nao interrompe o leitor de tela; `danger` sai com `role="alert"`, sem os cartoes, porque a falha nao e conteudo a caminho.
+- **Icone e cartoes ficam fora da leitura.** Quem fala e o texto.
+- **Quem usa.** `Table` no vazio, `List.Empty` e os doze graficos, estes com `IconChartBar`. O `ComboBox` mantem a frase curta: o painel dele acompanha o campo e nao comporta o bloco.
 
 ### CodeBlock
 

@@ -158,37 +158,7 @@
 }
 
 .empty {
-  padding: var(--pl-space-6) var(--table-inline-padding) calc(var(--pl-space-6) + var(--pl-space-1));
-  text-align: center;
-}
-
-.emptyIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: var(--pl-space-4);
-  border-radius: var(--pl-radius-full);
-  background: var(--pl-color-surface-muted);
-  box-shadow: 0 0 0 var(--pl-space-2) var(--pl-color-surface-subtle);
-  color: var(--pl-color-text-secondary);
-}
-
-.emptyTitle {
-  margin: 0;
-  color: var(--pl-color-text);
-  font-size: var(--pl-type-title-size);
-  font-weight: var(--pl-type-title-weight);
-  line-height: var(--pl-type-title-line-height);
-}
-
-.emptyDescription {
-  max-width: 24rem;
-  margin: var(--pl-space-1) auto 0;
-  color: var(--pl-color-text-secondary);
-  font-size: var(--pl-type-body-size);
-  line-height: var(--pl-type-body-line-height);
+  padding: var(--pl-space-6) var(--table-inline-padding);
 }
 
 /* O esqueleto e o que se ve; a mensagem fica para o leitor de tela. */

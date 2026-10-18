@@ -8,6 +8,7 @@ import {
   type ComponentPropsWithRef,
   type ReactNode,
 } from 'react';
+import { EmptyState } from '../../feedback/EmptyState';
 import { Checkbox } from '../../forms/Checkbox';
 import { ListingOptions, optionId } from './ListingOptions';
 import { useListing, type Listing, type ListingItem, type ListingSelectionMode } from './useListing';
@@ -168,7 +169,11 @@ function ListEmpty({ children }: ListEmptyProps) {
     return null;
   }
 
-  return <p className={styles.empty}>{children}</p>;
+  return (
+    <div className={styles.empty}>
+      <EmptyState size="sm" title={children} />
+    </div>
+  );
 }
 
 List.Search = ListSearch;

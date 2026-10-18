@@ -3,6 +3,7 @@ export {
   IconArrowDown,
   IconArrowUp,
   IconCalendar,
+  IconChartBar,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,

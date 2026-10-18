@@ -115,12 +115,15 @@
   list-style: none;
 }
 
-.status,
-.empty {
+.status {
   margin: 0;
   padding: var(--pl-space-2) var(--pl-space-3);
   color: var(--pl-color-text-tertiary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
+}
+
+.empty {
+  padding: var(--pl-space-5) var(--pl-space-3);
 }

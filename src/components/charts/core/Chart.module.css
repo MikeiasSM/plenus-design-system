@@ -55,13 +55,14 @@
   overflow: visible;
 }
 
+/* O vazio ocupa a area de desenho, que mantem a altura do grafico: o cartao nao encolhe quando os dados somem. */
 .empty {
-  margin: 0;
-  padding: var(--pl-space-6) 0;
-  color: var(--pl-color-text-tertiary);
-  font-family: var(--pl-font-body);
-  font-size: var(--pl-type-body-size);
-  text-align: center;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pl-space-4);
 }
 
 .axisLine {

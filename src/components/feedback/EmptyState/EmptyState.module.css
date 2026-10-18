@@ -1,0 +1,199 @@
+.emptyState {
+  --empty-icon-size: 3rem;
+  --empty-glyph-size: 1.5rem;
+  --empty-text-width: 22rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 32rem;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  text-align: center;
+}
+
+.sm {
+  --empty-icon-size: 2.5rem;
+  --empty-glyph-size: 1.25rem;
+  --empty-text-width: 17.5rem;
+}
+
+.lg {
+  --empty-icon-size: 3.5rem;
+  --empty-glyph-size: 1.75rem;
+  --empty-text-width: 25rem;
+}
+
+.visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--pl-space-4);
+}
+
+.md .visual {
+  width: 10rem;
+  height: 6.5rem;
+  margin-bottom: var(--pl-space-5);
+}
+
+.lg .visual {
+  width: 12rem;
+  height: 7.5rem;
+  margin-bottom: var(--pl-space-5);
+}
+
+.icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--empty-icon-size);
+  height: var(--empty-icon-size);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1), 0 8px 20px rgba(24, 26, 28, 0.08);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--empty-glyph-size);
+}
+
+.danger .icon {
+  border-color: var(--pl-color-danger-container);
+  background: var(--pl-color-danger-container);
+  color: var(--pl-color-danger-text);
+}
+
+/* Dois cartoes vazios, inclinados, flutuam devagar atras do icone: o conteudo que ainda nao chegou. */
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 60%;
+  height: 70%;
+  padding: var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-subtle);
+  box-shadow: 0 4px 12px rgba(24, 26, 28, 0.06);
+}
+
+.card span {
+  height: 0.375rem;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+}
+
+.card span:first-child {
+  width: 45%;
+  background: var(--pl-color-border);
+}
+
+.card span:nth-child(2) {
+  width: 75%;
+}
+
+.card span:nth-child(3) {
+  width: 60%;
+}
+
+.cardBehind {
+  transform: translate(-78%, -50%) rotate(-8deg);
+  animation: empty-float-behind 5s ease-in-out infinite;
+}
+
+.cardFront {
+  transform: translate(-22%, -46%) rotate(7deg);
+  animation: empty-float-front 5s ease-in-out infinite;
+}
+
+@keyframes empty-float-behind {
+  0%,
+  100% {
+    transform: translate(-78%, -50%) rotate(-8deg);
+  }
+
+  50% {
+    transform: translate(-78%, -58%) rotate(-6deg);
+  }
+}
+
+@keyframes empty-float-front {
+  0%,
+  100% {
+    transform: translate(-22%, -46%) rotate(7deg);
+  }
+
+  50% {
+    transform: translate(-22%, -38%) rotate(5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+  max-width: var(--empty-text-width);
+}
+
+.sm .text {
+  gap: var(--pl-space-1);
+}
+
+.title,
+.description {
+  margin: 0;
+}
+
+.title {
+  font-size: var(--pl-type-title-size);
+  font-weight: var(--pl-type-title-weight);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.sm .title {
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.lg .title {
+  font-family: var(--pl-font-heading);
+  font-size: var(--pl-type-headline-medium-size);
+  font-weight: var(--pl-type-headline-medium-weight);
+  line-height: var(--pl-type-headline-medium-line-height);
+}
+
+.description {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.sm .description {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--pl-space-3);
+  margin-top: var(--pl-space-6);
+}
+
+.sm .actions {
+  margin-top: var(--pl-space-4);
+}

@@ -17,7 +17,8 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
-import { IconArrowUp, IconChevronExpand, IconQuestionCircle, IconSearch } from '../../icons';
+import { EmptyState } from '../../feedback/EmptyState';
+import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
 
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
@@ -438,11 +439,7 @@ function TableBody<T extends TableRowItem>({
       <tbody>
         <tr>
           <td className={styles.empty} colSpan={countColumns()}>
-            <span className={styles.emptyIcon}>
-              <IconSearch size={20} />
-            </span>
-            <p className={styles.emptyTitle}>{emptyTitle}</p>
-            <p className={styles.emptyDescription}>{emptyDescription}</p>
+            <EmptyState description={emptyDescription} title={emptyTitle} />
           </td>
         </tr>
       </tbody>

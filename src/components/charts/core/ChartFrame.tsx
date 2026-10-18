@@ -6,6 +6,8 @@ import {
   type ChartLegendPosition,
   type ChartLegendSwatch,
 } from './ChartLegend';
+import { EmptyState } from '../../feedback/EmptyState';
+import { IconChartBar } from '../../icons';
 import styles from './Chart.module.css';
 
 export interface ChartFrameProps {
@@ -84,7 +86,9 @@ export function ChartFrame({
               desenho espera. Anunciar ausencia de dados ali seria mentira: eles
               estao la, e o que falta e largura. */}
           {empty ? (
-            <p className={styles.empty}>{emptyMessage}</p>
+            <div className={styles.empty}>
+              <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
+            </div>
           ) : width === 0 || height === 0 ? null : (
             <svg
               aria-labelledby={tituloId}

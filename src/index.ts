@@ -5,6 +5,7 @@ export {
   IconArrowDown,
   IconArrowUp,
   IconCalendar,
+  IconChartBar,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,
@@ -46,6 +47,8 @@ export { Progress } from './components/feedback/Progress';
 export type { ProgressProps, ProgressSize } from './components/feedback/Progress';
 export { Spinner } from './components/feedback/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/feedback/Spinner';
+export { EmptyState } from './components/feedback/EmptyState';
+export type { EmptyStateProps, EmptyStateSize, EmptyStateTone } from './components/feedback/EmptyState';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';

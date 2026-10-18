@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
+  Alert, Avatar, Badge, Button, Checkbox, EmptyState, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
   Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
   ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, CodeBlock, DatePicker, DateTimePicker, List,
@@ -12,6 +12,7 @@ import {
   IconArrowDown,
   IconArrowUp,
   IconCalendar,
+  IconChartBar,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,
@@ -154,6 +155,7 @@ const icones = [
   ['IconQuestionCircle', IconQuestionCircle],
   ['IconSearch', IconSearch],
   ['IconCalendar', IconCalendar],
+  ['IconChartBar', IconChartBar],
   ['IconClock', IconClock],
   ['IconClose', IconClose],
 ] as const;
@@ -294,6 +296,7 @@ export function App() {
           <a href="#alert">Alert</a>
           <a href="#progress">Progress</a>
           <a href="#spinner">Spinner</a>
+          <a href="#emptystate">EmptyState</a>
           <p className="rail-group">Navegacao</p>
           <a href="#tabs">Tabs</a>
           <a href="#accordion">Accordion</a>
@@ -674,6 +677,54 @@ export function App() {
               <Spinner size="lg" label="Carregando grande" />
             </div>
             <p className="doc-note">Sem rotulo, o indicador fica oculto para leitores de tela. Dentro do Button, quem anuncia o estado e o proprio botao.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="feedback"
+          description="Ocupa o lugar do conteudo que nao ha: sem registros, sem resultado ou falha ao carregar."
+          id="emptystate"
+          name="EmptyState"
+          api={'<EmptyState\n  title="Nenhum registro encontrado"\n  description="Ajuste a busca ou os filtros."\n  actions={<Button variant="secondary">Limpar filtros</Button>}\n/>'}
+        >
+          <div className="doc-subsection">
+            <h3>Medio, com acoes</h3>
+            <EmptyState
+              actions={
+                <>
+                  <Button variant="secondary">Limpar filtros</Button>
+                  <Button>Novo registro</Button>
+                </>
+              }
+              description="Não há registros para exibir. Se houver busca ou filtros aplicados, experimente ajustá-los."
+              title="Nenhum registro encontrado"
+            />
+            <p className="doc-note">Os cartoes atras do icone flutuam devagar e param quando o sistema pede movimento reduzido. Icone e cartoes ficam fora da leitura; quem fala e o texto.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Pequeno e grande</h3>
+            <div className="input-grid">
+              <EmptyState description="Tente outro termo de busca." size="sm" title="Nenhum estado encontrado" />
+              <EmptyState
+                actions={<Button size="lg">Criar colecao</Button>}
+                description="Coleções agrupam seções e documentos e definem quem pode ver cada um."
+                icon={<IconPlusCircle />}
+                size="lg"
+                title="Nenhuma coleção ainda"
+              />
+            </div>
+            <p className="doc-note">O pequeno serve a listas, paineis e graficos, sem os cartoes; o medio, a tabelas e cartoes; o grande, a uma pagina inteira.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Falha ao carregar</h3>
+            <EmptyState
+              actions={<Button variant="secondary">Tentar de novo</Button>}
+              description="A conexão com o servidor falhou. Seus dados estão seguros; tente de novo em instantes."
+              icon={<IconClose />}
+              title="Não foi possível carregar os registros"
+              tone="danger"
+            />
+            <p className="doc-note">No tom de erro o bloco e anunciado ao leitor de tela assim que aparece. Falha que acompanha um conteudo, como ao salvar, e Alert.</p>
           </div>
         </ComponentDoc>
 
