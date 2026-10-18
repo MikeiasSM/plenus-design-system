@@ -98,7 +98,7 @@ export function Playground({ definicao }: { definicao: DefinicaoDoPlayground }) 
   }
 
   return (
-    <div className="pg">
+    <div className={definicao.largo ? 'pg pg-wide' : 'pg'}>
       <div className="pg-main">
         <div className="pg-stage-wrap">
           <div className="pg-toolbar">

@@ -92,7 +92,7 @@ export const familias: readonly Familia[] = [
       componente('ChartTreemap', 'Composição hierárquica por área.'),
       componente('ChartSunburst', 'Composição hierárquica por anéis concêntricos.'),
       componente('ChartSankey', 'Fluxo entre origens e destinos.'),
-      componente('ChartTimeline', 'Intervalos de tempo dispostos em linhas, como a jornada de cada dia ou as tarefas de um projeto.', { previsto: true }),
+      componente('ChartTimeline', 'Intervalos de tempo dispostos em linhas, como a jornada de cada dia ou as tarefas de um projeto.'),
       componente('ChartMap', 'Regiões pintadas pelo valor e marcadores por coordenada, sobre a geometria que o produto fornece.', { previsto: true }),
       componente('ChartGauge', 'Um valor numa escala com faixas de significado, como o atingimento de uma meta.', { previsto: true }),
       componente('ChartTooltip', 'Leitura das medidas sob o ponteiro, em lista.'),

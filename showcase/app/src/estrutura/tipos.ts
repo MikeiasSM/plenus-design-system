@@ -22,6 +22,8 @@ export interface Verificacao {
 export interface DefinicaoDoPlayground<V extends Valores = Valores> {
   controles: readonly Controle<V>[];
   inicial: V;
+  /** Controles abaixo da prévia, para o componente que precisa da largura toda, como uma linha do tempo. */
+  largo?: boolean;
   /** O codigo que reproduz a previa, refeito a cada mudanca. */
   codigo(valores: V): string;
   /** `registrar` leva ao painel de eventos cada callback que o componente disparar. */
@@ -32,6 +34,8 @@ export interface DefinicaoDoPlayground<V extends Valores = Valores> {
 export interface Exemplo {
   codigo: string;
   descricao: string;
+  /** Ocupa a linha inteira da grade de exemplos. */
+  largo?: boolean;
   Previa: ComponentType;
   titulo: string;
 }

@@ -515,6 +515,22 @@ body {
   gap: var(--pl-space-4);
 }
 
+.example-wide {
+  grid-column: 1 / -1;
+}
+
+/* A prévia larga ocupa a linha; os controles descem e se distribuem em colunas. */
+.pg-wide .pg-stage-wrap {
+  flex-basis: 100%;
+}
+
+.pg-wide .pg-controls {
+  display: grid;
+  flex-basis: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  align-items: start;
+}
+
 .example,
 .dodont {
   overflow: hidden;

@@ -201,6 +201,7 @@ export { DateTimePicker } from './components/forms/DateTimePicker';
 export type { DateTimePickerProps, DateTimePickerSize } from './components/forms/DateTimePicker';
 export {
   formatarData,
+  formatarDuracao,
   formatarHora,
   formatarMoeda,
   formatarNumero,
@@ -220,6 +221,28 @@ export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
 export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartTimeline } from './components/charts/ChartTimeline';
+export type {
+  ChartTimelineBand,
+  ChartTimelineDensity,
+  ChartTimelineGroup,
+  ChartTimelineLabelAlign,
+  ChartTimelineMarker,
+  ChartTimelineMarkerShape,
+  ChartTimelineOverlap,
+  ChartTimelineProps,
+  ChartTimelineReferenceLine,
+  ChartTimelineRow,
+  ChartTimelineRowBand,
+  ChartTimelineScale,
+  ChartTimelineSegment,
+  ChartTimelineSegmentLabelContent,
+  ChartTimelineSegmentLabels,
+  ChartTimelineSeries,
+  ChartTimelineState,
+  ChartTimelineSummary,
+  ChartTimelineTime,
+} from './components/charts/ChartTimeline';
 export { ChartTooltip } from './components/charts/ChartTooltip';
 export type {
   ChartTooltipColumn,

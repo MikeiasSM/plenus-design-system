@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { labelFontOf, type LabelFont } from './measureText';
 
 export interface ChartMetrics {
@@ -58,26 +58,23 @@ export function useChartMetrics(): ChartMetrics {
     );
   }, []);
 
+  const observador = useRef<ResizeObserver | null>(null);
+
+  // O observador acompanha o elemento, e não a montagem: a área que nasce depois, ou é trocada, continua sendo medida.
   const ref = useCallback(
     (node: HTMLElement | null) => {
+      observador.current?.disconnect();
+      observador.current = null;
       elemento.current = node;
       medir();
+
+      if (node && typeof ResizeObserver !== 'undefined') {
+        observador.current = new ResizeObserver(medir);
+        observador.current.observe(node);
+      }
     },
     [medir],
   );
-
-  useEffect(() => {
-    const node = elemento.current;
-
-    if (!node || typeof ResizeObserver === 'undefined') {
-      return;
-    }
-
-    const observador = new ResizeObserver(medir);
-    observador.observe(node);
-
-    return () => observador.disconnect();
-  }, [medir]);
 
   return {
     font: medida.font,

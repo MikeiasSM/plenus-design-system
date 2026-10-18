@@ -1,6 +1,7 @@
 export { formatarEdicaoDecimal, formatarEntradaDecimal } from './formatarEntradaDecimal';
 export { formatarEntradaMonetaria } from './formatarEntradaMonetaria';
 export { formatarData, formatarHora } from './formatarData';
+export { formatarDuracao } from './formatarDuracao';
 export type { OpcoesDeData, OpcoesDeHora } from './formatarData';
 export { formatarMoeda, formatarNumero, formatarPercentual } from './formatarNumero';
 export type { Compacto, OpcoesDeMoeda, OpcoesDeNumero, OpcoesDePercentual } from './formatarNumero';

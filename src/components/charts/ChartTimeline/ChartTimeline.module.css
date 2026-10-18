@@ -1,0 +1,428 @@
+.figure {
+  composes: figure from '../core/Chart.module.css';
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+}
+
+.title {
+  composes: title from '../core/Chart.module.css';
+  min-width: 0;
+}
+
+/* A altura vem das linhas, e nao de uma medida: a area fica no fluxo e so a largura e medida. */
+.plot {
+  min-width: 0;
+  width: 100%;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: var(--pl-space-4);
+}
+
+/* Rotulos e resumo ficam fixos; so o desenho, ao centro, rola de lado. */
+.body {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.labels,
+.summary {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+}
+
+.labels {
+  min-width: 60px;
+  max-width: 240px;
+}
+
+.labelsFixed {
+  max-width: none;
+}
+
+.labelsCompact {
+  max-width: 40%;
+}
+
+.labelsCompactWithSummary {
+  max-width: 46%;
+}
+
+.rowLabel,
+.groupLabel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-right: var(--pl-space-3);
+  overflow: hidden;
+}
+
+.childLabel {
+  padding-left: var(--pl-space-4);
+}
+
+.labelLine {
+  display: flex;
+  align-items: baseline;
+  gap: var(--pl-space-2);
+  min-width: 0;
+}
+
+.labelText {
+  overflow: hidden;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.labelDescription,
+.labelSummary {
+  overflow: hidden;
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.labelDescription {
+  flex: 0 1 auto;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+}
+
+.labelSummary {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-mono);
+}
+
+.groupButton,
+.groupText {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  letter-spacing: 0.03em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.groupButton {
+  cursor: pointer;
+}
+
+.groupButton:hover {
+  color: var(--pl-color-text);
+}
+
+.groupButton:focus-visible,
+.scroll:focus-visible,
+.tableScroll:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
+.groupName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.groupCount {
+  color: var(--pl-color-text-tertiary);
+  font-weight: var(--pl-type-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.chevron {
+  flex: none;
+  transition: transform var(--pl-speed-1) var(--pl-ease);
+}
+
+.chevronCollapsed {
+  transform: rotate(-90deg);
+}
+
+.scroll {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+/* A largura e a do eixo: encolher o desenho ao conteiner, como o reset faz com todo svg, achataria as linhas. */
+.canvas {
+  display: block;
+  max-width: none;
+  overflow: visible;
+}
+
+.summaryItem {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 64px;
+  padding-left: var(--pl-space-3);
+}
+
+.summaryInline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--pl-space-2);
+}
+
+.summaryTitle {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-data-value-size);
+  font-weight: var(--pl-type-data-value-weight);
+  line-height: var(--pl-type-caption-line-height);
+  white-space: nowrap;
+}
+
+.summarySubtitle {
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  white-space: nowrap;
+}
+
+.canvas text {
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  fill: var(--pl-color-surface-subtle);
+}
+
+/* Transparente, e nao `none`: sem pintura a area nao recebe o ponteiro. */
+.hoverArea {
+  fill: transparent;
+}
+
+/* O que so ilustra deixa o ponteiro passar para a linha e o intervalo embaixo. */
+.passThrough {
+  pointer-events: none;
+}
+
+.hatchLine {
+  stroke-width: 1.5;
+  opacity: 0.45;
+}
+
+.bandLabel,
+.referenceLabel {
+  fill: var(--pl-color-text-secondary);
+  paint-order: stroke;
+  stroke: var(--pl-color-surface);
+  stroke-linejoin: round;
+  stroke-width: 3px;
+}
+
+.bandLabel {
+  fill: var(--pl-color-text-tertiary);
+}
+
+.referenceLine {
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.emptyRowText {
+  fill: var(--pl-color-text-tertiary);
+  font-style: italic;
+}
+
+.groupBar {
+  fill: var(--pl-chart-neutral);
+  opacity: 0.45;
+}
+
+.groupProgress {
+  fill: var(--pl-chart-neutral);
+}
+
+.segment {
+  outline: none;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.dimmed {
+  opacity: 0.28;
+}
+
+/* Em `overlay`, o anel da superficie separa o intervalo do que esta embaixo dele. */
+.barOverlay {
+  stroke: var(--pl-color-surface);
+  stroke-width: 1.5;
+}
+
+.clipMark {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.segmentLabel {
+  pointer-events: none;
+}
+
+.marker {
+  stroke: var(--pl-color-surface);
+  stroke-width: 1.5;
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--pl-color-primary);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.axisLine {
+  composes: axisLine from '../core/Chart.module.css';
+}
+
+.axisLabel {
+  composes: axisLabel from '../core/Chart.module.css';
+}
+
+/* A altura do grafico e a lista de linhas: o eixo `onHover` guarda o lugar e so aparece, sem empurrar a pagina. */
+.axisOnHover {
+  opacity: 0;
+  transition: opacity var(--pl-speed-2) var(--pl-ease);
+}
+
+.figure:hover .axisOnHover,
+.figure:focus-within .axisOnHover {
+  opacity: 1;
+  transition-delay: 80ms;
+}
+
+.tableScroll {
+  max-height: 380px;
+  overflow: auto;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.table th,
+.table td {
+  padding: var(--pl-space-1) var(--pl-space-3);
+  border-bottom: 1px solid var(--pl-color-border);
+  color: var(--pl-color-text);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.table .numeric {
+  font-family: var(--pl-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.table thead .numeric {
+  font-family: var(--pl-font-body);
+}
+
+.table .tableRowHeader {
+  background: var(--pl-color-surface-muted);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.tableRowExtra {
+  color: var(--pl-color-text-secondary);
+  font-weight: var(--pl-type-body-weight);
+}
+
+.tableSwatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--pl-space-2);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+
+.table .tableEmpty {
+  color: var(--pl-color-text-tertiary);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment,
+  .chevron,
+  .axisOnHover {
+    transition: none;
+  }
+}

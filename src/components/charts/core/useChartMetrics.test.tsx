@@ -60,4 +60,34 @@ describe('useChartMetrics', () => {
 
     expect(screen.getByTestId('caixa')).toHaveTextContent('280|12');
   });
+
+  it('acompanha também a área que só monta depois do componente', () => {
+    const observadores: (() => void)[] = [];
+
+    class Observador {
+      constructor(private aviso: () => void) {
+        observadores.push(() => this.aviso());
+      }
+      observe() {}
+      disconnect() {}
+    }
+
+    Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: Observador });
+
+    function MedidoDepois({ montado }: { montado: boolean }) {
+      const { ref, width } = useChartMetrics();
+
+      return montado ? <div data-testid="caixa" ref={ref}>{width}</div> : null;
+    }
+
+    fixarLargura(500);
+    const { rerender } = render(<MedidoDepois montado={false} />);
+    rerender(<MedidoDepois montado />);
+    expect(screen.getByTestId('caixa')).toHaveTextContent('500');
+
+    fixarLargura(455);
+    act(() => observadores.forEach((avisar) => avisar()));
+
+    expect(screen.getByTestId('caixa')).toHaveTextContent('455');
+  });
 });

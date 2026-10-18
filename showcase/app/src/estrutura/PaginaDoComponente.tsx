@@ -16,7 +16,7 @@ function CartaoDeExemplo({ exemplo }: { exemplo: Exemplo }) {
   const { Previa } = exemplo;
 
   return (
-    <article className="example">
+    <article className={exemplo.largo ? 'example example-wide' : 'example'}>
       <div className="example-preview">
         <Previa />
       </div>
