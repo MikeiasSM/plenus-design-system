@@ -6,11 +6,12 @@ export interface ChartMapCategory extends SeriesAppearance {
   label: string;
 }
 
+/** `color` troca o azul da rampa por outra cor, de que saem os sete tons: mais escuro é maior, nos dois temas. */
 export type ChartMapColorScale =
-  | { domain?: readonly [number, number]; log?: boolean; type: 'sequential' }
+  | { color?: string; domain?: readonly [number, number]; log?: boolean; type: 'sequential' }
   | { center?: number; domain?: readonly [number, number]; type: 'diverging' }
-  | { count?: number; method: 'quantile' | 'equalInterval'; type: 'classes' }
-  | { labels?: readonly string[]; thresholds: readonly number[]; type: 'classes' }
+  | { color?: string; count?: number; method: 'quantile' | 'equalInterval'; type: 'classes' }
+  | { color?: string; labels?: readonly string[]; thresholds: readonly number[]; type: 'classes' }
   | { categories: readonly ChartMapCategory[]; type: 'categorical' }
   | { type: 'none' };
 
@@ -52,6 +53,14 @@ export const DIVERGING_TOKENS = ['negative-3', 'negative-2', 'negative-1', 'cent
   (step) => `var(--pl-chart-diverging-${step})`,
 );
 
+/** Os sete tons a partir de uma cor: clareada até ela, depois escurecida. A mistura acompanha a cor, token ou não. */
+export function rampFrom(color: string) {
+  const lighter = [15, 32, 55, 78].map((share) => `color-mix(in oklab, ${color} ${share}%, white)`);
+  const darker = [22, 42].map((share) => `color-mix(in oklab, ${color}, black ${share}%)`);
+
+  return [...lighter, color, ...darker];
+}
+
 const NEUTRAL_FILL = 'var(--pl-color-surface-muted)';
 const SINGLE_VALUE_STEP = 4;
 const DEFAULT_CLASS_COUNT = 5;
@@ -76,12 +85,12 @@ export function rampColor(stops: readonly string[], position: number) {
 }
 
 /** Passo da rampa de cada classe, espalhado do primeiro ao ultimo. */
-function classColors(count: number) {
+function classColors(count: number, stops: readonly string[]) {
   if (count === 1) {
-    return [SEQUENTIAL_TOKENS[SINGLE_VALUE_STEP]];
+    return [stops[SINGLE_VALUE_STEP]];
   }
 
-  return Array.from({ length: count }, (_, index) => SEQUENTIAL_TOKENS[Math.round((index * 6) / (count - 1))]);
+  return Array.from({ length: count }, (_, index) => stops[Math.round((index * 6) / (count - 1))]);
 }
 
 function classLabels(thresholds: readonly number[], format: (value: number) => string) {
@@ -121,8 +130,9 @@ function classScale(
   labels: readonly string[],
   range: readonly [number, number],
   format: (value: number) => string,
+  stops: readonly string[],
 ): MapScale {
-  const colors = classColors(thresholds.length + 1);
+  const colors = classColors(thresholds.length + 1, stops);
   const [low, high] = range;
   const names =
     thresholds.length === 0
@@ -153,6 +163,7 @@ function continuousScale(stops: readonly string[], position: (value: number) => 
 function sequentialScale(
   config: Extract<ChartMapColorScale, { type: 'sequential' }>,
   values: readonly number[],
+  stops: readonly string[],
 ): MapScale {
   const [dataLow = 0, dataHigh = 0] = extent(values);
   const [low, high] = config.domain ?? [dataLow, dataHigh];
@@ -163,10 +174,10 @@ function sequentialScale(
         value <= 0 || high <= logLow ? 0 : clamp01((Math.log(value) - Math.log(logLow)) / (Math.log(high) - Math.log(logLow)))
     : (value: number) => (high === low ? 1 : clamp01((value - low) / (high - low)));
 
-  return continuousScale(SEQUENTIAL_TOKENS, position, {
+  return continuousScale(stops, position, {
     log: config.log === true,
     position,
-    stops: SEQUENTIAL_TOKENS,
+    stops,
     ticks: [
       { position: 0, value: config.log ? logLow : low },
       { position: 1, value: high },
@@ -196,8 +207,8 @@ function divergingScale(
   });
 }
 
-function categoricalScale(categories: readonly ChartMapCategory[]): MapScale {
-  const colors = resolveSeriesColors(categories);
+function categoricalScale(categories: readonly ChartMapCategory[], accent?: string): MapScale {
+  const colors = resolveSeriesColors(categories, { accent });
   const byId = new Map(categories.map((category, index) => [category.id, { color: colors[index], label: category.label }]));
 
   return {
@@ -217,6 +228,7 @@ export function buildMapScale(
   config: ChartMapColorScale,
   values: readonly number[],
   format: (value: number) => string,
+  accent?: string,
 ): MapScale {
   if (config.type === 'none') {
     return {
@@ -229,8 +241,10 @@ export function buildMapScale(
   }
 
   if (config.type === 'categorical') {
-    return categoricalScale(config.categories);
+    return categoricalScale(config.categories, accent);
   }
+
+  const stops = config.type !== 'diverging' && config.color ? rampFrom(config.color) : SEQUENTIAL_TOKENS;
 
   if (values.length === 0) {
     return { entries: [], fillOf: () => undefined, keyOf: () => undefined, labelOf: () => undefined, numeric: true };
@@ -241,11 +255,11 @@ export function buildMapScale(
 
   // Um valor so nao forma escala: uma cor e uma entrada na legenda.
   if (low === high && config.type !== 'diverging' && !fixedClasses) {
-    return classScale([], [], [low, high], format);
+    return classScale([], [], [low, high], format, stops);
   }
 
   if (config.type === 'sequential') {
-    return sequentialScale(config, values);
+    return sequentialScale(config, values, stops);
   }
 
   if (config.type === 'diverging') {
@@ -254,8 +268,8 @@ export function buildMapScale(
 
   if ('thresholds' in config) {
     const thresholds = [...new Set(config.thresholds.filter(Number.isFinite))].sort((a, b) => a - b);
-    return classScale(thresholds, config.labels ?? [], [low, high], format);
+    return classScale(thresholds, config.labels ?? [], [low, high], format, stops);
   }
 
-  return classScale(classThresholds(config.method, values, config.count), [], [low, high], format);
+  return classScale(classThresholds(config.method, values, config.count), [], [low, high], format, stops);
 }

@@ -1,4 +1,4 @@
-import { buildMapScale, classThresholds, rampColor, SEQUENTIAL_TOKENS } from './mapScales';
+import { buildMapScale, classThresholds, rampColor, rampFrom, SEQUENTIAL_TOKENS } from './mapScales';
 
 const format = (value: number) => String(value);
 const datum = (value: number | null, category: string | null = null) => ({ category, value });
@@ -83,6 +83,22 @@ describe('escalas do mapa', () => {
     expect(scale.fillOf(datum(null, 's'))).toBe('var(--pl-chart-positive)');
     expect(scale.fillOf(datum(null, 'x'))).toBeUndefined();
     expect(scale.numeric).toBe(false);
+  });
+
+  it('troca o azul pela cor informada, do mais claro ao mais escuro', () => {
+    const ramp = rampFrom('#6E2A92');
+    const classes = buildMapScale({ color: '#6E2A92', method: 'equalInterval', type: 'classes' }, [0, 25, 50, 75, 100], format);
+
+    expect(ramp).toHaveLength(7);
+    expect(ramp[4]).toBe('#6E2A92');
+    expect(classes.entries.map((entry) => entry.color)).toEqual([ramp[0], ramp[2], ramp[3], ramp[5], ramp[6]]);
+    expect(buildMapScale({ color: '#6E2A92', type: 'sequential' }, [0, 100], format).gradient?.stops).toEqual(ramp);
+  });
+
+  it('abre as categorias com a cor de tema', () => {
+    const scale = buildMapScale({ categories: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], type: 'categorical' }, [], format, '#6E2A92');
+
+    expect(scale.entries.map((entry) => entry.color)).toEqual(['#6E2A92', 'var(--pl-chart-series-1)']);
   });
 
   it('mistura sem ultrapassar as pontas da rampa', () => {

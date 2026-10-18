@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-985 testes em 113 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+988 testes em 113 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -546,6 +546,7 @@ Na implementacao:
 - Desempenho medido em build de producao: 27 UFs com a malha detalhada em ~310 ms, 645 municipios de SP em ~200 ms, 1.794 do Nordeste em ~200 ms, 5.573 do Brasil em ~1,4 s, acima dos ~670 ms do teste de carga, que desenhava direto com d3, sem React nem as descricoes de cada regiao. O ponteiro custa ~2 ms de JavaScript.
 - O aviso de dado sem regiao usa `process.env.NODE_ENV`, que o build de biblioteca preserva: o bundler do produto o liga em desenvolvimento e o retira em producao. `import.meta.env.DEV` seria trocado por `false` no pacote publicado.
 - `ChartLegend` ganhou `onHighlight`, opcional, para o destaque de classe ao passar pela legenda.
+- Cor, como nos demais graficos: `accent` abre a paleta das categorias e dos marcadores, e `color` na escala sequencial ou em classes troca o azul por outra cor, de que saem os sete tons por mistura, mais escuro e maior. O ChartTimeline tambem ganhou `accent`, e os tres playgrounds, o seletor de cor nomeada.
 - Divergencias do artefato: rotulo na cor do texto do tema com halo da superficie, porque a escala continua nao tem cor medivel por passo; com `onRegionClick` ou `onMarkerClick`, o desenho vira grupo e regioes e marcadores entram no teclado, pela regra de `COMPONENTS.md` secao 7; balao so pelo ponteiro, como no ChartTimeline; a coluna de rotulos atende so as regioes da metade do desenho junto a ela, porque a linha guia cruzava o mapa; a tabela nao tem coluna de grupo.
 - No Showcase, o exemplo dos municipios do Nordeste, pedido pelo mantenedor, usa a base de teste que ele enviou, recortada e simplificada a 0,004 grau em `showcase/app/public/dados-mapa` (2,4 MB, buscada sob demanda): geografia do IBGE, vendas simuladas.
 

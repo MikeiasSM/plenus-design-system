@@ -20,7 +20,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VISIBILIDADES } from '../dadosDosGraficos';
+import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 
 const moedaCompacta = (valor: number) => formatarMoeda(valor, { compacto: true });
 const moedaExata = (valor: number) => formatarMoeda(valor, { casasDecimais: 0 });
@@ -191,6 +191,7 @@ const playground = definirPlayground({
     showTooltip: true,
     semDado: false,
     loading: false,
+    accent: 'nenhuma',
   },
   controles: [
     { tipo: 'opcoes', nome: 'cenario', opcoes: Object.keys(CENARIOS) },
@@ -215,6 +216,7 @@ const playground = definirPlayground({
     { tipo: 'booleano', nome: 'showTooltip' },
     { tipo: 'booleano', nome: 'semDado' },
     { tipo: 'booleano', nome: 'loading' },
+    { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
   ],
   renderizar: (valores) => {
     const cenario = CENARIOS[valores.cenario];
@@ -225,6 +227,7 @@ const playground = definirPlayground({
       <div style={{ width: '100%' }}>
         <ChartGauge
           {...cenario.props}
+          accent={accentDa(valores.accent)}
           colorBySegment={valores.colorBySegment}
           delta={valores.delta ? cenario.props.delta : undefined}
           endAngle={meia}
@@ -260,6 +263,7 @@ const playground = definirPlayground({
 
     return gerarJsx('ChartGauge', [
       ['title', props.title],
+      ['accent', accentDa(valores.accent)],
       ['loading', valores.loading, false],
       ['value', valores.semDado ? expr('null') : valor],
       ['min', props.min],

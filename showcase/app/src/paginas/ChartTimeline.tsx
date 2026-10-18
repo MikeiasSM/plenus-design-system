@@ -25,7 +25,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VISIBILIDADES } from '../dadosDosGraficos';
+import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 
 /* ---- Jornada de trabalho: um dia por linha, eixo de 0h a 24h --------------------------------------------------- */
 
@@ -513,6 +513,7 @@ const playground = definirPlayground({
     showTooltip: true,
     highlightOnHover: false,
     onSegmentClick: true,
+    accent: 'nenhuma',
   },
   controles: [
     { tipo: 'opcoes', nome: 'conjunto', opcoes: Object.keys(CONJUNTOS) },
@@ -536,6 +537,7 @@ const playground = definirPlayground({
     { tipo: 'booleano', nome: 'showTooltip' },
     { tipo: 'booleano', nome: 'highlightOnHover' },
     { tipo: 'booleano', nome: 'onSegmentClick' },
+    { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
   ],
   renderizar: (valores, registrar) => {
     const { props } = CONJUNTOS[valores.conjunto];
@@ -544,6 +546,7 @@ const playground = definirPlayground({
       <div style={{ width: '100%' }}>
         <ChartTimeline
           {...props}
+          accent={accentDa(valores.accent)}
           axisPosition={valores.axisPosition as 'top' | 'bottom'}
           collapsibleGroups={valores.collapsibleGroups}
           compactSummary={valores.compactSummary as 'below' | 'hidden'}
@@ -584,6 +587,7 @@ const playground = definirPlayground({
       ['domain', props.domain && expr('dominio')],
       ['rows', expr('linhas')],
       ['series', expr('series')],
+      ['accent', accentDa(valores.accent)],
       ...dados,
       ['density', valores.density, 'md'],
       ['overlap', valores.overlap, 'stack'],
@@ -948,6 +952,7 @@ const dias = jornadaDoMes(mes);
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do desenho.' },
     { nome: 'rows', tipo: 'readonly ChartTimelineRow[]', descricao: <><code>{'{ key, label, description?, group? }'}</code>, na ordem de exibição. A key identifica; o label pode repetir.</> },
     { nome: 'series', tipo: 'readonly ChartTimelineSeries[]', descricao: <><code>{'{ label, color?, intent? }'}</code>. Servem a intervalos, faixas e marcas.</> },
+    { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta das séries sem cor nem intenção.' },
     { nome: 'segments', tipo: 'readonly ChartTimelineSegment[]', descricao: <><code>{'{ row, series, start, end, label?, progress? }'}</code>.</> },
     { nome: 'states', tipo: 'readonly ChartTimelineState[]', descricao: <>Alternativa a segments: <code>{'{ row, time, state }'}</code>, cada uma vale até a seguinte.</> },
     { nome: 'mergeConsecutive', tipo: 'boolean', padrao: 'true', descricao: 'Em states, junta leituras iguais seguidas.' },

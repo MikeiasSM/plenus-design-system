@@ -17,7 +17,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VISIBILIDADES } from '../dadosDosGraficos';
+import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 import { MALHA_DAS_UFS } from '../dadosDoMapa';
 
 /* ---- Dados de exemplo, por UF ------------------------------------------------------------------------------------ */
@@ -157,11 +157,12 @@ const CONJUNTOS: Record<string, Conjunto> = {
   },
 };
 
-function escalaDe(tipo: string, metodo: string, faixas: number, log: boolean): ChartMapColorScale {
+// A cor escolhida troca o azul da rampa na sequencial e nas classes; na categórica, abre a paleta pelo `accent`.
+function escalaDe(tipo: string, metodo: string, faixas: number, log: boolean, color?: string): ChartMapColorScale {
   if (tipo === 'classes') {
     return metodo === 'thresholds'
-      ? { thresholds: [20, 40, 60, 80], type: 'classes' }
-      : { count: faixas, method: metodo as 'quantile' | 'equalInterval', type: 'classes' };
+      ? { color, thresholds: [20, 40, 60, 80], type: 'classes' }
+      : { color, count: faixas, method: metodo as 'quantile' | 'equalInterval', type: 'classes' };
   }
 
   if (tipo === 'categorical') {
@@ -172,21 +173,23 @@ function escalaDe(tipo: string, metodo: string, faixas: number, log: boolean): C
     return { center: 0, type: 'diverging' };
   }
 
-  return tipo === 'none' ? { type: 'none' } : { log: log || undefined, type: 'sequential' };
+  return tipo === 'none' ? { type: 'none' } : { color, log: log || undefined, type: 'sequential' };
 }
 
-function codigoDaEscala(tipo: string, metodo: string, faixas: number, log: boolean) {
+function codigoDaEscala(tipo: string, metodo: string, faixas: number, log: boolean, color?: string) {
+  const cor = color ? `, color: '${color}'` : '';
+
   if (tipo === 'classes') {
     return metodo === 'thresholds'
-      ? "{ type: 'classes', thresholds: [20, 40, 60, 80] }"
-      : `{ type: 'classes', method: '${metodo}', count: ${faixas} }`;
+      ? `{ type: 'classes', thresholds: [20, 40, 60, 80]${cor} }`
+      : `{ type: 'classes', method: '${metodo}', count: ${faixas}${cor} }`;
   }
 
   return {
     categorical: "{ type: 'categorical', categories: regionais }",
     diverging: "{ type: 'diverging', center: 0 }",
     none: "{ type: 'none' }",
-    sequential: log ? "{ type: 'sequential', log: true }" : undefined,
+    sequential: log || cor ? `{ type: 'sequential'${log ? ', log: true' : ''}${cor} }` : undefined,
   }[tipo];
 }
 
@@ -227,6 +230,7 @@ const playground = definirPlayground({
     legendAlign: 'center',
     height: 440,
     showTableToggle: true,
+    accent: 'nenhuma',
   },
   controles: [
     { tipo: 'opcoes', nome: 'colorScale', opcoes: Object.keys(CONJUNTOS) },
@@ -246,6 +250,7 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
     { tipo: 'numero', nome: 'height', min: 240, max: 640, passo: 20 },
     { tipo: 'booleano', nome: 'showTableToggle' },
+    { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
   ],
   renderizar: (valores, registrar) => {
     const conjunto = CONJUNTOS[valores.colorScale];
@@ -257,7 +262,8 @@ const playground = definirPlayground({
           key={valores.colorScale}
           props={{
             ...MALHA,
-            colorScale: escalaDe(valores.colorScale, valores.method, valores.count, valores.log),
+            accent: accentDa(valores.accent),
+            colorScale: escalaDe(valores.colorScale, valores.method, valores.count, valores.log, accentDa(valores.accent)),
             data: conjunto.data,
             focus: valores.focus === 'Brasil' ? undefined : ufsDa(valores.focus),
             formatValue: conjunto.formatValue,
@@ -290,13 +296,14 @@ const playground = definirPlayground({
   codigo: (valores) => {
     const conjunto = CONJUNTOS[valores.colorScale];
     const comMarcadores = valores.markers || valores.colorScale === 'none';
-    const escala = codigoDaEscala(valores.colorScale, valores.method, valores.count, valores.log);
+    const escala = codigoDaEscala(valores.colorScale, valores.method, valores.count, valores.log, accentDa(valores.accent));
     const atributos: Atributo[] = [
       ['title', conjunto.title],
       ['geometry', expr('malhaDasUfs')],
       ['featureNameKey', 'properties.nome'],
       ['data', conjunto.codigoDosDados ? expr(conjunto.codigoDosDados) : undefined],
       ['colorScale', escala && expr(escala)],
+      ['accent', valores.colorScale === 'categorical' || comMarcadores ? accentDa(valores.accent) : undefined],
       ['valueLabel', valores.colorScale === 'none' ? undefined : conjunto.valueLabel],
       ['formatValue', conjunto.codigoDoFormato && expr(conjunto.codigoDoFormato)],
       ['subtitle', valores.colorScale === 'sequential' ? expr('`Total: ${formatarMoeda(total, { compacto: true })}`') : undefined],
@@ -728,7 +735,8 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'featureNameKey', tipo: 'string', padrao: "'properties.name'", descricao: 'Caminho do nome no balão, na tabela e na descrição.' },
     { nome: 'featureLabelKey', tipo: 'string', padrao: 'o identificador', descricao: 'Caminho do texto curto do rótulo: a sigla na UF, o nome na região.' },
     { nome: 'data', tipo: 'readonly ChartMapRegionDatum[]', padrao: '[]', descricao: <><code>{'{ id, value?, category? }'}</code>. Feição sem item, ou com valor inválido, fica sem dado.</> },
-    { nome: 'colorScale', tipo: 'ChartMapColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code> (com <code>log</code> e <code>domain</code>), <code>diverging</code> (com <code>center</code>), <code>classes</code> por <code>method</code> e <code>count</code> ou por <code>thresholds</code> e <code>labels</code>, <code>categorical</code> com <code>categories</code>, ou <code>none</code>.</> },
+    { nome: 'colorScale', tipo: 'ChartMapColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code> (com <code>log</code> e <code>domain</code>), <code>diverging</code> (com <code>center</code>), <code>classes</code> por <code>method</code> e <code>count</code> ou por <code>thresholds</code> e <code>labels</code>, <code>categorical</code> com <code>categories</code>, ou <code>none</code>. Na sequencial e nas classes, <code>color</code> troca o azul por outra cor, de que saem os tons: mais escuro é maior.</> },
+    { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta das categorias e dos marcadores.' },
     { nome: 'valueLabel', tipo: 'string', padrao: "'Valor'", descricao: 'Nome da medida no balão, na legenda e na tabela.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato na legenda, nos rótulos, na descrição e na tabela.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato só do balão.' },

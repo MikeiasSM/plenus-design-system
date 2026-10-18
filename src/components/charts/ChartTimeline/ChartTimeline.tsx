@@ -119,6 +119,8 @@ export interface ChartTimelineSummary {
 }
 
 export interface ChartTimelineProps {
+  /** Cor de tema que abre a paleta das séries sem cor nem intenção, como nos demais gráficos. */
+  accent?: string;
   axisPosition?: 'top' | 'bottom';
   /** Faixas globais, hachuradas em todas as linhas, como o adicional noturno ou o fim de semana. */
   bands?: readonly ChartTimelineBand[];
@@ -266,6 +268,7 @@ function hatch(color: string) {
  * medida a medida esta na visao em tabela.
  */
 export function ChartTimeline({
+  accent,
   axisPosition = 'top',
   bands,
   collapsedGroups,
@@ -332,7 +335,7 @@ export function ChartTimeline({
   const segmentNodes = useRef(new Map<number, SVGGElement>());
   const interactive = onSegmentClick !== undefined;
 
-  const colors = useMemo(() => resolveSeriesColors(series), [series]);
+  const colors = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
   const colorByLabel = new Map<string, string>();
   series.forEach((entry, index) => {
     // Rotulo repetido e a mesma serie, como na legenda dos demais graficos: vale a primeira cor.

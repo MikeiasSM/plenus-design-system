@@ -83,6 +83,15 @@ describe('ChartTimeline', () => {
     expect(drawnSegments()).toHaveLength(4);
   });
 
+  it('abre a paleta com a cor de tema, sem repintar as séries que têm cor ou intenção', () => {
+    render(journey({ accent: '#6E2A92' }));
+    const fillOf = (series: string) =>
+      drawnSegments().find((segment) => segment.getAttribute('aria-label')?.includes(series))?.querySelector('path')?.getAttribute('fill');
+
+    expect(fillOf('Dentro da jornada')).toBe('#6E2A92');
+    expect(fillOf('Antes da jornada')).toBe('var(--pl-chart-warning)');
+  });
+
   it('com onSegmentClick vira grupo, e cada intervalo e um botao', () => {
     render(journey({ onSegmentClick: () => undefined }));
 

@@ -76,6 +76,8 @@ export interface ChartMapMarkerEvent {
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
 export interface ChartMapProps {
+  /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
+  accent?: string;
   colorScale?: ChartMapColorScale;
   data?: readonly ChartMapRegionDatum[];
   /** Series ocultas de inicio, no modo nao controlado: categorias e series de marcadores, pelo `id`. */
@@ -270,6 +272,7 @@ function layoutMap({ all, callouts, fixedHeight, font, labels, maxHeight, target
  * movel. A leitura completa, com busca, esta na visao em tabela.
  */
 export function ChartMap({
+  accent,
   colorScale = DEFAULT_SCALE,
   data = [],
   defaultHiddenSeries,
@@ -365,7 +368,7 @@ export function ChartMap({
         value: typeof value === 'number' && Number.isFinite(value) ? value : null,
       };
     });
-    const mapScale = buildMapScale(colorScale, read.flatMap((item) => item.value ?? []), formatValue);
+    const mapScale = buildMapScale(colorScale, read.flatMap((item) => item.value ?? []), formatValue, accent);
     const withValue = read.filter((item) => item.value !== null).sort((a, b) => b.value! - a.value!);
     const rankOf = new Map(withValue.map((item, index) => [item.region.id, index + 1]));
     const all = read.map((item): RegionEntry => {
@@ -399,7 +402,7 @@ export function ChartMap({
       ranked: all.filter((entry) => entry.rank !== undefined).sort((a, b) => a.rank! - b.rank!),
       scale: mapScale,
     };
-  }, [colorScale, data, formatValue, inPlay, isLegendHidden, noDataLabel]);
+  }, [accent, colorScale, data, formatValue, inPlay, isLegendHidden, noDataLabel]);
   const total = sum(ranked, (entry) => entry.value!);
   const noDataCount = colorScale.type === 'none' ? 0 : entries.filter((entry) => entry.fill === undefined).length;
 
@@ -419,7 +422,7 @@ export function ChartMap({
   }, [orphanKey, title]);
 
   const markerSeries = markers ?? [];
-  const markerColors = useMemo(() => resolveSeriesColors(markerSeries), [markerSeries]);
+  const markerColors = useMemo(() => resolveSeriesColors(markerSeries, { accent }), [accent, markerSeries]);
   const validPoints = new Set(
     markerSeries.flatMap((series) =>
       series.points.filter(
