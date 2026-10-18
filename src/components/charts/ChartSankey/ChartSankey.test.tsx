@@ -85,8 +85,8 @@ describe('ChartSankey', () => {
     expect(espessuras[0]).toBeGreaterThan(espessuras[1]);
   });
 
-  it('descreve a ligacao pela origem, pelo destino e pelo valor, tambem sob o ponteiro', () => {
-    render(<ChartSankey flows={caixa} formatValue={(valor) => `R$ ${valor}`} title="Fluxo" />);
+  it('descreve a ligacao pela origem, pelo destino e pelo valor, e sem balao tambem sob o ponteiro', () => {
+    render(<ChartSankey flows={caixa} formatValue={(valor) => `R$ ${valor}`} showTooltip={false} title="Fluxo" />);
 
     expect(ligacoes()[0].getAttribute('aria-label')).toBe('Receita → Custos: R$ 600');
     expect(ligacoes()[0].querySelector('title')?.textContent).toBe('Receita → Custos: R$ 600');
@@ -262,5 +262,18 @@ describe('ChartSankey', () => {
 
     aviso.mockRestore();
     expect(chaveRepetida).toBe(false);
+  });
+
+  it('mostra no balao o fluxo da ligacao e a parte dela na saida da origem', () => {
+    render(<ChartSankey flows={caixa} formatValue={(valor) => `R$ ${valor}`} title="Fluxo" />);
+
+    fireEvent.pointerMove(ligacoes()[0], { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(ligacoes()[0]);
+
+    const balao = document.querySelector('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('Receita → Custos');
+    expect(balao).toHaveTextContent('R$ 600');
+    expect(balao).toHaveTextContent('60%');
+    expect(ligacoes()[0].querySelector('title')).toBeNull();
   });
 });

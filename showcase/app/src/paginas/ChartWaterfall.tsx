@@ -9,7 +9,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+import { formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 
 
 function resultadoDoExercicio(resultado: number, deducoesComoAlerta: boolean): ChartWaterfallStep[] {
@@ -50,6 +50,8 @@ const playground = definirPlayground({
     xAxis: 'visible',
     yAxis: 'visible',
     yAxisRight: 'hidden',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -59,11 +61,14 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'xAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxisRight', opcoes: VISIBILIDADES },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
       <ChartWaterfall
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         onHoverStep={(indice) => registrar(`onHoverStep: ${indice}`)}
         showDataLabels={valores.showDataLabels as MarkVisibility}
         steps={resultadoDoExercicio(valores.resultado, valores.deducoesComoAlerta)}
@@ -92,7 +97,8 @@ const playground = definirPlayground({
       ['xAxis', valores.xAxis, 'visible'],
       ['yAxis', valores.yAxis, 'visible'],
       ['yAxisRight', valores.yAxisRight, 'hidden'],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['onHoverStep', expr('setPasso')],
     ]),
   verificar: (valores) => {

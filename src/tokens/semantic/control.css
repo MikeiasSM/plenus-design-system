@@ -1,0 +1,6 @@
+/* Altura dos campos de formulario: os do sistema e os que quem implementa monta pelo `Field`.
+   O medio e tambem a altura do `Button` medio, para os dois alinharem numa barra. */
+:root {
+  --pl-control-height-sm: 32px;
+  --pl-control-height-md: 42px;
+}

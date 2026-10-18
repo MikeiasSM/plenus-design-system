@@ -8,7 +8,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { OPCOES_DE_ACCENT, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 
 const RESULTADO: ChartSankeyFlow[] = [
   { source: 'Receita bruta', target: 'Deduções', value: 420000 },
@@ -70,6 +70,8 @@ const playground = definirPlayground({
     nodeWidth: 12,
     nodePadding: 12,
     accent: 'nenhuma',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -82,6 +84,8 @@ const playground = definirPlayground({
     { tipo: 'numero', nome: 'nodeWidth', min: 2, max: 32 },
     { tipo: 'numero', nome: 'nodePadding', min: 0, max: 40 },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores) => (
     <div style={{ width: '100%' }}>
@@ -90,7 +94,8 @@ const playground = definirPlayground({
         flowColor={valores.flowColor as ChartSankeyFlowColor}
         flowValuePosition={valores.flowValuePosition as ChartSankeyFlowValuePosition}
         flows={FLUXOS[valores.flows as keyof typeof FLUXOS]}
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         height={valores.flows === 'fluxoDoResultado' ? 320 : 420}
         nodeAlign={valores.nodeAlign as ChartSankeyAlign}
         nodePadding={valores.nodePadding}
@@ -114,7 +119,8 @@ const playground = definirPlayground({
       ['nodePadding', valores.nodePadding, 12],
       ['height', valores.flows === 'fluxoDoResultado' ? 320 : 420, 320],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [

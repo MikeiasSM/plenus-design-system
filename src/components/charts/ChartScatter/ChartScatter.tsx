@@ -50,7 +50,13 @@ export interface ChartScatterProps {
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   series: readonly ChartScatterSeries[];
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
+  showTooltip?: boolean;
   title: string;
+  /** Nome de cada medida no balao. */
+  xLabel?: string;
+  yLabel?: string;
+  zLabel?: string;
   xAxis?: AxisVisibility;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
@@ -83,21 +89,31 @@ export function ChartScatter({
   legendAlign,
   onHiddenSeriesChange,
   series,
+  showTooltip = true,
   title,
+  xLabel = 'X',
+  yLabel = 'Y',
+  zLabel = 'Tamanho',
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
 }: ChartScatterProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
+    defaultHiddenSeries,
+    hiddenSeries,
+    labels: series.map((serie) => serie.label),
+    onHiddenSeriesChange,
+  });
   const [guia, setGuia] = useState<Guia | null>(null);
+  const [emFoco, setEmFoco] = useState<{ ponto: number; serie: number } | null>(null);
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
-  const naEscala = useMemo(() => seriesInScale(series, isHidden), [isHidden, series]);
+  const naEscala = useMemo(() => seriesInScale(series, isOutOfScale), [isOutOfScale, series]);
 
   const zeroEmX = includeZero === true || includeZero === 'x';
   const zeroEmY = includeZero === true || includeZero === 'y';
@@ -171,6 +187,23 @@ export function ChartScatter({
     return z === undefined ? `${inicio}: ${posicao}` : `${inicio}: ${posicao} (${formatZ(z)})`;
   }
 
+  const serieEmFoco = emFoco ? series[emFoco.serie] : undefined;
+  const pontoEmFoco = emFoco ? serieEmFoco?.points[emFoco.ponto] : undefined;
+
+  function linhasDoBalao() {
+    if (!emFoco || !serieEmFoco || !pontoEmFoco) {
+      return [];
+    }
+
+    const z = zValido(pontoEmFoco);
+    const linhas = [
+      { color: cores[emFoco.serie], format: formatX, label: xLabel, values: [pontoEmFoco.x] },
+      { format: formatY, label: yLabel, values: [pontoEmFoco.y] },
+    ];
+
+    return z === undefined ? linhas : [...linhas, { format: formatZ, label: zLabel, values: [z] }];
+  }
+
   return (
     <CartesianFrame
       axisReveal={axisReveal}
@@ -194,6 +227,17 @@ export function ChartScatter({
       onToggleSeries={toggle}
       plot={plot}
       title={title}
+      tooltip={
+        showTooltip
+          ? {
+              computed: 'none',
+              rows: linhasDoBalao(),
+              // Com nome no ponto, ele e o titulo e a serie vira subtitulo.
+              subtitle: pontoEmFoco?.label ? serieEmFoco?.label : undefined,
+              title: pontoEmFoco?.label ?? serieEmFoco?.label,
+            }
+          : undefined
+      }
       width={width}
       xAxis={{ hideLine: true, labelRotation: rotation, ticks: ticksX, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: ticksY, visibility: yAxis }}
@@ -229,11 +273,17 @@ export function ChartScatter({
                 cy={y}
                 fill={cores[indiceSerie]}
                 key={indice}
-                onMouseEnter={() => setGuia({ x, y })}
-                onMouseLeave={() => setGuia(null)}
+                onMouseEnter={() => {
+                  setGuia({ x, y });
+                  setEmFoco({ ponto: indice, serie: indiceSerie });
+                }}
+                onMouseLeave={() => {
+                  setGuia(null);
+                  setEmFoco(null);
+                }}
                 r={z === undefined ? RAIO_SEM_Z : escalaRaio(z)}
               >
-                <title>{descrever(serie, ponto)}</title>
+                {!showTooltip && <title>{descrever(serie, ponto)}</title>}
               </circle>
             );
           })}

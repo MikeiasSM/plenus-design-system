@@ -79,7 +79,7 @@ export type { SkipLinkProps } from './components/navigation/SkipLink';
 export { Steps } from './components/navigation/Steps';
 export type { StepItem, StepsProps } from './components/navigation/Steps';
 export { Accordion } from './components/data-display/Accordion';
-export type { AccordionProps, AccordionItem, AccordionIconPosition } from './components/data-display/Accordion';
+export type { AccordionHeadingLevel, AccordionProps, AccordionItem, AccordionIconPosition } from './components/data-display/Accordion';
 export { Select } from './components/forms/Select';
 export type { SelectProps, SelectOption, SelectSize } from './components/forms/Select';
 export { ComboBox } from './components/forms/ComboBox';
@@ -91,7 +91,7 @@ export type {
   ComboBoxSize,
 } from './components/forms/ComboBox';
 export { Menu } from './components/overlays/Menu';
-export type { MenuProps, MenuItem } from './components/overlays/Menu';
+export type { MenuItem, MenuProps, MenuSection } from './components/overlays/Menu';
 export { Tooltip } from './components/overlays/Tooltip';
 export type { TooltipProps, TooltipPlacement } from './components/overlays/Tooltip';
 export { Dialog } from './components/overlays/Dialog';

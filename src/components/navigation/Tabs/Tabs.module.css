@@ -86,6 +86,22 @@
   color: var(--pl-color-on-primary-container);
 }
 
+.fitted .tab {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* O painel fica com o que sobra da altura e rola sozinho; a lista de abas continua no lugar. */
+.fillHeight {
+  min-height: 0;
+}
+
+.fillHeight .panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .panel:focus-visible {
   outline: 2px solid var(--pl-color-primary);
   outline-offset: 2px;

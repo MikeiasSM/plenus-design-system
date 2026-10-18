@@ -111,7 +111,12 @@ export function ChartLine({
 }: ChartLineProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
+    defaultHiddenSeries,
+    hiddenSeries,
+    labels: series.map((serie) => serie.label),
+    onHiddenSeriesChange,
+  });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
@@ -120,14 +125,14 @@ export function ChartLine({
   const dominio = useMemo(
     () =>
       mergeDomains(
-        seriesInScale(series, isHidden).map((serie) =>
+        seriesInScale(series, isOutOfScale).map((serie) =>
           domainOf(
             serie.values.filter((valor) => valor !== null),
             { includeZero },
           ),
         ),
       ),
-    [includeZero, isHidden, series],
+    [includeZero, isOutOfScale, series],
   );
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);

@@ -6,6 +6,7 @@ import {
   useState,
   type KeyboardEvent,
   type ReactElement,
+  type ReactNode,
   type Ref,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -13,20 +14,36 @@ import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
+import { IconCheck } from '../../icons';
 import styles from './Menu.module.css';
 
 export interface MenuItem {
+  /** Com ele, o item e de marcar e mostra o visto quando marcado, como o tipo atual de um bloco. */
+  checked?: boolean;
   disabled?: boolean;
+  /** Icone decorativo antes do texto. */
+  icon?: ReactNode;
   key: string;
   label: string;
   onSelect?: () => void;
+  /** Atalho escrito a direita, como `Ctrl+D`, e anunciado em `aria-keyshortcuts`. */
+  shortcut?: string;
+  /** `danger` para a acao que destroi, como remover. */
+  tone?: 'danger';
+}
+
+/** Grupo de itens, com titulo opcional; entre dois grupos, o menu desenha o divisor. */
+export interface MenuSection {
+  items: readonly MenuItem[];
+  key: string;
+  title?: string;
 }
 
 export interface MenuProps {
   children: ReactElement<Record<string, unknown>>;
   /** Abertura inicial no modo nao controlado. */
   defaultOpen?: boolean;
-  items: readonly MenuItem[];
+  items: readonly (MenuItem | MenuSection)[];
   label: string;
   /** Avisa cada abertura e fechamento pedidos pelo gatilho, pelo teclado, pela opcao ou pelo clique fora. */
   onOpenChange?: (open: boolean) => void;
@@ -108,14 +125,18 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
   );
 }
 
+function ehSecao(entrada: MenuItem | MenuSection): entrada is MenuSection {
+  return 'items' in entrada;
+}
+
 function MenuList({
-  items,
+  items: entradas,
   label,
   onClose,
   openedWith,
   triggerRef,
 }: {
-  items: readonly MenuItem[];
+  items: readonly (MenuItem | MenuSection)[];
   label: string;
   onClose: (devolverFoco: boolean) => void;
   openedWith: 'first' | 'last';
@@ -123,6 +144,8 @@ function MenuList({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
+  // O teclado percorre os itens de todos os grupos como uma lista so.
+  const items = useMemo(() => entradas.flatMap((entrada) => (ehSecao(entrada) ? entrada.items : [entrada])), [entradas]);
   const collection = useMemo<SelectionItem[]>(
     () => items.map((item) => ({ key: item.key, disabled: item.disabled, textValue: item.label })),
     [items],
@@ -180,6 +203,44 @@ function MenuList({
     item.onSelect?.();
   }
 
+  function renderizarItem(item: MenuItem) {
+    const marcavel = item.checked !== undefined;
+
+    return (
+      <button
+        aria-checked={marcavel ? item.checked : undefined}
+        aria-keyshortcuts={item.shortcut}
+        className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
+        disabled={item.disabled}
+        key={item.key}
+        onClick={() => acionar(item)}
+        ref={(node) => {
+          if (node) {
+            nodes.current.set(item.key, node);
+          } else {
+            nodes.current.delete(item.key);
+          }
+        }}
+        role={marcavel ? 'menuitemcheckbox' : 'menuitem'}
+        tabIndex={focusedKey === item.key ? 0 : -1}
+        type="button"
+      >
+        {item.icon && (
+          <span aria-hidden="true" className={styles.icon}>
+            {item.icon}
+          </span>
+        )}
+        <span className={styles.label}>{item.label}</span>
+        {item.shortcut && (
+          <kbd aria-hidden="true" className={styles.shortcut}>
+            {item.shortcut}
+          </kbd>
+        )}
+        {marcavel && <IconCheck className={[styles.check, item.checked && styles.checkOn].filter(Boolean).join(' ')} />}
+      </button>
+    );
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
@@ -215,26 +276,23 @@ function MenuList({
         overlayProps.onKeyDown?.(event);
       }}
     >
-      {items.map((item) => (
-        <button
-          key={item.key}
-          ref={(node) => {
-            if (node) {
-              nodes.current.set(item.key, node);
-            } else {
-              nodes.current.delete(item.key);
-            }
-          }}
-          className={styles.item}
-          type="button"
-          role="menuitem"
-          disabled={item.disabled}
-          tabIndex={focusedKey === item.key ? 0 : -1}
-          onClick={() => acionar(item)}
-        >
-          {item.label}
-        </button>
-      ))}
+      {entradas.map((entrada, indice) => {
+        if (!ehSecao(entrada)) {
+          return renderizarItem(entrada);
+        }
+
+        return (
+          <div aria-label={entrada.title} className={styles.section} key={entrada.key} role="group">
+            {indice > 0 && <div aria-hidden="true" className={styles.divider} />}
+            {entrada.title && (
+              <div aria-hidden="true" className={styles.sectionTitle}>
+                {entrada.title}
+              </div>
+            )}
+            {entrada.items.map(renderizarItem)}
+          </div>
+        );
+      })}
     </div>
   );
 }

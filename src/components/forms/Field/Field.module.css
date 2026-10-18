@@ -39,7 +39,7 @@
 /* Visual dos campos do sistema, entregue ao controle pela fiacao: quem monta o proprio campo o recebe pronto. */
 .control {
   width: 100%;
-  min-height: 40px;
+  min-height: var(--pl-control-height-md);
   padding: 10px 12px;
   border: 1px solid var(--pl-color-border-strong);
   border-radius: var(--pl-radius-md);
@@ -75,7 +75,7 @@
 }
 
 .sm {
-  min-height: 32px;
+  min-height: var(--pl-control-height-sm);
   padding: 7px 10px;
   font-size: var(--pl-type-caption-size);
 }

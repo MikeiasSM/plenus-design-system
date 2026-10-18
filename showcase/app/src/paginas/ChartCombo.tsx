@@ -14,7 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 
 const META = [50000, 50000, 50000, 70000, 70000, 70000];
 
@@ -32,6 +32,8 @@ const playground = definirPlayground({
     yAxis: 'visible',
     yAxisRight: 'automático',
     accent: 'nenhuma',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -44,6 +46,8 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'yAxis', opcoes: ['visible', 'onHover', 'hidden'] },
     { tipo: 'opcoes', nome: 'yAxisRight', opcoes: ['automático', 'visible', 'onHover', 'hidden'] },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
@@ -52,7 +56,8 @@ const playground = definirPlayground({
         categories={MESES}
         curve={valores.curve as ChartCurve}
         formatRightValue={formatarConversao}
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
         onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
@@ -87,7 +92,8 @@ const playground = definirPlayground({
       ['yAxis', valores.yAxis, 'visible'],
       ['yAxisRight', valores.yAxisRight, 'automático'],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['formatRightValue', expr('formatarConversao')],
       ['onHoverCategory', expr('setFaixa')],
     ]),

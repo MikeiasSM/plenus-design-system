@@ -103,4 +103,17 @@ describe('ChartRadial', () => {
     expect(pistas()).toHaveLength(20);
     expect(degenerados).toHaveLength(0);
   });
+
+  it('mostra no balao o valor, a meta e quanto dela foi atingido', () => {
+    render(<ChartRadial title="Metas" tracks={metas} />);
+    const anel = pistas()[0].parentElement!;
+
+    fireEvent.pointerMove(anel, { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(anel);
+
+    const balao = document.querySelector('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('Vendas');
+    expect(balao).toHaveTextContent('Meta');
+    expect(balao).toHaveTextContent('72%');
+  });
 });

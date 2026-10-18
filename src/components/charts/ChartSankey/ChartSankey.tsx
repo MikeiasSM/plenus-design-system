@@ -12,7 +12,7 @@ import {
   type ChartHeight,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import styles from './ChartSankey.module.css';
 
 export interface ChartSankeyNode extends SeriesAppearance {
@@ -46,6 +46,8 @@ export interface ChartSankeyProps {
   flowColor?: ChartSankeyFlowColor;
   flowValuePosition?: ChartSankeyFlowValuePosition;
   flows: readonly ChartSankeyFlow[];
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   nodeAlign?: ChartSankeyAlign;
@@ -56,6 +58,8 @@ export interface ChartSankeyProps {
   nodeWidth?: number;
   showFlowValues?: boolean;
   showLabels?: boolean;
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
+  showTooltip?: boolean;
   title: string;
 }
 
@@ -150,6 +154,7 @@ export function ChartSankey({
   flowColor = 'source',
   flowValuePosition = 'end',
   flows,
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 320,
   nodeAlign = 'justify',
@@ -158,6 +163,7 @@ export function ChartSankey({
   nodeWidth = 12,
   showFlowValues = false,
   showLabels = true,
+  showTooltip = true,
   title,
 }: ChartSankeyProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
@@ -251,6 +257,28 @@ export function ChartSankey({
     return `${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`;
   }
 
+  /** O fluxo e a parte dele na saida da origem, que e o que a largura da faixa compara. */
+  function linhasDoBalao() {
+    const ligacao = emFoco === null ? undefined : grafo.links[emFoco];
+
+    if (!ligacao) {
+      return [];
+    }
+
+    const saida = grafo.links
+      .filter((outra) => outra.source.index === ligacao.source.index)
+      .reduce((soma, outra) => soma + outra.value, 0);
+
+    return [
+      { color: corDa(ligacao), label: 'Fluxo', values: [ligacao.value] },
+      {
+        format: (fracao: number) => formatarPercentual(fracao),
+        label: `Da saída de ${ligacao.source.label}`,
+        values: [saida > 0 ? ligacao.value / saida : 0],
+      },
+    ];
+  }
+
   function classeDa(indice: number) {
     if (emFoco === null) {
       return styles.link;
@@ -341,6 +369,16 @@ export function ChartSankey({
       height={alturaDoDesenho}
       legendPosition="none"
       title={title}
+      tooltip={
+        showTooltip
+          ? {
+              columns: [{ format: formatTooltipValue ?? formatValue }],
+              computed: 'none',
+              rows: linhasDoBalao(),
+              title: emFoco === null ? undefined : `${grafo.links[emFoco]?.source.label} → ${grafo.links[emFoco]?.target.label}`,
+            }
+          : undefined
+      }
       width={width}
     >
       <g className={styles.links}>
@@ -355,7 +393,7 @@ export function ChartSankey({
             stroke={corDa(ligacao)}
             strokeWidth={Math.max(ligacao.width, 1)}
           >
-            <title>{descreverLigacao(ligacao)}</title>
+            {!showTooltip && <title>{descreverLigacao(ligacao)}</title>}
           </path>
         ))}
       </g>

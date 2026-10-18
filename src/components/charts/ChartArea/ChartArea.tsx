@@ -125,7 +125,12 @@ export function ChartArea({
   const gradienteId = useId();
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
+    defaultHiddenSeries,
+    hiddenSeries,
+    labels: series.map((serie) => serie.label),
+    onHiddenSeriesChange,
+  });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
@@ -137,7 +142,7 @@ export function ChartArea({
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
   const dominio = useMemo(() => {
-    const naEscala = seriesInScale(series, isHidden);
+    const naEscala = seriesInScale(series, isOutOfScale);
     const visivel = (ordem: number) => (naEscala.includes(series[ordem]) ? 1 : 0);
 
     if (stacked) {
@@ -151,7 +156,7 @@ export function ChartArea({
     return mergeDomains(
       naEscala.map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero })),
     );
-  }, [categories, includeZero, isHidden, series, stacked]);
+  }, [categories, includeZero, isOutOfScale, series, stacked]);
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
 

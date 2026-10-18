@@ -82,6 +82,11 @@
 }
 
 
+/* Fechado em `until-found`, o painel nao some da caixa: so o conteudo deixa de ser desenhado. Sem o respiro, nao sobra nada. */
+.panel[hidden] {
+  padding: 0;
+}
+
 .panel {
   padding: 0 0 var(--pl-space-3);
   background: var(--pl-color-surface);

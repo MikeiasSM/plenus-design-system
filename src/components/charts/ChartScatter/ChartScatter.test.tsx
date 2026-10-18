@@ -95,4 +95,18 @@ describe('ChartScatter', () => {
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('mostra no balao o ponto sob o ponteiro, com as medidas nomeadas', () => {
+    render(<ChartScatter series={carteira} title="Carteira" xLabel="Prazo" yLabel="Margem" zLabel="Receita" />);
+
+    fireEvent.pointerMove(bolhas()[1], { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(bolhas()[1]);
+
+    const balao = document.querySelector('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('Belo');
+    expect(balao).toHaveTextContent('Clientes');
+    expect(balao).toHaveTextContent('Prazo');
+    expect(balao).toHaveTextContent('Receita');
+    expect(bolhas()[1].querySelector('title')).toBeNull();
+  });
 });

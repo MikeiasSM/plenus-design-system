@@ -10,7 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 
 const CUSTOS = [
   { label: 'Devoluções de vendas', value: 400000 },
@@ -28,6 +28,8 @@ const playground = definirPlayground({
     legend: 'right',
     legendAlign: 'center',
     accent: 'nenhuma',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -39,13 +41,16 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'legend', opcoes: ['top', 'right', 'bottom', 'left', 'none'] },
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
       <ChartDonut
         accent={accentDa(valores.accent)}
         centerLabel={valores.centerLabel}
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
         onHiddenSlicesChange={(ocultas) => registrar(`onHiddenSlicesChange: [${ocultas.join(', ')}]`)}
@@ -71,7 +76,8 @@ const playground = definirPlayground({
       ['legend', valores.legend, 'right'],
       ['legendAlign', valores.legendAlign, 'center'],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['onHoverSlice', expr('setFatia')],
     ]),
   verificar: (valores) => {

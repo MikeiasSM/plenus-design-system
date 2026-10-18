@@ -230,6 +230,20 @@ describe('ChartBar', () => {
     expect(rotulosDoEixo()).toContain('300 k');
   });
 
+  it('desligando a ultima serie pela legenda, a escala fica a da serie que saiu', () => {
+    render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    const legenda = (rotulo: string) => screen.getByRole('button', { name: rotulo });
+    const escala = () => rotulosDoEixo().filter((rotulo) => /\d/.test(rotulo ?? '') && !rotulo?.includes('/'));
+
+    fireEvent.click(legenda('Receita'));
+    fireEvent.click(legenda('Deduções'));
+    const daUltima = escala();
+
+    fireEvent.click(legenda('Despesas'));
+
+    expect(escala()).toEqual(daUltima);
+  });
+
   it('mostra o eixo da direita somente quando pedido', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
     const comUmEixo = rotulosDoEixo().length;

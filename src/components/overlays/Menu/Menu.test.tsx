@@ -173,4 +173,33 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(busca).toHaveFocus();
   });
+
+  it('agrupa itens em secoes com titulo, e o teclado percorre todos como uma lista so', () => {
+    render(
+      <Menu
+        items={[
+          { key: 'transformar', title: 'Transformar em', items: [
+            { checked: true, key: 'paragrafo', label: 'Parágrafo' },
+            { checked: false, key: 'titulo', label: 'Título' },
+          ] },
+          { key: 'opcoes', items: [
+            { key: 'duplicar', label: 'Duplicar', shortcut: 'Ctrl+D' },
+            { key: 'remover', label: 'Remover bloco', tone: 'danger' },
+          ] },
+        ]}
+        label="Bloco"
+      >
+        <Button>Bloco</Button>
+      </Menu>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Bloco' }));
+
+    expect(screen.getByRole('group', { name: 'Transformar em' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Parágrafo' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Título' })).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('menuitem', { name: 'Duplicar' })).toHaveAttribute('aria-keyshortcuts', 'Ctrl+D');
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'End' });
+    expect(screen.getByRole('menuitem', { name: 'Remover bloco' })).toHaveFocus();
+  });
 });

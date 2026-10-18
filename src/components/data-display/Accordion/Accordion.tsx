@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -13,11 +14,14 @@ import { IconChevronDown } from '../../icons';
 export interface AccordionItem {
   content: ReactNode;
   disabled?: boolean;
+  /** Id do cabecalho, para um link de ancora apontar a secao. */
+  id?: string;
   key: string;
   label: string;
 }
 
 export type AccordionIconPosition = 'left' | 'right';
+export type AccordionHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   defaultExpandedKeys?: readonly string[];
@@ -29,6 +33,37 @@ export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   iconPosition?: AccordionIconPosition;
   /** Divisor entre as secoes, com a folga que ele exige. */
   divider?: boolean;
+  /** Nivel do titulo de cada secao, na hierarquia da pagina em que o acordeao esta. */
+  headingLevel?: AccordionHeadingLevel;
+}
+
+interface PainelProps extends ComponentPropsWithRef<'div'> {
+  aberto: boolean;
+  /** Sem ele, o painel fechado fica fora da busca da pagina. */
+  abrir?: () => void;
+}
+
+/**
+ * Painel fechado com `hidden="until-found"`: o Ctrl+F do navegador acha o texto dele, e o evento `beforematch`
+ * abre a secao. O atributo entra depois da montagem, porque o React so conhece o `hidden` booleano.
+ */
+function Painel({ aberto, abrir, ...props }: PainelProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const painel = ref.current;
+
+    if (!painel || aberto || !abrir) {
+      return;
+    }
+
+    painel.setAttribute('hidden', 'until-found');
+    painel.addEventListener('beforematch', abrir);
+
+    return () => painel.removeEventListener('beforematch', abrir);
+  }, [aberto, abrir]);
+
+  return <div {...props} hidden={!aberto} ref={ref} />;
 }
 
 export function Accordion({
@@ -40,9 +75,11 @@ export function Accordion({
   onExpandedChange,
   iconPosition = 'right',
   divider = true,
+  headingLevel = 3,
   ...props
 }: AccordionProps) {
   const baseId = `accordion-${useId()}`;
+  const Titulo = `h${headingLevel}` as const;
   const nodes = useRef(new Map<string, HTMLElement>());
   const collection = useMemo<SelectionItem[]>(
     () => items.map((item) => ({ key: item.key, disabled: item.disabled, textValue: item.label })),
@@ -88,7 +125,7 @@ export function Accordion({
 
         return (
           <div className={styles.item} key={item.key}>
-            <h3 className={styles.heading}>
+            <Titulo className={styles.heading} id={item.id}>
               <button
                 ref={(node) => {
                   if (node) {
@@ -109,16 +146,17 @@ export function Accordion({
                 <span className={styles.label}>{item.label}</span>
                 <IconChevronDown className={[styles.icon, aberto && styles.iconOpen].filter(Boolean).join(' ')} size={16} />
               </button>
-            </h3>
-            <div
+            </Titulo>
+            <Painel
+              aberto={aberto}
+              abrir={item.disabled ? undefined : () => selection.select(item.key)}
+              aria-labelledby={`${baseId}-${item.key}`}
               className={styles.panel}
               id={`${baseId}-${item.key}-panel`}
               role="region"
-              aria-labelledby={`${baseId}-${item.key}`}
-              hidden={!aberto}
             >
               {item.content}
-            </div>
+            </Painel>
           </div>
         );
       })}

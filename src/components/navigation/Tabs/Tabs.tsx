@@ -21,6 +21,10 @@ export type TabsOrientation = 'horizontal' | 'vertical';
 
 export interface TabsProps extends ComponentPropsWithRef<'div'> {
   defaultSelectedKey?: string;
+  /** O painel ocupa a altura que sobra nas abas e rola por dentro. As abas precisam de altura, dada por quem as usa. */
+  fillHeight?: boolean;
+  /** As abas dividem a largura em partes iguais, em vez de ficar do tamanho do rotulo. */
+  fitted?: boolean;
   items: readonly TabItem[];
   label: string;
   onSelectionChange?: (key: string) => void;
@@ -31,6 +35,8 @@ export interface TabsProps extends ComponentPropsWithRef<'div'> {
 export function Tabs({
   className,
   defaultSelectedKey,
+  fillHeight = false,
+  fitted = false,
   items,
   label,
   onSelectionChange,
@@ -97,7 +103,12 @@ export function Tabs({
   }
 
   return (
-    <div {...props} className={[styles.tabs, styles[orientation], className].filter(Boolean).join(' ')}>
+    <div
+      {...props}
+      className={[styles.tabs, styles[orientation], fitted && styles.fitted, fillHeight && styles.fillHeight, className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <div
         className={styles.list}
         role="tablist"

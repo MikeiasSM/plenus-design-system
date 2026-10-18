@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ChartFrame,
   VOLTA,
@@ -15,7 +15,7 @@ import {
   type ChartLegendPosition,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import styles from './ChartRadial.module.css';
 
 export interface ChartRadialTrack extends SeriesAppearance {
@@ -33,6 +33,8 @@ export interface ChartRadialProps {
   emptyMessage?: string;
   /** Angulo final da volta, em graus a partir do topo. Meia-lua usa 180. */
   endAngle?: number;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   hiddenTracks?: readonly string[];
@@ -41,6 +43,8 @@ export interface ChartRadialProps {
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
+  showTooltip?: boolean;
   startAngle?: number;
   /** Raio das pontas do arco. Sem valor, o token de raio pequeno. */
   trackRadius?: number;
@@ -66,6 +70,7 @@ export function ChartRadial({
   defaultHiddenTracks,
   emptyMessage = 'Sem dados no período',
   endAngle = 360,
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 260,
   hiddenTracks,
@@ -73,6 +78,7 @@ export function ChartRadial({
   legendAlign,
   onHiddenTracksChange,
   showCenter = true,
+  showTooltip = true,
   startAngle = 0,
   thickness = 16,
   trackRadius,
@@ -103,6 +109,23 @@ export function ChartRadial({
   // As fracoes caminham ate o alvo, entao o arco cresce ao aparecer e recolhe
   // quando o anel e desligado.
   const animadas = useTweenedNumbers(fracoes, { from: fracoes.map(() => 0) });
+
+  const [emFoco, setEmFoco] = useState<number | null>(null);
+
+  function linhasDoBalao() {
+    const anel = emFoco === null ? undefined : tracks[emFoco];
+
+    if (!anel || !valido(anel) || emFoco === null) {
+      return [];
+    }
+
+    const meta = anel.max ?? maiorValor;
+    const linhas = [{ color: cores[emFoco], label: 'Valor', values: [anel.value] }, { label: 'Meta', values: [meta] }];
+
+    return meta > 0
+      ? [...linhas, { format: (fracao: number) => formatarPercentual(fracao), label: 'Atingido', values: [anel.value / meta] }]
+      : linhas;
+  }
 
   const comeco = emRadianos(startAngle);
   const volta = Math.min(emRadianos(endAngle) - comeco, VOLTA);
@@ -148,6 +171,16 @@ export function ChartRadial({
       onToggleSeries={toggle}
       swatch="dot"
       title={title}
+      tooltip={
+        showTooltip
+          ? {
+              columns: [{ format: formatTooltipValue ?? formatValue }],
+              computed: 'none',
+              rows: linhasDoBalao(),
+              title: emFoco === null ? undefined : tracks[emFoco]?.label,
+            }
+          : undefined
+      }
       width={width}
     >
       {tracks.map((anel, indice) => {
@@ -158,7 +191,7 @@ export function ChartRadial({
         const descricao = valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label;
 
         return (
-          <g key={indice}>
+          <g key={indice} onMouseEnter={() => setEmFoco(indice)} onMouseLeave={() => setEmFoco(null)}>
             <path
               aria-label={descricao}
               className={styles.track}
@@ -170,7 +203,7 @@ export function ChartRadial({
                 startAngle: comeco,
               })}
             >
-              <title>{descricao}</title>
+              {!showTooltip && <title>{descricao}</title>}
             </path>
             {fracao > 0 && (
               <path

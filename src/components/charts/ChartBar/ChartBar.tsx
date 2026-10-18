@@ -95,7 +95,12 @@ export function ChartBar({
 }: ChartBarProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
+    defaultHiddenSeries,
+    hiddenSeries,
+    labels: series.map((serie) => serie.label),
+    onHiddenSeriesChange,
+  });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
   const vertical = orientation === 'vertical';
@@ -110,7 +115,7 @@ export function ChartBar({
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
   const dominio = useMemo(() => {
-    const naEscala = seriesInScale(series, isHidden);
+    const naEscala = seriesInScale(series, isOutOfScale);
 
     if (stacked) {
       return domainOf(
@@ -119,7 +124,7 @@ export function ChartBar({
     }
 
     return mergeDomains(naEscala.map((serie) => domainOf([...serie.values])));
-  }, [categories, isHidden, series, stacked]);
+  }, [categories, isOutOfScale, series, stacked]);
 
   // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.
   const posicaoDaLegenda = !vertical && (legend === 'left' || legend === 'right') ? 'bottom' : legend;

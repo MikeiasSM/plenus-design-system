@@ -103,4 +103,31 @@ describe('Accordion', () => {
     fireEvent.click(gatilho);
     expect(gatilho).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('usa o nivel de titulo pedido e o id de ancora no cabecalho', () => {
+    render(<Accordion headingLevel={2} items={[{ ...secoes[0], id: 'regras-de-envio' }, secoes[1]]} />);
+
+    const titulo = screen.getByRole('heading', { level: 2, name: 'Envio' });
+    expect(titulo).toHaveAttribute('id', 'regras-de-envio');
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(2);
+  });
+
+  it('deixa o painel fechado na busca da pagina, e abre a secao quando a busca o encontra', () => {
+    render(<Accordion items={secoes} />);
+    const painel = document.getElementById(screen.getByRole('button', { name: 'Pagamento' }).getAttribute('aria-controls')!)!;
+
+    expect(painel).toHaveAttribute('hidden', 'until-found');
+
+    fireEvent(painel, new Event('beforematch'));
+
+    expect(screen.getByRole('button', { name: 'Pagamento' })).toHaveAttribute('aria-expanded', 'true');
+    expect(painel).not.toHaveAttribute('hidden');
+  });
+
+  it('a secao desabilitada fica fora da busca da pagina', () => {
+    render(<Accordion items={secoes} />);
+    const painel = document.getElementById(screen.getByRole('button', { name: 'Antigo' }).getAttribute('aria-controls')!)!;
+
+    expect(painel).toHaveAttribute('hidden', '');
+  });
 });

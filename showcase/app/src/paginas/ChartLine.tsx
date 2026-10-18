@@ -13,7 +13,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 
 const TICKET_MEDIO = [1240, 1310, 1180, 1520, 1460, 1590];
 const TEMPERATURA = [24.1, 25.3, 23.8, 22.6, 23.4, 26.2];
@@ -39,6 +39,8 @@ const playground = definirPlayground({
     xAxis: 'visible',
     yAxis: 'visible',
     accent: 'nenhuma',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -53,6 +55,8 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'xAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
@@ -60,7 +64,8 @@ const playground = definirPlayground({
         accent={accentDa(valores.accent)}
         categories={MESES}
         curve={valores.curve as ChartCurve}
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         includeZero={valores.includeZero}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
@@ -92,7 +97,8 @@ const playground = definirPlayground({
       ['xAxis', valores.xAxis, 'visible'],
       ['yAxis', valores.yAxis, 'visible'],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['onHoverCategory', expr('setPonto')],
     ]),
   verificar: (valores) => {

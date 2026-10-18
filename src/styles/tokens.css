@@ -20,6 +20,7 @@
 @import '../tokens/semantic/typography.css';
 @import '../tokens/semantic/chart.css';
 @import '../tokens/semantic/code.css';
+@import '../tokens/semantic/control.css';
 
 :root {
 

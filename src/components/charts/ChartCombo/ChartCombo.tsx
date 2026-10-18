@@ -149,7 +149,12 @@ export function ChartCombo({
 }: ChartComboProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
+    defaultHiddenSeries,
+    hiddenSeries,
+    labels: series.map((serie) => serie.label),
+    onHiddenSeriesChange,
+  });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
 
@@ -166,12 +171,12 @@ export function ChartCombo({
 
   // Com serie a direita, o zero fica na mesma altura nos dois eixos: as barras crescem da mesma base.
   const [dominioEsquerda, dominioDireita] = useMemo(() => {
-    const esquerda = arredondado(dominioDoEixo(series, 'left', isHidden));
+    const esquerda = arredondado(dominioDoEixo(series, 'left', isOutOfScale));
 
     return temEixoDireito
-      ? alignZeros(esquerda, arredondado(dominioDoEixo(series, 'right', isHidden)))
+      ? alignZeros(esquerda, arredondado(dominioDoEixo(series, 'right', isOutOfScale)))
       : [esquerda, esquerda];
-  }, [isHidden, series, temEixoDireito]);
+  }, [isOutOfScale, series, temEixoDireito]);
 
   // Uma segunda escala sem eixo para le-la e o duplo eixo que engana. Havendo
   // serie a direita, o eixo aparece sem ninguem pedir.
