@@ -1,0 +1,39 @@
+/* O desenho é o das `Tabs`: a mesma faixa, com links no lugar dos botões. */
+.tabsNav {
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  gap: var(--pl-space-1);
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--pl-color-border);
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex: none;
+}
+
+.link {
+  composes: tab from '../Tabs/Tabs.module.css';
+  text-decoration: none;
+}
+
+.current {
+  composes: active from '../Tabs/Tabs.module.css';
+  border-bottom-color: var(--pl-color-primary);
+}
+
+.fitted .item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.fitted .link {
+  flex: 1;
+  text-align: center;
+}

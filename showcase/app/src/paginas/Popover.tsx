@@ -181,6 +181,12 @@ function Modos() {
         O painel é <code>role=&quot;dialog&quot;</code> e se nomeia com <code>aria-label</code> ou <code>aria-labelledby</code>,
         que vêm das propriedades nativas.
       </dd>
+      <dt>Painel sob um campo</dt>
+      <dd>
+        Não é Popover: o foco sairia do campo em que se digita. Resultados e sugestões são o <code>ComboBox</code>, com a
+        opção composta e os grupos. Fora de uma lista, o painel fica no fluxo, logo abaixo do campo, apontado por{' '}
+        <code>aria-controls</code>, e o que precisa ser ouvido sai por <code>role=&quot;status&quot;</code>.
+      </dd>
       <dt>Dentro de um Dialog</dt>
       <dd>Declara-se camada de cima e continua visível ao leitor de tela.</dd>
       <dt>Servidor</dt>

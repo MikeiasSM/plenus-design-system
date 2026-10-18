@@ -4,11 +4,16 @@ import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { IconClose } from '../../icons';
-import type { DialogProps } from './Dialog';
+import type { DialogBaseProps, DialogRole } from './Dialog';
 import styles from './Dialog.module.css';
 
-export interface DialogFrameProps extends Omit<DialogProps, 'size'> {
+export interface DialogFrameProps extends DialogBaseProps {
+  'aria-label'?: string;
+  description?: string;
+  icon?: ReactNode;
+  role?: DialogRole;
   surfaceClassName: string;
+  title?: string;
   underlayClassName: string;
 }
 
@@ -67,25 +72,27 @@ function DialogFrameContent({
           className={[surfaceClassName, className].filter(Boolean).join(' ')}
           role={role}
           aria-modal="true"
-          aria-labelledby={titleId}
+          aria-labelledby={title ? titleId : undefined}
           aria-describedby={description ? descriptionId : undefined}
         >
-          <header className={[styles.header, children && styles.headerDivided].filter(Boolean).join(' ')}>
-            {icon && (
-              <span aria-hidden="true" className={styles.icon}>
-                {icon}
-              </span>
-            )}
-            <div className={styles.heading}>
-              <h2 className={styles.title} id={titleId}>{title}</h2>
-              {description && <p className={styles.description} id={descriptionId}>{description}</p>}
-            </div>
-            {dismissable && (
-              <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
-                <IconClose size={20} />
-              </button>
-            )}
-          </header>
+          {title && (
+            <header className={[styles.header, children && styles.headerDivided].filter(Boolean).join(' ')}>
+              {icon && (
+                <span aria-hidden="true" className={styles.icon}>
+                  {icon}
+                </span>
+              )}
+              <div className={styles.heading}>
+                <h2 className={styles.title} id={titleId}>{title}</h2>
+                {description && <p className={styles.description} id={descriptionId}>{description}</p>}
+              </div>
+              {dismissable && (
+                <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
+                  <IconClose size={20} />
+                </button>
+              )}
+            </header>
+          )}
           {children && <div className={styles.body}>{children}</div>}
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>

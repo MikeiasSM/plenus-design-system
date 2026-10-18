@@ -127,3 +127,47 @@
 .empty {
   padding: var(--pl-space-5) var(--pl-space-3);
 }
+
+.optionIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--pl-color-text-tertiary);
+  font-size: 1rem;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.optionDescription {
+  overflow: hidden;
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* O grupo segue o desenho das seções do `Menu`: título discreto e divisa entre um grupo e o seguinte. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+}
+
+.section + .section {
+  padding-top: var(--pl-space-1);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.sectionTitle {
+  padding: var(--pl-space-1) var(--pl-space-3) 0;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

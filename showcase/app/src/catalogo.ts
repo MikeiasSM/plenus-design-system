@@ -114,6 +114,7 @@ export const familias: readonly Familia[] = [
       componente('Breadcrumb', 'Caminho percorrido até a posição atual.'),
       componente('Pagination', 'Navegação entre páginas de um conjunto.'),
       componente('Tabs', 'Alternância entre painéis de conteúdo.'),
+      componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
       componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
     ],

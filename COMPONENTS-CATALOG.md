@@ -85,6 +85,8 @@ Os três nomes são próximos e a fronteira é o papel na interface, não a impl
 
 Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel, não pela capacidade isolada.
 
+A opção do `ComboBox` pode ser composta: uma segunda linha, como a coleção de um documento, um ícone decorativo à frente e o grupo a que pertence. O nome da opção continua sendo o rótulo, e a segunda linha é a descrição dela. As opções seguidas de um mesmo grupo aparecem juntas, sob o título, e as setas passam de um grupo ao outro sem parar nele. É o campo de busca que mostra resultados ricos, como o do acervo de documentos.
+
 ## 5. Dados
 
 | Componente | Papel | Situação |
@@ -188,10 +190,13 @@ A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica jun
 | `Breadcrumb` | Caminho percorrido até a posição atual. | Disponível |
 | `Pagination` | Navegação entre páginas de um conjunto. | Disponível |
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
+| `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
 | `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
+
+`Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido como no `Breadcrumb`.
 
 ## 9. Sobreposições
 
@@ -204,6 +209,10 @@ A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica jun
 | `Menu` | Lista de ações disparada por um gatilho. | Disponível |
 
 `Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é composição de layout da aplicação.
+
+O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
+
+O `Popover` é um diálogo não modal: ao abrir, o foco entra nele, e volta ao gatilho ao fechar. Ele não serve de painel para um campo em que a pessoa continua digitando, porque o foco precisa ficar no campo. Esse caso tem dois caminhos. Quando o painel é uma lista de resultados ou sugestões, é o `ComboBox`, com a opção composta e os grupos: o foco fica no campo, e as setas percorrem as opções por `aria-activedescendant`. Quando não é uma lista, como uma prévia ou uma dica sobre o que se digita, o painel fica no fluxo da página, logo abaixo do campo, e não sobreposto: o campo o aponta por `aria-controls`, e a mudança que precisa ser ouvida sai numa região viva, com `role="status"`.
 
 ## 10. Ícones
 

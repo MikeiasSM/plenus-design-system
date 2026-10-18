@@ -1,11 +1,11 @@
-import type { DialogProps } from '../Dialog';
+import type { DialogBaseProps, DialogTitledProps } from '../Dialog/Dialog';
 import { DialogFrame } from '../Dialog/DialogFrame';
 import styles from './Drawer.module.css';
 
 export type DrawerSide = 'left' | 'right';
 export type DrawerSize = 'sm' | 'md' | 'lg';
 
-export interface DrawerProps extends Omit<DialogProps, 'icon' | 'role' | 'size'> {
+export interface DrawerProps extends DialogBaseProps, Omit<DialogTitledProps, 'icon'> {
   side?: DrawerSide;
   size?: DrawerSize;
 }

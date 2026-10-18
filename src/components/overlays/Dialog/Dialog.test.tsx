@@ -126,4 +126,40 @@ describe('Dialog', () => {
 
     expect(document.querySelector('header')).toHaveClass(styles.headerDivided!);
   });
+
+  describe('sem titulo', () => {
+    it('toma o nome do aria-label e nao desenha cabecalho nem o botao de fechar', () => {
+      render(
+        <Dialog aria-label="Buscar no sistema" onClose={() => {}} open>
+          <input aria-label="Termo" />
+        </Dialog>,
+      );
+
+      expect(screen.getByRole('dialog', { name: 'Buscar no sistema' })).not.toHaveAttribute('aria-labelledby');
+      expect(document.querySelector('header')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument();
+    });
+
+    it('fecha pelo Esc, que passa a ser a saida pelo teclado', () => {
+      const onClose = vi.fn();
+      render(
+        <Dialog aria-label="Buscar no sistema" onClose={onClose} open>
+          <input aria-label="Termo" />
+        </Dialog>,
+      );
+
+      fireEvent.keyDown(screen.getByRole('textbox', { name: 'Termo' }), { key: 'Escape' });
+
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('exige o aria-label quando falta o titulo', () => {
+      // @ts-expect-error sem titulo, o nome acessivel e obrigatorio
+      const semNome = <Dialog onClose={() => {}} open />;
+      // @ts-expect-error titulo e aria-label nao se somam: o nome e um so
+      const comOsDois = <Dialog aria-label="Busca" onClose={() => {}} open title="Busca" />;
+
+      expect([semNome, comOsDois]).toHaveLength(2);
+    });
+  });
 });

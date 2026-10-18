@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ComboBox, Select, type ComboBoxSize } from '@plenustech/design-system';
+import { ComboBox, IconFile, IconStructure, Select, type ComboBoxSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { ESTADOS } from '../dadosDeExemplo';
+import { ESTADOS, RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
 
 const REGISTROS = Array.from({ length: 10000 }, (_, indice) => ({
   value: String(indice),
@@ -234,6 +234,24 @@ export const pagina: Pagina = {
         "<ComboBox\n  label=\"Estados atendidos\"\n  placeholder=\"Digite para filtrar\"\n  selectionMode=\"multiple\"\n  options={estados}\n  defaultValue={['sp', 'rj', 'mg']}\n  onValueChange={setEstados}\n/>",
     },
     {
+      titulo: 'Opção composta e grupos',
+      descricao: 'Segunda linha, ícone e grupo. O nome da opção é o rótulo; a segunda linha é a descrição dela.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ComboBox
+            label="Buscar no acervo"
+            options={RESULTADOS_DO_ACERVO.map((resultado) => ({
+              ...resultado,
+              icon: resultado.group === 'Coleções' ? <IconStructure /> : <IconFile />,
+            }))}
+            placeholder="Digite para filtrar"
+          />
+        </div>
+      ),
+      codigo:
+        "<ComboBox\n  label=\"Buscar no acervo\"\n  options={[\n    { value: 'guia', label: 'Guia de integração', description: 'Faturamento', group: 'Documentos', icon: <IconFile /> },\n    { value: 'faturamento', label: 'Faturamento', description: '12 documentos', group: 'Coleções', icon: <IconStructure /> },\n  ]}\n/>",
+    },
+    {
       titulo: 'Busca no servidor',
       descricao: 'Dez mil registros: o produto consulta a cada termo e o campo anuncia a espera.',
       Previa: BuscaNoServidor,
@@ -316,7 +334,10 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'options', tipo: '{ label: string; value: string; disabled?: boolean }[]', descricao: 'As opções da lista.' },
+    { nome: 'options', tipo: 'readonly ComboBoxOption[]', descricao: <>Cada opção: <code>label</code>, <code>value</code>, <code>disabled</code>, <code>description</code>, <code>icon</code> e <code>group</code>.</> },
+    { nome: 'options[].description', tipo: 'string', descricao: 'Segunda linha, ligada como descrição acessível. A busca local procura só no rótulo.' },
+    { nome: 'options[].icon', tipo: 'ReactNode', descricao: 'Decorativo, à frente do rótulo.' },
+    { nome: 'options[].group', tipo: 'string', descricao: 'Título do grupo. As opções seguidas de um mesmo grupo aparecem juntas, sob ele.' },
     { nome: 'selectionMode', tipo: "'single' | 'multiple'", padrao: "'single'", descricao: 'Escolha simples ou múltipla.' },
     { nome: 'value', tipo: 'string | string[]', descricao: 'Chave ou chaves escolhidas, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string | string[]', descricao: 'Escolha inicial, no modo não controlado.' },

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import {
   Button,
+  ComboBox,
   Dialog,
+  IconFile,
   IconExclamationTriangle,
   IconInfoCircle,
   IconPlusCircle,
@@ -11,6 +13,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
+import { RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const LARGURAS: Record<DialogSize, string> = { sm: '400px', md: '560px', lg: '760px' };
@@ -198,6 +201,20 @@ function SessaoExpirada() {
   );
 }
 
+function PaletaDeBusca() {
+  const [aberta, setAberta] = useState(false);
+  const resultados = RESULTADOS_DO_ACERVO.map((resultado) => ({ ...resultado, icon: <IconFile /> }));
+
+  return (
+    <>
+      <Button onClick={() => setAberta(true)} variant="secondary">Buscar (Ctrl K)</Button>
+      <Dialog aria-label="Buscar no acervo" onClose={() => setAberta(false)} open={aberta}>
+        <ComboBox aria-label="Termo da busca" options={resultados} placeholder="Buscar documentos e coleções" />
+      </Dialog>
+    </>
+  );
+}
+
 function EdicaoLongaEmDialog() {
   const [aberto, setAberto] = useState(false);
 
@@ -254,6 +271,11 @@ function Modos() {
       <dd>Tira o botão de fechar e ignora Escape e clique fora. A saída precisa estar no rodapé.</dd>
       <dt><code>role=&quot;alertdialog&quot;</code></dt>
       <dd>Para a confirmação que interrompe e exige resposta, como a de uma ação destrutiva.</dd>
+      <dt>Sem título</dt>
+      <dd>
+        Sem <code>title</code>, o <code>aria-label</code> passa a ser obrigatório e dá o nome; sem cabeçalho, não há botão
+        de fechar, e a saída é o Esc ou o clique fora. Serve à paleta de busca, em que o campo é o próprio conteúdo.
+      </dd>
       <dt><code>icon</code></dt>
       <dd>Opcional, ao lado do título e fora da leitura: quem fala é o título.</dd>
       <dt>Sem corpo</dt>
@@ -292,6 +314,13 @@ export const pagina: Pagina = {
       codigo:
         '<Dialog\n  open={expirada}\n  onClose={entrar}\n  dismissable={false}\n  size="sm"\n  title="Sessão expirada"\n  description="Por segurança, entre de novo para continuar."\n  footer={<Button onClick={entrar}>Entrar novamente</Button>}\n/>',
     },
+    {
+      titulo: 'Paleta de busca, sem título',
+      descricao: 'Sem title, o nome vem do aria-label e o diálogo não tem cabeçalho. Esc fecha.',
+      Previa: PaletaDeBusca,
+      codigo:
+        '<Dialog aria-label="Buscar no acervo" open={aberta} onClose={fechar}>\n  <ComboBox\n    aria-label="Termo da busca"\n    placeholder="Buscar documentos e coleções"\n    options={resultados}\n  />\n</Dialog>',
+    },
   ],
   faca: {
     Previa: ConfirmacaoDeExclusao,
@@ -322,6 +351,7 @@ export const pagina: Pagina = {
     { garantia: 'Foco devolvido', como: 'Ao fechar pelo Escape, o foco volta ao gatilho.', teste: 'Dialog.test.tsx' },
     { garantia: 'Não dispensável', como: 'Sem botão de fechar, e o Escape é ignorado.', teste: 'Dialog.test.tsx' },
     { garantia: 'Papel de alerta', como: <><code>role=&quot;alertdialog&quot;</code> na confirmação que exige resposta.</>, teste: 'Dialog.test.tsx' },
+    { garantia: 'Sem título, com nome', como: <>Sem <code>title</code>, o tipo exige <code>aria-label</code>, e o Esc fecha.</>, teste: 'Dialog.test.tsx' },
     { garantia: 'Ícone fora da leitura', como: <>O ícone fica sob <code>aria-hidden</code>; o nome continua o título.</>, teste: 'Dialog.test.tsx' },
     {
       garantia: 'Overlays dentro dele',
@@ -334,7 +364,8 @@ export const pagina: Pagina = {
   api: [
     { nome: 'open', tipo: 'boolean', descricao: 'Obrigatória. Abre o diálogo.' },
     { nome: 'onClose', tipo: '() => void', descricao: 'Obrigatória. Pedido de fechar: Escape, clique fora ou botão de fechar.' },
-    { nome: 'title', tipo: 'string', descricao: 'Obrigatória. Título visível e nome acessível.' },
+    { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível. Sem ele, não há cabeçalho.' },
+    { nome: 'aria-label', tipo: 'string', descricao: 'Obrigatória sem title, e recusada com ele: o nome do diálogo sem cabeçalho.' },
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Corpo, que rola quando passa da altura.' },
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },

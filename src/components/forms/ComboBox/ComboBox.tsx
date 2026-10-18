@@ -7,6 +7,7 @@ import {
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
 } from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
@@ -22,7 +23,13 @@ import styles from './ComboBox.module.css';
 export type ComboBoxSize = 'sm' | 'md';
 
 export interface ComboBoxOption {
+  /** Segunda linha da opção, como a coleção de um documento. A busca local procura só no rótulo. */
+  description?: string;
   disabled?: boolean;
+  /** Título do grupo. As opções seguidas de um mesmo grupo aparecem juntas, sob ele. */
+  group?: string;
+  /** Decorativo, à frente do rótulo. */
+  icon?: ReactNode;
   label: string;
   value: string;
 }

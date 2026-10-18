@@ -15,7 +15,7 @@ import { useListing, type Listing, type ListingItem, type ListingSelectionMode }
 import styles from './List.module.css';
 
 export type ListSelectionMode = ListingSelectionMode;
-export type ListItem = ListingItem;
+export type ListItem = Omit<ListingItem, 'description' | 'group' | 'icon'>;
 
 export interface ListProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue'> {
   children: ReactNode;

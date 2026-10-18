@@ -116,6 +116,8 @@ export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';
 export type { TabsProps, TabItem, TabsOrientation } from './components/navigation/Tabs';
+export { TabsNav } from './components/navigation/TabsNav';
+export type { TabsNavItem, TabsNavProps } from './components/navigation/TabsNav';
 export { Breadcrumb } from './components/navigation/Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/navigation/Breadcrumb';
 export { Pagination } from './components/navigation/Pagination';

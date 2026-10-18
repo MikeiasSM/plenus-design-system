@@ -214,4 +214,53 @@ describe('ComboBox', () => {
       expect(new FormData(screen.getByRole<HTMLFormElement>('form')).getAll('cidades')).toEqual(['rj', 'mg']);
     });
   });
+
+  describe('opção composta e grupos', () => {
+    const documentos: ComboBoxOption[] = [
+      { value: 'guia', label: 'Guia de integração', description: 'Faturamento', group: 'Documentos', icon: <svg data-testid="icone" /> },
+      { value: 'manual', label: 'Manual do operador', description: 'Atendimento', group: 'Documentos' },
+      { value: 'faturamento', label: 'Faturamento', group: 'Coleções' },
+    ];
+
+    function abrir() {
+      render(<ComboBox label="Buscar no acervo" options={documentos} />);
+      const campo = screen.getByRole('combobox', { name: 'Buscar no acervo' });
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      return campo;
+    }
+
+    it('nomeia a opção pelo rótulo e descreve pela segunda linha', () => {
+      abrir();
+      const opcao = screen.getByRole('option', { name: 'Guia de integração' });
+
+      expect(opcao).toHaveAccessibleDescription('Faturamento');
+      expect(screen.getByTestId('icone').parentElement).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('agrupa as opções seguidas sob o título do grupo', () => {
+      abrir();
+      const grupo = screen.getByRole('group', { name: 'Documentos' });
+
+      expect(grupo).toContainElement(screen.getByRole('option', { name: 'Manual do operador' }));
+      expect(screen.getByRole('group', { name: 'Coleções' })).toContainElement(
+        screen.getByRole('option', { name: 'Faturamento' }),
+      );
+    });
+
+    it('o título do grupo fica fora da navegação: as setas passam de um grupo ao outro', () => {
+      const campo = abrir();
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+
+      expect(campo).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Faturamento' }).id);
+    });
+
+    it('a busca esconde o grupo que ficou sem opção', () => {
+      const campo = abrir();
+      fireEvent.change(campo, { target: { value: 'manual' } });
+
+      expect(screen.getByRole('group', { name: 'Documentos' })).toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'Coleções' })).not.toBeInTheDocument();
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import { Fragment, useCallback, useEffect, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import type { Listing, ListingItem } from './useListing';
 import { useVirtualWindow } from './useVirtualWindow';
 import styles from './List.module.css';
@@ -22,6 +22,28 @@ export interface ListingOptionsProps {
 
 export function optionId(baseId: string, index: number) {
   return baseId + '-option-' + index;
+}
+
+interface RenderedOption {
+  item: ListingItem;
+  position: number;
+}
+
+/** Junta as opções seguidas de um mesmo grupo; as sem grupo ficam soltas, cada uma no seu bloco. */
+function groupConsecutive(options: readonly RenderedOption[]) {
+  const blocks: { group?: string; options: RenderedOption[] }[] = [];
+
+  for (const option of options) {
+    const last = blocks.at(-1);
+
+    if (option.item.group !== undefined && last?.group === option.item.group) {
+      last.options.push(option);
+    } else {
+      blocks.push({ group: option.item.group, options: [option] });
+    }
+  }
+
+  return blocks;
 }
 
 export function ListingOptions({
@@ -108,17 +130,20 @@ export function ListingOptions({
 
   function renderOption(item: ListingItem, position: number, measured: boolean) {
     const selected = isSelected(item.value);
+    const id = position > 0 ? optionId(baseId, position - 1) : `${baseId}-selected-${item.value}`;
 
     return (
       <div
+        aria-describedby={item.description ? `${id}-description` : undefined}
         aria-disabled={item.disabled || undefined}
+        aria-labelledby={item.description ? `${id}-label` : undefined}
         aria-posinset={position > 0 ? position : undefined}
         aria-selected={selected}
         aria-setsize={position > 0 ? visible.length : undefined}
         className={[styles.option, focusedKey === item.value && styles.focused, item.disabled && styles.disabled]
           .filter(Boolean)
           .join(' ')}
-        id={position > 0 ? optionId(baseId, position - 1) : undefined}
+        id={id}
         key={item.value}
         onClick={(event) => choose(item, event.shiftKey)}
         // So segura o foco onde ele esta quando quem o tem e o campo de busca; a lista que detem o foco o recebe.
@@ -129,10 +154,26 @@ export function ListingOptions({
         {selectionMode === 'multiple' && (
           <span aria-hidden="true" className={[styles.box, selected && styles.checked].filter(Boolean).join(' ')} />
         )}
-        {item.label}
+        {item.icon && (
+          <span aria-hidden="true" className={styles.optionIcon}>
+            {item.icon}
+          </span>
+        )}
+        {item.description ? (
+          <span className={styles.optionText}>
+            <span id={`${id}-label`}>{item.label}</span>
+            <span className={styles.optionDescription} id={`${id}-description`}>
+              {item.description}
+            </span>
+          </span>
+        ) : (
+          item.label
+        )}
       </div>
     );
   }
+
+  const blocks = groupConsecutive(rendered.map((item, index) => ({ item, position: start + index + 1 })));
 
   return (
     <div
@@ -156,7 +197,25 @@ export function ListingOptions({
         </div>
       )}
       <div aria-hidden="true" className={styles.spacer} style={{ height: padding.before }} />
-      {rendered.map((item, index) => renderOption(item, start + index + 1, index === 0))}
+      {blocks.map(({ group, options }) => {
+        const [first] = options;
+        const rendering = options.map(({ item, position }) => renderOption(item, position, position === start + 1));
+
+        if (group === undefined) {
+          return <Fragment key={first.item.value}>{rendering}</Fragment>;
+        }
+
+        const titleId = `${baseId}-group-${first.position}`;
+
+        return (
+          <div aria-labelledby={titleId} className={styles.section} key={`${group}:${first.item.value}`} role="group">
+            <div className={styles.sectionTitle} id={titleId} role="presentation">
+              {group}
+            </div>
+            {rendering}
+          </div>
+        );
+      })}
       <div aria-hidden="true" className={styles.spacer} style={{ height: padding.after }} />
       {!loading && visible.length === 0 && empty}
     </div>

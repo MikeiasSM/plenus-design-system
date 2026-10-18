@@ -1,11 +1,17 @@
-import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useSelection, type SelectionItem, type SelectionStatus } from '../../../hooks/useSelection';
 import { containsTerm } from '../../../utils/textSearch';
 
 export type ListingSelectionMode = 'none' | 'single' | 'multiple';
 
 export interface ListingItem {
+  /** Segunda linha da opção, como a coleção de um documento. */
+  description?: string;
   disabled?: boolean;
+  /** Título do grupo. As opções seguidas de um mesmo grupo aparecem juntas, sob ele. */
+  group?: string;
+  /** Decorativo, à frente do rótulo: quem nomeia a opção é o rótulo. */
+  icon?: ReactNode;
   label: string;
   value: string;
 }
