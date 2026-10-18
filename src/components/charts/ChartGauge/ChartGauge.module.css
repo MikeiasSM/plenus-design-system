@@ -1,0 +1,190 @@
+.figure {
+  composes: figure from '../core/Chart.module.css';
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../core/Chart.module.css';
+}
+
+.body {
+  composes: body from '../core/Chart.module.css';
+}
+
+.bodyColumn {
+  composes: bodyColumn from '../core/Chart.module.css';
+}
+
+.bodyRow {
+  composes: bodyRow from '../core/Chart.module.css';
+}
+
+.plot {
+  composes: plot from '../core/Chart.module.css';
+}
+
+.plotFill {
+  composes: plotFill from '../core/Chart.module.css';
+}
+
+.canvas {
+  composes: canvas from '../core/Chart.module.css';
+}
+
+/* O trilho existe mesmo sem valor: a escala inteira continua legível. */
+.track {
+  fill: var(--pl-color-surface-muted);
+}
+
+.loading .track {
+  animation: gaugePulse 1.3s var(--pl-ease) infinite;
+}
+
+@keyframes gaugePulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.fill {
+  transition: fill var(--pl-speed-1) var(--pl-ease);
+}
+
+.segment {
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+/* A classe vence o atributo `opacity`, que guarda a atenuação em repouso. */
+.segmentDimmed {
+  opacity: 0.25;
+}
+
+.segmentHot {
+  opacity: 1;
+}
+
+.separator {
+  stroke: var(--pl-color-surface);
+  stroke-width: 2;
+}
+
+.tickMajor {
+  stroke: var(--pl-chart-axis);
+  stroke-width: 1.25;
+}
+
+.tickMinor {
+  stroke: var(--pl-chart-baseline);
+  stroke-width: 1;
+}
+
+.originMark {
+  stroke: var(--pl-color-text-secondary);
+  stroke-width: 1.5;
+}
+
+.scaleLabel,
+.segmentLabel,
+.targetLabel,
+.centerLine,
+.centerWarn {
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.scaleLabel {
+  fill: var(--pl-chart-axis);
+}
+
+.segmentLabel {
+  fill: var(--pl-chart-label);
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.segmentLabelOnHover {
+  opacity: 0;
+}
+
+.canvas:hover .segmentLabelOnHover {
+  opacity: 1;
+}
+
+/* O contorno na cor da superfície separa a meta do arco que passa por baixo dela. */
+.targetOutline {
+  stroke: var(--pl-color-surface);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.targetLine {
+  stroke: var(--pl-color-text);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.targetLabel {
+  fill: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.needle {
+  fill: var(--pl-color-text);
+}
+
+.pinDot {
+  fill: var(--pl-color-surface);
+}
+
+.center {
+  pointer-events: none;
+}
+
+.centerValue {
+  fill: var(--pl-color-text);
+  font-weight: var(--pl-type-display-large-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+.centerValueEmpty {
+  fill: var(--pl-color-text-tertiary);
+}
+
+.centerLine {
+  fill: var(--pl-color-text-secondary);
+}
+
+.centerWarn {
+  fill: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.warnGlyph {
+  fill: var(--pl-chart-warning);
+}
+
+.deltaNumber {
+  fill: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.deltaLabel {
+  fill: var(--pl-color-text-tertiary);
+}
+
+/* Transparente, e não `none`: sem pintura a área não recebe o ponteiro. */
+.hits {
+  fill: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading .track {
+    animation: none;
+  }
+
+  .fill,
+  .segment,
+  .segmentLabel {
+    transition: none;
+  }
+}

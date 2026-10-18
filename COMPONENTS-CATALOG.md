@@ -134,7 +134,7 @@ A `SortableList` existe para a ordem: as seções de um documento, as colunas de
 | `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
 | `ChartTimeline` | Intervalos de tempo dispostos em linhas, como a jornada de cada dia ou as tarefas de um projeto. | Disponível |
 | `ChartMap` | Regiões pintadas pelo valor e marcadores por coordenada, sobre a geometria que o produto fornece. | Disponível |
-| `ChartGauge` | Um valor numa escala com faixas de significado, como o atingimento de uma meta. | Previsto |
+| `ChartGauge` | Um valor numa escala com faixas de significado, como o atingimento de uma meta. | Disponível |
 | `ChartTooltip` | Leitura das medidas sob o ponteiro, em lista. | Disponível |
 
 `ChartCombo` desenha barras e linhas sobre o mesmo eixo de categorias, e é a escolha quando uma categoria carrega duas leituras de naturezas diferentes — o volume em barra, a taxa em linha. Com um único tipo de marca, `ChartBar` e `ChartLine` continuam sendo os componentes certos.
@@ -151,7 +151,7 @@ Cada marca carrega a própria descrição em `aria-label`. Com o balão desligad
 
 Pontos e rótulos de valor seguem a mesma visibilidade dos eixos, em `showDots` e `showDataLabels`: `visible`, `hidden` ou `onHover`. Em `onHover` aparecem só os da série sob o ponteiro — a da barra em que ele está, ou, na linha e na área, a série mais próxima dele —, para o desenho ficar limpo até alguém olhar uma série.
 
-A costura avisa o que está sob o ponteiro, na forma de cada família: a categoria nos cartesianos, a fatia no anel e o caminho até o nó nos hierárquicos — do grupo ao nó, cada nível com o valor somado. Em `ChartLine` e `ChartArea` não há barra para apontar: a área de desenho se divide em faixas invisíveis, cada uma do ponto até o meio do caminho para o vizinho, e vale o ponto mais próximo do ponteiro. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
+A costura avisa o que está sob o ponteiro, na forma de cada família: a categoria nos cartesianos, a fatia no anel e o caminho até o nó nos hierárquicos — do grupo ao nó, cada nível com o valor somado. Em `ChartLine` e `ChartArea` não há barra para apontar: a área de desenho se divide em faixas invisíveis, cada uma do ponto até o meio do caminho para o vizinho, e vale o ponto mais próximo do ponteiro. O desenho é `role="img"` nomeado pelo título — exceto o `ChartGauge`, que é um medidor, `role="meter"`, com o valor, a faixa e a meta no texto do valor —, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
 
 Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é o gráfico ou quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 

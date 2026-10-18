@@ -221,6 +221,20 @@ export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
 export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartGauge } from './components/charts/ChartGauge';
+export type {
+  ChartGaugeDelta,
+  ChartGaugeIndicator,
+  ChartGaugeProps,
+  ChartGaugeScaleLabels,
+  ChartGaugeSegment,
+  ChartGaugeSegmentStyle,
+  ChartGaugeSegmentUnit,
+  ChartGaugeSize,
+  ChartGaugeTarget,
+  ChartGaugeTicks,
+  ChartGaugeValueDisplay,
+} from './components/charts/ChartGauge';
 export { ChartMap } from './components/charts/ChartMap';
 export type {
   ChartMapCategory,
