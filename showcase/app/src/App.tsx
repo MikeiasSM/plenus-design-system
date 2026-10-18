@@ -793,6 +793,19 @@ export function App() {
             </div>
             <p className="doc-note">O foco permanece no campo e a opcao ativa e apontada por aria-activedescendant. Sem correspondencia, a lista informa o vazio em vez de sumir.</p>
           </div>
+          <div className="doc-subsection">
+            <h3>Escolha multipla</h3>
+            <div className="input-grid">
+              <ComboBox
+                label="Estados atendidos"
+                placeholder="Digite para filtrar"
+                selectionMode="multiple"
+                defaultValue={['sp', 'rj', 'mg']}
+                options={estadosBrasileiros}
+              />
+            </div>
+            <p className="doc-note">A lista continua aberta a cada escolha. O campo mostra as etiquetas enquanto cabem e, quando transbordam, a primeira e a contagem das demais; o leitor de tela ouve o total e os nomes. Backspace no campo vazio remove a ultima.</p>
+          </div>
         </ComponentDoc>
 
         <ComponentDoc

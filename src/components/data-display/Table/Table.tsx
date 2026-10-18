@@ -1,5 +1,6 @@
 import {
   createContext,
+  Fragment,
   type ComponentPropsWithRef,
   useCallback,
   useContext,
@@ -334,13 +335,13 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
   );
 }
 
-export interface TableBodyProps<T> {
+export interface TableBodyProps<T extends TableRowItem> {
   children: (item: T) => ReactNode;
   empty?: ReactNode;
   items: readonly T[];
 }
 
-function TableBody<T>({ children, empty, items }: TableBodyProps<T>) {
+function TableBody<T extends TableRowItem>({ children, empty, items }: TableBodyProps<T>) {
   const { countColumns, loading } = useTableContext('Table.Body');
 
   if (items.length === 0 && !loading && empty !== undefined) {
@@ -355,7 +356,13 @@ function TableBody<T>({ children, empty, items }: TableBodyProps<T>) {
     );
   }
 
-  return <tbody>{items.map(children)}</tbody>;
+  return (
+    <tbody>
+      {items.map((item) => (
+        <Fragment key={item.id}>{children(item)}</Fragment>
+      ))}
+    </tbody>
+  );
 }
 
 export interface TableRowProps {

@@ -8,10 +8,11 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from 'react';
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
-import { useListing } from '../../data-display/List/useListing';
+import { useListing, type ListingItem } from '../../data-display/List/useListing';
+import { Badge } from '../../data-display/Badge';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Field } from '../Field';
@@ -27,9 +28,8 @@ export interface ComboBoxOption {
 }
 
 /** As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma ao do sistema. */
-export interface ComboBoxProps
+interface ComboBoxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'defaultValue' | 'name' | 'onChange' | 'size' | 'type' | 'value'> {
-  defaultValue?: string;
   emptyMessage?: string;
   error?: string;
   hint?: string;
@@ -41,38 +41,78 @@ export interface ComboBoxProps
   name?: string;
   loading?: boolean;
   onSearch?: (term: string) => void;
-  onValueChange?: (value: string) => void;
   options: readonly ComboBoxOption[];
   size?: ComboBoxSize;
+}
+
+export interface ComboBoxSingleProps extends ComboBoxBaseProps {
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
+  selectionMode?: 'single';
   value?: string;
 }
 
-export function ComboBox({
-  'aria-describedby': ariaDescribedBy,
-  className,
-  defaultValue,
-  name,
-  disabled = false,
-  emptyMessage = 'Nenhum resultado',
-  error,
-  hint,
-  id: providedId,
-  label,
-  loading = false,
-  onBlur,
-  onClick,
-  onKeyDown,
-  onSearch,
-  onValueChange,
-  options,
-  placeholder,
-  ref,
-  required = false,
-  size = 'md',
-  value,
-  ...props
-}: ComboBoxProps) {
+export interface ComboBoxMultipleProps extends ComboBoxBaseProps {
+  defaultValue?: readonly string[];
+  onValueChange?: (values: readonly string[]) => void;
+  selectionMode: 'multiple';
+  value?: readonly string[];
+}
+
+export type ComboBoxProps = ComboBoxSingleProps | ComboBoxMultipleProps;
+
+function comoItens(valor: string | readonly string[] | undefined): ListingItem[] | undefined {
+  if (valor === undefined) {
+    return undefined;
+  }
+
+  return (typeof valor === 'string' ? [valor] : valor).map((value) => ({ value, label: '' }));
+}
+
+function relatarEscolha(props: ComboBoxProps, escolhidos: readonly ListingItem[]) {
+  if (props.selectionMode === 'multiple') {
+    props.onValueChange?.(escolhidos.map((item) => item.value));
+    return;
+  }
+
+  const [primeiro] = escolhidos;
+
+  if (primeiro) {
+    props.onValueChange?.(primeiro.value);
+  }
+}
+
+export function ComboBox(allProps: ComboBoxProps) {
+  const {
+    'aria-describedby': ariaDescribedBy,
+    className,
+    defaultValue,
+    name,
+    disabled = false,
+    emptyMessage = 'Nenhum resultado',
+    error,
+    hint,
+    id: providedId,
+    label,
+    loading = false,
+    onBlur,
+    onClick,
+    onKeyDown,
+    onSearch,
+    // Fora do resto, que vai ao campo: quem o chama e `relatarEscolha`, que conhece o modo.
+    onValueChange,
+    options,
+    placeholder,
+    ref,
+    required = false,
+    selectionMode = 'single',
+    size = 'md',
+    value,
+    ...props
+  } = allProps;
+  const multiple = selectionMode === 'multiple';
   const inputRef = useRef<HTMLInputElement>(null);
+  const controlRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const baseId = `combobox-${useId()}`;
   const [open, setOpen] = useState(false);
@@ -86,25 +126,22 @@ export function ComboBox({
   // O valor e a chave, e nao a opcao: com opcoes que chegam depois, filtrar por elas perdia a escolha.
   const listing = useListing({
     items: options,
-    selectionMode: 'single',
-    defaultValue: defaultValue === undefined ? undefined : [{ value: defaultValue, label: '' }],
-    value: value === undefined ? undefined : [{ value, label: '' }],
+    selectionMode,
+    defaultValue: comoItens(defaultValue),
+    value: comoItens(value),
     onSearch,
-    onSelectionChange: (chosen) => {
-      const [first] = chosen;
-
-      if (first) {
-        onValueChange?.(first.value);
-      }
-    },
+    onSelectionChange: (escolhidos) => relatarEscolha(allProps, escolhidos),
   });
 
-  const [chosen] = listing.selected;
-  const texto = filtering ? listing.term : chosen?.label ?? '';
+  const escolhidos = listing.selected;
+  const [chosen] = escolhidos;
+  // Na escolha multipla o campo so guarda a busca: quem mostra o que esta escolhido sao as etiquetas.
+  const texto = multiple || filtering ? listing.term : chosen?.label ?? '';
+  const ancoraRef = multiple ? controlRef : inputRef;
   const activeIndex = listing.visible.findIndex((option) => option.value === listing.focusedKey);
 
   const { overlayProps: positionProps } = useOverlayPosition({
-    targetRef: inputRef,
+    targetRef: ancoraRef,
     overlayRef: panelRef,
     placement: 'bottom start',
     offset: 6,
@@ -115,8 +152,32 @@ export function ComboBox({
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 280, 280);
 
   useLayoutEffect(() => {
-    setLargura(inputRef.current?.offsetWidth);
-  }, [open]);
+    setLargura(ancoraRef.current?.offsetWidth);
+  }, [ancoraRef, open]);
+
+  // Sem medida, como no servidor, o campo resume as escolhas; medido, mostra todas as etiquetas enquanto couberem.
+  const [resumir, setResumir] = useState(true);
+  const selecaoRef = useRef<HTMLSpanElement>(null);
+  const chaveDasEscolhas = escolhidos.map((item) => item.value).join('\n');
+
+  useLayoutEffect(() => {
+    const moldura = controlRef.current;
+
+    if (!moldura || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    // Desenhar todas e medir na mesma passada, antes da pintura, para o campo nao piscar ao redimensionar.
+    const observador = new ResizeObserver(() => {
+      flushSync(() => setResumir(false));
+      const selecao = selecaoRef.current;
+      flushSync(() => setResumir(Boolean(selecao && selecao.scrollWidth > selecao.clientWidth)));
+    });
+
+    observador.observe(moldura);
+
+    return () => observador.disconnect();
+  }, [chaveDasEscolhas, multiple]);
 
   function encerrarFiltro() {
     setFiltering(false);
@@ -149,8 +210,18 @@ export function ComboBox({
       if (open && alvo && !alvo.disabled) {
         event.preventDefault();
         listing.select(alvo);
-        fechar();
+
+        if (!multiple) {
+          fechar();
+        }
       }
+      return;
+    }
+
+    const ultimo = escolhidos[escolhidos.length - 1];
+
+    if (event.key === 'Backspace' && multiple && texto === '' && ultimo) {
+      listing.select(ultimo);
       return;
     }
 
@@ -159,24 +230,20 @@ export function ComboBox({
 
   return (
     <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
-      {({ id, describedBy, invalid }) => (
-        <>
-          <FormValue
-            disabled={disabled}
-            name={name}
-            onFocus={() => inputRef.current?.focus()}
-            required={required}
-            value={chosen?.value ?? ''}
-          />
+      {({ id, describedBy, invalid }) => {
+        const resumoId = id + '-selection';
+        const campo = (
           <input
             {...props}
             ref={mergedRef}
-            className={[styles.input, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            className={[multiple ? styles.search : styles.input, !multiple && styles[size], !multiple && error && styles.error, className]
+              .filter(Boolean)
+              .join(' ')}
             id={id}
             type="text"
             role="combobox"
             autoComplete="off"
-            aria-describedby={describedBy}
+            aria-describedby={[describedBy, multiple && escolhidos.length > 0 && resumoId].filter(Boolean).join(' ') || undefined}
             aria-invalid={invalid || undefined}
             aria-expanded={open}
             aria-autocomplete="list"
@@ -202,29 +269,79 @@ export function ComboBox({
             }}
             onKeyDown={handleKeyDown}
           />
-          {open &&
-            createPortal(
+        );
+
+        return (
+          <>
+            {(escolhidos.length > 0 ? escolhidos : [undefined]).map((item) => (
+              <FormValue
+                disabled={disabled}
+                key={item?.value ?? ''}
+                name={name}
+                onFocus={() => inputRef.current?.focus()}
+                required={required}
+                value={item?.value ?? ''}
+              />
+            ))}
+            {multiple ? (
               <div
-                ref={panelRef}
-                className={styles.panel}
-                // O clique no painel, fora de uma opcao, nao tira o foco do campo nem fecha a lista.
-                onMouseDown={(event) => event.preventDefault()}
-                style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
+                className={[styles.control, styles[size], error && styles.error].filter(Boolean).join(' ')}
+                // O clique na moldura, fora do campo, leva o foco a ele em vez de tira-lo.
+                onMouseDown={(event) => {
+                  if (event.target !== inputRef.current) {
+                    event.preventDefault();
+                    inputRef.current?.focus();
+                  }
+                }}
+                ref={controlRef}
               >
-                <ListingOptions
-                  baseId={baseId}
-                  empty={<p className={styles.empty}>{emptyMessage}</p>}
-                  holdsFocus={false}
-                  label={label ?? placeholder ?? 'Opcoes'}
-                  listing={listing}
-                  loading={loading}
-                  onSelect={fechar}
-                />
-              </div>,
-              document.body,
+                {chosen && (
+                  <>
+                    <span aria-hidden="true" className={styles.selection} ref={selecaoRef}>
+                      {(resumir ? [chosen] : escolhidos).map((item) => (
+                        <Badge key={item.value}>{item.label}</Badge>
+                      ))}
+                      {resumir && escolhidos.length > 1 && (
+                        <span className={styles.rest}>+{escolhidos.length - 1}</span>
+                      )}
+                    </span>
+                    <span className={styles.summary} id={resumoId}>
+                      {escolhidos.length === 1 ? '1 selecionado' : `${escolhidos.length} selecionados`}:{' '}
+                      {escolhidos.map((item) => item.label).join(', ')}
+                    </span>
+                  </>
+                )}
+                {campo}
+              </div>
+            ) : (
+              campo
             )}
-        </>
-      )}
+            {open &&
+              createPortal(
+                <div
+                  ref={panelRef}
+                  className={styles.panel}
+                  // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+                  data-react-aria-top-layer="true"
+                  // O clique no painel, fora de uma opcao, nao tira o foco do campo nem fecha a lista.
+                  onMouseDown={(event) => event.preventDefault()}
+                  style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
+                >
+                  <ListingOptions
+                    baseId={baseId}
+                    empty={<p className={styles.empty}>{emptyMessage}</p>}
+                    holdsFocus={false}
+                    label={label ?? placeholder ?? 'Opções'}
+                    listing={listing}
+                    loading={loading}
+                    onSelect={multiple ? undefined : fechar}
+                  />
+                </div>,
+                document.body,
+              )}
+          </>
+        );
+      }}
     </Field>
   );
 }

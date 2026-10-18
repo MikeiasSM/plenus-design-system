@@ -52,7 +52,7 @@ export function Field({
       {label && <Label htmlFor={id} required={required}>{label}</Label>}
       {children({ id, describedBy, invalid: Boolean(error) })}
       {(error || hint) && (
-        <span className={error ? styles.errorMessage : styles.hint} id={messageId}>
+        <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
           {error || hint}
         </span>
       )}

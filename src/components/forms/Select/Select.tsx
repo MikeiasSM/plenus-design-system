@@ -248,6 +248,8 @@ function SelectListbox({
       {...overlayProps}
       ref={panelRef}
       className={styles.panel}
+      // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+      data-react-aria-top-layer="true"
       style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
     >
       <ListingOptions

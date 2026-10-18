@@ -54,6 +54,69 @@
   min-height: 40px;
 }
 
+/* Escolha multipla: a moldura e que tem a aparencia do campo, e o campo de busca vai nu dentro dela. */
+.control {
+  composes: input;
+  gap: var(--pl-space-2);
+  padding-top: 0;
+  padding-bottom: 0;
+  cursor: text;
+}
+
+.control:focus-within {
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.control.error:focus-within {
+  border-color: var(--pl-color-danger);
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
+}
+
+.control:has(.search:disabled) {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.search {
+  flex: 1;
+  min-width: 4ch;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.selection {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-1);
+  max-width: 60%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.rest {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+}
+
+/* So para o leitor de tela: a contagem e os nomes que as etiquetas resumem. */
+.summary {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .panel {
   z-index: 95;
   display: flex;

@@ -262,4 +262,27 @@ describe('Table', () => {
 
     expect(screen.getByRole('checkbox', { name: 'Selecionar Bruno Dias' })).toBeChecked();
   });
+
+  it('chaveia a linha pelo identificador, sem pedir a chave a quem a escreve', () => {
+    const aviso = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const tabela = (itens: Membro[]) => (
+      <Table label="Membros" rows={itens}>
+        <Table.Body items={itens}>
+          {(membro) => (
+            <Table.Row id={membro.id}>
+              <Table.Cell>{membro.nome}</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    );
+    const { rerender } = render(tabela(membros));
+    const linhaDaAna = screen.getByText('Ana Prado').closest('tr');
+
+    rerender(tabela([...membros].reverse()));
+
+    expect(screen.getByText('Ana Prado').closest('tr')).toBe(linhaDaAna);
+    expect(aviso).not.toHaveBeenCalled();
+    aviso.mockRestore();
+  });
 });

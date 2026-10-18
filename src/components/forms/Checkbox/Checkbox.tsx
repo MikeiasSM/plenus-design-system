@@ -1,4 +1,4 @@
-import { useCallback, useId, type ComponentPropsWithRef } from 'react';
+import { useCallback, useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Checkbox.module.css';
 
@@ -6,7 +6,8 @@ export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'typ
   error?: string;
   hint?: string;
   indeterminate?: boolean;
-  label: string;
+  /** Sem rotulo visivel, o nome vem de `aria-label` ou `aria-labelledby`. */
+  label?: ReactNode;
 }
 
 export function Checkbox({
@@ -51,10 +52,10 @@ export function Checkbox({
           aria-invalid={error ? true : ariaInvalid}
           type="checkbox"
         />
-        <span className={styles.text}>{label}</span>
+        {label && <span className={styles.text}>{label}</span>}
       </label>
       {(error || hint) && (
-        <span className={error ? styles.errorMessage : styles.hint} id={messageId}>
+        <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
           {error || hint}
         </span>
       )}

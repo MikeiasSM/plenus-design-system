@@ -32,14 +32,19 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.page:hover:not(.current),
+.page:hover:not(.current):not([aria-disabled='true']),
 .step:hover:not([aria-disabled='true']) {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
 }
 
+.page[aria-disabled='true']:not(.current),
 .step[aria-disabled='true'] {
   color: var(--pl-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.current[aria-disabled='true'] {
   cursor: not-allowed;
 }
 

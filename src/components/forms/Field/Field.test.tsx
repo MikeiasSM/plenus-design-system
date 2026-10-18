@@ -69,4 +69,19 @@ describe('Field', () => {
     expect(screen.getByLabelText('Busca')).toBeInTheDocument();
     expect(screen.queryByText('CPF')).toBeNull();
   });
+
+  it('anuncia o erro que aparece depois, e nao a ajuda', () => {
+    const campo = (erro?: string) => (
+      <Field error={erro} hint="Somente numeros" label="CPF">
+        {({ describedBy, id }) => <input aria-describedby={describedBy} id={id} />}
+      </Field>
+    );
+    const { rerender } = render(campo());
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    rerender(campo('CPF invalido.'));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('CPF invalido.');
+  });
 });

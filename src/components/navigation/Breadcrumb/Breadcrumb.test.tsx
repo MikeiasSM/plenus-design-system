@@ -11,7 +11,7 @@ describe('Breadcrumb', () => {
   it('nomeia a navegacao e lista a trilha em ordem', () => {
     render(<Breadcrumb items={trilha} />);
 
-    const nav = screen.getByRole('navigation', { name: 'Trilha de navegacao' });
+    const nav = screen.getByRole('navigation', { name: 'Trilha de navegação' });
     expect(nav).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
   });

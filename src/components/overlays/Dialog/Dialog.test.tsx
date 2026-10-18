@@ -90,4 +90,14 @@ describe('Dialog', () => {
     expect(dialogo).toHaveAttribute('data-origem', 'cadastro');
     expect(dialogo).toHaveClass('largo');
   });
+
+  it('assume o papel de alerta na confirmacao que exige resposta', () => {
+    render(
+      <Dialog onClose={() => undefined} open role="alertdialog" title="Excluir documento">
+        Esta acao nao pode ser desfeita.
+      </Dialog>,
+    );
+
+    expect(screen.getByRole('alertdialog', { name: 'Excluir documento' })).toHaveAttribute('aria-modal', 'true');
+  });
 });

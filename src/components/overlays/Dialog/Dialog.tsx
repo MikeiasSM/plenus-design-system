@@ -7,15 +7,18 @@ import styles from './Dialog.module.css';
 import { IconClose } from '../../icons';
 
 export type DialogSize = 'sm' | 'md' | 'lg';
+export type DialogRole = 'dialog' | 'alertdialog';
 
 /** As propriedades nativas vao ao elemento do dialogo; o `className` soma ao do sistema. */
-export interface DialogProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'title'> {
+export interface DialogProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'role' | 'title'> {
   children?: ReactNode;
   description?: string;
   dismissable?: boolean;
   footer?: ReactNode;
   onClose: () => void;
   open: boolean;
+  /** `alertdialog` para a confirmacao que interrompe e exige resposta, como a de uma acao destrutiva. */
+  role?: DialogRole;
   size?: DialogSize;
   title: string;
 }
@@ -37,6 +40,7 @@ function DialogContent({
   footer,
   onClose,
   ref: refDoConsumidor,
+  role = 'dialog',
   size = 'md',
   title,
   ...props
@@ -69,7 +73,7 @@ function DialogContent({
           {...overlayProps}
           ref={mergedRef}
           className={[styles.dialog, styles[size], className].filter(Boolean).join(' ')}
-          role="dialog"
+          role={role}
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={description ? descriptionId : undefined}

@@ -56,13 +56,19 @@ export type { AccordionProps, AccordionItem, AccordionIconPosition } from './com
 export { Select } from './components/forms/Select';
 export type { SelectProps, SelectOption, SelectSize } from './components/forms/Select';
 export { ComboBox } from './components/forms/ComboBox';
-export type { ComboBoxProps, ComboBoxOption, ComboBoxSize } from './components/forms/ComboBox';
+export type {
+  ComboBoxMultipleProps,
+  ComboBoxOption,
+  ComboBoxProps,
+  ComboBoxSingleProps,
+  ComboBoxSize,
+} from './components/forms/ComboBox';
 export { Menu } from './components/overlays/Menu';
 export type { MenuProps, MenuItem } from './components/overlays/Menu';
 export { Tooltip } from './components/overlays/Tooltip';
 export type { TooltipProps, TooltipPlacement } from './components/overlays/Tooltip';
 export { Dialog } from './components/overlays/Dialog';
-export type { DialogProps, DialogSize } from './components/overlays/Dialog';
+export type { DialogProps, DialogRole, DialogSize } from './components/overlays/Dialog';
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeTone } from './components/data-display/Badge';
 export { Avatar } from './components/data-display/Avatar';

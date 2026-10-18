@@ -23,7 +23,7 @@ export function Breadcrumb({
   as: Link = 'a',
   className,
   items,
-  label = 'Trilha de navegacao',
+  label = 'Trilha de navegação',
   ...props
 }: BreadcrumbProps) {
   return (

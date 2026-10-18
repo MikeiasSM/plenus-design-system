@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { ComboBox, type ComboBoxOption } from './ComboBox';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { ComboBox, type ComboBoxOption, type ComboBoxSingleProps } from './ComboBox';
 
 const opcoes: ComboBoxOption[] = [
   { value: 'sp', label: 'Sao Paulo' },
@@ -8,7 +8,7 @@ const opcoes: ComboBoxOption[] = [
   { value: 'gyn', label: 'Goiânia' },
 ];
 
-function montar(props: Partial<React.ComponentProps<typeof ComboBox>> = {}) {
+function montar(props: Partial<ComboBoxSingleProps> = {}) {
   render(<ComboBox label="Cidade" options={opcoes} {...props} />);
   return screen.getByRole('combobox', { name: 'Cidade' });
 }
@@ -121,5 +121,97 @@ describe('ComboBox', () => {
     fireEvent.change(campo, { target: { value: 'xyz' } });
 
     expect(fireEvent.mouseDown(screen.getByText('Nenhum resultado'))).toBe(false);
+  });
+
+  describe('escolha multipla', () => {
+    it('acumula as escolhas com a lista aberta e reporta todas', () => {
+      const onValueChange = vi.fn();
+      render(<ComboBox label="Cidades" onValueChange={onValueChange} options={opcoes} selectionMode="multiple" />);
+      const campo = screen.getByRole('combobox', { name: 'Cidades' });
+
+      fireEvent.click(campo);
+      fireEvent.click(screen.getByRole('option', { name: 'Sao Paulo' }));
+      fireEvent.click(screen.getByRole('option', { name: 'Goiânia' }));
+
+      expect(onValueChange).toHaveBeenLastCalledWith(['sp', 'gyn']);
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
+      expect(screen.getByRole('option', { name: 'Goiânia' })).toHaveAttribute('aria-selected', 'true');
+      expect(campo).toHaveValue('');
+    });
+
+    it('mostra a primeira etiqueta e a contagem do resto, e descreve o total ao leitor de tela', () => {
+      render(<ComboBox defaultValue={['rj', 'mg', 'gyn']} label="Cidades" options={opcoes} selectionMode="multiple" />);
+
+      expect(screen.getByText('Rio de Janeiro')).toBeInTheDocument();
+      expect(screen.getByText('+2')).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Cidades' })).toHaveAccessibleDescription(
+        '3 selecionados: Rio de Janeiro, Belo Horizonte, Goiânia',
+      );
+    });
+
+    describe('medido', () => {
+      beforeEach(() => {
+        class Observador {
+          constructor(private aviso: (entradas: []) => void) {}
+          observe() {
+            queueMicrotask(() => this.aviso([]));
+          }
+          unobserve() {}
+          disconnect() {}
+        }
+
+        Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: Observador });
+      });
+
+      afterEach(() => {
+        Reflect.deleteProperty(globalThis, 'ResizeObserver');
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+      });
+
+      it('mostra todas as etiquetas enquanto cabem', async () => {
+        render(<ComboBox defaultValue={['rj', 'mg', 'gyn']} label="Cidades" options={opcoes} selectionMode="multiple" />);
+
+        expect(await screen.findByText('Goiânia')).toBeInTheDocument();
+        expect(screen.getByText('Belo Horizonte')).toBeInTheDocument();
+        expect(screen.queryByText('+2')).not.toBeInTheDocument();
+      });
+
+      it('resume quando as etiquetas transbordam', async () => {
+        Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, value: 500 });
+        render(<ComboBox defaultValue={['rj', 'mg', 'gyn']} label="Cidades" options={opcoes} selectionMode="multiple" />);
+
+        await act(() => Promise.resolve());
+
+        expect(screen.getByText('+2')).toBeInTheDocument();
+        expect(screen.queryByText('Goiânia')).not.toBeInTheDocument();
+      });
+    });
+
+    it('remove a ultima escolha com Backspace no campo vazio', () => {
+      const onValueChange = vi.fn();
+      render(
+        <ComboBox
+          defaultValue={['rj', 'mg']}
+          label="Cidades"
+          onValueChange={onValueChange}
+          options={opcoes}
+          selectionMode="multiple"
+        />,
+      );
+
+      fireEvent.keyDown(screen.getByRole('combobox', { name: 'Cidades' }), { key: 'Backspace' });
+
+      expect(onValueChange).toHaveBeenLastCalledWith(['rj']);
+    });
+
+    it('envia ao formulario um valor por escolha', () => {
+      render(
+        <form aria-label="Cadastro">
+          <ComboBox defaultValue={['rj', 'mg']} label="Cidades" name="cidades" options={opcoes} selectionMode="multiple" />
+        </form>,
+      );
+
+      expect(new FormData(screen.getByRole<HTMLFormElement>('form')).getAll('cidades')).toEqual(['rj', 'mg']);
+    });
   });
 });

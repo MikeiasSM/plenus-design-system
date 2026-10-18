@@ -33,4 +33,18 @@ describe('Checkbox', () => {
 
     expect(screen.getByRole('checkbox', { name: 'Aceito os termos' })).toHaveAttribute('aria-invalid', 'true');
   });
+
+  it('takes its name from aria-label when there is no visible label', () => {
+    render(<Checkbox aria-label="Administrador: publicar" />);
+
+    expect(screen.getByRole('checkbox', { name: 'Administrador: publicar' })).toBeInTheDocument();
+  });
+
+  it('announces the error that appears after the first render', () => {
+    const { rerender } = render(<Checkbox label="Terms" />);
+
+    rerender(<Checkbox error="Required." label="Terms" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Required.');
+  });
 });

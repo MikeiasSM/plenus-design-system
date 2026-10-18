@@ -38,22 +38,22 @@ describe('Pagination', () => {
   it('marca a pagina atual e desabilita o passo anterior no inicio', () => {
     render(<Pagination page={1} pageCount={10} onPageChange={() => undefined} />);
 
-    expect(screen.getByRole('button', { name: 'Pagina 1' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Pagina anterior' })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('button', { name: 'Proxima pagina' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button', { name: 'Página 1' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Página anterior' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Próxima página' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('desabilita o proximo no fim', () => {
     render(<Pagination page={10} pageCount={10} onPageChange={() => undefined} />);
 
-    expect(screen.getByRole('button', { name: 'Proxima pagina' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Próxima página' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('nao passa da borda pelo passo que continua focavel nela', () => {
     const onPageChange = vi.fn();
     render(<Pagination page={1} pageCount={10} onPageChange={onPageChange} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pagina anterior' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Página anterior' }));
 
     expect(onPageChange).not.toHaveBeenCalled();
   });
@@ -62,16 +62,30 @@ describe('Pagination', () => {
     const onPageChange = vi.fn();
     render(<Pagination page={5} pageCount={10} onPageChange={onPageChange} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pagina 6' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Página 6' }));
     expect(onPageChange).toHaveBeenCalledWith(6);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pagina anterior' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Página anterior' }));
     expect(onPageChange).toHaveBeenCalledWith(4);
   });
 
   it('limita a pagina informada a faixa valida', () => {
     render(<Pagination page={99} pageCount={10} onPageChange={() => undefined} />);
 
-    expect(screen.getByRole('button', { name: 'Pagina 10' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Página 10' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('suspende a troca de pagina sem tirar os botoes do foco', () => {
+    const onPageChange = vi.fn();
+    render(<Pagination disabled page={5} pageCount={10} onPageChange={onPageChange} />);
+
+    const pagina = screen.getByRole('button', { name: 'Página 6' });
+
+    fireEvent.click(pagina);
+    fireEvent.click(screen.getByRole('button', { name: 'Próxima página' }));
+
+    expect(onPageChange).not.toHaveBeenCalled();
+    expect(pagina).toHaveAttribute('aria-disabled', 'true');
+    expect(pagina).not.toBeDisabled();
   });
 });

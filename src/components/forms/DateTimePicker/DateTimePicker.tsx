@@ -262,6 +262,8 @@ export function DateTimePicker({
                 {...overlayProps}
                 aria-label={label ? 'Calendário de ' + label : 'Calendário'}
                 className={styles.panel}
+                // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+                data-react-aria-top-layer="true"
                 onKeyDown={(event) => {
                   if (event.key === 'Escape') {
                     fechar();

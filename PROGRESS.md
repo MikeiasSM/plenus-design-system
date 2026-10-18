@@ -198,6 +198,24 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - **O `Menu` aberto na primeira renderizacao quebrava no servidor.** Com `defaultOpen` ou `open`, ele montava o portal sem `document`. Ganhou a guarda do `Dialog` e do `Popover`, e o teste de servidor passou a cobri-lo.
 - **Os arcos e rotulos do `ChartSunburst` sao chaveados pela posicao**, como os dos demais graficos. O caminho de rotulos, usado antes, colidia com dois filhos de mesmo nome.
 
+**Relato do primeiro consumidor integral, o PlenusLAB, em 07/10/2026**, tambem para a proxima versao. Das vinte linhas do relato, entrou o que e defeito ou ja estava prometido; o resto depende de decisao e esta em Decisoes pendentes do relato do PlenusLAB.
+
+- **Os paineis de `Select`, `ComboBox`, `DatePicker`, `DateTimePicker` e `TimePicker` declaram-se camada de cima**, como `Menu`, `Popover` e `Tooltip` ja faziam. Dentro de um `Dialog`, o `ariaHideOutside` os escondia do leitor de tela, escolher uma opcao do `ComboBox` fechava o dialogo, e a contencao de foco devolvia ao gatilho o foco que o calendario e a lista de horas pediam. O atributo e lido nos tres lugares.
+- **Os nomes acessiveis ganharam acento**: `Paginação`, `Página anterior`, `Próxima página`, `Página N`, `Trilha de navegação` e `Opções`. O leitor de tela pronunciava errado.
+- **A `Pagination` aceita `disabled`**, que suspende a troca enquanto a pagina pedida carrega. Com `aria-disabled`, pelo mesmo motivo dos passos na borda: o botao desabilitado perderia o foco.
+- **O `Table.Body` chaveia a linha pelo `id` do item.** Sem chave, o React reaproveitava a linha pela posicao e o foco voltava para a linha errada depois de reordenar.
+- **O erro de campo e anunciado quando aparece**: a mensagem de `Field`, `Checkbox`, `RadioGroup` e `Switch` sai com `role="alert"`. A ajuda continua sem papel.
+- **O `Dialog` aceita `role="alertdialog"`**, para a confirmacao que exige resposta. A propriedade ja era aceita pelo tipo e ignorada.
+- **O `label` do `Checkbox` e opcional e aceita conteudo.** Sem rotulo visivel, o nome vem de `aria-label` ou `aria-labelledby`, como nos demais campos.
+- **O `ComboBox` ganhou `selectionMode="multiple"`**, que o catalogo ja declarava. Segue o que estava decidido para a familia de listagem: lista aberta a cada escolha, caixa de marcacao por item, etiqueta no campo, contagem total para o leitor de tela e `Backspace` no campo vazio removendo a ultima. O `FormData` recebe um valor por escolha. O campo mostra todas as etiquetas enquanto cabem e passa a primeira e a contagem das demais quando transbordam, medido por `ResizeObserver` e conferido em Chrome; sem ele, como no servidor, resume sempre. O `onValueChange` deixou de vazar para o `input`.
+
+Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
+
+- O item de `Table.Body` precisa ter `id`, como o de `rows` ja tinha.
+- `ComboBoxProps` passou de interface a uniao de `ComboBoxSingleProps` e `ComboBoxMultipleProps`; quem a estendia com `interface` estende agora uma das duas.
+- O `role` do `Dialog` so aceita `dialog` e `alertdialog`.
+- Teste de consumidor que procura os botoes da `Pagination` ou a trilha do `Breadcrumb` pelo nome sem acento deixa de achar.
+
 **Fronteira com a aplicacao hospedeira**
 
 - **O CSS global foi partido em dois, por decisao do mantenedor, depois do primeiro consumo real.** `styles/base.css` viaja com os componentes e traz so o que eles exigem do documento; `styles/reset.css` e opcional, sai como arquivo proprio em `dist/reset.css` e carrega a base de pagina — corpo, titulos, links, controles nativos, selecao, barra de rolagem. Antes disso, instalar a biblioteca reescrevia o `body`, os titulos, o `select` nativo e a barra de rolagem do hospedeiro, que e o oposto do que o `README.md` promete quando diz que as aplicacoes consomem.
@@ -317,6 +335,18 @@ O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que se
 - **Teclado e toque nos graficos.** O hover so ouve o mouse, e no toque nao ha passar por cima. Tocar para fixar o realce e o balao e tocar fora para soltar e um modelo de interacao a desenhar. O teclado segue o catalogo: o grafico e uma imagem so, e a leitura medida a medida vem pela visao em tabela.
 - **API comum entre os `Chart*`.** `series`, `slices`, `tracks`, `nodes` e `flows`, e `onHoverCategory`, `onHoverStep` e `onHoverSlice`, seguem a forma do dado de cada grafico; a unificacao feita cobre so os cartesianos. Unificar o resto quebra quase todos os graficos, e pede o desenho da API antes.
 - **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter.
+
+## Decisoes pendentes do relato do PlenusLAB
+
+Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segura. Nenhuma foi implementada.
+
+- **Componentes novos**: botao so de icone, controle segmentado, gaveta lateral, etapas, estado vazio e esqueleto de carregamento. `COMPONENTS-CATALOG.md` so admite componente por decisao aprovada, e nenhum deles esta previsto.
+- **`Tabs` como links e `Badge` clicavel.** O catalogo define `Tabs` como alternancia entre paineis e `Badge` como rotulo de estado; os dois pedidos mudam o papel do componente.
+- **Icones de interface geral e a base `Icon` exportada.** O catalogo, secao 10, limita o conjunto ao que os componentes usam; `ARCHITECTURE.md` secao 12 manda as aplicacoes usarem a biblioteca oficial. As duas leituras precisam ser conciliadas antes de o conjunto crescer.
+- **`Dialog` so com nome acessivel**, sem titulo visivel nem botao de fechar. O cabecalho e parte, e desliga-lo por booleano e o que `COMPONENTS.md` secao 4 manda evitar; a saida e composicao, que quebra o contrato atual.
+- **Opcao composta e grupos no `ComboBox`.** Alcanca a listagem interna que `List` e `Select` compartilham, e pede o desenho da API antes.
+- **`Popover` que nao leva o foco para dentro.** Ele e um `role="dialog"`, e `COMPONENTS.md` secao 7 pede que dialogo gerencie o foco. O caso relatado, painel sob um campo em que se digita, e o do `ComboBox` com opcao composta.
+- **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
 
 ## Excecoes de contraste aceitas
 

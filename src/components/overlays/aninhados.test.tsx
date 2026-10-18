@@ -1,12 +1,21 @@
 import { createRef, useRef, useState, type ComponentPropsWithRef } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../actions/Button';
+import { ComboBox } from '../forms/ComboBox';
+import { DatePicker } from '../forms/DatePicker';
+import { DateTimePicker } from '../forms/DateTimePicker';
+import { Select } from '../forms/Select';
+import { TimePicker } from '../forms/TimePicker';
 import { Dialog } from './Dialog';
 import { Menu } from './Menu';
 import { Popover } from './Popover';
 import { Tooltip } from './Tooltip';
 
 const acoes = [{ key: 'editar', label: 'Editar' }];
+const tipos = [
+  { value: 'nota', label: 'Nota' },
+  { value: 'recibo', label: 'Recibo' },
+];
 
 // O React avisa uma vez por tipo de elemento; um tipo so destes testes nao herda o aviso ja dado.
 function GatilhoDoMenu(props: ComponentPropsWithRef<'button'>) {
@@ -65,6 +74,66 @@ describe('overlays aninhados em Dialog', () => {
     await esperarOObservador();
 
     expect(screen.getByRole('dialog', { name: 'Painel de filtros' }).closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('vale para a lista do Select', async () => {
+    render(
+      <Dialog onClose={() => undefined} open title="Cadastro">
+        <Select label="Tipo" options={tipos} />
+      </Dialog>,
+    );
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Tipo' }));
+    await esperarOObservador();
+
+    expect(screen.getByRole('listbox').closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('vale para a lista do ComboBox, e escolher nela nao fecha o Dialog', async () => {
+    const fechar = vi.fn();
+
+    render(
+      <Dialog onClose={fechar} open title="Cadastro">
+        <ComboBox label="Tipo" options={tipos} />
+      </Dialog>,
+    );
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Tipo' }));
+    await esperarOObservador();
+
+    const opcao = screen.getByRole('option', { name: 'Recibo' });
+
+    expect(opcao.closest('[aria-hidden="true"]')).toBeNull();
+
+    fireEvent.pointerDown(opcao, { button: 0 });
+    fireEvent.pointerUp(opcao, { button: 0 });
+    fireEvent.click(opcao);
+
+    expect(fechar).not.toHaveBeenCalled();
+    expect(screen.getByRole('combobox', { name: 'Tipo' })).toHaveValue('Recibo');
+  });
+
+  it.each([
+    ['DatePicker', DatePicker, 'Abrir calendário'],
+    ['DateTimePicker', DateTimePicker, 'Abrir calendário'],
+    ['TimePicker', TimePicker, 'Abrir seletor de hora'],
+  ])('vale para o painel do %s, que recebe o foco', async (_nome, Campo, abrir) => {
+    render(
+      <Dialog onClose={() => undefined} open title="Cadastro">
+        <Campo label="Quando" />
+      </Dialog>,
+    );
+
+    const gatilho = screen.getByRole('button', { name: abrir });
+
+    gatilho.focus();
+    fireEvent.click(gatilho);
+    await esperarOObservador();
+
+    const painel = screen.getByRole('dialog', { name: /de Quando$/ });
+
+    expect(painel.closest('[aria-hidden="true"]')).toBeNull();
+    expect(painel).toContainElement(document.activeElement as HTMLElement);
   });
 });
 

@@ -3,6 +3,8 @@ import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
 
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
+  /** Suspende a troca de pagina, como enquanto a pagina pedida carrega. Os botoes continuam focaveis. */
+  disabled?: boolean;
   label?: string;
   onPageChange: (page: number) => void;
   page: number;
@@ -13,7 +15,8 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
 
 export function Pagination({
   className,
-  label = 'Paginacao',
+  disabled = false,
+  label = 'Paginação',
   onPageChange,
   page,
   pageCount,
@@ -27,15 +30,21 @@ export function Pagination({
   const atual = Math.min(Math.max(page, 1), pageCount);
   const paginas = montarFaixa(atual, pageCount, siblings);
 
+  function irPara(pagina: number) {
+    if (!disabled) {
+      onPageChange(pagina);
+    }
+  }
+
   return (
     <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
       {/* `aria-disabled`, e nao `disabled`: desabilitado na borda, o botao perdia o foco de quem acabou de usa-lo. */}
       <button
         className={styles.step}
         type="button"
-        aria-label="Pagina anterior"
-        aria-disabled={atual === 1 || undefined}
-        onClick={() => atual > 1 && onPageChange(atual - 1)}
+        aria-label="Página anterior"
+        aria-disabled={disabled || atual === 1 || undefined}
+        onClick={() => atual > 1 && irPara(atual - 1)}
       >
         <IconChevronLeft size={14} />
       </button>
@@ -50,9 +59,10 @@ export function Pagination({
               <button
                 className={[styles.page, numero === atual && styles.current].filter(Boolean).join(' ')}
                 type="button"
-                aria-label={`Pagina ${numero}`}
+                aria-label={`Página ${numero}`}
                 aria-current={numero === atual ? 'page' : undefined}
-                onClick={() => onPageChange(numero)}
+                aria-disabled={disabled || undefined}
+                onClick={() => irPara(numero)}
               >
                 {numero}
               </button>
@@ -63,9 +73,9 @@ export function Pagination({
       <button
         className={styles.step}
         type="button"
-        aria-label="Proxima pagina"
-        aria-disabled={atual === pageCount || undefined}
-        onClick={() => atual < pageCount && onPageChange(atual + 1)}
+        aria-label="Próxima página"
+        aria-disabled={disabled || atual === pageCount || undefined}
+        onClick={() => atual < pageCount && irPara(atual + 1)}
       >
         <IconChevronRight size={14} />
       </button>

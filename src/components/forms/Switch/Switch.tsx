@@ -42,7 +42,7 @@ export function Switch({
         <span className={styles.text}>{label}</span>
       </label>
       {(error || hint) && (
-        <span className={error ? styles.errorMessage : styles.hint} id={messageId}>
+        <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
           {error || hint}
         </span>
       )}
