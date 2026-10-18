@@ -1,0 +1,208 @@
+import { useState } from 'react';
+import { Button, Dialog, Menu, type MenuItem } from '@plenustech/design-system';
+import { expr, gerarJsx } from '../estrutura/codigo';
+import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+
+const ITENS: readonly MenuItem[] = [
+  { key: 'editar', label: 'Editar' },
+  { key: 'duplicar', label: 'Duplicar' },
+  { key: 'arquivar', label: 'Arquivar', disabled: true },
+  { key: 'excluir', label: 'Excluir' },
+];
+
+const playground = definirPlayground({
+  inicial: { label: 'Ações do módulo', gatilho: 'Ações', arquivarDesabilitado: true },
+  controles: [
+    { tipo: 'texto', nome: 'label' },
+    { tipo: 'texto', nome: 'gatilho' },
+    { tipo: 'booleano', nome: 'arquivarDesabilitado' },
+  ],
+  renderizar: (valores, registrar) => (
+    <Menu
+      items={ITENS.map((item) => ({
+        ...item,
+        disabled: item.key === 'arquivar' && valores.arquivarDesabilitado,
+        onSelect: () => registrar(`onSelect: ${item.key}`),
+      }))}
+      label={valores.label}
+      onOpenChange={(aberto) => registrar(`onOpenChange: ${aberto}`)}
+    >
+      <Button variant="secondary">{valores.gatilho}</Button>
+    </Menu>
+  ),
+  codigo: (valores) =>
+    [
+      'const acoes: MenuItem[] = [',
+      "  { key: 'editar', label: 'Editar', onSelect: editar },",
+      "  { key: 'duplicar', label: 'Duplicar', onSelect: duplicar },",
+      `  { key: 'arquivar', label: 'Arquivar',${valores.arquivarDesabilitado ? ' disabled: true,' : ''} onSelect: arquivar },`,
+      "  { key: 'excluir', label: 'Excluir', onSelect: excluir },",
+      '];',
+      '',
+      gerarJsx(
+        'Menu',
+        [
+          ['label', valores.label],
+          ['items', expr('acoes')],
+          ['onOpenChange', expr('mudarAbertura')],
+        ],
+        `<Button variant="secondary">${valores.gatilho}</Button>`,
+      ),
+    ].join('\n'),
+  verificar: (valores) => {
+    const nome = valores.label.trim();
+    const verificacoes: Verificacao[] = [
+      nome
+        ? { nivel: 'ok', titulo: 'Nome do menu', detalhe: `"${nome}", no aria-label da lista.` }
+        : { nivel: 'falha', titulo: 'Menu sem nome', detalhe: 'label nomeia o role="menu" para o leitor de tela.' },
+      valores.gatilho.trim()
+        ? { nivel: 'ok', titulo: 'Popup anunciado', detalhe: 'O gatilho recebe aria-haspopup="menu" e aria-expanded.' }
+        : { nivel: 'falha', titulo: 'Gatilho sem nome', detalhe: 'O botão que abre o menu precisa de texto.' },
+    ];
+
+    if (valores.arquivarDesabilitado) {
+      verificacoes.push({
+        nivel: 'atencao',
+        titulo: 'Item desabilitado',
+        detalhe: 'As setas e a busca pulam o item. Diga em outro lugar por que a ação não está disponível.',
+      });
+    }
+
+    return verificacoes;
+  },
+});
+
+function UltimaAcao() {
+  const [ultima, setUltima] = useState('nenhuma');
+
+  return (
+    <>
+      <Menu items={ITENS.map((item) => ({ ...item, onSelect: () => setUltima(item.label) }))} label="Ações do módulo">
+        <Button variant="secondary">Ações</Button>
+      </Menu>
+      <span className="note" style={{ margin: 0 }}>Última ação: {ultima}</span>
+    </>
+  );
+}
+
+function ExcluirComConfirmacao() {
+  const [confirmando, setConfirmando] = useState(false);
+
+  return (
+    <>
+      <Menu
+        items={[
+          { key: 'renomear', label: 'Renomear' },
+          { key: 'excluir', label: 'Excluir', onSelect: () => setConfirmando(true) },
+        ]}
+        label="Ações do documento"
+      >
+        <Button variant="secondary">Documento</Button>
+      </Menu>
+      <Dialog
+        footer={
+          <>
+            <Button onClick={() => setConfirmando(false)} variant="secondary">Cancelar</Button>
+            <Button onClick={() => setConfirmando(false)} variant="danger">Excluir</Button>
+          </>
+        }
+        onClose={() => setConfirmando(false)}
+        open={confirmando}
+        role="alertdialog"
+        size="sm"
+        title="Excluir documento"
+      >
+        Esta ação não pode ser desfeita.
+      </Dialog>
+    </>
+  );
+}
+
+function Modos() {
+  return (
+    <dl className="modes">
+      <dt>Não controlado</dt>
+      <dd>
+        O padrão. O menu guarda a própria abertura; <code>defaultOpen</code> abre na primeira renderização e{' '}
+        <code>onOpenChange</code> avisa cada mudança.
+      </dd>
+      <dt>Controlado</dt>
+      <dd>
+        Com <code>open</code>, o menu pede a mudança por <code>onOpenChange</code> e espera o consumidor. O foco volta ao
+        gatilho no pedido de fechar.
+      </dd>
+      <dt>Item desabilitado</dt>
+      <dd>Fica visível, mas as setas e a busca o pulam e o clique não dispara <code>onSelect</code>.</dd>
+      <dt>Escolher</dt>
+      <dd>
+        Fecha o menu e devolve o foco ao gatilho antes do <code>onSelect</code>: um Dialog aberto por ele devolve o foco ao
+        lugar certo ao fechar.
+      </dd>
+      <dt>Clique fora</dt>
+      <dd>Fecha sem devolver o foco, que fica com o que foi clicado.</dd>
+      <dt>Lista longa</dt>
+      <dd>A altura para em 360px, ou no espaço disponível, e a lista rola.</dd>
+      <dt>Gatilho</dt>
+      <dd>
+        Um único elemento, que mantém o próprio <code>ref</code>, <code>onClick</code> e <code>onKeyDown</code>. O painel não
+        recebe <code>id</code> nem <code>data-*</code>, por decisão: a raiz é o gatilho.
+      </dd>
+    </dl>
+  );
+}
+
+export const pagina: Pagina = {
+  playground,
+  exemplos: [
+    {
+      titulo: 'Ações de um registro',
+      descricao: 'Cada item chama o seu onSelect. Arquivar está desabilitado e é pulado pelas setas.',
+      Previa: UltimaAcao,
+      codigo:
+        "const acoes: MenuItem[] = [\n  { key: 'editar', label: 'Editar', onSelect: editar },\n  { key: 'duplicar', label: 'Duplicar', onSelect: duplicar },\n  { key: 'arquivar', label: 'Arquivar', disabled: true },\n  { key: 'excluir', label: 'Excluir', onSelect: excluir },\n];\n\n<Menu label=\"Ações do módulo\" items={acoes}>\n  <Button variant=\"secondary\">Ações</Button>\n</Menu>",
+    },
+    {
+      titulo: 'Item que abre uma confirmação',
+      descricao: 'O foco volta ao gatilho antes do onSelect; ao fechar o Dialog, ele retorna ao gatilho.',
+      Previa: ExcluirComConfirmacao,
+      codigo:
+        "<Menu\n  label=\"Ações do documento\"\n  items={[\n    { key: 'renomear', label: 'Renomear', onSelect: renomear },\n    { key: 'excluir', label: 'Excluir', onSelect: () => setConfirmando(true) },\n  ]}\n>\n  <Button variant=\"secondary\">Documento</Button>\n</Menu>\n<Dialog\n  open={confirmando}\n  onClose={() => setConfirmando(false)}\n  role=\"alertdialog\"\n  size=\"sm\"\n  title=\"Excluir documento\"\n  footer={...}\n>\n  Esta ação não pode ser desfeita.\n</Dialog>",
+    },
+  ],
+  Modos,
+  teclado: [
+    { teclas: ['Enter', 'Espaço'], acao: 'No gatilho, abre o menu na primeira opção; num item, aciona e fecha.' },
+    { teclas: ['↓'], acao: 'No gatilho, abre na primeira opção; no menu, vai à próxima, pulando as desabilitadas.' },
+    { teclas: ['↑'], acao: 'No gatilho, abre na última opção; no menu, vai à anterior, pulando as desabilitadas.' },
+    { teclas: ['Home', 'End'], acao: 'Primeira e última opção habilitada.' },
+    { teclas: ['Letra'], acao: 'Leva à próxima opção que começa por ela.' },
+    { teclas: ['Esc', 'Tab'], acao: 'Fecham o menu e devolvem o foco ao gatilho.' },
+  ],
+  garantias: [
+    {
+      garantia: 'Popup anunciado',
+      como: <>O gatilho recebe <code>aria-haspopup=&quot;menu&quot;</code> e <code>aria-expanded</code>.</>,
+      teste: 'Menu.test.tsx',
+    },
+    { garantia: 'Foco nos itens', como: 'Foco real na primeira opção ao abrir; as setas pulam as desabilitadas.', teste: 'Menu.test.tsx' },
+    { garantia: 'Busca por digitação', como: 'Uma letra leva à opção que começa por ela.', teste: 'Menu.test.tsx' },
+    { garantia: 'Foco devolvido', como: 'Escape fecha e devolve o foco ao gatilho, antes do onSelect na escolha.', teste: 'Menu.test.tsx' },
+    { garantia: 'Abertura controlada', como: 'Com open, o menu só pede a mudança, sem decidir por conta própria.', teste: 'Menu.test.tsx' },
+    { garantia: 'Gatilho preservado', como: 'Mantém o ref, o onClick e o onKeyDown de quem o escreveu.', teste: 'aninhados.test.tsx' },
+    { garantia: 'Dentro de Dialog', como: 'Camada de cima, visível ao leitor de tela.', teste: 'aninhados.test.tsx' },
+    { garantia: 'Servidor', como: 'Aberto na renderização do servidor, não quebra.', teste: 'servidor.test.tsx' },
+  ],
+  notaDaApi: (
+    <>
+      Cada item é um <code>MenuItem</code>: <code>{'{ key: string; label: string; disabled?: boolean; onSelect?: () => void }'}</code>.
+    </>
+  ),
+  api: [
+    { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória. O gatilho: um único elemento focável.' },
+    { nome: 'items', tipo: 'readonly MenuItem[]', descricao: 'Obrigatória. As ações, na ordem em que aparecem.' },
+    { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome acessível da lista.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Controla a abertura; sem ele, o menu guarda o próprio estado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Abertura inicial no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada abertura e fechamento pedidos.' },
+  ],
+};
