@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-805 testes em 93 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+858 testes em 101 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -195,7 +195,7 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
 
-**Depois da 0.2.2**, ainda sem versao. Entraram no catalogo, por decisao do mantenedor em 18/10/2026, a partir da analise do que o PlenusLAB construiu por falta deles: a `Tag`, o `SegmentedControl`, o `Drawer`, o `Toast`, o `Skeleton`, o `Steps` e o `SkipLink`, descritos em Contexto. O `InputText` ganhou `icon`, a lupa a frente da busca. O `Field` passou a entregar, junto da fiacao, a `className` com o visual dos campos do sistema, em `size` sm ou md: quem monta o proprio controle o recebe pronto, e a pagina do Showcase mostrava um input cru. O CSS saiu do `InputText`, que agora usa a classe do `Field`, sem copia. O `ChartTooltip` passou a ter costura em `ChartLine`, `ChartArea`, `ChartTreemap` e `ChartSunburst`, e os doze graficos tem leitura no ponteiro. Para servir a gaveta, a mecanica modal do `Dialog` foi para o `DialogFrame`, interno; o esqueleto da `Table` passou a ser o `Skeleton`. Novos icones: `IconCheck`, `IconCheckCircle`, `IconExclamationCircle`, `IconExclamationTriangle` e `IconInfoCircle`, pedidos pela `Tag`, pelo `Steps` e pelo `Toast`. Muda o comportamento visual do eixo `onHover` deixa de reservar a calha, e o grafico ocupa o espaco todo ate o ponteiro parar sobre ele, quando encolhe para o eixo entrar. No Showcase, o registro de eventos do playground ficou nos 6 mais recentes, numa caixa de altura fixa. Ao desligar a ultima serie, a barra, a linha ou a area saia esticada para cima, cobrindo o que estava fora do grafico: sem serie visivel o dominio desabava a [0, 1], a animacao o levava ate la com a serie ainda desenhada, e o SVG nao recorta. Agora, sem nenhuma visivel, a escala e a de todas, por `seriesInScale`, em `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e, por eixo, `ChartCombo`. O `ChartTooltip` passou a vir integrado nos nove graficos com costura, ligado por padrao em `showTooltip`; a moldura comum o monta na area de desenho e cada grafico informa as linhas, por `categoryTooltip`, `sliceTooltip` e `pathTooltip`. O `ChartTooltip` aceita formato por linha, para a serie do eixo da direita. `showDots` e `showDataLabels` deixam de ser booleanos e passam a `'visible' | 'hidden' | 'onHover'`, como os eixos: em `onHover`, so os da serie sob o ponteiro, a da barra ou, na linha e na area, a mais proxima dele, por `nearestSeriesAt`. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `showDots` e `showDataLabels` mudam de tipo, com padrao `'onHover'` nos pontos, `'hidden'` nos rotulos e `'visible'` na cascata; quem monta o proprio `ChartTooltip` em volta do grafico passa `showTooltip={false}`, ou ve dois baloes. No Showcase, o `accent` mostra o nome da cor ao lado do codigo. Na area empilhada, ponto e rotulo sumiam na cor do proprio preenchimento: o ponto passou a anel, com miolo na cor da superficie e borda na cor da serie, em linha, area e combo; o rotulo de valor ganhou halo na cor da superficie; e a pilha passou a preenchimento a 40%, com o contorno em cor cheia. Com rotulos visiveis em mais de uma serie, o da serie de baixo desce para baixo do ponto quando alcancaria o de cima, e os das pontas se alinham para dentro, longe dos numeros do eixo, por `pointLabelPlacement`. O `formatarNumero` e o `formatarMoeda` ganharam `compacto: 'sigla'`, que da `500 k`, `1,5 M`, `2 B` e `R$ 512 k`, com a virgula e o milhar da localidade; `compacto: true` continua na forma da localidade, `500 mil` e `1,5 mi`. A escolha e de quem implementa, por decisao do mantenedor em 18/10/2026; ate ali o formatador recusava sufixo proprio. Os nove graficos com balao ganharam `formatTooltipValue`, para o eixo sair compacto e o balao exato; sem ele, vale o `formatValue`. Do relato do PlenusLAB, entraram os ajustes dentro do papel atual:
+**Depois da 0.2.2**, na `0.2.3`. Entraram no catalogo, por decisao do mantenedor em 18/10/2026, a partir da analise do que o PlenusLAB construiu por falta deles: a `Tag`, o `SegmentedControl`, o `Drawer`, o `Toast`, o `Skeleton`, o `Steps` e o `SkipLink`, descritos em Contexto. O `InputText` ganhou `icon`, a lupa a frente da busca. O `Field` passou a entregar, junto da fiacao, a `className` com o visual dos campos do sistema, em `size` sm ou md: quem monta o proprio controle o recebe pronto, e a pagina do Showcase mostrava um input cru. O CSS saiu do `InputText`, que agora usa a classe do `Field`, sem copia. O `ChartTooltip` passou a ter costura em `ChartLine`, `ChartArea`, `ChartTreemap` e `ChartSunburst`, e os doze graficos tem leitura no ponteiro. Para servir a gaveta, a mecanica modal do `Dialog` foi para o `DialogFrame`, interno; o esqueleto da `Table` passou a ser o `Skeleton`. Novos icones: `IconCheck`, `IconCheckCircle`, `IconExclamationCircle`, `IconExclamationTriangle` e `IconInfoCircle`, pedidos pela `Tag`, pelo `Steps` e pelo `Toast`. Muda o comportamento visual do eixo `onHover` deixa de reservar a calha, e o grafico ocupa o espaco todo ate o ponteiro parar sobre ele, quando encolhe para o eixo entrar. No Showcase, o registro de eventos do playground ficou nos 6 mais recentes, numa caixa de altura fixa. Ao desligar a ultima serie, a barra, a linha ou a area saia esticada para cima, cobrindo o que estava fora do grafico: sem serie visivel o dominio desabava a [0, 1], a animacao o levava ate la com a serie ainda desenhada, e o SVG nao recorta. Agora, sem nenhuma visivel, a escala e a de todas, por `seriesInScale`, em `ChartBar`, `ChartLine`, `ChartArea`, `ChartScatter` e, por eixo, `ChartCombo`. O `ChartTooltip` passou a vir integrado nos nove graficos com costura, ligado por padrao em `showTooltip`; a moldura comum o monta na area de desenho e cada grafico informa as linhas, por `categoryTooltip`, `sliceTooltip` e `pathTooltip`. O `ChartTooltip` aceita formato por linha, para a serie do eixo da direita. `showDots` e `showDataLabels` deixam de ser booleanos e passam a `'visible' | 'hidden' | 'onHover'`, como os eixos: em `onHover`, so os da serie sob o ponteiro, a da barra ou, na linha e na area, a mais proxima dele, por `nearestSeriesAt`. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `showDots` e `showDataLabels` mudam de tipo, com padrao `'onHover'` nos pontos, `'hidden'` nos rotulos e `'visible'` na cascata; quem monta o proprio `ChartTooltip` em volta do grafico passa `showTooltip={false}`, ou ve dois baloes. No Showcase, o `accent` mostra o nome da cor ao lado do codigo. Na area empilhada, ponto e rotulo sumiam na cor do proprio preenchimento: o ponto passou a anel, com miolo na cor da superficie e borda na cor da serie, em linha, area e combo; o rotulo de valor ganhou halo na cor da superficie; e a pilha passou a preenchimento a 40%, com o contorno em cor cheia. Com rotulos visiveis em mais de uma serie, o da serie de baixo desce para baixo do ponto quando alcancaria o de cima, e os das pontas se alinham para dentro, longe dos numeros do eixo, por `pointLabelPlacement`. O `formatarNumero` e o `formatarMoeda` ganharam `compacto: 'sigla'`, que da `500 k`, `1,5 M`, `2 B` e `R$ 512 k`, com a virgula e o milhar da localidade; `compacto: true` continua na forma da localidade, `500 mil` e `1,5 mi`. A escolha e de quem implementa, por decisao do mantenedor em 18/10/2026; ate ali o formatador recusava sufixo proprio. Os nove graficos com balao ganharam `formatTooltipValue`, para o eixo sair compacto e o balao exato; sem ele, vale o `formatValue`. Do relato do PlenusLAB, entraram os ajustes dentro do papel atual:
 - **Altura dos campos:** os campos declaravam 40px e desenhavam 42px; a altura passou a token, `--pl-control-height-sm` e `--pl-control-height-md`, em `src/tokens/semantic/control.css`, registrado em `TOKENS.md`.
 - **`Accordion`:** ganhou `headingLevel`, `id` de ancora no cabecalho e o painel fechado em `hidden="until-found"`, que o Ctrl+F acha e abre pelo `beforematch`.
 - **`Menu`:** o item ganhou `icon`, `shortcut` (em `aria-keyshortcuts`), `tone="danger"` e `checked` (`menuitemcheckbox`), e a lista aceita secoes com titulo, separadas por divisor.
@@ -615,6 +615,63 @@ Entrou no catalogo em 18/10/2026, para as `Etapas` do PlenusLAB.
 - As anteriores a atual sao concluidas, com o visto e ", concluída" para o leitor de tela; a atual leva `aria-current="step"`.
 - Com `onStepChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
 - No celular as etapas empilham, com a linha na vertical.
+
+### ButtonTile
+
+Entrou no catalogo em 18/10/2026, para a paleta de blocos do editor do PlenusLAB.
+
+- **E um `button`**, com icone acima do nome e descricao opcional. `selected` liga o `aria-pressed`; sem ele, e um botao comum.
+- Dois tamanhos, `sm` e `md`. O nome e obrigatorio e sempre visivel: o ladrilho nao existe so com icone.
+
+### Toolbar
+
+Entrou no catalogo em 18/10/2026, para a barra de formatacao do editor do PlenusLAB.
+
+- **Padrao de barra de ferramentas do WAI-ARIA**: `role="toolbar"` com nome, uma parada de Tab e as setas, Home e End percorrendo os controles, no eixo de `orientation`. `Toolbar.Group` agrupa com `role="group"` e divisor.
+- **Tres posicoes.** No fluxo; `sticky`, presa ao topo ao rolar; ou flutuante, ancorada por `anchorRef` com o `useOverlayPosition`, em `placement`. `appearance` escolhe entre `floating`, com sombra, e `flat`.
+- Limite conhecido: ancorada, ela acompanha a rolagem da pagina, nao a de um conteiner interno.
+
+### CheckboxGroup
+
+Entrou no catalogo em 18/10/2026.
+
+- **`fieldset` com legenda**, ajuda e erro, como o `RadioGroup`. O valor do grupo e a lista dos `value` marcados, controlada ou nao.
+- **O `Checkbox` le o grupo por contexto** quando tem `value` dentro dele; fora, segue solto, sem mudar a API.
+- `required` exige ao menos uma marcada.
+
+### ColorPicker
+
+Entrou no catalogo em 18/10/2026, para a cor das etiquetas e dos destaques do editor do PlenusLAB.
+
+- **Radios nativos por baixo**, como o `SegmentedControl`: setas, Tab e envio pelo `name` vem do navegador.
+- **Cada amostra tem nome**, que o leitor de tela ouve e a dica mostra. A cor sozinha nao identifica a opcao.
+- `defaultOption` acrescenta a opcao sem cor, de valor `null`.
+- Sem espectro nem campo hexadecimal: a escolha livre de cor nao esta no papel.
+
+### FileUpload
+
+Entrou no catalogo em 18/10/2026, para os anexos do PlenusLAB.
+
+- **Nao envia.** `onFilesSelected` entrega os aceitos; o produto envia e devolve a lista em `items`, com `status` e `progress`. Cancelar, remover e tentar de novo sao chamadas para o produto.
+- **Tipo e tamanho conferidos na escolha**, por `accept` e `maxSize`; os recusados saem em `onFilesRejected`, com o motivo, e a mensagem aparece no campo.
+- **O controle acessivel e o `input type="file"` nativo**, que recebe o foco; o botao visivel fica fora da arvore para nao duplicar o nome.
+- O tamanho do arquivo sai por `formatarTamanhoDeArquivo`, novo formatador publico.
+
+### Timeline
+
+Entrou no catalogo em 18/10/2026, para o historico de estados dos registros do PlenusLAB.
+
+- **`ol` com o estado atual em `aria-current="step"`**; os anteriores contam como concluidos, com o visto. Data e descricao opcionais.
+- O visual compoe o do `Steps` na vertical, sem copia. Nao e navegavel.
+
+### SortableList
+
+Entrou no catalogo em 18/10/2026, para a estrutura de secoes do editor do PlenusLAB.
+
+- **Grade de uma coluna, `role="grid"`**, e nao `listbox`: cada linha pode ter acoes proprias, e opcao de lista nao admite controle dentro. Setas para cima e para baixo movem o foco; para os lados, entram nas acoes da linha.
+- **Reordena por arrasto ou por `Alt` com as setas**, e anuncia a nova posicao por `role="status"`. O componente nao reordena sozinho: `onReorder` entrega origem e destino ao produto.
+- Selecao de um item pelo `useSelection`, controlada ou nao. `level` recua o item, para a hierarquia de titulos.
+- O arrasto usa eventos de ponteiro, sem a API de arrastar do HTML.
 
 ### SkipLink
 

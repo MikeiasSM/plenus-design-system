@@ -1,0 +1,49 @@
+import type { ComponentPropsWithRef } from 'react';
+import { IconCheck } from '../../icons';
+import styles from './Timeline.module.css';
+
+export interface TimelineItem {
+  date?: string;
+  description?: string;
+  key: string;
+  label: string;
+}
+
+export interface TimelineProps extends Omit<ComponentPropsWithRef<'ol'>, 'children'> {
+  /** Chave do estado atual. Os anteriores contam como concluídos, os seguintes como por vir. */
+  current: string;
+  items: readonly TimelineItem[];
+  /** Nome da lista, para o leitor de tela. */
+  label: string;
+}
+
+export function Timeline({ className, current, items, label, ...props }: TimelineProps) {
+  const currentIndex = items.findIndex((item) => item.key === current);
+
+  return (
+    <ol {...props} aria-label={label} className={[styles.timeline, className].filter(Boolean).join(' ')}>
+      {items.map((item, index) => {
+        const state = index < currentIndex ? 'complete' : index === currentIndex ? 'current' : 'upcoming';
+
+        return (
+          <li
+            aria-current={state === 'current' ? 'step' : undefined}
+            className={[styles.item, styles[state]].join(' ')}
+            key={item.key}
+          >
+            <span aria-hidden="true" className={styles.marker}>
+              {state === 'complete' ? <IconCheck /> : <span className={styles.dot} />}
+            </span>
+            <span className={styles.text}>
+              <span className={styles.label}>{item.label}</span>
+              {state === 'complete' && <span className={styles.hiddenText}>, concluído</span>}
+              {state === 'current' && <span className={styles.hiddenText}>, atual</span>}
+              {item.description && <span className={styles.description}>{item.description}</span>}
+              {item.date && <span className={styles.date}>{item.date}</span>}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}

@@ -4,5 +4,7 @@ export { formatarData, formatarHora } from './formatarData';
 export type { OpcoesDeData, OpcoesDeHora } from './formatarData';
 export { formatarMoeda, formatarNumero, formatarPercentual } from './formatarNumero';
 export type { Compacto, OpcoesDeMoeda, OpcoesDeNumero, OpcoesDePercentual } from './formatarNumero';
+export { formatarTamanhoDeArquivo } from './formatarTamanhoDeArquivo';
+export type { OpcoesDeTamanhoDeArquivo } from './formatarTamanhoDeArquivo';
 export { formatarEntradaData, lerEntradaData } from './formatarEntradaData';
 export { formatarEntradaDataHora, formatarEntradaHora, lerEntradaDataHora, lerEntradaHora } from './formatarEntradaHora';

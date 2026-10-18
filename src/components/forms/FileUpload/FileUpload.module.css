@@ -1,0 +1,193 @@
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
+/* Moldura tracejada com o icone em destaque, como a zona de envio do Untitled UI. */
+.zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-5) var(--pl-space-4);
+  border: 1px dashed var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  text-align: center;
+  transition:
+    background var(--pl-speed-1) var(--pl-ease),
+    border-color var(--pl-speed-1) var(--pl-ease),
+    box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.zone:has(.input:focus-visible) {
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.dragging {
+  border-style: solid;
+  border-color: var(--pl-color-primary);
+  background: color-mix(in srgb, var(--pl-color-primary-container) 45%, var(--pl-color-surface));
+}
+
+.invalid {
+  border-color: var(--pl-color-danger);
+}
+
+.invalid:has(.input:focus-visible) {
+  border-color: var(--pl-color-danger);
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
+}
+
+.disabled {
+  background: var(--pl-color-surface-muted);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.iconBox {
+  display: inline-flex;
+  padding: 10px;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-text-secondary);
+  font-size: 1.25rem;
+}
+
+.dragging .iconBox {
+  color: var(--pl-color-primary);
+}
+
+.instruction {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pl-space-2);
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.restrictions {
+  margin: 0;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/* O seletor nativo sai da vista e fica na arvore e na tabulacao; o foco dele acende a zona. */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+}
+
+.failed {
+  border-color: var(--pl-color-danger);
+}
+
+.fileIcon {
+  display: inline-flex;
+  flex: none;
+  padding: 6px;
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+  font-size: 1rem;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-1);
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.status,
+.failedMessage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+}
+
+.failedMessage {
+  color: var(--pl-color-danger-text);
+}
+
+.doneIcon {
+  color: var(--pl-color-success);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone {
+    transition: none;
+  }
+}

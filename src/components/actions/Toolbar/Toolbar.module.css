@@ -1,0 +1,64 @@
+.toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  max-width: 100%;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+}
+
+.toolbar:focus-visible {
+  outline: none;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+/* Cartão elevado, como a barra flutuante do Untitled UI. */
+.floating {
+  padding: var(--pl-space-1);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-2);
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--pl-color-surface);
+}
+
+.anchored {
+  z-index: 80;
+}
+
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+}
+
+.vertical .group {
+  flex-direction: column;
+}
+
+/* O divisor nasce entre grupos vizinhos, e não antes do primeiro. */
+.horizontal .group + .group {
+  padding-inline-start: var(--pl-space-1);
+  border-inline-start: 1px solid var(--pl-color-border);
+}
+
+.vertical .group + .group {
+  padding-block-start: var(--pl-space-1);
+  border-block-start: 1px solid var(--pl-color-border);
+}
+
+/* Botão que alterna, como o negrito, mostra o estado ligado. */
+.toolbar [aria-pressed='true'] {
+  border-color: var(--pl-color-primary-line);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}

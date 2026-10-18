@@ -1,0 +1,92 @@
+/* Amostras circulares, como o seletor de cor do Untitled UI. A folga interna afasta o anel e o foco da borda. */
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  padding: var(--pl-space-1);
+}
+
+.sm {
+  --color-picker-size: 20px;
+  gap: var(--pl-space-2);
+}
+
+.md {
+  --color-picker-size: 28px;
+  gap: var(--pl-space-3);
+}
+
+/* O contorno no texto terciário passa 3:1 sobre a superfície nos dois temas: amostra branca no claro, ou preta no escuro, não some. */
+.swatch {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--color-picker-size);
+  height: var(--color-picker-size);
+  border: 1px solid var(--pl-color-text-tertiary);
+  border-radius: var(--pl-radius-full);
+  cursor: pointer;
+  transition: box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+/* Sem cor: a superficie riscada na diagonal. */
+.none {
+  background: linear-gradient(
+      to top right,
+      transparent calc(50% - 1px),
+      var(--pl-color-text-tertiary) calc(50% - 1px),
+      var(--pl-color-text-tertiary) calc(50% + 1px),
+      transparent calc(50% + 1px)
+    ),
+    var(--pl-color-surface);
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Glifo claro com halo escuro: aparece sobre qualquer cor de amostra. */
+.check {
+  width: 60%;
+  height: 60%;
+  color: var(--pl-color-on-ink);
+  filter: drop-shadow(0 0 1px var(--pl-color-ink)) drop-shadow(0 0 1px var(--pl-color-ink));
+  opacity: 0;
+}
+
+.swatch:hover:not(:has(.input:checked, .input:disabled)) {
+  box-shadow: 0 0 0 2px var(--pl-color-surface), 0 0 0 4px var(--pl-color-border-strong);
+}
+
+/* O anel no texto principal passa 4,5:1 sobre a superfície nos dois temas; o visto diz o mesmo sem depender de cor. */
+.swatch:has(.input:checked) {
+  box-shadow: 0 0 0 2px var(--pl-color-surface), 0 0 0 4px var(--pl-color-text);
+}
+
+.swatch:has(.input:checked) .check {
+  opacity: 1;
+}
+
+.swatch:has(.input:focus-visible) {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 5px;
+}
+
+.swatch:has(.input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hiddenText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

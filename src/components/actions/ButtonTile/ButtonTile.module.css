@@ -1,0 +1,97 @@
+/* Ícone sobre o rótulo, como o ladrilho do Untitled UI. A altura reserva duas linhas de rótulo: numa grade, todos medem igual. */
+.tile {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-weight: var(--pl-type-label-weight);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background var(--pl-speed-1) var(--pl-ease),
+    border-color var(--pl-speed-1) var(--pl-ease),
+    color var(--pl-speed-1) var(--pl-ease),
+    box-shadow var(--pl-speed-2) var(--pl-ease);
+}
+
+.sm {
+  min-width: 72px;
+  min-height: calc(2 * var(--pl-space-2) + 1.25rem + var(--pl-space-2) + 2 * var(--pl-type-caption-line-height));
+  padding: var(--pl-space-2);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.md {
+  min-width: 96px;
+  min-height: calc(2 * var(--pl-space-3) + 1.5rem + var(--pl-space-2) + 2 * var(--pl-type-label-line-height));
+  padding: var(--pl-space-3);
+  font-size: var(--pl-type-label-size);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--pl-color-text-secondary);
+}
+
+.sm .icon {
+  font-size: 1.25rem;
+}
+
+.md .icon {
+  font-size: 1.5rem;
+}
+
+.label {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.tile:not(:disabled):hover {
+  border-color: var(--pl-color-primary);
+  color: var(--pl-color-primary-active);
+}
+
+.tile:not(:disabled):hover .icon {
+  color: inherit;
+}
+
+.tile[aria-pressed='true'] {
+  border-color: var(--pl-color-primary);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.tile[aria-pressed='true'] .icon {
+  color: inherit;
+}
+
+.tile:not(:disabled):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container), 0 0 0 1px var(--pl-color-primary);
+}
+
+.tile:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+}

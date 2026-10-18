@@ -26,8 +26,14 @@ A situação indica a existência do componente, não a cobertura integral do pa
 | --- | --- | --- |
 | `Button` | Aciona uma operação. | Disponível |
 | `ButtonIcon` | Aciona uma operação representada só por ícone. | Disponível |
+| `ButtonTile` | Ação em ladrilho, com ícone acima do nome, para paletas de inserção. | Disponível |
+| `Toolbar` | Agrupa controles de uma mesma superfície, com navegação por setas. | Disponível |
 
 O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o contexto já diz: o filtro ao lado da busca, o fechar, a ação de uma linha. O nome é obrigatório e vai em `label`, que o leitor de tela ouve e a dica mostra a quem passa o ponteiro ou chega pelo teclado. Havendo espaço para o texto, o `Button` com texto é a escolha: ícone sozinho pede que a pessoa adivinhe.
+
+O `ButtonTile` é o botão de uma paleta — os blocos que um editor insere, os tipos de registro que uma tela cria. Ícone e nome ficam sempre visíveis, e uma descrição curta é opcional. Com `selected`, ele alterna e expõe `aria-pressed`. Fora de uma grade de opções equivalentes, a escolha é o `Button`.
+
+A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação de um editor: um único ponto de tabulação e as setas percorrendo os controles, conforme o padrão de barra de ferramentas do WAI-ARIA. Ela pode ficar fixa no fluxo, presa ao topo ao rolar, ou flutuar ancorada a um elemento. Os controles são os do próprio catálogo. Um conjunto solto de botões sem relação entre si não é barra de ferramentas.
 
 ## 3. Formulários
 
@@ -41,12 +47,15 @@ O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o context
 | `InputCurrency` | Entrada monetária. | Disponível |
 | `Textarea` | Entrada de texto de múltiplas linhas. | Disponível |
 | `Checkbox` | Escolha binária independente. | Disponível |
+| `CheckboxGroup` | Escolha múltipla entre opções sempre visíveis. | Disponível |
 | `RadioGroup` com `Radio` | Escolha única entre opções sempre visíveis. | Disponível |
 | `Switch` | Alternância de um estado ativo. | Disponível |
 | `SegmentedControl` | Escolha única entre poucos segmentos lado a lado. | Disponível |
 | `DatePicker` | Entrada de data, digitada ou escolhida em calendário. | Disponível |
 | `TimePicker` | Entrada de hora. | Disponível |
 | `DateTimePicker` | Entrada de data e hora combinadas. | Disponível |
+| `ColorPicker` | Escolha de cor entre amostras definidas pelo produto. | Disponível |
+| `FileUpload` | Seleção de arquivos, por clique ou arrasto, com a lista dos envios. | Disponível |
 
 `Field` é a moldura que os campos deste catálogo já usam por dentro, exposta para quem precisa montar um campo que o Design System não entrega — uma máscara de documento, um seletor de arquivo, um autocompletar de endereço. Ele recebe uma função e devolve o `id`, a descrição acessível já montada, o estado de inválido e a classe com o visual dos campos do sistema, no tamanho pedido; o controle continua sendo de quem o escreve, e a classe própria dele, somada à entregue, vence.
 
@@ -55,6 +64,12 @@ A fronteira com `Label` é de alcance: `Label` nomeia **um** controle; `Field` c
 O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma busca. O nome do campo continua no rótulo.
 
 `SegmentedControl` e `RadioGroup` fazem a mesma escolha única, e a fronteira é a forma: o `RadioGroup` é a lista de opções de um formulário, com legenda, ajuda e erro; o `SegmentedControl` é um controle compacto, de poucas opções curtas, que muda o que a tela mostra — o período de um painel, a lista ou os cartões. Por baixo ele também é rádio nativo. Com mais de cinco opções, ou opções longas, a escolha é `Select`. A fronteira com `Tabs` é o painel: a aba troca o conteúdo que ela controla; o segmento muda um valor.
+
+`CheckboxGroup` está para o `Checkbox` como o `RadioGroup` está para o `Radio`: a legenda, a ajuda, o erro e o valor do conjunto ficam no grupo, e cada `Checkbox` com `value` dentro dele lê o próprio estado dali. A fronteira com o `RadioGroup` é a quantidade: lá a escolha é uma só; aqui são quantas a pessoa quiser. Com lista longa ou que pede busca, a escolha é o `ComboBox` múltiplo.
+
+O `ColorPicker` escolhe entre amostras que o produto define, cada uma com nome — a cor de uma etiqueta, o destaque de um bloco. Não é seletor livre de cor: não há espectro nem campo hexadecimal. Por baixo são rádios nativos, e o nome de cada amostra é o que o leitor de tela ouve. Uma opção "Padrão", sem cor, é opcional.
+
+O `FileUpload` cuida da escolha dos arquivos e da lista que mostra o andamento, e não envia nada: o produto recebe os arquivos aceitos, faz o envio e informa a cada item o progresso, a conclusão ou o erro. Tipo e tamanho são conferidos na escolha, e o que for recusado volta ao produto com o motivo. Quem não arrasta escolhe pelo seletor de arquivos nativo, que é o que recebe o foco.
 
 ## 4. Listagem e escolha
 
@@ -80,6 +95,8 @@ Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel,
 | `Tag` | Etiqueta operada: removível, como o filtro ativo, ou de alternar. | Disponível |
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
 | `CodeBlock` | Trecho de código para leitura, com cópia, numeração e destaque de linhas. | Disponível |
+| `Timeline` | Histórico de estados de um registro, com datas e o estado atual destacado. | Disponível |
+| `SortableList` | Lista reordenável por arrasto ou teclado, com seleção de um item. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Previsto |
 
@@ -92,6 +109,10 @@ O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, n
 A fronteira entre `Badge` e `Tag` é o controle. O `Badge` só rotula um estado ou uma categoria e não responde a nada. A `Tag` é operada: removida, como o filtro ativo de uma busca, ou ligada e desligada, como o papel escolhido entre vários.
 
 O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, JSX, TSX, SQL, JSON e Shell: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
+
+A `Timeline` mostra por onde um registro passou — criado, enviado, aprovado — com a data de cada estado. A fronteira com `Steps` é o tempo: as etapas indicam onde se está num processo a cumprir, e a pessoa pode navegar entre elas; a linha do tempo registra o que já aconteceu e não é navegável.
+
+A `SortableList` existe para a ordem: as seções de um documento, as colunas de um relatório. Arrastar reordena, e pelo teclado `Alt` com as setas faz o mesmo, com o anúncio da nova posição. A fronteira com a `List` é a tarefa: na `List` a pessoa escolhe itens; na `SortableList`, ela os ordena. Como cada linha pode trazer ações próprias, a marcação é de grade, com uma célula por linha, e não de `listbox`, que não admite controles dentro das opções.
 
 ## 6. Gráficos
 

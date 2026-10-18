@@ -28,6 +28,8 @@ export const familias: readonly Familia[] = [
     componentes: [
       componente('Button', 'Aciona uma operação.'),
       componente('ButtonIcon', 'Aciona uma operação representada só por ícone.'),
+      componente('ButtonTile', 'Ação em ladrilho, com ícone acima do nome, para paletas de inserção.'),
+      componente('Toolbar', 'Agrupa controles de uma mesma superfície, com navegação por setas.'),
     ],
   },
   {
@@ -41,12 +43,15 @@ export const familias: readonly Familia[] = [
       componente('InputCurrency', 'Entrada monetária.'),
       componente('Textarea', 'Entrada de texto de múltiplas linhas.'),
       componente('Checkbox', 'Escolha binária independente.'),
+      componente('CheckboxGroup', 'Escolha múltipla entre opções sempre visíveis.', { importa: 'CheckboxGroup, Checkbox' }),
       componente('RadioGroup', 'Escolha única entre opções sempre visíveis.', { importa: 'RadioGroup, Radio' }),
       componente('Switch', 'Alternância de um estado ativo.'),
       componente('SegmentedControl', 'Escolha única entre poucos segmentos lado a lado.'),
       componente('DatePicker', 'Entrada de data, digitada ou escolhida em calendário.'),
       componente('TimePicker', 'Entrada de hora.'),
       componente('DateTimePicker', 'Entrada de data e hora combinadas.'),
+      componente('ColorPicker', 'Escolha de cor entre amostras definidas pelo produto.'),
+      componente('FileUpload', 'Seleção de arquivos, por clique ou arrasto, com a lista dos envios.'),
     ],
   },
   {
@@ -66,6 +71,8 @@ export const familias: readonly Familia[] = [
       componente('Tag', 'Etiqueta operada: removível, como o filtro ativo, ou de alternar.'),
       componente('Accordion', 'Seções expansíveis de conteúdo.'),
       componente('CodeBlock', 'Trecho de código para leitura, com cópia, numeração e destaque de linhas.'),
+      componente('Timeline', 'Histórico de estados de um registro, com datas e o estado atual destacado.'),
+      componente('SortableList', 'Lista reordenável por arrasto ou teclado, com seleção de um item.'),
       componente('Table', 'Tabela básica, em HTML semântico.'),
       componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.', { previsto: true }),
     ],

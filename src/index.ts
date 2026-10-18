@@ -7,6 +7,7 @@ export {
   IconAlignRight,
   IconArrowDown,
   IconArrowUp,
+  IconBold,
   IconCalendar,
   IconChartBar,
   IconCheck,
@@ -27,6 +28,7 @@ export {
   IconFile,
   IconFilter,
   IconInfoCircle,
+  IconItalic,
   IconLightning,
   IconLink,
   IconMinusCircle,
@@ -49,6 +51,16 @@ export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './components/actions/Button';
 export { ButtonIcon } from './components/actions/ButtonIcon';
+export { ButtonTile } from './components/actions/ButtonTile';
+export type { ButtonTileProps, ButtonTileSize } from './components/actions/ButtonTile';
+export { Toolbar } from './components/actions/Toolbar';
+export type {
+  ToolbarAppearance,
+  ToolbarGroupProps,
+  ToolbarOrientation,
+  ToolbarPlacement,
+  ToolbarProps,
+} from './components/actions/Toolbar';
 export type { ButtonIconProps } from './components/actions/ButtonIcon';
 export { Field } from './components/forms/Field';
 export type { FieldProps, FieldSize, FieldWiring } from './components/forms/Field';
@@ -65,6 +77,18 @@ export type { InputCurrencyProps } from './components/forms/InputCurrency';
 export { Textarea } from './components/forms/Textarea';
 export type { TextareaProps, TextareaSize } from './components/forms/Textarea';
 export { Checkbox } from './components/forms/Checkbox';
+export { CheckboxGroup } from './components/forms/CheckboxGroup';
+export type { CheckboxGroupOrientation, CheckboxGroupProps } from './components/forms/CheckboxGroup';
+export { ColorPicker } from './components/forms/ColorPicker';
+export type { ColorPickerOption, ColorPickerProps, ColorPickerSize } from './components/forms/ColorPicker';
+export { FileUpload } from './components/forms/FileUpload';
+export type {
+  FileRejection,
+  FileRejectionReason,
+  FileUploadItem,
+  FileUploadProps,
+  FileUploadStatus,
+} from './components/forms/FileUpload';
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
 export type { RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
@@ -145,6 +169,10 @@ export type {
   CardProps,
 } from './components/data-display/Card';
 export { CodeBlock } from './components/data-display/CodeBlock';
+export { SortableList } from './components/data-display/SortableList';
+export type { SortableListItem, SortableListProps } from './components/data-display/SortableList';
+export { Timeline } from './components/data-display/Timeline';
+export type { TimelineItem, TimelineProps } from './components/data-display/Timeline';
 export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {
@@ -175,6 +203,7 @@ export {
   formatarMoeda,
   formatarNumero,
   formatarPercentual,
+  formatarTamanhoDeArquivo,
 } from './utils/formatters';
 export type {
   Compacto,
@@ -183,6 +212,7 @@ export type {
   OpcoesDeMoeda,
   OpcoesDeNumero,
   OpcoesDePercentual,
+  OpcoesDeTamanhoDeArquivo,
 } from './utils/formatters';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';

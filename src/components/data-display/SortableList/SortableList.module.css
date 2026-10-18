@@ -1,0 +1,150 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--pl-font-body);
+}
+
+.row {
+  position: relative;
+  border-radius: var(--pl-radius-sm);
+  color: var(--pl-color-text);
+  cursor: pointer;
+  transition: background-color var(--pl-speed-1) var(--pl-ease);
+}
+
+.row:hover {
+  background: var(--pl-color-surface-subtle);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: -2px;
+}
+
+.selected,
+.selected:hover {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+/* O indicador fica na fresta entre as linhas, onde o item vai cair. */
+.dropBefore::before,
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 2px;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-primary);
+  pointer-events: none;
+}
+
+.dropBefore::before {
+  top: -2px;
+}
+
+.dropAfter::after {
+  bottom: -2px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  padding: var(--pl-space-2) var(--pl-space-2) var(--pl-space-2) var(--pl-space-1);
+}
+
+.handle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: var(--pl-color-text-tertiary);
+  font-size: 1rem;
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:hover {
+  color: var(--pl-color-text);
+}
+
+.handle:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 0;
+}
+
+.dragging .handle {
+  cursor: grabbing;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--pl-color-text-secondary);
+  font-size: 1rem;
+}
+
+.selected .icon {
+  color: inherit;
+}
+
+.text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title,
+.excerpt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.excerpt {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.actions {
+  display: inline-flex;
+  flex: none;
+  gap: var(--pl-space-1);
+}
+
+.hiddenText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+}
