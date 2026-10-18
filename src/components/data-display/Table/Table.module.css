@@ -21,15 +21,15 @@
 }
 
 .sm {
-  --table-row-height: 3.5rem;
+  --table-row-height: 3rem;
   --table-head-height: 2.25rem;
-  --table-block-padding: var(--pl-space-3);
+  --table-block-padding: var(--pl-space-2);
 }
 
 .md {
-  --table-row-height: 4.5rem;
+  --table-row-height: 3.75rem;
   --table-head-height: 2.75rem;
-  --table-block-padding: var(--pl-space-4);
+  --table-block-padding: var(--pl-space-3);
 }
 
 .head {
