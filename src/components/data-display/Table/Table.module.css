@@ -36,9 +36,12 @@
   background: var(--pl-color-surface-subtle);
 }
 
+/* A faixa do cabecalho tem linha em cima e embaixo: ela se delimita sozinha, solta na pagina ou sob o titulo de um
+   cartao. Nao e contorno da tabela, que continua sem borda nas laterais e no fim. */
 .column {
   height: var(--table-head-height);
   padding: 0 var(--table-inline-padding);
+  border-top: 1px solid var(--pl-color-border);
   border-bottom: 1px solid var(--pl-color-border);
   color: var(--pl-color-text-tertiary);
   font-size: var(--pl-type-caption-size);

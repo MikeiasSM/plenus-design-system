@@ -73,9 +73,3 @@
   padding: var(--pl-space-4) var(--pl-space-5);
   border-top: 1px solid var(--pl-color-border);
 }
-
-/* O corpo sem respiro encosta o conteudo no cabecalho, e a linha os separa: sem ela, a faixa do cabecalho de uma
-   tabela comecava colada ao titulo do cartao. */
-.header:has(+ .bodyFlush) {
-  border-bottom: 1px solid var(--pl-color-border);
-}
