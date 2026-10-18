@@ -491,7 +491,6 @@ const CONJUNTOS: Record<string, { dados: readonly Atributo[]; props: ChartTimeli
 };
 
 const playground = definirPlayground({
-  largo: true,
   inicial: {
     conjunto: 'jornada',
     title: 'Jornada de trabalho, 01/10 a 12/10/2026',

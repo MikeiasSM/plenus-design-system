@@ -209,7 +209,6 @@ function MapaDoPlayground({ props, registrar }: { props: ChartMapProps; registra
 }
 
 const playground = definirPlayground({
-  largo: true,
   inicial: {
     colorScale: 'sequential',
     log: false,
