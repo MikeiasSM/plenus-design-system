@@ -63,7 +63,7 @@ export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useHoveredBand } from './useHoveredBand';
 export type { HoveredBand } from './useHoveredBand';
-export { useSeriesToggle } from './useSeriesToggle';
+export { seriesInScale, useSeriesToggle } from './useSeriesToggle';
 export type { SeriesToggle, UseSeriesToggleOptions } from './useSeriesToggle';
 export { useSliceRing } from './useSliceRing';
 export type { SliceRing, UseSliceRingOptions } from './useSliceRing';

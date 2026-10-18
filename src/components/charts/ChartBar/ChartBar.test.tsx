@@ -186,6 +186,15 @@ describe('ChartBar', () => {
     vi.useRealTimers();
   });
 
+  it('com todas as series desligadas, a escala nao desaba: vale a de todas, e a ultima sai encolhendo em vez de esticar para fora', () => {
+    const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    const escala = rotulosDoEixo().filter((rotulo) => /\d/.test(rotulo ?? '') && !rotulo?.includes('/'));
+
+    rerender(<ChartBar categories={periodos} hiddenSeries={dre.map((serie) => serie.label)} series={dre} title="DRE" />);
+
+    expect(rotulosDoEixo()).toEqual(expect.arrayContaining(escala));
+  });
+
   it('mostra o eixo da direita somente quando pedido', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
     const comUmEixo = rotulosDoEixo().length;

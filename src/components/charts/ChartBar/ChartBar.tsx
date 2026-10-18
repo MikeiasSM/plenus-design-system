@@ -4,6 +4,7 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
+  seriesInScale,
   useCartesianLayout,
   chartHeight,
   roundedBarPath,
@@ -96,15 +97,15 @@ export function ChartBar({
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
   const dominio = useMemo(() => {
-    const visiveis = series.filter((serie) => !isHidden(serie.label));
+    const naEscala = seriesInScale(series, isHidden);
 
     if (stacked) {
       return domainOf(
-        categories.flatMap((_, indice) => stackDiverging(visiveis.map((serie) => serie.values[indice] ?? 0)).flat()),
+        categories.flatMap((_, indice) => stackDiverging(naEscala.map((serie) => serie.values[indice] ?? 0)).flat()),
       );
     }
 
-    return mergeDomains(visiveis.map((serie) => domainOf([...serie.values])));
+    return mergeDomains(naEscala.map((serie) => domainOf([...serie.values])));
   }, [categories, isHidden, series, stacked]);
 
   // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.

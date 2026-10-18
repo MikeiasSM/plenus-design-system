@@ -3,6 +3,7 @@ import {
   CartesianFrame,
   PointBands,
   PointCursor,
+  seriesInScale,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -106,9 +107,12 @@ export function ChartLine({
   const dominio = useMemo(
     () =>
       mergeDomains(
-        series
-          .filter((serie) => !isHidden(serie.label))
-          .map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero })),
+        seriesInScale(series, isHidden).map((serie) =>
+          domainOf(
+            serie.values.filter((valor) => valor !== null),
+            { includeZero },
+          ),
+        ),
       ),
     [includeZero, isHidden, series],
   );

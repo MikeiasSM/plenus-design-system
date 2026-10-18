@@ -4,6 +4,7 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
+  seriesInScale,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -80,16 +81,17 @@ function eixoDa(serie: ChartComboSeries): ChartComboAxis {
   return serie.axis ?? 'left';
 }
 
-/** Dominio de um eixo: so as series visiveis que pertencem a ele. */
+/** Dominio de um eixo: as series que pertencem a ele e entram na escala. */
 function dominioDoEixo(
   series: readonly ChartComboSeries[],
   axis: ChartComboAxis,
   oculta: (label: string) => boolean,
 ) {
   return mergeDomains(
-    series
-      .filter((serie) => eixoDa(serie) === axis && !oculta(serie.label))
-      .map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
+    seriesInScale(
+      series.filter((serie) => eixoDa(serie) === axis),
+      oculta,
+    ).map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
   );
 }
 

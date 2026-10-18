@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
+  seriesInScale,
   useCartesianLayout,
   chartHeight,
   useChartMetrics,
@@ -96,21 +97,21 @@ export function ChartScatter({
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
 
-  const visiveis = useMemo(() => series.filter((serie) => !isHidden(serie.label)), [isHidden, series]);
+  const naEscala = useMemo(() => seriesInScale(series, isHidden), [isHidden, series]);
 
   const zeroEmX = includeZero === true || includeZero === 'x';
   const zeroEmY = includeZero === true || includeZero === 'y';
 
   const dominioX = useMemo(
     () =>
-      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.x), { includeZero: zeroEmX }))),
-    [visiveis, zeroEmX],
+      mergeDomains(naEscala.map((serie) => domainOf(serie.points.map((p) => p.x), { includeZero: zeroEmX }))),
+    [naEscala, zeroEmX],
   );
 
   const dominioY = useMemo(
     () =>
-      mergeDomains(visiveis.map((serie) => domainOf(serie.points.map((p) => p.y), { includeZero: zeroEmY }))),
-    [visiveis, zeroEmY],
+      mergeDomains(naEscala.map((serie) => domainOf(serie.points.map((p) => p.y), { includeZero: zeroEmY }))),
+    [naEscala, zeroEmY],
   );
 
   const maiorZ = useMemo(

@@ -45,3 +45,13 @@ export function useSeriesToggle({
     toggle,
   };
 }
+
+/**
+ * Series que entram na escala de valores: as visiveis, ou todas quando nenhuma esta. Sem isso a escala
+ * desabava ao desligar a ultima, e ela saia esticada para fora do grafico em vez de encolher no lugar.
+ */
+export function seriesInScale<T extends { label: string }>(series: readonly T[], isHidden: (label: string) => boolean) {
+  const visiveis = series.filter((serie) => !isHidden(serie.label));
+
+  return visiveis.length > 0 ? visiveis : series;
+}
