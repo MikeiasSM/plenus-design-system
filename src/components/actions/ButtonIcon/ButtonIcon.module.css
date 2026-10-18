@@ -1,0 +1,15 @@
+/* Quadrado na altura do `Button` de cada tamanho — 28, 42 e 48px —, com o icone no lugar da entrelinha do texto. */
+.buttonIcon.sm {
+  padding: 5px;
+  font-size: 1rem;
+}
+
+.buttonIcon.md {
+  padding: 10px;
+  font-size: 1.25rem;
+}
+
+.buttonIcon.lg {
+  padding: 11px;
+  font-size: 1.5rem;
+}

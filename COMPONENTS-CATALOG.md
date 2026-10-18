@@ -25,6 +25,9 @@ A situação indica a existência do componente, não a cobertura integral do pa
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Button` | Aciona uma operação. | Disponível |
+| `ButtonIcon` | Aciona uma operação representada só por ícone. | Disponível |
+
+O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o contexto já diz: o filtro ao lado da busca, o fechar, a ação de uma linha. O nome é obrigatório e vai em `label`, que o leitor de tela ouve e a dica mostra a quem passa o ponteiro ou chega pelo teclado. Havendo espaço para o texto, o `Button` com texto é a escolha: ícone sozinho pede que a pessoa adivinhe.
 
 ## 3. Formulários
 

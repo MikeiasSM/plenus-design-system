@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  Alert, Avatar, Badge, Button, Checkbox, EmptyState, InputCurrency, InputText, InputNumber, InputPassword,
+  Alert, Avatar, Badge, Button, ButtonIcon, Checkbox, EmptyState, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
   Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
   ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, CodeBlock, DatePicker, DateTimePicker, List,
@@ -282,6 +282,7 @@ export function App() {
           <a href="#tokens">Tokens e regras</a>
           <p className="rail-group">Acoes</p>
           <a href="#button">Button</a>
+          <a href="#buttonicon">ButtonIcon</a>
           <p className="rail-group">Formularios</p>
           <a href="#input-text">InputText</a>
           <a href="#input-password">InputPassword</a>
@@ -415,6 +416,37 @@ export function App() {
               <Button loading>Salvando</Button>
               <Button onClick={() => setSaved(true)}>{saved ? 'Salvo' : 'Interativo'}</Button>
             </div>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="actions"
+          description="Acao representada so por icone, com nome obrigatorio dito ao leitor de tela e mostrado como dica."
+          id="buttonicon"
+          name="ButtonIcon"
+          api={'<ButtonIcon\n  icon={<IconSearch />}\n  label="Buscar"\n  variant="secondary"\n/>'}
+        >
+          <div className="doc-subsection">
+            <h3>Variantes</h3>
+            <div className="demo-row">
+              <ButtonIcon icon={<IconPlusCircle />} label="Adicionar" variant="primary" />
+              <ButtonIcon icon={<IconSearch />} label="Buscar" />
+              <ButtonIcon icon={<IconChartBar />} label="Ver grafico" variant="soft" />
+              <ButtonIcon icon={<IconClose />} label="Fechar" variant="ghost" />
+              <ButtonIcon icon={<IconMinusCircle />} label="Remover" variant="danger" />
+            </div>
+          </div>
+          <div className="doc-subsection">
+            <h3>Tamanhos, na altura do Button</h3>
+            <div className="demo-row">
+              <ButtonIcon icon={<IconSearch />} label="Buscar, pequeno" size="sm" />
+              <Button size="sm" variant="secondary">Pequeno</Button>
+              <ButtonIcon icon={<IconSearch />} label="Buscar, medio" />
+              <Button variant="secondary">Medio</Button>
+              <ButtonIcon icon={<IconSearch />} label="Buscar, grande" size="lg" />
+              <Button size="lg" variant="secondary">Grande</Button>
+            </div>
+            <p className="doc-note">Quadrado na altura do Button de cada tamanho. O label e o nome do botao para o leitor de tela e aparece como dica ao passar o ponteiro ou chegar pelo teclado. Havendo espaco para texto, prefira o Button.</p>
           </div>
         </ComponentDoc>
 

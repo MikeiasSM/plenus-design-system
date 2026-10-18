@@ -21,6 +21,8 @@ export {
 export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './components/actions/Button';
+export { ButtonIcon } from './components/actions/ButtonIcon';
+export type { ButtonIconProps } from './components/actions/ButtonIcon';
 export { Field } from './components/forms/Field';
 export type { FieldProps, FieldWiring } from './components/forms/Field';
 export { Label } from './components/forms/Label';
