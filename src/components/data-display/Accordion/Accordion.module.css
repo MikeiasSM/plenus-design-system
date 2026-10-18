@@ -68,6 +68,17 @@
 .icon {
   flex: none;
   color: var(--pl-color-text-tertiary);
+  transition: transform var(--pl-speed-1) var(--pl-ease);
+}
+
+.iconOpen {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
+  }
 }
 
 

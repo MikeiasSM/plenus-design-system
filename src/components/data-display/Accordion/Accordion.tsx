@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Accordion.module.css';
-import { IconMinusCircle, IconPlusCircle } from '../../icons';
+import { IconChevronDown } from '../../icons';
 
 export interface AccordionItem {
   content: ReactNode;
@@ -107,11 +107,7 @@ export function Accordion({
                 onKeyDown={(event) => handleKeyDown(event, item.key)}
               >
                 <span className={styles.label}>{item.label}</span>
-                {aberto ? (
-                  <IconMinusCircle className={styles.icon} size={20} />
-                ) : (
-                  <IconPlusCircle className={styles.icon} size={20} />
-                )}
+                <IconChevronDown className={[styles.icon, aberto && styles.iconOpen].filter(Boolean).join(' ')} size={16} />
               </button>
             </h3>
             <div

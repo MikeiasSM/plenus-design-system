@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Accordion, type AccordionItem } from './Accordion';
+import styles from './Accordion.module.css';
 
 const secoes: AccordionItem[] = [
   { key: 'envio', label: 'Envio', content: 'Regras de envio' },
@@ -59,17 +60,16 @@ describe('Accordion', () => {
     expect(envio).toHaveFocus();
   });
 
-  it('troca o glifo do icone entre mais e menos, sem girar', () => {
+  it('o chevron aponta para baixo fechado e gira para cima aberto', () => {
     render(<Accordion items={secoes} />);
     const gatilho = screen.getByRole('button', { name: /Envio/ });
-    const glifo = () => [...gatilho.querySelectorAll('path')].at(-1)?.getAttribute('d');
+    const chevron = () => gatilho.querySelector('svg');
 
-    const fechado = glifo();
+    expect(chevron()).not.toHaveClass(styles.iconOpen!);
+
     fireEvent.click(gatilho);
 
-    // O icone troca de desenho. Girar o mesmo glifo devolveria o mesmo caminho.
-    expect(glifo()).not.toBe(fechado);
-    expect(fechado).toBeTruthy();
+    expect(chevron()).toHaveClass(styles.iconOpen!);
   });
 
   it('aceita o icone a esquerda da pergunta', () => {
