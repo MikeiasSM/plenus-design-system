@@ -189,6 +189,12 @@ Cada componente deve definir seu comportamento acessível.
 - Expor relações semânticas.
 - Utilizar ARIA somente quando necessário.
 
+### Gráficos
+
+- Expor o desenho como imagem nomeada pelo título, com a descrição de cada marca.
+- Quando as marcas forem acionáveis, expor o desenho como grupo nomeado e cada marca como botão, com um único ponto de tabulação e navegação por setas entre as marcas.
+- Oferecer leitura completa fora do desenho, em tabela, quando o desenho não for a única forma de chegar ao dado.
+
 ## 8. Tokens
 
 Componentes devem consumir tokens para decisões visuais.

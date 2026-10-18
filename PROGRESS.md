@@ -517,7 +517,11 @@ Pedidos em 18/10/2026. Antes de implementar, cada um ganhou um artefato com prot
 
 - `ChartTimeline`: https://claude.ai/artifact/8LpGSTc4qrEAJZt8sSHSu7 — **validado**.
 - `ChartMap`: https://claude.ai/artifact/Jndvf48UUbRZ64XrzjKPBb e o teste de carga https://claude.ai/artifact/Ac6EZJzyY1zqaXN7gQ7Xp2 — **validados**. O componente e a soma dos dois: as configuracoes do artefato de desenho e o que o teste de carga mediu.
-- `ChartGauge`: https://claude.ai/artifact/TpBbmcYpNWtF44mTjAJwDe — **em alinhamento** com o mantenedor; nao entrou no catalogo.
+- `ChartGauge`: https://claude.ai/artifact/TpBbmcYpNWtF44mTjAJwDe — **validado**, com a meta monetaria, global e por vendedor, acrescentada a pedido do mantenedor.
+
+Os tres entram em implementacao, um de cada vez, na ordem ChartTimeline, ChartMap, ChartGauge, por decisao do mantenedor em 18/10/2026. Na mesma data ele decidiu: a escala do ChartMap segue "mais escuro = maior" tambem no tema escuro; `d3-geo` entra como dependencia e os tokens de escala sequencial, divergente e sem dado entram em `TOKENS-REFERENCE-COLORS.md`; e a regra de graficos com marcas acionaveis — grupo nomeado, marcas como botoes, um ponto de tabulacao — entrou em `COMPONENTS.md` secao 7.
+
+**ChartGauge.** `value`, `min`, `max`, arco de 180, 240 ou 270 graus, arco preenchido e/ou ponteiro, faixas nomeadas com intencao, meta, marcas da escala, centro com valor, rotulo e variacao, escala que cruza o zero partindo do zero, compacto, balao e `role="meter"` com `aria-valuetext` que diz a faixa e a meta. Valor fora da escala satura e avisa. Meta monetaria: `valueDisplay: 'value' | 'percentOfTarget'` escolhe o que o centro mostra, com o atingimento calculado pelo componente; `segmentUnit: 'percentOfTarget'` declara as faixas em fracao da meta; sem `max`, a escala vai ate 120% da meta. Varios medidores lado a lado sao composicao do produto. A variante linear fica para depois, como `ChartBullet`.
 
 **ChartTimeline.** O nome e do mantenedor. Linhas por categoria, intervalos com inicio e fim e cor por serie, eixo de tempo em horas do dia ou em datas, faixas de referencia por linha (a jornada) e globais, marcas pontuais, linha de referencia, sobreposicao em sub-faixas, rotulo dentro da barra quando cabe, progresso parcial, coluna de resumo por linha calculada pelo consumidor, grupos recolhiveis, modo de estados que junta valores iguais seguidos, balao integrado, legenda que desliga serie e visao em tabela. Ficam para depois: dependencias entre tarefas, marco como tipo proprio, zoom ou selecao de faixa, virtualizacao. Fora: arrastar para editar. A navegacao de periodo (mes anterior e proximo) e composicao do produto. Decisao em aberto: o formatador de duracao ("10h16m"), que o sistema ainda nao tem.
 
@@ -531,7 +535,7 @@ Pedidos em 18/10/2026. Antes de implementar, cada um ganhou um artefato com prot
 - Ao abrir uma regiao pequena, como o DF, o enquadramento tem teto de zoom e as vizinhas entram em cinza como contexto: sozinho, o DF ocupava o palco e as bordas retas pareciam corte. Com um valor so, a escala vira uma cor e uma entrada na legenda; com menos valores distintos que cores, as classes diminuem.
 - Dependencia: `d3-geo`, do nucleo do D3 e so de calculo, coerente com a fronteira de D3 desta secao. `d3-zoom` nao entra, por tocar o DOM; zoom fica para depois.
 
-Decisoes em aberto do ChartMap: os tokens das escalas sequencial e divergente (`--pl-chart-sequential-1..7`, `--pl-chart-diverging-*`, `--pl-chart-no-data`), normativos, e o sentido da escala no tema escuro — maior valor mais claro, como no prototipo, ou mais escuro, como no claro, que e a leitura que o mantenedor esperava.
+Os tokens das escalas (`--pl-chart-sequential-1..7`, `--pl-chart-diverging-*`, `--pl-chart-no-data`) entram com o componente, na ordem "mais escuro = maior" nos dois temas.
 
 ### Datas
 
