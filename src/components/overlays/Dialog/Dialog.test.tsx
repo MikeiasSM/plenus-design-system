@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { Button } from '../../actions/Button';
 import { Dialog } from './Dialog';
+import styles from './Dialog.module.css';
 
 function Host({ dismissable = true }: { dismissable?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -99,5 +100,30 @@ describe('Dialog', () => {
     );
 
     expect(screen.getByRole('alertdialog', { name: 'Excluir documento' })).toHaveAttribute('aria-modal', 'true');
+  });
+
+  it('desenha o icone so quando informado, fora da leitura', () => {
+    const { rerender } = render(<Dialog onClose={() => undefined} open title="Nova secao" />);
+
+    expect(document.querySelector(`.${styles.icon}`)).toBeNull();
+
+    rerender(<Dialog icon={<svg data-testid="icone" />} onClose={() => undefined} open title="Nova secao" />);
+
+    expect(screen.getByTestId('icone').closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.getByRole('dialog', { name: 'Nova secao' })).toBeInTheDocument();
+  });
+
+  it('separa o cabecalho por linha so quando ha corpo embaixo dele', () => {
+    const { rerender } = render(<Dialog onClose={() => undefined} open title="Publicar" />);
+
+    expect(document.querySelector('header')).not.toHaveClass(styles.headerDivided!);
+
+    rerender(
+      <Dialog onClose={() => undefined} open title="Publicar">
+        Corpo
+      </Dialog>,
+    );
+
+    expect(document.querySelector('header')).toHaveClass(styles.headerDivided!);
   });
 });

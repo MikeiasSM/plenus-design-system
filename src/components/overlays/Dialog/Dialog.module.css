@@ -7,19 +7,21 @@
   justify-content: center;
   padding: var(--pl-space-4);
   background: var(--pl-color-scrim);
+  backdrop-filter: blur(6px);
+  animation: dialog-fade var(--pl-speed-2) var(--pl-ease) both;
 }
 
+/* Cartao com cabecalho e rodape fixos: o meio rola, e as acoes ficam sempre a vista. */
 .dialog {
   display: flex;
   flex-direction: column;
-  gap: var(--pl-space-3);
   width: 100%;
-  max-height: calc(100vh - var(--pl-space-7));
-  overflow-y: auto;
-  padding: var(--pl-space-5);
+  max-height: calc(100vh - 2 * var(--pl-space-4));
+  overflow: hidden;
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   box-shadow: var(--pl-sh-3);
+  animation: dialog-rise var(--pl-speed-2) var(--pl-ease) both;
 }
 
 .dialog:focus-visible {
@@ -39,33 +41,76 @@
 }
 
 .header {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--pl-space-3);
+  flex: none;
+  gap: var(--pl-space-4);
+  padding: var(--pl-space-5) calc(var(--pl-space-5) + 2.25rem + var(--pl-space-2)) var(--pl-space-5) var(--pl-space-5);
+}
+
+.header:not(:has(.close)) {
+  padding-right: var(--pl-space-5);
+}
+
+.headerDivided {
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
+/* O mesmo destaque do `EmptyState`: quadrado com borda e sombra leve. */
+.icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1), 0 8px 20px rgba(24, 26, 28, 0.08);
+  color: var(--pl-color-text-secondary);
+  font-size: 1.5rem;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+  padding-top: 2px;
 }
 
 .title {
   margin: 0;
   color: var(--pl-color-text);
-  font-family: var(--pl-font-heading);
-  font-size: var(--pl-type-headline-medium-size);
-  font-weight: var(--pl-type-headline-medium-weight);
-  line-height: var(--pl-type-headline-medium-line-height);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-title-size);
+  font-weight: var(--pl-type-title-weight);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.description {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
 }
 
 .close {
+  position: absolute;
+  top: var(--pl-space-4);
+  right: var(--pl-space-4);
   display: inline-flex;
-  flex: none;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 2.25rem;
+  height: 2.25rem;
   padding: 0;
   border: 0;
-  border-radius: var(--pl-radius-sm);
+  border-radius: var(--pl-radius-md);
   background: transparent;
-  color: var(--pl-color-text-secondary);
+  color: var(--pl-color-text-tertiary);
   cursor: pointer;
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
@@ -81,15 +126,11 @@
   outline-offset: 2px;
 }
 
-.description {
-  margin: 0;
-  color: var(--pl-color-text-secondary);
-  font-family: var(--pl-font-body);
-  font-size: var(--pl-type-body-size);
-  line-height: var(--pl-type-body-line-height);
-}
-
 .body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--pl-space-5);
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
@@ -98,8 +139,38 @@
 
 .footer {
   display: flex;
+  flex: none;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--pl-space-2);
-  margin-top: var(--pl-space-2);
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-4) var(--pl-space-5);
+  border-top: 1px solid var(--pl-color-border);
+  background: var(--pl-color-surface-subtle);
+}
+
+/* No celular continua um cartao centralizado; as acoes dividem a largura para o toque. */
+@media (max-width: 480px) {
+  .footer > * {
+    flex: 1 1 0;
+  }
+}
+
+@keyframes dialog-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .underlay,
+  .dialog {
+    animation: none;
+  }
 }

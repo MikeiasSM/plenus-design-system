@@ -218,6 +218,7 @@ export function App() {
   const [saved, setSaved] = useState(false);
   const [pagamento, setPagamento] = useState('pix');
   const [dialogoAberto, setDialogoAberto] = useState(false);
+  const [formularioAberto, setFormularioAberto] = useState(false);
   const [popoverAberto, setPopoverAberto] = useState(false);
   const gatilhoPopover = useRef<HTMLButtonElement>(null);
   const [uf, setUf] = useState('sp');
@@ -762,6 +763,31 @@ export function App() {
               Esta acao nao pode ser desfeita.
             </Dialog>
             <p className="doc-note">O foco fica preso no dialogo, retorna ao gatilho ao fechar, a rolagem do fundo trava e o restante da pagina e escondido da tecnologia assistiva. Fecha por Escape, clique fora ou botao de fechar.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Formulario, com icone</h3>
+            <div className="demo-row">
+              <Button variant="secondary" onClick={() => setFormularioAberto(true)}>Nova secao</Button>
+            </div>
+            <Dialog
+              open={formularioAberto}
+              onClose={() => setFormularioAberto(false)}
+              icon={<IconPlusCircle />}
+              title="Nova seção"
+              description="A seção agrupa documentos dentro da coleção."
+              footer={
+                <>
+                  <Button variant="secondary" onClick={() => setFormularioAberto(false)}>Cancelar</Button>
+                  <Button onClick={() => setFormularioAberto(false)}>Criar seção</Button>
+                </>
+              }
+            >
+              <div className="input-grid">
+                <InputText label="Nome" />
+                <InputText label="Descrição" />
+              </div>
+            </Dialog>
+            <p className="doc-note">O icone e opcional. Cabecalho e rodape ficam fixos e separados por linha; com conteudo longo, so o meio rola. No celular o dialogo continua centralizado, entra subindo, e as acoes dividem a largura.</p>
           </div>
         </ComponentDoc>
 

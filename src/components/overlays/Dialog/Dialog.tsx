@@ -15,6 +15,8 @@ export interface DialogProps extends Omit<ComponentPropsWithRef<'div'>, 'childre
   description?: string;
   dismissable?: boolean;
   footer?: ReactNode;
+  /** Opcional. Desenhado ao lado do titulo, fora da leitura: quem fala e o titulo. */
+  icon?: ReactNode;
   onClose: () => void;
   open: boolean;
   /** `alertdialog` para a confirmacao que interrompe e exige resposta, como a de uma acao destrutiva. */
@@ -38,6 +40,7 @@ function DialogContent({
   description,
   dismissable = true,
   footer,
+  icon,
   onClose,
   ref: refDoConsumidor,
   role = 'dialog',
@@ -78,15 +81,22 @@ function DialogContent({
           aria-labelledby={titleId}
           aria-describedby={description ? descriptionId : undefined}
         >
-          <header className={styles.header}>
-            <h2 className={styles.title} id={titleId}>{title}</h2>
+          <header className={[styles.header, children && styles.headerDivided].filter(Boolean).join(' ')}>
+            {icon && (
+              <span aria-hidden="true" className={styles.icon}>
+                {icon}
+              </span>
+            )}
+            <div className={styles.heading}>
+              <h2 className={styles.title} id={titleId}>{title}</h2>
+              {description && <p className={styles.description} id={descriptionId}>{description}</p>}
+            </div>
             {dismissable && (
               <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
-                <IconClose size={16} />
+                <IconClose size={20} />
               </button>
             )}
           </header>
-          {description && <p className={styles.description} id={descriptionId}>{description}</p>}
           {children && <div className={styles.body}>{children}</div>}
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>
