@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Table } from './Table';
+import styles from './Table.module.css';
 
 interface Membro {
   id: string;
@@ -307,5 +308,50 @@ describe('Table', () => {
     expect(screen.getByText('Ana Prado').closest('tr')).toBe(linhaDaAna);
     expect(aviso).not.toHaveBeenCalled();
     aviso.mockRestore();
+  });
+
+  describe('a celula segue a coluna da mesma posicao', () => {
+    function tabela(celula: { align?: 'start' | 'center' | 'end' } = {}) {
+      render(
+        <Table label="Pedidos" rows={[{ id: 'p1' }]} selectionMode="multiple">
+          <Table.Header>
+            <Table.Column id="pedido">Pedido</Table.Column>
+            <Table.Column id="situacao" align="center" hideBelow="md">
+              Situacao
+            </Table.Column>
+            <Table.Column id="valor" numeric>
+              Valor
+            </Table.Column>
+          </Table.Header>
+          <Table.Body items={[{ id: 'p1' }]}>
+            {() => (
+              <Table.Row id="p1">
+                <Table.Cell>#1042</Table.Cell>
+                <Table.Cell {...celula}>Pago</Table.Cell>
+                <Table.Cell>R$ 10,00</Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>,
+      );
+
+      return (texto: string) => screen.getByText(texto).closest('td');
+    }
+
+    it('herda alinhamento, numeric e descarte, contando so as colunas do consumidor', () => {
+      const celula = tabela();
+
+      expect(celula('#1042')).toHaveClass(styles.start!);
+      expect(celula('Pago')).toHaveClass(styles.center!);
+      expect(celula('Pago')).toHaveAttribute('data-hide-below', 'md');
+      expect(celula('R$ 10,00')).toHaveClass(styles.end!, styles.numeric!);
+    });
+
+    it('o alinhamento da propria celula vence o da coluna', () => {
+      const celula = tabela({ align: 'end' });
+
+      expect(celula('Pago')).toHaveClass(styles.end!);
+      expect(celula('Pago')).not.toHaveClass(styles.center!);
+    });
   });
 });

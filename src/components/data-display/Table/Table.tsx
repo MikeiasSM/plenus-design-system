@@ -1,11 +1,14 @@
 import {
+  Children,
   createContext,
   Fragment,
+  isValidElement,
   type ComponentPropsWithRef,
   useCallback,
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -56,11 +59,20 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   striped?: boolean;
 }
 
+/** O que a celula herda da coluna na mesma posicao, quando nao declara o proprio. */
+interface ColumnLayout {
+  align: TableAlign;
+  hideBelow?: TableBreakpoint;
+  numeric: boolean;
+}
+
 interface TableContextValue {
   baseId: string;
+  columnAt: (index: number) => ColumnLayout | undefined;
   countColumns: () => number;
   loading: boolean;
   registerColumn: (id: string) => () => void;
+  registerLayout: (index: number, layout: ColumnLayout) => () => void;
   requestSort: (column: string) => void;
   selection: TableSelection;
   size: TableSize;
@@ -79,6 +91,27 @@ interface TableSelection {
 }
 
 const TableContext = createContext<TableContextValue | undefined>(undefined);
+
+/** Posicao do filho no cabecalho ou na linha: e por ela que a celula acha a sua coluna. */
+const ColumnIndexContext = createContext<number | undefined>(undefined);
+
+function withColumnIndex(children: ReactNode) {
+  return Children.toArray(children).map((child, index) => (
+    <ColumnIndexContext.Provider key={isValidElement(child) && child.key !== null ? child.key : index} value={index}>
+      {child}
+    </ColumnIndexContext.Provider>
+  ));
+}
+
+function withLayout(
+  layouts: readonly (ColumnLayout | undefined)[],
+  index: number,
+  layout: ColumnLayout | undefined,
+): (ColumnLayout | undefined)[] {
+  const next = [...layouts];
+  next[index] = layout;
+  return next;
+}
 
 function useTableContext(part: string) {
   const context = useContext(TableContext);
@@ -156,6 +189,13 @@ export function Table({
       });
   }, []);
 
+  const [layouts, setLayouts] = useState<readonly (ColumnLayout | undefined)[]>([]);
+  const registerLayout = useCallback((index: number, layout: ColumnLayout) => {
+    setLayouts((atuais) => withLayout(atuais, index, layout));
+
+    return () => setLayouts((atuais) => withLayout(atuais, index, undefined));
+  }, []);
+
   function requestSort(column: string) {
     const next: TableSort = {
       column,
@@ -187,9 +227,11 @@ export function Table({
 
   const context: TableContextValue = {
     baseId,
+    columnAt: (index) => layouts[index],
     countColumns: () => Math.max(columns.size, 1),
     loading,
     registerColumn,
+    registerLayout,
     requestSort,
     selection: {
       control,
@@ -271,7 +313,7 @@ function TableHeader({ children }: TableHeaderProps) {
           </th>
         )}
         {selection.mode === 'single' && <th className={[styles.column, styles.lead].join(' ')} scope="col" />}
-        {children}
+        {withColumnIndex(children)}
       </tr>
     </thead>
   );
@@ -289,9 +331,18 @@ export interface TableColumnProps {
 }
 
 function TableColumn({ align, children, help, hideBelow, id, numeric = false, sortable = false, width }: TableColumnProps) {
-  const { registerColumn, requestSort, sort } = useTableContext('Table.Column');
+  const { registerColumn, registerLayout, requestSort, sort } = useTableContext('Table.Column');
+  const index = useContext(ColumnIndexContext);
+  const columnAlign = align ?? (numeric ? 'end' : 'start');
 
   useEffect(() => registerColumn(id), [id, registerColumn]);
+
+  // Antes da pintura: com efeito comum, a celula aparecia um quadro alinhada a esquerda e so depois ia para o lado
+  // da coluna.
+  useLayoutEffect(
+    () => (index === undefined ? undefined : registerLayout(index, { align: columnAlign, hideBelow, numeric })),
+    [columnAlign, hideBelow, index, numeric, registerLayout],
+  );
 
   const sorted = sort?.column === id ? sort.direction : undefined;
 
@@ -307,7 +358,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
   return (
     <th
       aria-sort={sortable ? sorted ?? 'none' : undefined}
-      className={[styles.column, styles[align ?? (numeric ? 'end' : 'start')], sortable && styles.sortable]
+      className={[styles.column, styles[columnAlign], sortable && styles.sortable]
         .filter(Boolean)
         .join(' ')}
       data-hide-below={hideBelow}
@@ -430,11 +481,12 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
           />
         </td>
       )}
-      {children}
+      {withColumnIndex(children)}
     </tr>
   );
 }
 
+/** Sem valor proprio, `align`, `hideBelow` e `numeric` seguem a coluna da mesma posicao no cabecalho. */
 export interface TableCellProps {
   align?: TableAlign;
   children?: ReactNode;
@@ -442,13 +494,18 @@ export interface TableCellProps {
   numeric?: boolean;
 }
 
-function TableCell({ align, children, hideBelow, numeric = false }: TableCellProps) {
+function TableCell({ align, children, hideBelow, numeric }: TableCellProps) {
+  const { columnAt } = useTableContext('Table.Cell');
+  const index = useContext(ColumnIndexContext);
+  const column = index === undefined ? undefined : columnAt(index);
+  const isNumeric = numeric ?? column?.numeric ?? false;
+
   return (
     <td
-      className={[styles.cell, styles[align ?? (numeric ? 'end' : 'start')], numeric && styles.numeric]
+      className={[styles.cell, styles[align ?? column?.align ?? (isNumeric ? 'end' : 'start')], isNumeric && styles.numeric]
         .filter(Boolean)
         .join(' ')}
-      data-hide-below={hideBelow}
+      data-hide-below={hideBelow ?? column?.hideBelow}
     >
       {children}
     </td>

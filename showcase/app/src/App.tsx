@@ -2031,7 +2031,7 @@ export function App() {
                         <Table.Cell>
                           <Badge tone={pessoa.status === 'Ativo' ? 'ok' : 'warn'}>{pessoa.status}</Badge>
                         </Table.Cell>
-                        <Table.Cell align="end" hideBelow="md">
+                        <Table.Cell>
                           <Menu
                             label={`Acoes de ${pessoa.nome}`}
                             items={[
@@ -2072,17 +2072,17 @@ export function App() {
                       <Table.Row id={venda.id} label={`Selecionar ${venda.pedido}`}>
                         <Table.Cell>{venda.pedido}</Table.Cell>
                         <Table.Cell>{venda.cliente}</Table.Cell>
-                        <Table.Cell hideBelow="sm">
+                        <Table.Cell>
                           <Progress value={venda.progresso} size="sm" label={`Entrega de ${venda.pedido}`} />
                         </Table.Cell>
-                        <Table.Cell numeric>{venda.valor}</Table.Cell>
+                        <Table.Cell>{venda.valor}</Table.Cell>
                       </Table.Row>
                     )}
                   </Table.Body>
                 </Table>
               </Card.Body>
             </Card>
-            <p className="doc-note">Densidade compacta, sem divisores e com fundo alternado, que a referencia recomenda a partir de oito colunas. Na selecao unica o controle vira radio. A tabela nao desenha contorno: quem a envolve, aqui um Card sem cabecalho, e que da a borda.</p>
+            <p className="doc-note">Densidade compacta, sem divisores e com fundo alternado, que a referencia recomenda a partir de oito colunas. Na selecao unica o controle vira radio. A celula segue a coluna da mesma posicao: o valor sai alinhado a direita e em mono porque a coluna e numeric, sem repetir isso em cada linha. A tabela nao desenha contorno: quem a envolve, aqui um Card sem cabecalho, e que da a borda.</p>
           </div>
           <div className="doc-subsection">
             <h3>Sem registros e carregando</h3>
