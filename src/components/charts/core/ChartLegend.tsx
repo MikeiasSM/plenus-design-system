@@ -24,6 +24,8 @@ const ALINHAMENTO: Record<ChartLegendAlign, string> = {
 interface ChartLegendProps {
   align?: ChartLegendAlign;
   entries: readonly ChartLegendEntry[];
+  /** Entrada sob o ponteiro ou o foco, para o grafico destacar o que ela representa; `null` ao sair. */
+  onHighlight?: (label: string | null) => void;
   onToggle?: (label: string) => void;
   position: ChartLegendPosition;
   swatch?: ChartLegendSwatch;
@@ -36,6 +38,7 @@ interface ChartLegendProps {
 export function ChartLegend({
   align = 'center',
   entries,
+  onHighlight,
   onToggle,
   position,
   swatch = 'square',
@@ -58,7 +61,14 @@ export function ChartLegend({
         );
 
         return (
-          <li className={styles.legendItem} key={indice}>
+          <li
+            className={styles.legendItem}
+            key={indice}
+            onBlur={onHighlight && (() => onHighlight(null))}
+            onFocus={onHighlight && (() => onHighlight(entrada.label))}
+            onPointerEnter={onHighlight && (() => onHighlight(entrada.label))}
+            onPointerLeave={onHighlight && (() => onHighlight(null))}
+          >
             {onToggle ? (
               <button
                 aria-pressed={!entrada.hidden}

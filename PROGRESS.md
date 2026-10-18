@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-902 testes em 105 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+939 testes em 109 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -370,6 +370,8 @@ Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segu
 
 Falhas conhecidas, mantidas por decisao visual do mantenedor apos comparacao lado a lado das alternativas.
 
+- `--pl-chart-sequential-7` no tema escuro: 2,17:1 contra a superficie, abaixo do minimo de 3:1. Decorre da decisao "mais escuro = maior" nos dois temas, de 18/10/2026: o maior valor fica perto do fundo. O contorno das regioes em `--pl-color-border-strong`, a legenda e a tabela compensam.
+
 - `Button` variante `primary` solida: texto branco sobre `brand.orange.50` em 3.03:1, contra o minimo de 4.5:1. Mantido o laranja de marca. Vale nos **dois** temas: `color.primary` nao muda no escuro.
 - `Button` variante `primary` solida, contorno contra o fundo da pagina: 2.83:1 no tema claro, contra o minimo de 3:1. Passa em 6.03:1 no tema escuro.
 - `--pl-color-border-strong` como contorno de campo em repouso: 1.33:1 no claro e 1.57:1 no escuro, contra o minimo de 3:1. Mantida a borda discreta. No hover e no foco a borda alcanca 3.03:1 e 5.57:1.
@@ -527,7 +529,7 @@ Os tres entram em implementacao, um de cada vez, na ordem ChartTimeline, ChartMa
 
 Ao integrar, o `useChartMetrics` deixou de medir so uma vez a area que monta depois do grafico: o observador de tamanho passou a acompanhar o elemento, e nao a montagem. Sem isso, a area de desenho do ChartTimeline guardava a largura de antes da fonte carregar e passava 22 px da borda. No Showcase, o playground e o exemplo ganharam `largo`, que poe os controles embaixo e o exemplo na linha inteira, para graficos que precisam da largura.
 
-**ChartMap.** O produto fornece a geometria em GeoJSON e os dados como `{ id, value }`, casados pelo identificador de cada regiao; marcadores por latitude e longitude. A base que o mantenedor enviou para teste (geografia e populacao do IBGE, vendas simuladas) e caso de teste, nao formato. O teste de carga mediu, no Chrome:
+**ChartMap.** Implementado em 18/10/2026. O produto fornece a geometria em GeoJSON e os dados como `{ id, value }`, casados pelo identificador de cada regiao; marcadores por latitude e longitude. A base que o mantenedor enviou para teste (geografia e populacao do IBGE, vendas simuladas) e caso de teste, nao formato. O teste de carga mediu, no Chrome:
 
 - 27 UFs, 645 municipios de SP e os 5.573 do Brasil (807 mil vertices, 18 MB) desenham em SVG, o ultimo em cerca de 670 ms, com resposta ao ponteiro perto de 1 ms. Canvas nao desenhou mais rapido: o componente fica em SVG, sem modo canvas. O gargalo e a transferencia, e a documentacao recomenda ao produto carregar um nivel por vez.
 - Vendas e densidade concentram nas capitais: a escala linear deixa quase tudo num tom. Entram escala continua linear e logaritmica e classes por quantis, intervalos iguais ou limites fixos, alem de divergente e categorica.
@@ -538,6 +540,14 @@ Ao integrar, o `useChartMetrics` deixou de medir so uma vez a area que monta dep
 - Dependencia: `d3-geo`, do nucleo do D3 e so de calculo, coerente com a fronteira de D3 desta secao. `d3-zoom` nao entra, por tocar o DOM; zoom fica para depois.
 
 Os tokens das escalas (`--pl-chart-sequential-1..7`, `--pl-chart-diverging-*`, `--pl-chart-no-data`) entram com o componente, na ordem "mais escuro = maior" nos dois temas.
+
+Na implementacao:
+- Cores por token: classes usam `var(--pl-chart-sequential-N)` e as escalas continuas misturam passos vizinhos com `color-mix(in oklab, ...)`, entao a troca de tema repinta o mapa sem JavaScript. As regioes levam contorno em `--pl-color-border-strong`.
+- Desempenho medido em build de producao: 27 UFs com a malha detalhada em ~310 ms, 645 municipios de SP em ~200 ms, 1.794 do Nordeste em ~200 ms, 5.573 do Brasil em ~1,4 s, acima dos ~670 ms do teste de carga, que desenhava direto com d3, sem React nem as descricoes de cada regiao. O ponteiro custa ~2 ms de JavaScript.
+- O aviso de dado sem regiao usa `process.env.NODE_ENV`, que o build de biblioteca preserva: o bundler do produto o liga em desenvolvimento e o retira em producao. `import.meta.env.DEV` seria trocado por `false` no pacote publicado.
+- `ChartLegend` ganhou `onHighlight`, opcional, para o destaque de classe ao passar pela legenda.
+- Divergencias do artefato: rotulo na cor do texto do tema com halo da superficie, porque a escala continua nao tem cor medivel por passo; com `onRegionClick` ou `onMarkerClick`, o desenho vira grupo e regioes e marcadores entram no teclado, pela regra de `COMPONENTS.md` secao 7; balao so pelo ponteiro, como no ChartTimeline; a coluna de rotulos atende so as regioes da metade do desenho junto a ela, porque a linha guia cruzava o mapa; a tabela nao tem coluna de grupo.
+- No Showcase, o exemplo dos municipios do Nordeste, pedido pelo mantenedor, usa a base de teste que ele enviou, recortada e simplificada a 0,004 grau em `showcase/app/public/dados-mapa` (2,4 MB, buscada sob demanda): geografia do IBGE, vendas simuladas.
 
 ### Datas
 

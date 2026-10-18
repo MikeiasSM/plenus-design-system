@@ -1,0 +1,458 @@
+.figure {
+  composes: figure from '../core/Chart.module.css';
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+}
+
+.tableToggle {
+  flex: none;
+  white-space: nowrap;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../core/Chart.module.css';
+}
+
+.subtitle {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
+.bodyRow {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* A largura e medida aqui; a altura, no fluxo, vem da geometria, salvo em `fill`. */
+.plot {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.plotFill {
+  height: 100%;
+  min-height: 160px;
+}
+
+/* O contexto do recorte segue alem da area; o corte o mantem dentro do grafico. */
+.canvas {
+  display: block;
+  overflow: hidden;
+}
+
+/* Em `fill` o desenho sai do fluxo, para a altura medida ser a que o layout concedeu. */
+.canvasFill {
+  position: absolute;
+  inset: 0;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: var(--pl-space-4);
+}
+
+.passThrough {
+  pointer-events: none;
+}
+
+/* A borda forte separa as regioes e, no tema escuro, contorna o tom mais escuro contra a superficie. */
+.region {
+  stroke: var(--pl-color-border-strong);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  outline: none;
+  transition: opacity var(--pl-speed-2) var(--pl-ease);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.dimmed {
+  opacity: 0.22;
+}
+
+/* O contexto do recorte: so geografia, sem valor nem interacao. */
+.context {
+  fill: var(--pl-color-surface-muted);
+  stroke: var(--pl-color-border-strong);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hatchBackground {
+  fill: var(--pl-chart-no-data);
+}
+
+.hatchLine {
+  stroke: var(--pl-chart-no-data-hatch);
+  stroke-width: 2.5;
+}
+
+.selectedOutline,
+.hoverOutline,
+.focusOutline {
+  fill: none;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.selectedOutline {
+  stroke: var(--pl-color-text);
+  stroke-width: 2.5;
+}
+
+.hoverOutline {
+  stroke: var(--pl-color-text);
+  stroke-width: 1.5;
+}
+
+.focusOutline {
+  stroke: var(--pl-color-primary);
+  stroke-width: 2.5;
+}
+
+.marker {
+  stroke: var(--pl-color-surface);
+  stroke-width: 1;
+  fill-opacity: 0.82;
+  outline: none;
+}
+
+.marker:hover {
+  stroke: var(--pl-color-text);
+  stroke-width: 1.5;
+  fill-opacity: 1;
+}
+
+/* O halo na cor da superficie garante o contraste do texto sobre qualquer tom da escala, nos dois temas. */
+text.label,
+.callout {
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--pl-color-surface);
+  stroke-linejoin: round;
+  stroke-width: 3px;
+}
+
+text.label {
+  fill: var(--pl-color-text);
+  text-anchor: middle;
+}
+
+.label {
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.labelValue {
+  font-weight: var(--pl-type-caption-weight);
+}
+
+.labelOnHover,
+.valueOnHover {
+  opacity: 0;
+}
+
+.labelActive,
+.labelActive .valueOnHover {
+  opacity: 1;
+}
+
+.callout {
+  fill: var(--pl-chart-label);
+  text-anchor: start;
+}
+
+.leader {
+  fill: none;
+  stroke: var(--pl-chart-axis);
+  stroke-width: 0.8;
+}
+
+.leaderDot {
+  fill: var(--pl-color-text-secondary);
+}
+
+/* Legenda */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-3) var(--pl-space-5);
+  min-width: 0;
+}
+
+.legendLeft {
+  justify-content: flex-start;
+}
+
+.legendCenter {
+  justify-content: center;
+}
+
+.legendRight {
+  justify-content: flex-end;
+}
+
+.legendSide {
+  flex: none;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.legendBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.legendTitle {
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.legendLists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2) var(--pl-space-4);
+}
+
+.legendSide .legendLists {
+  flex-direction: column;
+}
+
+/* A lista lateral da legenda comum guarda 45% da largura para o desenho; aqui a coluna ja e so da legenda. */
+.legendSide ul {
+  max-width: none;
+}
+
+.gradientBar {
+  position: relative;
+  width: 240px;
+  max-width: 100%;
+  height: 10px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--pl-color-border);
+}
+
+.legendSide .gradientBar,
+.legendSide .gradientTicks {
+  width: 100%;
+}
+
+.gradientIndicator {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 18px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--pl-color-text);
+  box-shadow: 0 0 0 1.5px var(--pl-color-surface);
+  transition: left var(--pl-speed-1) var(--pl-ease);
+}
+
+.gradientTicks {
+  position: relative;
+  width: 240px;
+  max-width: 100%;
+  height: var(--pl-type-caption-line-height);
+  color: var(--pl-chart-axis);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.gradientTicks span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.tickMiddle {
+  transform: translateX(-50%);
+}
+
+.tickEnd {
+  transform: translateX(-100%);
+}
+
+.sizeKey {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--pl-space-3);
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+.sizeKeyItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sizeKeyCircle {
+  display: block;
+  border: 1px solid var(--pl-color-text-tertiary);
+  border-radius: var(--pl-radius-full);
+}
+
+/* Tabela */
+
+.tableView {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+  min-width: 0;
+}
+
+.tableTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-3);
+}
+
+.tableCount {
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+.tableScroll {
+  align-self: stretch;
+  max-height: 440px;
+  overflow: auto;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+}
+
+.tableScroll:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.table th,
+.table td {
+  padding: var(--pl-space-1) var(--pl-space-3);
+  border-bottom: 1px solid var(--pl-color-border);
+  color: var(--pl-color-text);
+  font-weight: var(--pl-type-body-weight);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.table .numeric {
+  font-family: var(--pl-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.table thead .numeric {
+  font-family: var(--pl-font-body);
+}
+
+.sortButton {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
+.tableSelected th,
+.tableSelected td {
+  background: var(--pl-color-primary-container);
+}
+
+.tableMuted {
+  color: var(--pl-color-text-tertiary);
+}
+
+.tableCaption {
+  padding: var(--pl-space-3) var(--pl-space-3) var(--pl-space-1);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  text-align: left;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .region,
+  .label,
+  .gradientIndicator {
+    transition: none;
+  }
+}

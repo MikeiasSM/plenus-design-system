@@ -221,6 +221,20 @@ export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
 export type { ChartLineProps, ChartLineSeries } from './components/charts/ChartLine';
+export { ChartMap } from './components/charts/ChartMap';
+export type {
+  ChartMapCategory,
+  ChartMapColorScale,
+  ChartMapFeature,
+  ChartMapFeatureCollection,
+  ChartMapLegendPosition,
+  ChartMapMarker,
+  ChartMapMarkerEvent,
+  ChartMapMarkerSeries,
+  ChartMapProps,
+  ChartMapRegion,
+  ChartMapRegionDatum,
+} from './components/charts/ChartMap';
 export { ChartTimeline } from './components/charts/ChartTimeline';
 export type {
   ChartTimelineBand,

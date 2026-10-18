@@ -285,6 +285,43 @@ Grade, eixos e rotulos nao sao dado. Eles derivam dos tokens de superficie e de 
 | `chart.label` | `color.text-secondary` | Rotulos de categoria e de serie |
 | `chart.cursor` | Veu translucido | Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no escuro |
 
+### Escalas de valor
+
+O mapa pinta regioes pela grandeza, e nao pela serie. Sao tres familias de token: sequencial, divergente e ausencia de dado. A categorica nao tem token proprio: usa `chart.series-1` a `chart.series-6`.
+
+A regra e a mesma nos dois temas: **mais escuro e maior**. No escuro, o menor valor e o tom mais claro e o maior, o mais escuro. O custo e o maior valor ficar perto do fundo; o tom mais escuro para no azul 60, que mede 2,17:1 contra a superficie escura, e as regioes levam contorno em `color.border-strong`.
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `chart.sequential-1` | `brand.blue.20` | `brand.blue.30` |
+| `chart.sequential-2` | `brand.blue.30` | `#A8B7DC`, entre 30 e 40 |
+| `chart.sequential-3` | `brand.blue.40` | `brand.blue.40` |
+| `chart.sequential-4` | `#6B81B6`, entre 40 e 50 | `#778CBE`, entre 40 e 50 |
+| `chart.sequential-5` | `brand.blue.50` | `#5D73AA`, entre 40 e 50 |
+| `chart.sequential-6` | `brand.blue.70` | `brand.blue.50` |
+| `chart.sequential-7` | `brand.blue.90` | `brand.blue.60` |
+
+A divergente leva as intencoes nas pontas, por coerencia com a cascata e o DRE. Vermelho e verde se confundem na deuteranopia: o sinal fica escrito no balao, na legenda e na tabela.
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `chart.diverging-negative-3` | `#A11D22` | `#B4473C` |
+| `chart.diverging-negative-2` | `chart.negative` | `chart.negative` |
+| `chart.diverging-negative-1` | `#F6A3A5` | `#F0ADA5` |
+| `chart.diverging-center` | `#E6E8EB` | `#CDD0D4` |
+| `chart.diverging-positive-1` | `#B8DDA9` | `#98CFB3` |
+| `chart.diverging-positive-2` | `chart.positive` | `chart.positive` |
+| `chart.diverging-positive-3` | `#3E7D2D` | `#2B7F5B` |
+
+A ausencia de dado nao pode parecer o menor valor: tem neutro proprio e o traco da hachura.
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `chart.no-data` | `#EEEFF1` | `#25282C` |
+| `chart.no-data-hatch` | `#D3D6DA` | `#3F434A` |
+
+Entre dois passos, a escala continua mistura os tokens vizinhos com `color-mix`, e a troca de tema repinta o mapa sem calculo. O rotulo escrito sobre a regiao leva o halo de `color.surface`, e o contraste dele e o do texto do tema, sobre qualquer tom.
+
 ### Validacao
 
 No tema claro, as series 4, 5 e 6 sao o **segundo tom** de cada matiz, e no claro esse segundo tom desce em vez de subir: um azul claro sobre superficie clara nao alcanca o piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico.

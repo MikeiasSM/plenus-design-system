@@ -133,7 +133,7 @@ A `SortableList` existe para a ordem: as seções de um documento, as colunas de
 | `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Disponível |
 | `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
 | `ChartTimeline` | Intervalos de tempo dispostos em linhas, como a jornada de cada dia ou as tarefas de um projeto. | Disponível |
-| `ChartMap` | Regiões pintadas pelo valor e marcadores por coordenada, sobre a geometria que o produto fornece. | Previsto |
+| `ChartMap` | Regiões pintadas pelo valor e marcadores por coordenada, sobre a geometria que o produto fornece. | Disponível |
 | `ChartGauge` | Um valor numa escala com faixas de significado, como o atingimento de uma meta. | Previsto |
 | `ChartTooltip` | Leitura das medidas sob o ponteiro, em lista. | Disponível |
 
