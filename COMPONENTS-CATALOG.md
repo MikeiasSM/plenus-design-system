@@ -132,6 +132,8 @@ A `SortableList` existe para a ordem: as seções de um documento, as colunas de
 | `ChartTreemap` | Composição hierárquica por área. | Disponível |
 | `ChartSunburst` | Composição hierárquica por anéis concêntricos. | Disponível |
 | `ChartSankey` | Fluxo entre origens e destinos. | Disponível |
+| `ChartTimeline` | Intervalos de tempo dispostos em linhas, como a jornada de cada dia ou as tarefas de um projeto. | Previsto |
+| `ChartMap` | Regiões pintadas pelo valor e marcadores por coordenada, sobre a geometria que o produto fornece. | Previsto |
 | `ChartTooltip` | Leitura das medidas sob o ponteiro, em lista. | Disponível |
 
 `ChartCombo` desenha barras e linhas sobre o mesmo eixo de categorias, e é a escolha quando uma categoria carrega duas leituras de naturezas diferentes — o volume em barra, a taxa em linha. Com um único tipo de marca, `ChartBar` e `ChartLine` continuam sendo os componentes certos.
@@ -161,6 +163,10 @@ O texto escrito sobre a cor da série — a porcentagem na fatia do `ChartPie`, 
 Séries, fatias, anéis e grupos são desligados pela legenda, que é um controle. O componente guarda quais estão ocultos quando o produto não informa, e avisa a mudança sempre.
 
 `ChartPie` e `ChartDonut` são a mesma composição com papéis distintos: o anel existe para abrigar um valor no centro, e é isso que o separa da pizza cheia. `ChartSunburst` estende o anel para a hierarquia, com os filhos repartindo o ângulo do pai e herdando a cor dele.
+
+`ChartTimeline` e `Timeline` têm nomes próximos e papéis distintos. A `Timeline` é a lista dos estados por que um registro passou, sem escala de tempo e sem navegação. O `ChartTimeline` é um gráfico: barras de intervalo sobre um eixo de tempo contínuo, uma linha por categoria, com faixas de referência ao fundo, marcas pontuais e um resumo por linha.
+
+O `ChartMap` não embute fronteiras. O produto fornece a geometria em GeoJSON e os dados casados pelo identificador de cada região, e o mesmo componente desenha país, regiões, unidades federativas ou municípios. Descer de um nível a outro é composição do produto, que troca a geometria. Mapa de ruas, camadas sobre ele e mapa de calor por densidade são de biblioteca de mapas e ficam fora.
 
 O Design System entrega os gráficos. A tradução entre o manifesto de um dashboard e as propriedades de cada gráfico pertence à aplicação, conforme `ARCHITECTURE.md` §15.
 

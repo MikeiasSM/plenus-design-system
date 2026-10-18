@@ -511,6 +511,28 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Barra sempre com raio, pelo token. O atributo `rx` nao aceita variavel CSS, entao o valor vem da propriedade `rx` no modulo, que le o token.
 - Marcadores e rotulos de valor sao opcionais em toda a familia, com os mesmos nomes: `showDots` e `showDataLabels`. Na barra empilhada, o rotulo e o total da categoria, alem da ponta da pilha. `ChartScatter` fica de fora dos dois, porque ali a bolha ja e a marca e rotulo por ponto se atropela assim que as bolhas se aproximam.
 
+### Graficos em desenho: ChartTimeline, ChartMap e ChartGauge
+
+Pedidos em 18/10/2026. Antes de implementar, cada um ganhou um artefato com prototipo vivo, cenarios, matriz de recursos contra as referencias de mercado (AG Charts, Highcharts, Grafana, Apache ECharts, Metabase, MUI X, Power BI, IBM Carbon, Microsoft Fluent, Google Charts, ApexCharts), API proposta e decisoes. Os artefatos sao privados do mantenedor:
+
+- `ChartTimeline`: https://claude.ai/artifact/8LpGSTc4qrEAJZt8sSHSu7 — **validado**.
+- `ChartMap`: https://claude.ai/artifact/Jndvf48UUbRZ64XrzjKPBb e o teste de carga https://claude.ai/artifact/Ac6EZJzyY1zqaXN7gQ7Xp2 — **validados**. O componente e a soma dos dois: as configuracoes do artefato de desenho e o que o teste de carga mediu.
+- `ChartGauge`: https://claude.ai/artifact/TpBbmcYpNWtF44mTjAJwDe — **em alinhamento** com o mantenedor; nao entrou no catalogo.
+
+**ChartTimeline.** O nome e do mantenedor. Linhas por categoria, intervalos com inicio e fim e cor por serie, eixo de tempo em horas do dia ou em datas, faixas de referencia por linha (a jornada) e globais, marcas pontuais, linha de referencia, sobreposicao em sub-faixas, rotulo dentro da barra quando cabe, progresso parcial, coluna de resumo por linha calculada pelo consumidor, grupos recolhiveis, modo de estados que junta valores iguais seguidos, balao integrado, legenda que desliga serie e visao em tabela. Ficam para depois: dependencias entre tarefas, marco como tipo proprio, zoom ou selecao de faixa, virtualizacao. Fora: arrastar para editar. A navegacao de periodo (mes anterior e proximo) e composicao do produto. Decisao em aberto: o formatador de duracao ("10h16m"), que o sistema ainda nao tem.
+
+**ChartMap.** O produto fornece a geometria em GeoJSON e os dados como `{ id, value }`, casados pelo identificador de cada regiao; marcadores por latitude e longitude. A base que o mantenedor enviou para teste (geografia e populacao do IBGE, vendas simuladas) e caso de teste, nao formato. O teste de carga mediu, no Chrome:
+
+- 27 UFs, 645 municipios de SP e os 5.573 do Brasil (807 mil vertices, 18 MB) desenham em SVG, o ultimo em cerca de 670 ms, com resposta ao ponteiro perto de 1 ms. Canvas nao desenhou mais rapido: o componente fica em SVG, sem modo canvas. O gargalo e a transferencia, e a documentacao recomenda ao produto carregar um nivel por vez.
+- Vendas e densidade concentram nas capitais: a escala linear deixa quase tudo num tom. Entram escala continua linear e logaritmica e classes por quantis, intervalos iguais ou limites fixos, alem de divergente e categorica.
+- Regiao sem dado e desenhada com hachura e entra na legenda; dado sem regiao gera aviso em desenvolvimento, em vez de sumir calado.
+- Rotulos por nivel: nome na regiao, sigla na UF, nenhum no municipio. O componente calcula o centro visual de cada regiao (polylabel, na maior parte da regiao, para ilhas nao deslocarem o rotulo) e confere que os quatro cantos cabem dentro dela; sem espaco para o valor, fica so a sigla; sem espaco nem para ela, o rotulo vai para uma coluna junto ao desenho, com linha guia. O total do nivel aparece sob o titulo, com as razoes recalculadas sobre os totais.
+- A tabela, com busca, e a leitura acessivel e o unico caminho para regioes de poucos pixels.
+- Ao abrir uma regiao pequena, como o DF, o enquadramento tem teto de zoom e as vizinhas entram em cinza como contexto: sozinho, o DF ocupava o palco e as bordas retas pareciam corte. Com um valor so, a escala vira uma cor e uma entrada na legenda; com menos valores distintos que cores, as classes diminuem.
+- Dependencia: `d3-geo`, do nucleo do D3 e so de calculo, coerente com a fronteira de D3 desta secao. `d3-zoom` nao entra, por tocar o DOM; zoom fica para depois.
+
+Decisoes em aberto do ChartMap: os tokens das escalas sequencial e divergente (`--pl-chart-sequential-1..7`, `--pl-chart-diverging-*`, `--pl-chart-no-data`), normativos, e o sentido da escala no tema escuro — maior valor mais claro, como no prototipo, ou mais escuro, como no claro, que e a leitura que o mantenedor esperava.
+
 ### Datas
 
 - `@internationalized/date` entrou como dependencia, conforme os primitivos admitidos em `CLAUDE.md`, e e externalizada no build. Os hooks `useCalendar` e `useDatePicker` do React Aria permanecem vetados: o comportamento e o deles, a maquina de estado e nossa.
