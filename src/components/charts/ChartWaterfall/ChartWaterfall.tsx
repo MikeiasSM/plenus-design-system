@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   BandCursor,
   CartesianFrame,
-  cartesianLayout,
+  useCartesianLayout,
   chartHeight,
   roundedBarPath,
   useChartMetrics,
@@ -124,7 +124,7 @@ export function ChartWaterfall({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
 
-  const { margins, plot, rotation } = cartesianLayout({
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: steps.map((passo) => passo.label),
     font,
     height: alturaDoDesenho,
@@ -179,6 +179,7 @@ export function ChartWaterfall({
 
   return (
     <CartesianFrame
+      axisReveal={axisReveal}
       containerRef={ref}
       empty={steps.length === 0}
       emptyMessage={emptyMessage}

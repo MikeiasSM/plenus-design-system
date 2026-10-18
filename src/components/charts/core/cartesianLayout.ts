@@ -6,9 +6,9 @@ export type AxisLabelRotation = 0 | 45 | 90;
 export type AxisLabelAngle = AxisLabelRotation | 'auto';
 
 /**
- * Como o eixo se mostra. `onHover` reserva a calha e desliza o eixo para dentro
- * dela, de modo que o desenho nao se mexa sob o ponteiro; `hidden` dispensa a
- * calha, e e o unico modo em que a area de desenho realmente cresce.
+ * Como o eixo se mostra. `onHover` nao reserva a calha: o desenho ocupa o espaco
+ * todo e, depois de um instante com o ponteiro sobre o grafico, encolhe para o
+ * eixo entrar; `hidden` dispensa o eixo de vez.
  */
 export type AxisVisibility = 'visible' | 'hidden' | 'onHover';
 
@@ -47,6 +47,8 @@ export interface CartesianLayoutOptions {
   height: number;
   labelAngle: AxisLabelAngle;
   leftLabels: readonly string[];
+  /** Os eixos `onHover` estao a vista e ocupam a calha. */
+  revealed?: boolean;
   rightLabels: readonly string[];
   topRoom: number;
   width: number;
@@ -61,8 +63,13 @@ export interface CartesianLayout {
   rotation: AxisLabelRotation;
 }
 
-function calha(visibility: AxisVisibility, labels: readonly string[], font: LabelFont) {
-  return visibility === 'hidden' ? 0 : widestLabel(labels, font) + CHART_LABEL_OFFSET;
+/** Se o eixo ocupa a calha agora: o `onHover` so enquanto revelado. */
+function ocupa(visibility: AxisVisibility, revealed: boolean) {
+  return visibility === 'visible' || (visibility === 'onHover' && revealed);
+}
+
+function calha(ocupada: boolean, labels: readonly string[], font: LabelFont) {
+  return ocupada ? widestLabel(labels, font) + CHART_LABEL_OFFSET : 0;
 }
 
 /**
@@ -91,9 +98,9 @@ function alturaDosRotulos(
   labels: readonly string[],
   font: LabelFont,
   rotation: AxisLabelRotation,
-  visibility: AxisVisibility,
+  ocupada: boolean,
 ) {
-  if (visibility === 'hidden') {
+  if (!ocupada) {
     return 0;
   }
 
@@ -119,6 +126,7 @@ export function cartesianLayout({
   height,
   labelAngle,
   leftLabels,
+  revealed = false,
   rightLabels,
   topRoom,
   width,
@@ -126,10 +134,11 @@ export function cartesianLayout({
   yAxis,
   yAxisRight,
 }: CartesianLayoutOptions): CartesianLayout {
-  const meioRotulo = xAxis === 'hidden' ? 0 : widestLabel(bottomLabels, font) / 2;
+  const embaixo = ocupa(xAxis, revealed);
+  const meioRotulo = embaixo ? widestLabel(bottomLabels, font) / 2 : 0;
 
-  const left = Math.max(calha(yAxis, leftLabels, font), CHART_EDGE_GAP);
-  const right = Math.max(calha(yAxisRight, rightLabels, font), CHART_EDGE_GAP);
+  const left = Math.max(calha(ocupa(yAxis, revealed), leftLabels, font), CHART_EDGE_GAP);
+  const right = Math.max(calha(ocupa(yAxisRight, revealed), rightLabels, font), CHART_EDGE_GAP);
   const plotWidth = Math.max(width - left - right, 0);
 
   const rotation =
@@ -141,7 +150,7 @@ export function cartesianLayout({
   // folga so precisa cobrir o que a calha lateral ainda nao cobre.
   const bordaLateral = rotation === 0 ? meioRotulo : 0;
   const margins: ChartMargins = {
-    bottom: alturaDosRotulos(bottomLabels, font, rotation, xAxis),
+    bottom: alturaDosRotulos(bottomLabels, font, rotation, embaixo),
     left: Math.max(left, bordaLateral),
     right: Math.max(right, bordaLateral),
     top: Math.max(topRoom, CHART_EDGE_GAP),

@@ -57,6 +57,8 @@ export { areaPath, linePath, roundedBarPath } from './shapes';
 export { groupSmallSlices } from './slices';
 export type { ChartSlice, GroupSmallSlicesOptions } from './slices';
 export type { ChartBand, ChartCurve, ChartPoint, CornerRadii } from './shapes';
+export { useCartesianLayout } from './useCartesianLayout';
+export type { AxisReveal } from './useCartesianLayout';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useHoveredBand } from './useHoveredBand';

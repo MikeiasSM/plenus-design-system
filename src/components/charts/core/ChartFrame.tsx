@@ -28,6 +28,9 @@ export interface ChartFrameProps {
   legendPosition: ChartLegendPosition;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
+  /** Ponteiro entrando e saindo da area de desenho, para quem revela os eixos `onHover`. */
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
   onToggleSeries?: (label: string) => void;
   swatch?: ChartLegendSwatch;
   title: string;
@@ -51,6 +54,8 @@ export function ChartFrame({
   legendAlign,
   legendPosition,
   minLegendEntries = 1,
+  onPointerEnter,
+  onPointerLeave,
   onToggleSeries,
   swatch = 'square',
   title,
@@ -79,6 +84,8 @@ export function ChartFrame({
 
         <div
           className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`}
+          onPointerEnter={onPointerEnter}
+          onPointerLeave={onPointerLeave}
           ref={containerRef}
           style={fillHeight ? undefined : { minHeight: height }}
         >

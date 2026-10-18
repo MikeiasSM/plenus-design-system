@@ -77,38 +77,16 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Calha do eixo dinamico: alvo de ponteiro sem tinta. */
-.gutter {
-  fill: transparent;
-}
-
-/* O eixo dinamico entra depois de um instante de ponteiro parado, para nao
-   piscar quando o ponteiro apenas atravessa o grafico, e sai na hora. O atraso
-   vive no estado de hover; o repouso tem atraso zero. */
+/* O eixo dinamico surge enquanto o desenho encolhe para abrir a calha, e some na hora de sair. */
 .dynamicAxis {
   opacity: 0;
-  transition:
-    opacity var(--pl-speed-2) var(--pl-ease),
-    transform var(--pl-speed-2) var(--pl-ease);
-  transition-delay: 0s;
+  pointer-events: none;
+  transition: opacity var(--pl-speed-2) var(--pl-ease);
 }
 
-.dynamicAxis:hover {
+.dynamicAxisRevealed {
   opacity: 1;
-  transform: none;
-  transition-delay: 600ms;
-}
-
-.slideRight {
-  transform: translateX(-8px);
-}
-
-.slideLeft {
-  transform: translateX(8px);
-}
-
-.slideUp {
-  transform: translateY(8px);
+  transition-delay: 80ms;
 }
 
 .gridLine {
@@ -301,11 +279,5 @@ svg:hover .dot {
   .dynamicAxis,
   .dot {
     transition: none;
-  }
-
-  .slideRight,
-  .slideLeft,
-  .slideUp {
-    transform: none;
   }
 }

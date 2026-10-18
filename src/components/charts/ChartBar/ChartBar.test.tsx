@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import chartStyles from '../core/Chart.module.css';
 import { ChartBar, type ChartBarSeries } from './ChartBar';
 
 const periodos = ['08/2026', '09/2026'];
@@ -162,10 +163,27 @@ describe('ChartBar', () => {
     expect(rotulosDoEixo()).not.toContain('08/2026');
   });
 
-  it('mantem o eixo dinamico na arvore, porque a calha ja esta reservada', () => {
+  it('com o eixo dinamico, encolhe o desenho para o eixo entrar depois de um instante de ponteiro, e devolve ao sair', () => {
+    vi.useFakeTimers();
     render(<ChartBar categories={periodos} series={dre} title="DRE" yAxis="onHover" />);
+    const area = document.querySelector('figure svg')!.parentElement!;
+    const eixo = () => document.querySelector(`.${chartStyles.dynamicAxis}`)!;
+    // O desenho comeca na margem esquerda: ela cresce quando o eixo da esquerda abre a calha.
+    const margemEsquerda = () => Number(document.querySelector('figure svg g')!.getAttribute('transform')!.match(/translate\(([\d.]+)/)![1]);
+    const recolhida = margemEsquerda();
 
-    expect(document.querySelector('[class*="dynamicAxis"]')).toBeInTheDocument();
+    fireEvent.pointerEnter(area);
+    act(() => vi.advanceTimersByTime(300));
+    expect(eixo()).not.toHaveClass(chartStyles.dynamicAxisRevealed!);
+
+    act(() => vi.advanceTimersByTime(300));
+    expect(eixo()).toHaveClass(chartStyles.dynamicAxisRevealed!);
+    expect(margemEsquerda()).toBeGreaterThan(recolhida);
+
+    fireEvent.pointerLeave(area);
+    expect(eixo()).not.toHaveClass(chartStyles.dynamicAxisRevealed!);
+    expect(margemEsquerda()).toBe(recolhida);
+    vi.useRealTimers();
   });
 
   it('mostra o eixo da direita somente quando pedido', () => {

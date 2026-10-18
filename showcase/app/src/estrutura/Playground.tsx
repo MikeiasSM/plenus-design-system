@@ -10,6 +10,9 @@ const LARGURAS = [
 
 const MARCAS: Record<NivelDaVerificacao, string> = { ok: '✓', atencao: '!', falha: '✕' };
 
+/** Os mais recentes, numa caixa de altura fixa: hover dispara em rajada, e o painel nao pode crescer com ele. */
+const LIMITE_DE_EVENTOS = 6;
+
 /** Opcoes curtas cabem lado a lado; as demais vao num `Select`. */
 function cabeLadoALado(opcoes: readonly string[]) {
   return opcoes.length <= 4 && opcoes.join('').length <= 28;
@@ -91,7 +94,7 @@ export function Playground({ definicao }: { definicao: DefinicaoDoPlayground }) 
 
   function registrar(nome: string) {
     const hora = new Date().toLocaleTimeString('pt-BR');
-    setEventos((atuais) => [{ hora, id: performance.now(), nome }, ...atuais].slice(0, 8));
+    setEventos((atuais) => [{ hora, id: performance.now(), nome }, ...atuais].slice(0, LIMITE_DE_EVENTOS));
   }
 
   return (
@@ -139,7 +142,7 @@ export function Playground({ definicao }: { definicao: DefinicaoDoPlayground }) 
               Limpar
             </Button>
           </header>
-          <div aria-live="off" role="log">
+          <div aria-live="off" className="pg-log" role="log">
             {eventos.length === 0 && <p className="pg-empty">Interaja com a prévia. Cada callback disparado aparece aqui.</p>}
             {eventos.map((evento) => (
               <div className="pg-event" key={evento.id}>

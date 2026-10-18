@@ -4,7 +4,7 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
-  cartesianLayout,
+  useCartesianLayout,
   chartHeight,
   roundedBarPath,
   useChartMetrics,
@@ -112,7 +112,7 @@ export function ChartBar({
 
   const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue);
 
-  const { margins, plot, rotation } = cartesianLayout({
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: vertical ? categories : rotulosDeValor,
     font,
     height: alturaDoDesenho,
@@ -243,6 +243,7 @@ export function ChartBar({
 
   return (
     <CartesianFrame
+      axisReveal={axisReveal}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}

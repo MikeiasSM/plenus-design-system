@@ -3,7 +3,7 @@ import {
   CartesianFrame,
   PointBands,
   PointCursor,
-  cartesianLayout,
+  useCartesianLayout,
   chartHeight,
   linePath,
   useChartMetrics,
@@ -115,7 +115,7 @@ export function ChartLine({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
 
-  const { margins, plot, rotation } = cartesianLayout({
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: categories,
     font,
     height: alturaDoDesenho,
@@ -177,6 +177,7 @@ export function ChartLine({
 
   return (
     <CartesianFrame
+      axisReveal={axisReveal}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}

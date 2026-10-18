@@ -236,9 +236,9 @@ function Modos() {
       <dl className="modes">
         <dt><code>xAxis</code>, <code>yAxis</code>, <code>yAxisRight</code></dt>
         <dd>
-          Em <code>onHover</code> o eixo desliza para dentro da calha depois de um instante com o ponteiro parado, e sai
-          quando o ponteiro deixa a área. A calha continua reservada, para o desenho não se mexer sob o ponteiro: só{' '}
-          <code>hidden</code> devolve o espaço ao gráfico. O eixo da direita espelha a escala da esquerda.
+          Em <code>onHover</code> o desenho ocupa o espaço todo. Depois de um instante com o ponteiro sobre o gráfico,
+          ele encolhe numa transição e o eixo surge na calha que se abriu; ao sair, volta a ocupar tudo. Em{' '}
+          <code>hidden</code> o eixo não aparece nunca. O eixo da direita espelha a escala da esquerda.
         </dd>
         <dt><code>legendAlign</code></dt>
         <dd>

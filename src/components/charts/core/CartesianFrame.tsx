@@ -4,6 +4,7 @@ import { ChartFrame } from './ChartFrame';
 import type { ChartLegendAlign, ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import { Grid, type GridOrientation } from './Grid';
 import type { AxisLabelRotation, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
+import type { AxisReveal } from './useCartesianLayout';
 import styles from './Chart.module.css';
 
 export interface CartesianAxis {
@@ -20,6 +21,8 @@ export interface CartesianGrid {
 }
 
 export interface CartesianFrameProps {
+  /** Estado e gatilhos dos eixos `onHover`, vindos de `useCartesianLayout`. */
+  axisReveal?: AxisReveal;
   children: ReactNode;
   containerRef: (node: HTMLElement | null) => void;
   empty: boolean;
@@ -40,25 +43,15 @@ export interface CartesianFrameProps {
   yAxisRight?: CartesianAxis;
 }
 
-const DESLIZE: Record<AxisOrientation, string> = {
-  bottom: styles.slideUp,
-  left: styles.slideRight,
-  right: styles.slideLeft,
-};
-
 interface EixoProps {
   axis: CartesianAxis;
-  gutter: { height: number; width: number; x: number; y: number };
   length: number;
   orientation: AxisOrientation;
+  revealed: boolean;
 }
 
-/**
- * Um eixo e a sua calha. No modo `onHover` a calha e um alvo transparente: o
- * eixo desliza para dentro dela depois de um instante de ponteiro parado, e sai
- * na hora em que o ponteiro deixa a area.
- */
-function EixoComCalha({ axis, gutter, length, orientation }: EixoProps) {
+/** No modo `onHover` o eixo aparece enquanto o desenho encolhe para abrir a calha dele, e some na hora de sair. */
+function EixoDinamico({ axis, length, orientation, revealed }: EixoProps) {
   const visibility = axis.visibility ?? 'visible';
 
   if (visibility === 'hidden') {
@@ -80,18 +73,7 @@ function EixoComCalha({ axis, gutter, length, orientation }: EixoProps) {
     return eixo;
   }
 
-  return (
-    <g className={`${styles.dynamicAxis} ${DESLIZE[orientation]}`}>
-      <rect
-        className={styles.gutter}
-        height={gutter.height}
-        width={gutter.width}
-        x={gutter.x}
-        y={gutter.y}
-      />
-      {eixo}
-    </g>
-  );
+  return <g className={`${styles.dynamicAxis} ${revealed ? styles.dynamicAxisRevealed : ''}`}>{eixo}</g>;
 }
 
 /**
@@ -99,6 +81,7 @@ function EixoComCalha({ axis, gutter, length, orientation }: EixoProps) {
  * todos dentro das margens ja calculadas a partir dos rotulos.
  */
 export function CartesianFrame({
+  axisReveal,
   children,
   containerRef,
   empty,
@@ -118,6 +101,8 @@ export function CartesianFrame({
   yAxis,
   yAxisRight,
 }: CartesianFrameProps) {
+  const revealed = axisReveal?.revealed ?? false;
+
   return (
     <ChartFrame
       containerRef={containerRef}
@@ -129,6 +114,8 @@ export function CartesianFrame({
       legendAlign={legendAlign}
       legendPosition={legendPosition}
       minLegendEntries={2}
+      onPointerEnter={axisReveal?.onPointerEnter}
+      onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}
       title={title}
       width={width}
@@ -147,29 +134,14 @@ export function CartesianFrame({
         {children}
 
         <g transform={`translate(0 ${plot.height})`}>
-          <EixoComCalha
-            axis={xAxis}
-            gutter={{ height: margins.bottom, width: plot.width, x: 0, y: 0 }}
-            length={plot.width}
-            orientation="bottom"
-          />
+          <EixoDinamico axis={xAxis} length={plot.width} orientation="bottom" revealed={revealed} />
         </g>
 
-        <EixoComCalha
-          axis={yAxis}
-          gutter={{ height: plot.height, width: margins.left, x: -margins.left, y: 0 }}
-          length={plot.height}
-          orientation="left"
-        />
+        <EixoDinamico axis={yAxis} length={plot.height} orientation="left" revealed={revealed} />
 
         {yAxisRight && (
           <g transform={`translate(${plot.width} 0)`}>
-            <EixoComCalha
-              axis={yAxisRight}
-              gutter={{ height: plot.height, width: margins.right, x: 0, y: 0 }}
-              length={plot.height}
-              orientation="right"
-            />
+            <EixoDinamico axis={yAxisRight} length={plot.height} orientation="right" revealed={revealed} />
           </g>
         )}
       </g>

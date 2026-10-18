@@ -37,12 +37,14 @@ describe('calhas do eixo', () => {
     expect(semEixo.plot.width).toBeGreaterThan(comEixo.plot.width);
   });
 
-  it('mantem a calha no modo dinamico, para o desenho nao se mexer sob o ponteiro', () => {
+  it('no modo dinamico o desenho ocupa a calha, e so a cede com o eixo revelado', () => {
     const fixo = layout({ leftLabels: ['R$ 1.480.900,00'] });
-    const dinamico = layout({ leftLabels: ['R$ 1.480.900,00'], yAxis: 'onHover' });
+    const oculto = layout({ leftLabels: ['R$ 1.480.900,00'], yAxis: 'hidden' });
+    const recolhido = layout({ leftLabels: ['R$ 1.480.900,00'], yAxis: 'onHover' });
+    const revelado = layout({ leftLabels: ['R$ 1.480.900,00'], revealed: true, yAxis: 'onHover' });
 
-    expect(dinamico.margins.left).toBe(fixo.margins.left);
-    expect(dinamico.plot.width).toBe(fixo.plot.width);
+    expect(recolhido.plot.width).toBe(oculto.plot.width);
+    expect(revelado.plot.width).toBe(fixo.plot.width);
   });
 
   it('abre calha a direita somente quando o eixo da direita aparece', () => {

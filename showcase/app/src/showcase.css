@@ -438,6 +438,11 @@ body {
   line-height: var(--pl-type-caption-line-height);
 }
 
+.pg-log {
+  height: 174px;
+  overflow: hidden;
+}
+
 .pg-event {
   display: flex;
   justify-content: space-between;

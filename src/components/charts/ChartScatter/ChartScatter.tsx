@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   CartesianFrame,
-  cartesianLayout,
+  useCartesianLayout,
   chartHeight,
   useChartMetrics,
   useSeriesToggle,
@@ -125,7 +125,7 @@ export function ChartScatter({
   const rotulosY = valueLabelsFor(dominioY, alturaDoDesenho, formatY);
   const rotulosX = valueLabelsFor(dominioX, width, formatX);
 
-  const { margins, plot, rotation } = cartesianLayout({
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: rotulosX,
     font,
     height: alturaDoDesenho,
@@ -172,6 +172,7 @@ export function ChartScatter({
 
   return (
     <CartesianFrame
+      axisReveal={axisReveal}
       containerRef={ref}
       empty={series.every((serie) => serie.points.length === 0)}
       emptyMessage={emptyMessage}

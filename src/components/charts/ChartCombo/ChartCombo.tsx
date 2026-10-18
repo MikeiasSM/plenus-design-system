@@ -4,7 +4,7 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
-  cartesianLayout,
+  useCartesianLayout,
   chartHeight,
   linePath,
   roundedBarPath,
@@ -157,7 +157,7 @@ export function ChartCombo({
   // serie a direita, o eixo aparece sem ninguem pedir.
   const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
 
-  const { margins, plot, rotation } = cartesianLayout({
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: categories,
     font,
     height: alturaDoDesenho,
@@ -238,6 +238,7 @@ export function ChartCombo({
 
   return (
     <CartesianFrame
+      axisReveal={axisReveal}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
