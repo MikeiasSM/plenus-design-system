@@ -10,6 +10,7 @@ import {
   linePath,
   markShown,
   nearestSeriesAt,
+  pointLabelPlacement,
   useChartMetrics,
   useHoveredBand,
   useSeriesToggle,
@@ -275,7 +276,7 @@ export function ChartLine({
                   }
                   cx={ponto.x}
                   cy={ponto.y}
-                  fill={cores[indiceSerie]}
+                  stroke={cores[indiceSerie]}
                   key={indice}
                   r={4}
                 >
@@ -285,19 +286,27 @@ export function ChartLine({
             })}
 
             {showDataLabels !== 'hidden' &&
-              pontosPorSerie[indiceSerie].map((ponto, indice) =>
-                ponto === null ? null : (
+              pontosPorSerie[indiceSerie].map((ponto, indice) => {
+                if (ponto === null) {
+                  return null;
+                }
+
+                const { below, dx, textAnchor } = pointLabelPlacement(pontosPorSerie, indiceSerie, indice, font.lineHeight, (outra) =>
+                  isHidden(series[outra].label),
+                );
+
+                return (
                   <text
                     className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
                     key={indice}
-                    textAnchor="middle"
-                    x={ponto.x}
-                    y={ponto.y - 10}
+                    textAnchor={textAnchor}
+                    x={ponto.x + dx}
+                    y={below ? ponto.y + font.lineHeight + 2 : ponto.y - 10}
                   >
                     {formatValue(serie.values[indice] ?? 0)}
                   </text>
-                ),
-              )}
+                );
+              })}
           </g>
         );
       })}

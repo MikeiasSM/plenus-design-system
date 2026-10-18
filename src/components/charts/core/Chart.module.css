@@ -99,11 +99,16 @@
   stroke-width: 1;
 }
 
+/* O halo na cor da superficie separa o rotulo do que estiver atras dele: preenchimento, grade ou outra serie. */
 .valueLabel {
   fill: var(--pl-chart-label);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--pl-color-surface);
+  stroke-linejoin: round;
+  stroke-width: 3px;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
@@ -121,12 +126,17 @@
 
 /* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
    impressao, onde nao existe hover para revelar o ponto. */
+/* Ponto em anel: miolo na cor da superficie e borda na cor da serie, visivel ate sobre a propria area. */
 .dot {
+  fill: var(--pl-color-surface);
+  stroke-width: 2;
   opacity: 0;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
 .dotVisible {
+  fill: var(--pl-color-surface);
+  stroke-width: 2;
   opacity: 1;
 }
 

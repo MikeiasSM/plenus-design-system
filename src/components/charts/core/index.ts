@@ -3,6 +3,8 @@ export type { BandCursorProps, BandOrientation } from './BandCursor';
 export { Axis } from './Axis';
 export type { AxisOrientation, AxisProps, AxisTick } from './Axis';
 export { nearestSeriesAt, PointBands, PointCursor } from './PointBands';
+export { pointLabelPlacement } from './pointLabels';
+export type { PointLabelPlacement } from './pointLabels';
 export type { PointBandsProps } from './PointBands';
 export { categoryTooltip, pathTooltip, sliceTooltip } from './tooltips';
 export type { CategoryTooltipOptions, CategoryTooltipSeries, ChartFrameTooltip, PathTooltipOptions, SliceTooltipOptions } from './tooltips';

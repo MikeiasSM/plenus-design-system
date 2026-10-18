@@ -421,7 +421,7 @@ export function ChartCombo({
                   className={markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? styles.dotVisible : styles.dot}
                   cx={ponto.x}
                   cy={ponto.y}
-                  fill={cores[indiceSerie]}
+                  stroke={cores[indiceSerie]}
                   key={indice}
                   r={4}
                 />

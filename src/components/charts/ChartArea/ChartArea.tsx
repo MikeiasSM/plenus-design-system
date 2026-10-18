@@ -11,6 +11,7 @@ import {
   linePath,
   markShown,
   nearestSeriesAt,
+  pointLabelPlacement,
   useChartMetrics,
   useHoveredBand,
   useSeriesToggle,
@@ -214,8 +215,9 @@ export function ChartArea({
     }),
   );
 
+  const contornos = faixasPorSerie.map((faixas) => faixas.map((faixa) => faixa && { x: faixa.x, y: faixa.y1 }));
   const serieEmFoco = nearestSeriesAt(
-    faixasPorSerie.map((faixas) => faixas.map((faixa) => faixa && { x: faixa.x, y: faixa.y1 })),
+    contornos,
     categoriaEmFoco,
     alturaDoPonteiro,
     (indice) => isHidden(series[indice].label),
@@ -315,6 +317,7 @@ export function ChartArea({
             <path
               d={areaPath(faixas, curve)}
               fill={stacked ? cores[indiceSerie] : `url(#${gradienteId}-${indiceSerie})`}
+              fillOpacity={stacked ? 0.4 : undefined}
             />
             <path
               className={styles.outline}
@@ -342,7 +345,7 @@ export function ChartArea({
                   }
                   cx={faixa.x}
                   cy={faixa.y1}
-                  fill={cores[indiceSerie]}
+                  stroke={cores[indiceSerie]}
                   key={indice}
                   r={4}
                 >
@@ -359,13 +362,17 @@ export function ChartArea({
                   return null;
                 }
 
+                const { below, dx, textAnchor } = pointLabelPlacement(contornos, indiceSerie, indice, font.lineHeight, (outra) =>
+                  isHidden(series[outra].label),
+                );
+
                 return (
                   <text
                     className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
                     key={indice}
-                    textAnchor="middle"
-                    x={faixa.x}
-                    y={faixa.y1 - 10}
+                    textAnchor={textAnchor}
+                    x={faixa.x + dx}
+                    y={below ? faixa.y1 + font.lineHeight + 2 : faixa.y1 - 10}
                   >
                     {formatValue(serie.values[indice] ?? 0)}
                   </text>
