@@ -2058,56 +2058,72 @@ export function App() {
           </div>
           <div className="doc-subsection">
             <h3>Vendas, compacta com zebra e selecao unica</h3>
-            <Table rows={vendas} label="Vendas" size="sm" striped divider={false} selectionMode="single">
-              <Table.Header>
-                <Table.Column id="pedido">Pedido</Table.Column>
-                <Table.Column id="cliente">Cliente</Table.Column>
-                <Table.Column id="progresso" hideBelow="sm">Entrega</Table.Column>
-                <Table.Column id="valor" numeric sortable>Valor</Table.Column>
-              </Table.Header>
-              <Table.Body items={vendas}>
-                {(venda) => (
-                  <Table.Row id={venda.id} label={`Selecionar ${venda.pedido}`}>
-                    <Table.Cell>{venda.pedido}</Table.Cell>
-                    <Table.Cell>{venda.cliente}</Table.Cell>
-                    <Table.Cell hideBelow="sm">
-                      <Progress value={venda.progresso} size="sm" label={`Entrega de ${venda.pedido}`} />
-                    </Table.Cell>
-                    <Table.Cell numeric>{venda.valor}</Table.Cell>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table>
-            <p className="doc-note">Densidade compacta, sem divisores e com fundo alternado, que a referencia recomenda a partir de oito colunas. Na selecao unica o controle vira radio.</p>
+            <Card>
+              <Card.Body flush>
+                <Table rows={vendas} label="Vendas" size="sm" striped divider={false} selectionMode="single">
+                  <Table.Header>
+                    <Table.Column id="pedido">Pedido</Table.Column>
+                    <Table.Column id="cliente">Cliente</Table.Column>
+                    <Table.Column id="progresso" hideBelow="sm">Entrega</Table.Column>
+                    <Table.Column id="valor" numeric sortable>Valor</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={vendas}>
+                    {(venda) => (
+                      <Table.Row id={venda.id} label={`Selecionar ${venda.pedido}`}>
+                        <Table.Cell>{venda.pedido}</Table.Cell>
+                        <Table.Cell>{venda.cliente}</Table.Cell>
+                        <Table.Cell hideBelow="sm">
+                          <Progress value={venda.progresso} size="sm" label={`Entrega de ${venda.pedido}`} />
+                        </Table.Cell>
+                        <Table.Cell numeric>{venda.valor}</Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
+              </Card.Body>
+            </Card>
+            <p className="doc-note">Densidade compacta, sem divisores e com fundo alternado, que a referencia recomenda a partir de oito colunas. Na selecao unica o controle vira radio. A tabela nao desenha contorno: quem a envolve, aqui um Card sem cabecalho, e que da a borda.</p>
           </div>
           <div className="doc-subsection">
             <h3>Sem registros e carregando</h3>
-            <Table rows={[]} label="Arquivos vazios">
-              <Table.Header>
-                <Table.Column id="arquivo">Arquivo</Table.Column>
-                <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
-              </Table.Header>
-              <Table.Body items={[] as typeof vendas}>
-                {(item) => (
-                  <Table.Row id={item.id}>
-                    <Table.Cell>{item.pedido}</Table.Cell>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table>
-            <Table rows={[]} label="Arquivos carregando" loading>
-              <Table.Header>
-                <Table.Column id="arquivo">Arquivo</Table.Column>
-                <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
-              </Table.Header>
-              <Table.Body items={[] as typeof vendas}>
-                {(item) => (
-                  <Table.Row id={item.id}>
-                    <Table.Cell>{item.pedido}</Table.Cell>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table>
+            <div className="input-grid">
+              <Card>
+                <Card.Header title="Arquivos" description="Sem registros." />
+                <Card.Body flush>
+                  <Table rows={[]} label="Arquivos vazios">
+                    <Table.Header>
+                      <Table.Column id="arquivo">Arquivo</Table.Column>
+                      <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
+                    </Table.Header>
+                    <Table.Body items={[] as typeof vendas}>
+                      {(item) => (
+                        <Table.Row id={item.id}>
+                          <Table.Cell>{item.pedido}</Table.Cell>
+                        </Table.Row>
+                      )}
+                    </Table.Body>
+                  </Table>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header title="Arquivos" description="Carregando." />
+                <Card.Body flush>
+                  <Table rows={[]} label="Arquivos carregando" loading>
+                    <Table.Header>
+                      <Table.Column id="arquivo">Arquivo</Table.Column>
+                      <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
+                    </Table.Header>
+                    <Table.Body items={[] as typeof vendas}>
+                      {(item) => (
+                        <Table.Row id={item.id}>
+                          <Table.Cell>{item.pedido}</Table.Cell>
+                        </Table.Row>
+                      )}
+                    </Table.Body>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </div>
             <p className="doc-note">Sem registros, a tabela diz que nao achou nada e sugere rever a busca; emptyTitle e emptyDescription trocam os dois textos. Carregando, as linhas viram esqueleto, a tabela fica marcada como ocupada e o leitor de tela ouve a mensagem.</p>
           </div>
         </ComponentDoc>

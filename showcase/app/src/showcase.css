@@ -196,7 +196,7 @@ body {
   border-bottom: 0;
 }
 
-.doc-subsection h3 {
+.doc-subsection > h3 {
   margin: 0 0 var(--pl-space-3);
   font-size: var(--pl-type-title-size);
   line-height: var(--pl-type-title-line-height);

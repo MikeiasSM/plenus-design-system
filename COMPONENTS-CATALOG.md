@@ -78,7 +78,7 @@ O critério entre os dois é quem decide quais linhas existem na página. No `Ta
 
 Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação percorre os controles de cada célula; o `DataGrid` é um controle interativo, com navegação bidimensional entre células.
 
-O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. A faixa do cabeçalho é a exceção que não conta como contorno: ela tem linha em cima e embaixo, para se delimitar tanto solta na página quanto sob o título de um cartão.
+O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima.
 
 O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, JSX, TSX, SQL, JSON e Shell: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
 

@@ -36,12 +36,9 @@
   background: var(--pl-color-surface-subtle);
 }
 
-/* A faixa do cabecalho tem linha em cima e embaixo: ela se delimita sozinha, solta na pagina ou sob o titulo de um
-   cartao. Nao e contorno da tabela, que continua sem borda nas laterais e no fim. */
 .column {
   height: var(--table-head-height);
   padding: 0 var(--table-inline-padding);
-  border-top: 1px solid var(--pl-color-border);
   border-bottom: 1px solid var(--pl-color-border);
   color: var(--pl-color-text-tertiary);
   font-size: var(--pl-type-caption-size);
@@ -205,11 +202,11 @@
   white-space: nowrap;
 }
 
-/* Largura fixa, e nao proporcional: em porcentagem a barra encolhia a coluna, que pulava quando os dados chegavam. */
+/* A barra ocupa a celula ate um teto: nao impoe largura a coluna, e a tabela estreita nao rola por causa dela. */
 .skeleton {
   display: block;
-  width: 8rem;
-  max-width: 100%;
+  width: 100%;
+  max-width: 8rem;
   height: 0.625rem;
   border-radius: var(--pl-radius-sm);
   background: linear-gradient(
@@ -223,11 +220,11 @@
 }
 
 .skeletonRow .cell:nth-child(3n + 2) .skeleton {
-  width: 6rem;
+  max-width: 6rem;
 }
 
 .skeletonRow .cell:nth-child(3n) .skeleton {
-  width: 5rem;
+  max-width: 5rem;
 }
 
 .skeletonRow .lead .skeleton {
