@@ -102,3 +102,10 @@ export function accentDa(opcao: string | number | boolean) {
 }
 
 export const formatarCompacto = (valor: number) => formatarNumero(valor, { compacto: true });
+
+/** Formatos de número dos playgrounds, cada um com o código que o produz. */
+export const FORMATOS: Record<string, { codigo: string; formatar: (valor: number) => string }> = {
+  compacto: { codigo: '(valor) => formatarNumero(valor, { compacto: true })', formatar: formatarCompacto },
+  sigla: { codigo: "(valor) => formatarNumero(valor, { compacto: 'sigla' })", formatar: (valor) => formatarNumero(valor, { compacto: 'sigla' }) },
+  exato: { codigo: 'formatarNumero', formatar: formatarNumero },
+};

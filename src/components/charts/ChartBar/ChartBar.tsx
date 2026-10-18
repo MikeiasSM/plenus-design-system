@@ -42,6 +42,8 @@ export interface ChartBarProps {
   categories: readonly string[];
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
@@ -72,6 +74,7 @@ export function ChartBar({
   categories,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
@@ -283,7 +286,7 @@ export function ChartBar({
           ? categoryTooltip({
               categories,
               colors: cores,
-              format: formatValue,
+              format: formatTooltipValue ?? formatValue,
               index: faixaEmFoco,
               isHidden,
               series,

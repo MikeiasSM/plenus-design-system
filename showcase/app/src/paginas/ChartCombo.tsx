@@ -320,6 +320,7 @@ const cores = resolveSeriesColors([{}, {}]);
       descricao: <><code>{"{ kind: 'bar' | 'line', label, values, axis?, color?, intent? }"}</code>; <code>axis</code> padrão <code>'left'</code>.</>,
     },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo esquerdo e das séries dele.' },
+    { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatRightValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato do eixo direito e das séries dele.' },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Traço das linhas.' },
     { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos das linhas; em onHover, os da categoria sob o ponteiro.' },

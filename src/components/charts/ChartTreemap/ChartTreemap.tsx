@@ -34,6 +34,8 @@ export interface ChartTreemapProps {
   accent?: string;
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   /** Folga entre dois retangulos vizinhos. */
   gap?: number;
@@ -70,6 +72,7 @@ export function ChartTreemap({
   accent,
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
+  formatTooltipValue,
   formatValue = formatarNumero,
   gap = 5,
   height = 280,
@@ -172,7 +175,7 @@ export function ChartTreemap({
       title={title}
       tooltip={
         showTooltip
-          ? pathTooltip({ color: foco ? corDa(foco) : undefined, format: formatValue, path: foco && hoverPath(foco) })
+          ? pathTooltip({ color: foco ? corDa(foco) : undefined, format: formatTooltipValue ?? formatValue, path: foco && hoverPath(foco) })
           : undefined
       }
       width={width}

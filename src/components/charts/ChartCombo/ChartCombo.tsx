@@ -62,6 +62,11 @@ export interface ChartComboProps {
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatRightValue?: (value: number) => string;
+  /**
+   * Formato no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o
+   * balao, exato. As da direita seguem `formatRightValue`.
+   */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   hiddenSeries?: readonly string[];
@@ -124,6 +129,7 @@ export function ChartCombo({
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatRightValue,
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 260,
   hiddenSeries,
@@ -281,7 +287,7 @@ export function ChartCombo({
           ? categoryTooltip({
               categories,
               colors: cores,
-              format: formatValue,
+              format: formatTooltipValue ?? formatValue,
               index: faixaEmFoco,
               isHidden,
               series: series.map((serie) => ({ ...serie, format: eixoDa(serie) === 'right' ? formatarDireita : undefined })),

@@ -155,6 +155,7 @@ export {
   formatarPercentual,
 } from './utils/formatters';
 export type {
+  Compacto,
   OpcoesDeData,
   OpcoesDeHora,
   OpcoesDeMoeda,

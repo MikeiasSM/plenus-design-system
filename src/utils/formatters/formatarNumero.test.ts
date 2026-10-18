@@ -21,6 +21,20 @@ describe('formatarNumero', () => {
     expect(formatarNumero(1200000, { compacto: true, localidade: 'en-US' })).toBe('1.2M');
   });
 
+  it('compacta em sigla quando pedida, com o separador da localidade', () => {
+    expect(formatarNumero(500000, { compacto: 'sigla' })).toBe('500 k');
+    expect(formatarNumero(1500000, { compacto: 'sigla' })).toBe('1,5 M');
+    expect(formatarNumero(-2300000000, { compacto: 'sigla' })).toBe('-2,3 B');
+    expect(formatarNumero(950, { compacto: 'sigla' })).toBe('950');
+    expect(formatarNumero(1234567, { casasDecimais: 2, compacto: 'sigla' })).toBe('1,23 M');
+    expect(formatarNumero(1500000, { compacto: 'sigla', localidade: 'en-US' })).toBe('1.5 M');
+  });
+
+  it('sobe para a sigla seguinte o que arredonda para mil da anterior', () => {
+    expect(formatarNumero(999950, { compacto: 'sigla' })).toBe('1 M');
+    expect(formatarNumero(999.7, { compacto: 'sigla' })).toBe('1 k');
+  });
+
   it('nao poe sinal no zero negativo nem no que arredonda para zero', () => {
     expect(formatarNumero(-0)).toBe('0');
     expect(formatarNumero(-0.0001, { casasDecimais: 2 })).toBe('0,00');
@@ -47,6 +61,7 @@ describe('formatarMoeda', () => {
 
   it('compacta o valor monetario', () => {
     expect(semEspacoEstreito(formatarMoeda(6700000, { compacto: true }))).toBe('R$ 6,7 mi');
+    expect(semEspacoEstreito(formatarMoeda(512340, { compacto: 'sigla' }))).toBe('R$ 512 k');
   });
 
   it('devolve vazio para o que nao e numero finito', () => {

@@ -20,7 +20,7 @@ import {
   MESES,
   OPCOES_DE_ACCENT,
   accentDa,
-  formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+  formatarCompacto, FORMATOS, VISIBILIDADES } from '../dadosDosGraficos';
 
 const LADOS_DA_LEGENDA = ['top', 'right', 'bottom', 'left', 'none'] as const;
 const ALINHAMENTOS = ['left', 'center', 'right'] as const;
@@ -47,6 +47,8 @@ const playground = definirPlayground({
     yAxis: 'visible',
     yAxisRight: 'hidden',
     accent: 'nenhuma',
+    formatValue: 'compacto',
+    formatTooltipValue: 'igual',
   },
   controles: [
     { tipo: 'texto', nome: 'title' },
@@ -60,13 +62,16 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'yAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxisRight', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
+    { tipo: 'opcoes', nome: 'formatValue', opcoes: Object.keys(FORMATOS) },
+    { tipo: 'opcoes', nome: 'formatTooltipValue', opcoes: ['igual', ...Object.keys(FORMATOS)] },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
       <ChartBar
         accent={accentDa(valores.accent)}
         categories={MESES}
-        formatValue={formatarCompacto}
+        formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
+        formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
         onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
@@ -96,7 +101,8 @@ const playground = definirPlayground({
       ['yAxis', valores.yAxis, 'visible'],
       ['yAxisRight', valores.yAxisRight, 'hidden'],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('formatarCompacto')],
+      ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
+      ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['onHoverCategory', expr('setFaixa')],
     ]),
   verificar: (valores) => {
@@ -442,6 +448,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as séries; sinais mistos divergem a partir do zero.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor além da ponta; empilhada, o total da categoria. Em onHover, os da série da barra sob o ponteiro.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
+    { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },

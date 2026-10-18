@@ -35,6 +35,8 @@ export interface ChartSunburstProps {
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   hiddenGroups?: readonly string[];
@@ -103,6 +105,7 @@ export function ChartSunburst({
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 320,
   hiddenGroups,
@@ -228,7 +231,7 @@ export function ChartSunburst({
         showTooltip
           ? pathTooltip({
               color: foco ? corDe(foco) : undefined,
-              format: formatValue,
+              format: formatTooltipValue ?? formatValue,
               formatPercent,
               path: foco && hoverPath(foco),
               total,

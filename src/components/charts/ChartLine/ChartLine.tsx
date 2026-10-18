@@ -51,6 +51,8 @@ export interface ChartLineProps {
   curve?: ChartCurve;
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   /**
    * Inclui o zero no dominio do eixo de valor. Ligado por padrao, porque marca
@@ -88,6 +90,7 @@ export function ChartLine({
   curve = 'smooth',
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 260,
   includeZero = true,
@@ -227,7 +230,7 @@ export function ChartLine({
           ? categoryTooltip({
               categories,
               colors: cores,
-              format: formatValue,
+              format: formatTooltipValue ?? formatValue,
               index: categoriaEmFoco,
               isHidden,
               series,

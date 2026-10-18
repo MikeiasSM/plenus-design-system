@@ -32,6 +32,8 @@ export interface ChartWaterfallStep {
 
 export interface ChartWaterfallProps {
   emptyMessage?: string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   labelAngle?: AxisLabelAngle;
@@ -100,6 +102,7 @@ function comSinal(value: number, formatValue: (value: number) => string) {
 
 export function ChartWaterfall({
   emptyMessage = 'Sem dados no período',
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 280,
   labelAngle = 'auto',
@@ -196,7 +199,7 @@ export function ChartWaterfall({
     }
 
     return [
-      { color: cores[indice], format: (valor: number) => comSinal(valor, formatValue), label: 'Variação', values: [passo.value] },
+      { color: cores[indice], format: (valor: number) => comSinal(valor, formatTooltipValue ?? formatValue), label: 'Variação', values: [passo.value] },
       { label: 'Acumulado', values: [trechos[indice].fim] },
     ];
   }
@@ -223,7 +226,7 @@ export function ChartWaterfall({
       tooltip={
         showTooltip
           ? {
-              columns: [{ format: formatValue }],
+              columns: [{ format: formatTooltipValue ?? formatValue }],
               computed: 'none',
               rows: linhasDoBalao(passoEmFoco),
               title: passoEmFoco === null ? undefined : steps[passoEmFoco]?.label,

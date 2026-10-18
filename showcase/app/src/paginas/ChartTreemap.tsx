@@ -282,6 +282,7 @@ export const pagina: Pagina = {
     { nome: 'gap', tipo: 'number', padrao: '5', descricao: 'Folga entre dois retângulos vizinhos.' },
     { nome: 'showDataLabels', tipo: 'boolean', padrao: 'true', descricao: 'Rótulo e valor dentro do retângulo, onde couberem.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do valor nos rótulos e nas descrições.' },
+    { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica dos grupos.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda.' },

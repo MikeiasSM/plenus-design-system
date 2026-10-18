@@ -229,6 +229,7 @@ export const pagina: Pagina = {
     { nome: 'ringGap', tipo: 'number', padrao: '2', descricao: 'Folga entre dois anéis vizinhos.' },
     { nome: 'sliceRadius', tipo: 'number', descricao: 'Raio das pontas de cada arco. Sem valor, o token de raio pequeno.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do valor nos rótulos e nas descrições.' },
+    { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual, a partir da fração. O padrão arredonda ao inteiro, como 42%.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica dos grupos.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '320', descricao: 'Altura do desenho; fill a toma do contêiner.' },

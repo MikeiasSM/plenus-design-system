@@ -211,6 +211,25 @@ describe('ChartBar', () => {
     expect(document.querySelector('[class*="tooltip"]')).toBeNull();
   });
 
+  it('formata o balao a parte quando pedido: eixo compacto, balao exato', () => {
+    render(
+      <ChartBar
+        categories={periodos}
+        formatTooltipValue={(valor) => `R$ ${valor}`}
+        formatValue={(valor) => `${valor / 1000} k`}
+        series={dre}
+        title="DRE"
+      />,
+    );
+    const barra = document.querySelector('figure svg path[aria-label^="Receita, 08/2026"]')!;
+
+    fireEvent.pointerMove(barra, { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(barra);
+
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('R$ 300000');
+    expect(rotulosDoEixo()).toContain('300 k');
+  });
+
   it('mostra o eixo da direita somente quando pedido', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
     const comUmEixo = rotulosDoEixo().length;

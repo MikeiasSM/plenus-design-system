@@ -24,6 +24,8 @@ export interface ChartPieProps {
   defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   hiddenSlices?: readonly string[];
@@ -51,6 +53,7 @@ export function ChartPie({
   defaultHiddenSlices,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
+  formatTooltipValue,
   formatValue = formatarNumero,
   height = 260,
   hiddenSlices,
@@ -108,7 +111,7 @@ export function ChartPie({
           ? sliceTooltip({
               colors: anel.colors,
               formatPercent,
-              formatValue,
+              formatValue: formatTooltipValue ?? formatValue,
               index: anel.focused,
               slices: anel.slices,
               total: anel.total,
