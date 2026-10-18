@@ -304,6 +304,8 @@ O realce de sintaxe do `CodeBlock` tem tokens proprios com o prefixo `code`. A p
 | `code.annotation` | Anotacao e decorador | `#7A6A00` | `#BBB529` |
 | `code.function` | Nome seguido de chamada | `#00627A` | `#FFC66D` |
 | `code.property` | Chave de JSON e variavel de shell | `#871094` | `#A98BBB` |
+| `code.tag` | Nome da tag em JSX e TSX | `#0033B3` | `#E8BF6A` |
+| `code.attribute` | Atributo com valor em JSX e TSX | `#174AD4` | `#BABABA` |
 
 Cinco tons de origem reprovavam no texto minimo contra o fundo do bloco: comentario e anotacao no claro, texto, comentario e propriedade no escuro. Eles mudaram so na luminosidade, e a matiz continua a da JetBrains. Cada token e medido contra `color.surface-subtle`, o fundo do bloco, e contra `color.warning-container`, o da linha destacada.
 

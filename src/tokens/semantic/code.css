@@ -9,6 +9,8 @@
   --pl-code-annotation: #7A6A00;
   --pl-code-function: #00627A;
   --pl-code-property: #871094;
+  --pl-code-tag: #0033B3;
+  --pl-code-attribute: #174AD4;
 }
 
 :root[data-theme='dark'] {
@@ -19,4 +21,6 @@
   --pl-code-annotation: #BBB529;
   --pl-code-function: #FFC66D;
   --pl-code-property: #A98BBB;
+  --pl-code-tag: #E8BF6A;
+  --pl-code-attribute: #BABABA;
 }

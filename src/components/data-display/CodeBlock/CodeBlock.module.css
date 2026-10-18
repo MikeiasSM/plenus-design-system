@@ -125,6 +125,14 @@ mark.line {
   color: var(--pl-code-property);
 }
 
+.tag {
+  color: var(--pl-code-tag);
+}
+
+.attribute {
+  color: var(--pl-code-attribute);
+}
+
 /* As linhas compartilham as colunas do codigo, para os numeros alinharem entre si. */
 .numbered .code {
   display: grid;

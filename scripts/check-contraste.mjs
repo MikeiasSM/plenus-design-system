@@ -56,7 +56,7 @@ const PARES = [
   ...['series-1', 'series-2', 'series-3', 'series-4', 'series-5', 'series-6', 'positive', 'negative', 'warning', 'neutral'].map(
     (cor) => [`--pl-chart-on-${cor}`, `--pl-chart-${cor}`, TEXTO_MINIMO, `texto sobre ${cor}`],
   ),
-  ...['keyword', 'string', 'number', 'comment', 'annotation', 'function', 'property'].flatMap((papel) => [
+  ...['keyword', 'string', 'number', 'comment', 'annotation', 'function', 'property', 'tag', 'attribute'].flatMap((papel) => [
     [`--pl-code-${papel}`, '--pl-color-surface-subtle', TEXTO_MINIMO, `codigo: ${papel}`],
     [`--pl-code-${papel}`, '--pl-color-warning-container', TEXTO_MINIMO, `codigo: ${papel} na linha destacada`],
   ]),

@@ -80,7 +80,7 @@ Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação pe
 
 O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`.
 
-O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, SQL, JSON e Shell: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
+O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, JSX, TSX, SQL, JSON e Shell: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
 
 ## 6. Gráficos
 

@@ -1,29 +1,41 @@
 /**
  * Realce de sintaxe por regras lexicas, sem analisador de linguagem: reconhece o
  * que ajuda a ler o trecho — palavra reservada, texto, numero, comentario,
- * anotacao, chamada e propriedade — e deixa o resto sem cor.
+ * anotacao, chamada, propriedade, tag e atributo — e deixa o resto sem cor.
  */
 
-export type CodeSyntax = 'java' | 'javascript' | 'typescript' | 'sql' | 'json' | 'shell';
+export type CodeSyntax = 'java' | 'javascript' | 'jsx' | 'typescript' | 'tsx' | 'sql' | 'json' | 'shell';
 
-export type CodeTokenKind = 'annotation' | 'comment' | 'function' | 'keyword' | 'number' | 'property' | 'string';
+export type CodeTokenKind =
+  | 'annotation'
+  | 'attribute'
+  | 'comment'
+  | 'function'
+  | 'keyword'
+  | 'number'
+  | 'property'
+  | 'string'
+  | 'tag';
 
 export interface CodeToken {
   kind?: CodeTokenKind;
   text: string;
 }
 
-type Rule = readonly [CodeTokenKind, RegExp];
+/** Regra sem papel reconhece um trecho para que nenhuma outra o pinte, como o texto entre tags. */
+type Rule = readonly [CodeTokenKind | undefined, RegExp];
 
 interface Grammar {
-  kinds: readonly CodeTokenKind[];
+  kinds: readonly (CodeTokenKind | undefined)[];
   pattern: RegExp;
 }
 
 export const SYNTAX_LABELS: Readonly<Record<CodeSyntax, string>> = {
   java: 'Java',
   javascript: 'JavaScript',
+  jsx: 'JSX',
   typescript: 'TypeScript',
+  tsx: 'TSX',
   sql: 'SQL',
   json: 'JSON',
   shell: 'Shell',
@@ -81,6 +93,25 @@ const JAVASCRIPT_RULES: readonly Rule[] = [
   ['number', NUMBER],
 ];
 
+const JAVASCRIPT: readonly Rule[] = [...JAVASCRIPT_RULES, ['keyword', words(JAVASCRIPT_WORDS)], ['function', CALL]];
+
+const TYPESCRIPT: readonly Rule[] = [
+  ...JAVASCRIPT_RULES,
+  ['annotation', ANNOTATION],
+  ['keyword', words(JAVASCRIPT_WORDS + TYPESCRIPT_WORDS)],
+  ['function', CALL],
+];
+
+/**
+ * Vem antes das regras da linguagem. O `<` colado a um nome e o generico de `useState<string>`, e nao uma tag; o
+ * texto entre `>` e `<` e conteudo, e o numero dentro dele nao e literal.
+ */
+const JSX_RULES: readonly Rule[] = [
+  [undefined, /(?<=>)[^<>{}\n]+(?=<)/],
+  ['tag', /(?<=<\/|(?:^|[^\w$)\]])<)[A-Za-z][\w.]*/],
+  ['attribute', /\b[A-Za-z_][\w-]*(?==[{"'])/],
+];
+
 const RULES: Readonly<Record<CodeSyntax, readonly Rule[]>> = {
   java: [
     ['comment', LINE_COMMENT],
@@ -93,13 +124,10 @@ const RULES: Readonly<Record<CodeSyntax, readonly Rule[]>> = {
     ['keyword', JAVA_KEYWORDS],
     ['function', CALL],
   ],
-  javascript: [...JAVASCRIPT_RULES, ['keyword', words(JAVASCRIPT_WORDS)], ['function', CALL]],
-  typescript: [
-    ...JAVASCRIPT_RULES,
-    ['annotation', ANNOTATION],
-    ['keyword', words(JAVASCRIPT_WORDS + TYPESCRIPT_WORDS)],
-    ['function', CALL],
-  ],
+  javascript: JAVASCRIPT,
+  jsx: [...JSX_RULES, ...JAVASCRIPT],
+  typescript: TYPESCRIPT,
+  tsx: [...JSX_RULES, ...TYPESCRIPT],
   sql: [
     ['comment', /--.*/],
     ['comment', BLOCK_COMMENT],
@@ -158,7 +186,9 @@ export function tokenize(code: string, syntax: CodeSyntax): CodeToken[] {
       tokens.push({ text: code.slice(end, match.index) });
     }
 
-    tokens.push({ kind: kinds[match.slice(1).findIndex((group) => group !== undefined)], text: match[0] });
+    const kind = kinds[match.slice(1).findIndex((group) => group !== undefined)];
+
+    tokens.push(kind ? { kind, text: match[0] } : { text: match[0] });
     end = match.index + match[0].length;
   }
 

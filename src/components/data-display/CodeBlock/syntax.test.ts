@@ -70,6 +70,25 @@ describe('realce de sintaxe', () => {
     ]);
   });
 
+  it('pinta no TSX a tag e o atributo, e deixa sem cor o texto entre tags', () => {
+    expect(coloridos('<Card.Header title="Membros" badge={<Badge>12</Badge>} />', 'tsx')).toEqual([
+      ['tag', 'Card.Header'],
+      ['attribute', 'title'],
+      ['string', '"Membros"'],
+      ['attribute', 'badge'],
+      ['tag', 'Badge'],
+      ['tag', 'Badge'],
+    ]);
+  });
+
+  it('no TSX, o generico colado ao nome nao vira tag', () => {
+    expect(coloridos('const [x] = useState<string>(0)', 'tsx')).toEqual([
+      ['keyword', 'const'],
+      ['keyword', 'string'],
+      ['number', '0'],
+    ]);
+  });
+
   it('nao perde nem acrescenta caractere', () => {
     const trecho = 'class A {\n  /* um\n  dois */\n  int x = 0x1F; // fim\n}';
 

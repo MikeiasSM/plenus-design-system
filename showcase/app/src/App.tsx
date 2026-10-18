@@ -204,7 +204,7 @@ function ComponentDoc({
       {children}
       <div className="doc-subsection">
         <h3>Exemplo de implementacao</h3>
-        <CodeBlock className="code-block" code={api} language="TSX" syntax="typescript" />
+        <CodeBlock className="code-block" code={api} syntax="tsx" />
       </div>
     </section>
   );
@@ -473,7 +473,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Regra decimal</h3>
             <p className="doc-note">A virgula determina os decimais. Sem virgula, o valor permanece inteiro.</p>
-            <CodeBlock className="code-block" code={'<InputNumber label="Percentual" decimalScale={2} />'} language="TSX" syntax="typescript" />
+            <CodeBlock className="code-block" code={'<InputNumber label="Percentual" decimalScale={2} />'} syntax="tsx" />
           </div>
         </ComponentDoc>
 
