@@ -94,7 +94,7 @@ export type {
   CardProps,
 } from './components/data-display/Card';
 export { CodeBlock } from './components/data-display/CodeBlock';
-export type { CodeBlockProps } from './components/data-display/CodeBlock';
+export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {
   SortDirection,

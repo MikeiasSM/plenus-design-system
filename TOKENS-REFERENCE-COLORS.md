@@ -291,6 +291,24 @@ No tema claro, as series 4, 5 e 6 sao o **segundo tom** de cada matiz, e no clar
 
 A separacao entre series e medida, nunca arbitrada a olho, e a medicao inclui simulacao de deficiencia de visao de cores. As cores institucionais, tomadas em conjunto, apresentam um pior par de 3,6 sob deuteranopia. A paleta definida acima leva esse pior par a 20,6.
 
+## Cores de codigo
+
+O realce de sintaxe do `CodeBlock` tem tokens proprios com o prefixo `code`. A paleta parte dos temas da JetBrains — IntelliJ Light no claro, Darcula no escuro — porque e a que quem le o codigo da casa ja conhece da IDE.
+
+| Token | Papel | Tema claro | Tema escuro |
+| --- | --- | --- | --- |
+| `code.keyword` | Palavra reservada | `#0033B3` | `#CC7832` |
+| `code.string` | Texto entre aspas | `#067D17` | `#7DA06B` |
+| `code.number` | Numero | `#1750EB` | `#6897BB` |
+| `code.comment` | Comentario | `#6E6E6E` | `#8F8F8F` |
+| `code.annotation` | Anotacao e decorador | `#7A6A00` | `#BBB529` |
+| `code.function` | Nome seguido de chamada | `#00627A` | `#FFC66D` |
+| `code.property` | Chave de JSON e variavel de shell | `#871094` | `#A98BBB` |
+
+Cinco tons de origem reprovavam no texto minimo contra o fundo do bloco: comentario e anotacao no claro, texto, comentario e propriedade no escuro. Eles mudaram so na luminosidade, e a matiz continua a da JetBrains. Cada token e medido contra `color.surface-subtle`, o fundo do bloco, e contra `color.warning-container`, o da linha destacada.
+
+O peso e um so: a JetBrains Mono e carregada apenas em `500`, e nenhum papel usa negrito ou italico, que sairiam sintetizados.
+
 ## Contraste e validacao
 
 Nenhuma escala tonal deve ser considerada definitiva apenas por sua aparencia visual. Cada tema deve validar:

@@ -534,8 +534,10 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 Entrou no catalogo por decisao do mantenedor em 18/10/2026, a partir do bloco de codigo do editor do PlenusLAB.
 
 - **Exibe, nao edita.** O editor do produto mantem a propria superficie de edicao e usa o `CodeBlock` para mostrar o bloco.
-- **A referencia visual e o `CodeSnippet` do Untitled UI**, da versao paga: numeros em coluna propria e copia no bloco. O realce de sintaxe dele vem do Shiki, e fica fora daqui pelo mandamento 13.
-- **O rotulo da linguagem chega pronto.** A lista de linguagens e o nome de cada uma sao do produto; o componente nao traduz `java` em `Java`.
+- **A referencia visual e o `CodeSnippet` do Untitled UI**, da versao paga: numeros em coluna propria e copia no bloco. As cores do realce, por pedido do mantenedor, vem dos temas da JetBrains, registradas em `TOKENS-REFERENCE-COLORS.md`.
+- **O realce e lexico e do proprio Design System**, sem dependencia. Shiki, highlight.js e os analisadores do Lezer custam de 50 kB a mais de 200 kB, e o bloco de codigo chega na primeira visita de quem le documento; regras de palavra reservada, texto, numero, comentario, anotacao, chamada e propriedade cobrem as seis linguagens do produto em poucos kB. O que se perde e o que exige analisar a linguagem: a cor de um tipo, a diferenca entre declarar e chamar, a interpolacao dentro de texto.
+- **`syntax` liga o realce e da o rotulo padrao.** `language` continua livre, para o produto nomear como quiser ou mostrar uma linguagem que o realce nao cobre.
+- **Sem ligaduras**, como nas IDEs da JetBrains: a fonte juntava `!=` em `≠`.
 - **`highlightedLines` recebe numeros, nao texto.** Ler `1, 3-5` e tarefa de quem oferece o campo ao usuario.
 - **A linha destacada e `<mark>`**, e nao so fundo: a enfase chega ao leitor de tela, e uma borda a esquerda a mostra sem depender da cor.
 - **Os numeros sao gerados pelo CSS**, com texto alternativo vazio: nao entram na selecao, na copia nem na leitura. Linha e numero compartilham as colunas do codigo por `subgrid`, entao a linha quebrada continua alinhada.

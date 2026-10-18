@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentPropsWithRef } from 'react';
 import { Button } from '../../actions/Button';
 import styles from './CodeBlock.module.css';
+import { SYNTAX_LABELS, tokenizeLines, type CodeSyntax } from './syntax';
 
 const COPY_FEEDBACK_MS = 2000;
 
@@ -10,9 +11,11 @@ export interface CodeBlockProps extends Omit<ComponentPropsWithRef<'div'>, 'chil
   fileName?: string;
   /** Linhas destacadas, contadas a partir de 1. */
   highlightedLines?: readonly number[];
-  /** Como deve ser lido no cabecalho: `Java`, e nao `java`. */
+  /** Rotulo do cabecalho. Sem ele, vale o nome da sintaxe. */
   language?: string;
   lineNumbers?: boolean;
+  /** Linguagem do realce de cores. Sem ela, o codigo sai numa cor so. */
+  syntax?: CodeSyntax;
   wrap?: boolean;
 }
 
@@ -24,6 +27,7 @@ export function CodeBlock({
   highlightedLines = [],
   language,
   lineNumbers = false,
+  syntax,
   wrap = false,
   ...props
 }: CodeBlockProps) {
@@ -40,7 +44,8 @@ export function CodeBlock({
   }, [copied]);
 
   const highlighted = new Set(highlightedLines);
-  const hasHeader = Boolean(fileName || language) || copyable;
+  const label = language ?? (syntax && SYNTAX_LABELS[syntax]);
+  const hasHeader = Boolean(fileName || label) || copyable;
 
   return (
     <div {...props} className={[styles.codeBlock, className].filter(Boolean).join(' ')}>
@@ -48,7 +53,7 @@ export function CodeBlock({
         <div className={styles.header}>
           <span className={styles.meta}>
             {fileName && <span className={styles.fileName}>{fileName}</span>}
-            {language && <span className={styles.language}>{language}</span>}
+            {label && <span className={styles.language}>{label}</span>}
           </span>
           {copyable && (
             <Button
@@ -70,12 +75,22 @@ export function CodeBlock({
         tabIndex={wrap ? undefined : 0}
       >
         <code className={styles.code}>
-          {code.split('\n').map((line, index) => {
+          {tokenizeLines(code, syntax).map((tokens, index) => {
             const Line = highlighted.has(index + 1) ? 'mark' : 'span';
 
             return (
               <Line className={styles.line} key={index}>
-                {line}
+                <span className={styles.content}>
+                  {tokens.map((token, position) =>
+                    token.kind ? (
+                      <span className={styles[token.kind]} key={position}>
+                        {token.text}
+                      </span>
+                    ) : (
+                      token.text
+                    ),
+                  )}
+                </span>
               </Line>
             );
           })}

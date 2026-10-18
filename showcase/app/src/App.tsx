@@ -111,6 +111,32 @@ const jornadaDeCobranca = [
 ];
 
 const alinhamentosDoSankey = ['justify', 'left', 'right', 'center'] as const;
+const codigoJava = `// Confere a chave antes de liberar o download
+@Service
+public class Licenca {
+  private static final int LIMITE = 30;
+
+  public boolean valida(String chave) {
+    return chave != null && chave.length() <= LIMITE;
+  }
+}`;
+
+const codigoSql = `SELECT nome, COUNT(*) AS total
+FROM documento
+WHERE estado = 'publicado' -- so os visiveis
+GROUP BY nome;`;
+
+const codigoJson = `{
+  "versao": "0.2.1",
+  "publico": true,
+  "downloads": 1284
+}`;
+
+const codigoShell = `#!/bin/sh
+for arquivo in dist/*.js; do
+  echo "$arquivo" # lista o pacote
+done`;
+
 const coresDaLigacao = ['source', 'target', 'neutral'] as const;
 const posicoesDoValor = ['end', 'middle', 'start'] as const;
 
@@ -178,7 +204,7 @@ function ComponentDoc({
       {children}
       <div className="doc-subsection">
         <h3>Exemplo de implementacao</h3>
-        <CodeBlock className="code-block" code={api} language="TSX" />
+        <CodeBlock className="code-block" code={api} language="TSX" syntax="typescript" />
       </div>
     </section>
   );
@@ -447,7 +473,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Regra decimal</h3>
             <p className="doc-note">A virgula determina os decimais. Sem virgula, o valor permanece inteiro.</p>
-            <CodeBlock className="code-block" code={'<InputNumber label="Percentual" decimalScale={2} />'} language="TSX" />
+            <CodeBlock className="code-block" code={'<InputNumber label="Percentual" decimalScale={2} />'} language="TSX" syntax="typescript" />
           </div>
         </ComponentDoc>
 
@@ -2130,22 +2156,25 @@ export function App() {
           description="Trecho de codigo para leitura, com copia, numeracao e destaque de linhas."
           id="codeblock"
           name="CodeBlock"
-          api={'<CodeBlock\n  code={trecho}\n  fileName="Main.java"\n  language="Java"\n  lineNumbers\n  highlightedLines={[3]}\n/>'}
+          api={'<CodeBlock\n  code={trecho}\n  fileName="Licenca.java"\n  syntax="java"\n  lineNumbers\n  highlightedLines={[7]}\n/>'}
         >
           <div className="doc-subsection">
-            <h3>Arquivo, linguagem, numeros e destaque</h3>
-            <CodeBlock
-              code={'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Ola");\n  }\n}'}
-              fileName="Main.java"
-              highlightedLines={[3]}
-              language="Java"
-              lineNumbers
-            />
+            <h3>Java, com arquivo, numeros e destaque</h3>
+            <CodeBlock code={codigoJava} fileName="Licenca.java" highlightedLines={[7]} lineNumbers syntax="java" />
             <p className="doc-note">Copiar leva o codigo inteiro e anuncia a copia ao leitor de tela. Os numeros nao entram na selecao. Sem quebra, a linha longa rola de lado e o bloco recebe foco para o teclado alcanca-la.</p>
           </div>
           <div className="doc-subsection">
+            <h3>Outras linguagens</h3>
+            <div className="input-grid">
+              <CodeBlock code={codigoSql} syntax="sql" />
+              <CodeBlock code={codigoJson} syntax="json" />
+              <CodeBlock code={codigoShell} syntax="shell" />
+            </div>
+            <p className="doc-note">O realce e lexico: palavra reservada, texto, numero, comentario, anotacao, chamada e propriedade, nas cores dos temas da JetBrains. Sem syntax, o codigo sai numa cor so.</p>
+          </div>
+          <div className="doc-subsection">
             <h3>Com quebra de linha, sem cabecalho</h3>
-            <CodeBlock code="npm install @plenustech/design-system && npm run build" copyable={false} wrap />
+            <CodeBlock code="npm install @plenustech/design-system && npm run build" copyable={false} syntax="shell" wrap />
           </div>
         </ComponentDoc>
       </main>

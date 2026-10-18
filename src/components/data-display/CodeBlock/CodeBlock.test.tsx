@@ -43,6 +43,14 @@ describe('CodeBlock', () => {
     expect(screen.getByText('Java')).toBeInTheDocument();
   });
 
+  it('pinta o codigo pela sintaxe e usa o nome dela no cabecalho', () => {
+    render(<CodeBlock code="return 1;" syntax="java" />);
+
+    expect(screen.getByText('Java')).toBeInTheDocument();
+    expect(screen.getByText('return')).toHaveClass(styles.keyword!);
+    expect(screen.getByText('1')).toHaveClass(styles.number!);
+  });
+
   it('dispensa o cabecalho quando nao ha o que mostrar nele', () => {
     const { container } = render(<CodeBlock code={trecho} copyable={false} />);
 

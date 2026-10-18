@@ -54,6 +54,8 @@
   font-family: var(--pl-font-mono);
   font-size: var(--pl-type-code-size);
   font-weight: var(--pl-type-code-weight);
+  /* Sem ligaduras, como nas IDEs da JetBrains: `!=` lido como `≠` nao e o que se digita. */
+  font-variant-ligatures: none;
   line-height: var(--pl-type-code-line-height);
   white-space: pre;
 }
@@ -89,6 +91,38 @@
 mark.line {
   background: var(--pl-color-warning-container);
   box-shadow: inset 2px 0 0 var(--pl-color-warning);
+}
+
+.content {
+  min-width: 0;
+}
+
+.keyword {
+  color: var(--pl-code-keyword);
+}
+
+.string {
+  color: var(--pl-code-string);
+}
+
+.number {
+  color: var(--pl-code-number);
+}
+
+.comment {
+  color: var(--pl-code-comment);
+}
+
+.annotation {
+  color: var(--pl-code-annotation);
+}
+
+.function {
+  color: var(--pl-code-function);
+}
+
+.property {
+  color: var(--pl-code-property);
 }
 
 /* As linhas compartilham as colunas do codigo, para os numeros alinharem entre si. */
