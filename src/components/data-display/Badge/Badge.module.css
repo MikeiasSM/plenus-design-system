@@ -10,9 +10,10 @@
   background: var(--badge-surface);
   color: var(--badge-tone);
   font-family: var(--pl-font-body);
-  font-size: var(--pl-type-label-size);
+  font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
-  line-height: var(--pl-type-label-line-height);
+  line-height: var(--pl-type-caption-line-height);
+  white-space: nowrap;
 }
 
 .dot {

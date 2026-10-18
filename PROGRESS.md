@@ -193,7 +193,7 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
 
-**Depois da 0.2.1**, para a proxima versao: o `CodeBlock`, que entra no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao. O `Card` com corpo sem respiro passa a separar o cabecalho do corpo por uma linha, com o mesmo respiro em cima e embaixo: a faixa do cabecalho de uma tabela comecava colada a descricao do cartao.
+**Depois da 0.2.1**, para a proxima versao: o `CodeBlock`, que entra no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao. O `Card` com corpo sem respiro passa a separar o cabecalho do corpo por uma linha, com o mesmo respiro em cima e embaixo: a faixa do cabecalho de uma tabela comecava colada a descricao do cartao. A `Table` sem registros mostra o vazio desenhado — icone de busca, *Nenhum registro encontrado* e um subtitulo que sugere rever a busca e os filtros —, e carregando troca as linhas por esqueleto, na mesma quantidade das que estavam na tela, com a mensagem so para o leitor de tela. O `Badge` desceu a 12px, como no Untitled UI, com o raio do sistema. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `Table.Body` troca `empty` por `emptyTitle` e `emptyDescription`, e o vazio aparece mesmo sem eles; o `Badge` passa de 14px a 12px; o texto da `Table` sai da mono para a Montserrat.
 
 **Corrigido depois da publicacao da 0.2.0**, na `0.2.1`. A versao sobe so a correcao por decisao do mantenedor, embora traga as mudancas incompativeis listadas abaixo; quem declara `^0.2.0` as recebe na proxima instalacao.
 
@@ -288,7 +288,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - Foco dos campos: borda em `primary` mais halo de `primary-container`. O `outline` deslocado foi adotado e revertido, por produzir borda dupla.
 - Hover de itens de lista em `Menu`, `Select` e `ComboBox`: `primary-container` com texto em `on-primary-container`.
 - Hover do cabecalho do `Accordion` muda apenas texto e icone, sem preencher o fundo.
-- A `Table` usa a familia mono em **todo** o conteudo, nao apenas nas colunas de valor. Confirmado pelo mantenedor.
+- A `Table` usa Montserrat no texto e JetBrains Mono so nas colunas `numeric`. Ate 18/10/2026 a mono cobria o conteudo inteiro, por decisao do mantenedor; ao lado do `Badge` e do `Button`, em Montserrat, a mono de 14px parecia maior que o resto da linha, e o mantenedor revogou a decisao. Agora a tabela segue o `TOKENS-REFERENCE-TYPOGRAPHY.md`, que reserva a mono a quando o alinhamento do digito importa.
 - `Progress` e `Spinner` usam `primary-hover`, o tom mais claro que alcanca o minimo de 3:1 contra o trilho.
 
 **Acessibilidade**
@@ -514,7 +514,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Escolher hora sem data escolhida apoia-se em **hoje**. A primeira versao inventava o dia primeiro de janeiro, e o campo exibia uma data que o usuario nunca havia escolhido.
 - Tipografia: `type.title` pertence a Montserrat, nao a Poppins. O `Card` nascera errado e foi corrigido. Poppins fica restrita a display e headline, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
 - Tipografia: campo e lista de horarios usam **Montserrat**, com `font-variant-numeric: tabular-nums` para os digitos alinharem. JetBrains Mono chegou a ser aplicada ali por analogia visual e foi revertida: `TOKENS-REFERENCE-TYPOGRAPHY.md` da a Montserrat o papel exclusivo sobre formularios, e restringe a JetBrains Mono a tabelas, valores de tabela, chaves e codigo. O alinhamento que se queria vem do `tabular-nums`, sem trocar a familia.
-- Tipografia: a `Table` usa **JetBrains Mono**, a familia que `TOKENS-REFERENCE-TYPOGRAPHY.md` reserva a tabelas e dados tecnicos, com `tabular-nums` para os digitos alinharem em coluna. `Table.Column` e `Table.Cell` mantem `numeric`, que aplica `type.data-value` em tamanho, peso e alinhamento a direita.
+- Tipografia: o texto da `Table` e Montserrat, `type.body` nas celulas e `type.caption` em peso 600 no cabecalho. `Table.Column` e `Table.Cell` com `numeric` usam `type.data-value`, em JetBrains Mono com `tabular-nums`, para os digitos alinharem em coluna, e alinham a direita.
 - Pendente: entrada segmentada, em que dia, mes e ano sao campos navegaveis por setas, como no React Aria. Hoje a entrada e um campo unico com mascara, que aceita barra, traco, ponto e espaco, como a referencia do Untitled UI descreve.
 - Pendente do Untitled UI: intervalo de datas, atalhos de periodo, visao de dois meses e rodape com cancelar e aplicar. Nenhum deles foi pedido por um cenario concreto ate agora.
 

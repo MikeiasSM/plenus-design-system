@@ -22,6 +22,7 @@ import {
   IconMinusCircle,
   IconPlusCircle,
   IconQuestionCircle,
+  IconSearch,
 } from '@plenustech/design-system';
 import type {
   AxisVisibility,
@@ -151,6 +152,7 @@ const icones = [
   ['IconPlusCircle', IconPlusCircle],
   ['IconMinusCircle', IconMinusCircle],
   ['IconQuestionCircle', IconQuestionCircle],
+  ['IconSearch', IconSearch],
   ['IconCalendar', IconCalendar],
   ['IconClock', IconClock],
   ['IconClose', IconClose],
@@ -1977,7 +1979,7 @@ export function App() {
       <Table.Header>
         <Table.Column id="nome" sortable>Nome</Table.Column>
       </Table.Header>
-      <Table.Body items={membros} empty={<span>Nenhum membro</span>}>
+      <Table.Body items={membros} emptyTitle="Nenhum membro">
         {(m) => (
           <Table.Row id={m.id} label={\`Selecionar \${m.nome}\`}>
             <Table.Cell>{m.nome}</Table.Cell>
@@ -2013,7 +2015,7 @@ export function App() {
                     <Table.Column id="status" sortable>Status</Table.Column>
                     <Table.Column id="acoes" align="end" hideBelow="md">Acoes</Table.Column>
                   </Table.Header>
-                  <Table.Body items={equipeOrdenada} empty={<span>Nenhum membro encontrado</span>}>
+                  <Table.Body items={equipeOrdenada}>
                     {(pessoa) => (
                       <Table.Row id={pessoa.id} label={`Selecionar ${pessoa.nome}`}>
                         <Table.Cell>
@@ -2063,7 +2065,7 @@ export function App() {
                 <Table.Column id="progresso" hideBelow="sm">Entrega</Table.Column>
                 <Table.Column id="valor" numeric sortable>Valor</Table.Column>
               </Table.Header>
-              <Table.Body items={vendas} empty={<span>Nenhuma venda</span>}>
+              <Table.Body items={vendas}>
                 {(venda) => (
                   <Table.Row id={venda.id} label={`Selecionar ${venda.pedido}`}>
                     <Table.Cell>{venda.pedido}</Table.Cell>
@@ -2085,7 +2087,7 @@ export function App() {
                 <Table.Column id="arquivo">Arquivo</Table.Column>
                 <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
               </Table.Header>
-              <Table.Body items={[] as typeof vendas} empty={<span>Nenhum arquivo enviado ainda</span>}>
+              <Table.Body items={[] as typeof vendas}>
                 {(item) => (
                   <Table.Row id={item.id}>
                     <Table.Cell>{item.pedido}</Table.Cell>
@@ -2098,7 +2100,7 @@ export function App() {
                 <Table.Column id="arquivo">Arquivo</Table.Column>
                 <Table.Column id="tamanho" align="end">Tamanho</Table.Column>
               </Table.Header>
-              <Table.Body items={[] as typeof vendas} empty={<span>Nenhum arquivo</span>}>
+              <Table.Body items={[] as typeof vendas}>
                 {(item) => (
                   <Table.Row id={item.id}>
                     <Table.Cell>{item.pedido}</Table.Cell>
@@ -2106,7 +2108,7 @@ export function App() {
                 )}
               </Table.Body>
             </Table>
-            <p className="doc-note">O vazio ocupa a largura da tabela; o carregamento substitui o vazio e marca a tabela como ocupada.</p>
+            <p className="doc-note">Sem registros, a tabela diz que nao achou nada e sugere rever a busca; emptyTitle e emptyDescription trocam os dois textos. Carregando, as linhas viram esqueleto, a tabela fica marcada como ocupada e o leitor de tela ouve a mensagem.</p>
           </div>
         </ComponentDoc>
 

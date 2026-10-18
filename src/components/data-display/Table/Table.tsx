@@ -14,7 +14,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
-import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
+import { IconArrowUp, IconChevronExpand, IconQuestionCircle, IconSearch } from '../../icons';
 
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
@@ -341,19 +341,51 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
 
 export interface TableBodyProps<T extends TableRowItem> {
   children: (item: T) => ReactNode;
-  empty?: ReactNode;
+  emptyDescription?: string;
+  emptyTitle?: string;
   items: readonly T[];
 }
 
-function TableBody<T extends TableRowItem>({ children, empty, items }: TableBodyProps<T>) {
-  const { countColumns, loading } = useTableContext('Table.Body');
+const SKELETON_ROWS = 3;
 
-  if (items.length === 0 && !loading && empty !== undefined) {
+function TableBody<T extends TableRowItem>({
+  children,
+  emptyDescription = 'Não há registros para exibir. Se houver busca ou filtros aplicados, experimente ajustá-los.',
+  emptyTitle = 'Nenhum registro encontrado',
+  items,
+}: TableBodyProps<T>) {
+  const { countColumns, loading, selection } = useTableContext('Table.Body');
+
+  if (loading) {
+    // Mantem a altura das linhas que ja estavam na tela, para a pagina nao pular quando a nova chegar.
+    const rows = Array.from({ length: items.length || SKELETON_ROWS }, (_, index) => index);
+    const cells = Array.from({ length: countColumns() }, (_, index) => index);
+
+    return (
+      <tbody aria-hidden="true">
+        {rows.map((row) => (
+          <tr className={[styles.row, styles.skeletonRow].join(' ')} key={row}>
+            {cells.map((cell) => (
+              <td className={[styles.cell, cell === 0 && selection.mode !== 'none' && styles.lead].filter(Boolean).join(' ')} key={cell}>
+                <span className={styles.skeleton} />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    );
+  }
+
+  if (items.length === 0) {
     return (
       <tbody>
         <tr>
           <td className={styles.empty} colSpan={countColumns()}>
-            {empty}
+            <span className={styles.emptyIcon}>
+              <IconSearch size={20} />
+            </span>
+            <p className={styles.emptyTitle}>{emptyTitle}</p>
+            <p className={styles.emptyDescription}>{emptyDescription}</p>
           </td>
         </tr>
       </tbody>

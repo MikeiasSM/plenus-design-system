@@ -15,6 +15,7 @@ export {
   IconMinusCircle,
   IconPlusCircle,
   IconQuestionCircle,
+  IconSearch,
 } from './components/icons';
 export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';

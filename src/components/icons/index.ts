@@ -13,4 +13,5 @@ export {
   IconMinusCircle,
   IconPlusCircle,
   IconQuestionCircle,
+  IconSearch,
 } from './icons';

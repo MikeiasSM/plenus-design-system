@@ -15,7 +15,7 @@
   border-collapse: collapse;
   background: var(--pl-color-surface);
   color: var(--pl-color-text-secondary);
-  font-family: var(--pl-font-mono);
+  font-family: var(--pl-font-body);
   font-variant-numeric: tabular-nums;
   text-align: left;
 }
@@ -36,14 +36,13 @@
   background: var(--pl-color-surface-subtle);
 }
 
-/* O cabecalho e mono como o resto da tabela, e a mono so e carregada no peso 500. */
 .column {
   height: var(--table-head-height);
   padding: 0 var(--table-inline-padding);
   border-bottom: 1px solid var(--pl-color-border);
   color: var(--pl-color-text-tertiary);
   font-size: var(--pl-type-caption-size);
-  font-weight: var(--pl-type-data-value-weight);
+  font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-caption-line-height);
   white-space: nowrap;
 }
@@ -158,18 +157,89 @@
   text-align: right;
 }
 
-.empty,
-.status {
-  padding: var(--pl-space-6) var(--table-inline-padding);
-  color: var(--pl-color-text-tertiary);
-  font-family: var(--pl-font-mono);
-  font-size: var(--pl-type-body-size);
-  line-height: var(--pl-type-body-line-height);
+.empty {
+  padding: var(--pl-space-6) var(--table-inline-padding) calc(var(--pl-space-6) + var(--pl-space-1));
   text-align: center;
 }
 
-.status {
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--pl-space-4);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+  box-shadow: 0 0 0 var(--pl-space-2) var(--pl-color-surface-subtle);
+  color: var(--pl-color-text-secondary);
+}
+
+.emptyTitle {
   margin: 0;
+  color: var(--pl-color-text);
+  font-size: var(--pl-type-title-size);
+  font-weight: var(--pl-type-title-weight);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.emptyDescription {
+  max-width: 24rem;
+  margin: var(--pl-space-1) auto 0;
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+/* O esqueleto e o que se ve; a mensagem fica para o leitor de tela. */
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Largura fixa, e nao proporcional: em porcentagem a barra encolhia a coluna, que pulava quando os dados chegavam. */
+.skeleton {
+  display: block;
+  width: 8rem;
+  max-width: 100%;
+  height: 0.625rem;
+  border-radius: var(--pl-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--pl-color-border) 0%,
+    var(--pl-color-surface-muted) 50%,
+    var(--pl-color-border) 100%
+  );
+  background-size: 200% 100%;
+  animation: table-skeleton 1.4s ease-in-out infinite;
+}
+
+.skeletonRow .cell:nth-child(3n + 2) .skeleton {
+  width: 6rem;
+}
+
+.skeletonRow .cell:nth-child(3n) .skeleton {
+  width: 5rem;
+}
+
+.skeletonRow .lead .skeleton {
+  width: 1rem;
+  height: 1rem;
+}
+
+@keyframes table-skeleton {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
 }
 
 /* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
@@ -213,6 +283,10 @@
   .sortIcon {
     transition: none;
   }
+
+  .skeleton {
+    animation: none;
+  }
 }
 
 .lead {
@@ -253,6 +327,6 @@
   background: var(--pl-color-primary-container);
 }
 
-.row:hover:not(.selected) {
+.row:hover:not(.selected, .skeletonRow) {
   background: var(--pl-color-surface-subtle);
 }

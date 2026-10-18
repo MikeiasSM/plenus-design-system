@@ -27,7 +27,7 @@ function montar(props: Partial<React.ComponentProps<typeof Table>> = {}, itens: 
           Ações
         </Table.Column>
       </Table.Header>
-      <Table.Body items={itens} empty={<span>Nenhum membro encontrado</span>}>
+      <Table.Body emptyTitle="Nenhum membro encontrado" items={itens}>
         {(membro) => (
           <Table.Row id={membro.id} label={'Selecionar ' + membro.nome}>
             <Table.Cell>{membro.nome}</Table.Cell>
@@ -90,12 +90,35 @@ describe('Table', () => {
     expect(celula).toHaveAttribute('colspan', '3');
   });
 
-  it('anuncia o carregamento em vez do vazio', () => {
-    montar({ loading: true }, []);
+  it('sem texto proprio, diz que nao ha registro e sugere rever a busca', () => {
+    render(
+      <Table label="Membros">
+        <Table.Header>
+          <Table.Column id="nome">Nome</Table.Column>
+        </Table.Header>
+        <Table.Body items={[]}>{() => null}</Table.Body>
+      </Table>,
+    );
+
+    expect(screen.getByText('Nenhum registro encontrado')).toBeInTheDocument();
+    expect(screen.getByText(/Se houver busca ou filtros aplicados/)).toBeInTheDocument();
+  });
+
+  it('anuncia o carregamento em vez do vazio, com o esqueleto fora da leitura', () => {
+    const { container } = montar({ loading: true }, []);
 
     expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
     expect(screen.getByRole('status')).toHaveTextContent('Carregando');
     expect(screen.queryByText('Nenhum membro encontrado')).not.toBeInTheDocument();
+    expect(container.querySelector('tbody')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(3);
+  });
+
+  it('no carregamento, o esqueleto ocupa as linhas que ja estavam na tela', () => {
+    const { container } = montar({ loading: true });
+
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(membros.length);
+    expect(screen.queryByText('Ana Prado')).not.toBeInTheDocument();
   });
 
   it('descreve a coluna com ajuda sem exigir o ponteiro', () => {
@@ -210,7 +233,7 @@ describe('Table', () => {
               </Table.Column>
             ))}
           </Table.Header>
-          <Table.Body empty={<span>Vazio</span>} items={[]}>
+          <Table.Body emptyTitle="Vazio" items={[]}>
             {() => null}
           </Table.Body>
         </Table>

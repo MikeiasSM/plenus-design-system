@@ -46,8 +46,10 @@ Montserrat e a familia obrigatoria para a navegacao cotidiana e a leitura densa 
 | --- | --- | --- | --- | --- |
 | `type.title` | `16px` | `24px` | `600` | Titulos de cards e tabelas |
 | `type.body` | `14px` | `20px` | `400` | Textos descritivos e campos de formulario |
-| `type.label` | `14px` | `20px` | `600` | Texto de botoes, abas e badges |
-| `type.caption` | `12px` | `16px` | `400` | Dicas de validacao e legendas de campos |
+| `type.label` | `14px` | `20px` | `600` | Texto de botoes e abas |
+| `type.caption` | `12px` | `16px` | `400` | Dicas de validacao, legendas de campos e badges |
+
+O badge usa o tamanho e a entrelinha de `type.caption` com o peso de `type.label`, `600`. Em `14px` ele passava da linha do titulo que acompanha e pesava mais que o dado ao lado; o tamanho e o do Untitled UI, e o raio continua o do sistema. O `400` sobre o fundo colorido do badge perderia leitura.
 
 ### Dados tecnicos e codigo: JetBrains Mono
 

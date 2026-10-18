@@ -347,9 +347,15 @@ body {
   flex-direction: column;
 }
 
+.cell-person b {
+  color: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
 .cell-person span {
   color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-caption-size, 0.8125rem);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
 }
 
 .swatch-button {
