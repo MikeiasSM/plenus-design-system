@@ -371,7 +371,7 @@ body {
 
 .icon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--pl-space-3);
 }
 
@@ -384,4 +384,14 @@ body {
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   color: var(--pl-color-text);
+}
+
+.icon-cell svg {
+  flex: none;
+}
+
+.icon-cell code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
