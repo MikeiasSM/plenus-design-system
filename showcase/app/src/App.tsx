@@ -2039,7 +2039,7 @@ export function App() {
                               { key: 'remover', label: 'Remover' },
                             ]}
                           >
-                            <Button variant="ghost" size="sm">
+                            <Button variant="secondary" size="sm">
                               Acoes
                             </Button>
                           </Menu>
