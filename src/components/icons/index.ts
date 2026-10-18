@@ -4,6 +4,7 @@ export {
   IconArrowUp,
   IconCalendar,
   IconChevronDown,
+  IconChevronExpand,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
@@ -11,4 +12,5 @@ export {
   IconClose,
   IconMinusCircle,
   IconPlusCircle,
+  IconQuestionCircle,
 } from './icons';

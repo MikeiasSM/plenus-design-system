@@ -14,7 +14,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
-import { IconArrowUp } from '../../icons';
+import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
 
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
@@ -299,7 +299,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
   const ajuda = help && (
     <Tooltip content={help}>
       <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
-        ?
+        <IconQuestionCircle size={14} />
       </span>
     </Tooltip>
   );
@@ -318,10 +318,14 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
         <div className={styles.sortHeader}>
           <button className={styles.sortButton} onClick={() => requestSort(id)} type="button">
             {children}
-            <IconArrowUp
-              className={[styles.sortIcon, sorted === 'descending' && styles.sortDescending].filter(Boolean).join(' ')}
-              size={12}
-            />
+            {sorted ? (
+              <IconArrowUp
+                className={[styles.sortIcon, sorted === 'descending' && styles.sortDescending].filter(Boolean).join(' ')}
+                size={12}
+              />
+            ) : (
+              <IconChevronExpand className={styles.sortIcon} size={12} />
+            )}
           </button>
           {ajuda}
         </div>

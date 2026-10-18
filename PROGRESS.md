@@ -197,6 +197,7 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 
 - **O `Menu` aberto na primeira renderizacao quebrava no servidor.** Com `defaultOpen` ou `open`, ele montava o portal sem `document`. Ganhou a guarda do `Dialog` e do `Popover`, e o teste de servidor passou a cobri-lo.
 - **Os arcos e rotulos do `ChartSunburst` sao chaveados pela posicao**, como os dos demais graficos. O caminho de rotulos, usado antes, colidia com dois filhos de mesmo nome.
+- **A `Table` acompanha o desenho do Untitled UI**, conferido no codigo dele e em Chrome. A margem lateral passou de 12px a 24px, a do cabecalho do `Card`, e a primeira coluna alinha com o titulo; a coluna de selecao fica a 12px da seguinte. O cabecalho desceu a `caption` em `text-tertiary`, e as celulas a `text-secondary`, a hierarquia da referencia. A densidade `sm` ficou em 56px de linha e 36px de cabecalho, como la. A coluna ordenavel mostra `IconChevronExpand` desde o inicio, em vez de revelar a seta so no ponteiro, e a ajuda virou `IconQuestionCircle`. A linha marcada mantem o fundo e deixa de tingir o texto. Os dois icones entram no conjunto porque a `Table` os usa. Mudanca incompativel, conforme `CONTRIBUTING.md` secao 11: a `Table` `sm` passou de 64px para 56px por linha.
 
 **Relato do primeiro consumidor integral, o PlenusLAB, em 07/10/2026**, tambem para a proxima versao. Das vinte linhas do relato, entrou o que e defeito ou ja estava prometido; o resto depende de decisao e esta em Decisoes pendentes do relato do PlenusLAB.
 
@@ -346,6 +347,7 @@ Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segu
 - **`Dialog` so com nome acessivel**, sem titulo visivel nem botao de fechar. O cabecalho e parte, e desliga-lo por booleano e o que `COMPONENTS.md` secao 4 manda evitar; a saida e composicao, que quebra o contrato atual.
 - **Opcao composta e grupos no `ComboBox`.** Alcanca a listagem interna que `List` e `Select` compartilham, e pede o desenho da API antes.
 - **`Popover` que nao leva o foco para dentro.** Ele e um `role="dialog"`, e `COMPONENTS.md` secao 7 pede que dialogo gerencie o foco. O caso relatado, painel sob um campo em que se digita, e o do `ComboBox` com opcao composta.
+- **Pecas da barra de filtros do PlenusLAB**, prevista em 17/10/2026: campo de busca com icone a frente, contador sobreposto ao botao e etiqueta removivel de filtro ativo. O `InputText` nao tem ornamento, o `Badge` e rotulo de estado e nao controle, e nenhum dos tres esta no catalogo. A barra em si e composicao do produto e fica na aplicacao.
 - **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
 
 ## Excecoes de contraste aceitas

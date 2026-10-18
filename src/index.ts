@@ -6,6 +6,7 @@ export {
   IconArrowUp,
   IconCalendar,
   IconChevronDown,
+  IconChevronExpand,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
@@ -13,6 +14,7 @@ export {
   IconClose,
   IconMinusCircle,
   IconPlusCircle,
+  IconQuestionCircle,
 } from './components/icons';
 export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';

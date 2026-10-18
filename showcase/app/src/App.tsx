@@ -13,6 +13,7 @@ import {
   IconArrowUp,
   IconCalendar,
   IconChevronDown,
+  IconChevronExpand,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
@@ -20,6 +21,7 @@ import {
   IconClose,
   IconMinusCircle,
   IconPlusCircle,
+  IconQuestionCircle,
 } from '@plenustech/design-system';
 import type {
   AxisVisibility,
@@ -117,10 +119,12 @@ const icones = [
   ['IconChevronDown', IconChevronDown],
   ['IconChevronLeft', IconChevronLeft],
   ['IconChevronRight', IconChevronRight],
+  ['IconChevronExpand', IconChevronExpand],
   ['IconArrowUp', IconArrowUp],
   ['IconArrowDown', IconArrowDown],
   ['IconPlusCircle', IconPlusCircle],
   ['IconMinusCircle', IconMinusCircle],
+  ['IconQuestionCircle', IconQuestionCircle],
   ['IconCalendar', IconCalendar],
   ['IconClock', IconClock],
   ['IconClose', IconClose],
