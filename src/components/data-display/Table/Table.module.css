@@ -204,8 +204,9 @@
 
 /* A barra ocupa a celula ate um teto: nao impoe largura a coluna, e a tabela estreita nao rola por causa dela. */
 .skeleton {
-  display: block;
+  display: inline-block;
   width: 100%;
+  vertical-align: middle;
   max-width: 8rem;
   height: 0.625rem;
   border-radius: var(--pl-radius-sm);

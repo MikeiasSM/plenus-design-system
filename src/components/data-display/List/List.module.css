@@ -68,6 +68,11 @@
   cursor: pointer;
 }
 
+/* O marcar todos tem o respiro da opcao, para a caixa dele ficar na coluna das caixas da lista. */
+.selectAll {
+  padding: var(--pl-space-2) var(--pl-space-3);
+}
+
 .option:hover:not(.disabled) {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
@@ -84,10 +89,11 @@
   cursor: not-allowed;
 }
 
+/* A medida da caixa do `Checkbox`, que o marcar todos usa: com tamanhos diferentes, os textos saiam fora de prumo. */
 .box {
   flex: none;
-  width: 1rem;
-  height: 1rem;
+  width: 18px;
+  height: 18px;
   border: 1px solid var(--pl-color-border-strong);
   border-radius: var(--pl-radius-sm);
   background: var(--pl-color-surface);

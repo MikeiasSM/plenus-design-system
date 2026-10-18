@@ -405,19 +405,25 @@ function TableBody<T extends TableRowItem>({
   emptyTitle = 'Nenhum registro encontrado',
   items,
 }: TableBodyProps<T>) {
-  const { countColumns, loading, selection } = useTableContext('Table.Body');
+  const { columnAt, countColumns, loading, selection } = useTableContext('Table.Body');
 
   if (loading) {
     // Mantem a altura das linhas que ja estavam na tela, para a pagina nao pular quando a nova chegar.
     const rows = Array.from({ length: items.length || SKELETON_ROWS }, (_, index) => index);
-    const cells = Array.from({ length: countColumns() }, (_, index) => index);
+    const leadCells = selection.mode === 'none' ? 0 : 1;
+    const columns = Array.from({ length: countColumns() - leadCells }, (_, index) => columnAt(index));
 
     return (
       <tbody aria-hidden="true">
         {rows.map((row) => (
           <tr className={[styles.row, styles.skeletonRow].join(' ')} key={row}>
-            {cells.map((cell) => (
-              <td className={[styles.cell, cell === 0 && selection.mode !== 'none' && styles.lead].filter(Boolean).join(' ')} key={cell}>
+            {leadCells > 0 && (
+              <td className={[styles.cell, styles.lead].join(' ')}>
+                <span className={styles.skeleton} />
+              </td>
+            )}
+            {columns.map((column, index) => (
+              <td className={[styles.cell, styles[column?.align ?? 'start']].join(' ')} data-hide-below={column?.hideBelow} key={index}>
                 <span className={styles.skeleton} />
               </td>
             ))}

@@ -347,6 +347,24 @@ describe('Table', () => {
       expect(celula('R$ 10,00')).toHaveClass(styles.end!, styles.numeric!);
     });
 
+    it('o esqueleto do carregamento se alinha pela coluna, como o valor que ele antecipa', () => {
+      const { container } = render(
+        <Table label="Pedidos" loading rows={[]} selectionMode="multiple">
+          <Table.Header>
+            <Table.Column id="pedido">Pedido</Table.Column>
+            <Table.Column id="valor" numeric>
+              Valor
+            </Table.Column>
+          </Table.Header>
+          <Table.Body items={[] as { id: string }[]}>{() => null}</Table.Body>
+        </Table>,
+      );
+
+      const [, pedido, valor] = Array.from(container.querySelectorAll('tbody tr:first-child td'));
+      expect(pedido).toHaveClass(styles.start!);
+      expect(valor).toHaveClass(styles.end!);
+    });
+
     it('o alinhamento da propria celula vence o da coluna', () => {
       const celula = tabela({ align: 'end' });
 

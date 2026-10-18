@@ -146,12 +146,14 @@ function ListSelectAll({ label = 'Selecionar todos' }: ListSelectAllProps) {
   }
 
   return (
-    <Checkbox
-      checked={listing.status === 'all'}
-      indeterminate={listing.status === 'partial'}
-      label={label}
-      onChange={() => listing.toggleAll()}
-    />
+    <div className={styles.selectAll}>
+      <Checkbox
+        checked={listing.status === 'all'}
+        indeterminate={listing.status === 'partial'}
+        label={label}
+        onChange={() => listing.toggleAll()}
+      />
+    </div>
   );
 }
 
