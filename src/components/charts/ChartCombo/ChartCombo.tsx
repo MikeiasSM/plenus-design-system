@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   BandCursor,
+  markShown,
+  categoryTooltip,
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
@@ -22,6 +24,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -69,8 +72,15 @@ export interface ChartComboProps {
   /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
   onHoverCategory?: (index: number | null) => void;
   series: readonly ChartComboSeries[];
-  showDataLabels?: boolean;
-  showDots?: boolean;
+  /**
+   * Valor de cada barra e de cada ponto. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
+   * linhas, que nao tem alvo proprio, os da categoria sob o ponteiro.
+   */
+  showDataLabels?: MarkVisibility;
+  /** Pontos das linhas. Em `onHover`, os da categoria sob o ponteiro. */
+  showDots?: MarkVisibility;
+  /** Balao com as series da categoria sob o ponteiro, cada uma no formato do seu eixo. Desligue para montar o proprio `ChartTooltip`. */
+  showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
   yAxis?: AxisVisibility;
@@ -123,8 +133,9 @@ export function ChartCombo({
   onHiddenSeriesChange,
   onHoverCategory,
   series,
-  showDataLabels = false,
-  showDots = false,
+  showDataLabels = 'hidden',
+  showTooltip = true,
+  showDots = 'onHover',
   title,
   xAxis = 'visible',
   yAxis = 'visible',
@@ -134,6 +145,7 @@ export function ChartCombo({
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
+  const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
 
   const formatarDireita = formatRightValue ?? formatValue;
   const temEixoDireito = series.some((serie) => eixoDa(serie) === 'right');
@@ -166,7 +178,7 @@ export function ChartCombo({
     labelAngle,
     leftLabels: valueLabelsFor(dominioEsquerda, alturaDoDesenho, formatValue),
     rightLabels: valueLabelsFor(dominioDireita, alturaDoDesenho, formatarDireita),
-    topRoom: showDataLabels ? valueLabelRoom(font) : 0,
+    topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
@@ -264,6 +276,18 @@ export function ChartCombo({
       onToggleSeries={toggle}
       plot={plot}
       title={title}
+      tooltip={
+        showTooltip
+          ? categoryTooltip({
+              categories,
+              colors: cores,
+              format: formatValue,
+              index: faixaEmFoco,
+              isHidden,
+              series: series.map((serie) => ({ ...serie, format: eixoDa(serie) === 'right' ? formatarDireita : undefined })),
+            })
+          : undefined
+      }
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
       yAxis={{
@@ -319,13 +343,19 @@ export function ChartCombo({
                   )}
                   fill={cores[indiceSerie]}
                   key={indiceCategoria}
-                  onMouseEnter={() => focarFaixa(indiceCategoria)}
-                  onMouseLeave={() => focarFaixa(null)}
+                  onMouseEnter={() => {
+                    focarFaixa(indiceCategoria);
+                    setSerieEmFoco(indiceSerie);
+                  }}
+                  onMouseLeave={() => {
+                    focarFaixa(null);
+                    setSerieEmFoco(null);
+                  }}
                 />
               );
             })}
 
-            {showDataLabels &&
+            {showDataLabels !== 'hidden' &&
               categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
 
@@ -335,7 +365,7 @@ export function ChartCombo({
 
                 return (
                   <text
-                    className={styles.valueLabel}
+                    className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
                     key={indiceCategoria}
                     textAnchor="middle"
                     x={
@@ -388,7 +418,7 @@ export function ChartCombo({
               ponto === null ? null : (
                 <circle
                   aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
-                  className={showDots || isolado(pontos, indice) ? styles.dotVisible : styles.dot}
+                  className={markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? styles.dotVisible : styles.dot}
                   cx={ponto.x}
                   cy={ponto.y}
                   fill={cores[indiceSerie]}
@@ -398,11 +428,11 @@ export function ChartCombo({
               ),
             )}
 
-            {showDataLabels &&
+            {showDataLabels !== 'hidden' &&
               pontos.map((ponto, indice) =>
                 ponto === null ? null : (
                   <text
-                    className={styles.valueLabel}
+                    className={`${styles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : styles.valueLabelHidden}`}
                     key={indice}
                     textAnchor="middle"
                     x={ponto.x}

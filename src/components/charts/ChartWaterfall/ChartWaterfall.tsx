@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   BandCursor,
+  markShown,
   CartesianFrame,
   useCartesianLayout,
   chartHeight,
@@ -13,6 +14,7 @@ import {
   type AxisLabelAngle,
   type AxisTick,
   type AxisVisibility,
+  type MarkVisibility,
   type ChartHeight,
 } from '../core';
 import { resolveSeriesColors, type SeriesIntent } from '../palette';
@@ -35,7 +37,10 @@ export interface ChartWaterfallProps {
   labelAngle?: AxisLabelAngle;
   /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
   onHoverStep?: (index: number | null) => void;
-  showDataLabels?: boolean;
+  /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
+  showDataLabels?: MarkVisibility;
+  /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
+  showTooltip?: boolean;
   steps: readonly ChartWaterfallStep[];
   title: string;
   xAxis?: AxisVisibility;
@@ -99,7 +104,8 @@ export function ChartWaterfall({
   height = 280,
   labelAngle = 'auto',
   onHoverStep,
-  showDataLabels = true,
+  showDataLabels = 'visible',
+  showTooltip = true,
   steps,
   title,
   xAxis = 'visible',
@@ -131,7 +137,7 @@ export function ChartWaterfall({
     labelAngle,
     leftLabels: rotulosDeValor,
     rightLabels: rotulosDeValor,
-    topRoom: showDataLabels ? valueLabelRoom(font) : 0,
+    topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
@@ -177,6 +183,24 @@ export function ChartWaterfall({
     return passo.total ? formatValue(passo.value) : comSinal(passo.value, formatValue);
   }
 
+  /** O passo diz quanto mudou; o acumulado, onde a conta ficou. O total ja e o proprio acumulado. */
+  function linhasDoBalao(indice: number | null) {
+    if (indice === null || !trechos[indice]) {
+      return [];
+    }
+
+    const passo = steps[indice];
+
+    if (passo.total) {
+      return [{ color: cores[indice], label: 'Total', values: [passo.value] }];
+    }
+
+    return [
+      { color: cores[indice], format: (valor: number) => comSinal(valor, formatValue), label: 'Variação', values: [passo.value] },
+      { label: 'Acumulado', values: [trechos[indice].fim] },
+    ];
+  }
+
   return (
     <CartesianFrame
       axisReveal={axisReveal}
@@ -196,6 +220,16 @@ export function ChartWaterfall({
       margins={margins}
       plot={plot}
       title={title}
+      tooltip={
+        showTooltip
+          ? {
+              columns: [{ format: formatValue }],
+              computed: 'none',
+              rows: linhasDoBalao(passoEmFoco),
+              title: passoEmFoco === null ? undefined : steps[passoEmFoco]?.label,
+            }
+          : undefined
+      }
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasPassos, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
@@ -254,7 +288,7 @@ export function ChartWaterfall({
         );
       })}
 
-      {showDataLabels &&
+      {showDataLabels !== 'hidden' &&
         steps.map((passo, indice) => {
           const trecho = trechos[indice];
 
@@ -266,7 +300,7 @@ export function ChartWaterfall({
 
           return (
             <text
-              className={styles.valueLabel}
+              className={`${styles.valueLabel} ${markShown(showDataLabels, indice === passoEmFoco) ? '' : styles.valueLabelHidden}`}
               key={indice}
               textAnchor="middle"
               x={faixaDe(indice) + escalaPassos.bandwidth() / 2}

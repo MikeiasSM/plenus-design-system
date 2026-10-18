@@ -25,3 +25,7 @@
 .seriesOff {
   composes: seriesOff from '../core/Chart.module.css';
 }
+
+.valueLabelHidden {
+  composes: valueLabelHidden from '../core/Chart.module.css';
+}

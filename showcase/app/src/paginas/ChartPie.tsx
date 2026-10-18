@@ -116,7 +116,7 @@ function FatiaNoPonteiro() {
         subtitle="Valor e fatia da receita"
         title={fatia?.label}
       >
-        <ChartPie formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
+        <ChartPie showTooltip={false} formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
       </ChartTooltip>
     </div>
   );
@@ -221,7 +221,7 @@ const cores = resolveSeriesColors(receita);
     values: [fatia.value],
   }] : []}
 >
-  <ChartPie title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
+  <ChartPie showTooltip={false} title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
 </ChartTooltip>`,
     },
   ],

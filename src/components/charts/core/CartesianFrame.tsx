@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Axis, type AxisOrientation, type AxisTick } from './Axis';
 import { ChartFrame } from './ChartFrame';
 import type { ChartLegendAlign, ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
+import type { ChartFrameProps } from './ChartFrame';
 import { Grid, type GridOrientation } from './Grid';
 import type { AxisLabelRotation, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
 import type { AxisReveal } from './useCartesianLayout';
@@ -37,6 +38,7 @@ export interface CartesianFrameProps {
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
   title: string;
+  tooltip?: ChartFrameProps['tooltip'];
   width: number;
   xAxis: CartesianAxis;
   yAxis: CartesianAxis;
@@ -96,6 +98,7 @@ export function CartesianFrame({
   onToggleSeries,
   plot,
   title,
+  tooltip,
   width,
   xAxis,
   yAxis,
@@ -118,6 +121,7 @@ export function CartesianFrame({
       onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}
       title={title}
+      tooltip={tooltip}
       width={width}
     >
       <g transform={`translate(${margins.left} ${margins.top})`}>

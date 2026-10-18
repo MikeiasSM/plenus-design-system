@@ -12,6 +12,14 @@ export type AxisLabelAngle = AxisLabelRotation | 'auto';
  */
 export type AxisVisibility = 'visible' | 'hidden' | 'onHover';
 
+/** Como pontos e rotulos de valor se mostram. `onHover` mostra os da serie sob o ponteiro, e so eles. */
+export type MarkVisibility = 'visible' | 'hidden' | 'onHover';
+
+/** Se a marca da serie aparece: sempre, nunca, ou so com a serie sob o ponteiro. */
+export function markShown(visibility: MarkVisibility, seriesFocused: boolean) {
+  return visibility === 'visible' || (visibility === 'onHover' && seriesFocused);
+}
+
 /** Altura do desenho: um numero fixa, `fill` entrega a decisao ao contêiner. */
 export type ChartHeight = number | 'fill';
 

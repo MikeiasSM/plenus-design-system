@@ -85,4 +85,15 @@ describe('ChartPie', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
+
+  it('mostra no balao a fatia sob o ponteiro, com o valor e a parte do total', () => {
+    render(<ChartPie slices={composicao} title="Receita" />);
+
+    fireEvent.pointerMove(fatias()[1], { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(fatias()[1]);
+
+    const balao = document.querySelector('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('Produtos');
+    expect(balao).toHaveTextContent('40%');
+  });
 });

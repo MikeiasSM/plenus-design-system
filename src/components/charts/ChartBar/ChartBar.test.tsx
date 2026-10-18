@@ -195,6 +195,22 @@ describe('ChartBar', () => {
     expect(rotulosDoEixo()).toEqual(expect.arrayContaining(escala));
   });
 
+  it('mostra no balao as series da categoria sob o ponteiro, e nada com ele desligado', () => {
+    const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+    const barra = document.querySelector('figure svg path[aria-label^="Receita, 08/2026"]')!;
+
+    fireEvent.pointerMove(barra, { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(barra);
+
+    const balao = document.querySelector('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('08/2026');
+    expect(balao).toHaveTextContent('Receita');
+    expect(balao).toHaveTextContent('Despesas');
+
+    rerender(<ChartBar categories={periodos} series={dre} showTooltip={false} title="DRE" />);
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
   it('mostra o eixo da direita somente quando pedido', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
     const comUmEixo = rotulosDoEixo().length;
@@ -332,7 +348,7 @@ describe('ChartBar', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={[dre[0]]} title="DRE" />);
     expect(rotulosDeBarra()).toHaveLength(0);
 
-    rerender(<ChartBar categories={periodos} series={[dre[0]]} showDataLabels title="DRE" />);
+    rerender(<ChartBar categories={periodos} series={[dre[0]]} showDataLabels="visible" title="DRE" />);
     expect(rotulosDeBarra()).toEqual(['300.000', '210.000']);
   });
 
@@ -345,7 +361,7 @@ describe('ChartBar', () => {
           { label: 'Saida', values: [-4] },
           { label: 'Ajuste', values: [5] },
         ]}
-        showDataLabels
+        showDataLabels="visible"
         stacked
         title="Caixa"
       />,
@@ -360,7 +376,7 @@ describe('ChartBar', () => {
 
   it('escreve o rotulo do negativo alem da ponta, e nao dentro da barra', () => {
     render(
-      <ChartBar categories={['jan']} series={[{ label: 'Saldo', values: [-50] }]} showDataLabels title="Caixa" />,
+      <ChartBar categories={['jan']} series={[{ label: 'Saldo', values: [-50] }]} showDataLabels="visible" title="Caixa" />,
     );
 
     const barra = caixaDe(document.querySelector('[aria-label^="Saldo"]')!);

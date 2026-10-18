@@ -96,7 +96,7 @@ function CaminhoNoPonteiro() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartSunburst formatValue={formatarCompacto} height={320} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={320} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -197,7 +197,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartSunburst title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
 </ChartTooltip>`,
     },
   ],

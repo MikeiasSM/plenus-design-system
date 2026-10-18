@@ -5,6 +5,7 @@ import {
   chartHeight,
   measureLabel,
   ringDiameter,
+  sliceTooltip,
   useChartMetrics,
   useSliceRing,
   type ChartHeight,
@@ -35,6 +36,8 @@ export interface ChartPieProps {
   otherLabel?: string;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
+  /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
+  showTooltip?: boolean;
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   slices: readonly ChartSlice[];
@@ -58,6 +61,7 @@ export function ChartPie({
   otherLabel = 'Outros',
   showDataLabels = false,
   showLegendValues = false,
+  showTooltip = true,
   sliceRadius,
   slices,
   smallSliceThreshold = 0.02,
@@ -99,6 +103,18 @@ export function ChartPie({
       onToggleSeries={anel.toggle}
       swatch="dot"
       title={title}
+      tooltip={
+        showTooltip
+          ? sliceTooltip({
+              colors: anel.colors,
+              formatPercent,
+              formatValue,
+              index: anel.focused,
+              slices: anel.slices,
+              total: anel.total,
+            })
+          : undefined
+      }
       width={width}
     >
       {anel.slices.map((fatia, indice) => (

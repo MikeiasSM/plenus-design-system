@@ -158,7 +158,7 @@ describe('numero invalido nos dados', () => {
 
   it('nao escreve rotulo nem barra para o valor invalido', () => {
     render(
-      <ChartBar categories={['jan', 'fev']} series={[{ label: 'Receita', values: [10, NaN] }]} showDataLabels title="x" />,
+      <ChartBar categories={['jan', 'fev']} series={[{ label: 'Receita', values: [10, NaN] }]} showDataLabels="visible" title="x" />,
     );
 
     expect([...document.querySelectorAll('text')].some((no) => no.getAttribute('y') === 'NaN')).toBe(false);

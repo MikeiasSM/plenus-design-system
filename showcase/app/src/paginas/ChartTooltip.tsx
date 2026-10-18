@@ -70,6 +70,7 @@ function BalaoDoPlayground({ registrar, valores }: { registrar: (evento: string)
         totalLabel={valores.totalLabel}
       >
         <ChartBar
+          showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
           onHoverCategory={focar}
@@ -162,7 +163,7 @@ function MediaNoTotal() {
         title={faixa === null ? '' : MESES[faixa]}
         totalLabel="Média por linha"
       >
-        <ChartBar categories={MESES} formatValue={formatarCompacto} onHoverCategory={setFaixa} series={COMPOSICAO} title="Faturamento por linha" />
+        <ChartBar showTooltip={false} categories={MESES} formatValue={formatarCompacto} onHoverCategory={setFaixa} series={COMPOSICAO} title="Faturamento por linha" />
       </ChartTooltip>
     </div>
   );
@@ -184,7 +185,7 @@ function CaminhoNoAnel() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartSunburst formatValue={formatarCompacto} height={300} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={300} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -259,7 +260,7 @@ export const pagina: Pagina = {
   showTotal
   totalLabel="Média por linha"
 >
-  <ChartBar title="Faturamento por linha" categories={meses} series={series} onHoverCategory={setFaixa} />
+  <ChartBar showTooltip={false} title="Faturamento por linha" categories={meses} series={series} onHoverCategory={setFaixa} />
 </ChartTooltip>`,
     },
     {
@@ -277,7 +278,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartSunburst title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
 </ChartTooltip>`,
     },
     {

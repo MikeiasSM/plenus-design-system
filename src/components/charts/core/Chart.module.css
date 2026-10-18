@@ -104,6 +104,12 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-variant-numeric: tabular-nums;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+/* Rotulo `onHover` fora da serie sob o ponteiro. */
+.valueLabelHidden {
+  opacity: 0;
 }
 
 /* Traco da linha, comum a `ChartLine`, `ChartArea` e `ChartCombo`. */
@@ -124,9 +130,6 @@
   opacity: 1;
 }
 
-svg:hover .dot {
-  opacity: 1;
-}
 
 @media print {
   .dot {
@@ -277,6 +280,7 @@ svg:hover .dot {
   .series,
   .legendButton,
   .dynamicAxis,
+  .valueLabel,
   .dot {
     transition: none;
   }

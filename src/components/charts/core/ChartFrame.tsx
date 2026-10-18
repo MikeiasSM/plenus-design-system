@@ -7,6 +7,7 @@ import {
   type ChartLegendSwatch,
 } from './ChartLegend';
 import { EmptyState } from '../../feedback/EmptyState';
+import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
 import { IconChartBar } from '../../icons';
 import styles from './Chart.module.css';
 
@@ -34,6 +35,8 @@ export interface ChartFrameProps {
   onToggleSeries?: (label: string) => void;
   swatch?: ChartLegendSwatch;
   title: string;
+  /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
+  tooltip?: Omit<ChartTooltipProps, 'children'>;
   width: number;
 }
 
@@ -59,6 +62,7 @@ export function ChartFrame({
   onToggleSeries,
   swatch = 'square',
   title,
+  tooltip,
   width,
 }: ChartFrameProps) {
   const tituloId = useId();
@@ -71,6 +75,19 @@ export function ChartFrame({
       position={legendPosition}
       swatch={swatch}
     />
+  );
+
+  const desenho = (
+    <svg
+      aria-labelledby={tituloId}
+      className={styles.canvas}
+      height={height}
+      role="img"
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
+    >
+      {centerOrigin ? <g transform={`translate(${width / 2} ${height / 2})`}>{children}</g> : children}
+    </svg>
   );
 
   return (
@@ -96,21 +113,10 @@ export function ChartFrame({
             <div className={styles.empty}>
               <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
             </div>
-          ) : width === 0 || height === 0 ? null : (
-            <svg
-              aria-labelledby={tituloId}
-              className={styles.canvas}
-              height={height}
-              role="img"
-              viewBox={`0 0 ${width} ${height}`}
-              width={width}
-            >
-              {centerOrigin ? (
-                <g transform={`translate(${width / 2} ${height / 2})`}>{children}</g>
-              ) : (
-                children
-              )}
-            </svg>
+          ) : width === 0 || height === 0 ? null : tooltip ? (
+            <ChartTooltip {...tooltip}>{desenho}</ChartTooltip>
+          ) : (
+            desenho
           )}
         </div>
 

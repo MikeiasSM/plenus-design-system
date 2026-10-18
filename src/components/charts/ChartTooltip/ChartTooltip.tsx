@@ -15,6 +15,8 @@ export interface ChartTooltipRow {
   color?: string;
   /** Realca a linha, como a serie sob o ponteiro entre as demais. */
   emphasis?: boolean;
+  /** Formato dos valores desta linha, quando difere do da coluna, como a serie do eixo da direita. */
+  format?: (value: number) => string;
   label: string;
   values: readonly number[];
 }
@@ -221,7 +223,7 @@ function Balao({
 
             {colunas.map((coluna, indice) => (
               <span className={`${styles.value} ${linha.emphasis ? styles.emphasis : ''}`} key={indice}>
-                {(coluna.format ?? formatarNumero)(linha.values[indice] ?? 0)}
+                {(linha.format ?? coluna.format ?? formatarNumero)(linha.values[indice] ?? 0)}
               </span>
             ))}
 

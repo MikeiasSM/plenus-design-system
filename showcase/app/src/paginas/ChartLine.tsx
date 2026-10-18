@@ -9,12 +9,12 @@ import {
   type ChartCurve,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
-const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 const TICKET_MEDIO = [1240, 1310, 1180, 1520, 1460, 1590];
 const TEMPERATURA = [24.1, 25.3, 23.8, 22.6, 23.4, 26.2];
 
@@ -30,8 +30,8 @@ const playground = definirPlayground({
     title: 'Evolução do faturamento',
     series: 2,
     curve: 'smooth',
-    showDots: false,
-    showDataLabels: false,
+    showDots: 'onHover',
+    showDataLabels: 'hidden',
     includeZero: true,
     lacuna: false,
     legend: 'bottom',
@@ -44,8 +44,8 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'title' },
     { tipo: 'numero', nome: 'series', min: 0, max: 3 },
     { tipo: 'opcoes', nome: 'curve', opcoes: ['smooth', 'straight'] },
-    { tipo: 'booleano', nome: 'showDots' },
-    { tipo: 'booleano', nome: 'showDataLabels' },
+    { tipo: 'opcoes', nome: 'showDots', opcoes: VISIBILIDADES },
+    { tipo: 'opcoes', nome: 'showDataLabels', opcoes: VISIBILIDADES },
     { tipo: 'booleano', nome: 'includeZero' },
     { tipo: 'booleano', nome: 'lacuna' },
     { tipo: 'opcoes', nome: 'legend', opcoes: ['top', 'right', 'bottom', 'left', 'none'] },
@@ -70,8 +70,8 @@ const playground = definirPlayground({
           label: serie.label,
           values: valores.lacuna ? comLacuna(serie.values) : serie.values,
         }))}
-        showDataLabels={valores.showDataLabels}
-        showDots={valores.showDots}
+        showDataLabels={valores.showDataLabels as MarkVisibility}
+        showDots={valores.showDots as MarkVisibility}
         title={valores.title}
         xAxis={valores.xAxis as AxisVisibility}
         yAxis={valores.yAxis as AxisVisibility}
@@ -84,8 +84,8 @@ const playground = definirPlayground({
       ['categories', expr('meses')],
       ['series', expr('series')],
       ['curve', valores.curve, 'smooth'],
-      ['showDots', valores.showDots, false],
-      ['showDataLabels', valores.showDataLabels, false],
+      ['showDots', valores.showDots, 'onHover'],
+      ['showDataLabels', valores.showDataLabels, 'hidden'],
       ['includeZero', valores.includeZero, true],
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
@@ -118,7 +118,7 @@ const playground = definirPlayground({
       verificacoes.push({ nivel: 'ok', titulo: 'Legenda dispensada', detalhe: 'Uma série só: o título já a nomeia, e a legenda aparece a partir de duas.' });
     }
 
-    if (valores.yAxis === 'hidden' && !valores.showDataLabels) {
+    if (valores.yAxis === 'hidden' && valores.showDataLabels === 'hidden') {
       verificacoes.push({ nivel: 'atencao', titulo: 'Valor sem leitura', detalhe: 'Sem eixo de valor e sem showDataLabels, a altura do ponto não se traduz em número na tela.' });
     }
 
@@ -147,6 +147,7 @@ function PontoMaisProximo() {
         title={ponto === null ? '' : MESES[ponto]}
       >
         <ChartLine
+          showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
           onHoverCategory={setPonto}
@@ -160,10 +161,10 @@ function PontoMaisProximo() {
 
 function Variantes() {
   const combinacoes = [
-    { curve: 'smooth', showDots: false },
-    { curve: 'smooth', showDots: true },
-    { curve: 'straight', showDots: false },
-    { curve: 'straight', showDots: true },
+    { curve: 'smooth', showDots: 'onHover' },
+    { curve: 'smooth', showDots: 'visible' },
+    { curve: 'straight', showDots: 'onHover' },
+    { curve: 'straight', showDots: 'visible' },
   ] as const;
 
   return (
@@ -177,7 +178,7 @@ function Variantes() {
             height={200}
             series={COMPOSICAO.slice(0, 2)}
             showDots={showDots}
-            title={`${curve}${showDots ? ', showDots' : ''}`}
+            title={`${curve}${showDots === 'visible' ? ', showDots visible' : ''}`}
           />
         </div>
       ))}
@@ -191,8 +192,8 @@ function Modos() {
       <dl className="modes">
         <dt><code>showDots</code></dt>
         <dd>
-          Desligado, os marcadores ficam ocultos em repouso e aparecem quando o ponteiro entra no gráfico. Na impressão
-          aparecem sempre. O ponto sem vizinho aparece sempre, porque ali a curva não desenha nada.
+          Em <code>onHover</code>, o padrão, os pontos ficam ocultos em repouso e aparecem só os da série mais próxima do
+          ponteiro. Na impressão aparecem sempre. O ponto sem vizinho aparece sempre, porque ali a curva não desenha nada.
         </dd>
         <dt>Valor <code>null</code></dt>
         <dd>A curva se interrompe onde o valor não existe, em vez de emendar sobre o buraco.</dd>
@@ -233,7 +234,7 @@ export const pagina: Pagina = {
             formatValue={formatarCompacto}
             height={220}
             series={[{ label: 'Ticket médio', values: TICKET_MEDIO }]}
-            showDots
+            showDots="visible"
             title="Ticket médio"
           />
         </div>
@@ -243,7 +244,7 @@ export const pagina: Pagina = {
   categories={meses}
   series={[{ label: 'Ticket médio', values: [1240, 1310, 1180, 1520, 1460, 1590] }]}
   curve="straight"
-  showDots
+  showDots="visible"
   height={220}
   formatValue={formatarCompacto}
 />`,
@@ -311,6 +312,7 @@ const cores = resolveSeriesColors([{}, {}]);
   showTotal
 >
   <ChartLine
+    showTooltip={false}
     title="Evolução do faturamento"
     categories={meses}
     series={series}
@@ -333,7 +335,7 @@ const cores = resolveSeriesColors([{}, {}]);
       teste: 'ChartLine.test.tsx',
     },
     { garantia: 'Lacuna honesta', como: 'A curva se interrompe no valor ausente ou inválido.', teste: 'numeros-invalidos.test.tsx' },
-    { garantia: 'Ponto isolado', como: 'O ponto sem vizinho aparece sempre, mesmo sem showDots.', teste: 'ponto-isolado.test.tsx' },
+    { garantia: 'Ponto isolado', como: 'O ponto sem vizinho aparece sempre, mesmo com os pontos ocultos.', teste: 'ponto-isolado.test.tsx' },
     { garantia: 'Zero no eixo', como: 'Incluído por padrão; dispensado só com includeZero={false}.', teste: 'eixo-zero.test.tsx' },
     { garantia: 'Ausência anunciada', como: 'Sem séries ou categorias, um EmptyState no lugar do desenho.', teste: 'ChartLine.test.tsx' },
   ],
@@ -342,8 +344,8 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo de baixo.' },
     { nome: 'series', tipo: 'readonly ChartLineSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>; <code>null</code> marca valor ausente.</> },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Curva suave ou segmentos retos.' },
-    { nome: 'showDots', tipo: 'boolean', padrao: 'false', descricao: 'Marcadores sempre visíveis.' },
-    { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Valor acima de cada ponto.' },
+    { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos: sempre, só os da série mais próxima do ponteiro, ou nunca.' },
+    { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor acima de cada ponto; em onHover, os da série mais próxima do ponteiro.' },
     { nome: 'includeZero', tipo: 'boolean', padrao: 'true', descricao: 'Inclui o zero no domínio do eixo de valor.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },

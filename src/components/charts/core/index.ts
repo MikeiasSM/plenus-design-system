@@ -2,8 +2,10 @@ export { BandCursor } from './BandCursor';
 export type { BandCursorProps, BandOrientation } from './BandCursor';
 export { Axis } from './Axis';
 export type { AxisOrientation, AxisProps, AxisTick } from './Axis';
-export { PointBands, PointCursor } from './PointBands';
+export { nearestSeriesAt, PointBands, PointCursor } from './PointBands';
 export type { PointBandsProps } from './PointBands';
+export { categoryTooltip, pathTooltip, sliceTooltip } from './tooltips';
+export type { CategoryTooltipOptions, CategoryTooltipSeries, ChartFrameTooltip, PathTooltipOptions, SliceTooltipOptions } from './tooltips';
 export { hoverPath } from './hoverPath';
 export type { ChartHoveredNode } from './hoverPath';
 export { Grid } from './Grid';
@@ -12,6 +14,7 @@ export {
   bottomLabelRotation,
   cartesianLayout,
   chartHeight,
+  markShown,
   valueLabelsFor,
 } from './cartesianLayout';
 export type {
@@ -23,6 +26,7 @@ export type {
   ChartHeight,
   ChartMargins,
   ChartPlot,
+  MarkVisibility,
   ResolvedHeight,
 } from './cartesianLayout';
 export { arcAnchor, arcCentroid, arcPath, sliceAngles, VOLTA } from './arcs';

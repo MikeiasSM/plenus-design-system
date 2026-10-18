@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { hierarchy, treemap } from 'd3-hierarchy';
 import {
   CHART_LABEL_OFFSET,
   ChartFrame,
   chartHeight,
   hoverPath,
+  pathTooltip,
   truncateToWidth,
   useChartMetrics,
   useSeriesToggle,
@@ -48,12 +49,14 @@ export interface ChartTreemapProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /**
-   * Caminho ate o no sob o ponteiro, do grupo ao no, ou `null` ao sair. E a costura
-   * para o `ChartTooltip`: com ela, o `<title>` sai, para nao abrir um segundo balao.
-   */
+  /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   showDataLabels?: boolean;
+  /**
+   * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
+   * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
+   */
+  showTooltip?: boolean;
   title: string;
 }
 
@@ -78,6 +81,7 @@ export function ChartTreemap({
   onHiddenGroupsChange,
   onHoverNode,
   showDataLabels = true,
+  showTooltip = true,
   title,
 }: ChartTreemapProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
@@ -116,6 +120,15 @@ export function ChartTreemap({
 
     return posicionar(arvore).leaves();
   }, [alturaDoDesenho, gap, isHidden, nodes, width]);
+
+  const [emFoco, setEmFoco] = useState<(typeof retangulos)[number] | null>(null);
+  // A folha guardada deixa de existir quando o mapa e remontado; sem conferir, o balao falaria de um no que saiu.
+  const foco = emFoco && retangulos.includes(emFoco) ? emFoco : null;
+
+  function focar(folha: (typeof retangulos)[number] | null) {
+    setEmFoco(folha);
+    onHoverNode?.(folha && hoverPath(folha));
+  }
 
   /** A folha herda a cor do grupo, e a intencao propria vence a herdada. */
   function corDa(folha: (typeof retangulos)[number]) {
@@ -157,6 +170,11 @@ export function ChartTreemap({
       legendPosition={legend}
       onToggleSeries={intentLabels ? undefined : toggle}
       title={title}
+      tooltip={
+        showTooltip
+          ? pathTooltip({ color: foco ? corDa(foco) : undefined, format: formatValue, path: foco && hoverPath(foco) })
+          : undefined
+      }
       width={width}
     >
       {retangulos.map((folha) => {
@@ -176,12 +194,12 @@ export function ChartTreemap({
               fill={cor}
               height={altura}
               width={largura}
-              onMouseEnter={() => onHoverNode?.(hoverPath(folha))}
-              onMouseLeave={() => onHoverNode?.(null)}
+              onMouseEnter={() => focar(folha)}
+              onMouseLeave={() => focar(null)}
               x={folha.x0}
               y={folha.y0}
             >
-              {!onHoverNode && <title>{descricao}</title>}
+              {!showTooltip && !onHoverNode && <title>{descricao}</title>}
             </rect>
 
             {cabeORotulo && (

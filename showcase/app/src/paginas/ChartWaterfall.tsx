@@ -5,12 +5,12 @@ import {
   formatarMoeda,
   type AxisVisibility,
   type ChartWaterfallStep,
+  type MarkVisibility,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { formatarCompacto } from '../dadosDosGraficos';
+import { formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
-const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 
 function resultadoDoExercicio(resultado: number, deducoesComoAlerta: boolean): ChartWaterfallStep[] {
   return [
@@ -46,7 +46,7 @@ const playground = definirPlayground({
     title: 'Formação do resultado',
     resultado: 111800,
     deducoesComoAlerta: true,
-    showDataLabels: true,
+    showDataLabels: 'visible',
     xAxis: 'visible',
     yAxis: 'visible',
     yAxisRight: 'hidden',
@@ -55,7 +55,7 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'title' },
     { tipo: 'numero', nome: 'resultado', passo: 1000 },
     { tipo: 'booleano', nome: 'deducoesComoAlerta' },
-    { tipo: 'booleano', nome: 'showDataLabels' },
+    { tipo: 'opcoes', nome: 'showDataLabels', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'xAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxis', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'yAxisRight', opcoes: VISIBILIDADES },
@@ -65,7 +65,7 @@ const playground = definirPlayground({
       <ChartWaterfall
         formatValue={formatarCompacto}
         onHoverStep={(indice) => registrar(`onHoverStep: ${indice}`)}
-        showDataLabels={valores.showDataLabels}
+        showDataLabels={valores.showDataLabels as MarkVisibility}
         steps={resultadoDoExercicio(valores.resultado, valores.deducoesComoAlerta)}
         title={valores.title}
         xAxis={valores.xAxis as AxisVisibility}
@@ -88,7 +88,7 @@ const playground = definirPlayground({
   { label: 'Resultado', value: ${valores.resultado}, total: true },
 ]`),
       ],
-      ['showDataLabels', valores.showDataLabels, true],
+      ['showDataLabels', valores.showDataLabels, 'visible'],
       ['xAxis', valores.xAxis, 'visible'],
       ['yAxis', valores.yAxis, 'visible'],
       ['yAxisRight', valores.yAxisRight, 'hidden'],
@@ -115,7 +115,7 @@ const playground = definirPlayground({
       verificacoes.push({ nivel: 'ok', titulo: 'Intenção declarada', detalhe: 'A intent do passo vence a cor deduzida do sinal.' });
     }
 
-    if (valores.yAxis === 'hidden' && valores.yAxisRight === 'hidden' && !valores.showDataLabels) {
+    if (valores.yAxis === 'hidden' && valores.yAxisRight === 'hidden' && valores.showDataLabels === 'hidden') {
       verificacoes.push({ nivel: 'atencao', titulo: 'Valor sem leitura', detalhe: 'Sem eixo de valor e sem rótulos, a variação não se traduz em número na tela.' });
     }
 
@@ -143,7 +143,7 @@ function PassoNoPonteiro() {
         }
         title={passo === null ? '' : passos[passo].label}
       >
-        <ChartWaterfall formatValue={formatarCompacto} onHoverStep={setPasso} steps={passos} title="Formação do resultado" />
+        <ChartWaterfall showTooltip={false} formatValue={formatarCompacto} onHoverStep={setPasso} steps={passos} title="Formação do resultado" />
       </ChartTooltip>
     </div>
   );
@@ -164,7 +164,7 @@ function Modos() {
       </dd>
       <dt><code>showDataLabels</code></dt>
       <dd>
-        Ligado por padrão. O sinal da variação pertence ao gráfico, que formata só a magnitude com{' '}
+        Visível por padrão; em <code>onHover</code>, só o do passo sob o ponteiro. O sinal da variação pertence ao gráfico, que formata só a magnitude com{' '}
         <code>formatValue</code>; o zero sai sem sinal.
       </dd>
       <dt>Conectores</dt>
@@ -204,7 +204,7 @@ export const pagina: Pagina = {
       descricao: 'Sem rótulo de variação, os conectores tracejados contam o caminho do saldo.',
       Previa: () => (
         <div style={{ width: '100%' }}>
-          <ChartWaterfall formatValue={formatarCompacto} height={220} showDataLabels={false} steps={CAIXA} title="Movimentação do caixa" />
+          <ChartWaterfall formatValue={formatarCompacto} height={220} showDataLabels="hidden" steps={CAIXA} title="Movimentação do caixa" />
         </div>
       ),
       codigo: `<ChartWaterfall
@@ -215,7 +215,7 @@ export const pagina: Pagina = {
     { label: 'Pagamentos', value: -96000 },
     { label: 'Saldo final', value: 126000, total: true },
   ]}
-  showDataLabels={false}
+  showDataLabels="hidden"
   height={220}
   formatValue={formatarCompacto}
 />`,
@@ -235,7 +235,7 @@ export const pagina: Pagina = {
     { label: 'Acumulado', values: [acumulado[passo]], emphasis: true },
   ]}
 >
-  <ChartWaterfall title="Formação do resultado" steps={passos} onHoverStep={setPasso} />
+  <ChartWaterfall showTooltip={false} title="Formação do resultado" steps={passos} onHoverStep={setPasso} />
 </ChartTooltip>`,
     },
   ],
@@ -255,7 +255,7 @@ export const pagina: Pagina = {
       tipo: 'readonly ChartWaterfallStep[]',
       descricao: <><code>{'{ label, value, total?, intent?, color? }'}</code>, um por passo, na ordem da conta.</>,
     },
-    { nome: 'showDataLabels', tipo: 'boolean', padrao: 'true', descricao: 'Rótulo de variação sobre cada passo.' },
+    { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'visible'", descricao: 'Rótulo de variação sobre cada passo; em onHover, só o do passo sob o ponteiro.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato da magnitude; o sinal é do gráfico.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'xAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Eixo de baixo.' },

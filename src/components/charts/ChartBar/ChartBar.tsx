@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   BandCursor,
+  categoryTooltip,
+  markShown,
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
@@ -20,6 +22,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
   type CornerRadii,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -50,8 +53,13 @@ export interface ChartBarProps {
   onHoverCategory?: (index: number | null) => void;
   orientation?: ChartBarOrientation;
   series: readonly ChartBarSeries[];
-  /** Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. */
-  showDataLabels?: boolean;
+  /**
+   * Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. Em `onHover`,
+   * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
+   */
+  showDataLabels?: MarkVisibility;
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
+  showTooltip?: boolean;
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -74,7 +82,8 @@ export function ChartBar({
   onHoverCategory,
   orientation = 'vertical',
   series,
-  showDataLabels = false,
+  showDataLabels = 'hidden',
+  showTooltip = true,
   stacked = false,
   title,
   xAxis = 'visible',
@@ -85,6 +94,7 @@ export function ChartBar({
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
+  const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
   const vertical = orientation === 'vertical';
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -120,7 +130,7 @@ export function ChartBar({
     labelAngle,
     leftLabels: vertical ? rotulosDeValor : categories,
     rightLabels: vertical ? rotulosDeValor : categories,
-    topRoom: showDataLabels && vertical ? valueLabelRoom(font) : 0,
+    topRoom: showDataLabels !== 'hidden' && vertical ? valueLabelRoom(font) : 0,
     width,
     xAxis,
     yAxis,
@@ -212,12 +222,12 @@ export function ChartBar({
   }
 
   /** Rotulo alem da ponta da barra: no negativo ela esta embaixo, ou a esquerda. */
-  function rotuloAlemDaPonta(valor: number, ponta: number, centro: number, chave: number) {
+  function rotuloAlemDaPonta(valor: number, ponta: number, centro: number, chave: number, emFoco: boolean) {
     const negativo = valor < 0;
 
     return (
       <text
-        className={styles.valueLabel}
+        className={`${styles.valueLabel} ${markShown(showDataLabels, emFoco) ? '' : styles.valueLabelHidden}`}
         dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
         key={chave}
         textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
@@ -268,6 +278,19 @@ export function ChartBar({
       onToggleSeries={toggle}
       plot={plot}
       title={title}
+      tooltip={
+        showTooltip
+          ? categoryTooltip({
+              categories,
+              colors: cores,
+              format: formatValue,
+              index: faixaEmFoco,
+              isHidden,
+              series,
+              showTotal: stacked,
+            })
+          : undefined
+      }
       width={width}
       xAxis={{ ...(vertical ? eixoDeCategoria : eixoDeValor), visibility: xAxis }}
       yAxis={{ ...(vertical ? eixoDeValor : eixoDeCategoria), visibility: yAxis }}
@@ -317,13 +340,19 @@ export function ChartBar({
                   )}
                   fill={cores[indiceSerie]}
                   key={indiceCategoria}
-                  onMouseEnter={() => focarFaixa(indiceCategoria)}
-                  onMouseLeave={() => focarFaixa(null)}
+                  onMouseEnter={() => {
+                    focarFaixa(indiceCategoria);
+                    setSerieEmFoco(indiceSerie);
+                  }}
+                  onMouseLeave={() => {
+                    focarFaixa(null);
+                    setSerieEmFoco(null);
+                  }}
                 />
               );
             })}
 
-            {showDataLabels &&
+            {showDataLabels !== 'hidden' &&
               !stacked &&
               categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
@@ -335,13 +364,13 @@ export function ChartBar({
                 const centro =
                   (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;
 
-                return rotuloAlemDaPonta(valor, escalaValores(valor), centro, indiceCategoria);
+                return rotuloAlemDaPonta(valor, escalaValores(valor), centro, indiceCategoria, indiceSerie === serieEmFoco);
               })}
           </g>
         );
       })}
 
-      {showDataLabels &&
+      {showDataLabels !== 'hidden' &&
         stacked &&
         categories.map((categoria, indiceCategoria) => {
           const presentes = series.filter(
@@ -357,7 +386,7 @@ export function ChartBar({
           const extremo = total < 0 ? Math.min(0, ...pontas) : Math.max(0, ...pontas);
           const centro = (escalaCategorias(categoria) ?? 0) + vao / 2;
 
-          return rotuloAlemDaPonta(total, escalaValores(extremo), centro, indiceCategoria);
+          return rotuloAlemDaPonta(total, escalaValores(extremo), centro, indiceCategoria, indiceCategoria === faixaEmFoco);
         })}
     </CartesianFrame>
   );

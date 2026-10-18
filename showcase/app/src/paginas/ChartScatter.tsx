@@ -8,9 +8,8 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { OPCOES_DE_ACCENT, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
-const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 const ZEROS = { true: true, false: false, x: 'x', y: 'y' } as const;
 
 const CLIENTES: ChartScatterSeries[] = [

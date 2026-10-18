@@ -8,6 +8,7 @@ import {
   arcAnchor,
   arcPath,
   hoverPath,
+  pathTooltip,
   chartHeight,
   ringDiameter,
   truncateToWidth,
@@ -41,16 +42,18 @@ export interface ChartSunburstProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /**
-   * Caminho ate o no sob o ponteiro, do grupo ao no, ou `null` ao sair. E a costura
-   * para o `ChartTooltip`: com ela, o `<title>` sai, para nao abrir um segundo balao.
-   */
+  /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   /** Folga entre dois aneis vizinhos. */
   ringGap?: number;
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showLabels?: boolean;
+  /**
+   * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
+   * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
+   */
+  showTooltip?: boolean;
   title: string;
 }
 
@@ -110,6 +113,7 @@ export function ChartSunburst({
   onHoverNode,
   ringGap = 2,
   showLabels = true,
+  showTooltip = true,
   sliceRadius,
   title,
 }: ChartSunburstProps) {
@@ -220,6 +224,17 @@ export function ChartSunburst({
       onToggleSeries={toggle}
       swatch="dot"
       title={title}
+      tooltip={
+        showTooltip
+          ? pathTooltip({
+              color: foco ? corDe(foco) : undefined,
+              format: formatValue,
+              formatPercent,
+              path: foco && hoverPath(foco),
+              total,
+            })
+          : undefined
+      }
       width={width}
     >
       {arcos.map((arco, indice) => (
@@ -238,7 +253,7 @@ export function ChartSunburst({
           onMouseEnter={() => focar(arco)}
           onMouseLeave={() => focar(null)}
         >
-          {!onHoverNode && <title>{descreverArco(arco)}</title>}
+          {!showTooltip && !onHoverNode && <title>{descreverArco(arco)}</title>}
         </path>
       ))}
 

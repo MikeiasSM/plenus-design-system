@@ -80,13 +80,25 @@ export const TOTAL_DE_DESPESAS = DESPESAS.flatMap((grupo) => grupo.children ?? [
   0,
 );
 
-export const CORES_DE_TEMA = ['#F26B35', '#49619C', '#6E2A92', '#67BD50', '#ED3237', '#FCB52F', '#373435', '#606062'];
+const CORES_DE_TEMA = [
+  ['Laranja', '#F26B35'],
+  ['Azul', '#49619C'],
+  ['Roxo', '#6E2A92'],
+  ['Verde', '#67BD50'],
+  ['Vermelho', '#ED3237'],
+  ['Amarelo', '#FCB52F'],
+  ['Grafite', '#373435'],
+  ['Cinza', '#606062'],
+] as const;
 
-/** Opções do controle `accent` nos playgrounds: sem cor de tema, ou uma delas. */
-export const OPCOES_DE_ACCENT = ['nenhuma', ...CORES_DE_TEMA];
+/** Opções do controle `accent` nos playgrounds, com o nome da cor ao lado do código: sem cor de tema, ou uma delas. */
+export const OPCOES_DE_ACCENT = ['nenhuma', ...CORES_DE_TEMA.map(([nome, codigo]) => `${nome} · ${codigo}`)];
+
+/** Opções dos eixos, de `showDots` e de `showDataLabels`: sempre, só com o ponteiro, ou nunca. */
+export const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 
 export function accentDa(opcao: string | number | boolean) {
-  return opcao === 'nenhuma' ? undefined : String(opcao);
+  return /#[0-9A-F]{6}/i.exec(String(opcao))?.[0];
 }
 
 export const formatarCompacto = (valor: number) => formatarNumero(valor, { compacto: true });

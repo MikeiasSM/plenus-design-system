@@ -9,6 +9,7 @@ import {
   type ChartBarOrientation,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -19,12 +20,10 @@ import {
   MESES,
   OPCOES_DE_ACCENT,
   accentDa,
-  formatarCompacto,
-} from '../dadosDosGraficos';
+  formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
 const LADOS_DA_LEGENDA = ['top', 'right', 'bottom', 'left', 'none'] as const;
 const ALINHAMENTOS = ['left', 'center', 'right'] as const;
-const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 
 const CLIENTES = ['Plenus Tecnologia', 'CDCE da Escola', 'S. P Ind. Com.', 'S M de Oliveira', 'Três D Comércio'];
 const FATURAMENTO_POR_CLIENTE = [26500, 18900, 16400, 14200, 10500];
@@ -41,7 +40,7 @@ const playground = definirPlayground({
     series: 2,
     orientation: 'vertical',
     stacked: false,
-    showDataLabels: false,
+    showDataLabels: 'hidden',
     legend: 'bottom',
     legendAlign: 'center',
     xAxis: 'visible',
@@ -54,7 +53,7 @@ const playground = definirPlayground({
     { tipo: 'numero', nome: 'series', min: 0, max: 3 },
     { tipo: 'opcoes', nome: 'orientation', opcoes: ['vertical', 'horizontal'] },
     { tipo: 'booleano', nome: 'stacked' },
-    { tipo: 'booleano', nome: 'showDataLabels' },
+    { tipo: 'opcoes', nome: 'showDataLabels', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'legend', opcoes: LADOS_DA_LEGENDA },
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ALINHAMENTOS },
     { tipo: 'opcoes', nome: 'xAxis', opcoes: VISIBILIDADES },
@@ -74,7 +73,7 @@ const playground = definirPlayground({
         onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
         orientation={valores.orientation as ChartBarOrientation}
         series={COMPOSICAO.slice(0, valores.series)}
-        showDataLabels={valores.showDataLabels}
+        showDataLabels={valores.showDataLabels as MarkVisibility}
         stacked={valores.stacked}
         title={valores.title}
         xAxis={valores.xAxis as AxisVisibility}
@@ -90,7 +89,7 @@ const playground = definirPlayground({
       ['series', expr('series')],
       ['orientation', valores.orientation, 'vertical'],
       ['stacked', valores.stacked, false],
-      ['showDataLabels', valores.showDataLabels, false],
+      ['showDataLabels', valores.showDataLabels, 'hidden'],
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
       ['xAxis', valores.xAxis, 'visible'],
@@ -129,7 +128,7 @@ const playground = definirPlayground({
       });
     }
 
-    if (eixosDeValor.every((eixo) => eixo === 'hidden') && !valores.showDataLabels) {
+    if (eixosDeValor.every((eixo) => eixo === 'hidden') && valores.showDataLabels === 'hidden') {
       verificacoes.push({
         nivel: 'atencao',
         titulo: 'Valor sem leitura',
@@ -168,6 +167,7 @@ function LeituraNoPonteiro() {
         title={faixa === null ? '' : `Distribuição em ${MESES[faixa]}`}
       >
         <ChartBar
+          showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
           onHoverCategory={setFaixa}
@@ -327,7 +327,7 @@ export const pagina: Pagina = {
             height={220}
             orientation="horizontal"
             series={[{ label: 'Faturamento', values: FATURAMENTO_POR_CLIENTE }]}
-            showDataLabels
+            showDataLabels="visible"
             title="Faturamento por cliente"
           />
         </div>
@@ -337,7 +337,7 @@ export const pagina: Pagina = {
   categories={clientes}
   series={[{ label: 'Faturamento', values: [26500, 18900, 16400, 14200, 10500] }]}
   orientation="horizontal"
-  showDataLabels
+  showDataLabels="visible"
   height={220}
   formatValue={formatarCompacto}
 />`,
@@ -351,7 +351,7 @@ export const pagina: Pagina = {
             categories={MESES}
             formatValue={formatarCompacto}
             series={COMPOSICAO.slice(0, 2)}
-            showDataLabels
+            showDataLabels="visible"
             stacked
             title="Evolução do faturamento"
           />
@@ -365,7 +365,7 @@ export const pagina: Pagina = {
     { label: 'Produtos', values: produtos },
   ]}
   stacked
-  showDataLabels
+  showDataLabels="visible"
   formatValue={formatarCompacto}
 />`,
     },
@@ -387,6 +387,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
   showTotal
 >
   <ChartBar
+    showTooltip={false}
     title="Faturamento por forma de pagamento"
     categories={meses}
     series={formas.map((forma) => ({ label: forma.label, values: forma.valores }))}
@@ -439,7 +440,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'series', tipo: 'readonly ChartBarSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>, uma por série.</> },
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Barras em pé ou deitadas.' },
     { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as séries; sinais mistos divergem a partir do zero.' },
-    { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Valor além da ponta; empilhada, o total da categoria.' },
+    { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor além da ponta; empilhada, o total da categoria. Em onHover, os da série da barra sob o ponteiro.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },

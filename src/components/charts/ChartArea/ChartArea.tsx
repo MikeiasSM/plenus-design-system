@@ -1,6 +1,7 @@
-import { useId, useMemo } from 'react';
+import { useId, useMemo, useState } from 'react';
 import {
   CartesianFrame,
+  categoryTooltip,
   PointBands,
   PointCursor,
   areaPath,
@@ -8,6 +9,8 @@ import {
   useCartesianLayout,
   chartHeight,
   linePath,
+  markShown,
+  nearestSeriesAt,
   useChartMetrics,
   useHoveredBand,
   useSeriesToggle,
@@ -22,6 +25,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
   type ChartPoint,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
@@ -69,14 +73,18 @@ export interface ChartAreaProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /**
-   * Indice da categoria mais proxima do ponteiro, ou `null` ao sair. E a costura
-   * para o `ChartTooltip`: com ela, o `<title>` dos pontos sai, para nao abrir um segundo balao.
-   */
+  /** Indice da categoria mais proxima do ponteiro, ou `null` ao sair. */
   onHoverCategory?: (index: number | null) => void;
   series: readonly ChartAreaSeries[];
-  showDataLabels?: boolean;
-  showDots?: boolean;
+  /** Valor acima de cada ponto: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
+  showDataLabels?: MarkVisibility;
+  /** Pontos de cada valor: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
+  showDots?: MarkVisibility;
+  /**
+   * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
+   * `ChartTooltip` pela costura; sem balao nem costura, o ponto volta a ter o `<title>`.
+   */
+  showTooltip?: boolean;
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -101,8 +109,9 @@ export function ChartArea({
   onHiddenSeriesChange,
   onHoverCategory,
   series,
-  showDataLabels = false,
-  showDots = false,
+  showDataLabels = 'hidden',
+  showDots = 'onHover',
+  showTooltip = true,
   stacked = false,
   title,
   xAxis = 'visible',
@@ -149,7 +158,7 @@ export function ChartArea({
     labelAngle,
     leftLabels: rotulosDeValor,
     rightLabels: rotulosDeValor,
-    topRoom: showDataLabels ? valueLabelRoom(font) : 0,
+    topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
@@ -162,6 +171,9 @@ export function ChartArea({
   );
 
   const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(onHoverCategory);
+  const [alturaDoPonteiro, setAlturaDoPonteiro] = useState<number | null>(null);
+  const comFaixas =
+    showTooltip || onHoverCategory !== undefined || showDots === 'onHover' || showDataLabels === 'onHover';
 
   // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
   // duas, as marcas exibiriam valores quebrados durante a transicao.
@@ -202,6 +214,13 @@ export function ChartArea({
     }),
   );
 
+  const serieEmFoco = nearestSeriesAt(
+    faixasPorSerie.map((faixas) => faixas.map((faixa) => faixa && { x: faixa.x, y: faixa.y1 })),
+    categoriaEmFoco,
+    alturaDoPonteiro,
+    (indice) => isHidden(series[indice].label),
+  );
+
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
     position: escalaCategorias(categoria) ?? 0,
@@ -239,12 +258,25 @@ export function ChartArea({
       onToggleSeries={toggle}
       plot={plot}
       title={title}
+      tooltip={
+        showTooltip
+          ? categoryTooltip({
+              categories,
+              colors: cores,
+              format: formatValue,
+              index: categoriaEmFoco,
+              isHidden,
+              series,
+              showTotal: stacked,
+            })
+          : undefined
+      }
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
       yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
-      {onHoverCategory && categoriaEmFoco !== null && (
+      {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
       )}
 
@@ -303,19 +335,23 @@ export function ChartArea({
               return (
                 <circle
                   aria-label={descricao}
-                  className={showDots || isolada(faixas, indice) ? styles.dotVisible : styles.dot}
+                  className={
+                    markShown(showDots, indiceSerie === serieEmFoco) || isolada(faixas, indice)
+                      ? styles.dotVisible
+                      : styles.dot
+                  }
                   cx={faixa.x}
                   cy={faixa.y1}
                   fill={cores[indiceSerie]}
                   key={indice}
                   r={4}
                 >
-                  {!onHoverCategory && <title>{descricao}</title>}
+                  {!comFaixas && <title>{descricao}</title>}
                 </circle>
               );
             })}
 
-            {showDataLabels &&
+            {showDataLabels !== 'hidden' &&
               categories.map((categoria, indice) => {
                 const faixa = faixas[indice];
 
@@ -325,7 +361,7 @@ export function ChartArea({
 
                 return (
                   <text
-                    className={styles.valueLabel}
+                    className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
                     key={indice}
                     textAnchor="middle"
                     x={faixa.x}
@@ -339,7 +375,14 @@ export function ChartArea({
         );
       })}
 
-      {onHoverCategory && <PointBands onHover={focarCategoria} plot={plot} positions={posicoesCategoria} />}
+      {comFaixas && (
+        <PointBands
+          onHover={focarCategoria}
+          onPointerY={setAlturaDoPonteiro}
+          plot={plot}
+          positions={posicoesCategoria}
+        />
+      )}
     </CartesianFrame>
   );
 }

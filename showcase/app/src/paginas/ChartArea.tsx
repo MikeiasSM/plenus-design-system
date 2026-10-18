@@ -8,12 +8,12 @@ import {
   type ChartCurve,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { COMPOSICAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { COMPOSICAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
-const VISIBILIDADES = ['visible', 'onHover', 'hidden'] as const;
 const SALDO_DO_CAIXA = [12000, -8000, 5000, -3000, 9000, 14000];
 
 const playground = definirPlayground({
@@ -22,8 +22,8 @@ const playground = definirPlayground({
     series: 2,
     stacked: true,
     curve: 'smooth',
-    showDots: false,
-    showDataLabels: false,
+    showDots: 'onHover',
+    showDataLabels: 'hidden',
     includeZero: true,
     legend: 'bottom',
     legendAlign: 'center',
@@ -36,8 +36,8 @@ const playground = definirPlayground({
     { tipo: 'numero', nome: 'series', min: 0, max: 3 },
     { tipo: 'booleano', nome: 'stacked' },
     { tipo: 'opcoes', nome: 'curve', opcoes: ['smooth', 'straight'] },
-    { tipo: 'booleano', nome: 'showDots' },
-    { tipo: 'booleano', nome: 'showDataLabels' },
+    { tipo: 'opcoes', nome: 'showDots', opcoes: VISIBILIDADES },
+    { tipo: 'opcoes', nome: 'showDataLabels', opcoes: VISIBILIDADES },
     { tipo: 'booleano', nome: 'includeZero' },
     { tipo: 'opcoes', nome: 'legend', opcoes: ['top', 'right', 'bottom', 'left', 'none'] },
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
@@ -58,8 +58,8 @@ const playground = definirPlayground({
         onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
         onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
         series={COMPOSICAO.slice(0, valores.series)}
-        showDataLabels={valores.showDataLabels}
-        showDots={valores.showDots}
+        showDataLabels={valores.showDataLabels as MarkVisibility}
+        showDots={valores.showDots as MarkVisibility}
         stacked={valores.stacked}
         title={valores.title}
         xAxis={valores.xAxis as AxisVisibility}
@@ -74,8 +74,8 @@ const playground = definirPlayground({
       ['series', expr('series')],
       ['stacked', valores.stacked, false],
       ['curve', valores.curve, 'smooth'],
-      ['showDots', valores.showDots, false],
-      ['showDataLabels', valores.showDataLabels, false],
+      ['showDots', valores.showDots, 'onHover'],
+      ['showDataLabels', valores.showDataLabels, 'hidden'],
       ['includeZero', valores.includeZero, true],
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
@@ -129,6 +129,7 @@ function LeituraEmpilhada() {
         title={ponto === null ? '' : MESES[ponto]}
       >
         <ChartArea
+          showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
           onHoverCategory={setPonto}
@@ -257,6 +258,7 @@ const cores = resolveSeriesColors(series);
   showTotal
 >
   <ChartArea
+    showTooltip={false}
     title="Composição do faturamento"
     categories={meses}
     series={series}
@@ -290,8 +292,8 @@ const cores = resolveSeriesColors(series);
     { nome: 'series', tipo: 'readonly ChartAreaSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>; <code>null</code> marca valor ausente.</> },
     { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as faixas, em cor sólida.' },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Contorno suave ou em segmentos retos.' },
-    { nome: 'showDots', tipo: 'boolean', padrao: 'false', descricao: 'Marcadores sempre visíveis.' },
-    { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Valor acima de cada ponto.' },
+    { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos: sempre, só os da série mais próxima do ponteiro, ou nunca.' },
+    { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor acima de cada ponto; em onHover, os da série mais próxima do ponteiro.' },
     { nome: 'includeZero', tipo: 'boolean', padrao: 'true', descricao: 'Inclui o zero no domínio do eixo de valor.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },

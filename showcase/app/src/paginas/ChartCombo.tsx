@@ -10,10 +10,11 @@ import {
   type ChartCurve,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type MarkVisibility,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, formatarCompacto } from '../dadosDosGraficos';
+import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 
 const META = [50000, 50000, 50000, 70000, 70000, 70000];
 
@@ -24,8 +25,8 @@ const playground = definirPlayground({
     title: 'Faturamento e conversão',
     eixoDaLinha: 'right',
     curve: 'smooth',
-    showDots: false,
-    showDataLabels: false,
+    showDots: 'onHover',
+    showDataLabels: 'hidden',
     legend: 'bottom',
     legendAlign: 'center',
     yAxis: 'visible',
@@ -36,8 +37,8 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'title' },
     { tipo: 'opcoes', nome: 'eixoDaLinha', opcoes: ['left', 'right'] },
     { tipo: 'opcoes', nome: 'curve', opcoes: ['smooth', 'straight'] },
-    { tipo: 'booleano', nome: 'showDots' },
-    { tipo: 'booleano', nome: 'showDataLabels' },
+    { tipo: 'opcoes', nome: 'showDots', opcoes: VISIBILIDADES },
+    { tipo: 'opcoes', nome: 'showDataLabels', opcoes: VISIBILIDADES },
     { tipo: 'opcoes', nome: 'legend', opcoes: ['top', 'right', 'bottom', 'left', 'none'] },
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
     { tipo: 'opcoes', nome: 'yAxis', opcoes: ['visible', 'onHover', 'hidden'] },
@@ -60,8 +61,8 @@ const playground = definirPlayground({
           { kind: 'bar', label: 'Faturamento', values: FATURAMENTO },
           { axis: valores.eixoDaLinha as ChartComboAxis, kind: 'line', label: 'Conversão', values: CONVERSAO },
         ]}
-        showDataLabels={valores.showDataLabels}
-        showDots={valores.showDots}
+        showDataLabels={valores.showDataLabels as MarkVisibility}
+        showDots={valores.showDots as MarkVisibility}
         title={valores.title}
         yAxis={valores.yAxis as AxisVisibility}
         yAxisRight={valores.yAxisRight === 'automático' ? undefined : (valores.yAxisRight as AxisVisibility)}
@@ -79,8 +80,8 @@ const playground = definirPlayground({
         ),
       ],
       ['curve', valores.curve, 'smooth'],
-      ['showDots', valores.showDots, false],
-      ['showDataLabels', valores.showDataLabels, false],
+      ['showDots', valores.showDots, 'onHover'],
+      ['showDataLabels', valores.showDataLabels, 'hidden'],
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
       ['yAxis', valores.yAxis, 'visible'],
@@ -138,6 +139,7 @@ function LeituraPorSerie() {
         title={faixa === null ? '' : MESES[faixa]}
       >
         <ChartCombo
+          showTooltip={false}
           categories={MESES}
           formatRightValue={formatarConversao}
           formatValue={formatarCompacto}
@@ -257,7 +259,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { color: cores[1], label: 'Conversão', values: [conversao[faixa]] },
   ]}
 >
-  <ChartCombo ... onHoverCategory={setFaixa} />
+  <ChartCombo showTooltip={false} ... onHoverCategory={setFaixa} />
 </ChartTooltip>`,
     },
   ],
@@ -320,8 +322,8 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo esquerdo e das séries dele.' },
     { nome: 'formatRightValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato do eixo direito e das séries dele.' },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Traço das linhas.' },
-    { nome: 'showDots', tipo: 'boolean', padrao: 'false', descricao: 'Marcadores das linhas sempre visíveis.' },
-    { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Valor de cada marca.' },
+    { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos das linhas; em onHover, os da categoria sob o ponteiro.' },
+    { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor de cada marca; em onHover, os da barra sob o ponteiro e os das linhas na categoria dela.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },

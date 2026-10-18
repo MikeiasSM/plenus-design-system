@@ -116,7 +116,7 @@ function FatiaNoPonteiro() {
         rows={fatia ? [{ color: cor, label: fatia.label, values: [fatia.value] }] : []}
         title={fatia?.label}
       >
-        <ChartDonut formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
+        <ChartDonut showTooltip={false} formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
       </ChartTooltip>
     </div>
   );
@@ -253,7 +253,7 @@ const cores = resolveSeriesColors(receita);
     values: [fatia.value],
   }] : []}
 >
-  <ChartDonut title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
+  <ChartDonut showTooltip={false} title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
 </ChartTooltip>`,
     },
   ],

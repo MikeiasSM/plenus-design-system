@@ -5,6 +5,7 @@ import {
   fitCenterText,
   ringDiameter,
   useChartMetrics,
+  sliceTooltip,
   useSliceRing,
   type ChartHeight,
   type ChartLegendAlign,
@@ -37,6 +38,8 @@ export interface ChartDonutProps {
   sliceRadius?: number;
   showCenter?: boolean;
   showLegendValues?: boolean;
+  /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
+  showTooltip?: boolean;
   slices: readonly ChartSlice[];
   /** Fracao do total abaixo da qual a fatia entra no agrupamento. */
   smallSliceThreshold?: number;
@@ -61,6 +64,7 @@ export function ChartDonut({
   otherLabel = 'Outros',
   showCenter = true,
   showLegendValues = true,
+  showTooltip = true,
   sliceRadius,
   slices,
   smallSliceThreshold = 0.02,
@@ -113,6 +117,18 @@ export function ChartDonut({
       onToggleSeries={anel.toggle}
       swatch="dot"
       title={title}
+      tooltip={
+        showTooltip
+          ? sliceTooltip({
+              colors: anel.colors,
+              formatPercent,
+              formatValue,
+              index: anel.focused,
+              slices: anel.slices,
+              total: anel.total,
+            })
+          : undefined
+      }
       width={width}
     >
       {anel.slices.map((fatia, indice) => (

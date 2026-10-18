@@ -64,7 +64,7 @@ describe('cascata', () => {
     render(
       <ChartWaterfall
         steps={[{ label: 'Abertura', value: 100 }, { label: 'Parado', value: 0 }]}
-        showDataLabels
+        showDataLabels="visible"
         title="x"
       />,
     );

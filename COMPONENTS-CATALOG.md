@@ -117,13 +117,17 @@ Cada série do `ChartCombo` declara a que eixo de valor pertence, e é essa decl
 
 `ChartTooltip` é a leitura no ponteiro: título, subtítulo opcional, uma linha por medida com marcador e colunas numéricas, uma coluna calculada e um totalizador com operador por coluna. Ele acompanha o cursor e sai a qualquer outra interação — ponteiro fora, rolagem ou tecla.
 
+Os gráficos com costura já trazem o `ChartTooltip` montado, ligado por padrão em `showTooltip`: as séries da categoria sob o ponteiro, cada uma com a sua cor e no formato do seu eixo; a fatia com a parte do total; o caminho até o nó; na cascata, a variação do passo e o acumulado. Quem precisa de outras colunas, de um campo calculado ou de um totalizador próprio desliga o integrado e monta o seu pela costura.
+
 A fronteira com `Tooltip` é o conteúdo, não o gráfico: `Tooltip` descreve **um** elemento em uma frase curta e nomeia esse elemento para quem usa leitor de tela; `ChartTooltip` exibe **várias** medidas em forma de grade e é decorativo, porque uma grade que some a qualquer interação não é leitura acessível.
 
-Cada marca carrega a própria descrição em `aria-label`. Nos gráficos sem costura para o `ChartTooltip` — `ChartScatter`, `ChartRadial` e `ChartSankey` —, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela. Onde há costura, o `<title>` fica de fora: seria um segundo balão sobre o `ChartTooltip`. Em `ChartLine`, `ChartArea`, `ChartTreemap` e `ChartSunburst` a costura é opcional, e o `<title>` só sai quando ela é usada.
+Cada marca carrega a própria descrição em `aria-label`. Nos gráficos sem costura para o `ChartTooltip` — `ChartScatter`, `ChartRadial` e `ChartSankey` —, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela. Onde há balão, integrado ou montado pela costura, o `<title>` fica de fora: seria um segundo balão sobre o `ChartTooltip`.
+
+Pontos e rótulos de valor seguem a mesma visibilidade dos eixos, em `showDots` e `showDataLabels`: `visible`, `hidden` ou `onHover`. Em `onHover` aparecem só os da série sob o ponteiro — a da barra em que ele está, ou, na linha e na área, a série mais próxima dele —, para o desenho ficar limpo até alguém olhar uma série.
 
 A costura avisa o que está sob o ponteiro, na forma de cada família: a categoria nos cartesianos, a fatia no anel e o caminho até o nó nos hierárquicos — do grupo ao nó, cada nível com o valor somado. Em `ChartLine` e `ChartArea` não há barra para apontar: a área de desenho se divide em faixas invisíveis, cada uma do ponto até o meio do caminho para o vizinho, e vale o ponto mais próximo do ponteiro. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
 
-Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
+Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é o gráfico ou quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 
 A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
 

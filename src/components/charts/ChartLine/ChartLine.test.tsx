@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import chartStyles from '../core/Chart.module.css';
 import { ChartLine, type ChartLineSeries } from './ChartLine';
+import lineStyles from './ChartLine.module.css';
 
 const meses = ['04/26', '05/26', '06/26'];
 
@@ -59,12 +60,14 @@ describe('ChartLine', () => {
     expect(curvas()[0].getAttribute('d')).not.toContain('C');
   });
 
-  it('descreve cada ponto pelo valor, no formato do consumidor, tambem sob o ponteiro', () => {
+  it('descreve cada ponto pelo valor, no formato do consumidor, e sem balao tambem sob o ponteiro', () => {
     render(
       <ChartLine
         categories={meses}
         formatValue={(valor) => `R$ ${valor.toLocaleString('pt-BR')}`}
         series={series}
+        showDots="visible"
+        showTooltip={false}
         title="Evolução"
       />,
     );
@@ -119,5 +122,21 @@ describe('ChartLine', () => {
 
     expect(onHoverCategory.mock.calls).toEqual([[2], [null]]);
     expect(document.querySelector('circle title')).toBeNull();
+  });
+
+  it('em onHover, mostra os pontos e rotulos so da serie mais proxima do ponteiro', () => {
+    render(<ChartLine categories={meses} series={series} showDataLabels="onHover" title="Faturamento" />);
+    const faixa = document.querySelectorAll(`.${chartStyles.hoverBand}`)[1];
+    const visiveisDe = (rotulo: string) =>
+      marcadores().filter((ponto) => ponto.getAttribute('aria-label')?.startsWith(rotulo) && ponto.getAttribute('class')?.includes('dotVisible'));
+    // Em 05/26, Produtos (62000) fica acima de Servicos (58000): o ponteiro no topo esta mais perto dele.
+    vi.spyOn(faixa, 'getBoundingClientRect').mockReturnValue({ top: 0 } as DOMRect);
+
+    fireEvent.mouseEnter(faixa);
+    fireEvent.mouseMove(faixa, { clientY: 0 });
+
+    expect(visiveisDe('Produtos')).toHaveLength(3);
+    expect(visiveisDe('Serviços')).toHaveLength(0);
+    expect(document.querySelectorAll(`text.${lineStyles.valueLabelHidden}`).length).toBe(3);
   });
 });

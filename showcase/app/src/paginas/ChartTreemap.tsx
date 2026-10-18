@@ -142,7 +142,7 @@ function CaminhoNoPonteiro() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartTreemap formatValue={formatarCompacto} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartTreemap showTooltip={false} formatValue={formatarCompacto} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -250,7 +250,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartTreemap title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartTreemap showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
 </ChartTooltip>`,
     },
   ],
