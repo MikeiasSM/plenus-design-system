@@ -222,18 +222,6 @@ body {
   gap: var(--pl-space-4);
 }
 
-.code-block {
-  overflow-x: auto;
-  margin: 0;
-  padding: var(--pl-space-4);
-  border-radius: var(--pl-radius-sm);
-  background: var(--pl-color-ink);
-  color: var(--pl-color-on-ink);
-  font-family: var(--pl-font-mono);
-  font-size: var(--pl-type-caption-size);
-  line-height: 1.6;
-}
-
 .doc-note + .code-block {
   margin-top: var(--pl-space-3);
 }

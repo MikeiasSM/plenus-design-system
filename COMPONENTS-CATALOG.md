@@ -70,6 +70,7 @@ Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel,
 | `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
+| `CodeBlock` | Trecho de código para leitura, com cópia, numeração e destaque de linhas. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Previsto |
 
@@ -78,6 +79,8 @@ O critério entre os dois é quem decide quais linhas existem na página. No `Ta
 Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação percorre os controles de cada célula; o `DataGrid` é um controle interativo, com navegação bidimensional entre células.
 
 O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`.
+
+O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O rótulo da linguagem chega como deve ser lido, `Java` e não `java`, porque a lista de linguagens é do produto. Realce de sintaxe colorido fica fora, porque pede dependência de análise de linguagem.
 
 ## 6. Gráficos
 

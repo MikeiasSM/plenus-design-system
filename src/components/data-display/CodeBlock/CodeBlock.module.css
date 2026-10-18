@@ -1,0 +1,115 @@
+.codeBlock {
+  overflow: hidden;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+  min-height: 2.5rem;
+  padding: 0 var(--pl-space-2) 0 var(--pl-space-4);
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
+.meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  white-space: nowrap;
+}
+
+.fileName {
+  overflow: hidden;
+  color: var(--pl-color-text-secondary);
+  text-overflow: ellipsis;
+}
+
+.language {
+  color: var(--pl-color-text-tertiary);
+}
+
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.body {
+  margin: 0;
+  padding: var(--pl-space-3) 0;
+  overflow-x: auto;
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-code-size);
+  font-weight: var(--pl-type-code-weight);
+  line-height: var(--pl-type-code-line-height);
+  white-space: pre;
+}
+
+.body:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: -2px;
+}
+
+.wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.code {
+  display: block;
+  font: inherit;
+}
+
+/* O destaque acompanha a linha ate o fim da rolagem, e nao so ate a borda visivel. */
+.body:not(.wrap) .code {
+  width: max-content;
+  min-width: 100%;
+}
+
+.line {
+  display: block;
+  min-height: var(--pl-type-code-line-height);
+  padding: 0 var(--pl-space-4);
+  color: inherit;
+}
+
+mark.line {
+  background: var(--pl-color-warning-container);
+  box-shadow: inset 2px 0 0 var(--pl-color-warning);
+}
+
+/* As linhas compartilham as colunas do codigo, para os numeros alinharem entre si. */
+.numbered .code {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--pl-space-4);
+  counter-reset: line;
+}
+
+.numbered .line {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+.numbered .line::before {
+  color: var(--pl-color-text-tertiary);
+  text-align: right;
+  content: counter(line);
+  content: counter(line) / '';
+  counter-increment: line;
+  user-select: none;
+}

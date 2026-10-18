@@ -193,6 +193,8 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
 
+**Depois da 0.2.1**, para a proxima versao: o `CodeBlock`, que entra no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao.
+
 **Corrigido depois da publicacao da 0.2.0**, na `0.2.1`. A versao sobe so a correcao por decisao do mantenedor, embora traga as mudancas incompativeis listadas abaixo; quem declara `^0.2.0` as recebe na proxima instalacao.
 
 - **O `Menu` aberto na primeira renderizacao quebrava no servidor.** Com `defaultOpen` ou `open`, ele montava o portal sem `document`. Ganhou a guarda do `Dialog` e do `Popover`, e o teste de servidor passou a cobri-lo.
@@ -526,6 +528,20 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - Sem medida declarada o icone acompanha o tamanho do texto ao redor, e a cor vem sempre de `currentColor`: ele herda a cor de onde esta em vez de fixar a propria.
 - Sem `label` o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com `label`, ganha nome acessivel para o caso em que carrega o significado sozinho.
 - O conjunto cobre o que os componentes usam, e cresce quando um componente precisar de um simbolo que ainda nao existe.
+
+### CodeBlock
+
+Entrou no catalogo por decisao do mantenedor em 18/10/2026, a partir do bloco de codigo do editor do PlenusLAB.
+
+- **Exibe, nao edita.** O editor do produto mantem a propria superficie de edicao e usa o `CodeBlock` para mostrar o bloco.
+- **A referencia visual e o `CodeSnippet` do Untitled UI**, da versao paga: numeros em coluna propria e copia no bloco. O realce de sintaxe dele vem do Shiki, e fica fora daqui pelo mandamento 13.
+- **O rotulo da linguagem chega pronto.** A lista de linguagens e o nome de cada uma sao do produto; o componente nao traduz `java` em `Java`.
+- **`highlightedLines` recebe numeros, nao texto.** Ler `1, 3-5` e tarefa de quem oferece o campo ao usuario.
+- **A linha destacada e `<mark>`**, e nao so fundo: a enfase chega ao leitor de tela, e uma borda a esquerda a mostra sem depender da cor.
+- **Os numeros sao gerados pelo CSS**, com texto alternativo vazio: nao entram na selecao, na copia nem na leitura. Linha e numero compartilham as colunas do codigo por `subgrid`, entao a linha quebrada continua alinhada.
+- **Sem quebra, o `pre` recebe foco**, porque a linha longa rola de lado e quem usa teclado so a alcanca assim. Com quebra, nao ha o que rolar.
+- **Copiar** usa a area de transferencia do navegador e mostra *Copiado* por dois segundos, com a mensagem anunciada por `role="status"`. Sem a API, como em contexto inseguro, o botao nao faz nada.
+- Tipografia `type.code`, em JetBrains Mono.
 
 ### Familia de tabela: Table, Card e DataGrid
 

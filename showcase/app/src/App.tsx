@@ -3,7 +3,7 @@ import {
   Alert, Avatar, Badge, Button, Checkbox, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
   Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
-  ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, DatePicker, DateTimePicker, List,
+  ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, CodeBlock, DatePicker, DateTimePicker, List,
   resolveSeriesColors,
   RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
@@ -150,10 +150,6 @@ function lerTemaEscuro() {
   return matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-function CodeBlock({ children }: { children: string }) {
-  return <pre className="code-block"><code>{children}</code></pre>;
-}
-
 function ComponentDoc({
   category,
   description,
@@ -182,7 +178,7 @@ function ComponentDoc({
       {children}
       <div className="doc-subsection">
         <h3>Exemplo de implementacao</h3>
-        <CodeBlock>{api}</CodeBlock>
+        <CodeBlock className="code-block" code={api} language="TSX" />
       </div>
     </section>
   );
@@ -300,6 +296,7 @@ export function App() {
           <a href="#table">Table</a>
           <a href="#badge">Badge</a>
           <a href="#avatar">Avatar</a>
+          <a href="#codeblock">CodeBlock</a>
         </nav>
       </aside>
 
@@ -450,7 +447,7 @@ export function App() {
           <div className="doc-subsection">
             <h3>Regra decimal</h3>
             <p className="doc-note">A virgula determina os decimais. Sem virgula, o valor permanece inteiro.</p>
-            <CodeBlock>{'<InputNumber label="Percentual" decimalScale={2} />'}</CodeBlock>
+            <CodeBlock className="code-block" code={'<InputNumber label="Percentual" decimalScale={2} />'} language="TSX" />
           </div>
         </ComponentDoc>
 
@@ -2125,6 +2122,30 @@ export function App() {
               <Avatar name="Rafael Alves" size="lg" />
               <Avatar name="Imagem indisponivel" src="/missing-avatar.jpg" size="md" />
             </div>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="data-display"
+          description="Trecho de codigo para leitura, com copia, numeracao e destaque de linhas."
+          id="codeblock"
+          name="CodeBlock"
+          api={'<CodeBlock\n  code={trecho}\n  fileName="Main.java"\n  language="Java"\n  lineNumbers\n  highlightedLines={[3]}\n/>'}
+        >
+          <div className="doc-subsection">
+            <h3>Arquivo, linguagem, numeros e destaque</h3>
+            <CodeBlock
+              code={'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Ola");\n  }\n}'}
+              fileName="Main.java"
+              highlightedLines={[3]}
+              language="Java"
+              lineNumbers
+            />
+            <p className="doc-note">Copiar leva o codigo inteiro e anuncia a copia ao leitor de tela. Os numeros nao entram na selecao. Sem quebra, a linha longa rola de lado e o bloco recebe foco para o teclado alcanca-la.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Com quebra de linha, sem cabecalho</h3>
+            <CodeBlock code="npm install @plenustech/design-system && npm run build" copyable={false} wrap />
           </div>
         </ComponentDoc>
       </main>
