@@ -2,6 +2,9 @@ import './styles/tokens.css';
 import './styles/base.css';
 
 export {
+  IconAlignCenter,
+  IconAlignLeft,
+  IconAlignRight,
   IconArrowDown,
   IconArrowUp,
   IconCalendar,
@@ -15,13 +18,32 @@ export {
   IconChevronUp,
   IconClock,
   IconClose,
+  IconDesktop,
+  IconDragHandle,
   IconExclamationCircle,
   IconExclamationTriangle,
+  IconExternalLink,
+  IconEye,
+  IconFile,
+  IconFilter,
   IconInfoCircle,
+  IconLightning,
+  IconLink,
   IconMinusCircle,
+  IconMobile,
+  IconMore,
+  IconPencil,
+  IconPlus,
   IconPlusCircle,
   IconQuestionCircle,
+  IconRedo,
   IconSearch,
+  IconSidebar,
+  IconStructure,
+  IconTablet,
+  IconTrash,
+  IconUndo,
+  IconUpload,
 } from './components/icons';
 export type { IconProps } from './components/icons';
 export { Button } from './components/actions/Button';

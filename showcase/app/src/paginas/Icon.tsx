@@ -1,54 +1,25 @@
 import type { ComponentType } from 'react';
+import * as ds from '@plenustech/design-system';
 import {
   Button,
   ButtonIcon,
-  IconArrowDown,
   IconArrowUp,
   IconCalendar,
-  IconChartBar,
   IconCheck,
   IconCheckCircle,
-  IconChevronDown,
-  IconChevronExpand,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronUp,
-  IconClock,
   IconClose,
   IconExclamationCircle,
   IconExclamationTriangle,
-  IconInfoCircle,
-  IconMinusCircle,
   IconPlusCircle,
-  IconQuestionCircle,
-  IconSearch,
   type IconProps,
 } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const ICONES: Record<string, ComponentType<IconProps>> = {
-  IconArrowDown,
-  IconArrowUp,
-  IconCalendar,
-  IconChartBar,
-  IconCheck,
-  IconCheckCircle,
-  IconChevronDown,
-  IconChevronExpand,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronUp,
-  IconClock,
-  IconClose,
-  IconExclamationCircle,
-  IconExclamationTriangle,
-  IconInfoCircle,
-  IconMinusCircle,
-  IconPlusCircle,
-  IconQuestionCircle,
-  IconSearch,
-};
+// Todos os icones exportados pelo pacote: um icone novo entra na grade sem editar esta pagina.
+const ICONES = Object.fromEntries(
+  Object.entries(ds).filter(([nome]) => /^Icon[A-Z]/.test(nome)),
+) as Record<string, ComponentType<IconProps>>;
 const NOMES = Object.keys(ICONES);
 
 const playground = definirPlayground({

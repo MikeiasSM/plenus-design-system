@@ -190,7 +190,7 @@ A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica jun
 | --- | --- | --- |
 | Biblioteca oficial de ícones | Conjunto de ícones exposto pelo Design System, conforme `ARCHITECTURE.md` seção 12. | Disponível |
 
-Os ícones seguem a nomenclatura de família: tipo seguido de especialização — `IconChevronDown`, `IconCalendar`, `IconClose`. O conjunto cobre o que os componentes do Design System usam, e cresce quando um componente precisa de um símbolo que ainda não existe.
+Os ícones seguem a nomenclatura de família: tipo seguido de especialização — `IconChevronDown`, `IconCalendar`, `IconClose`. O conjunto cobre o que os componentes do Design System usam e as ações gerais de interface que os produtos pedem — editar, excluir, filtrar, desfazer, abrir fora, os dispositivos —, e cresce quando aparece um símbolo que ainda não existe. O nome diz o significado, e não o desenho: `IconFilter`, e não funil. A base `Icon` continua interna, para a aplicação usar o conjunto oficial em vez de desenhar o próprio caminho.
 
 Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 
