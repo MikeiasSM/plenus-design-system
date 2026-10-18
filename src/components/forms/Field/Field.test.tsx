@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { Field } from './Field';
+import styles from './Field.module.css';
 
 function campo(props: Partial<Parameters<typeof Field>[0]> = {}) {
   return render(
     <Field label="CPF" {...props}>
-      {({ describedBy, id, invalid }) => (
-        <input aria-describedby={describedBy} aria-invalid={invalid || undefined} id={id} />
+      {({ className, describedBy, id, invalid }) => (
+        <input aria-describedby={describedBy} aria-invalid={invalid || undefined} className={className} id={id} />
       )}
     </Field>,
   );
@@ -83,5 +84,11 @@ describe('Field', () => {
     rerender(campo('CPF invalido.'));
 
     expect(screen.getByRole('alert')).toHaveTextContent('CPF invalido.');
+  });
+
+  it('entrega ao controle o visual dos campos, no tamanho pedido e com o erro', () => {
+    campo({ error: 'CPF invalido.', size: 'sm' });
+
+    expect(screen.getByRole('textbox', { name: 'CPF' })).toHaveClass(styles.control!, styles.sm!, styles.invalid!);
   });
 });

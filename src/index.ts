@@ -29,7 +29,7 @@ export type { ButtonProps, ButtonSize, ButtonVariant } from './components/action
 export { ButtonIcon } from './components/actions/ButtonIcon';
 export type { ButtonIconProps } from './components/actions/ButtonIcon';
 export { Field } from './components/forms/Field';
-export type { FieldProps, FieldWiring } from './components/forms/Field';
+export type { FieldProps, FieldSize, FieldWiring } from './components/forms/Field';
 export { Label } from './components/forms/Label';
 export type { LabelProps } from './components/forms/Label';
 export { InputText } from './components/forms/InputText';

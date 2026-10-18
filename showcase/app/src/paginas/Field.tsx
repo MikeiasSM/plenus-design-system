@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
-import { Field, InputText } from '@plenustech/design-system';
+import { Field, InputText, type FieldSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -7,6 +7,7 @@ const LIMITE_DO_ARQUIVO = 5 * 1024 * 1024;
 
 function controleDoCpf(maxLength: number, required: boolean) {
   return gerarJsx('input', [
+    ['className', expr('className')],
     ['id', expr('id')],
     ['aria-describedby', expr('describedBy')],
     ['aria-invalid', expr('invalid || undefined')],
@@ -26,10 +27,11 @@ interface PropsDoCpf {
   onCpfChange?: (cpf: string) => void;
   required: boolean;
   showCharacterCount: boolean;
+  size: FieldSize;
 }
 
 /** Um campo que o catálogo não entrega: só dígitos, com a fiação vinda do Field. */
-function CampoDeCpf({ error, hint, label, maxLength, onCpfChange, required, showCharacterCount }: PropsDoCpf) {
+function CampoDeCpf({ error, hint, label, maxLength, onCpfChange, required, showCharacterCount, size }: PropsDoCpf) {
   const [cpf, setCpf] = useState('');
 
   function mudarCpf(evento: ChangeEvent<HTMLInputElement>) {
@@ -47,12 +49,14 @@ function CampoDeCpf({ error, hint, label, maxLength, onCpfChange, required, show
       maxLength={maxLength || undefined}
       required={required}
       showCharacterCount={showCharacterCount}
+      size={size}
       style={{ width: '100%', maxWidth: 360 }}
     >
-      {({ describedBy, id, invalid }) => (
+      {({ className, describedBy, id, invalid }) => (
         <input
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
+          className={className}
           id={id}
           inputMode="numeric"
           maxLength={maxLength || undefined}
@@ -66,11 +70,20 @@ function CampoDeCpf({ error, hint, label, maxLength, onCpfChange, required, show
 }
 
 const playground = definirPlayground({
-  inicial: { label: 'CPF', hint: 'Somente números.', error: '', required: false, showCharacterCount: true, maxLength: 11 },
+  inicial: {
+    label: 'CPF',
+    hint: 'Somente números.',
+    error: '',
+    size: 'md',
+    required: false,
+    showCharacterCount: true,
+    maxLength: 11,
+  },
   controles: [
     { tipo: 'texto', nome: 'label' },
     { tipo: 'texto', nome: 'hint' },
     { tipo: 'texto', nome: 'error' },
+    { tipo: 'opcoes', nome: 'size', opcoes: ['sm', 'md'] },
     { tipo: 'booleano', nome: 'required' },
     { tipo: 'booleano', nome: 'showCharacterCount' },
     { tipo: 'numero', nome: 'maxLength', min: 0, max: 40 },
@@ -84,6 +97,7 @@ const playground = definirPlayground({
       onCpfChange={(cpf) => registrar(`onChange: "${cpf}"`)}
       required={valores.required}
       showCharacterCount={valores.showCharacterCount}
+      size={valores.size as FieldSize}
     />
   ),
   codigo: (valores) =>
@@ -93,12 +107,13 @@ const playground = definirPlayground({
         ['label', valores.label || undefined],
         ['hint', valores.hint || undefined],
         ['error', valores.error || undefined],
+        ['size', valores.size, 'md'],
         ['required', valores.required, false],
         ['maxLength', valores.maxLength || undefined],
         ['showCharacterCount', valores.showCharacterCount, false],
         ['characterCount', valores.showCharacterCount ? expr('cpf.length') : undefined],
       ],
-      `{({ id, describedBy, invalid }) => (\n${controleDoCpf(valores.maxLength, valores.required).replace(/^/gm, '  ')}\n)}`,
+      `{({ className, id, describedBy, invalid }) => (\n${controleDoCpf(valores.maxLength, valores.required).replace(/^/gm, '  ')}\n)}`,
     ),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -112,7 +127,7 @@ const playground = definirPlayground({
       {
         nivel: 'ok',
         titulo: 'Fiação aplicada',
-        detalhe: 'id, describedBy e invalid só valem quando o controle os recebe, como na prévia.',
+        detalhe: 'className, id, describedBy e invalid só valem quando o controle os recebe, como na prévia.',
       },
     ];
 
@@ -146,10 +161,11 @@ function CpfValidadoAoSair() {
 
   return (
     <Field error={erro} hint="Somente números." label="CPF do titular" required style={{ width: '100%' }}>
-      {({ describedBy, id, invalid }) => (
+      {({ className, describedBy, id, invalid }) => (
         <input
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
+          className={className}
           id={id}
           inputMode="numeric"
           onBlur={() => setErro(cpf.length === 11 ? undefined : 'O CPF tem 11 dígitos.')}
@@ -172,11 +188,12 @@ function Comprovante() {
 
   return (
     <Field error={erro} hint="PDF ou imagem, até 5 MB." label="Comprovante" style={{ width: '100%' }}>
-      {({ describedBy, id, invalid }) => (
+      {({ className, describedBy, id, invalid }) => (
         <input
           accept=".pdf,image/*"
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
+          className={className}
           id={id}
           onChange={escolher}
           type="file"
@@ -191,8 +208,9 @@ function Modos() {
     <dl className="modes">
       <dt>A função</dt>
       <dd>
-        Recebe <code>{'{ id, describedBy, invalid }'}</code> e devolve o controle. O Field não toca no controle: aplicar a
-        fiação, o <code>required</code> e o visual é de quem o escreve.
+        Recebe <code>{'{ className, id, describedBy, invalid }'}</code> e devolve o controle. O Field não toca no
+        controle: quem o escreve aplica a fiação e o <code>required</code>. A <code>className</code> traz o visual dos
+        campos do sistema — borda, foco, erro e tamanho —, e a classe própria do controle, somada a ela, vence.
       </dd>
       <dt><code>hint</code> e <code>error</code></dt>
       <dd>
@@ -220,14 +238,14 @@ export const pagina: Pagina = {
       descricao: 'Saia do campo com menos de 11 dígitos: o erro troca a ajuda e é anunciado.',
       Previa: CpfValidadoAoSair,
       codigo:
-        '<Field label="CPF do titular" hint="Somente números." error={erro} required>\n  {({ id, describedBy, invalid }) => (\n    <input\n      id={id}\n      aria-describedby={describedBy}\n      aria-invalid={invalid || undefined}\n      inputMode="numeric"\n      required\n      value={cpf}\n      onChange={mudarCpf}\n      onBlur={validarCpf}\n    />\n  )}\n</Field>',
+        '<Field label="CPF do titular" hint="Somente números." error={erro} required>\n  {({ className, id, describedBy, invalid }) => (\n    <input\n      className={className}\n      id={id}\n      aria-describedby={describedBy}\n      aria-invalid={invalid || undefined}\n      inputMode="numeric"\n      required\n      value={cpf}\n      onChange={mudarCpf}\n      onBlur={validarCpf}\n    />\n  )}\n</Field>',
     },
     {
       titulo: 'Seletor de arquivo',
       descricao: 'Um controle que o catálogo não entrega, com ajuda e erro amarrados pelo Field.',
       Previa: Comprovante,
       codigo:
-        '<Field label="Comprovante" hint="PDF ou imagem, até 5 MB." error={erro}>\n  {({ id, describedBy, invalid }) => (\n    <input\n      id={id}\n      aria-describedby={describedBy}\n      aria-invalid={invalid || undefined}\n      type="file"\n      accept=".pdf,image/*"\n      onChange={escolher}\n    />\n  )}\n</Field>',
+        '<Field label="Comprovante" hint="PDF ou imagem, até 5 MB." error={erro}>\n  {({ className, id, describedBy, invalid }) => (\n    <input\n      className={className}\n      id={id}\n      aria-describedby={describedBy}\n      aria-invalid={invalid || undefined}\n      type="file"\n      accept=".pdf,image/*"\n      onChange={escolher}\n    />\n  )}\n</Field>',
     },
   ],
   faca: {
@@ -255,8 +273,9 @@ export const pagina: Pagina = {
     {
       nome: 'children',
       tipo: '(wiring: FieldWiring) => ReactNode',
-      descricao: <>Recebe <code>{'{ id, describedBy, invalid }'}</code> e devolve o controle.</>,
+      descricao: <>Recebe <code>{'{ className, id, describedBy, invalid }'}</code> e devolve o controle.</>,
     },
+    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Tamanho do visual entregue em className, o mesmo dos campos do catálogo.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do controle. Opcional, para o controle que se nomeia sozinho.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle, na descrição dele.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e liga invalid.' },

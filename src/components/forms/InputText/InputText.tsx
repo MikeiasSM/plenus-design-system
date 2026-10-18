@@ -37,9 +37,6 @@ export function InputText({
 }: InputTextProps) {
   const { ref: inputRef, count, updateCount } = useCharacterCount<HTMLInputElement>(value, defaultValue);
   const mergedRef = useMergedRefs(inputRef, ref);
-  const classes = [styles.input, styles[size], icon && styles.withIcon, error && styles.error, className]
-    .filter(Boolean)
-    .join(' ');
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     updateCount(event.target.value);
@@ -57,8 +54,9 @@ export function InputText({
       maxLength={maxLength}
       required={required}
       showCharacterCount={showCharacterCount}
+      size={size}
     >
-      {({ id, describedBy, invalid }) => {
+      {({ className: controlClassName, id, describedBy, invalid }) => {
         const input = (
           <input
             {...props}
@@ -67,7 +65,7 @@ export function InputText({
             ref={mergedRef}
             aria-describedby={describedBy}
             aria-invalid={invalid || ariaInvalid}
-            className={classes}
+            className={[controlClassName, icon && styles.withIcon, className].filter(Boolean).join(' ')}
             maxLength={maxLength}
             onChange={handleChange}
             required={required}
@@ -80,7 +78,7 @@ export function InputText({
         }
 
         return (
-          <div className={styles.control}>
+          <div className={[styles.control, size === 'sm' && styles.sm].filter(Boolean).join(' ')}>
             <span aria-hidden="true" className={styles.icon}>
               {icon}
             </span>

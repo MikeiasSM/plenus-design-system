@@ -35,3 +35,64 @@
   opacity: 0;
   pointer-events: none;
 }
+
+/* Visual dos campos do sistema, entregue ao controle pela fiacao: quem monta o proprio campo o recebe pronto. */
+.control {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background-color: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  font-weight: var(--pl-type-body-weight);
+  line-height: var(--pl-type-body-line-height);
+  transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.control::placeholder {
+  color: var(--pl-color-text-tertiary);
+}
+
+.control:not(.invalid):hover:not(:disabled) {
+  border-color: var(--pl-color-primary);
+  box-shadow: var(--pl-sh-1);
+}
+
+.control:focus-visible {
+  outline: none;
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.control:disabled {
+  background-color: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sm {
+  min-height: 32px;
+  padding: 7px 10px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.invalid {
+  border-color: var(--pl-color-danger);
+}
+
+.invalid:hover:not(:disabled) {
+  box-shadow: var(--pl-sh-1);
+}
+
+.invalid:focus-visible {
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
+}
+
+/* Espaco para a seta que o `reset.css` desenha no select nativo. */
+select.control {
+  padding-right: 32px;
+}
