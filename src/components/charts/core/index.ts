@@ -2,6 +2,10 @@ export { BandCursor } from './BandCursor';
 export type { BandCursorProps, BandOrientation } from './BandCursor';
 export { Axis } from './Axis';
 export type { AxisOrientation, AxisProps, AxisTick } from './Axis';
+export { PointBands, PointCursor } from './PointBands';
+export type { PointBandsProps } from './PointBands';
+export { hoverPath } from './hoverPath';
+export type { ChartHoveredNode } from './hoverPath';
 export { Grid } from './Grid';
 export type { GridOrientation, GridProps } from './Grid';
 export {

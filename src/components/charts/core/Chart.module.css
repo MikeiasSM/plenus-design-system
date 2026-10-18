@@ -162,6 +162,17 @@ svg:hover .dot {
   pointer-events: none;
 }
 
+.pointCursor {
+  stroke: var(--pl-color-border-strong);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* Transparente, e nao `none`: sem pintura a faixa nao recebe o ponteiro. */
+.hoverBand {
+  fill: transparent;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

@@ -125,4 +125,24 @@ describe('ChartTreemap', () => {
     expect(retangulos()).toHaveLength(0);
     expect(screen.getByRole('button', { name: /Margem alta/ })).toBeInTheDocument();
   });
+
+  it('com a costura, avisa o caminho ate o retangulo sob o ponteiro e tira o <title>', () => {
+    const onHoverNode = vi.fn();
+    render(<ChartTreemap nodes={produtos} onHoverNode={onHoverNode} title="Produtos" />);
+
+    const servicoB = retangulos().find((rect) => rect.getAttribute('aria-label')?.startsWith('Serviço B'))!;
+    fireEvent.mouseEnter(servicoB);
+    fireEvent.mouseLeave(servicoB);
+
+    expect(onHoverNode.mock.calls).toEqual([
+      [
+        [
+          { label: 'Margem alta', value: 660 },
+          { label: 'Serviço B', value: 260 },
+        ],
+      ],
+      [null],
+    ]);
+    expect(document.querySelector('rect title')).toBeNull();
+  });
 });

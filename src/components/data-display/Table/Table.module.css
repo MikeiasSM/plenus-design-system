@@ -173,21 +173,10 @@
 }
 
 /* A barra ocupa a celula ate um teto: nao impoe largura a coluna, e a tabela estreita nao rola por causa dela. */
-.skeleton {
+.skeletonRow .skeleton {
   display: inline-block;
-  width: 100%;
-  vertical-align: middle;
   max-width: 8rem;
-  height: 0.625rem;
-  border-radius: var(--pl-radius-sm);
-  background: linear-gradient(
-    90deg,
-    var(--pl-color-border) 0%,
-    var(--pl-color-surface-muted) 50%,
-    var(--pl-color-border) 100%
-  );
-  background-size: 200% 100%;
-  animation: table-skeleton 1.4s ease-in-out infinite;
+  vertical-align: middle;
 }
 
 .skeletonRow .cell:nth-child(3n + 2) .skeleton {
@@ -201,16 +190,6 @@
 .skeletonRow .lead .skeleton {
   width: 1rem;
   height: 1rem;
-}
-
-@keyframes table-skeleton {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
 }
 
 /* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
@@ -253,10 +232,6 @@
 @media (prefers-reduced-motion: reduce) {
   .sortIcon {
     transition: none;
-  }
-
-  .skeleton {
-    animation: none;
   }
 }
 

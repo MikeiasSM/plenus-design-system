@@ -172,4 +172,18 @@ describe('ChartSunburst', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
   });
+
+  it('com a costura, avisa o caminho ate o arco sob o ponteiro e tira o <title>', () => {
+    const onHoverNode = vi.fn();
+    render(<ChartSunburst nodes={despesas} onHoverNode={onHoverNode} title="Despesas" />);
+
+    const aluguel = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Aluguel'))!;
+    fireEvent.mouseEnter(aluguel);
+
+    expect(onHoverNode).toHaveBeenCalledWith([
+      { label: 'Operacionais', value: 800 },
+      { label: 'Aluguel', value: 300 },
+    ]);
+    expect(document.querySelector('path title')).toBeNull();
+  });
 });

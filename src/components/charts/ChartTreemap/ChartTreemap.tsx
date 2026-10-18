@@ -4,10 +4,12 @@ import {
   CHART_LABEL_OFFSET,
   ChartFrame,
   chartHeight,
+  hoverPath,
   truncateToWidth,
   useChartMetrics,
   useSeriesToggle,
   type ChartHeight,
+  type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
@@ -46,6 +48,11 @@ export interface ChartTreemapProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
+  /**
+   * Caminho ate o no sob o ponteiro, do grupo ao no, ou `null` ao sair. E a costura
+   * para o `ChartTooltip`: com ela, o `<title>` sai, para nao abrir um segundo balao.
+   */
+  onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   showDataLabels?: boolean;
   title: string;
 }
@@ -69,6 +76,7 @@ export function ChartTreemap({
   legendAlign,
   nodes,
   onHiddenGroupsChange,
+  onHoverNode,
   showDataLabels = true,
   title,
 }: ChartTreemapProps) {
@@ -168,10 +176,12 @@ export function ChartTreemap({
               fill={cor}
               height={altura}
               width={largura}
+              onMouseEnter={() => onHoverNode?.(hoverPath(folha))}
+              onMouseLeave={() => onHoverNode?.(null)}
               x={folha.x0}
               y={folha.y0}
             >
-              <title>{descricao}</title>
+              {!onHoverNode && <title>{descricao}</title>}
             </rect>
 
             {cabeORotulo && (

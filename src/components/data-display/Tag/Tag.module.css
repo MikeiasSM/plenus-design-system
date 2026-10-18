@@ -1,0 +1,101 @@
+/* Base do Tag do Untitled UI, com o raio do sistema: superficie clara, contorno e texto secundario. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  max-width: 100%;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-weight: var(--pl-type-label-weight);
+  white-space: nowrap;
+  transition:
+    background var(--pl-speed-1) var(--pl-ease),
+    border-color var(--pl-speed-1) var(--pl-ease),
+    color var(--pl-speed-1) var(--pl-ease);
+}
+
+.sm {
+  padding: 1px 6px;
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.md {
+  padding: 3px var(--pl-space-2);
+  font-size: var(--pl-type-label-size);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.tag:has(.remove) {
+  padding-right: 3px;
+}
+
+.toggle,
+.remove {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toggle {
+  gap: var(--pl-space-1);
+  padding: 0;
+}
+
+.tag:has(.toggle:not(:disabled)):hover {
+  border-color: var(--pl-color-primary);
+  color: var(--pl-color-text);
+}
+
+.tag:has(.toggle:focus-visible) {
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.toggle:focus-visible {
+  outline: none;
+}
+
+.check {
+  flex: none;
+}
+
+.selected {
+  border-color: var(--pl-color-primary-line);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.remove {
+  justify-content: center;
+  padding: 3px;
+  border-radius: 3px;
+  color: var(--pl-color-text-tertiary);
+  font-size: 0.75em;
+}
+
+.remove:not(:disabled):hover {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+}
+
+.remove:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--pl-color-primary);
+}
+
+.disabled {
+  opacity: 0.55;
+}
+
+.disabled .toggle,
+.disabled .remove {
+  cursor: not-allowed;
+}

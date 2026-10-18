@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import chartStyles from '../core/Chart.module.css';
 import { ChartArea, type ChartAreaSeries } from './ChartArea';
 
 const meses = ['04/26', '05/26', '06/26'];
@@ -106,5 +107,15 @@ describe('ChartArea', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('com a costura, avisa a categoria sob o ponteiro e tira o <title> dos pontos', () => {
+    const onHoverCategory = vi.fn();
+    render(<ChartArea categories={meses} onHoverCategory={onHoverCategory} series={series} title="Volume" />);
+
+    fireEvent.mouseEnter(document.querySelectorAll(`.${chartStyles.hoverBand}`)[1]);
+
+    expect(onHoverCategory).toHaveBeenCalledWith(1);
+    expect(document.querySelector('circle title')).toBeNull();
   });
 });

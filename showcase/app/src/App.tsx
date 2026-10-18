@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  Alert, Avatar, Badge, Button, ButtonIcon, Checkbox, EmptyState, InputCurrency, InputText, InputNumber, InputPassword,
+  Alert, Avatar, Badge, Button, ButtonIcon, Checkbox, Drawer, EmptyState, InputCurrency, InputText, InputNumber, InputPassword,
   Accordion, Breadcrumb, ComboBox, Dialog, Menu, Pagination, Popover, Progress, Radio,
   Card, ChartArea, ChartBar, ChartCombo, ChartDonut, ChartLine, ChartPie, ChartRadial, ChartSankey, ChartScatter,
   ChartSunburst, ChartTooltip, ChartTreemap, ChartWaterfall, CodeBlock, DatePicker, DateTimePicker, List,
   resolveSeriesColors,
-  RadioGroup, Select, Spinner, Switch, Table, Tabs, Textarea,
+  RadioGroup, SegmentedControl, Select, Skeleton, SkipLink, Spinner, Steps, Switch, Table, Tabs, Tag, Textarea, ToastRegion,
+  showToast,
   TimePicker, Tooltip, formatarData, formatarHora, formatarMoeda, formatarNumero, formatarPercentual,
 } from '@plenustech/design-system';
 import {
@@ -13,6 +14,8 @@ import {
   IconArrowUp,
   IconCalendar,
   IconChartBar,
+  IconCheck,
+  IconCheckCircle,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,
@@ -20,6 +23,9 @@ import {
   IconChevronUp,
   IconClock,
   IconClose,
+  IconExclamationCircle,
+  IconExclamationTriangle,
+  IconInfoCircle,
   IconMinusCircle,
   IconPlusCircle,
   IconQuestionCircle,
@@ -27,6 +33,7 @@ import {
 } from '@plenustech/design-system';
 import type {
   AxisVisibility,
+  ChartHoveredNode,
   ChartLegendAlign,
   ChartLegendPosition,
   ChartSankeyAlign,
@@ -48,6 +55,33 @@ const muitasLinhas = Array.from({ length: 10000 }, (_, indice) => ({
   value: String(indice),
   label: 'Registro ' + String(indice + 1).padStart(5, '0'),
 }));
+
+const despesasDoAnel = [
+  {
+    label: 'Operacionais',
+    children: [
+      { label: 'Pessoal', value: 52000 },
+      { label: 'Aluguel', value: 18000 },
+      { label: 'Energia', value: 7000 },
+    ],
+  },
+  {
+    label: 'Administrativas',
+    children: [
+      { label: 'Sistemas', value: 14000 },
+      { label: 'Contabilidade', value: 9000 },
+    ],
+  },
+];
+
+const totalDeDespesas = despesasDoAnel.flatMap((grupo) => grupo.children).reduce((soma, folha) => soma + folha.value, 0);
+
+const etapasDoEmail = [
+  { key: 'conta', label: 'Conta', description: 'Remetente e nome' },
+  { key: 'servidor', label: 'Servidor', description: 'Endereco e porta' },
+  { key: 'seguranca', label: 'Seguranca', description: 'TLS e credenciais' },
+  { key: 'teste', label: 'Teste', description: 'Envio de prova' },
+];
 
 type OrdemTabela = { column: string; direction: 'ascending' | 'descending' };
 
@@ -156,8 +190,13 @@ const icones = [
   ['IconSearch', IconSearch],
   ['IconCalendar', IconCalendar],
   ['IconChartBar', IconChartBar],
+  ['IconCheck', IconCheck],
+  ['IconCheckCircle', IconCheckCircle],
   ['IconClock', IconClock],
   ['IconClose', IconClose],
+  ['IconExclamationCircle', IconExclamationCircle],
+  ['IconExclamationTriangle', IconExclamationTriangle],
+  ['IconInfoCircle', IconInfoCircle],
 ] as const;
 
 const buttonVariants = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
@@ -237,6 +276,13 @@ export function App() {
   const [alinhamentoDaLegenda, setAlinhamentoDaLegenda] = useState<ChartLegendAlign>('center');
   const [faixaDoCombo, setFaixaDoCombo] = useState<number | null>(null);
   const [faixaDasBarras, setFaixaDasBarras] = useState<number | null>(null);
+  const [pontoDaLinha, setPontoDaLinha] = useState<number | null>(null);
+  const [caminhoNoAnel, setCaminhoNoAnel] = useState<readonly ChartHoveredNode[] | null>(null);
+  const [periodo, setPeriodo] = useState('mes');
+  const [filtrosAtivos, setFiltrosAtivos] = useState(['Situacao: ativo', 'Perfil: editor', 'Criado em 2026']);
+  const [papeis, setPapeis] = useState<readonly string[]>(['leitor']);
+  const [gavetaAberta, setGavetaAberta] = useState(false);
+  const [etapaDoEmail, setEtapaDoEmail] = useState('servidor');
 
   // As mesmas cores que o grafico resolve, para o marcador do balao bater com a
   // marca desenhada quando a cor de tema muda.
@@ -264,6 +310,8 @@ export function App() {
 
   return (
     <div className="docs-layout">
+      <SkipLink href="#overview" />
+      <ToastRegion />
       <aside className="docs-rail">
         <div className="rail-brand">
           <span className="rail-mark">P</span>
@@ -293,19 +341,25 @@ export function App() {
           <a href="#combobox">ComboBox</a>
           <a href="#checkbox">Checkbox</a>
           <a href="#radio-group">RadioGroup</a>
+          <a href="#segmentedcontrol">SegmentedControl</a>
           <a href="#switch">Switch</a>
           <p className="rail-group">Feedback</p>
           <a href="#alert">Alert</a>
           <a href="#progress">Progress</a>
           <a href="#spinner">Spinner</a>
           <a href="#emptystate">EmptyState</a>
+          <a href="#skeleton">Skeleton</a>
+          <a href="#toast">Toast</a>
           <p className="rail-group">Navegacao</p>
           <a href="#tabs">Tabs</a>
           <a href="#accordion">Accordion</a>
           <a href="#breadcrumb">Breadcrumb</a>
           <a href="#pagination">Pagination</a>
+          <a href="#steps">Steps</a>
+          <a href="#skiplink">SkipLink</a>
           <p className="rail-group">Overlays</p>
           <a href="#dialog">Dialog</a>
+          <a href="#drawer">Drawer</a>
           <a href="#popover">Popover</a>
           <a href="#menu">Menu</a>
           <a href="#tooltip">Tooltip</a>
@@ -328,6 +382,7 @@ export function App() {
           <a href="#list">List</a>
           <a href="#table">Table</a>
           <a href="#badge">Badge</a>
+          <a href="#tag">Tag</a>
           <a href="#avatar">Avatar</a>
           <a href="#codeblock">CodeBlock</a>
         </nav>
@@ -503,6 +558,8 @@ export function App() {
               <InputText label="Com erro" error="Campo obrigatorio." />
               <InputText label="Desabilitado" defaultValue="Somente leitura" disabled />
               <InputText label="Busca compacta" size="sm" placeholder="Pesquisar" type="search" />
+              <InputText icon={<IconSearch />} label="Busca com icone" placeholder="Pesquisar por nome" type="search" />
+              <InputText icon={<IconSearch />} label="Busca com icone, compacta" placeholder="Pesquisar" size="sm" type="search" />
               <InputText label="Com contador" defaultValue="Texto inicial" maxLength={80} showCharacterCount />
               <InputNumber label="Quantidade inteira" defaultValue="165789" />
               <InputNumber label="Decimal com 2 casas" decimalScale={2} defaultValue="165789,50" />
@@ -641,6 +698,61 @@ export function App() {
 
         <ComponentDoc
           category="forms"
+          description="Escolha unica entre poucos segmentos lado a lado, como periodo ou forma de exibicao."
+          id="segmentedcontrol"
+          name="SegmentedControl"
+          api={`<SegmentedControl
+  label="Periodo"
+  items={[
+    { label: 'Dia', value: 'dia' },
+    { label: 'Semana', value: 'semana' },
+    { label: 'Mes', value: 'mes' },
+  ]}
+  value={periodo}
+  onValueChange={setPeriodo}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Texto, icone e tamanhos</h3>
+            <div className="demo-row">
+              <SegmentedControl
+                items={[
+                  { label: 'Dia', value: 'dia' },
+                  { label: 'Semana', value: 'semana' },
+                  { label: 'Mes', value: 'mes' },
+                  { label: 'Ano', value: 'ano' },
+                  { disabled: true, label: 'Personalizado', value: 'personalizado' },
+                ]}
+                label="Periodo"
+                onValueChange={setPeriodo}
+                value={periodo}
+              />
+              <SegmentedControl
+                defaultValue="lista"
+                iconOnly
+                items={[
+                  { icon: <IconChevronExpand />, label: 'Ver em lista', value: 'lista' },
+                  { icon: <IconChartBar />, label: 'Ver em grafico', value: 'grafico' },
+                ]}
+                label="Forma de exibicao"
+              />
+              <SegmentedControl
+                defaultValue="todos"
+                items={[
+                  { label: 'Todos', value: 'todos' },
+                  { label: 'Ativos', value: 'ativos' },
+                  { label: 'Inativos', value: 'inativos' },
+                ]}
+                label="Situacao"
+                size="sm"
+              />
+            </div>
+            <p className="doc-note">Por baixo sao radios nativos: as setas trocam o segmento, o Tab entra e sai do grupo de uma vez e o valor vai no envio do formulario. So com icones, o label de cada item continua sendo o nome e aparece como dica. Para mais de cinco opcoes, ou opcoes longas, Select.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="forms"
           description="Alternancia imediata de uma preferencia, com semantica de switch."
           id="switch"
           name="Switch"
@@ -762,6 +874,73 @@ export function App() {
         </ComponentDoc>
 
         <ComponentDoc
+          category="feedback"
+          description="Lugar de um conteudo que ainda carrega, na forma do que vai chegar."
+          id="skeleton"
+          name="Skeleton"
+          api={`<div aria-busy="true">
+  <Skeleton shape="circle" />
+  <Skeleton width="60%" />
+  <Skeleton shape="block" />
+</div>`}
+        >
+          <div className="doc-subsection">
+            <h3>Linha, circulo e bloco</h3>
+            <div className="skeleton-demo" aria-busy="true">
+              <div className="skeleton-demo-head">
+                <Skeleton shape="circle" />
+                <div className="skeleton-demo-lines">
+                  <Skeleton width="40%" />
+                  <Skeleton width="65%" />
+                </div>
+              </div>
+              <Skeleton shape="block" />
+            </div>
+            <p className="doc-note">O esqueleto e decorativo e fica fora da leitura: quem o envolve anuncia o carregamento, com <code>aria-busy</code> ou uma mensagem de status. E a mesma barra que a Table mostra enquanto carrega. Com movimento reduzido, o brilho para.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="feedback"
+          description="Aviso flutuante no canto da tela, sobre uma operacao que acabou de acontecer."
+          id="toast"
+          name="Toast"
+          api={`// Uma vez, na raiz da aplicacao
+<ToastRegion />
+
+// Em qualquer lugar
+showToast({
+  tone: 'danger',
+  title: 'Falha ao salvar',
+  description: 'O item continua na fila.',
+  action: { label: 'Tentar de novo', onClick: salvar },
+});`}
+        >
+          <div className="doc-subsection">
+            <h3>Tons e acao</h3>
+            <div className="demo-row">
+              <Button variant="secondary" onClick={() => showToast({ description: 'As alteracoes ja estao no ar.', title: 'Versao publicada', tone: 'success' })}>Sucesso</Button>
+              <Button variant="secondary" onClick={() => showToast({ title: 'Sincronizacao agendada para as 3h' })}>Informacao</Button>
+              <Button variant="secondary" onClick={() => showToast({ description: 'Restam 8% do armazenamento.', title: 'Espaco quase esgotado', tone: 'warning' })}>Aviso</Button>
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  showToast({
+                    action: { label: 'Tentar de novo', onClick: () => showToast({ title: 'Salvo na segunda tentativa', tone: 'success' }) },
+                    description: 'A conexao falhou. O item continua na fila.',
+                    title: 'Falha ao salvar',
+                    tone: 'danger',
+                  })
+                }
+              >
+                Erro com acao
+              </Button>
+            </div>
+            <p className="doc-note">Sucesso, informacao e aviso somem em 6s; o erro fica ate ser fechado. Ponteiro ou foco sobre o aviso param o tempo. Ficam a vista os tres mais recentes. Aviso e erro sao anunciados de forma assertiva, os demais de forma educada, como no Alert. A fronteira com o Alert e o lugar: o Alert fica junto do conteudo; o Toast fala de algo que acabou de acontecer e sai sozinho.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
           category="overlays"
           description="Janela modal com foco preso, retorno de foco, trava de rolagem e dispensa por Escape."
           id="dialog"
@@ -820,6 +999,54 @@ export function App() {
               </div>
             </Dialog>
             <p className="doc-note">O icone e opcional. Cabecalho e rodape ficam fixos e separados por linha; com conteudo longo, so o meio rola. No celular o dialogo continua centralizado, entra subindo, e as acoes dividem a largura.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="overlays"
+          description="Painel modal preso a lateral da tela, para editar ou detalhar sem sair da pagina."
+          id="drawer"
+          name="Drawer"
+          api={`<Drawer
+  open={aberto}
+  onClose={fechar}
+  title="Editar usuario"
+  footer={<Button>Salvar</Button>}
+>
+  ...
+</Drawer>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <div className="demo-row">
+              <Button variant="secondary" onClick={() => setGavetaAberta(true)}>Editar usuario</Button>
+            </div>
+            <Drawer
+              description="As mudancas valem no proximo acesso."
+              footer={
+                <>
+                  <Button variant="secondary" onClick={() => setGavetaAberta(false)}>Cancelar</Button>
+                  <Button onClick={() => setGavetaAberta(false)}>Salvar</Button>
+                </>
+              }
+              onClose={() => setGavetaAberta(false)}
+              open={gavetaAberta}
+              title="Editar usuario"
+            >
+              <div className="input-grid">
+                <InputText defaultValue="Ana Prado" label="Nome" />
+                <InputText defaultValue="ana@plenustech.com" label="E-mail" />
+                <SegmentedControl
+                  defaultValue="ativo"
+                  items={[
+                    { label: 'Ativo', value: 'ativo' },
+                    { label: 'Inativo', value: 'inativo' },
+                  ]}
+                  label="Situacao"
+                />
+              </div>
+            </Drawer>
+            <p className="doc-note">A mesma mecanica do Dialog: foco preso e devolvido ao gatilho, Escape e clique fora fecham, a pagina nao rola. Cabecalho e rodape ficam fixos; o meio rola. Sai da direita por padrao, ou da esquerda com <code>side=&quot;left&quot;</code>, em tres larguras.</p>
           </div>
         </ComponentDoc>
 
@@ -1115,6 +1342,40 @@ export function App() {
           <div className="doc-subsection">
             <h3>Conjunto curto</h3>
             <Pagination page={2} pageCount={5} onPageChange={() => undefined} />
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="navigation"
+          description="Etapas de um processo, com a atual destacada e as anteriores concluidas."
+          id="steps"
+          name="Steps"
+          api={`<Steps
+  label="Etapas do e-mail"
+  items={etapas}
+  current={etapa}
+  onStepChange={setEtapa}
+/>`}
+        >
+          <div className="doc-subsection">
+            <h3>Navegacao livre</h3>
+            <Steps current={etapaDoEmail} items={etapasDoEmail} label="Etapas do e-mail" onStepChange={setEtapaDoEmail} />
+            <p className="doc-note">As etapas antes da atual contam como concluidas, e o leitor de tela ouve isso. Com <code>onStepChange</code> cada etapa vira botao; sem ele, o indicador so mostra onde a pessoa esta. O conteudo da etapa e os botoes de avancar e voltar sao do produto. No celular, as etapas empilham.</p>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="navigation"
+          description="Primeiro item da pagina para quem navega por teclado, direto ao conteudo."
+          id="skiplink"
+          name="SkipLink"
+          api={`<SkipLink href="#conteudo" />
+...
+<main id="conteudo">...</main>`}
+        >
+          <div className="doc-subsection">
+            <h3>Demonstracao</h3>
+            <p className="doc-note">Este Showcase ja tem um: recarregue a pagina e aperte Tab. O link fica fora da tela ate receber foco, aparece no canto e leva a ancora informada. O texto padrao e &quot;Pular para o conteudo&quot;, e o children o troca.</p>
           </div>
         </ComponentDoc>
 
@@ -2020,6 +2281,60 @@ export function App() {
             </ChartTooltip>
             <p className="doc-note">Duas colunas de medida, quantidade e valor, mais a coluna calculada ao fim. Por padrao ela e o percentual de cada linha sobre o total da ultima coluna — repare que 88,92% sai do valor e nao da quantidade. A linha de maior valor sobe de tom; as demais continuam legiveis.</p>
             <p className="doc-note">O totalizador nao e fixo em soma: cada coluna declara o proprio operador, porque somar quantidade faz sentido e somar um percentual medio nao faria. Alem de <code>sum</code> e <code>average</code>, a coluna aceita uma funcao propria ou <code>none</code>, que deixa a celula vazia.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Linha: o ponto mais proximo</h3>
+            <ChartTooltip
+              columns={[{ format: formatarMoeda }]}
+              computed="none"
+              rows={
+                pontoDaLinha === null
+                  ? []
+                  : [
+                      { color: coresDoCombo[0], label: 'Servicos', values: [[42000, 58000, 39000, 96000, 54000, 63000][pontoDaLinha]] },
+                      { color: coresDoCombo[1], label: 'Produtos', values: [[38000, 62000, 41000, 58000, 88000, 71000][pontoDaLinha]] },
+                    ]
+              }
+              showTotal
+              title={pontoDaLinha === null ? '' : mesesDoSemestre[pontoDaLinha]}
+            >
+              <ChartLine
+                accent={corDoTema}
+                categories={mesesDoSemestre}
+                formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+                onHoverCategory={setPontoDaLinha}
+                series={[
+                  { label: 'Servicos', values: [42000, 58000, 39000, 96000, 54000, 63000] },
+                  { label: 'Produtos', values: [38000, 62000, 41000, 58000, 88000, 71000] },
+                ]}
+                title="Evolucao do faturamento"
+              />
+            </ChartTooltip>
+            <p className="doc-note">Na linha e na area nao ha barra para apontar: a area de desenho e dividida em faixas invisiveis, cada uma indo do ponto ate o meio do caminho para o vizinho, e a guia vertical marca o ponto mais proximo do ponteiro. Sem <code>onHoverCategory</code> nada disso existe, e o ponto continua com o <code>title</code> nativo.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>Anel e mapa: o caminho ate o no</h3>
+            <ChartTooltip
+              columns={[{ format: formatarMoeda }]}
+              computed={{ compute: (valor) => valor / totalDeDespesas }}
+              rows={(caminhoNoAnel ?? []).map((nivel, indice, caminho) => ({
+                emphasis: indice === caminho.length - 1,
+                label: nivel.label,
+                values: [nivel.value],
+              }))}
+              title={caminhoNoAnel?.at(-1)?.label ?? ''}
+              subtitle="Valor e fatia do total de despesas"
+            >
+              <ChartSunburst
+                accent={corDoTema}
+                formatValue={(valor) => formatarNumero(valor, { compacto: true })}
+                height={320}
+                nodes={despesasDoAnel}
+                onHoverNode={setCaminhoNoAnel}
+                title="Estrutura de despesas"
+              />
+            </ChartTooltip>
+            <p className="doc-note">No ChartSunburst e no ChartTreemap a costura e <code>onHoverNode</code>: ela entrega o caminho do grupo ate o no sob o ponteiro, cada nivel com o valor somado. O balao monta uma linha por nivel, e a ultima, a do proprio no, sobe de tom.</p>
             <p className="doc-note">Cada marca descreve a si mesma por <code>aria-label</code>, e nao pelo <code>title</code> do SVG. O <code>title</code> desenhava um segundo balao, nativo, sempre que o ponteiro parava. Ele tambem nao chegava a leitor de tela nenhum: o desenho e <code>role=&quot;img&quot;</code>, e a tecnologia assistiva o apresenta como uma imagem so, sem entrar nos descendentes.</p>
           </div>
         </ComponentDoc>
@@ -2257,6 +2572,56 @@ export function App() {
               <Badge tone="danger" outline>Falhou</Badge>
               <Badge tone="neutral">Sem status</Badge>
             </div>
+          </div>
+        </ComponentDoc>
+
+        <ComponentDoc
+          category="data-display"
+          description="Etiqueta que se remove ou se liga e desliga, como o filtro ativo de uma busca."
+          id="tag"
+          name="Tag"
+          api={`<Tag onRemove={() => remover(filtro)}>
+  Situacao: ativo
+</Tag>
+
+<Tag selected={ativo} onSelectedChange={setAtivo}>
+  Editor
+</Tag>`}
+        >
+          <div className="doc-subsection">
+            <h3>Removivel, como filtro ativo</h3>
+            <div className="demo-row">
+              {filtrosAtivos.map((filtro) => (
+                <Tag key={filtro} onRemove={() => setFiltrosAtivos((atuais) => atuais.filter((atual) => atual !== filtro))}>
+                  {filtro}
+                </Tag>
+              ))}
+              {filtrosAtivos.length === 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setFiltrosAtivos(['Situacao: ativo', 'Perfil: editor', 'Criado em 2026'])}>
+                  Restaurar filtros
+                </Button>
+              )}
+            </div>
+            <p className="doc-note">O botao de remover se chama &quot;Remover&quot; seguido do texto da etiqueta, para o leitor de tela distinguir uma da outra.</p>
+          </div>
+          <div className="doc-subsection">
+            <h3>De alternar, e tamanhos</h3>
+            <div className="demo-row">
+              {['leitor', 'editor', 'administrador'].map((papel) => (
+                <Tag
+                  key={papel}
+                  onSelectedChange={(escolhido) =>
+                    setPapeis((atuais) => (escolhido ? [...atuais, papel] : atuais.filter((atual) => atual !== papel)))
+                  }
+                  selected={papeis.includes(papel)}
+                >
+                  {papel}
+                </Tag>
+              ))}
+              <Tag size="sm">Pequena</Tag>
+              <Tag disabled onRemove={() => undefined}>Desabilitada</Tag>
+            </div>
+            <p className="doc-note">Com <code>selected</code> a etiqueta vira um botao de alternar, com <code>aria-pressed</code> e o visto ao lado do texto, para o estado nao depender so da cor. A fronteira com o Badge e o controle: o Badge so rotula um estado; a Tag e operada.</p>
           </div>
         </ComponentDoc>
 

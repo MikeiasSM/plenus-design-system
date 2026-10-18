@@ -56,3 +56,31 @@
 .error:focus-visible {
   box-shadow: 0 0 0 3px var(--pl-color-danger-container);
 }
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  left: 12px;
+  display: inline-flex;
+  color: var(--pl-color-text-tertiary);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.withIcon {
+  padding-left: 36px;
+}
+
+.withIcon.sm {
+  padding-left: 32px;
+}
+
+.control:has(.sm) .icon {
+  left: 10px;
+  font-size: 0.875rem;
+}

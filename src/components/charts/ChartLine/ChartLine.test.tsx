@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import chartStyles from '../core/Chart.module.css';
 import { ChartLine, type ChartLineSeries } from './ChartLine';
 
 const meses = ['04/26', '05/26', '06/26'];
@@ -100,5 +101,23 @@ describe('ChartLine', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('com a costura, avisa a categoria do ponto mais proximo e tira o <title> dos pontos', () => {
+    const onHoverCategory = vi.fn();
+    render(<ChartLine categories={meses} onHoverCategory={onHoverCategory} series={series} title="Faturamento" />);
+
+    const faixas = [...document.querySelectorAll<SVGRectElement>(`.${chartStyles.hoverBand}`)];
+    const larguras = faixas.map((faixa) => Number(faixa.getAttribute('width')));
+
+    // Cada faixa vai ate o meio do caminho para o vizinho: as das pontas tem metade da do meio.
+    expect(larguras[1]).toBeCloseTo(larguras[0] * 2);
+    expect(larguras[2]).toBeCloseTo(larguras[0]);
+
+    fireEvent.mouseEnter(faixas[2]);
+    fireEvent.mouseLeave(faixas[2]);
+
+    expect(onHoverCategory.mock.calls).toEqual([[2], [null]]);
+    expect(document.querySelector('circle title')).toBeNull();
   });
 });

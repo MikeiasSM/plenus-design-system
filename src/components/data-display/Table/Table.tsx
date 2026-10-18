@@ -18,6 +18,7 @@ import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './Table.module.css';
 import { EmptyState } from '../../feedback/EmptyState';
+import { Skeleton } from '../../feedback/Skeleton';
 import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
 
 export type TableSize = 'sm' | 'md';
@@ -420,12 +421,12 @@ function TableBody<T extends TableRowItem>({
           <tr className={[styles.row, styles.skeletonRow].join(' ')} key={row}>
             {leadCells > 0 && (
               <td className={[styles.cell, styles.lead].join(' ')}>
-                <span className={styles.skeleton} />
+                <Skeleton className={styles.skeleton} />
               </td>
             )}
             {columns.map((column, index) => (
               <td className={[styles.cell, styles[column?.align ?? 'start']].join(' ')} data-hide-below={column?.hideBelow} key={index}>
-                <span className={styles.skeleton} />
+                <Skeleton className={styles.skeleton} />
               </td>
             ))}
           </tr>

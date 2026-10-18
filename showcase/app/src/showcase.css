@@ -401,3 +401,24 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.skeleton-demo {
+  display: grid;
+  gap: var(--pl-space-4);
+  max-width: 420px;
+  padding: var(--pl-space-4);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+}
+
+.skeleton-demo-head {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-3);
+}
+
+.skeleton-demo-lines {
+  display: grid;
+  flex: 1;
+  gap: var(--pl-space-2);
+}

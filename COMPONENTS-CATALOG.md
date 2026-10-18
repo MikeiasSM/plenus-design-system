@@ -43,6 +43,7 @@ O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o context
 | `Checkbox` | Escolha binária independente. | Disponível |
 | `RadioGroup` com `Radio` | Escolha única entre opções sempre visíveis. | Disponível |
 | `Switch` | Alternância de um estado ativo. | Disponível |
+| `SegmentedControl` | Escolha única entre poucos segmentos lado a lado. | Disponível |
 | `DatePicker` | Entrada de data, digitada ou escolhida em calendário. | Disponível |
 | `TimePicker` | Entrada de hora. | Disponível |
 | `DateTimePicker` | Entrada de data e hora combinadas. | Disponível |
@@ -50,6 +51,10 @@ O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o context
 `Field` é a moldura que os campos deste catálogo já usam por dentro, exposta para quem precisa montar um campo que o Design System não entrega — uma máscara de documento, um seletor de arquivo, um autocompletar de endereço. Ele recebe uma função e devolve o `id`, a descrição acessível já montada e o estado de inválido; o controle continua sendo de quem o escreve.
 
 A fronteira com `Label` é de alcance: `Label` nomeia **um** controle; `Field` cuida do conjunto — rótulo, ajuda, erro e contador — e da amarração entre eles, que é a parte que mais se erra. Um campo do próprio catálogo nunca deve ser envolvido por `Field`: ele já tem o seu.
+
+O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma busca. O nome do campo continua no rótulo.
+
+`SegmentedControl` e `RadioGroup` fazem a mesma escolha única, e a fronteira é a forma: o `RadioGroup` é a lista de opções de um formulário, com legenda, ajuda e erro; o `SegmentedControl` é um controle compacto, de poucas opções curtas, que muda o que a tela mostra — o período de um painel, a lista ou os cartões. Por baixo ele também é rádio nativo. Com mais de cinco opções, ou opções longas, a escolha é `Select`. A fronteira com `Tabs` é o painel: a aba troca o conteúdo que ela controla; o segmento muda um valor.
 
 ## 4. Listagem e escolha
 
@@ -72,6 +77,7 @@ Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel,
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
 | `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
+| `Tag` | Etiqueta operada: removível, como o filtro ativo, ou de alternar. | Disponível |
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
 | `CodeBlock` | Trecho de código para leitura, com cópia, numeração e destaque de linhas. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
@@ -82,6 +88,8 @@ O critério entre os dois é quem decide quais linhas existem na página. No `Ta
 Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação percorre os controles de cada célula; o `DataGrid` é um controle interativo, com navegação bidimensional entre células.
 
 O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima.
+
+A fronteira entre `Badge` e `Tag` é o controle. O `Badge` só rotula um estado ou uma categoria e não responde a nada. A `Tag` é operada: removida, como o filtro ativo de uma busca, ou ligada e desligada, como o papel escolhido entre vários.
 
 O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, JSX, TSX, SQL, JSON e Shell: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
 
@@ -111,7 +119,9 @@ Cada série do `ChartCombo` declara a que eixo de valor pertence, e é essa decl
 
 A fronteira com `Tooltip` é o conteúdo, não o gráfico: `Tooltip` descreve **um** elemento em uma frase curta e nomeia esse elemento para quem usa leitor de tela; `ChartTooltip` exibe **várias** medidas em forma de grade e é decorativo, porque uma grade que some a qualquer interação não é leitura acessível.
 
-Cada marca carrega a própria descrição em `aria-label`. Nos gráficos sem costura para o `ChartTooltip` — `ChartLine`, `ChartArea`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst` e `ChartSankey` —, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela. Onde há costura, o `<title>` ficaria de fora: seria um segundo balão sobre o `ChartTooltip`. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
+Cada marca carrega a própria descrição em `aria-label`. Nos gráficos sem costura para o `ChartTooltip` — `ChartScatter`, `ChartRadial` e `ChartSankey` —, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela. Onde há costura, o `<title>` fica de fora: seria um segundo balão sobre o `ChartTooltip`. Em `ChartLine`, `ChartArea`, `ChartTreemap` e `ChartSunburst` a costura é opcional, e o `<title>` só sai quando ela é usada.
+
+A costura avisa o que está sob o ponteiro, na forma de cada família: a categoria nos cartesianos, a fatia no anel e o caminho até o nó nos hierárquicos — do grupo ao nó, cada nível com o valor somado. Em `ChartLine` e `ChartArea` não há barra para apontar: a área de desenho se divide em faixas invisíveis, cada uma do ponto até o meio do caminho para o vizinho, e vale o ponto mais próximo do ponteiro. O desenho é `role="img"` nomeado pelo título, e a tecnologia assistiva o apresenta como uma imagem só — a leitura medida a medida chega pela visão em tabela, quando houver consumidor pedindo.
 
 Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 
@@ -135,10 +145,16 @@ O Design System entrega os gráficos. A tradução entre o manifesto de um dashb
 | `Progress` | Progresso de uma operação, determinado ou não. | Disponível |
 | `Spinner` | Indicação de atividade em curso. | Disponível |
 | `EmptyState` | Ocupa o lugar do conteúdo que não há: sem registros, sem resultado ou falha ao carregar. | Disponível |
+| `Skeleton` | Lugar de um conteúdo que ainda carrega, na forma do que vai chegar. | Disponível |
+| `Toast` | Aviso flutuante sobre uma operação que acabou de acontecer. | Disponível |
 
 A fronteira entre `EmptyState` e `Alert` é o lugar. O `Alert` acompanha o conteúdo e fala de uma operação; o `EmptyState` está no lugar do conteúdo que faltou e diz por que ele não está ali e o que fazer. Por isso a falha ao carregar uma lista é `EmptyState` em tom de erro, e a falha ao salvar um formulário é `Alert`.
 
 Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` mantém a frase curta, porque a lista dele é um painel que acompanha o campo e não comporta um bloco.
+
+A fronteira entre `Skeleton`, `Spinner` e `Progress` é o que se sabe do resultado. O `Skeleton` desenha a forma do conteúdo que vai chegar, e serve quando essa forma é conhecida — linhas de uma tabela, um cartão. O `Spinner` diz só que há atividade; o `Progress`, quanto falta. O `Skeleton` é decorativo: quem o envolve anuncia o carregamento.
+
+A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica junto do conteúdo de que fala, até a situação mudar. O `Toast` aparece no canto da tela, fala de algo que acabou de acontecer — salvo, publicado, falhou — e sai sozinho, exceto o erro, que espera ser fechado. É exibido pelo `ToastRegion`, montado uma vez na raiz da aplicação, e disparado por `showToast` de qualquer lugar.
 
 ## 8. Navegação
 
@@ -147,15 +163,22 @@ Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` ma
 | `Breadcrumb` | Caminho percorrido até a posição atual. | Disponível |
 | `Pagination` | Navegação entre páginas de um conjunto. | Disponível |
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
+| `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
+| `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
+
+`Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
 
 ## 9. Sobreposições
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Dialog` | Interação modal que interrompe o fluxo. | Disponível |
+| `Drawer` | Painel modal preso à lateral da tela. | Disponível |
 | `Popover` | Conteúdo ancorado a um gatilho, sem bloquear a página. | Disponível |
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
 | `Menu` | Lista de ações disparada por um gatilho. | Disponível |
+
+`Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é composição de layout da aplicação.
 
 ## 10. Ícones
 

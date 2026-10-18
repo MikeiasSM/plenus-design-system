@@ -7,6 +7,7 @@ import {
   VOLTA,
   arcAnchor,
   arcPath,
+  hoverPath,
   chartHeight,
   ringDiameter,
   truncateToWidth,
@@ -14,6 +15,7 @@ import {
   useSeriesToggle,
   widestLabel,
   type ChartHeight,
+  type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
 } from '../core';
@@ -39,6 +41,11 @@ export interface ChartSunburstProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
+  /**
+   * Caminho ate o no sob o ponteiro, do grupo ao no, ou `null` ao sair. E a costura
+   * para o `ChartTooltip`: com ela, o `<title>` sai, para nao abrir um segundo balao.
+   */
+  onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   /** Folga entre dois aneis vizinhos. */
   ringGap?: number;
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
@@ -100,6 +107,7 @@ export function ChartSunburst({
   legendAlign,
   nodes,
   onHiddenGroupsChange,
+  onHoverNode,
   ringGap = 2,
   showLabels = true,
   sliceRadius,
@@ -175,6 +183,11 @@ export function ChartSunburst({
     return foco === null || foco.ancestors().includes(arco);
   }
 
+  function focar(arco: Arco | null) {
+    setEmFoco(arco);
+    onHoverNode?.(arco && hoverPath(arco));
+  }
+
   function corDe(arco: Arco) {
     const raizDoRamo = arco.ancestors().find((ancestral) => ancestral.depth === 1)?.data;
     const base =
@@ -222,10 +235,10 @@ export function ChartSunburst({
           })}
           fill={corDe(arco)}
           key={indice}
-          onMouseEnter={() => setEmFoco(arco)}
-          onMouseLeave={() => setEmFoco(null)}
+          onMouseEnter={() => focar(arco)}
+          onMouseLeave={() => focar(null)}
         >
-          <title>{descreverArco(arco)}</title>
+          {!onHoverNode && <title>{descreverArco(arco)}</title>}
         </path>
       ))}
 

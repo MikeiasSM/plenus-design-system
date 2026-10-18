@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-707 testes em 81 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+786 testes em 92 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -37,8 +37,10 @@ Outros modulos:
   area de desenho, estado vazio e legenda. `CartesianFrame` e uma camada sobre ela, com grade e eixos. Ao lado,
   `ChartLegend`, o calculo de layout de `cartesianLayout.ts`, as medidas de `spacing.ts`, a medida e o corte de
   texto de `measureText.ts`, o texto de centro de `centerText.ts`, os caminhos de `shapes.ts` e `arcs.ts`, o
-  agrupamento de `slices.ts`, `useChartMetrics`, `useSliceRing`, `useSeriesToggle` e `useTweenedNumbers`.
+  agrupamento de `slices.ts`, as faixas de `PointBands`, o caminho de `hoverPath`, `useChartMetrics`, `useSliceRing`, `useSeriesToggle` e `useTweenedNumbers`.
   **Internos**, nao exportados, exceto os tipos que aparecem na API publica dos graficos.
+- `src/components/overlays/Dialog/DialogFrame` — mecanica modal: portal, foco preso, rolagem travada, cabecalho, corpo e rodape. **Interno**. Serve `Dialog` e `Drawer`.
+- `src/components/feedback/Toast/toastStore` — fila dos avisos, lida pelo `ToastRegion`. Exporta so `showToast`, `dismissToast` e os tipos.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
 Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-sankey`. Todas externalizadas no build.
@@ -193,6 +195,8 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
 
+**Depois da 0.2.2**, ainda sem versao. Entraram no catalogo, por decisao do mantenedor em 18/10/2026, a partir da analise do que o PlenusLAB construiu por falta deles: a `Tag`, o `SegmentedControl`, o `Drawer`, o `Toast`, o `Skeleton`, o `Steps` e o `SkipLink`, descritos em Contexto. O `InputText` ganhou `icon`, a lupa a frente da busca. O `ChartTooltip` passou a ter costura em `ChartLine`, `ChartArea`, `ChartTreemap` e `ChartSunburst`, e os doze graficos tem leitura no ponteiro. Para servir a gaveta, a mecanica modal do `Dialog` foi para o `DialogFrame`, interno; o esqueleto da `Table` passou a ser o `Skeleton`. Novos icones: `IconCheck`, `IconCheckCircle`, `IconExclamationCircle`, `IconExclamationTriangle` e `IconInfoCircle`, pedidos pela `Tag`, pelo `Steps` e pelo `Toast`. Nenhuma mudanca incompativel.
+
 **Depois da 0.2.1**, na `0.2.2`. A versao sobe so a correcao por decisao do mantenedor, como na `0.2.1`, embora traga mudancas incompativeis, listadas no fim deste paragrafo; quem declara `^0.2.0` ou `^0.2.1` as recebe na proxima instalacao. Entraram: o `Accordion` troca o mais e o menos pelo chevron, que gira ao abrir; o `Dialog` e redesenhado a partir de versoes num artefato — a escolhida tem cabecalho e rodape fixos separados por linha, o meio rolando, rodape em fundo sutil, icone opcional ao lado do titulo, titulo em `type.title` no lugar do Poppins de 24px, fundo desfocado e entrada subindo; no celular continua cartao centralizado, com as acoes dividindo a largura, e nao folha presa a base, por decisao do mantenedor. O raio ficou no `radius.md`, de 8px: a versao do artefato usava 12px, que nao tem token; o `ButtonIcon`, o `CodeBlock` e o `EmptyState`, que entram no catalogo, e o pacote com um modulo por arquivo, descrito em Distribuicao. O `Card` com corpo sem respiro separa o cabecalho do corpo por uma linha, com o mesmo respiro em cima e embaixo: a faixa do cabecalho de uma tabela comecava colada a descricao do cartao. A linha nao foi para a faixa da `Table`: sem cabecalho, ela encostaria na borda do cartao e sairia dupla. A `Table` sem registros mostra o vazio desenhado — icone de busca, *Nenhum registro encontrado* e um subtitulo que sugere rever a busca e os filtros —, e carregando troca as linhas por esqueleto, na mesma quantidade das que estavam na tela, com a mensagem so para o leitor de tela. O `Badge` desceu a 12px, como no Untitled UI, com o raio do sistema. Na `List`, o marcar todos ganhou o respiro da opcao e a caixa desenhada das opcoes passou de 16px a 18px, a do `Checkbox`: as caixas e os textos estavam fora de prumo. Mudancas incompativeis, conforme `CONTRIBUTING.md` secao 11: `Table.Body` troca `empty` por `emptyTitle` e `emptyDescription`, e o vazio aparece mesmo sem eles; o `Badge` passa de 14px a 12px; o texto da `Table` sai da mono para a Montserrat.
 
 **Corrigido depois da publicacao da 0.2.0**, na `0.2.1`. A versao sobe so a correcao por decisao do mantenedor, embora traga as mudancas incompativeis listadas abaixo; quem declara `^0.2.0` as recebe na proxima instalacao.
@@ -314,7 +318,6 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 ### Ainda nao implementado
 
 - O `DataGrid` da etapa 10.
-- Ligacao do `ChartTooltip` aos doze graficos. A costura existe em `ChartBar`, `ChartCombo`, `ChartWaterfall`, `ChartPie` e `ChartDonut`. Faltam as faixas invisiveis de `ChartLine` e `ChartArea`, o `ChartSunburst` e o `ChartTreemap`. Enquanto nao ha costura, a marca leva o `<title>`, que sai quando ela chegar.
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
@@ -344,13 +347,12 @@ O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que se
 
 Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segura. Nenhuma foi implementada.
 
-- **Componentes novos**: controle segmentado, gaveta lateral, etapas e esqueleto de carregamento. O estado vazio entrou como `EmptyState` e o botao so de icone como `ButtonIcon`, em 18/10/2026. `COMPONENTS-CATALOG.md` so admite componente por decisao aprovada, e nenhum deles esta previsto.
 - **`Tabs` como links e `Badge` clicavel.** O catalogo define `Tabs` como alternancia entre paineis e `Badge` como rotulo de estado; os dois pedidos mudam o papel do componente.
 - **Icones de interface geral e a base `Icon` exportada.** O catalogo, secao 10, limita o conjunto ao que os componentes usam; `ARCHITECTURE.md` secao 12 manda as aplicacoes usarem a biblioteca oficial. As duas leituras precisam ser conciliadas antes de o conjunto crescer.
 - **`Dialog` so com nome acessivel**, sem titulo visivel nem botao de fechar. O cabecalho e parte, e desliga-lo por booleano e o que `COMPONENTS.md` secao 4 manda evitar; a saida e composicao, que quebra o contrato atual.
 - **Opcao composta e grupos no `ComboBox`.** Alcanca a listagem interna que `List` e `Select` compartilham, e pede o desenho da API antes.
 - **`Popover` que nao leva o foco para dentro.** Ele e um `role="dialog"`, e `COMPONENTS.md` secao 7 pede que dialogo gerencie o foco. O caso relatado, painel sob um campo em que se digita, e o do `ComboBox` com opcao composta.
-- **Pecas da barra de filtros do PlenusLAB**, prevista em 17/10/2026: campo de busca com icone a frente, contador sobreposto ao botao e etiqueta removivel de filtro ativo. O `InputText` nao tem ornamento, o `Badge` e rotulo de estado e nao controle, e nenhum dos tres esta no catalogo. A barra em si e composicao do produto e fica na aplicacao.
+- **Contador sobreposto ao botao**, a ultima peca da barra de filtros do PlenusLAB, prevista em 17/10/2026. A busca com icone entrou como `icon` do `InputText` e a etiqueta removivel como `Tag`, em 18/10/2026. O contador nao tem lugar no catalogo: o `Badge` e rotulo de estado, e pendura-lo no `ButtonIcon` muda o papel do botao. A barra em si e composicao do produto e fica na aplicacao.
 - **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
 
 ## Excecoes de contraste aceitas
@@ -464,7 +466,8 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - **O `<title>` voltou nos sete graficos sem costura**, ao lado do `aria-label`. O balao duplo so existe onde ha `ChartTooltip`; nos demais, o `<title>` era a unica leitura do valor sob o ponteiro.
 - A costura de hover vive em dois lugares, um por familia. `useHoveredBand` serve os cartesianos de faixa — `ChartBar`, `ChartCombo` e `ChartWaterfall` —, que expoem `onHoverCategory` ou, no caso do passo, `onHoverStep`. `useSliceRing` serve o anel, e expoe `onHoverSlice`.
 - **O anel entrega a fatia, e nao o indice.** As pequenas ja foram reunidas em "Outros" quando o ponteiro chega, entao o indice do anel nao corresponde ao que o consumidor informou. Entregar a fatia agrupada, com rotulo e valor, dispensa qualquer busca do lado de fora. O `setFocused` do hook virou `focus` na mesma mudanca: ele passou a avisar alem de gravar, e o nome anterior escondia isso.
-- `ChartLine` e `ChartArea` **nao** ganharam costura. Eles usam `pointScale`, sem faixa e sem estado de hover; avisar a categoria ali exige criar faixas de clique invisiveis sobre a area, com decisao de largura e de encaixe no ponto mais proximo. E desenho, nao fiacao. No `ChartScatter` o eixo X e numerico e categoria nao se aplica.
+- `ChartLine` e `ChartArea` ganharam costura em 18/10/2026, com `onHoverCategory`. Sem faixa na escala de pontos, a area de desenho se divide em faixas invisiveis, `PointBands`, cada uma do ponto ate o meio do caminho para o vizinho: vale o ponto mais proximo. Uma guia vertical marca o ponto. Faixas e guia so existem com a costura; sem ela o ponto mantem o `<title>`. No `ChartScatter` o eixo X e numerico e categoria nao se aplica.
+- `ChartTreemap` e `ChartSunburst` ganharam `onHoverNode`, que entrega o caminho do grupo ate o no, cada nivel com o valor somado, pelo `hoverPath`. O valor somado e o que o consumidor nao tem: o no sem `value` vale a soma dos filhos. Com a costura o `<title>` sai.
 - Valor no balao e **JetBrains Mono**, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`: `type.data-value` cobre valores monetarios, percentuais e totais em tabelas. O rotulo da serie continua em Montserrat, que e conteudo de interface.
 - O texto escrito sobre a cor da serie — a porcentagem na fatia, o rotulo e o valor no retangulo — usa **`chart.on-*`**, o token de texto daquela cor, medido nos dois temas. O preto, e nao `color.ink`, e o texto sobre cor clara: a tinta do tema claro mede 4,39:1 contra a serie 6 e 3,63:1 contra o vermelho. A cor em hexadecimal e medida pelo componente, pela luminancia em que branco e preto empatam; em outro formato, fica o branco.
 - **Legenda clicavel implementada**, depois de adiada uma rodada. Cada entrada e um botao com `aria-pressed`, e o estado e controlado ou nao conforme `COMPONENTS.md` secao 6. Ela trabalha com rotulos, nao com indices: e o rotulo que a legenda exibe e o que o produto reconhece, e o indice mudaria de significado ao reordenar as series.
@@ -550,6 +553,61 @@ Entrou no catalogo por decisao do mantenedor em 18/10/2026, desenhado num artefa
 - **Dois tons.** `neutral` nao interrompe o leitor de tela; `danger` sai com `role="alert"`, sem os cartoes, porque a falha nao e conteudo a caminho.
 - **Icone e cartoes ficam fora da leitura.** Quem fala e o texto.
 - **Quem usa.** `Table` no vazio, `List.Empty` e os doze graficos, estes com `IconChartBar`. O `ComboBox` mantem a frase curta: o painel dele acompanha o campo e nao comporta o bloco.
+
+### Tag
+
+Entrou no catalogo em 18/10/2026. O nome e o do Untitled UI, a referencia visual; o PlenusLAB a chama de `Chip`.
+
+- **Removivel ou de alternar.** `onRemove` acrescenta o botao de remover; `selected` transforma o texto em botao com `aria-pressed`. Os dois convivem, um ao lado do outro, sem botao dentro de botao.
+- **O botao de remover se chama "Remover" mais o texto da etiqueta**, por `aria-labelledby` apontando para si e para o texto. O texto pode ser composto, entao o nome nao e montado em string.
+- **Selecionada, mostra o visto**, alem da cor: o estado nao depende so dela.
+- O rotulo de estado com tom, que o `Chip` do PlenusLAB tambem cobre, e papel do `Badge`.
+
+### SegmentedControl
+
+Entrou no catalogo em 18/10/2026.
+
+- **Radios nativos por baixo**, escondidos atras de cada segmento. Setas, a parada unica de Tab, a escolha seguindo o foco e o envio pelo `name` vem do navegador, sem motor proprio.
+- **`iconOnly`** mostra so os icones; o `label` de cada item continua sendo o nome e vira dica, pelo `Tooltip`.
+- Na altura do `Button` de cada tamanho, para alinhar numa barra.
+
+### Drawer
+
+Entrou no catalogo em 18/10/2026, para o `PainelLateral` do PlenusLAB. O `PainelAoLado`, que fica ao lado do conteudo sem bloquear a pagina, e layout da aplicacao.
+
+- **A mecanica e a do `Dialog`.** Portal, `FocusScope`, `useOverlay`, `usePreventScroll`, `ariaHideOutside`, cabecalho, corpo e rodape sairam do `Dialog` para o `DialogFrame`, interno, que os dois usam. Cada um so define a superficie e o fundo.
+- Altura toda da tela, sem raio, entrando pelo lado. `side` escolhe direita ou esquerda; `size` tem tres larguras, e no celular a gaveta ocupa a largura.
+- Sem `icon` nem `role`: o icone ao lado do titulo e a confirmacao que exige resposta sao do `Dialog`.
+
+### Toast
+
+Entrou no catalogo em 18/10/2026, para os avisos do editor do PlenusLAB, que os pede no canto inferior direito, com tentar de novo e 6s no sucesso.
+
+- **Sem provider.** O `ToastRegion` e montado uma vez na raiz; `showToast` e `dismissToast` falam com uma fila em modulo, lida por `useSyncExternalStore`. E o modelo do `toast()` do shadcn, e serve tambem a quem dispara o aviso fora de um componente. No servidor a fila e vazia.
+- **Tempo.** 6s por padrao, e o erro fica ate ser fechado: quem nao leu a falha nao pode perde-la. `duration` troca, e `null` mantem. Ponteiro ou foco dentro param o tempo, que recomeca ao sair.
+- **Tres a vista**, os mais recentes; os de tras aparecem quando um sai.
+- **Anuncio como o do `Alert`**: aviso e erro com `role="alert"`, os demais com `role="status"`.
+- Uma acao so, que fecha o aviso ao ser acionada.
+
+### Skeleton
+
+Entrou no catalogo em 18/10/2026. O esqueleto ja existia dentro da `Table`, que passou a usa-lo.
+
+- Tres formas, `line`, `circle` e `block`, com `width` e `height` para a medida do que vai chegar.
+- **Decorativo**, sempre com `aria-hidden`. Quem envolve anuncia o carregamento, como a `Table` faz com a mensagem de status.
+
+### Steps
+
+Entrou no catalogo em 18/10/2026, para as `Etapas` do PlenusLAB.
+
+- **E o indicador, nao o processo.** O conteudo da etapa e os botoes de anterior e proxima ficam no produto: no PlenusLAB, cada uso monta um formulario diferente.
+- As anteriores a atual sao concluidas, com o visto e ", concluída" para o leitor de tela; a atual leva `aria-current="step"`.
+- Com `onStepChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
+- No celular as etapas empilham, com a linha na vertical.
+
+### SkipLink
+
+Entrou no catalogo em 18/10/2026. Um link nativo para a ancora do conteudo, fora da tela ate receber foco. O navegador ja leva o ponto de partida da tabulacao para a ancora, entao o componente nao foca o alvo por conta propria.
 
 ### CodeBlock
 

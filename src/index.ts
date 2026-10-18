@@ -6,6 +6,8 @@ export {
   IconArrowUp,
   IconCalendar,
   IconChartBar,
+  IconCheck,
+  IconCheckCircle,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,
@@ -13,6 +15,9 @@ export {
   IconChevronUp,
   IconClock,
   IconClose,
+  IconExclamationCircle,
+  IconExclamationTriangle,
+  IconInfoCircle,
   IconMinusCircle,
   IconPlusCircle,
   IconQuestionCircle,
@@ -41,6 +46,12 @@ export { Checkbox } from './components/forms/Checkbox';
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
 export type { RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
+export { SegmentedControl } from './components/forms/SegmentedControl';
+export type {
+  SegmentedControlItem,
+  SegmentedControlProps,
+  SegmentedControlSize,
+} from './components/forms/SegmentedControl';
 export { Switch } from './components/forms/Switch';
 export type { SwitchProps } from './components/forms/Switch';
 export { Alert } from './components/feedback/Alert';
@@ -51,6 +62,10 @@ export { Spinner } from './components/feedback/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/feedback/Spinner';
 export { EmptyState } from './components/feedback/EmptyState';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateTone } from './components/feedback/EmptyState';
+export { Skeleton } from './components/feedback/Skeleton';
+export type { SkeletonProps, SkeletonShape } from './components/feedback/Skeleton';
+export { ToastRegion, dismissToast, showToast } from './components/feedback/Toast';
+export type { ToastAction, ToastOptions, ToastTone } from './components/feedback/Toast';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';
@@ -59,6 +74,10 @@ export { Breadcrumb } from './components/navigation/Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/navigation/Breadcrumb';
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps } from './components/navigation/Pagination';
+export { SkipLink } from './components/navigation/SkipLink';
+export type { SkipLinkProps } from './components/navigation/SkipLink';
+export { Steps } from './components/navigation/Steps';
+export type { StepItem, StepsProps } from './components/navigation/Steps';
 export { Accordion } from './components/data-display/Accordion';
 export type { AccordionProps, AccordionItem, AccordionIconPosition } from './components/data-display/Accordion';
 export { Select } from './components/forms/Select';
@@ -77,8 +96,12 @@ export { Tooltip } from './components/overlays/Tooltip';
 export type { TooltipProps, TooltipPlacement } from './components/overlays/Tooltip';
 export { Dialog } from './components/overlays/Dialog';
 export type { DialogProps, DialogRole, DialogSize } from './components/overlays/Dialog';
+export { Drawer } from './components/overlays/Drawer';
+export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeTone } from './components/data-display/Badge';
+export { Tag } from './components/data-display/Tag';
+export type { TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
 export { List } from './components/data-display/List';
@@ -192,6 +215,7 @@ export type {
   AxisVisibility,
   ChartCurve,
   ChartHeight,
+  ChartHoveredNode,
   ChartLegendAlign,
   ChartLegendPosition,
 } from './components/charts/core';

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { IconSearch } from '../../icons';
 import { InputText } from './InputText';
 
 describe('InputText', () => {
@@ -98,5 +99,12 @@ describe('InputText', () => {
 
     // 'oi ' e o emoji, que ocupa duas unidades UTF-16, exatamente como maxLength conta.
     expect(screen.getByText('5/10')).toBeInTheDocument();
+  });
+
+  it('shows a decorative icon ahead of the text, keeping the label as the name', () => {
+    const { container } = render(<InputText icon={<IconSearch />} label="Buscar" type="search" />);
+
+    expect(screen.getByRole('searchbox', { name: 'Buscar' })).toBeInTheDocument();
+    expect(container.querySelector('svg')!.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 });

@@ -1,0 +1,147 @@
+/* Etapas do Untitled UI: marcador numerado ligado por uma linha, rotulo abaixo. */
+.steps {
+  --steps-marker: 2rem;
+  font-family: var(--pl-font-body);
+}
+
+.list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pl-space-3);
+  min-width: 0;
+  text-align: center;
+}
+
+/* A linha sai do marcador ate o proximo; preenchida quando a etapa ja foi feita. */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--steps-marker) / 2 - 1px);
+  left: calc(50% + var(--steps-marker) / 2 + var(--pl-space-2));
+  right: calc(-50% + var(--steps-marker) / 2 + var(--pl-space-2));
+  height: 2px;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-border);
+}
+
+.complete:not(:last-child)::after {
+  background: var(--pl-color-primary);
+}
+
+.marker {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--steps-marker);
+  height: var(--steps-marker);
+  border: 1.5px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.complete .marker {
+  border-color: var(--pl-color-primary);
+  background: var(--pl-color-primary);
+  color: var(--pl-color-on-primary);
+  font-size: 1rem;
+}
+
+.current .marker {
+  border-color: var(--pl-color-primary);
+  box-shadow: 0 0 0 4px var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 100%;
+  padding: 0 var(--pl-space-2);
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+button.text {
+  cursor: pointer;
+}
+
+button.text:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
+.label {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.current .label {
+  color: var(--pl-color-on-primary-container);
+}
+
+button.text:hover .label {
+  color: var(--pl-color-text);
+}
+
+.description {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.hiddenText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* No celular as etapas empilham: lado a lado, os rotulos nao cabem. */
+@media (max-width: 480px) {
+  .list {
+    flex-direction: column;
+    gap: var(--pl-space-4);
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .step:not(:last-child)::after {
+    top: calc(var(--steps-marker) + var(--pl-space-1));
+    bottom: calc(-1 * var(--pl-space-4) + var(--pl-space-1));
+    left: calc(var(--steps-marker) / 2 - 1px);
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .text {
+    padding-top: 6px;
+  }
+}

@@ -1,11 +1,14 @@
 import { useId, useMemo } from 'react';
 import {
   CartesianFrame,
+  PointBands,
+  PointCursor,
   areaPath,
   cartesianLayout,
   chartHeight,
   linePath,
   useChartMetrics,
+  useHoveredBand,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelRoom,
@@ -65,6 +68,11 @@ export interface ChartAreaProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /**
+   * Indice da categoria mais proxima do ponteiro, ou `null` ao sair. E a costura
+   * para o `ChartTooltip`: com ela, o `<title>` dos pontos sai, para nao abrir um segundo balao.
+   */
+  onHoverCategory?: (index: number | null) => void;
   series: readonly ChartAreaSeries[];
   showDataLabels?: boolean;
   showDots?: boolean;
@@ -90,6 +98,7 @@ export function ChartArea({
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
+  onHoverCategory,
   series,
   showDataLabels = false,
   showDots = false,
@@ -152,6 +161,8 @@ export function ChartArea({
     [categories, plot.width],
   );
 
+  const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(onHoverCategory);
+
   // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
   // duas, as marcas exibiriam valores quebrados durante a transicao.
   const escalaAlvo = useMemo(
@@ -195,6 +206,7 @@ export function ChartArea({
     label: categoria,
     position: escalaCategorias(categoria) ?? 0,
   }));
+  const posicoesCategoria = marcasCategoria.map((marca) => marca.position);
 
   const marcasValor: AxisTick[] = marcasDeValor.map((valor) => ({
     label: formatValue(valor),
@@ -231,6 +243,10 @@ export function ChartArea({
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
       yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
     >
+      {onHoverCategory && categoriaEmFoco !== null && (
+        <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
+      )}
+
       {/* Sem empilhamento as areas se sobrepoem, e um topo opaco esconderia a de
           baixo. O contorno em cor cheia e que marca o limite de cada faixa. */}
       {!stacked && (
@@ -293,7 +309,7 @@ export function ChartArea({
                   key={indice}
                   r={4}
                 >
-                  <title>{descricao}</title>
+                  {!onHoverCategory && <title>{descricao}</title>}
                 </circle>
               );
             })}
@@ -321,6 +337,8 @@ export function ChartArea({
           </g>
         );
       })}
+
+      {onHoverCategory && <PointBands onHover={focarCategoria} plot={plot} positions={posicoesCategoria} />}
     </CartesianFrame>
   );
 }

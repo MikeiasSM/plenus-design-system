@@ -1,0 +1,124 @@
+/* Canto inferior direito, o mais recente embaixo. No celular ocupa a largura, com o respiro da pagina. */
+.region {
+  position: fixed;
+  right: var(--pl-space-5);
+  bottom: var(--pl-space-5);
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+  width: min(400px, calc(100vw - 2 * var(--pl-space-4)));
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .region {
+    right: var(--pl-space-4);
+    bottom: var(--pl-space-4);
+  }
+}
+
+/* Cartao claro com o icone na cor do tom, como a notificacao do Untitled UI. */
+.toast {
+  display: flex;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-4);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-2);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  pointer-events: auto;
+  animation: toast-enter var(--pl-speed-2) var(--pl-ease) both;
+}
+
+.icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--toast-tone);
+  font-size: 1.25rem;
+}
+
+.info {
+  --toast-tone: var(--pl-color-info);
+}
+
+.success {
+  --toast-tone: var(--pl-color-success);
+}
+
+.warning {
+  --toast-tone: var(--pl-color-warning);
+}
+
+.danger {
+  --toast-tone: var(--pl-color-danger);
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.description {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.actions {
+  display: flex;
+  gap: var(--pl-space-2);
+  margin-top: var(--pl-space-2);
+}
+
+.close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: -4px -4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: transparent;
+  color: var(--pl-color-text-tertiary);
+  cursor: pointer;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+.close:hover {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

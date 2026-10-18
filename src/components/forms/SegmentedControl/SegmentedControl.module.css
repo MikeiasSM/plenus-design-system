@@ -1,0 +1,95 @@
+/* Trilho em fundo sutil com o segmento escolhido em superficie elevada, como o grupo de botoes do Untitled UI. */
+.control {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-muted);
+  overflow-x: auto;
+}
+
+.segment {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pl-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--pl-radius-sm);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-weight: var(--pl-type-label-weight);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--pl-speed-1) var(--pl-ease),
+    color var(--pl-speed-1) var(--pl-ease),
+    box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.sm .segment {
+  min-height: 26px;
+  padding: 2px 10px;
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.md .segment {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: var(--pl-type-label-size);
+  line-height: var(--pl-type-label-line-height);
+}
+
+.sm .iconOnly {
+  padding-inline: 6px;
+}
+
+.md .iconOnly {
+  padding-inline: 9px;
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.icon {
+  display: inline-flex;
+  font-size: 1rem;
+}
+
+.segment:hover:not(:has(.input:disabled)) {
+  color: var(--pl-color-text);
+}
+
+.segment:has(.input:checked) {
+  border-color: var(--pl-color-border);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-text);
+}
+
+.segment:has(.input:focus-visible) {
+  box-shadow: 0 0 0 2px var(--pl-color-primary);
+}
+
+.segment:has(.input:disabled) {
+  color: var(--pl-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.hiddenText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
