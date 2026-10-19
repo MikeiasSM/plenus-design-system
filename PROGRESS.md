@@ -575,13 +575,14 @@ Na implementacao:
 ### Biblioteca de icones
 
 - A fonte e o **Bootstrap Icons**, por decisao do mantenedor, sob licenca MIT. Ha preferencia pelas variantes preenchidas, sem que isso seja regra: onde a versao de contorno ler melhor, ela vale. Chevrons e setas nao tem variante — ja sao caminhos cheios.
-- **Copia dos caminhos, e nao dependencia.** Sao dois mil icones para resolver onze, e o mandamento 13 pesa contra a dependencia nesse caso. A atribuicao fica no cabecalho de `icons.tsx`.
+- **Copia dos caminhos, e nao dependencia de quem instala.** Os de interface ficam em `icons.tsx`, com a atribuicao no cabecalho.
+- **Suite completa, em 18/10/2026, por decisao do mantenedor:** os poucos icones nao bastavam para categorizar conteudo. Os 2.050 do Bootstrap Icons 1.11.3 sao gerados por `npm run gerar:icones` (`scripts/gerar-icones.mjs`) em `src/components/icons/suite.tsx`, que entra no repositorio, e publicados no subcaminho `@plenustech/design-system/icons`, pelo nome do desenho no Bootstrap. O `bootstrap-icons` e dependencia de desenvolvimento, com versao exata: so serve para gerar. A suite fica fora do ponto de entrada principal para o autocompletar e as declaracoes dele continuarem leves; com dois icones importados, o bundle do consumidor fica em 1,3 kB. O mapa de fonte da suite sai do pacote, porque o codigo e gerado. O `check:pacote` confere os 2.050 nas entradas ESM e CommonJS.
 - Os dez componentes que desenhavam o proprio SVG passaram a consumir a biblioteca. Chevron, fechar e seta estavam repetidos entre eles, com espessuras e tamanhos que andaram sozinhos.
 - Nomenclatura de familia, conforme `CLAUDE.md`: tipo seguido de especializacao — `IconChevronDown`, `IconCalendar`, `IconClose`.
 - A base `Icon` e **interna**. Ela fecha o conjunto, para que a aplicacao use a biblioteca oficial em vez de desenhar o proprio caminho, conforme `ARCHITECTURE.md` secao 12.
 - Sem medida declarada o icone acompanha o tamanho do texto ao redor, e a cor vem sempre de `currentColor`: ele herda a cor de onde esta em vez de fixar a propria.
 - Sem `label` o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com `label`, ganha nome acessivel para o caso em que carrega o significado sozinho.
-- O conjunto cobre o que os componentes usam, e cresce quando um componente precisar de um simbolo que ainda nao existe.
+- Os de interface cobrem o que os componentes usam e as acoes gerais; o resto vem da suite.
 
 ### ButtonIcon
 

@@ -92,6 +92,14 @@ import '@plenustech/design-system/reset.css';
 
 Uma aplicação nova ganha a aparência completa do sistema importando as duas. Uma aplicação existente, que já tem a própria base, importa apenas a primeira: os componentes não dependem do reset.
 
+### Ícones
+
+Os ícones de interface vêm do ponto de entrada principal. A suíte completa do Bootstrap Icons, com os 2.050 desenhos pelo nome de cada um, tem entrada própria, e o bundle leva só os importados:
+
+```tsx
+import { IconFolder, IconTruck } from '@plenustech/design-system/icons';
+```
+
 ### Fontes
 
 Os componentes usam três famílias, nos pesos definidos em [TOKENS-REFERENCE-TYPOGRAPHY.md](TOKENS-REFERENCE-TYPOGRAPHY.md): Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500.

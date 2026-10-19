@@ -796,6 +796,24 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Na suíte, a célula é o botão que copia o import. */
+button.icon-cell {
+  color: var(--pl-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.icon-cell:hover {
+  border-color: var(--pl-color-border-strong);
+  background: var(--pl-color-surface-subtle);
+}
+
+button.icon-cell:focus-visible {
+  outline: 2px solid var(--pl-color-primary);
+  outline-offset: 2px;
+}
+
 /* ---- Telas estreitas ---------------------------------------------------- */
 
 @media (max-width: 1180px) {

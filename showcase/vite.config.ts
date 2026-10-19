@@ -13,11 +13,13 @@ export default defineConfig(({ command }) => {
     command === 'build'
       ? {
           entrada: resolve(raiz, 'dist/index.js'),
+          icones: resolve(raiz, 'dist/icons.js'),
           estilos: resolve(raiz, 'dist/design-system.css'),
           reset: resolve(raiz, 'dist/reset.css'),
         }
       : {
           entrada: resolve(raiz, 'src/index.ts'),
+          icones: resolve(raiz, 'src/icons.ts'),
           // No fonte, o CSS dos componentes chega com os proprios modulos e o `index.ts` ja importa a base.
           estilos: resolve(raiz, 'src/styles/base.css'),
           reset: resolve(raiz, 'src/styles/reset.css'),
@@ -29,6 +31,7 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: [
         { find: /^@plenustech\/design-system$/, replacement: pacote.entrada },
+        { find: /^@plenustech\/design-system\/icons$/, replacement: pacote.icones },
         { find: /^@plenustech\/design-system\/styles\.css$/, replacement: pacote.estilos },
         { find: /^@plenustech\/design-system\/reset\.css$/, replacement: pacote.reset },
       ],

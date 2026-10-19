@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /**
@@ -69,6 +69,14 @@ for (const arquivo of declaracoes(resolve(raiz, 'dist/types'))) {
   }
 }
 
+// A suite de icones e gerada: o mapa dela nao leva a fonte alguma que se depure, e somaria uns 3 MB ao pacote.
+for (const formato of ['js', 'cjs']) {
+  const suite = resolve(raiz, `dist/components/icons/suite.${formato}`);
+
+  rmSync(`${suite}.map`, { force: true });
+  writeFileSync(suite, readFileSync(suite, 'utf8').replace(/\r?\n\/\/# sourceMappingURL=[^\n]*\s*$/, '\n'));
+}
+
 console.log(
-  `Pacote finalizado: reset copiado, folhas declaradas, ${ajustados} declaracoes com extensao explicita.`,
+  `Pacote finalizado: reset copiado, folhas declaradas, ${ajustados} declaracoes com extensao explicita, suite de icones sem mapa.`,
 );

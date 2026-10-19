@@ -7,7 +7,8 @@ export default defineConfig({
     // Depurar a biblioteca dentro do consumidor, em vez de ler o minificado.
     sourcemap: true,
     lib: {
-      entry: 'src/index.ts',
+      // A suite de icones e uma entrada propria, publicada em `@plenustech/design-system/icons`.
+      entry: { index: 'src/index.ts', icons: 'src/icons.ts' },
       formats: ['es', 'cjs'],
       // A extensao decide o formato: com `type: module` no pacote, um `.js`
       // e lido como ESM, e o bundle CommonJS nao exportaria nada.

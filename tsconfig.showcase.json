@@ -3,7 +3,8 @@
   "compilerOptions": {
     "types": [],
     "paths": {
-      "@plenustech/design-system": ["./src/index.ts"]
+      "@plenustech/design-system": ["./src/index.ts"],
+      "@plenustech/design-system/icons": ["./src/icons.ts"]
     }
   },
   "include": ["showcase", "src/vite-env.d.ts", "src/styles/folha.d.ts"]

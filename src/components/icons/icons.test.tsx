@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { IconCalendar, IconChevronDown, IconClose } from './icons';
+import { IconCircleFill, IconFolder } from './suite';
 
 describe('icones', () => {
   it('fica fora da arvore de acessibilidade quando e decorativo', () => {
@@ -47,5 +48,16 @@ describe('icones', () => {
     const { container } = render(<IconChevronDown className="girado" />);
 
     expect(container.querySelector('svg')).toHaveClass('girado');
+  });
+
+  it('a suíte usa a mesma base: decorativa sem nome, imagem nomeada com ele, nos elementos do desenho original', () => {
+    const { container, rerender } = render(<IconFolder />);
+
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('svg')).toHaveAttribute('viewBox', '0 0 16 16');
+
+    rerender(<IconCircleFill label="Gravando" />);
+
+    expect(screen.getByRole('img', { name: 'Gravando' }).querySelector('circle')).toHaveAttribute('r', '8');
   });
 });

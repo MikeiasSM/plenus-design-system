@@ -20,6 +20,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./icons": {
+      "types": "./dist/types/icons.d.ts",
+      "import": "./dist/icons.js",
+      "require": "./dist/icons.cjs"
+    },
     "./styles.css": {
       "types": "./dist/folha.d.ts",
       "default": "./dist/design-system.css"
@@ -41,6 +46,7 @@
     "dev:showcase": "vite --config showcase/vite.config.ts",
     "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs",
     "check:pacote": "node scripts/check-pacote.mjs",
+    "gerar:icones": "node scripts/gerar-icones.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build:pacote",
     "build:showcase": "npm run build:pacote && vite build --config showcase/vite.config.ts",
@@ -79,6 +85,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "bootstrap-icons": "1.11.3",
     "jsdom": "^26.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

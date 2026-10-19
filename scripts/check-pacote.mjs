@@ -146,6 +146,34 @@ for (const nome of naFonte) {
   exigir(noCjs.has(nome), `${nome} esta em src/index.ts e falta na entrada CommonJS`);
 }
 
+// A suite de icones e o subcaminho `./icons`: um componente por arquivo do bootstrap-icons, nas duas entradas.
+const naSuite = new Set(
+  [...readFileSync(resolve(raiz, 'src/components/icons/suite.tsx'), 'utf8').matchAll(/^export function (Icon\w+)/gm)].map(
+    ([, nome]) => nome,
+  ),
+);
+exigir(arquivoComConteudo('dist/types/icons.d.ts', 50), 'dist/types/icons.d.ts ausente ou vazio');
+
+const iconesEsm = await import('../dist/icons.js').catch((erro) => {
+  falhas.push(`a entrada ESM dos icones nao carregou: ${erro.message}`);
+
+  return {};
+});
+let iconesCjs = {};
+
+try {
+  iconesCjs = require('../dist/icons.cjs');
+} catch (erro) {
+  falhas.push(`a entrada CommonJS dos icones nao carregou: ${erro.message}`);
+}
+
+exigir(naSuite.size > 0, 'a suite de icones esta vazia');
+
+for (const nome of naSuite) {
+  exigir(nome in iconesEsm, `${nome} esta na suite e falta na entrada ESM dos icones`);
+  exigir(nome in iconesCjs, `${nome} esta na suite e falta na entrada CommonJS dos icones`);
+}
+
 if (falhas.length > 0) {
   console.error('Pacote reprovado:\n' + falhas.map((falha) => `  - ${falha}`).join('\n'));
   process.exit(1);
@@ -153,6 +181,6 @@ if (falhas.length > 0) {
 
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
-    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); no CSS, nenhuma animacao orfa, variavel sem declaracao ` +
-    'ou seletor de pagina.',
+    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons; ` +
+    'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina.',
 );

@@ -1,5 +1,6 @@
-import type { ComponentType } from 'react';
+import { useMemo, useState, type ComponentType } from 'react';
 import * as ds from '@plenustech/design-system';
+import * as suite from '@plenustech/design-system/icons';
 import {
   Button,
   ButtonIcon,
@@ -11,6 +12,9 @@ import {
   IconExclamationCircle,
   IconExclamationTriangle,
   IconPlusCircle,
+  IconSearch,
+  InputText,
+  SegmentedControl,
   type IconProps,
 } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
@@ -21,6 +25,99 @@ const ICONES = Object.fromEntries(
   Object.entries(ds).filter(([nome]) => /^Icon[A-Z]/.test(nome)),
 ) as Record<string, ComponentType<IconProps>>;
 const NOMES = Object.keys(ICONES);
+
+const SUITE = Object.entries(suite).filter(([nome]) => /^Icon[A-Z0-9]/.test(nome)) as [string, ComponentType<IconProps>][];
+const POR_PAGINA = 120;
+
+// Os oito nomes que existem nos dois conjuntos com desenhos diferentes: no principal, o nome diz o significado.
+const DIFERENCAS: [string, string][] = [
+  ['IconAlignCenter', 'IconTextCenter'],
+  ['IconCalendar', 'IconCalendarFill'],
+  ['IconCheck', 'IconCheckLg'],
+  ['IconClock', 'IconClockFill'],
+  ['IconFile', 'IconFileEarmark'],
+  ['IconFilter', 'IconFunnel'],
+  ['IconLink', 'IconLink45deg'],
+  ['IconPlus', 'IconPlusLg'],
+];
+
+const normalizar = (texto: string) => texto.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+function SuiteCompleta() {
+  const [termo, setTermo] = useState('');
+  const [estilo, setEstilo] = useState('todos');
+  const [limite, setLimite] = useState(POR_PAGINA);
+  const [copiado, setCopiado] = useState('');
+  const achados = useMemo(() => {
+    const busca = normalizar(termo);
+
+    return SUITE.filter(([nome]) => {
+      const preenchido = nome.endsWith('Fill');
+
+      if (estilo === 'contorno' && preenchido) return false;
+      if (estilo === 'preenchido' && !preenchido) return false;
+
+      return !busca || normalizar(nome).includes(busca);
+    });
+  }, [estilo, termo]);
+
+  function copiar(nome: string) {
+    const linha = `import { ${nome} } from '@plenustech/design-system/icons';`;
+
+    navigator.clipboard?.writeText(linha).then(
+      () => setCopiado(`Copiado: ${linha}`),
+      () => setCopiado(linha),
+    );
+  }
+
+  return (
+    <div className="stack">
+      <div className="demo-row">
+        <InputText
+          icon={<IconSearch />}
+          label="Buscar ícone"
+          onChange={(evento) => {
+            setTermo(evento.currentTarget.value);
+            setLimite(POR_PAGINA);
+          }}
+          placeholder="folder, truck, cash, book"
+          size="sm"
+          value={termo}
+        />
+        <SegmentedControl
+          items={[
+            { label: 'Todos', value: 'todos' },
+            { label: 'Contorno', value: 'contorno' },
+            { label: 'Preenchido', value: 'preenchido' },
+          ]}
+          label="Estilo"
+          onValueChange={(valor) => {
+            setEstilo(valor);
+            setLimite(POR_PAGINA);
+          }}
+          size="sm"
+          value={estilo}
+        />
+      </div>
+      <p className="note" role="status">
+        {copiado || `${achados.length.toLocaleString('pt-BR')} de ${SUITE.length.toLocaleString('pt-BR')} ícones. Clique para copiar o import.`}
+      </p>
+      <div className="icon-grid">
+        {achados.slice(0, limite).map(([nome, Desenho]) => (
+          <button aria-label={`Copiar o import de ${nome}`} className="icon-cell" key={nome} onClick={() => copiar(nome)} type="button">
+            <Desenho size={20} />
+            <code>{nome}</code>
+          </button>
+        ))}
+      </div>
+      {achados.length > limite && (
+        <ds.Button onClick={() => setLimite((atual) => atual + POR_PAGINA)} size="sm" variant="secondary">
+          Mostrar mais {Math.min(POR_PAGINA, achados.length - limite)}
+        </ds.Button>
+      )}
+    </div>
+  );
+}
 
 const playground = definirPlayground({
   inicial: { icone: 'IconCalendar', size: 24, label: '' },
@@ -59,7 +156,41 @@ function Variantes() {
   return (
     <div className="stack">
       <div className="subsection">
-        <h3>O conjunto</h3>
+        <h3>A suíte completa</h3>
+        <p className="note">
+          Os 2.050 ícones do Bootstrap Icons, pelo nome do desenho, em <code>@plenustech/design-system/icons</code>. Servem
+          para categorizar conteúdo — assuntos, tipos de documento, seções — além das ações de interface. O bundle leva só
+          os importados.
+        </p>
+        <SuiteCompleta />
+      </div>
+      <div className="subsection">
+        <h3>Nomes que diferem entre os dois conjuntos</h3>
+        <p className="note">
+          O ponto de entrada principal mantém os ícones de interface pelo significado. Oito nomes existem nos dois com
+          desenhos diferentes; o da suíte é o desenho do Bootstrap com esse nome.
+        </p>
+        <ds.Card>
+          <ds.Card.Body flush>
+            <ds.Table label="Nomes que diferem entre os dois conjuntos">
+              <ds.Table.Header>
+                <ds.Table.Column id="principal">Principal</ds.Table.Column>
+                <ds.Table.Column id="suite">Mesmo desenho na suíte</ds.Table.Column>
+              </ds.Table.Header>
+              <ds.Table.Body items={DIFERENCAS.map(([principal, naSuite]) => ({ id: principal, naSuite }))}>
+                {(linha) => (
+                  <ds.Table.Row id={linha.id}>
+                    <ds.Table.Cell><code>{linha.id}</code></ds.Table.Cell>
+                    <ds.Table.Cell><code>{linha.naSuite}</code></ds.Table.Cell>
+                  </ds.Table.Row>
+                )}
+              </ds.Table.Body>
+            </ds.Table>
+          </ds.Card.Body>
+        </ds.Card>
+      </div>
+      <div className="subsection">
+        <h3>Os de interface, no ponto de entrada principal</h3>
         <div className="icon-grid">
           {NOMES.map((nome) => {
             const Desenho = ICONES[nome];
@@ -73,8 +204,8 @@ function Variantes() {
           })}
         </div>
         <p className="note">
-          Os caminhos vêm do Bootstrap Icons, sob licença MIT, copiados só os que o projeto usa. Onde existe variante preenchida
-          e ela lê bem no tamanho de interface, é a preenchida que vale.
+          Os caminhos vêm do Bootstrap Icons, sob licença MIT. Estes são os de interface, nomeados pelo significado; onde
+          existe variante preenchida e ela lê bem no tamanho de interface, é a preenchida que vale.
         </p>
       </div>
       <div className="subsection">
