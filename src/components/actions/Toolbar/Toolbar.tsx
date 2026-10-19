@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
   type ComponentPropsWithRef,
@@ -86,13 +87,38 @@ function AnchoredToolbar({
 }: Omit<ToolbarProps, 'anchorRef' | 'placement'> & { anchorRef: RefObject<HTMLElement | null>; placement: ToolbarPlacement }) {
   const ref = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRefs(ref, refDoConsumidor);
-  const { overlayProps } = useOverlayPosition({
+  const { overlayProps, updatePosition } = useOverlayPosition({
     targetRef: anchorRef,
     overlayRef: ref,
     placement,
     offset: DISTANCIA_DA_ANCORA,
     isOpen: true,
   });
+
+  // O posicionamento não refaz a conta quando rola um contêiner da âncora e só observa o tamanho da âncora da montagem.
+  // Aqui, a barra acompanha as duas coisas, também na âncora trocada depois, como o bloco selecionado de um editor.
+  useEffect(() => {
+    const anchor = anchorRef.current;
+
+    if (!anchor) {
+      return;
+    }
+
+    function followScroll(event: Event) {
+      if (event.target instanceof Node && event.target.contains(anchor)) {
+        updatePosition();
+      }
+    }
+
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(() => updatePosition());
+    resizeObserver?.observe(anchor);
+    window.addEventListener('scroll', followScroll, { capture: true, passive: true });
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener('scroll', followScroll, { capture: true });
+    };
+  }, [anchorRef, anchorRef.current, updatePosition]);
 
   // Sem FocusScope: a barra aparece sobre o bloco e o cursor continua no texto.
   return (

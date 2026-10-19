@@ -89,3 +89,39 @@
 .hiddenText {
   composes: hiddenText from '../../navigation/Steps/Steps.module.css';
 }
+
+/* Compacta, para painéis estreitos: o marcador mede a entrelinha do rótulo, que fica em caption com o peso de label. */
+.sm {
+  --steps-marker: 1rem;
+}
+
+.sm .item {
+  gap: var(--pl-space-2);
+}
+
+.sm .item:not(:last-child) {
+  padding-bottom: var(--pl-space-4);
+}
+
+.sm .complete .marker {
+  font-size: 0.625rem;
+}
+
+.sm .current .marker {
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.sm .dot {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+.sm .text {
+  gap: 0;
+  padding-top: 0;
+}
+
+.sm .label {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}

@@ -121,7 +121,7 @@ export type { TabsNavItem, TabsNavProps } from './components/navigation/TabsNav'
 export { Breadcrumb } from './components/navigation/Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/navigation/Breadcrumb';
 export { Pagination } from './components/navigation/Pagination';
-export type { PaginationProps } from './components/navigation/Pagination';
+export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { SkipLink } from './components/navigation/SkipLink';
 export type { SkipLinkProps } from './components/navigation/SkipLink';
 export { Steps } from './components/navigation/Steps';
@@ -174,7 +174,7 @@ export { CodeBlock } from './components/data-display/CodeBlock';
 export { SortableList } from './components/data-display/SortableList';
 export type { SortableListItem, SortableListProps } from './components/data-display/SortableList';
 export { Timeline } from './components/data-display/Timeline';
-export type { TimelineItem, TimelineProps } from './components/data-display/Timeline';
+export type { TimelineItem, TimelineProps, TimelineSize } from './components/data-display/Timeline';
 export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {

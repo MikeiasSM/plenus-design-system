@@ -150,4 +150,85 @@ describe('Toolbar', () => {
     expect(barra).toHaveAttribute('data-react-aria-top-layer', 'true');
     expect(barra.style.position).toBe('absolute');
   });
+
+  describe('ancorada, acompanha a âncora', () => {
+    const observados = new Map<Element, () => void>();
+
+    class Observador {
+      constructor(private readonly avisar: () => void) {}
+      observe(elemento: Element) {
+        observados.set(elemento, this.avisar);
+      }
+      disconnect() {}
+      unobserve() {}
+    }
+
+    beforeEach(() => {
+      observados.clear();
+      Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: Observador });
+    });
+
+    afterEach(() => {
+      Reflect.deleteProperty(globalThis, 'ResizeObserver');
+      document.querySelectorAll('[data-rolagem]').forEach((rolagem) => rolagem.remove());
+    });
+
+    function bloco(medida: { top: number; height: number }) {
+      const elemento = document.createElement('div');
+      elemento.getBoundingClientRect = () => DOMRect.fromRect({ x: 40, y: medida.top, width: 300, height: medida.height });
+      return elemento;
+    }
+
+    function montar(ancora: HTMLElement) {
+      const rolagem = document.createElement('div');
+      rolagem.dataset.rolagem = '';
+      rolagem.style.overflow = 'auto';
+      rolagem.append(ancora);
+      document.body.append(rolagem);
+      const ref = { current: ancora };
+      const barra = () => (
+        <Toolbar anchorRef={ref} label="Bloco" placement="bottom start">
+          <Button>Negrito</Button>
+        </Toolbar>
+      );
+      const { rerender } = render(barra());
+
+      return { ref, rolagem, refazer: () => rerender(barra()) };
+    }
+
+    const topoDaBarra = () => screen.getByRole('toolbar', { name: 'Bloco' }).style.top;
+
+    it('refaz a posição quando rola um contêiner da âncora', () => {
+      const medida = { top: 200, height: 40 };
+      const { rolagem } = montar(bloco(medida));
+      const antes = topoDaBarra();
+
+      medida.top = 80;
+      fireEvent.scroll(rolagem);
+
+      expect(topoDaBarra()).not.toBe(antes);
+    });
+
+    it('refaz a posição quando a âncora muda de tamanho, também a âncora trocada depois de montar', () => {
+      const primeira = { top: 200, height: 40 };
+      const segunda = { top: 300, height: 40 };
+      const ancora = bloco(primeira);
+      const { ref, refazer } = montar(ancora);
+      let antes = topoDaBarra();
+
+      primeira.height = 120;
+      act(() => observados.get(ancora)!());
+      expect(topoDaBarra()).not.toBe(antes);
+
+      const trocada = bloco(segunda);
+      ancora.after(trocada);
+      ref.current = trocada;
+      refazer();
+      antes = topoDaBarra();
+
+      segunda.height = 160;
+      act(() => observados.get(trocada)?.());
+      expect(topoDaBarra()).not.toBe(antes);
+    });
+  });
 });

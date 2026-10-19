@@ -1,26 +1,43 @@
 import { type ComponentPropsWithRef } from 'react';
+import { formatarNumero } from '../../../utils/formatters';
 import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
+
+/** Posições, contadas de 1, do primeiro e do último item da página, e o total de itens. */
+export interface PaginationRange {
+  end: number;
+  start: number;
+  total: number;
+}
 
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   /** Suspende a troca de pagina, como enquanto a pagina pedida carrega. Os botoes continuam focaveis. */
   disabled?: boolean;
+  /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
+  formatRange?: (range: PaginationRange) => string;
   label?: string;
   onPageChange: (page: number) => void;
   page: number;
   pageCount: number;
+  /** Itens por página. Com `totalItems`, mostra o intervalo da página atual. */
+  pageSize?: number;
   /** Quantidade de paginas mostradas de cada lado da atual. */
   siblings?: number;
+  /** Total de itens. Com `pageSize`, mostra o intervalo da página atual. */
+  totalItems?: number;
 }
 
 export function Pagination({
   className,
   disabled = false,
+  formatRange,
   label = 'Paginação',
   onPageChange,
   page,
   pageCount,
+  pageSize,
   siblings = 1,
+  totalItems,
   ...props
 }: PaginationProps) {
   if (pageCount <= 1) {
@@ -38,6 +55,16 @@ export function Pagination({
 
   return (
     <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
+      {totalItems !== undefined && pageSize !== undefined && (
+        <PaginationRangeText
+          formatRange={formatRange}
+          range={{
+            start: (atual - 1) * pageSize + 1,
+            end: Math.min(atual * pageSize, totalItems),
+            total: totalItems,
+          }}
+        />
+      )}
       {/* `aria-disabled`, e nao `disabled`: desabilitado na borda, o botao perdia o foco de quem acabou de usa-lo. */}
       <button
         className={styles.step}
@@ -80,6 +107,35 @@ export function Pagination({
         <IconChevronRight size={14} />
       </button>
     </nav>
+  );
+}
+
+/**
+ * Região viva: ao trocar de página, o leitor de tela anuncia o novo intervalo, e só ele, pois os botões não mudam
+ * de nome. O travessão some na fala de muitos leitores, e o texto padrão tem uma forma falada à parte.
+ */
+function PaginationRangeText({
+  formatRange,
+  range,
+}: {
+  formatRange?: (range: PaginationRange) => string;
+  range: PaginationRange;
+}) {
+  if (formatRange) {
+    return (
+      <span className={styles.range} role="status">
+        {formatRange(range)}
+      </span>
+    );
+  }
+
+  const [inicio, fim, total] = [range.start, range.end, range.total].map((numero) => formatarNumero(numero));
+
+  return (
+    <span className={styles.range} role="status">
+      <span aria-hidden="true">{`${inicio}–${fim} de ${total}`}</span>
+      <span className={styles.hiddenText}>{`Itens ${inicio} a ${fim} de ${total}`}</span>
+    </span>
   );
 }
 

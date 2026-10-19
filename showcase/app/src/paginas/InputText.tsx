@@ -3,7 +3,7 @@ import { IconSearch, InputText, type InputTextSize } from '@plenustech/design-sy
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const TAMANHOS = ['sm', 'md'] as const;
+const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const TIPOS = ['text', 'search', 'email', 'tel', 'url'] as const;
 
 const playground = definirPlayground({
@@ -210,6 +210,17 @@ export const pagina: Pagina = {
       codigo: '<InputText\n  icon={<IconSearch />}\n  label="Filtrar"\n  placeholder="Pesquisar"\n  size="sm"\n  type="search"\n/>',
     },
     {
+      titulo: 'Busca de destaque',
+      descricao: 'O tamanho lg, de 56px, para a busca principal de uma página. A sombra do cartão em volta é do produto, não do campo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <InputText icon={<IconSearch />} label="Buscar na documentação" placeholder="O que você procura?" size="lg" type="search" />
+        </div>
+      ),
+      codigo:
+        '<InputText\n  icon={<IconSearch />}\n  label="Buscar na documentação"\n  placeholder="O que você procura?"\n  size="lg"\n  type="search"\n/>',
+    },
+    {
       titulo: 'Validação ao sair',
       descricao: 'Digite um e-mail incompleto e saia do campo: o erro aparece e é anunciado.',
       Previa: EmailValidado,
@@ -247,7 +258,7 @@ export const pagina: Pagina = {
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e marca o campo como inválido.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone decorativo à frente do texto, como a lupa de uma busca.' },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Altura do campo.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 42 ou 56px. O lg é o da busca de destaque.' },
     { nome: 'showCharacterCount', tipo: 'boolean', padrao: 'false', descricao: 'Mostra o contador, contra o maxLength quando houver.' },
     { nome: 'maxLength', tipo: 'number', descricao: 'Limite nativo de caracteres.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Obrigatório nativo, com asterisco no rótulo.' },

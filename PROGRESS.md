@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-988 testes em 113 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+1021 testes em 114 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -194,6 +194,17 @@ Mudancas incompativeis da 0.2.0, conforme `CONTRIBUTING.md` secao 11:
 - O `Button` medio passou de 39px para 42px.
 - Na `Table` com `stickyHeader`, o cabecalho cola na rolagem da pagina quando a tabela cabe, e os controles de selecao trocaram o visual nativo pelo do sistema.
 - Nos graficos: o rotulo sobre a fatia e o retangulo passou a preto nas cores claras; o eixo direito do `ChartCombo` pode ganhar trecho negativo para alinhar o zero; o balao nativo do `<title>` voltou em sete graficos; a barra empilhada com `showDataLabels` mostra o total; o anel do `ChartRadial` afina para reservar o centro; e o degrade da area com negativo clareia rumo ao zero.
+
+**Depois da 0.2.4**, ainda sem versao. Entraram o Delphi no `CodeBlock`, a suite completa de icones no subcaminho `@plenustech/design-system/icons` (descrita em Biblioteca de icones) e o lote do relato do PlenusLAB de 18/10/2026 que cabia no papel atual de cada componente:
+- `Menu`: `aria-keyshortcuts` deixou de receber o texto escrito (`Ctrl+D`) e passou ao nome das teclas que a ARIA pede (`Control+D`), por `toAriaKeyShortcuts`; `shortcutKeys` troca o valor quando a conversao nao basta.
+- `Toolbar` ancorada: a posicao se refaz na rolagem de qualquer ancestral e na mudanca de tamanho da ancora, inclusive da ancora trocada sem desmontar. O react-aria so observava a ancora da montagem e nao acompanha contêiner com rolagem propria.
+- `Tooltip`: `open` e `onOpenChange`, controlado ou nao, e `anchorRef` para ancorar fora do filho, com a abertura e o `aria-describedby` a cargo do produto, que passa o `id` do balao; Escape no documento pede o fechamento.
+- `Select`: a opcao aceita `description` e `icon`, como no `ComboBox`.
+- `Pagination`: `totalItems` e `pageSize` mostram o intervalo, "1.201–1.250 de 4.380", numa regiao viva que anuncia "Itens 1.201 a 1.250 de 4.380" a cada troca; `formatRange` troca o texto.
+- `InputText` e `Field`: tamanho `lg`, de 56px, pelo token novo `--pl-control-height-lg`.
+- `Timeline`: `size="sm"`, com marcador de 16px e rotulo em legenda, para paineis estreitos.
+- `ButtonTile`: no `sm`, recuo lateral de 4px e a palavra nunca quebra no meio; era o `overflow-wrap: anywhere` do proprio CSS que cortava "Incorporar".
+Mudanca incompativel, conforme `CONTRIBUTING.md` secao 11: `TooltipProps` passou de interface a uniao de tipos, com filho ou com ancora; quem declarava `interface X extends TooltipProps` passa a usar `type X = TooltipProps & {...}`. Ficam para avaliacao do mantenedor, do mesmo relato: a lista reordenavel entre niveis, as variantes do `Accordion`, o par anterior e proxima no `Steps` e o selo do `Badge`. A descricao em negrito na segunda linha da opcao, que o relato pede, nao entrou: o estilo e o da listagem compartilhada, e o negrito disputaria a atencao com o rotulo.
 
 **Depois da 0.2.3**, na `0.2.4`. A versao sobe so a correcao por decisao do mantenedor, como nas anteriores. Entraram tres graficos, `ChartTimeline`, `ChartMap` e `ChartGauge`, descritos em Graficos em desenho, o formatador `formatarDuracao`, a dependencia `d3-geo` e os tokens das escalas de valor. O `useChartMetrics` passou a medir tambem a area que monta depois do grafico. Mudanca incompativel, conforme `CONTRIBUTING.md` secao 11: `DialogProps` passou de interface a uniao de tipos, para exigir `aria-label` sem `title`; quem declarava `interface X extends DialogProps` passa a usar `type X = DialogProps & {...}`. Antes dos graficos, entraram tres pedidos do relato do PlenusLAB que estavam em Decisoes pendentes. O `Dialog` sem `title` nao tem cabecalho e exige `aria-label`, pelo tipo, para a paleta de busca do `Ctrl+K`; o `title` deixou de ser obrigatorio sem quebrar quem ja o passa. O `TabsNav` entrou no catalogo, para as abas que sao enderecos, descrito em Contexto. A opcao do `ComboBox` ganhou `description`, `icon` e `group`, renderizados pela listagem interna: o nome continua o rotulo, a segunda linha e a descricao, e o grupo e `role="group"` com titulo, fora da navegacao. A `List` nao os recebe: a janela virtual dela mede passo uniforme, e grupos e linhas de altura diferente a desalinhariam. O `Popover` que nao leva o foco foi descartado; o catalogo, secao 9, descreve os dois caminhos para o painel sob um campo.
 

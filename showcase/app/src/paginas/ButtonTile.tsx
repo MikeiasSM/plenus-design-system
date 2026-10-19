@@ -1,11 +1,13 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import {
+  Accordion,
   ButtonTile,
   IconAlignLeft,
   IconCalendar,
   IconChartBar,
   IconCheckCircle,
   IconDesktop,
+  IconExternalLink,
   IconFile,
   IconLink,
   IconMobile,
@@ -136,6 +138,31 @@ const DISPOSITIVOS = [
   { chave: 'celular', rotulo: 'Celular', icone: <IconMobile /> },
 ];
 
+const BLOCOS_DE_TEXTO = [
+  { chave: 'paragrafo', rotulo: 'Parágrafo', icone: <IconAlignLeft /> },
+  { chave: 'incorporar', rotulo: 'Incorporar', icone: <IconExternalLink /> },
+  { chave: 'acordeao', rotulo: 'Acordeão', icone: <IconStructure /> },
+  { chave: 'arquivo', rotulo: 'Arquivo', icone: <IconFile /> },
+  { chave: 'grafico', rotulo: 'Gráfico', icone: <IconChartBar /> },
+  { chave: 'link', rotulo: 'Link para outro documento', icone: <IconLink /> },
+];
+
+function PainelEstreito() {
+  const ladrilhos = (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4 }}>
+      {BLOCOS_DE_TEXTO.map((bloco) => (
+        <ButtonTile icon={bloco.icone} key={bloco.chave} label={bloco.rotulo} size="sm" />
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ width: 280 }}>
+      <Accordion defaultExpandedKeys={['texto']} items={[{ key: 'texto', label: 'Texto', content: ladrilhos }]} />
+    </div>
+  );
+}
+
 function PreviaPorDispositivo() {
   const [atual, setAtual] = useState('computador');
 
@@ -190,7 +217,10 @@ function Modos() {
   return (
     <dl className="modes">
       <dt><code>label</code></dt>
-      <dd>Obrigatório. É o texto visível e o nome do botão. Quebra em até duas linhas; o que passa vira reticências.</dd>
+      <dd>
+        Obrigatório. É o texto visível e o nome do botão. Quebra em até duas linhas, sempre entre palavras, nunca no meio de
+        uma; o que passa vira reticências.
+      </dd>
       <dt>Mesma altura</dt>
       <dd>
         O ladrilho reserva a altura de duas linhas de rótulo e centraliza o conteúdo: numa grade, os de uma linha e os de
@@ -221,6 +251,14 @@ export const pagina: Pagina = {
       Previa: BibliotecaDeBlocos,
       codigo:
         '<div className="grade">\n  {blocos.map((bloco) => (\n    <ButtonTile\n      key={bloco.chave}\n      icon={bloco.icone}\n      label={bloco.rotulo}\n      description={bloco.descricao}\n      onClick={() => inserir(bloco)}\n    />\n  ))}\n</div>',
+    },
+    {
+      titulo: 'Três por linha num painel de 280px',
+      descricao:
+        'Dentro de um Accordion, os ladrilhos sm ficam com 80px; o recuo lateral de 4px deixa Parágrafo, Incorporar e Acordeão inteiros.',
+      Previa: PainelEstreito,
+      codigo:
+        '<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4 }}>\n  {blocos.map((bloco) => (\n    <ButtonTile key={bloco.chave} icon={bloco.icone} label={bloco.rotulo} size="sm" />\n  ))}\n</div>',
     },
     {
       titulo: 'Ladrilhos que alternam',
@@ -263,7 +301,7 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Texto visível e nome do botão, em até duas linhas.' },
     { nome: 'description', tipo: 'string', descricao: 'Dica no foco e no ponteiro, ligada por aria-describedby.' },
     { nome: 'selected', tipo: 'boolean', descricao: 'Para o ladrilho que alterna: vira aria-pressed.' },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Ícone de 20 ou 24px e rótulo em caption ou label.' },
+    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Ícone de 20 ou 24px, rótulo em caption ou label, recuo lateral de 4 ou 12px.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido.' },
   ],

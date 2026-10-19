@@ -4,6 +4,22 @@
   gap: var(--pl-space-1);
 }
 
+/* Ocupa a sobra da linha: o intervalo fica à esquerda e os botões, à direita. */
+.range {
+  flex: 1 0 auto;
+  margin-right: var(--pl-space-2);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hiddenText {
+  composes: hiddenText from '../Steps/Steps.module.css';
+}
+
 .list {
   display: flex;
   align-items: center;

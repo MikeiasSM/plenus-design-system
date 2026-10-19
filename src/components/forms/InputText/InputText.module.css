@@ -26,3 +26,12 @@
   left: 10px;
   font-size: 0.875rem;
 }
+
+.lg > input.withIcon {
+  padding-left: 44px;
+}
+
+.lg .icon {
+  left: 16px;
+  font-size: 1.25rem;
+}

@@ -2,6 +2,7 @@ import {
   Steps,
   Timeline,
   type TimelineItem,
+  type TimelineProps,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -13,6 +14,7 @@ const FLUXO_DE_PUBLICACAO: TimelineItem[] = [
 ];
 
 const CHAVES = FLUXO_DE_PUBLICACAO.map((estado) => estado.key);
+const TAMANHOS = ['sm', 'md'] as const;
 
 function itensDoPlayground(descricoes: boolean, datas: boolean) {
   return FLUXO_DE_PUBLICACAO.map(({ key, label, description, date }) => ({
@@ -24,16 +26,22 @@ function itensDoPlayground(descricoes: boolean, datas: boolean) {
 }
 
 const playground = definirPlayground({
-  inicial: { label: 'Fluxo de publicação', current: 'revisao', descricoes: true, datas: true },
+  inicial: { label: 'Fluxo de publicação', current: 'revisao', size: 'md', descricoes: true, datas: true },
   controles: [
     { tipo: 'texto', nome: 'label' },
     { tipo: 'opcoes', nome: 'current', opcoes: CHAVES },
+    { tipo: 'opcoes', nome: 'size', opcoes: TAMANHOS },
     { tipo: 'booleano', nome: 'descricoes' },
     { tipo: 'booleano', nome: 'datas' },
   ],
   renderizar: (valores) => (
     <div style={{ width: 280 }}>
-      <Timeline current={valores.current} items={itensDoPlayground(valores.descricoes, valores.datas)} label={valores.label} />
+      <Timeline
+        current={valores.current}
+        items={itensDoPlayground(valores.descricoes, valores.datas)}
+        label={valores.label}
+        size={valores.size as TimelineProps['size']}
+      />
     </div>
   ),
   codigo: (valores) =>
@@ -41,6 +49,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['items', expr('estados')],
       ['current', valores.current],
+      ['size', valores.size, 'md'],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -67,9 +76,28 @@ function PainelDoDocumento() {
   );
 }
 
+function PainelDoEditor() {
+  return (
+    <div className="demo-box" style={{ width: 320 }}>
+      <strong>Fluxo de publicação</strong>
+      <Timeline current="revisao" items={FLUXO_DE_PUBLICACAO} label="Fluxo de publicação" size="sm" />
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div>
+      {TAMANHOS.map((tamanho) => (
+        <div className="subsection" key={tamanho}>
+          <h3>
+            <code>size=&quot;{tamanho}&quot;</code>
+          </h3>
+          <div style={{ width: 280 }}>
+            <Timeline current="revisao" items={FLUXO_DE_PUBLICACAO} label={`Fluxo de publicação, ${tamanho}`} size={tamanho} />
+          </div>
+        </div>
+      ))}
       {CHAVES.map((chave) => (
         <div className="subsection" key={chave}>
           <h3>
@@ -98,6 +126,13 @@ function Modos() {
       </dd>
       <dt>Data e descrição</dt>
       <dd>Opcionais, abaixo do rótulo. A data é texto livre, já formatada pelo produto.</dd>
+      <dt>
+        <code>size=&quot;sm&quot;</code>
+      </dt>
+      <dd>
+        Para painéis estreitos: marcador de 16px em vez de 24px, rótulo em caption com o peso de label e espaços verticais
+        menores. Descrição e data continuam em caption, o menor tamanho do sistema.
+      </dd>
     </dl>
   );
 }
@@ -110,6 +145,12 @@ export const pagina: Pagina = {
       descricao: 'A Timeline só mostra em que estado o documento está; mudar de estado é ação do produto.',
       Previa: PainelDoDocumento,
       codigo: '<Timeline label="Fluxo de publicação" items={estados} current={documento.estado} />',
+    },
+    {
+      titulo: 'Compacta no painel de 320px do editor',
+      descricao: 'Com size="sm", marcadores e rótulos acompanham a escala de um painel lateral estreito.',
+      Previa: PainelDoEditor,
+      codigo: '<Timeline label="Fluxo de publicação" items={estados} current={documento.estado} size="sm" />',
     },
   ],
   faca: {
@@ -151,6 +192,7 @@ export const pagina: Pagina = {
       teste: 'Timeline.test.tsx',
     },
     { garantia: 'Concluídos anunciados', como: 'Os anteriores somam ", concluído" ao texto, não só o visto.', teste: 'Timeline.test.tsx' },
+    { garantia: 'Tamanho só visual', como: 'O sm muda a escala; a lista e os estados anunciados são os mesmos.', teste: 'Timeline.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <ol> e o ref, exceto children.',
   api: [
@@ -161,5 +203,6 @@ export const pagina: Pagina = {
     },
     { nome: 'current', tipo: 'string', descricao: 'Obrigatória. Chave do estado atual.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome da lista, para o leitor de tela.' },
+    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Marcador de 16 ou 24px e rótulo em caption ou label.' },
   ],
 };

@@ -7,6 +7,7 @@ import {
   type ComponentPropsWithRef,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
@@ -22,7 +23,11 @@ import { IconChevronDown } from '../../icons';
 export type SelectSize = 'sm' | 'md';
 
 export interface SelectOption {
+  /** Segunda linha da opção, na lista aberta. O nome da opção e o gatilho fechado ficam no rótulo. */
+  description?: string;
   disabled?: boolean;
+  /** Decorativo, à frente do rótulo, na lista aberta. */
+  icon?: ReactNode;
   label: string;
   value: string;
 }

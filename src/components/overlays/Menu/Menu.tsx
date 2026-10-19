@@ -15,6 +15,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck } from '../../icons';
+import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
 
 export interface MenuItem {
@@ -26,8 +27,10 @@ export interface MenuItem {
   key: string;
   label: string;
   onSelect?: () => void;
-  /** Atalho escrito a direita, como `Ctrl+D`, e anunciado em `aria-keyshortcuts`. */
+  /** Atalho escrito à direita, como `Ctrl+D` ou `⌘⇧D`; convertido nos nomes de tecla de `aria-keyshortcuts`. */
   shortcut?: string;
+  /** Valor de `aria-keyshortcuts` quando a conversão do `shortcut` não basta, como `Control+Shift+D Meta+Shift+D`. */
+  shortcutKeys?: string;
   /** `danger` para a acao que destroi, como remover. */
   tone?: 'danger';
 }
@@ -209,7 +212,7 @@ function MenuList({
     return (
       <button
         aria-checked={marcavel ? item.checked : undefined}
-        aria-keyshortcuts={item.shortcut}
+        aria-keyshortcuts={item.shortcutKeys ?? (item.shortcut ? toAriaKeyShortcuts(item.shortcut) : undefined)}
         className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
         disabled={item.disabled}
         key={item.key}

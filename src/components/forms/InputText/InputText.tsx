@@ -4,7 +4,7 @@ import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './InputText.module.css';
 
-export type InputTextSize = 'sm' | 'md';
+export type InputTextSize = 'sm' | 'md' | 'lg';
 
 export interface InputTextProps extends Omit<ComponentPropsWithRef<'input'>, 'size'> {
   error?: string;
@@ -78,7 +78,7 @@ export function InputText({
         }
 
         return (
-          <div className={[styles.control, size === 'sm' && styles.sm].filter(Boolean).join(' ')}>
+          <div className={[styles.control, size === 'sm' && styles.sm, size === 'lg' && styles.lg].filter(Boolean).join(' ')}>
             <span aria-hidden="true" className={styles.icon}>
               {icon}
             </span>

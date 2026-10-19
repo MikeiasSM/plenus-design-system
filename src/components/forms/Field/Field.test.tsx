@@ -91,4 +91,10 @@ describe('Field', () => {
 
     expect(screen.getByRole('textbox', { name: 'CPF' })).toHaveClass(styles.control!, styles.sm!, styles.invalid!);
   });
+
+  it('entrega o tamanho grande', () => {
+    campo({ size: 'lg' });
+
+    expect(screen.getByRole('textbox', { name: 'CPF' })).toHaveClass(styles.control!, styles.lg!);
+  });
 });

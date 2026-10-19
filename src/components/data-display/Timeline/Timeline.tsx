@@ -2,6 +2,8 @@ import type { ComponentPropsWithRef } from 'react';
 import { IconCheck } from '../../icons';
 import styles from './Timeline.module.css';
 
+export type TimelineSize = 'sm' | 'md';
+
 export interface TimelineItem {
   date?: string;
   description?: string;
@@ -15,13 +17,15 @@ export interface TimelineProps extends Omit<ComponentPropsWithRef<'ol'>, 'childr
   items: readonly TimelineItem[];
   /** Nome da lista, para o leitor de tela. */
   label: string;
+  /** `sm` para painéis estreitos: marcador de 16px e rótulo em caption. */
+  size?: TimelineSize;
 }
 
-export function Timeline({ className, current, items, label, ...props }: TimelineProps) {
+export function Timeline({ className, current, items, label, size = 'md', ...props }: TimelineProps) {
   const currentIndex = items.findIndex((item) => item.key === current);
 
   return (
-    <ol {...props} aria-label={label} className={[styles.timeline, className].filter(Boolean).join(' ')}>
+    <ol {...props} aria-label={label} className={[styles.timeline, styles[size], className].filter(Boolean).join(' ')}>
       {items.map((item, index) => {
         const state = index < currentIndex ? 'complete' : index === currentIndex ? 'current' : 'upcoming';
 

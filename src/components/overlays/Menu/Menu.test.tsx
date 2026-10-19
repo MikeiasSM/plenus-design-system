@@ -197,9 +197,29 @@ describe('Menu', () => {
     expect(screen.getByRole('group', { name: 'Transformar em' })).toBeInTheDocument();
     expect(screen.getByRole('menuitemcheckbox', { name: 'Parágrafo' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('menuitemcheckbox', { name: 'Título' })).toHaveAttribute('aria-checked', 'false');
-    expect(screen.getByRole('menuitem', { name: 'Duplicar' })).toHaveAttribute('aria-keyshortcuts', 'Ctrl+D');
+    expect(screen.getByRole('menuitem', { name: 'Duplicar' })).toHaveAttribute('aria-keyshortcuts', 'Control+D');
 
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'End' });
     expect(screen.getByRole('menuitem', { name: 'Remover bloco' })).toHaveFocus();
+  });
+
+  it('anuncia o atalho pelos nomes de tecla da ARIA e mantém o texto escrito à vista', () => {
+    render(
+      <Menu
+        items={[
+          { key: 'duplicar', label: 'Duplicar', shortcut: 'Ctrl+Shift+D' },
+          { key: 'buscar', label: 'Buscar', shortcut: '⌘K', shortcutKeys: 'Meta+K Control+K' },
+        ]}
+        label="Bloco"
+      >
+        <Button>Bloco</Button>
+      </Menu>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Bloco' }));
+
+    const duplicar = screen.getByRole('menuitem', { name: 'Duplicar' });
+    expect(duplicar).toHaveAttribute('aria-keyshortcuts', 'Control+Shift+D');
+    expect(duplicar).toHaveTextContent('Ctrl+Shift+D');
+    expect(screen.getByRole('menuitem', { name: 'Buscar' })).toHaveAttribute('aria-keyshortcuts', 'Meta+K Control+K');
   });
 });

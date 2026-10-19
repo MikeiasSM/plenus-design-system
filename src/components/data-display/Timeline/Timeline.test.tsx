@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { Timeline } from './Timeline';
+import styles from './Timeline.module.css';
 
 const items = [
   { date: '10/10/2026', key: 'rascunho', label: 'Rascunho' },
@@ -26,5 +27,16 @@ describe('Timeline', () => {
 
     expect(screen.queryByText(/concluído|atual/)).not.toBeInTheDocument();
     expect(document.querySelector('[aria-current]')).toBeNull();
+  });
+
+  it('fica no tamanho md por padrao e, com size="sm", compacta sem mudar a leitura', () => {
+    const { rerender } = render(<Timeline current="revisao" items={items} label="Fluxo de publicação" />);
+    const lista = screen.getByRole('list', { name: 'Fluxo de publicação' });
+    expect(lista).not.toHaveClass(styles.sm!);
+
+    rerender(<Timeline className="extra" current="revisao" items={items} label="Fluxo de publicação" size="sm" />);
+
+    expect(lista).toHaveClass(styles.timeline!, styles.sm!, 'extra');
+    expect(screen.getAllByRole('listitem')[1]).toHaveTextContent('Aguardando revisão, atual');
   });
 });

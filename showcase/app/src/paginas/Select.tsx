@@ -20,7 +20,14 @@ const REGIOES = [
   { disabled: true, label: 'Exterior', value: 'exterior' },
 ];
 
-const LISTAS = { periodicidade: PERIODICIDADES, regioes: REGIOES, estados: ESTADOS };
+const SECOES = [
+  { label: 'Títulos', value: 'titulos', description: 'Financeiro / Títulos' },
+  { label: 'Contas a pagar', value: 'contas-a-pagar', description: 'Financeiro / Contas a pagar' },
+  { label: 'Contratos', value: 'contratos', description: 'Jurídico / Contratos' },
+  { label: 'Admissão', value: 'admissao', description: 'Pessoas / Admissão' },
+];
+
+const LISTAS = { periodicidade: PERIODICIDADES, regioes: REGIOES, estados: ESTADOS, secoes: SECOES };
 
 const playground = definirPlayground({
   inicial: {
@@ -35,7 +42,7 @@ const playground = definirPlayground({
   },
   controles: [
     { tipo: 'texto', nome: 'label' },
-    { tipo: 'opcoes', nome: 'lista', opcoes: ['periodicidade', 'regioes', 'estados'] },
+    { tipo: 'opcoes', nome: 'lista', opcoes: ['periodicidade', 'regioes', 'estados', 'secoes'] },
     { tipo: 'texto', nome: 'placeholder' },
     { tipo: 'texto', nome: 'hint' },
     { tipo: 'texto', nome: 'error' },
@@ -93,6 +100,14 @@ const playground = definirPlayground({
 
     if (opcoes.some((opcao) => 'disabled' in opcao)) {
       verificacoes.push({ nivel: 'ok', titulo: 'Opção indisponível', detalhe: 'Fica na lista com aria-disabled, e o teclado a pula.' });
+    }
+
+    if (opcoes.some((opcao) => 'description' in opcao)) {
+      verificacoes.push({
+        nivel: 'ok',
+        titulo: 'Segunda linha',
+        detalhe: 'O rótulo nomeia a opção e a descrição a descreve; o gatilho fechado mostra só o rótulo.',
+      });
     }
 
     if (valores.error && valores.hint) {
@@ -191,6 +206,17 @@ export const pagina: Pagina = {
         "const regioes = [\n  { label: 'Centro-Oeste', value: 'centro-oeste' },\n  { label: 'Nordeste', value: 'nordeste' },\n  { label: 'Norte', value: 'norte' },\n  { label: 'Sudeste', value: 'sudeste' },\n  { label: 'Sul', value: 'sul' },\n  { label: 'Exterior', value: 'exterior', disabled: true },\n];\n\n<Select label=\"Região\" options={regioes} />",
     },
     {
+      titulo: 'Opção com segunda linha',
+      descricao: 'A seção em destaque e o caminho dela embaixo. O leitor de tela lê o rótulo como nome e o caminho como descrição; fechado, o gatilho mostra só o rótulo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Select label="Dentro de" options={SECOES} />
+        </div>
+      ),
+      codigo:
+        "const secoes = [\n  { label: 'Títulos', value: 'titulos', description: 'Financeiro / Títulos' },\n  { label: 'Contratos', value: 'contratos', description: 'Jurídico / Contratos' },\n];\n\n<Select label=\"Dentro de\" options={secoes} />",
+    },
+    {
       titulo: 'No formulário',
       descricao: 'Com name, a chave vai no envio. Obrigatório, o envio sem escolha é barrado.',
       Previa: Envio,
@@ -242,6 +268,11 @@ export const pagina: Pagina = {
       como: <>O foco fica na lista, e a opção ativa em <code>aria-activedescendant</code>.</>,
       teste: 'Select.test.tsx',
     },
+    {
+      garantia: 'Segunda linha',
+      como: <>A opção se nomeia pelo rótulo e se descreve pela <code>description</code>; o ícone é decorativo.</>,
+      teste: 'Select.test.tsx',
+    },
     { garantia: 'Foco devolvido', como: 'Escape fecha e devolve o foco ao gatilho.', teste: 'Select.test.tsx' },
     { garantia: 'Busca por digitação', como: 'Pelo início do texto, ignorando caixa e acento.', teste: 'selection.test.ts' },
     {
@@ -256,7 +287,11 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'options', tipo: '{ label: string; value: string; disabled?: boolean }[]', descricao: 'As opções da lista.' },
+    {
+      nome: 'options',
+      tipo: '{ label: string; value: string; description?: string; icon?: ReactNode; disabled?: boolean }[]',
+      descricao: 'As opções da lista. description é a segunda linha e icon, um ornamento à frente; os dois só na lista aberta.',
+    },
     { nome: 'value', tipo: 'string', descricao: 'Chave escolhida, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Chave inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa a chave escolhida.' },

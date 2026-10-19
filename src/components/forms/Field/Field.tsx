@@ -2,7 +2,7 @@ import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { Label } from '../Label';
 import styles from './Field.module.css';
 
-export type FieldSize = 'sm' | 'md';
+export type FieldSize = 'sm' | 'md' | 'lg';
 
 export interface FieldWiring {
   /** O visual dos campos do sistema para o controle — borda, foco, erro e tamanho. A classe do controle vence a dele. */
@@ -52,7 +52,7 @@ export function Field({
   ]
     .filter(Boolean)
     .join(' ') || undefined;
-  const controlClassName = [styles.control, size === 'sm' && styles.sm, error && styles.invalid].filter(Boolean).join(' ');
+  const controlClassName = [styles.control, size === 'sm' && styles.sm, size === 'lg' && styles.lg, error && styles.invalid].filter(Boolean).join(' ');
 
   return (
     <div {...props} className={[styles.field, className].filter(Boolean).join(' ')}>

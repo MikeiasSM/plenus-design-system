@@ -89,4 +89,28 @@ describe('Select', () => {
     expect(gatilho).toHaveAttribute('aria-invalid', 'true');
     expect(gatilho).toHaveAccessibleDescription('Escolha uma opcao.');
   });
+
+  describe('opção com segunda linha', () => {
+    const secoes: SelectOption[] = [
+      { value: 'titulos', label: 'Títulos', description: 'Financeiro / Títulos', icon: <svg data-testid="icone" /> },
+      { value: 'contratos', label: 'Contratos', description: 'Jurídico / Contratos' },
+    ];
+
+    it('nomeia a opção pelo rótulo e descreve pela segunda linha, com o ícone decorativo', () => {
+      render(<Select label="Dentro de" options={secoes} />);
+      fireEvent.click(screen.getByRole('combobox', { name: 'Dentro de' }));
+
+      expect(screen.getByRole('option', { name: 'Títulos' })).toHaveAccessibleDescription('Financeiro / Títulos');
+      expect(screen.getByTestId('icone').parentElement).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('mostra no gatilho fechado só o rótulo da escolhida', () => {
+      render(<Select label="Dentro de" options={secoes} />);
+      const gatilho = screen.getByRole('combobox', { name: 'Dentro de' });
+      fireEvent.click(gatilho);
+      fireEvent.click(screen.getByRole('option', { name: 'Contratos' }));
+
+      expect(gatilho).toHaveTextContent(/^Contratos$/);
+    });
+  });
 });

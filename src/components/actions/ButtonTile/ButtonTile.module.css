@@ -24,7 +24,7 @@
 .sm {
   min-width: 72px;
   min-height: calc(2 * var(--pl-space-2) + 1.25rem + var(--pl-space-2) + 2 * var(--pl-type-caption-line-height));
-  padding: var(--pl-space-2);
+  padding: var(--pl-space-2) var(--pl-space-1);
   font-size: var(--pl-type-caption-size);
   line-height: var(--pl-type-caption-line-height);
 }
@@ -55,7 +55,10 @@
   display: -webkit-box;
   max-width: 100%;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  /* Quebra só entre palavras, mesmo sob um consumidor que herda outra regra. */
+  overflow-wrap: normal;
+  hyphens: manual;
+  word-break: normal;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;

@@ -10,18 +10,38 @@ const ITENS: readonly MenuItem[] = [
   { key: 'excluir', label: 'Excluir' },
 ];
 
+interface ValoresDoAtalho {
+  atalhoDuplicar: string;
+  shortcutKeys: string;
+}
+
+function atalhoDoPlayground({ atalhoDuplicar, shortcutKeys }: ValoresDoAtalho): Partial<MenuItem> {
+  return {
+    shortcut: atalhoDuplicar.trim() || undefined,
+    shortcutKeys: shortcutKeys.trim() || undefined,
+  };
+}
+
+function codigoDoAtalho({ atalhoDuplicar, shortcutKeys }: ValoresDoAtalho) {
+  const atalho = atalhoDuplicar.trim() ? ` shortcut: '${atalhoDuplicar.trim()}',` : '';
+  return atalho + (shortcutKeys.trim() ? ` shortcutKeys: '${shortcutKeys.trim()}',` : '');
+}
+
 const playground = definirPlayground({
-  inicial: { label: 'Ações do módulo', gatilho: 'Ações', arquivarDesabilitado: true },
+  inicial: { label: 'Ações do módulo', gatilho: 'Ações', arquivarDesabilitado: true, atalhoDuplicar: 'Ctrl+Shift+D', shortcutKeys: '' },
   controles: [
     { tipo: 'texto', nome: 'label' },
     { tipo: 'texto', nome: 'gatilho' },
     { tipo: 'booleano', nome: 'arquivarDesabilitado' },
+    { tipo: 'texto', nome: 'atalhoDuplicar' },
+    { tipo: 'texto', nome: 'shortcutKeys' },
   ],
   renderizar: (valores, registrar) => (
     <Menu
       items={ITENS.map((item) => ({
         ...item,
         disabled: item.key === 'arquivar' && valores.arquivarDesabilitado,
+        ...(item.key === 'duplicar' ? atalhoDoPlayground(valores) : {}),
         onSelect: () => registrar(`onSelect: ${item.key}`),
       }))}
       label={valores.label}
@@ -34,7 +54,7 @@ const playground = definirPlayground({
     [
       'const acoes: MenuItem[] = [',
       "  { key: 'editar', label: 'Editar', onSelect: editar },",
-      "  { key: 'duplicar', label: 'Duplicar', onSelect: duplicar },",
+      `  { key: 'duplicar', label: 'Duplicar',${codigoDoAtalho(valores)} onSelect: duplicar },`,
       `  { key: 'arquivar', label: 'Arquivar',${valores.arquivarDesabilitado ? ' disabled: true,' : ''} onSelect: arquivar },`,
       "  { key: 'excluir', label: 'Excluir', onSelect: excluir },",
       '];',
@@ -59,6 +79,16 @@ const playground = definirPlayground({
         ? { nivel: 'ok', titulo: 'Popup anunciado', detalhe: 'O gatilho recebe aria-haspopup="menu" e aria-expanded.' }
         : { nivel: 'falha', titulo: 'Gatilho sem nome', detalhe: 'O botão que abre o menu precisa de texto.' },
     ];
+
+    if (valores.atalhoDuplicar.trim()) {
+      verificacoes.push({
+        nivel: 'ok',
+        titulo: 'Atalho anunciado',
+        detalhe: valores.shortcutKeys.trim()
+          ? `aria-keyshortcuts="${valores.shortcutKeys.trim()}", como escrito em shortcutKeys.`
+          : 'O texto vira os nomes de tecla da ARIA em aria-keyshortcuts: Ctrl → Control, ⌘ → Meta, Esc → Escape.',
+      });
+    }
 
     if (valores.arquivarDesabilitado) {
       verificacoes.push({
@@ -188,6 +218,11 @@ export const pagina: Pagina = {
     { garantia: 'Busca por digitação', como: 'Uma letra leva à opção que começa por ela.', teste: 'Menu.test.tsx' },
     { garantia: 'Foco devolvido', como: 'Escape fecha e devolve o foco ao gatilho, antes do onSelect na escolha.', teste: 'Menu.test.tsx' },
     { garantia: 'Abertura controlada', como: 'Com open, o menu só pede a mudança, sem decidir por conta própria.', teste: 'Menu.test.tsx' },
+    {
+      garantia: 'Atalho anunciado',
+      como: 'O texto do shortcut vira os nomes de tecla de aria-keyshortcuts; shortcutKeys substitui a conversão.',
+      teste: 'keyShortcuts.test.ts',
+    },
     { garantia: 'Gatilho preservado', como: 'Mantém o ref, o onClick e o onKeyDown de quem o escreveu.', teste: 'aninhados.test.tsx' },
     { garantia: 'Dentro de Dialog', como: 'Camada de cima, visível ao leitor de tela.', teste: 'aninhados.test.tsx' },
     { garantia: 'Servidor', como: 'Aberto na renderização do servidor, não quebra.', teste: 'servidor.test.tsx' },
@@ -195,6 +230,10 @@ export const pagina: Pagina = {
   notaDaApi: (
     <>
       Cada item é um <code>MenuItem</code>: <code>{'{ key: string; label: string; disabled?: boolean; onSelect?: () => void }'}</code>.
+      O <code>shortcut</code> é o texto à direita, como <code>Ctrl+Shift+D</code> ou <code>⌘⇧D</code>, convertido nos nomes de
+      tecla de <code>aria-keyshortcuts</code> (<code>Control+Shift+D</code>, <code>Meta+Shift+D</code>); vários atalhos vão
+      separados por vírgula. Quando a conversão não basta, <code>shortcutKeys</code> vai direto ao atributo, como{' '}
+      <code>Control+D Meta+D</code>.
     </>
   ),
   api: [

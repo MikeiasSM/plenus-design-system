@@ -167,6 +167,7 @@ const PARAGRAFOS = [
   'A barra aparece sobre o parágrafo em que o cursor está, sem tirá-lo do texto.',
   'Clique em outro parágrafo: a barra acompanha. Os botões não roubam o foco ao clique.',
   'Pelo teclado, o produto leva o foco à barra com um atalho, como Alt+F10, focando a própria barra.',
+  'Role esta área ou escreva até o parágrafo ganhar linhas: a barra segue a posição e o tamanho dele.',
 ];
 
 function EditorComBarraAncorada() {
@@ -175,7 +176,7 @@ function EditorComBarraAncorada() {
   const [selecionado, setSelecionado] = useState<number>();
 
   return (
-    <div className="demo-box stack" style={{ width: '100%', paddingTop: 64 }}>
+    <div className="demo-box stack" style={{ width: '100%', maxHeight: 220, overflowY: 'auto', paddingTop: 64 }}>
       {PARAGRAFOS.map((texto, indice) => (
         <p
           contentEditable
@@ -290,7 +291,10 @@ function Modos() {
       <dd>
         A barra flutua num portal, ancorada ao elemento, como camada de cima. Não puxa o foco ao aparecer: o cursor segue no
         texto. Para o clique também não tirá-lo, o produto passa <code>onMouseDown</code> com <code>preventDefault</code>.
-        Para o teclado, o produto foca a própria barra, por <code>ref</code>, e o foco vai ao item ativo.
+        Para o teclado, o produto foca a própria barra, por <code>ref</code>, e o foco vai ao item ativo. A posição se refaz
+        quando rola a janela ou um contêiner da âncora com rolagem própria, e quando a âncora muda de tamanho, como o bloco
+        que cresce enquanto se digita. Trocar o elemento em <code>anchorRef.current</code> e renderizar de novo passa a
+        acompanhar a nova âncora.
       </dd>
       <dt><code>sticky</code></dt>
       <dd>Sem âncora, a barra fica no fluxo e pode grudar no topo da área que rola.</dd>
@@ -314,7 +318,8 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Ancorada ao parágrafo selecionado',
-      descricao: 'Clique num parágrafo: a barra aparece sobre ele e o cursor continua no texto. Alt+F10 leva o foco à barra.',
+      descricao:
+        'Clique num parágrafo: a barra aparece sobre ele e o cursor continua no texto. Alt+F10 leva o foco à barra. A área rola por conta própria, e a barra acompanha.',
       Previa: EditorComBarraAncorada,
       codigo:
         'const ancora = useRef<HTMLElement | null>(null);\nconst barra = useRef<HTMLDivElement>(null);\n\n<p contentEditable onFocus={(e) => (ancora.current = e.currentTarget)}>…</p>\n\n<Toolbar\n  anchorRef={ancora}\n  placement="top start"\n  label="Bloco"\n  ref={barra}\n  onMouseDown={(e) => e.preventDefault()}\n>\n  …\n</Toolbar>\n\n// Alt+F10 no texto: barra.current?.focus()',
@@ -367,6 +372,11 @@ export const pagina: Pagina = {
     { garantia: 'Parada sempre alcançável', como: 'O item ativo que se desabilita passa a parada ao seguinte.', teste: 'Toolbar.test.tsx' },
     { garantia: 'Setas com dono', como: 'Campos de texto e itens que tratam a seta ficam com ela.', teste: 'Toolbar.test.tsx' },
     { garantia: 'Foco preservado', como: 'A barra ancorada aparece sem tirar o foco de quem o tem.', teste: 'Toolbar.test.tsx' },
+    {
+      garantia: 'Acompanha a âncora',
+      como: 'A posição se refaz na rolagem de um contêiner da âncora e na mudança de tamanho dela, também da âncora trocada.',
+      teste: 'Toolbar.test.tsx',
+    },
     { garantia: 'Camada de cima', como: <>Ancorada, vive no <code>body</code> com <code>data-react-aria-top-layer</code>.</>, teste: 'Toolbar.test.tsx' },
   ],
   notaDaApi:
@@ -376,7 +386,7 @@ export const pagina: Pagina = {
     { nome: 'children', tipo: 'ReactNode', descricao: 'Obrigatória. Toolbar.Group, Button, ButtonIcon ou qualquer elemento focável.' },
     { nome: 'orientation', tipo: "'horizontal' | 'vertical'", padrao: "'horizontal'", descricao: 'Direção da barra e das setas que a percorrem.' },
     { nome: 'appearance', tipo: "'floating' | 'flat'", padrao: "'floating'", descricao: 'Cartão com sombra, ou sem moldura.' },
-    { nome: 'anchorRef', tipo: 'RefObject<HTMLElement | null>', descricao: 'Ancora a barra flutuante ao elemento, sem tirar o foco dele.' },
+    { nome: 'anchorRef', tipo: 'RefObject<HTMLElement | null>', descricao: 'Ancora a barra flutuante ao elemento, sem tirar o foco dele, e acompanha a rolagem e o tamanho dele.' },
     {
       nome: 'placement',
       tipo: "'top' | 'top start' | 'top end' | 'bottom' | 'bottom start' | 'bottom end' | 'left' | 'right'",

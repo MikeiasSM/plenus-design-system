@@ -107,4 +107,12 @@ describe('InputText', () => {
     expect(screen.getByRole('searchbox', { name: 'Buscar' })).toBeInTheDocument();
     expect(container.querySelector('svg')!.closest('[aria-hidden="true"]')).not.toBeNull();
   });
+
+  it('offers the large size, with the icon following it', () => {
+    render(<InputText icon={<IconSearch />} label="Buscar" size="lg" type="search" />);
+    const input = screen.getByRole('searchbox', { name: 'Buscar' });
+
+    expect(input.className).toContain('lg');
+    expect(input.parentElement!.className).toContain('lg');
+  });
 });

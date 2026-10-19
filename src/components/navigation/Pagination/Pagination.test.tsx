@@ -88,4 +88,53 @@ describe('Pagination', () => {
     expect(pagina).toHaveAttribute('aria-disabled', 'true');
     expect(pagina).not.toBeDisabled();
   });
+
+  describe('intervalo da página', () => {
+    it('não mostra o intervalo sem o total e o tamanho da página', () => {
+      render(<Pagination page={1} pageCount={10} onPageChange={() => undefined} />);
+
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('mostra o intervalo da última página, que pode vir incompleta', () => {
+      render(<Pagination page={3} pageCount={3} pageSize={25} totalItems={52} onPageChange={() => undefined} />);
+
+      expect(screen.getByText('51–52 de 52')).toBeInTheDocument();
+    });
+
+    it('separa o milhar com ponto', () => {
+      render(<Pagination page={25} pageCount={88} pageSize={50} totalItems={4380} onPageChange={() => undefined} />);
+
+      expect(screen.getByText('1.201–1.250 de 4.380')).toBeInTheDocument();
+    });
+
+    it('anuncia por região viva, numa forma falada sem o travessão', () => {
+      const { rerender } = render(
+        <Pagination page={1} pageCount={3} pageSize={25} totalItems={52} onPageChange={() => undefined} />,
+      );
+      rerender(<Pagination page={2} pageCount={3} pageSize={25} totalItems={52} onPageChange={() => undefined} />);
+
+      const regiao = screen.getByRole('status');
+      expect(screen.getByText('26–50 de 52')).toHaveAttribute('aria-hidden', 'true');
+      expect(regiao).toContainElement(screen.getByText('Itens 26 a 50 de 52'));
+      expect(screen.getAllByRole('status')).toHaveLength(1);
+    });
+
+    it('troca o texto pelo formatRange', () => {
+      const formatRange = vi.fn(({ start, end, total }) => `Documentos ${start} a ${end} de ${total}`);
+      render(
+        <Pagination
+          formatRange={formatRange}
+          page={2}
+          pageCount={3}
+          pageSize={25}
+          totalItems={52}
+          onPageChange={() => undefined}
+        />,
+      );
+
+      expect(formatRange).toHaveBeenCalledWith({ start: 26, end: 50, total: 52 });
+      expect(screen.getByRole('status')).toHaveTextContent(/^Documentos 26 a 50 de 52$/);
+    });
+  });
 });
