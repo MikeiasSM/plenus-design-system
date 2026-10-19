@@ -89,6 +89,27 @@ describe('realce de sintaxe', () => {
     ]);
   });
 
+  it('le o Delphi sem distinguir caixa, com texto de aspa dobrada, codigo de caractere e hexadecimal', () => {
+    expect(coloridos("Begin ShowMessage('D''Ávila' + #13#10); x := $FF; END;", 'delphi')).toEqual([
+      ['keyword', 'Begin'],
+      ['function', 'ShowMessage'],
+      ['string', "'D''Ávila'"],
+      ['string', '#13'],
+      ['string', '#10'],
+      ['number', '$FF'],
+      ['keyword', 'END'],
+    ]);
+  });
+
+  it('no Delphi, separa a diretiva de compilacao das tres formas de comentario', () => {
+    expect(coloridos('{$IFDEF DEBUG} { chave } (* parenteses *) // linha', 'delphi')).toEqual([
+      ['annotation', '{$IFDEF DEBUG}'],
+      ['comment', '{ chave }'],
+      ['comment', '(* parenteses *)'],
+      ['comment', '// linha'],
+    ]);
+  });
+
   it('nao perde nem acrescenta caractere', () => {
     const trecho = 'class A {\n  /* um\n  dois */\n  int x = 0x1F; // fim\n}';
 

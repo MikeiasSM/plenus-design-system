@@ -4,7 +4,7 @@
  * anotacao, chamada, propriedade, tag e atributo — e deixa o resto sem cor.
  */
 
-export type CodeSyntax = 'java' | 'javascript' | 'jsx' | 'typescript' | 'tsx' | 'sql' | 'json' | 'shell';
+export type CodeSyntax = 'java' | 'javascript' | 'jsx' | 'typescript' | 'tsx' | 'sql' | 'json' | 'shell' | 'delphi';
 
 export type CodeTokenKind =
   | 'annotation'
@@ -39,6 +39,7 @@ export const SYNTAX_LABELS: Readonly<Record<CodeSyntax, string>> = {
   sql: 'SQL',
   json: 'JSON',
   shell: 'Shell',
+  delphi: 'Delphi',
 };
 
 function words(list: string): RegExp {
@@ -82,6 +83,15 @@ const SQL_KEYWORDS = words(`
 const SHELL_KEYWORDS = words(`
   case declare do done elif else esac exit export fi for function if in local readonly return select then until
   while
+`);
+
+const DELPHI_KEYWORDS = words(`
+  absolute abstract and array as asm begin case class const constructor default deprecated destructor dispinterface
+  div do downto dynamic else end except exports external false file finalization finally for forward function goto
+  helper if implementation implements in inherited initialization inline interface is label library message mod nil
+  not object of on operator or out overload override packed platform private procedure program property protected
+  public published raise read record reintroduce repeat resourcestring sealed self set shl shr static stdcall strict
+  string then threadvar to true try type unit until uses var virtual while with write xor
 `);
 
 const JAVASCRIPT_RULES: readonly Rule[] = [
@@ -150,10 +160,22 @@ const RULES: Readonly<Record<CodeSyntax, readonly Rule[]>> = {
     ['keyword', SHELL_KEYWORDS],
     ['number', NUMBER],
   ],
+  // A diretiva de compilacao usa a forma do comentario, com `$` na abertura: vem antes dele e sai como anotacao.
+  delphi: [
+    ['annotation', /\{\$[^}]*\}?|\(\*\$[\s\S]*?(?:\*\)|$)/],
+    ['comment', LINE_COMMENT],
+    ['comment', /\{[\s\S]*?(?:\}|$)/],
+    ['comment', /\(\*[\s\S]*?(?:\*\)|$)/],
+    ['string', /'(?:''|[^'\n])*'?/],
+    ['string', /#(?:\$[\da-fA-F]+|\d+)/],
+    ['number', /\$[\da-fA-F]+\b|%[01]+\b|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b/],
+    ['keyword', DELPHI_KEYWORDS],
+    ['function', CALL],
+  ],
 };
 
-/** O SQL e lido sem distincao de caixa: `select` e `SELECT` sao a mesma palavra. */
-const CASE_INSENSITIVE: ReadonlySet<CodeSyntax> = new Set(['sql']);
+/** SQL e Delphi sao lidos sem distincao de caixa: `select` e `SELECT`, `begin` e `Begin` sao a mesma palavra. */
+const CASE_INSENSITIVE: ReadonlySet<CodeSyntax> = new Set(['sql', 'delphi']);
 
 const grammars = new Map<CodeSyntax, Grammar>();
 

@@ -2,7 +2,7 @@ import { CodeBlock, type CodeSyntax } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const SINTAXES = ['java', 'javascript', 'jsx', 'typescript', 'tsx', 'sql', 'json', 'shell', 'nenhuma'] as const;
+const SINTAXES = ['java', 'javascript', 'jsx', 'typescript', 'tsx', 'sql', 'json', 'shell', 'delphi', 'nenhuma'] as const;
 
 const TRECHOS: Record<CodeSyntax, string> = {
   java: `// Confere a chave antes de liberar o download
@@ -45,6 +45,19 @@ GROUP BY nome;`,
 for arquivo in dist/*.js; do
   echo "$arquivo" # lista o pacote
 done`,
+  delphi: `{$IFDEF DEBUG}
+procedure TFormCliente.BtnSalvarClick(Sender: TObject);
+var
+  Total: Currency;
+begin
+  // Confere o limite antes de gravar
+  Total := CalcularTotal($FF, 1.5);
+  if Total > LimiteDeCredito then
+    raise Exception.Create('Limite excedido para ' + QuotedStr(EdtNome.Text) + #13#10);
+  (* grava e fecha *)
+  Salvar;
+end;
+{$ENDIF}`,
 };
 
 function linhasDestacadas(texto: string) {
@@ -221,6 +234,16 @@ export const pagina: Pagina = {
         </div>
       ),
       codigo: '<CodeBlock code={script} syntax="shell" />',
+    },
+    {
+      titulo: 'Evento de formulário',
+      descricao: 'Delphi: diretiva de compilação, as três formas de comentário, texto com código de caractere e hexadecimal.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <CodeBlock code={TRECHOS.delphi} fileName="UCliente.pas" lineNumbers syntax="delphi" />
+        </div>
+      ),
+      codigo: '<CodeBlock code={evento} fileName="UCliente.pas" lineNumbers syntax="delphi" />',
     },
   ],
   Variantes,
