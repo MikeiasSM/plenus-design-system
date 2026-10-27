@@ -195,6 +195,20 @@ Alterações em componentes públicos devem considerar:
 
 Alterações incompatíveis devem ser documentadas.
 
+### Versão
+
+O pacote segue o versionamento semântico. Incompatível é toda mudança que obriga o consumidor a alterar código, teste ou layout para manter o comportamento: propriedade removida, renomeada ou com outro tipo, interface que vira união de tipos, nome acessível, papel ARIA ou medida visual que muda.
+
+- Na série `0.x`, mudança incompatível sobe a versão menor (`0.2.5` → `0.3.0`). Correção e adição compatível sobem a correção.
+- A partir da `1.0.0`, mudança incompatível sobe a versão maior, adição compatível sobe a menor e correção sobe a correção.
+- Mudança incompatível nunca sai numa versão de correção. Se ela não puder esperar a próxima menor, a menor é antecipada.
+
+### Changelog
+
+Toda alteração percebida pelo consumidor entra no `CHANGELOG.md`, em `## [Não publicado]`, no mesmo commit da alteração. Ao subir a versão, essa seção ganha o número e a data.
+
+As mudanças incompatíveis ficam no grupo **Incompatível**, cada uma com o que o consumidor precisa fazer. A publicação recusa a tag cuja versão não tem seção no `CHANGELOG.md` e a versão de correção que traz o grupo **Incompatível**.
+
 ## 12. Checklist
 
 Antes de abrir uma alteração:

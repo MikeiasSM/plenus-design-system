@@ -1,0 +1,56 @@
+Licença de Uso Proprietária — @plenustech/design-system
+
+Copyright (c) 2026 Plenustech. Todos os direitos reservados.
+
+Este software, incluindo código-fonte, código compilado, estilos, tokens,
+ícones derivados e documentação, é propriedade da Plenustech.
+
+O uso é permitido exclusivamente à Plenustech e a quem ela autorizar por
+escrito, e somente no desenvolvimento e na operação de produtos da Plenustech.
+
+Sem autorização prévia e por escrito da Plenustech, é vedado:
+
+1. usar o software em produtos ou serviços de terceiros;
+2. copiar, modificar, adaptar ou criar obras derivadas;
+3. distribuir, sublicenciar, vender, alugar ou publicar o software, no todo
+   ou em parte.
+
+A disponibilidade do pacote em registro público, como o npm, não concede
+nenhuma licença de uso.
+
+Componentes de terceiros incluídos no pacote continuam regidos pelas próprias
+licenças, reproduzidas em "Avisos de terceiros", abaixo.
+
+O SOFTWARE É FORNECIDO "NO ESTADO EM QUE SE ENCONTRA", SEM GARANTIA DE
+QUALQUER TIPO, EXPRESSA OU IMPLÍCITA. EM NENHUMA HIPÓTESE A PLENUSTECH SERÁ
+RESPONSÁVEL POR DANOS DECORRENTES DO USO OU DA IMPOSSIBILIDADE DE USO DO
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Avisos de terceiros
+--------------------------------------------------------------------------------
+
+Bootstrap Icons — desenhos dos ícones de @plenustech/design-system/icons e dos
+ícones de interface.
+
+The MIT License (MIT)
+
+Copyright (c) 2019-2024 The Bootstrap Authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

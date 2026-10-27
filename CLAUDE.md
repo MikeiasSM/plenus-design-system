@@ -233,7 +233,7 @@ Este documento é operacional e **subordinado** ao corpus normativo do projeto.
 
 Ordem de precedência: `README.md` → `ARCHITECTURE.md` → `TOKENS.md` (+ `TOKENS-REFERENCE-COLORS.md`, `TOKENS-REFERENCE-TYPOGRAPHY.md`) → `COMPONENTS.md` (+ `COMPONENTS-CATALOG.md`) → `CONTRIBUTING.md`.
 
-Não normativos: `PROGRESS.md` (acompanhamento) e `showcase/` (demonstração).
+Não normativos: `PROGRESS.md` (acompanhamento), `CHANGELOG.md` (registro de versões) e `showcase/` (demonstração).
 
 Se um mandamento divergir de um documento normativo, o documento prevalece e a divergência deve ser sinalizada antes da implementação. Alterar um documento normativo exige decisão arquitetural aprovada.
 

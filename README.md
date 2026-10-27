@@ -227,6 +227,11 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 - [COMPONENTS-CATALOG.md](COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
 - [TOKENS.md](TOKENS.md) — padrões para criação e gerencia de tokens visuais.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
+- [CHANGELOG.md](CHANGELOG.md) — mudanças de cada versão publicada.
+
+## Licença
+
+Uso restrito aos produtos da Plenustech, conforme [LICENSE](LICENSE). Estar publicado no npm não concede licença de uso.
 
 ## Princípio central
 

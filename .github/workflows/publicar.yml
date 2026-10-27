@@ -60,6 +60,24 @@ jobs:
           fi
           echo "Publicando $versao."
 
+      # Politica de versao do CONTRIBUTING, secao 11: toda versao tem secao no
+      # CHANGELOG, e mudanca incompativel nunca sai numa versao de correcao.
+      - name: Conferir o CHANGELOG da versao
+        run: |
+          versao=$(node -p "require('./package.json').version")
+          secao=$(awk -v cab="## [$versao]" 'index($0, cab) == 1 { dentro = 1; next } /^## \[/ { dentro = 0 } dentro' CHANGELOG.md)
+          if ! grep -qF "## [$versao]" CHANGELOG.md; then
+            echo "::error::O CHANGELOG.md nao tem a secao ## [$versao]."
+            exit 1
+          fi
+          IFS=. read -r maior menor correcao <<< "${versao%%-*}"
+          if echo "$secao" | grep -q '^### Incompat'; then
+            if [ "$correcao" != 0 ] || { [ "$maior" != 0 ] && [ "$menor" != 0 ]; }; then
+              echo "::error::A $versao traz mudanca incompativel: ela pede versao menor nova na serie 0.x, ou versao maior a partir da 1.0."
+              exit 1
+            fi
+          fi
+
       - name: Verificar tipos
         run: npx tsc -b
 
