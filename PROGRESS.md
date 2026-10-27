@@ -396,21 +396,18 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
 - `DataGrid`, com a especificacao do relatorio como base, depois dos itens acima. Antes da fase 1: um caminho so no modo servidor, a tecla que entra no detalhe sem disputar a seta entre celulas, e a fase 1 sem selecao entre paginas.
 - `ChartHeatmap`, matriz de calor de categorias por categorias, sobre a escala sequencial do `ChartMap`.
 
-**Contrariam regra ou decisao**, cada um com o valor que traria:
+**Decisoes do mantenedor sobre o que contrariava regra**, em 27/10/2026. O documento normativo de cada mudanca aprovada e alterado no mesmo commit que a implementa.
 
-- **Provider de i18n** contraria `ARCHITECTURE.md`, Internacionalizacao, e o catalogo, secao 11. Traria textos e localidade trocaveis num lugar so; so tem valor com um produto fora do pt-BR.
-- **Formatadores em ingles** contrariam a tabela de idioma do `CLAUDE.md` e `ARCHITECTURE.md` secao 9.1. Traria uniformidade com as propriedades.
-- **Anel de foco com 3:1** contraria a excecao aceita do halo. Traria foco visivel com ponteiro e contraste conferido pelo script.
-- **Tema por subarvore e `prefers-color-scheme`** contrariam o seletor `:root[data-theme]` fixado na 0.2.0. Traria tema escuro automatico e paineis de tema proprio.
-- **Cor de marca gerada em tempo de execucao a partir de qualquer hexadecimal** contraria a paleta institucional de oito cores. Os temas alternativos ja previstos, calculados para as oito, atendem o Painel dentro da regra.
-- **CSS por componente** muda como o consumidor carrega o estilo e quebra quem testa com Jest sem tratar CSS. Traria so o CSS do que se usa.
-- **`base.css` sem `!important`** desfaz a decisao de levar `prefers-reduced-motion` a biblioteca inteira; o caminho registrado e dar guarda propria aos dezoito modulos que animam.
-- **Ganchos `data-part`** abrem a estrutura interna ao estilo do consumidor, contra o encapsulamento do `README.md`.
-- **Referencia de propriedades gerada dos tipos** contraria o modelo aprovado do Showcase, com a tabela escrita a mao.
-- **Teclado marca a marca nos graficos** contraria o catalogo, que trata o grafico como uma imagem so com leitura pela tabela.
-- **Showcase publicado** expoe a biblioteca, cuja licenca e restrita.
-- **React 18**: depende da versao do Painel.
-- **`d3-sankey` reescrito aqui** troca 18 KB duplicados no consumidor por codigo a manter, ja listado nas decisoes da 0.1.1.
+- **Mudam a regra:**
+  - Formatadores em ingles (`formatCurrency`), com os nomes em portugues aceitos como obsoletos ate a versao menor seguinte. Altera a tabela de idioma do `CLAUDE.md`, `ARCHITECTURE.md` secao 9.1 e `CONTRIBUTING.md` secao 8.
+  - Tema por subarvore e por `prefers-color-scheme`. Substitui o seletor `:root[data-theme]` fixado na 0.2.0.
+  - Cor de marca em tempo de execucao. Aprovada, com a forma a discutir por ultimo: gerador livre ou os oito temas institucionais.
+  - CSS por componente na 0.3.0, mantendo o `styles.css` agregado.
+  - Guarda de `prefers-reduced-motion` nos dezoito modulos que animam, e o bloco do `base.css` restrito a biblioteca.
+  - Visao em tabela nos graficos primeiro; teclado marca a marca so onde houver clique na marca, como no `ChartMap`. Acrescenta essa linha ao catalogo.
+- **Mantem a regra:** provider de i18n, ganchos `data-part`, tabela de propriedades gerada dos tipos, Showcase publicado e `d3-sankey` reescrito; os 18 KB duplicados ficam ate o Painel medi-los.
+- **Em avaliacao:** o anel de foco segue o atual; o mantenedor compara as propostas num artefato antes de decidir.
+- **Documentado:** a biblioteca exige React 19. O Painel usa 19.
 
 Nao confirmado no codigo: `Menu`, `Popover` e `Tooltip` ja declaram camada de cima; o grafico ja reserva a altura antes da medida; o bloco escuro legado de `tokens.css` nao e codigo morto, porque so ele define as sombras escuras; `base.css` nao usa `!important` no `box-sizing`.
 

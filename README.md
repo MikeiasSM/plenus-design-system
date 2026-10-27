@@ -64,6 +64,8 @@ npm install @plenustech/design-system
 
 O nome e o mecanismo de publicação podem variar de acordo com a infraestrutura de distribuição adotada pela empresa.
 
+Requer React 19 e React DOM 19. Os componentes recebem `ref` como propriedade comum, o que o React 18 não entrega sem `forwardRef`.
+
 ## Uso
 
 Os componentes públicos devem ser importados pelo ponto de entrada oficial do pacote:
