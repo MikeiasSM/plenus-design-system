@@ -5,6 +5,7 @@ import { ChartBar } from './ChartBar';
 import { ChartCombo } from './ChartCombo';
 import { ChartDonut } from './ChartDonut';
 import { ChartGauge } from './ChartGauge';
+import { ChartHeatmap } from './ChartHeatmap';
 import { ChartLine } from './ChartLine';
 import { ChartMap } from './ChartMap';
 import { ChartPie } from './ChartPie';
@@ -44,6 +45,7 @@ const graficos: [string, (raiz: ChartRootProps) => ReactElement][] = [
   ],
   ['ChartDonut', (raiz) => <ChartDonut slices={fatias} title="Gráfico" {...raiz} />],
   ['ChartGauge', (raiz) => <ChartGauge title="Gráfico" value={40} {...raiz} />],
+  ['ChartHeatmap', (raiz) => <ChartHeatmap cells={[{ value: 1, x: 'a', y: 'b' }]} title="Gráfico" {...raiz} />],
   ['ChartLine', (raiz) => <ChartLine categories={categorias} series={serie} title="Gráfico" {...raiz} />],
   ['ChartMap', (raiz) => <ChartMap data={[{ id: 'AA', value: 1 }]} geometry={quadrado} title="Gráfico" {...raiz} />],
   ['ChartPie', (raiz) => <ChartPie slices={fatias} title="Gráfico" {...raiz} />],

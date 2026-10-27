@@ -101,6 +101,29 @@ describe('escalas do mapa', () => {
     expect(scale.entries.map((entry) => entry.color)).toEqual(['#6E2A92', 'var(--pl-chart-series-1)']);
   });
 
+  it('escreve em branco so sobre os passos escuros da rampa', () => {
+    const datum = (value: number) => ({ category: null, value });
+    const sequencial = buildColorScale({ type: 'sequential' }, [0, 100], format);
+    const divergente = buildColorScale({ type: 'diverging' }, [-100, 100], format);
+    const classes = buildColorScale({ count: 4, method: 'equalInterval', type: 'classes' }, [0, 25, 50, 75, 100], format);
+
+    expect([0, 50, 60, 100].map((value) => sequencial.textColorOf(datum(value)))).toEqual([
+      'var(--pl-chart-on-light)',
+      'var(--pl-chart-on-light)',
+      'var(--pl-chart-on-dark)',
+      'var(--pl-chart-on-dark)',
+    ]);
+    expect([-100, -60, 0, 100].map((value) => divergente.textColorOf(datum(value)))).toEqual([
+      'var(--pl-chart-on-dark)',
+      'var(--pl-chart-on-light)',
+      'var(--pl-chart-on-light)',
+      'var(--pl-chart-on-dark)',
+    ]);
+    expect(classes.textColorOf(datum(0))).toBe('var(--pl-chart-on-light)');
+    expect(classes.textColorOf(datum(100))).toBe('var(--pl-chart-on-dark)');
+    expect(sequencial.textColorOf({ category: null, value: null })).toBeUndefined();
+  });
+
   it('mistura sem ultrapassar as pontas da rampa', () => {
     expect(rampColor(['a', 'b', 'c'], -1)).toBe('a');
     expect(rampColor(['a', 'b', 'c'], 2)).toBe('c');

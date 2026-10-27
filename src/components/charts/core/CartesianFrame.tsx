@@ -24,6 +24,7 @@ export interface CartesianGrid {
 export interface CartesianFrameProps {
   /** Estado e gatilhos dos eixos `onHover`, vindos de `useCartesianLayout`. */
   axisReveal?: AxisReveal;
+  canvasRole?: ChartFrameProps['canvasRole'];
   children: ReactNode;
   containerRef: (node: HTMLElement | null) => void;
   empty: boolean;
@@ -33,6 +34,7 @@ export interface CartesianFrameProps {
   height: number;
   legend?: readonly ChartLegendEntry[];
   legendAlign?: ChartLegendAlign;
+  legendContent?: ChartFrameProps['legendContent'];
   legendPosition: ChartLegendPosition;
   margins: ChartMargins;
   onToggleSeries?: (label: string) => void;
@@ -85,6 +87,7 @@ function EixoDinamico({ axis, length, orientation, revealed }: EixoProps) {
  */
 export function CartesianFrame({
   axisReveal,
+  canvasRole,
   children,
   containerRef,
   empty,
@@ -94,6 +97,7 @@ export function CartesianFrame({
   height,
   legend,
   legendAlign,
+  legendContent,
   legendPosition,
   margins,
   onToggleSeries,
@@ -110,6 +114,7 @@ export function CartesianFrame({
 
   return (
     <ChartFrame
+      canvasRole={canvasRole}
       containerRef={containerRef}
       empty={empty}
       emptyMessage={emptyMessage}
@@ -117,6 +122,7 @@ export function CartesianFrame({
       height={height}
       legend={legend}
       legendAlign={legendAlign}
+      legendContent={legendContent}
       legendPosition={legendPosition}
       minLegendEntries={2}
       onPointerEnter={axisReveal?.onPointerEnter}

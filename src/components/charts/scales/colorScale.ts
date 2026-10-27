@@ -1,5 +1,5 @@
 import { bisectRight, extent, quantileSorted } from 'd3-array';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, textColorOn, type SeriesAppearance } from '../palette';
 
 export interface ChartColorCategory extends SeriesAppearance {
   id: string;
@@ -46,6 +46,8 @@ export interface ColorScale {
   labelOf: (datum: ColorDatum) => string | undefined;
   /** A cor mede um valor; na categorica e na nenhuma, ela so nomeia ou nao diz nada. */
   numeric: boolean;
+  /** Cor do texto escrito sobre o preenchimento. */
+  textColorOf: (datum: ColorDatum) => string | undefined;
 }
 
 export const SEQUENTIAL_TOKENS = [1, 2, 3, 4, 5, 6, 7].map((step) => `var(--pl-chart-sequential-${step})`);
@@ -62,6 +64,12 @@ export function rampFrom(color: string) {
 }
 
 const NEUTRAL_FILL = 'var(--pl-color-surface-muted)';
+const ON_DARK = 'var(--pl-chart-on-dark)';
+const ON_LIGHT = 'var(--pl-chart-on-light)';
+// Medido nos dois temas: do quinto passo em diante o branco passa de 4,5:1, e antes dele, o preto.
+const FIRST_DARK_STEP = 4;
+
+const textOnStep = (step: number) => (step >= FIRST_DARK_STEP ? ON_DARK : ON_LIGHT);
 const SINGLE_VALUE_STEP = 4;
 const DEFAULT_CLASS_COUNT = 5;
 
@@ -85,12 +93,12 @@ export function rampColor(stops: readonly string[], position: number) {
 }
 
 /** Passo da rampa de cada classe, espalhado do primeiro ao ultimo. */
-function classColors(count: number, stops: readonly string[]) {
+function classSteps(count: number) {
   if (count === 1) {
-    return [stops[SINGLE_VALUE_STEP]];
+    return [SINGLE_VALUE_STEP];
   }
 
-  return Array.from({ length: count }, (_, index) => stops[Math.round((index * 6) / (count - 1))]);
+  return Array.from({ length: count }, (_, index) => Math.round((index * 6) / (count - 1)));
 }
 
 function classLabels(thresholds: readonly number[], format: (value: number) => string) {
@@ -132,7 +140,8 @@ function classScale(
   format: (value: number) => string,
   stops: readonly string[],
 ): ColorScale {
-  const colors = classColors(thresholds.length + 1, stops);
+  const steps = classSteps(thresholds.length + 1);
+  const colors = steps.map((step) => stops[step]);
   const [low, high] = range;
   const names =
     thresholds.length === 0
@@ -146,10 +155,16 @@ function classScale(
     keyOf: ({ value }) => (value === null ? undefined : String(classOf(value))),
     labelOf: ({ value }) => (value === null ? undefined : names[classOf(value)]),
     numeric: true,
+    textColorOf: ({ value }) => (value === null ? undefined : textOnStep(steps[classOf(value)])),
   };
 }
 
-function continuousScale(stops: readonly string[], position: (value: number) => number, gradient: ColorGradient): ColorScale {
+function continuousScale(
+  stops: readonly string[],
+  position: (value: number) => number,
+  gradient: ColorGradient,
+  textOnPosition: (position: number) => string,
+): ColorScale {
   return {
     entries: [],
     fillOf: ({ value }) => (value === null ? undefined : rampColor(stops, position(value))),
@@ -157,6 +172,7 @@ function continuousScale(stops: readonly string[], position: (value: number) => 
     keyOf: () => undefined,
     labelOf: () => undefined,
     numeric: true,
+    textColorOf: ({ value }) => (value === null ? undefined : textOnPosition(position(value))),
   };
 }
 
@@ -182,7 +198,7 @@ function sequentialScale(
       { position: 0, value: config.log ? logLow : low },
       { position: 1, value: high },
     ],
-  });
+  }, (at) => textOnStep(Math.round(at * 6)));
 }
 
 function divergingScale(
@@ -204,7 +220,7 @@ function divergingScale(
       { position: 0.5, value: center },
       { position: 1, value: center + reach },
     ],
-  });
+  }, (at) => (Math.abs(Math.round(at * 6) - 3) === 3 ? ON_DARK : ON_LIGHT));
 }
 
 function categoricalScale(categories: readonly ChartColorCategory[], accent?: string): ColorScale {
@@ -217,6 +233,10 @@ function categoricalScale(categories: readonly ChartColorCategory[], accent?: st
     keyOf: ({ category }) => (category !== null && byId.has(category) ? category : undefined),
     labelOf: ({ category }) => (category === null ? undefined : byId.get(category)?.label),
     numeric: false,
+    textColorOf: ({ category }) => {
+      const color = category === null ? undefined : byId.get(category)?.color;
+      return color === undefined ? undefined : textColorOn(color);
+    },
   };
 }
 
@@ -237,6 +257,7 @@ export function buildColorScale(
       keyOf: () => undefined,
       labelOf: () => undefined,
       numeric: false,
+      textColorOf: () => undefined,
     };
   }
 
@@ -247,7 +268,14 @@ export function buildColorScale(
   const stops = config.type !== 'diverging' && config.color ? rampFrom(config.color) : SEQUENTIAL_TOKENS;
 
   if (values.length === 0) {
-    return { entries: [], fillOf: () => undefined, keyOf: () => undefined, labelOf: () => undefined, numeric: true };
+    return {
+      entries: [],
+      fillOf: () => undefined,
+      keyOf: () => undefined,
+      labelOf: () => undefined,
+      numeric: true,
+      textColorOf: () => undefined,
+    };
   }
 
   const [low = 0, high = 0] = extent(values);

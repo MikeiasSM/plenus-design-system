@@ -6,6 +6,15 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- `ChartHeatmap`, matriz de calor de duas categorias, com escala sequencial, divergente ou por faixas, valor na célula quando cabe e células clicáveis percorridas pelas setas.
+- `ChartColorScale` e `ChartColorCategory`, a escala de cor antes exclusiva do `ChartMap`, agora compartilhada.
+
+### Alterado
+
+- `ChartMapColorScale` e `ChartMapCategory` passam a apelidos obsoletos de `ChartColorScale` e `ChartColorCategory`, e saem na 0.4.0.
+
 ## [0.2.6] — 2026-10-27
 
 ### Adicionado

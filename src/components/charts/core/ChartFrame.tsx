@@ -27,6 +27,8 @@ export function chartRoot(
 }
 
 export interface ChartFrameProps {
+  /** `group` quando as marcas sao controles, percorridos pelo teclado; `img` quando o desenho e uma leitura so. */
+  canvasRole?: 'img' | 'group';
   /** Marcas do grafico, em coordenadas da area de desenho. */
   children: ReactNode;
   /**
@@ -41,6 +43,8 @@ export interface ChartFrameProps {
   height: number;
   legend?: readonly ChartLegendEntry[];
   legendAlign?: ChartLegendAlign;
+  /** Legenda propria do grafico, no lugar da lista de series, como a de uma escala de cor. */
+  legendContent?: ReactNode;
   legendPosition: ChartLegendPosition;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
@@ -62,6 +66,7 @@ export interface ChartFrameProps {
  * a area inteira —, e nao o cerco, que era o mesmo repetido tres vezes.
  */
 export function ChartFrame({
+  canvasRole = 'img',
   children,
   centerOrigin = false,
   containerRef,
@@ -71,6 +76,7 @@ export function ChartFrame({
   height,
   legend,
   legendAlign,
+  legendContent,
   legendPosition,
   minLegendEntries = 1,
   onPointerEnter,
@@ -85,7 +91,7 @@ export function ChartFrame({
   const tituloId = useId();
   const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
-  const legenda = legendPosition !== 'none' && legend !== undefined && legend.length >= minLegendEntries && (
+  const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
       align={legendAlign}
       entries={legend}
@@ -93,14 +99,14 @@ export function ChartFrame({
       position={legendPosition}
       swatch={swatch}
     />
-  );
+  )));
 
   const desenho = (
     <svg
       aria-labelledby={tituloId}
       className={styles.canvas}
       height={height}
-      role="img"
+      role={canvasRole}
       viewBox={`0 0 ${width} ${height}`}
       width={width}
     >

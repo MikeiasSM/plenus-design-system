@@ -1,0 +1,35 @@
+.cell {
+  outline: none;
+  transition: opacity var(--pl-speed-1) var(--pl-ease);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.dimmed {
+  opacity: 0.22;
+}
+
+.focused {
+  stroke: var(--pl-color-text);
+  stroke-width: 1.5;
+}
+
+.cell:focus-visible {
+  stroke: var(--pl-color-primary);
+  stroke-width: 2;
+}
+
+.valueLabel {
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}

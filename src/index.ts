@@ -235,6 +235,13 @@ export type {
   ChartGaugeTicks,
   ChartGaugeValueDisplay,
 } from './components/charts/ChartGauge';
+export { ChartHeatmap } from './components/charts/ChartHeatmap';
+export type {
+  ChartHeatmapCell,
+  ChartHeatmapColorScale,
+  ChartHeatmapLegendPosition,
+  ChartHeatmapProps,
+} from './components/charts/ChartHeatmap';
 export { ChartMap } from './components/charts/ChartMap';
 export type {
   ChartMapCategory,

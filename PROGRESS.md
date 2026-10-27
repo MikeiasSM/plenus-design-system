@@ -349,6 +349,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 
 ## Pendencias de correcao identificadas no review
 
+- **O `npm publish --ignore-scripts` ainda roda o `prepare`** com o npm do Actions, visto no log da 0.2.6. O pacote publicado e reconstruido depois de `check:pacote` aprovar o anterior; o build e deterministico, mas a comporta nao confere o que sai. O caminho e publicar o tarball conferido, `npm pack` seguido de `npm publish <arquivo>.tgz`.
 - **`npm run check:contraste` passa.** A serie 4 era a unica reprovacao, com 2.55:1 contra a superficie clara. A escolha saiu da propria paleta: ela ja aceita 1.77:1 entre a serie 2 e a serie 5, que sao o laranja claro e o escuro. `brand.blue.70` da 1.66:1 contra a serie 1 — o mesmo padrao — e 10.05:1 contra a superficie. `brand.blue.60`, cogitado antes, daria 1.29:1 e ficaria abaixo do que a casa aceita.
 - **No tema claro, o segundo tom de cada matiz desce.** Um azul claro sobre superficie clara nao alcanca o piso de 3:1 da WCAG 1.4.11. E o que o laranja ja fazia; o azul passou a fazer igual.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
@@ -394,7 +395,6 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
 - Icones em um modulo por icone, num subcaminho `icons/*`, sem tirar o `icons` atual.
 - Recursos genericos pedidos: intervalo de datas com atalhos, submenu e alinhamento no `Menu`, `Dialog` `xl` com `onBeforeClose`, `Toast` com varias acoes, `ComboBox` com aplicar, limpar e selecionar todos, `Pagination` com tamanho de pagina e primeira e ultima, e indicador com variacao. Cada um entra no catalogo quando for desenhado.
 - `DataGrid`, com a especificacao do relatorio como base, depois dos itens acima. Antes da fase 1: um caminho so no modo servidor, a tecla que entra no detalhe sem disputar a seta entre celulas, e a fase 1 sem selecao entre paginas.
-- `ChartHeatmap`, matriz de calor de categorias por categorias, sobre a escala sequencial do `ChartMap`.
 
 **Decisoes do mantenedor sobre o que contrariava regra**, em 27/10/2026. O documento normativo de cada mudanca aprovada e alterado no mesmo commit que a implementa.
 
@@ -594,6 +594,16 @@ Na implementacao:
 - Cor, como nos demais graficos: `accent` abre a paleta das categorias e dos marcadores, e `color` na escala sequencial ou em classes troca o azul por outra cor, de que saem os sete tons por mistura, mais escuro e maior. O ChartTimeline tambem ganhou `accent`, e os tres playgrounds, o seletor de cor nomeada.
 - Divergencias do artefato: rotulo na cor do texto do tema com halo da superficie, porque a escala continua nao tem cor medivel por passo; com `onRegionClick` ou `onMarkerClick`, o desenho vira grupo e regioes e marcadores entram no teclado, pela regra de `COMPONENTS.md` secao 7; balao so pelo ponteiro, como no ChartTimeline; a coluna de rotulos atende so as regioes da metade do desenho junto a ela, porque a linha guia cruzava o mapa; a tabela nao tem coluna de grupo.
 - No Showcase, o exemplo dos municipios do Nordeste, pedido pelo mantenedor, usa a base de teste que ele enviou, recortada e simplificada a 0,004 grau em `showcase/app/public/dados-mapa` (2,4 MB, buscada sob demanda): geografia do IBGE, vendas simuladas.
+
+### ChartHeatmap
+
+Pedido pelo Painel e entregue em 27/10/2026, antes do `DataGrid`, por decisao do mantenedor.
+
+- **A escala de cor e a legenda em barra sairam do `ChartMap`** para `charts/scales/colorScale.ts` e `charts/core/ColorLegend.tsx`, compartilhadas. `ChartMapColorScale` e `ChartMapCategory` ficam como apelidos obsoletos ate a 0.4.0.
+- **O texto sobre a celula segue o passo da rampa**, medido nos dois temas: preto ate o quarto passo, branco do quinto em diante, de 4,5:1 para cima. Na divergente, branco so nos extremos; na categorica, o `chart.on-*` da cor.
+- **A moldura cartesiana ganhou `legendContent` e `canvasRole`**: a legenda propria no lugar da lista de series, e o desenho como `group` quando as marcas sao botoes.
+- **Sem calendario e sem escala de cor categorica** na primeira versao. A visao em tabela entra com a dos demais graficos.
+- Nada do heatmap foi visto em navegador real; o MCP do Playwright nao conectou nesta sessao.
 
 ### Datas
 
