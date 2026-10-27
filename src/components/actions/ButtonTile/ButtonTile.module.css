@@ -65,7 +65,7 @@
 }
 
 .tile:not(:disabled):hover {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-control-border-hover);
   color: var(--pl-color-primary-active);
 }
 
@@ -85,7 +85,7 @@
 
 .tile:not(:disabled):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container), 0 0 0 1px var(--pl-color-primary);
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary);
 }
 
 .tile:disabled {

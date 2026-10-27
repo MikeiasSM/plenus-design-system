@@ -13,6 +13,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
+- Hover e foco dos controles deixam de parecer iguais: o hover usa uma borda mais suave, `--pl-control-border-hover`, e o halo do foco, `--pl-control-focus-halo`, fica mais visível. Com o ponteiro sobre um campo focado, o foco prevalece.
 - O pacote passa de `UNLICENSED` para licença proprietária, descrita em `LICENSE`: o uso fica restrito aos produtos da Plenustech.
 - O pacote publicado leva o `CHANGELOG.md`.
 

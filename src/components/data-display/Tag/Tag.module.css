@@ -49,14 +49,14 @@
   padding: 0;
 }
 
-.tag:has(.toggle:not(:disabled)):hover {
-  border-color: var(--pl-color-primary);
+.tag:has(.toggle:not(:disabled)):hover:not(:has(.toggle:focus-visible)) {
+  border-color: var(--pl-control-border-hover);
   color: var(--pl-color-text);
 }
 
 .tag:has(.toggle:focus-visible) {
   border-color: var(--pl-color-primary);
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+  box-shadow: var(--pl-control-focus-halo);
 }
 
 .toggle:focus-visible {

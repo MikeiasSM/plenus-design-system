@@ -25,7 +25,7 @@
 
 .zone:has(.input:focus-visible) {
   border-color: var(--pl-color-primary);
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+  box-shadow: var(--pl-control-focus-halo);
 }
 
 .dragging {

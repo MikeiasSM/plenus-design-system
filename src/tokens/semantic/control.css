@@ -1,7 +1,11 @@
-/* Altura dos campos de formulario: os do sistema e os que quem implementa monta pelo `Field`.
+/* Altura, borda no hover e halo de foco dos campos, dos do sistema e dos que quem implementa monta pelo `Field`.
    O medio e tambem a altura do `Button` medio, para os dois alinharem numa barra. */
 :root {
   --pl-control-height-sm: 32px;
   --pl-control-height-md: 42px;
   --pl-control-height-lg: 56px;
+  --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary) 50%, var(--pl-color-border-strong));
+  --pl-control-focus-halo:
+    0 0 0 3px color-mix(in srgb, var(--pl-color-primary) 14%, transparent),
+    0 0 6px 1px color-mix(in srgb, var(--pl-color-primary) 16%, transparent);
 }

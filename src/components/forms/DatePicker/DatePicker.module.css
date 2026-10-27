@@ -9,14 +9,14 @@
   transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
 }
 
-.field:not(.error):hover:not(:has(.input:disabled)) {
-  border-color: var(--pl-color-primary);
+.field:not(.error):hover:not(:has(.input:disabled)):not(:focus-within) {
+  border-color: var(--pl-control-border-hover);
   box-shadow: var(--pl-sh-1);
 }
 
 .field:focus-within {
   border-color: var(--pl-color-primary);
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+  box-shadow: var(--pl-control-focus-halo);
 }
 
 .field:has(.input:disabled) {

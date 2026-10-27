@@ -420,7 +420,7 @@ Falhas conhecidas, mantidas por decisao visual do mantenedor apos comparacao lad
 - `Button` variante `primary` solida: texto branco sobre `brand.orange.50` em 3.03:1, contra o minimo de 4.5:1. Mantido o laranja de marca. Vale nos **dois** temas: `color.primary` nao muda no escuro.
 - `Button` variante `primary` solida, contorno contra o fundo da pagina: 2.83:1 no tema claro, contra o minimo de 3:1. Passa em 6.03:1 no tema escuro.
 - `--pl-color-border-strong` como contorno de campo em repouso: 1.33:1 no claro e 1.57:1 no escuro, contra o minimo de 3:1. Mantida a borda discreta. No hover e no foco a borda alcanca 3.03:1 e 5.57:1.
-- Halo de foco em `primary-container`: 1.08:1, decorativo. O sinal acessivel do foco e a troca da borda, nao o halo. Consequencia: com ponteiro, foco e hover ficam visualmente iguais. Quem depende do indicador de foco navega por teclado e nao dispara hover.
+- Halo de foco decorativo, em `--pl-control-focus-halo`. O sinal acessivel do foco e a troca da borda para a cor primaria, a 3.03:1. Em 27/10/2026, por decisao do mantenedor apos comparar propostas num artefato, o halo ficou mais visivel e o hover passou a `--pl-control-border-hover`, metade da cor primaria: foco e hover deixaram de parecer iguais. O hover nao vale sobre campo focado nem sobre caixa marcada. Anel afastado e anel duplo foram recusados.
 
 As demais combinacoes de texto e de componente passam em AA nos dois temas.
 

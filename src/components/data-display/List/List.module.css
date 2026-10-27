@@ -22,14 +22,14 @@
 }
 
 .search:hover {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-control-border-hover);
   box-shadow: var(--pl-sh-1);
 }
 
 .search:focus-visible {
   outline: none;
   border-color: var(--pl-color-primary);
-  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+  box-shadow: var(--pl-control-focus-halo);
 }
 
 .options {
