@@ -24,6 +24,7 @@ import {
   type ChartLegendPosition,
   type MarkVisibility,
   type CornerRadii,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
@@ -37,7 +38,7 @@ export interface ChartBarSeries extends SeriesAppearance {
   values: readonly number[];
 }
 
-export interface ChartBarProps {
+export interface ChartBarProps extends ChartRootProps {
   accent?: string;
   categories: readonly string[];
   defaultHiddenSeries?: readonly string[];
@@ -92,6 +93,7 @@ export function ChartBar({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  ...root
 }: ChartBarProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -285,6 +287,7 @@ export function ChartBar({
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

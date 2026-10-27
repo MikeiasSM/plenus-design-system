@@ -7,11 +7,13 @@ import { EmptyState } from '../../feedback/EmptyState';
 import { IconChartBar } from '../../icons';
 import { ChartTooltip, type ChartTooltipProps, type ChartTooltipRow } from '../ChartTooltip';
 import {
+  chartRoot,
   measureLabel,
   useChartMetrics,
   useSeriesToggle,
   type ChartHeight,
   type ChartLegendAlign,
+  type ChartRootProps,
   type LabelFont,
   type MarkVisibility,
 } from '../core';
@@ -75,7 +77,7 @@ export interface ChartMapMarkerEvent {
 
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
-export interface ChartMapProps {
+export interface ChartMapProps extends ChartRootProps {
   /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
   accent?: string;
   colorScale?: ChartMapColorScale;
@@ -311,6 +313,7 @@ export function ChartMap({
   subtitle,
   title,
   valueLabel = 'Valor',
+  ...root
 }: ChartMapProps) {
   const titleId = useId();
   const summaryId = useId();
@@ -877,12 +880,13 @@ export function ChartMap({
           .filter((point) => validPoints.has(point))
           .map((point) => ({ key: `${series.id}:${point.id}`, name: point.label, series: series.label, value: formatValue(point.value) })),
   );
+  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
 
   return (
-    <figure className={styles.figure}>
+    <figure {...figureProps}>
       <figcaption className={styles.header}>
         <span className={styles.heading}>
-          <span className={styles.title} id={titleId}>
+          <span className={titleClassName} id={titleId}>
             {title}
           </span>
           {subtitle && <span className={styles.subtitle}>{subtitle}</span>}

@@ -16,6 +16,7 @@ import {
   type AxisVisibility,
   type MarkVisibility,
   type ChartHeight,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
@@ -30,7 +31,7 @@ export interface ChartWaterfallStep {
   value: number;
 }
 
-export interface ChartWaterfallProps {
+export interface ChartWaterfallProps extends ChartRootProps {
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
@@ -114,6 +115,7 @@ export function ChartWaterfall({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  ...root
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -222,6 +224,7 @@ export function ChartWaterfall({
       legendPosition="none"
       margins={margins}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

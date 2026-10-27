@@ -13,6 +13,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
@@ -31,7 +32,7 @@ export interface ChartScatterSeries extends SeriesAppearance {
   points: readonly ChartScatterPoint[];
 }
 
-export interface ChartScatterProps {
+export interface ChartScatterProps extends ChartRootProps {
   accent?: string;
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
@@ -97,6 +98,7 @@ export function ChartScatter({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  ...root
 }: ChartScatterProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -226,6 +228,7 @@ export function ChartScatter({
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

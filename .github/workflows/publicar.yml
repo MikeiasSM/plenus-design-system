@@ -60,8 +60,7 @@ jobs:
           fi
           echo "Publicando $versao."
 
-      # Politica de versao do CONTRIBUTING, secao 11: toda versao tem secao no
-      # CHANGELOG, e mudanca incompativel nunca sai numa versao de correcao.
+      # Politica de versao do CONTRIBUTING, secao 11.
       - name: Conferir o CHANGELOG da versao
         run: |
           versao=$(node -p "require('./package.json').version")

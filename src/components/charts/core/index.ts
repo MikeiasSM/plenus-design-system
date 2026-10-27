@@ -37,8 +37,8 @@ export { centerTextRadius, fitCenterText } from './centerText';
 export type { CenterText } from './centerText';
 export { CartesianFrame } from './CartesianFrame';
 export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './CartesianFrame';
-export { ChartFrame } from './ChartFrame';
-export type { ChartFrameProps } from './ChartFrame';
+export { ChartFrame, chartRoot } from './ChartFrame';
+export type { ChartFrameProps, ChartRootProps } from './ChartFrame';
 export { ChartLegend } from './ChartLegend';
 export type {
   ChartLegendAlign,

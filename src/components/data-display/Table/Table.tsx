@@ -276,7 +276,7 @@ export function Table({
         <TableContext.Provider value={context}>{children}</TableContext.Provider>
       </table>
       {loading && (
-        <p className={styles.status} role="status">
+        <p className={styles.visuallyHidden} role="status">
           {loadingMessage}
         </p>
       )}
@@ -314,7 +314,11 @@ function TableHeader({ children }: TableHeaderProps) {
             />
           </th>
         )}
-        {selection.mode === 'single' && <th className={[styles.column, styles.lead].join(' ')} scope="col" />}
+        {selection.mode === 'single' && (
+          <th className={[styles.column, styles.lead].join(' ')} scope="col">
+            <span className={styles.visuallyHidden}>Seleção</span>
+          </th>
+        )}
         {withColumnIndex(children)}
       </tr>
     </thead>

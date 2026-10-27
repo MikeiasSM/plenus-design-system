@@ -378,6 +378,42 @@ Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segu
 - **Contador sobreposto ao botao**, a ultima peca da barra de filtros do PlenusLAB, prevista em 17/10/2026. A busca com icone entrou como `icon` do `InputText` e a etiqueta removivel como `Tag`, em 18/10/2026. O contador nao tem lugar no catalogo: o `Badge` e rotulo de estado, e pendura-lo no `ButtonIcon` muda o papel do botao. A barra em si e composicao do produto e fica na aplicacao.
 - **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
 
+## Relatorio de compatibilidade com o Painel, 27/10/2026
+
+Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que cabe nas regras e serve ao produto vira padrao; o que contraria regra ou decisao fica abaixo, para ele decidir.
+
+**Adotado na 0.2.6**: licenca, `CHANGELOG.md` e politica de versao; `'use client'` nos modulos com hook, contexto ou portal; CI em todo PR e push na `main`; `@types/d3-geo` e `@types/d3-hierarchy` em dependencias; cobertura medida so sobre a biblioteca; propriedades nativas, `ref` e `hideTitle` nos quinze graficos; nome no cabecalho da selecao unica da `Table`. A convencao de API entrou em `CONTRIBUTING.md` secao 10.
+
+**Dentro das regras, na fila**, nesta ordem:
+
+- `ToastProvider` com estado por arvore, mantendo `showToast`, e `portalContainer` nos overlays.
+- Teste do pacote construido num app real (Vite, Next com Server Components, CommonJS), axe e navegador real.
+- Visao em tabela nos graficos que ainda nao a tem, o caso que o catalogo reserva para quando houver consumidor; o Painel e esse consumidor. `ChartMap` e `ChartTimeline` ja a tem.
+- Clique na marca dos graficos (`onPointClick`, `onSliceClick`), no modelo do `onRegionClick` do `ChartMap`.
+- Migracao da API para a convencao, na 0.3.0: estado controlado, tons e escala `sm`, `md` e `lg` nos campos.
+- Icones em um modulo por icone, num subcaminho `icons/*`, sem tirar o `icons` atual.
+- Recursos genericos pedidos: intervalo de datas com atalhos, submenu e alinhamento no `Menu`, `Dialog` `xl` com `onBeforeClose`, `Toast` com varias acoes, `ComboBox` com aplicar, limpar e selecionar todos, `Pagination` com tamanho de pagina e primeira e ultima, e indicador com variacao. Cada um entra no catalogo quando for desenhado.
+- `DataGrid`, com a especificacao do relatorio como base, depois dos itens acima. Antes da fase 1: um caminho so no modo servidor, a tecla que entra no detalhe sem disputar a seta entre celulas, e a fase 1 sem selecao entre paginas.
+- `ChartHeatmap`, matriz de calor de categorias por categorias, sobre a escala sequencial do `ChartMap`.
+
+**Contrariam regra ou decisao**, cada um com o valor que traria:
+
+- **Provider de i18n** contraria `ARCHITECTURE.md`, Internacionalizacao, e o catalogo, secao 11. Traria textos e localidade trocaveis num lugar so; so tem valor com um produto fora do pt-BR.
+- **Formatadores em ingles** contrariam a tabela de idioma do `CLAUDE.md` e `ARCHITECTURE.md` secao 9.1. Traria uniformidade com as propriedades.
+- **Anel de foco com 3:1** contraria a excecao aceita do halo. Traria foco visivel com ponteiro e contraste conferido pelo script.
+- **Tema por subarvore e `prefers-color-scheme`** contrariam o seletor `:root[data-theme]` fixado na 0.2.0. Traria tema escuro automatico e paineis de tema proprio.
+- **Cor de marca gerada em tempo de execucao a partir de qualquer hexadecimal** contraria a paleta institucional de oito cores. Os temas alternativos ja previstos, calculados para as oito, atendem o Painel dentro da regra.
+- **CSS por componente** muda como o consumidor carrega o estilo e quebra quem testa com Jest sem tratar CSS. Traria so o CSS do que se usa.
+- **`base.css` sem `!important`** desfaz a decisao de levar `prefers-reduced-motion` a biblioteca inteira; o caminho registrado e dar guarda propria aos dezoito modulos que animam.
+- **Ganchos `data-part`** abrem a estrutura interna ao estilo do consumidor, contra o encapsulamento do `README.md`.
+- **Referencia de propriedades gerada dos tipos** contraria o modelo aprovado do Showcase, com a tabela escrita a mao.
+- **Teclado marca a marca nos graficos** contraria o catalogo, que trata o grafico como uma imagem so com leitura pela tabela.
+- **Showcase publicado** expoe a biblioteca, cuja licenca e restrita.
+- **React 18**: depende da versao do Painel.
+- **`d3-sankey` reescrito aqui** troca 18 KB duplicados no consumidor por codigo a manter, ja listado nas decisoes da 0.1.1.
+
+Nao confirmado no codigo: `Menu`, `Popover` e `Tooltip` ja declaram camada de cima; o grafico ja reserva a altura antes da medida; o bloco escuro legado de `tokens.css` nao e codigo morto, porque so ele define as sombras escuras; `base.css` nao usa `!important` no `box-sizing`.
+
 ## Excecoes de contraste aceitas
 
 Falhas conhecidas, mantidas por decisao visual do mantenedor apos comparacao lado a lado das alternativas.

@@ -8,6 +8,7 @@ import {
   CHART_LABEL_OFFSET,
   ChartLegend,
   Grid,
+  chartRoot,
   measureLabel,
   roundedBarPath,
   truncateToWidth,
@@ -15,6 +16,7 @@ import {
   useSeriesToggle,
   type AxisVisibility,
   type ChartLegendAlign,
+  type ChartRootProps,
   type CornerRadii,
   type LabelFont,
 } from '../core';
@@ -118,7 +120,7 @@ export interface ChartTimelineSummary {
   title: string;
 }
 
-export interface ChartTimelineProps {
+export interface ChartTimelineProps extends ChartRootProps {
   /** Cor de tema que abre a paleta das séries sem cor nem intenção, como nos demais gráficos. */
   accent?: string;
   axisPosition?: 'top' | 'bottom';
@@ -315,6 +317,7 @@ export function ChartTimeline({
   timeScale = 'calendar',
   title,
   xAxis = 'visible',
+  ...root
 }: ChartTimelineProps) {
   const titleId = useId();
   const hintId = useId();
@@ -1065,11 +1068,12 @@ export function ChartTimeline({
       position={legend}
     />
   );
+  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
 
   return (
-    <figure className={styles.figure}>
+    <figure {...figureProps}>
       <figcaption className={styles.header}>
-        <span className={styles.title} id={titleId}>
+        <span className={titleClassName} id={titleId}>
           {title}
         </span>
         {!empty && (

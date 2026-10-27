@@ -10,6 +10,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
   type ChartSlice,
 } from '../core';
 import { formatarNumero } from '../../../utils/formatters';
@@ -17,7 +18,7 @@ import styles from './ChartDonut.module.css';
 
 export type { ChartSlice as ChartDonutSlice };
 
-export interface ChartDonutProps {
+export interface ChartDonutProps extends ChartRootProps {
   accent?: string;
   /** Texto sob o valor do centro, trocado pelo rotulo da fatia sob o ponteiro. */
   centerLabel?: string;
@@ -73,6 +74,7 @@ export function ChartDonut({
   smallSliceThreshold = 0.02,
   thickness = 0.38,
   title,
+  ...root
 }: ChartDonutProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -118,6 +120,7 @@ export function ChartDonut({
       legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
+      root={root}
       swatch="dot"
       title={title}
       tooltip={

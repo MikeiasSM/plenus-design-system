@@ -13,6 +13,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
@@ -25,7 +26,7 @@ export interface ChartRadialTrack extends SeriesAppearance {
   value: number;
 }
 
-export interface ChartRadialProps {
+export interface ChartRadialProps extends ChartRootProps {
   accent?: string;
   /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. */
   centerLabel?: string;
@@ -84,6 +85,7 @@ export function ChartRadial({
   trackRadius,
   title,
   tracks,
+  ...root
 }: ChartRadialProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -169,6 +171,7 @@ export function ChartRadial({
       legendAlign={legendAlign}
       legendPosition={tracks.length > 1 ? legend : 'none'}
       onToggleSeries={toggle}
+      root={root}
       swatch="dot"
       title={title}
       tooltip={

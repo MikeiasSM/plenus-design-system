@@ -28,6 +28,7 @@ import {
   type ChartLegendPosition,
   type MarkVisibility,
   type ChartPoint,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
@@ -55,7 +56,7 @@ export interface ChartAreaSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartAreaProps {
+export interface ChartAreaProps extends ChartRootProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
@@ -121,6 +122,7 @@ export function ChartArea({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  ...root
 }: ChartAreaProps) {
   const gradienteId = useId();
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
@@ -267,6 +269,7 @@ export function ChartArea({
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

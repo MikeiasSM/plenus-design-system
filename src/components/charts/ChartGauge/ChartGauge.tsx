@@ -4,10 +4,12 @@ import {
   ChartLegend,
   arcPath,
   chartHeight,
+  chartRoot,
   useChartMetrics,
   useTweenedNumbers,
   type ChartHeight,
   type ChartLegendPosition,
+  type ChartRootProps,
   type MarkVisibility,
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
@@ -68,7 +70,7 @@ export type ChartGaugeTicks = 'hidden' | 'major' | 'majorAndMinor';
 export type ChartGaugeValueDisplay = 'value' | 'percentOfTarget';
 export type ChartGaugeSegmentUnit = 'value' | 'percentOfTarget';
 
-export interface ChartGaugeProps {
+export interface ChartGaugeProps extends ChartRootProps {
   accent?: string;
   /** Troca a frase montada do `aria-valuetext`. */
   ariaValueText?: string;
@@ -175,6 +177,7 @@ export function ChartGauge({
   trackRadius,
   value,
   valueDisplay = 'value',
+  ...root
 }: ChartGaugeProps) {
   const compact = size === 'compact';
   const { font, height: measuredHeight, radius: tokenRadius, ref, width } = useChartMetrics();
@@ -489,10 +492,11 @@ export function ChartGauge({
     />
   );
   const tip = tooltip();
+  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
 
   return (
-    <figure className={styles.figure}>
-      <figcaption className={styles.title}>{title}</figcaption>
+    <figure {...figureProps}>
+      <figcaption className={titleClassName}>{title}</figcaption>
 
       <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`}>
         {(legend === 'top' || legend === 'left') && legendView}

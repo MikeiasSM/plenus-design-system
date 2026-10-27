@@ -1,8 +1,16 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
+// So o modulo com hook, contexto ou portal e do cliente; o resto segue utilizavel num Server Component.
+const usaApiDoCliente = /\b(use[A-Z]\w*|createContext|createPortal|flushSync)\b/;
+
+const marcaModulosDoCliente: Plugin = {
+  name: 'marca-modulos-do-cliente',
+  renderChunk: (code) => (usaApiDoCliente.test(code) ? { code: `'use client';\n${code}`, map: null } : null),
+};
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), marcaModulosDoCliente],
   build: {
     // Depurar a biblioteca dentro do consumidor, em vez de ler o minificado.
     sourcemap: true,
@@ -25,5 +33,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/components/icons/suite.tsx', 'src/**/*.d.ts'],
+    },
   },
 });

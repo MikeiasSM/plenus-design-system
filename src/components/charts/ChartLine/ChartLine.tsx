@@ -26,6 +26,7 @@ import {
   type ChartLegendPosition,
   type ChartPoint,
   type MarkVisibility,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
@@ -45,7 +46,7 @@ export interface ChartLineSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartLineProps {
+export interface ChartLineProps extends ChartRootProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
@@ -108,6 +109,7 @@ export function ChartLine({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  ...root
 }: ChartLineProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -229,6 +231,7 @@ export function ChartLine({
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

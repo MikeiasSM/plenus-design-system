@@ -13,6 +13,7 @@ import {
   type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
 } from '../core';
 import {
   INTENT_TOKENS,
@@ -30,7 +31,7 @@ export interface ChartTreemapNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartTreemapProps {
+export interface ChartTreemapProps extends ChartRootProps {
   accent?: string;
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
@@ -86,6 +87,7 @@ export function ChartTreemap({
   showDataLabels = true,
   showTooltip = true,
   title,
+  ...root
 }: ChartTreemapProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -172,6 +174,7 @@ export function ChartTreemap({
       legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={intentLabels ? undefined : toggle}
+      root={root}
       title={title}
       tooltip={
         showTooltip

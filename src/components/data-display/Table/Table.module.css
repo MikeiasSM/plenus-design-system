@@ -161,8 +161,8 @@
   padding: var(--pl-space-6) var(--table-inline-padding);
 }
 
-/* O esqueleto e o que se ve; a mensagem fica para o leitor de tela. */
-.status {
+/* So para o leitor de tela: a mensagem do esqueleto e o nome da coluna de selecao unica. */
+.visuallyHidden {
   position: absolute;
   width: 1px;
   height: 1px;

@@ -181,6 +181,15 @@ Novos componentes e funcionalidades públicas devem ser exportados pelo ponto de
 
 Não considere caminhos internos como parte da API pública.
 
+### Convenções
+
+Valem para todo componente novo e para toda mudança de contrato. Os componentes anteriores a elas migram numa versão menor, com os nomes antigos aceitos e marcados como obsoletos até a versão menor seguinte.
+
+- Estado controlável vem no trio `x`, `defaultX` e `onXChange`: `value`, `open`, `hidden`, `expanded`, `selected`.
+- Tom de estado usa um vocabulário só: `neutral`, `info`, `success`, `warning` e `danger`.
+- Todo campo de formulário oferece os tamanhos `sm`, `md` e `lg`.
+- O elemento raiz recebe as propriedades nativas e o `ref`, e soma a `className` do consumidor à própria.
+
 ## 11. Compatibilidade
 
 Alterações em componentes públicos devem considerar:

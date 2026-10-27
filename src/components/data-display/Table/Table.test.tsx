@@ -155,6 +155,12 @@ describe('Table', () => {
     expect(escolheu).toHaveBeenLastCalledWith(['2']);
   });
 
+  it('nomeia o cabecalho da coluna de selecao unica', () => {
+    montar({ selectionMode: 'single' });
+
+    expect(screen.getByRole('columnheader', { name: 'Seleção' })).toBeInTheDocument();
+  });
+
   it('marca a faixa com Shift', () => {
     const escolheu = vi.fn();
     montar({ selectionMode: 'multiple', onSelectionChange: escolheu });

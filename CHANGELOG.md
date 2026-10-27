@@ -6,6 +6,11 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- Os quinze gráficos aceitam as propriedades nativas da figura (`className`, `style`, `id`, `aria-*`) e o `ref`, e ganham `hideTitle`, que deixa o título só para o leitor de tela. O tipo `ChartRootProps` é exportado.
+- Os módulos que usam hook, contexto ou portal saem com `'use client'`, para importar a biblioteca num Server Component do Next.
+
 ### Alterado
 
 - O pacote passa de `UNLICENSED` para licença proprietária, descrita em `LICENSE`: o uso fica restrito aos produtos da Plenustech.
@@ -13,6 +18,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `@types/d3-geo` e `@types/d3-hierarchy` passam a dependências: as declarações públicas os importam, e o consumidor com TypeScript estrito não os achava.
+- A coluna de seleção única da `Table` tem nome no cabeçalho, para o leitor de tela.
 - O aviso da licença MIT do Bootstrap Icons volta a acompanhar o pacote, no `LICENSE`. O build retirava o comentário que o carregava.
 
 ## [0.2.5] — 2026-10-18

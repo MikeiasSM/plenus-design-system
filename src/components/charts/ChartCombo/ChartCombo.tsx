@@ -26,6 +26,7 @@ import {
   type ChartLegendPosition,
   type MarkVisibility,
   type ChartPoint,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
@@ -55,7 +56,7 @@ export interface ChartComboSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartComboProps {
+export interface ChartComboProps extends ChartRootProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
@@ -146,6 +147,7 @@ export function ChartCombo({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight,
+  ...root
 }: ChartComboProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -286,6 +288,7 @@ export function ChartCombo({
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      root={root}
       title={title}
       tooltip={
         showTooltip

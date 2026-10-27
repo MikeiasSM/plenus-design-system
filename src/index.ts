@@ -324,6 +324,7 @@ export type {
   ChartHoveredNode,
   ChartLegendAlign,
   ChartLegendPosition,
+  ChartRootProps,
   MarkVisibility,
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';

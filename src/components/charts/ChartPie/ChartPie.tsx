@@ -11,6 +11,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
   type ChartSlice,
 } from '../core';
 import { textColorOn } from '../palette';
@@ -19,7 +20,7 @@ import styles from './ChartPie.module.css';
 
 export type { ChartSlice as ChartPieSlice };
 
-export interface ChartPieProps {
+export interface ChartPieProps extends ChartRootProps {
   accent?: string;
   defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
@@ -69,6 +70,7 @@ export function ChartPie({
   slices,
   smallSliceThreshold = 0.02,
   title,
+  ...root
 }: ChartPieProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -104,6 +106,7 @@ export function ChartPie({
       legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={anel.toggle}
+      root={root}
       swatch="dot"
       title={title}
       tooltip={

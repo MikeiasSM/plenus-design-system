@@ -19,6 +19,7 @@ import {
   type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { formatarNumero } from '../../../utils/formatters';
@@ -30,7 +31,7 @@ export interface ChartSunburstNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartSunburstProps {
+export interface ChartSunburstProps extends ChartRootProps {
   accent?: string;
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
@@ -119,6 +120,7 @@ export function ChartSunburst({
   showTooltip = true,
   sliceRadius,
   title,
+  ...root
 }: ChartSunburstProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -225,6 +227,7 @@ export function ChartSunburst({
       legendAlign={legendAlign}
       legendPosition={legend}
       onToggleSeries={toggle}
+      root={root}
       swatch="dot"
       title={title}
       tooltip={

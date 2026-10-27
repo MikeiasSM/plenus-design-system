@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import {
   ChartLegend,
   type ChartLegendAlign,
@@ -10,6 +10,21 @@ import { EmptyState } from '../../feedback/EmptyState';
 import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
 import { IconChartBar } from '../../icons';
 import styles from './Chart.module.css';
+
+export interface ChartRootProps extends Omit<ComponentPropsWithRef<'figure'>, 'children' | 'title'> {
+  /** Titulo so para o leitor de tela, quando o conteiner ja o mostra. */
+  hideTitle?: boolean;
+}
+
+export function chartRoot(
+  { className, hideTitle = false, ...props }: ChartRootProps,
+  classNames: { figure: string; title: string },
+) {
+  return {
+    figureProps: { ...props, className: [classNames.figure, className].filter(Boolean).join(' ') },
+    titleClassName: hideTitle ? styles.titleHidden : classNames.title,
+  };
+}
 
 export interface ChartFrameProps {
   /** Marcas do grafico, em coordenadas da area de desenho. */
@@ -33,6 +48,7 @@ export interface ChartFrameProps {
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
   onToggleSeries?: (label: string) => void;
+  root?: ChartRootProps;
   swatch?: ChartLegendSwatch;
   title: string;
   /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
@@ -60,12 +76,14 @@ export function ChartFrame({
   onPointerEnter,
   onPointerLeave,
   onToggleSeries,
+  root = {},
   swatch = 'square',
   title,
   tooltip,
   width,
 }: ChartFrameProps) {
   const tituloId = useId();
+  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const legenda = legendPosition !== 'none' && legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
@@ -91,8 +109,8 @@ export function ChartFrame({
   );
 
   return (
-    <figure className={styles.figure}>
-      <figcaption className={styles.title} id={tituloId}>
+    <figure {...figureProps}>
+      <figcaption className={titleClassName} id={tituloId}>
         {title}
       </figcaption>
 

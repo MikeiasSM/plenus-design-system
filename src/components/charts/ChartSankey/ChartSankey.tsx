@@ -10,6 +10,7 @@ import {
   useChartMetrics,
   widestLabel,
   type ChartHeight,
+  type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
@@ -38,7 +39,7 @@ export type ChartSankeyFlowColor = 'source' | 'target' | 'neutral';
  */
 export type ChartSankeyFlowValuePosition = 'start' | 'middle' | 'end';
 
-export interface ChartSankeyProps {
+export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
   /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
   cyclicMessage?: string;
@@ -165,6 +166,7 @@ export function ChartSankey({
   showLabels = true,
   showTooltip = true,
   title,
+  ...root
 }: ChartSankeyProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
@@ -368,6 +370,7 @@ export function ChartSankey({
       fillHeight={fillHeight}
       height={alturaDoDesenho}
       legendPosition="none"
+      root={root}
       title={title}
       tooltip={
         showTooltip

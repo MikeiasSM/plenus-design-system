@@ -37,6 +37,7 @@ export interface CartesianFrameProps {
   margins: ChartMargins;
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
+  root?: ChartFrameProps['root'];
   title: string;
   tooltip?: ChartFrameProps['tooltip'];
   width: number;
@@ -97,6 +98,7 @@ export function CartesianFrame({
   margins,
   onToggleSeries,
   plot,
+  root,
   title,
   tooltip,
   width,
@@ -120,6 +122,7 @@ export function CartesianFrame({
       onPointerEnter={axisReveal?.onPointerEnter}
       onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}
+      root={root}
       title={title}
       tooltip={tooltip}
       width={width}
