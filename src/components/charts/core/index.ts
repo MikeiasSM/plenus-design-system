@@ -75,3 +75,5 @@ export { useSliceRing } from './useSliceRing';
 export type { SliceRing, UseSliceRingOptions } from './useSliceRing';
 export { useTweenedNumbers } from './useTweenedNumbers';
 export type { TweenOptions } from './useTweenedNumbers';
+export { ColorLegend, keyByLabel } from './ColorLegend';
+export type { ColorLegendEntry, ColorLegendProps } from './ColorLegend';

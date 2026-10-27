@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { ChartMap, type ChartMapProps } from './ChartMap';
 import type { ChartMapFeature } from './mapGeometry';
+import legendStyles from '../core/ColorLegend.module.css';
 import styles from './ChartMap.module.css';
 
 type Ring = number[][];
@@ -199,7 +200,7 @@ describe('ChartMap', () => {
     expect(regionNamed('Alfa')).toHaveAttribute('fill', 'var(--pl-chart-sequential-7)');
     expect(regionNamed('Ômega')).toHaveAttribute('fill', 'var(--pl-chart-sequential-1)');
     expect(regionNamed('Beta').getAttribute('fill')).toMatch(/^color-mix\(in oklab, var\(--pl-chart-sequential-/);
-    expect(document.querySelector(`.${styles.gradientTicks}`)).toHaveTextContent('10100');
+    expect(document.querySelector(`.${legendStyles.gradientTicks}`)).toHaveTextContent('10100');
   });
 
   it('nas classes, a legenda conta, destaca e desliga cada faixa', () => {
@@ -311,7 +312,7 @@ describe('ChartMap', () => {
     expect(tooltip()).toHaveTextContent('% do total44,4%');
     expect(tooltip()).toHaveTextContent('Posição1º de 4');
     expect(document.querySelector(`.${styles.hoverOutline}`)).toBeInTheDocument();
-    expect(document.querySelector(`.${styles.gradientIndicator}`)).toBeInTheDocument();
+    expect(document.querySelector(`.${legendStyles.gradientIndicator}`)).toBeInTheDocument();
 
     fireEvent.mouseOut(regionNamed('Alfa'));
     hover(regionNamed('Delta'));

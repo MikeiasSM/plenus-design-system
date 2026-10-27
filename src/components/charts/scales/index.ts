@@ -10,3 +10,4 @@ export {
   ticksFor,
 } from './scales';
 export type { CategoricalScaleOptions, ContinuousScaleOptions, NumericRange } from './scales';
+export type { ChartColorCategory, ChartColorScale } from './colorScale';

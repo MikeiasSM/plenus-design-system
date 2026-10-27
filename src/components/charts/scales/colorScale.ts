@@ -1,33 +1,33 @@
 import { bisectRight, extent, quantileSorted } from 'd3-array';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 
-export interface ChartMapCategory extends SeriesAppearance {
+export interface ChartColorCategory extends SeriesAppearance {
   id: string;
   label: string;
 }
 
 /** `color` troca o azul da rampa por outra cor, de que saem os sete tons: mais escuro é maior, nos dois temas. */
-export type ChartMapColorScale =
+export type ChartColorScale =
   | { color?: string; domain?: readonly [number, number]; log?: boolean; type: 'sequential' }
   | { center?: number; domain?: readonly [number, number]; type: 'diverging' }
   | { color?: string; count?: number; method: 'quantile' | 'equalInterval'; type: 'classes' }
   | { color?: string; labels?: readonly string[]; thresholds: readonly number[]; type: 'classes' }
-  | { categories: readonly ChartMapCategory[]; type: 'categorical' }
+  | { categories: readonly ChartColorCategory[]; type: 'categorical' }
   | { type: 'none' };
 
-export interface MapDatum {
+export interface ColorDatum {
   category: string | null;
   value: number | null;
 }
 
 /** Uma faixa ou categoria da legenda, que liga e desliga as regioes dela pela chave. */
-export interface MapScaleEntry {
+export interface ColorScaleEntry {
   color: string;
   key: string;
   label: string;
 }
 
-export interface MapGradient {
+export interface ColorGradient {
   log: boolean;
   /** Posicao do valor na barra, de 0 a 1. */
   position: (value: number) => number;
@@ -35,15 +35,15 @@ export interface MapGradient {
   ticks: readonly { position: number; value: number }[];
 }
 
-export interface MapScale {
-  entries: readonly MapScaleEntry[];
+export interface ColorScale {
+  entries: readonly ColorScaleEntry[];
   /** Cor da regiao; `undefined` quando ela fica sem dado. */
-  fillOf: (datum: MapDatum) => string | undefined;
-  gradient?: MapGradient;
+  fillOf: (datum: ColorDatum) => string | undefined;
+  gradient?: ColorGradient;
   /** Chave da faixa ou da categoria da regiao, quando a legenda as controla. */
-  keyOf: (datum: MapDatum) => string | undefined;
+  keyOf: (datum: ColorDatum) => string | undefined;
   /** Nome da faixa ou da categoria, para o balao e a tabela. */
-  labelOf: (datum: MapDatum) => string | undefined;
+  labelOf: (datum: ColorDatum) => string | undefined;
   /** A cor mede um valor; na categorica e na nenhuma, ela so nomeia ou nao diz nada. */
   numeric: boolean;
 }
@@ -131,7 +131,7 @@ function classScale(
   range: readonly [number, number],
   format: (value: number) => string,
   stops: readonly string[],
-): MapScale {
+): ColorScale {
   const colors = classColors(thresholds.length + 1, stops);
   const [low, high] = range;
   const names =
@@ -149,7 +149,7 @@ function classScale(
   };
 }
 
-function continuousScale(stops: readonly string[], position: (value: number) => number, gradient: MapGradient): MapScale {
+function continuousScale(stops: readonly string[], position: (value: number) => number, gradient: ColorGradient): ColorScale {
   return {
     entries: [],
     fillOf: ({ value }) => (value === null ? undefined : rampColor(stops, position(value))),
@@ -161,10 +161,10 @@ function continuousScale(stops: readonly string[], position: (value: number) => 
 }
 
 function sequentialScale(
-  config: Extract<ChartMapColorScale, { type: 'sequential' }>,
+  config: Extract<ChartColorScale, { type: 'sequential' }>,
   values: readonly number[],
   stops: readonly string[],
-): MapScale {
+): ColorScale {
   const [dataLow = 0, dataHigh = 0] = extent(values);
   const [low, high] = config.domain ?? [dataLow, dataHigh];
   // Na logaritmica, o que nao for positivo encosta no primeiro passo.
@@ -186,9 +186,9 @@ function sequentialScale(
 }
 
 function divergingScale(
-  config: Extract<ChartMapColorScale, { type: 'diverging' }>,
+  config: Extract<ChartColorScale, { type: 'diverging' }>,
   values: readonly number[],
-): MapScale {
+): ColorScale {
   const center = config.center ?? 0;
   const [low = center, high = center] = config.domain ?? extent(values);
   // O dominio e simetrico em torno do centro: a mesma distancia pinta a mesma intensidade dos dois lados.
@@ -207,7 +207,7 @@ function divergingScale(
   });
 }
 
-function categoricalScale(categories: readonly ChartMapCategory[], accent?: string): MapScale {
+function categoricalScale(categories: readonly ChartColorCategory[], accent?: string): ColorScale {
   const colors = resolveSeriesColors(categories, { accent });
   const byId = new Map(categories.map((category, index) => [category.id, { color: colors[index], label: category.label }]));
 
@@ -224,12 +224,12 @@ function categoricalScale(categories: readonly ChartMapCategory[], accent?: stri
  * Escala de cor das regioes, sobre os valores validos das regioes em jogo. As cores sao tokens, ou a mistura de dois
  * deles: a troca de tema repinta o mapa sem calculo algum.
  */
-export function buildMapScale(
-  config: ChartMapColorScale,
+export function buildColorScale(
+  config: ChartColorScale,
   values: readonly number[],
   format: (value: number) => string,
   accent?: string,
-): MapScale {
+): ColorScale {
   if (config.type === 'none') {
     return {
       entries: [],

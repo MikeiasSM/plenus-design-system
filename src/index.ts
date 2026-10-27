@@ -329,3 +329,4 @@ export type {
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';
+export type { ChartColorCategory, ChartColorScale } from './components/charts/scales';

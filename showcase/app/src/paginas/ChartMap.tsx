@@ -7,7 +7,7 @@ import {
   formatarPercentual,
   Skeleton,
   type ChartLegendAlign,
-  type ChartMapColorScale,
+  type ChartColorScale,
   type ChartMapFeature,
   type ChartMapFeatureCollection,
   type ChartMapLegendPosition,
@@ -158,7 +158,7 @@ const CONJUNTOS: Record<string, Conjunto> = {
 };
 
 // A cor escolhida troca o azul da rampa na sequencial e nas classes; na categórica, abre a paleta pelo `accent`.
-function escalaDe(tipo: string, metodo: string, faixas: number, log: boolean, color?: string): ChartMapColorScale {
+function escalaDe(tipo: string, metodo: string, faixas: number, log: boolean, color?: string): ChartColorScale {
   if (tipo === 'classes') {
     return metodo === 'thresholds'
       ? { color, thresholds: [20, 40, 60, 80], type: 'classes' }
@@ -735,7 +735,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'featureNameKey', tipo: 'string', padrao: "'properties.name'", descricao: 'Caminho do nome no balão, na tabela e na descrição.' },
     { nome: 'featureLabelKey', tipo: 'string', padrao: 'o identificador', descricao: 'Caminho do texto curto do rótulo: a sigla na UF, o nome na região.' },
     { nome: 'data', tipo: 'readonly ChartMapRegionDatum[]', padrao: '[]', descricao: <><code>{'{ id, value?, category? }'}</code>. Feição sem item, ou com valor inválido, fica sem dado.</> },
-    { nome: 'colorScale', tipo: 'ChartMapColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code> (com <code>log</code> e <code>domain</code>), <code>diverging</code> (com <code>center</code>), <code>classes</code> por <code>method</code> e <code>count</code> ou por <code>thresholds</code> e <code>labels</code>, <code>categorical</code> com <code>categories</code>, ou <code>none</code>. Na sequencial e nas classes, <code>color</code> troca o azul por outra cor, de que saem os tons: mais escuro é maior.</> },
+    { nome: 'colorScale', tipo: 'ChartColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code> (com <code>log</code> e <code>domain</code>), <code>diverging</code> (com <code>center</code>), <code>classes</code> por <code>method</code> e <code>count</code> ou por <code>thresholds</code> e <code>labels</code>, <code>categorical</code> com <code>categories</code>, ou <code>none</code>. Na sequencial e nas classes, <code>color</code> troca o azul por outra cor, de que saem os tons: mais escuro é maior.</> },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta das categorias e dos marcadores.' },
     { nome: 'valueLabel', tipo: 'string', padrao: "'Valor'", descricao: 'Nome da medida no balão, na legenda e na tabela.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato na legenda, nos rótulos, na descrição e na tabela.' },

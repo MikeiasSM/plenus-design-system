@@ -32,7 +32,7 @@ import {
   type MapRegion,
 } from './mapGeometry';
 import { CALLOUT_GAP, calloutWidth, planLabels, type LabelCandidate, type LabelPlan } from './mapLabels';
-import { buildMapScale, type ChartMapColorScale, type MapScale } from './mapScales';
+import { buildColorScale, type ChartColorScale, type ColorScale } from '../scales/colorScale';
 import type { Point, Ring } from './polylabel';
 import styles from './ChartMap.module.css';
 
@@ -80,7 +80,7 @@ export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 export interface ChartMapProps extends ChartRootProps {
   /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
   accent?: string;
-  colorScale?: ChartMapColorScale;
+  colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
   /** Series ocultas de inicio, no modo nao controlado: categorias e series de marcadores, pelo `id`. */
   defaultHiddenSeries?: readonly string[];
@@ -164,7 +164,7 @@ interface PlacedMarker {
 
 type Target = { kind: 'region'; entry: RegionEntry } | { kind: 'marker'; marker: PlacedMarker };
 
-const DEFAULT_SCALE: ChartMapColorScale = { type: 'sequential' };
+const DEFAULT_SCALE: ChartColorScale = { type: 'sequential' };
 const NARROW = 640;
 const MIN_HEIGHT = 160;
 const SIDE_LEGEND_MAX = 240;
@@ -371,7 +371,7 @@ export function ChartMap({
         value: typeof value === 'number' && Number.isFinite(value) ? value : null,
       };
     });
-    const mapScale = buildMapScale(colorScale, read.flatMap((item) => item.value ?? []), formatValue, accent);
+    const mapScale = buildColorScale(colorScale, read.flatMap((item) => item.value ?? []), formatValue, accent);
     const withValue = read.filter((item) => item.value !== null).sort((a, b) => b.value! - a.value!);
     const rankOf = new Map(withValue.map((item, index) => [item.region.id, index + 1]));
     const all = read.map((item): RegionEntry => {
@@ -943,14 +943,14 @@ export function ChartMap({
 }
 
 interface TooltipOptions {
-  colorScale: ChartMapColorScale;
+  colorScale: ChartColorScale;
   formatPercent: (ratio: number) => string;
   formatTooltipValue: (value: number) => string;
   formatValue: (value: number) => string;
   markerValueLabel: string;
   noDataLabel: string;
   rankedCount: number;
-  scale: MapScale;
+  scale: ColorScale;
   showShare: boolean;
   total: number;
   valueLabel: string;
