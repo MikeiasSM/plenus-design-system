@@ -74,7 +74,7 @@ export const familias: readonly Familia[] = [
       componente('Timeline', 'Histórico de estados de um registro, com datas e o estado atual destacado.'),
       componente('SortableList', 'Lista reordenável por arrasto ou teclado, com seleção de um item.'),
       componente('Table', 'Tabela básica, em HTML semântico.'),
-      componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.', { previsto: true }),
+      componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.'),
     ],
   },
   {

@@ -870,7 +870,38 @@ Ponto de partida, nao contrato: o mantenedor pode ter esquecido recursos do lega
 
 **Acessibilidade, conferida pela arvore do Chrome:** tres grades aninhadas e nomeadas, `treegrid` onde ha expansao, linhas com `aria-expanded`, celula de detalhe nomeada pela linha-mae, nenhum botao sem nome. O nome do cabecalho nao pode incluir o texto dos controles internos; o prototipo foi corrigido. Falta o teste com leitor de tela de verdade (NVDA), que fica com o mantenedor.
 
-**Antes da fase 1:** teste no NVDA. A `Pagination` com tamanho de pagina e primeira e ultima esta feita.
+**Antes da fase 1:** teste no NVDA, ainda pendente. A `Pagination` com tamanho de pagina e primeira e ultima esta feita. O mantenedor rodou o medidor da prova de virtualizacao no navegador dele, em 28/10/2026, sem problema.
+
+### DataGrid: fase 1
+
+Fundacao, na branch `datagrid`, em 28/10/2026. Exportado no indice, mas fora de versao publicada ate o lancamento.
+
+- **State Motor em `gridState.ts`**, puro, conforme `ARCHITECTURE.md` secao 7: estado em fatias, estagios do pipeline (busca, ordenacao, pagina), foco como par linha e coluna, retrato versionado. O nome `dataGrid.ts` colidia com `DataGrid.tsx` no Windows, que nao distingue caixa.
+- **Sem registro de tipos.** O plano deixava a forma do registro para quando houvesse o primeiro tipo proprio de um produto; nao houve. Os cinco tipos (texto, numero, moeda, data, booleano) ficam no motor, e cada coluna sobrescreve `format`, `compare` e `align`. O registro nasce com o primeiro caso real.
+- **Ligacao React dentro do componente**, sem `useDataGrid` publico, como o plano recomendava.
+- **A busca compara o texto exibido**, sem acento e sem caixa: "1.250,00" acha a moeda. Espera 250 ms depois da ultima tecla, nos dois modos: no servidor, cada tecla seria uma consulta.
+- **Ordenacao estavel**, com o vazio no fim nos dois sentidos. Sem Shift, a coluna clicada passa a ser a unica; com Shift, soma-se as outras. Ordenar ou buscar volta a primeira pagina.
+- **Paginacao opcional**, por `pagination`. Sem ela, todas as linhas rolam na mesma area, por janela.
+- **Modo servidor:** `rows` e a pagina e `totalRows` o total; `onQueryChange` leva busca, ordem, pagina e tamanho a cada mudanca.
+- **Retrato:** busca, ordem, pagina e tamanho, com `version: 1`. A restauracao descarta coluna que ja nao existe e valor invalido, campo a campo. A selecao fica fora, como o plano pedia.
+- **Caixa de selecao na primeira coluna**, com a largura dela somada a da coluna, para nao cortar o conteudo.
+- **Janela virtual:** linhas posicionadas pelo topo calculado, altura fixa de 40 px nesta fase; `rowLayout.ts` ja aceita alturas medidas, que a fase 2 usa no detalhe. A linha com foco fica montada fora da janela.
+- **Desempenho**, no Chrome headless, rolando 120 px por quadro em 10.000 linhas: com 30 colunas, a primeira versao media 40 ms por quadro, com 31 quadros acima de 50 ms. A linha passou a componente memorizado, com funcoes estaveis, e a rolagem so redesenha quando a primeira linha visivel muda: 11 ms de media, nenhum quadro acima de 50 ms, cerca de 1.600 nos.
+- **Teclado conferido no navegador:** a rolagem acompanha o foco nas setas, PageDown e Ctrl+End; Ctrl+Home volta ao topo.
+- **Revisao independente**, antes do commit, achou e corrigiu:
+  - no modo servidor, a pagina era limitada pelo total, que zera enquanto a pagina carrega, e a grade entrava em laco entre a pagina pedida e a primeira. No servidor a pagina nao e limitada;
+  - busca sem resultado depois de rolar deixava a janela com a posicao velha e a grade em branco ao limpar. A posicao e relida quando as linhas mudam;
+  - foco num controle da celula nao movia o tabindex movel, e a linha podia sair da janela com o foco dentro;
+  - linha com foco removida levava o foco ao `body`. O foco passa a linha na mesma posicao;
+  - `aria-sort` so no criterio principal, como pede o ARIA;
+  - a mensagem de vazio ou de falha conta como linha, com `aria-rowcount` 2;
+  - no servidor, a primeira consulta sai na montagem, com o retrato restaurado;
+  - `onPageChange(1)` sem mudanca, regiao viva que nao repetia a mesma frase, Espaco que rolava a area, carregamento que rolava junto, paginacao clicavel durante a carga e tamanho restaurado fora das opcoes.
+  O nome do cabecalho passou a vir do texto visivel, por `aria-labelledby`. Sairam a medicao da altura, que a propriedade ja fixa, e codigo morto.
+- **Achado fora da grade:** o tema nao declara `color-scheme`, e o canto da barra de rolagem fica branco no escuro em toda area rolavel. Entra com o tema por subarvore.
+
+**Proximo:** teste no NVDA, depois a fase 2, master-detail.
+
 
 ### Contador de caracteres
 

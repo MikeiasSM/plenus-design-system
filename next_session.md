@@ -5,20 +5,21 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 ## Estado
 
 - **Publicado:** 0.4.0 no npm, com procedência, pela tag `v0.4.0` na `main`.
-- **`datagrid`**: parte da `main` da 0.4.0 e soma a `Pagination` nova. O DataGrid segue nela até o lançamento, numa versão de correção quando o desenho estiver validado: componente novo é adição compatível.
+- **`datagrid`**: parte da `main` da 0.4.0 e soma a `Pagination` nova e a fase 1 do DataGrid. O DataGrid segue nela até o lançamento, numa versão de correção quando o desenho estiver validado: componente novo é adição compatível.
 - A `Pagination` não depende do DataGrid. Se o Painel precisar dela antes, ela pode ir sozinha à `main`, numa 0.4.1.
 
 ## Feito nesta sessão
 
 - **`Pagination`** com seletor de itens por página (`pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`) e os passos para a primeira e a última página (`showFirstLast`). Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. `pageCount` passou a ser opcional, saindo de `totalItems` e do tamanho.
 - **`Select`** sem `label` nomeia a lista aberta pelo `aria-label` do gatilho.
+- **DataGrid, fase 1**: motor puro (`gridState.ts`), colunas como dados, ordenação simples e empilhada, busca global, paginação no cliente e modo servidor, seleção, janela virtual, teclado em dois modos e retrato do estado. Decisões e medidas no `PROGRESS.md`, seção "DataGrid: fase 1". No Showcase, a página do DataGrid tem playground com até 50.000 linhas e 30 colunas.
 
-## Pendente antes da fase 1 do DataGrid
+## Próximos passos do DataGrid
 
-1. **Teste no NVDA** do protótipo, com o mantenedor. Roteiro: Tab até a grade ("Pedidos de compra, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe e Enter ("Itens de …"); `Esc` volta à linha do pedido; `Alt+↓` num título abre o filtro.
-2. **Rodar o medidor da prova de virtualização** no navegador do mantenedor; os números do Chrome headless são só comparação.
+1. **Teste no NVDA**, com o mantenedor, antes de fixar a marcação do detalhe. Roteiro no protótipo: Tab até a grade ("Pedidos de compra, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe e Enter ("Itens de …"); `Esc` volta à linha do pedido; `Alt+↓` num título abre o filtro. A grade da fase 1 também pode ser testada no Showcase.
+2. **Fase 2, master-detail**: `renderDetail`, `rowHasDetail`, expansão, estado do detalhe no motor por caminho, alturas medidas com ancoragem, N níveis numa rolagem só.
 
-Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação, conforme o plano. Decisões e resultados da fase 0 no `PROGRESS.md`, seção "DataGrid: fase 0".
+O medidor da prova de virtualização já rodou no navegador do mantenedor, sem problema.
 
 - Pesquisa e plano: https://claude.ai/artifact/Gk9TR3yiRtQ6ir49qQLQmM
 - Protótipo de interação: https://claude.ai/artifact/YSBhYGrUFVkAzYWa68cy7o

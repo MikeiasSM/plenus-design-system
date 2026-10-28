@@ -193,6 +193,21 @@ export type {
   TableSize,
   TableSort,
 } from './components/data-display/Table';
+export { DataGrid } from './components/data-display/DataGrid';
+export type {
+  DataGridAlign,
+  DataGridCellContext,
+  DataGridColumn,
+  DataGridColumnType,
+  DataGridProps,
+  DataGridQuery,
+  DataGridSearchProps,
+  DataGridSelectionMode,
+  DataGridSnapshot,
+  DataGridSortDirection,
+  DataGridSortItem,
+  DataGridToolbarProps,
+} from './components/data-display/DataGrid';
 export { DatePicker } from './components/forms/DatePicker';
 export type { DatePickerProps, DatePickerSize } from './components/forms/DatePicker';
 export { TimePicker } from './components/forms/TimePicker';
