@@ -841,6 +841,37 @@ Levantamento das referencias feito antes da implementacao. O Untitled UI guia vi
 - O descarte de colunas em telas estreitas usa `hideBelow` com media query e atributo de dado, sem hook de breakpoint. O `useBreakpoint` previsto em `ARCHITECTURE.md` secao 8 nasce quando um componente exigir medida em tempo de execucao.
 - O `DataGrid` tem escopo levantado a partir do AG Grid Community: colunas fixas, redimensionaveis e reordenaveis, filtro por coluna, edicao de celula, virtualizacao de linha e coluna, e navegacao bidimensional. Exportacao para planilha, graficos integrados e area de transferencia dependem de decisao sobre dependencia, conforme o mandamento 13, e conversam com a escolha do D3 como nucleo de graficos.
 
+### DataGrid: fase 0
+
+Ponto de partida, nao contrato: o mantenedor pode ter esquecido recursos do legado, e o escopo continua aberto. O componente e generico, extensivel e dinamico; o Painel e o primeiro consumidor, nunca o molde.
+
+- **Pesquisa e plano:** https://claude.ai/artifact/Gk9TR3yiRtQ6ir49qQLQmM. Mercado alem do AG Grid (MUI X, TanStack, react-data-grid, DevExtreme, Ignite UI, Kendo, Syncfusion, PrimeReact e outros), orientacao do APG do W3C e dos design systems. Plano em fases: fundacao, master-detail, colunas e menus, filtros e sumarizacao, arvore, exportacao por ultimo.
+- **Prototipo de interacao, aprovado:** https://claude.ai/artifact/YSBhYGrUFVkAzYWa68cy7o.
+- **Prova de virtualizacao:** https://claude.ai/artifact/TKR59WipNY13aKAwMGKJJ9.
+
+**Decisoes do mantenedor, a partir do prototipo:**
+
+- **Colunas como dados**, numa lista, com `children` para os grupos de cabecalho. Diverge do `Table.Column`: as colunas do DataGrid sao configuracao dinamica, nao estrutura de tela.
+- **Larguras:** `width` fixa ou `flex` com peso, `minWidth` e `maxWidth`. A sobra da tela vai as flexiveis; a coluna redimensionada pelo usuario vira fixa.
+- **Controles do componente na primeira coluna de dados**, como no AG Grid: caixa de selecao e seta de expandir num espaco reservado no inicio dela, e nao em colunas proprias. O titulo, o valor e o total dessa coluna comecam depois dos controles.
+- **Colunas fixas dos dois lados**, por `position: sticky`. A divisa e a sombra aparecem so quando ha conteudo rolado por baixo.
+- **Cabecalho em caixas**, com bordas de mesma espessura em todas. Os titulos ficam na ultima linha; na area de grupos, o grupo sem subgrupo desce ate os titulos, e o espaco acima de colunas sem grupo vira um bloco so, dividido apenas na divisa das fixas.
+- **Filtro por coluna no titulo**: um funil ao lado dos tres pontos, so nas colunas que aceitam filtro, abre o filtro do tipo num popover. Sem linha de filtros. Com filtro ativo, o funil fica destacado. `Alt+↓` no titulo abre o filtro.
+- **Detalhe de largura total, como bandeja rebaixada**, em tom proprio, com as grades internas em cartoes. Detalhe so entre as colunas fixas foi testado e descartado.
+- **Grafico no detalhe e conteudo livre do `renderDetail`.** Casos: so o grafico; dados e grafico; grafico por item, um por vez. Entra uma parte de layout, `DataGrid.DetailLayout`, com conteudo lateral ao lado (direita ou esquerda) ou em dialogo modal, na proporcao escolhida por quem usa, padrao 40% grafico e 60% dados. No grafico por item, o botao da linha abre o grafico ao lado; o mesmo botao fecha, o de outro item troca os dados; comeca fechado. A grade nao conhece graficos.
+- **Estado do detalhe no motor**, entregue ao conteudo por `state` e `setState`, pelo caminho da linha: sobrevive a rolagem e ao recolher.
+- **Exportacao por ultimo**: CSV no nucleo; XLSX e PDF por adaptador opcional; XLS fora.
+
+**Prova de virtualizacao**, medida no Chrome headless, sem placa de video, so como comparacao; a medida que vale e a do navegador do mantenedor, pelo medidor da propria pagina. Com 1.000, 10.000 e 50.000 pedidos, 60 detalhes abertos em tres niveis e um grafico em cada pedido: nenhum quadro acima de 50 ms, cerca de 200 nos no DOM, estado preservado ao desmontar e salto zero ao mudar a altura de um detalhe acima da tela.
+
+- Uma rolagem so: as grades aninhadas nao rolam; as linhas delas sao recortadas pela tela da grade de fora.
+- **A rolagem e corrigida por ancoragem, num lugar so.** Compensar em cada bloco medido corrigia duas vezes quando um detalhe estava dentro de outro. A ancora e a primeira linha visivel, registrada no instante em que uma altura muda, antes do redesenho; registrada so na rolagem, ela ficava velha com 50.000 linhas e o salto chegava a 553 px. A correcao so age se a posicao de rolagem e a mesma do registro, ou desfaria a rolagem do proprio usuario.
+- Com 50.000, a fluidez cai porque a prova recalcula a posicao de todas as linhas a cada quadro. No componente, as posicoes ficam em cache e so mudam quando uma altura muda; a rolagem faz busca binaria.
+
+**Acessibilidade, conferida pela arvore do Chrome:** tres grades aninhadas e nomeadas, `treegrid` onde ha expansao, linhas com `aria-expanded`, celula de detalhe nomeada pela linha-mae, nenhum botao sem nome. O nome do cabecalho nao pode incluir o texto dos controles internos; o prototipo foi corrigido. Falta o teste com leitor de tela de verdade (NVDA), que fica com o mantenedor.
+
+**Antes da fase 1:** teste no NVDA e `Pagination` com tamanho de pagina e primeira e ultima.
+
 ### Contador de caracteres
 
 - O contador existe apenas em campo de texto plano: `InputText` e `Textarea`. `InputNumber` e `InputCurrency` omitem `showCharacterCount` do tipo herdado de `InputText`, e `InputPassword` nao o possui.
