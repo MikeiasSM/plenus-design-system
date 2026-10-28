@@ -292,4 +292,29 @@ describe('ChartSankey', () => {
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicar).toHaveBeenCalledWith(caixa[1]);
   });
+
+  it('com clique no no, os nos sao botoes numa linha abaixo das ligacoes, com o total que passa por eles', () => {
+    fixarTamanho();
+    const aoClicarNaLigacao = vi.fn();
+    const aoClicarNoNo = vi.fn();
+    render(<ChartSankey flows={caixa} onFlowClick={aoClicarNaLigacao} onNodeClick={aoClicarNoNo} title="Caixa" />);
+    const ligacao = screen.getByRole('button', { name: /^Receita → Custos/ });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Custos' }));
+    expect(aoClicarNoNo).toHaveBeenCalledWith({ label: 'Custos', value: 600 });
+
+    act(() => ligacao.focus());
+    fireEvent.keyDown(ligacao, { key: 'ArrowDown' });
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicarNoNo).toHaveBeenCalledTimes(2);
+    expect(aoClicarNaLigacao).not.toHaveBeenCalled();
+  });
+
+  it('so com clique no no, as ligacoes continuam so desenhadas', () => {
+    fixarTamanho();
+    render(<ChartSankey flows={caixa} onNodeClick={vi.fn()} title="Caixa" />);
+
+    expect(screen.queryByRole('button', { name: /→/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Receita' })).toBeInTheDocument();
+  });
 });

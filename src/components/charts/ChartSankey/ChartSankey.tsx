@@ -40,6 +40,12 @@ export type ChartSankeyFlowColor = 'source' | 'target' | 'neutral';
  */
 export type ChartSankeyFlowValuePosition = 'start' | 'middle' | 'end';
 
+/** Argumento do clique num no: o rotulo e o total que passa por ele. */
+export interface ChartSankeyNodeClick {
+  label: string;
+  value: number;
+}
+
 export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
   /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
@@ -60,6 +66,8 @@ export interface ChartSankeyProps extends ChartRootProps {
   nodeWidth?: number;
   /** Clique na ligacao. Com ele, as ligacoes viram botoes percorridos pelas setas. */
   onFlowClick?: (flow: ChartSankeyFlow) => void;
+  /** Clique no no, com o total que passa por ele. Com ele, os nos viram botoes, numa linha abaixo das ligacoes. */
+  onNodeClick?: (node: ChartSankeyNodeClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showFlowValues?: boolean;
@@ -72,6 +80,7 @@ export interface ChartSankeyProps extends ChartRootProps {
 interface NoPosicionado {
   index: number;
   label: string;
+  value: number;
   x0: number;
   x1: number;
   y0: number;
@@ -168,6 +177,7 @@ export function ChartSankey({
   nodePadding = 12,
   nodeWidth = 12,
   onFlowClick,
+  onNodeClick,
   palette,
   showFlowValues = false,
   showLabels = true,
@@ -252,10 +262,24 @@ export function ChartSankey({
     return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
+  // As ligacoes ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
   const marcas = useMarkNavigation({
-    onActivate: onFlowClick && (({ column }) => onFlowClick(flows[grafo.links[column].index])),
-    onFocusMark: (posicao) => setEmFoco(posicao?.column ?? null),
-    present: grafo.links.map((_, column) => ({ column, row: 0 })),
+    onActivate:
+      onFlowClick || onNodeClick
+        ? ({ column, row }) => {
+            if (row === 0) {
+              onFlowClick?.(flows[grafo.links[column].index]);
+            } else {
+              const no = grafo.nodes[column];
+              onNodeClick?.({ label: no.label, value: no.value });
+            }
+          }
+        : undefined,
+    onFocusMark: (posicao) => setEmFoco(posicao?.row === 0 ? posicao.column : null),
+    present: [
+      ...(onFlowClick ? grafo.links.map((_, column) => ({ column, row: 0 })) : []),
+      ...(onNodeClick ? grafo.nodes.map((_, column) => ({ column, row: 1 })) : []),
+    ],
   });
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
@@ -399,38 +423,40 @@ export function ChartSankey({
       tooltipAnchor={marcas.tooltipAnchor}
       width={width}
     >
-      <g className={styles.links} {...marcas.groupProps}>
-        {grafo.links.map((ligacao, indice) => (
-          <path
-            aria-label={descreverLigacao(ligacao)}
-            {...marcas.markProps({ column: indice, row: 0 }, classeDa(indice))}
-            d={caminhoDa(ligacao)}
-            key={indice}
-            onMouseEnter={() => setEmFoco(indice)}
-            onMouseLeave={() => setEmFoco(null)}
-            stroke={corDa(ligacao)}
-            // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
-            style={{ strokeWidth: Math.max(ligacao.width, 1) }}
+      <g {...marcas.groupProps}>
+        <g className={styles.links}>
+          {grafo.links.map((ligacao, indice) => (
+            <path
+              aria-label={descreverLigacao(ligacao)}
+              {...(onFlowClick ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice) })}
+              d={caminhoDa(ligacao)}
+              key={indice}
+              onMouseEnter={() => setEmFoco(indice)}
+              onMouseLeave={() => setEmFoco(null)}
+              stroke={corDa(ligacao)}
+              // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
+              style={{ strokeWidth: Math.max(ligacao.width, 1) }}
+            >
+              {!showTooltip && <title>{descreverLigacao(ligacao)}</title>}
+            </path>
+          ))}
+        </g>
+
+        {grafo.nodes.map((no, indice) => (
+          <rect
+            aria-label={no.label}
+            {...(onNodeClick ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node })}
+            fill={corDoNo(no.index)}
+            height={Math.max(no.y1 - no.y0, 1)}
+            key={no.label}
+            width={no.x1 - no.x0}
+            x={no.x0}
+            y={no.y0}
           >
-            {!showTooltip && <title>{descreverLigacao(ligacao)}</title>}
-          </path>
+            <title>{no.label}</title>
+          </rect>
         ))}
       </g>
-
-      {grafo.nodes.map((no) => (
-        <rect
-          aria-label={no.label}
-          className={styles.node}
-          fill={corDoNo(no.index)}
-          height={Math.max(no.y1 - no.y0, 1)}
-          key={no.label}
-          width={no.x1 - no.x0}
-          x={no.x0}
-          y={no.y0}
-        >
-          <title>{no.label}</title>
-        </rect>
-      ))}
 
       {showFlowValues &&
         grafo.links.map((ligacao, indice) => {

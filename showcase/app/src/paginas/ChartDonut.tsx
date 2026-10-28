@@ -316,6 +316,6 @@ const cores = resolveSeriesColors(receita);
     { nome: 'onHoverSlice', tipo: '(slice: ChartDonutSlice | null) => void', descricao: 'Fatia sob o ponteiro, já agrupada; costura para o ChartTooltip.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onSliceClick', tipo: '(slice: ChartDonutSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onSliceClick', tipo: '(slice: ChartDonutSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco. Em Outros, grouped traz as fatias reunidas.' },
   ],
 };

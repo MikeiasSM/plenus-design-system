@@ -100,6 +100,19 @@ describe('ChartPie', () => {
     expect(aoClicar).toHaveBeenCalledWith({ label: 'Produtos', value: 40 });
   });
 
+  it('o clique em Outros entrega as fatias que ele reune', () => {
+    const aoClicar = vi.fn();
+    const pequenas = [
+      { label: 'Frete', value: 1 },
+      { label: 'Taxas', value: 1 },
+    ];
+    render(<ChartPie onSliceClick={aoClicar} slices={[...composicao, ...pequenas]} smallSliceThreshold={0.05} title="Receita" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /^Outros:/ }));
+
+    expect(aoClicar).toHaveBeenCalledWith(expect.objectContaining({ grouped: pequenas, label: 'Outros', value: 2 }));
+  });
+
   it('desliga a fatia pela legenda', () => {
     render(<ChartPie slices={composicao} title="Receita" />);
     const botao = screen.getByRole('button', { name: /Produtos/ });

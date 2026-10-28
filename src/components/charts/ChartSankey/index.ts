@@ -5,5 +5,6 @@ export type {
   ChartSankeyFlowColor,
   ChartSankeyFlowValuePosition,
   ChartSankeyNode,
+  ChartSankeyNodeClick,
   ChartSankeyProps,
 } from './ChartSankey';

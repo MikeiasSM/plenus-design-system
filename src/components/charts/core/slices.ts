@@ -1,6 +1,8 @@
 import type { SeriesAppearance } from '../palette';
 
 export interface ChartSlice extends SeriesAppearance {
+  /** So na fatia que reune as pequenas: as fatias reunidas, para o clique saber o que ela contem. */
+  grouped?: readonly ChartSlice[];
   label: string;
   value: number;
 }
@@ -41,6 +43,7 @@ export function groupSmallSlices(
   }
 
   const reunida: ChartSlice = {
+    grouped: pequenas,
     intent: 'neutral',
     label,
     value: pequenas.reduce((soma, fatia) => soma + ocupacao(fatia), 0),

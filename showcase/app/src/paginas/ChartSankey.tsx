@@ -290,5 +290,6 @@ export const pagina: Pagina = {
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onFlowClick', tipo: '(flow: ChartSankeyFlow) => void', descricao: 'Torna as ligações botões, percorridos pelas setas; o foco realça a faixa e abre o balão.' },
+    { nome: 'onNodeClick', tipo: '(node: ChartSankeyNodeClick) => void', descricao: 'Torna os nós botões, numa linha abaixo das ligações; recebe o rótulo e o total que passa pelo nó.' },
   ],
 };

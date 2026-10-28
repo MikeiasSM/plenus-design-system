@@ -6,6 +6,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.4.0] — 2026-10-28
+
 ### Adicionado
 
 - Paletas de marca: `data-palette="blue"` e `data-palette="purple"` trocam a identidade em qualquer elemento, inclusive numa subárvore. O laranja continua o padrão.
@@ -13,6 +15,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - Token `--pl-color-primary-strong`, o traço da cor primária: texto, borda de seleção, anel de foco e aba ativa, a 4,5:1 sobre a superfície.
 - Gráficos: `palette`, uma lista de cores em rotação ou `{ base }`, que gera os tons da cor base. Tipo `ChartPalette`.
 - Clique na marca em todos os gráficos de dados, menos o `ChartGauge`, que mostra um valor só: `onBarClick` no `ChartBar`; `onPointClick` no `ChartLine`, no `ChartArea` e no `ChartScatter`; `onSliceClick` no `ChartPie` e no `ChartDonut`; `onMarkClick` no `ChartCombo`, para barras e pontos; `onTrackClick` no `ChartRadial`; `onNodeClick` no `ChartTreemap` e no `ChartSunburst`, com o caminho até o nó; `onFlowClick` no `ChartSankey`; e `onStepClick` no `ChartWaterfall`. Com ele, as marcas viram botões com uma parada de tabulação só, setas entre categorias e séries, `Home` e `End` nas pontas e `Enter` ou `Espaço` para ativar, e o balão abre no foco do teclado. Na linha e na área, o clique na faixa vale pelo ponto mais próximo. Tipos `ChartMarkClick` e `ChartScatterPointClick`.
+- `ChartSankey`: `onNodeClick`, o clique no nó, com o rótulo e o total que passa por ele. Os nós ficam numa linha abaixo das ligações, alcançada pelas setas verticais. Tipo `ChartSankeyNodeClick`.
+- `ChartPie` e `ChartDonut`: a fatia que reúne as pequenas traz em `grouped` as fatias reunidas, para o clique em "Outros" saber o que ela contém.
 
 ### Alterado
 
