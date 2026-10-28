@@ -10,6 +10,8 @@ export {
   IconChartBar,
   IconCheck,
   IconCheckCircle,
+  IconChevronBarLeft,
+  IconChevronBarRight,
   IconChevronDown,
   IconChevronExpand,
   IconChevronLeft,

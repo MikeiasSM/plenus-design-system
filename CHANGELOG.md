@@ -6,6 +6,16 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- `Pagination`: seletor de itens por página, com `pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. Com o seletor, o componente fica na tela mesmo com uma página só.
+- `Pagination`: `showFirstLast`, os passos para a primeira e a última página.
+- `Pagination`: `pageCount` deixa de ser obrigatório; sem ele, o total de páginas sai de `totalItems` e do tamanho da página.
+
+### Corrigido
+
+- `Select` sem `label` nomeia a lista aberta pelo `aria-label` do gatilho; antes ela se chamava "Selecione", o texto de espera.
+
 ## [0.4.0] — 2026-10-28
 
 ### Adicionado

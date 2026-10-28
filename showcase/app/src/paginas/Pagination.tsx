@@ -124,6 +124,10 @@ function ComIntervalo() {
   return <Pagination onPageChange={setPagina} page={pagina} pageCount={88} pageSize={50} totalItems={4380} />;
 }
 
+function RodapeDeTabela() {
+  return <Pagination pageSizeOptions={[25, 50, 100]} showFirstLast totalItems={4380} />;
+}
+
 function Variantes() {
   return (
     <div>
@@ -166,6 +170,15 @@ function Modos() {
         viva: a troca de página o anuncia uma vez, numa forma falada sem o travessão. <code>formatRange</code> troca o
         texto, e o que ele devolver é também o que se anuncia.
       </dd>
+      <dt><code>pageSizeOptions</code></dt>
+      <dd>
+        Mostra o seletor de itens por página. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual,
+        e o componente chama <code>onPageSizeChange</code> e, se a página mudou, <code>onPageChange</code>. Com o seletor,
+        o componente fica na tela mesmo com uma página só, para a pessoa voltar a um tamanho menor. O{' '}
+        <code>disabled</code> não suspende o seletor.
+      </dd>
+      <dt><code>pageCount</code> ausente</dt>
+      <dd>Sai de <code>totalItems</code> e do tamanho da página.</dd>
       <dt><code>page</code> fora da faixa</dt>
       <dd>É limitada entre 1 e <code>pageCount</code>.</dd>
     </dl>
@@ -196,6 +209,15 @@ export const pagina: Pagina = {
         '<Pagination\n  page={pagina}\n  pageCount={Math.ceil(total / 50)}\n  pageSize={50}\n  totalItems={total}\n  onPageChange={setPagina}\n/>',
     },
     {
+      titulo: 'Rodapé de tabela',
+      descricao:
+        'Seletor de itens por página e passos para as pontas. Sem controle, o total de páginas sai do total de itens e do tamanho.',
+      Previa: RodapeDeTabela,
+      largo: true,
+      codigo:
+        '<Pagination\n  totalItems={total}\n  pageSizeOptions={[25, 50, 100]}\n  showFirstLast\n  onPageChange={setPagina}\n  onPageSizeChange={setTamanho}\n/>',
+    },
+    {
       titulo: 'Enquanto a página carrega',
       descricao: 'Clique numa página: a troca fica suspensa por 0,8s, sem tirar o foco do botão.',
       Previa: Carregando,
@@ -217,7 +239,7 @@ export const pagina: Pagina = {
     },
     {
       garantia: 'Nomes completos',
-      como: 'Cada botão nomeado: "Página 6", "Página anterior", "Próxima página".',
+      como: 'Cada botão nomeado: "Página 6", "Página anterior", "Próxima página", "Primeira página", "Última página".',
       teste: 'Pagination.test.tsx',
     },
     {
@@ -235,13 +257,26 @@ export const pagina: Pagina = {
   api: [
     { nome: 'page', tipo: 'number', descricao: 'Página atual, a partir de 1, no modo controlado.' },
     { nome: 'defaultPage', tipo: 'number', padrao: '1', descricao: 'Página inicial, no modo não controlado.' },
-    { nome: 'pageCount', tipo: 'number', descricao: 'Obrigatória. Total de páginas.' },
+    { nome: 'pageCount', tipo: 'number', descricao: 'Total de páginas. Sem ela, sai de totalItems e pageSize.' },
     { nome: 'onPageChange', tipo: '(page: number) => void', descricao: 'Recebe a página escolhida.' },
     { nome: 'siblings', tipo: 'number', padrao: '1', descricao: 'Páginas mostradas de cada lado da atual.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Suspende a troca; os botões continuam focáveis.' },
     { nome: 'label', tipo: 'string', padrao: "'Paginação'", descricao: 'Nome da região de navegação.' },
     { nome: 'totalItems', tipo: 'number', descricao: 'Total de itens. Com pageSize, mostra o intervalo da página.' },
-    { nome: 'pageSize', tipo: 'number', descricao: 'Itens por página. Com totalItems, mostra o intervalo da página.' },
+    { nome: 'pageSize', tipo: 'number', descricao: 'Itens por página, no modo controlado. Com totalItems, mostra o intervalo.' },
+    {
+      nome: 'defaultPageSize',
+      tipo: 'number',
+      padrao: 'pageSizeOptions[0]',
+      descricao: 'Itens por página iniciais, no modo não controlado.',
+    },
+    { nome: 'pageSizeOptions', tipo: 'readonly number[]', descricao: 'Tamanhos oferecidos; mostra o seletor.' },
+    {
+      nome: 'onPageSizeChange',
+      tipo: '(pageSize: number) => void',
+      descricao: 'Recebe o tamanho escolhido; a página muda junto pelo onPageChange.',
+    },
+    { nome: 'showFirstLast', tipo: 'boolean', padrao: 'false', descricao: 'Mostra os passos para a primeira e a última página.' },
     {
       nome: 'formatRange',
       tipo: '(range: { start: number; end: number; total: number }) => string',

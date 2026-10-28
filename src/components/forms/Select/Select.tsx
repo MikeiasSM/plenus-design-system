@@ -161,7 +161,7 @@ export function Select({
           {open &&
             createPortal(
               <SelectListbox
-                label={label ?? placeholder}
+                label={label ?? props['aria-label'] ?? placeholder}
                 listing={listing}
                 onClose={fechar}
                 triggerRef={triggerRef}

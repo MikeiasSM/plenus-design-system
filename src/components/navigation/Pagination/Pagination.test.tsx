@@ -162,4 +162,84 @@ describe('Pagination', () => {
       expect(screen.getByRole('status')).toHaveTextContent(/^Documentos 26 a 50 de 52$/);
     });
   });
+
+  describe('primeira e última página', () => {
+    it('leva às pontas e desabilita a da ponta atual', () => {
+      const onPageChange = vi.fn();
+      render(<Pagination showFirstLast page={1} pageCount={10} onPageChange={onPageChange} />);
+
+      expect(screen.getByRole('button', { name: 'Primeira página' })).toHaveAttribute('aria-disabled', 'true');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Primeira página' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Última página' }));
+
+      expect(onPageChange).toHaveBeenCalledTimes(1);
+      expect(onPageChange).toHaveBeenCalledWith(10);
+    });
+
+    it('não aparecem sem showFirstLast', () => {
+      render(<Pagination page={1} pageCount={10} />);
+
+      expect(screen.queryByRole('button', { name: 'Última página' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('itens por página', () => {
+    function escolherTamanho(tamanho: string) {
+      fireEvent.click(screen.getByRole('combobox', { name: 'Itens por página' }));
+      fireEvent.click(screen.getByRole('option', { name: tamanho }));
+    }
+
+    it('sem controle, começa pela primeira opção e tira dela o total de páginas', () => {
+      render(<Pagination pageSizeOptions={[25, 50]} totalItems={120} />);
+
+      expect(screen.getByRole('combobox', { name: 'Itens por página' })).toHaveTextContent('25');
+      expect(screen.getByRole('button', { name: 'Página 5' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Página 6' })).not.toBeInTheDocument();
+    });
+
+    it('vai à página que contém o primeiro item da atual', () => {
+      const onPageChange = vi.fn();
+      const onPageSizeChange = vi.fn();
+      render(
+        <Pagination
+          defaultPage={4}
+          pageSizeOptions={[25, 100]}
+          totalItems={400}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />,
+      );
+
+      escolherTamanho('100');
+
+      expect(onPageSizeChange).toHaveBeenCalledWith(100);
+      expect(onPageChange).toHaveBeenCalledWith(1);
+      expect(screen.getByText('1–100 de 400')).toBeInTheDocument();
+    });
+
+    it('troca o tamanho mesmo com a troca de página suspensa', () => {
+      const onPageSizeChange = vi.fn();
+      render(<Pagination disabled pageSizeOptions={[25, 50]} totalItems={120} onPageSizeChange={onPageSizeChange} />);
+
+      escolherTamanho('50');
+
+      expect(onPageSizeChange).toHaveBeenCalledWith(50);
+    });
+
+    it('continua na tela com uma página só, para voltar a um tamanho menor', () => {
+      render(<Pagination pageSize={100} pageSizeOptions={[25, 100]} totalItems={80} />);
+
+      expect(screen.getByRole('combobox', { name: 'Itens por página' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Próxima página' })).not.toBeInTheDocument();
+    });
+
+    it('nomeia a lista aberta pelo campo', () => {
+      render(<Pagination pageSizeOptions={[25, 50]} totalItems={120} />);
+
+      fireEvent.click(screen.getByRole('combobox', { name: 'Itens por página' }));
+
+      expect(screen.getByRole('listbox', { name: 'Itens por página' })).toBeInTheDocument();
+    });
+  });
 });

@@ -2,40 +2,27 @@
 
 Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanhamento completo está em `PROGRESS.md`.
 
-## Branches de trabalho
+## Estado
 
-Duas branches publicadas no GitHub, **nenhuma com merge na `main`**:
+- **Publicado:** 0.4.0 no npm, com procedência, pela tag `v0.4.0` na `main`.
+- **`datagrid`**: parte da `main` da 0.4.0 e soma a `Pagination` nova. O DataGrid segue nela até o lançamento, numa versão de correção quando o desenho estiver validado: componente novo é adição compatível.
+- A `Pagination` não depende do DataGrid. Se o Painel precisar dela antes, ela pode ir sozinha à `main`, numa 0.4.1.
 
-- **`preparacao-0.3.0`**: a 0.3.0 pronta para publicar, com a versão no `package.json` e a seção `## [0.3.0] — 2026-10-28` no `CHANGELOG.md`. Tipos, testes, build, pacote e contraste conferidos. Traz o heatmap, a escala dos botões e campos, o `FileUpload`, o `dangerGhost` e a correção do fluxo de publicação. **Para publicar**: merge na `main` e tag `v0.3.0`, decisão do mantenedor.
-- **`datagrid`**: o DataGrid segue nela até o lançamento. Por decisão do mantenedor, ele não entra na 0.3.0. Sai numa 0.3.x quando o desenho estiver validado: componente novo é adição compatível. Publicado antes da hora, cada mudança na API dele seria incompatível e pediria versão menor nova. Depois de publicada a 0.3.0, trazer a `main` para a `datagrid`.
+## Feito nesta sessão
 
-Os itens que o plano antigo reservava para a 0.3.0 (convenção de API, CSS por componente, formatadores em inglês) passam para a 0.4.0.
-
-| Commit | Conteúdo |
-| --- | --- |
-| `f2c6977` | Revisão do `ChartHeatmap` contra o mercado |
-| `56e549c` | Escala compacta dos botões e dos campos |
-| `070d44d` | Zona de envio do `FileUpload` em coluna e variante `dangerGhost` |
-| `176788d` | Fase 0 do DataGrid registrada no `PROGRESS.md` |
-| último | Versão 0.3.0 e fluxo de publicação que publica o pacote conferido |
-
-## Feito
-
-- **`ChartHeatmap` revisado** a partir de pesquisa de mercado (artefato https://claude.ai/artifact/KsQoUPeFoxGLzwrR8Cw3mD): sem dado hachurado, cruzamento ausente em branco, escala a partir de zero, contraste do texto com halo onde nenhuma cor fixa passa, colunas em cima, células quadradas, destaque de linha e coluna, visão em tabela e balão no foco. A hachura e o aviso de desenvolvimento passaram ao núcleo dos gráficos.
-- **Escala compacta dos botões e campos**: 32, 36 e 40 px, todos em 14 px, decidida no artefato https://claude.ai/artifact/TgRcWKA6tettUyjTNBDP9R. O respiro vertical dos campos e dos botões `sm` e `md` passou a sair do token; o campo pequeno media 36 px apesar dos 32 declarados.
-- **`FileUpload`** com ícone discreto, texto e restrições em cima e botão embaixo. **`dangerGhost`** no `Button` e no `ButtonIcon`, a ação destrutiva discreta.
-- **DataGrid, fase 0**: pesquisa e plano, protótipo aprovado e prova de virtualização. Decisões e resultados no `PROGRESS.md`, seção "DataGrid: fase 0".
-  - Pesquisa e plano: https://claude.ai/artifact/Gk9TR3yiRtQ6ir49qQLQmM
-  - Protótipo de interação: https://claude.ai/artifact/YSBhYGrUFVkAzYWa68cy7o
-  - Prova de virtualização, com medidor: https://claude.ai/artifact/TKR59WipNY13aKAwMGKJJ9
+- **`Pagination`** com seletor de itens por página (`pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`) e os passos para a primeira e a última página (`showFirstLast`). Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. `pageCount` passou a ser opcional, saindo de `totalItems` e do tamanho.
+- **`Select`** sem `label` nomeia a lista aberta pelo `aria-label` do gatilho.
 
 ## Pendente antes da fase 1 do DataGrid
 
 1. **Teste no NVDA** do protótipo, com o mantenedor. Roteiro: Tab até a grade ("Pedidos de compra, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe e Enter ("Itens de …"); `Esc` volta à linha do pedido; `Alt+↓` num título abre o filtro.
 2. **Rodar o medidor da prova de virtualização** no navegador do mantenedor; os números do Chrome headless são só comparação.
-3. **`Pagination`** com seletor de tamanho de página e primeira e última página, que o rodapé do DataGrid usa.
 
-Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação, conforme o plano.
+Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação, conforme o plano. Decisões e resultados da fase 0 no `PROGRESS.md`, seção "DataGrid: fase 0".
+
+- Pesquisa e plano: https://claude.ai/artifact/Gk9TR3yiRtQ6ir49qQLQmM
+- Protótipo de interação: https://claude.ai/artifact/YSBhYGrUFVkAzYWa68cy7o
+- Prova de virtualização, com medidor: https://claude.ai/artifact/TKR59WipNY13aKAwMGKJJ9
 
 ## O que a prova ensinou para o componente
 
@@ -44,15 +31,7 @@ Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação
 - Rolagem corrigida por ancoragem num lugar só, com a âncora registrada no instante em que a altura muda e a correção só quando a posição de rolagem é a mesma do registro.
 - Estado do detalhe fora do componente, entregue por `state` e `setState`.
 
-## Fila depois do DataGrid
-
-Sem mudança em relação à sessão anterior: tema por subárvore e `prefers-color-scheme`; guarda de `prefers-reduced-motion`; `ToastProvider` por árvore e `portalContainer`; teste do pacote construído em app real; visão em tabela e clique na marca nos gráficos; ícones em um módulo por ícone; recursos genéricos pedidos pelo Painel; receita com react-hook-form; migração da API para a convenção na 0.3.0; por último, cor de marca em tempo de execução.
-
-## Publicação
-
-O fluxo agora empacota o build conferido com `npm pack` e publica esse arquivo; antes, `npm publish` na pasta rodava o `prepare` e levava ao registro um build não conferido. A 0.3.0 é a primeira publicação com o fluxo corrigido: conferir no Actions que o passo "Empacotar o build conferido" gera o arquivo e que a procedência continua saindo.
-
 ## Ambiente
 
-- Publicação: tag `vX.Y.Z` na `main`; o Actions confere versão, seção do CHANGELOG, tipos, testes, build, pacote e contraste.
+- Publicação: tag `vX.Y.Z` na `main`; o Actions confere versão, seção do CHANGELOG, tipos, testes, build, pacote e contraste, e publica o pacote conferido.
 - Agents de uso geral rodam em Sonnet; Opus só para revisão.

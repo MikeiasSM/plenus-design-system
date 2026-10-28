@@ -16,6 +16,18 @@
   white-space: nowrap;
 }
 
+.pageSize {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  margin-right: var(--pl-space-2);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  white-space: nowrap;
+}
+
 .list {
   display: flex;
   align-items: center;

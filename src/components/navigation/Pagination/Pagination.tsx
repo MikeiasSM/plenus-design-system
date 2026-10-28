@@ -1,8 +1,9 @@
 import { useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
+import { Select } from '../../forms/Select';
 import stepsStyles from '../Steps/Steps.module.css';
 import styles from './Pagination.module.css';
-import { IconChevronLeft, IconChevronRight } from '../../icons';
+import { IconChevronBarLeft, IconChevronBarRight, IconChevronLeft, IconChevronRight } from '../../icons';
 
 /** Posições, contadas de 1, do primeiro e do último item da página, e o total de itens. */
 export interface PaginationRange {
@@ -14,16 +15,25 @@ export interface PaginationRange {
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   /** Pagina inicial no modo nao controlado. */
   defaultPage?: number;
+  /** Tamanho de pagina inicial no modo nao controlado. Sem ele, a primeira opcao de `pageSizeOptions`. */
+  defaultPageSize?: number;
   /** Suspende a troca de pagina, como enquanto a pagina pedida carrega. Os botoes continuam focaveis. */
   disabled?: boolean;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;
   label?: string;
   onPageChange?: (page: number) => void;
+  /** Recebe o tamanho escolhido. A pagina muda junto, para a que contem o primeiro item da atual. */
+  onPageSizeChange?: (pageSize: number) => void;
   page?: number;
-  pageCount: number;
+  /** Total de paginas. Sem ele, sai de `totalItems` e `pageSize`. */
+  pageCount?: number;
   /** Itens por página. Com `totalItems`, mostra o intervalo da página atual. */
   pageSize?: number;
+  /** Tamanhos oferecidos. Com eles, mostra o seletor de itens por página. */
+  pageSizeOptions?: readonly number[];
+  /** Mostra os passos para a primeira e a última página. */
+  showFirstLast?: boolean;
   /** Quantidade de paginas mostradas de cada lado da atual. */
   siblings?: number;
   /** Total de itens. Com `pageSize`, mostra o intervalo da página atual. */
@@ -33,54 +43,127 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
 export function Pagination({
   className,
   defaultPage = 1,
+  defaultPageSize,
   disabled = false,
   formatRange,
   label = 'Paginação',
   onPageChange,
+  onPageSizeChange,
   page,
   pageCount,
   pageSize,
+  pageSizeOptions,
+  showFirstLast = false,
   siblings = 1,
   totalItems,
   ...props
 }: PaginationProps) {
   const [internalPage, setInternalPage] = useState(defaultPage);
+  const [internalPageSize, setInternalPageSize] = useState(defaultPageSize ?? pageSizeOptions?.[0]);
+  const tamanho = pageSize ?? internalPageSize;
+  const totalDePaginas = pageCount ?? (totalItems !== undefined && tamanho ? Math.ceil(totalItems / tamanho) : 0);
 
-  if (pageCount <= 1) {
+  if (totalDePaginas <= 1 && !pageSizeOptions) {
     return null;
   }
 
-  const atual = Math.min(Math.max(page ?? internalPage, 1), pageCount);
-  const paginas = montarFaixa(atual, pageCount, siblings);
+  const atual = Math.min(Math.max(page ?? internalPage, 1), Math.max(totalDePaginas, 1));
+  const paginas = montarFaixa(atual, totalDePaginas, siblings);
+  const intervalo =
+    totalItems && tamanho
+      ? { start: (atual - 1) * tamanho + 1, end: Math.min(atual * tamanho, totalItems), total: totalItems }
+      : undefined;
 
-  function irPara(pagina: number) {
-    if (disabled) {
-      return;
-    }
+  function mudarPagina(pagina: number) {
     if (page === undefined) {
       setInternalPage(pagina);
     }
     onPageChange?.(pagina);
   }
 
+  function irPara(pagina: number) {
+    if (!disabled) {
+      mudarPagina(pagina);
+    }
+  }
+
+  function trocarTamanho(novo: number) {
+    const pagina = tamanho ? Math.floor(((atual - 1) * tamanho) / novo) + 1 : 1;
+    if (pageSize === undefined) {
+      setInternalPageSize(novo);
+    }
+    onPageSizeChange?.(novo);
+    if (pagina !== atual) {
+      mudarPagina(pagina);
+    }
+  }
+
   return (
     <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
-      {totalItems !== undefined && pageSize !== undefined && (
-        <PaginationRangeText
-          formatRange={formatRange}
-          range={{
-            start: (atual - 1) * pageSize + 1,
-            end: Math.min(atual * pageSize, totalItems),
-            total: totalItems,
-          }}
+      {intervalo && <PaginationRangeText formatRange={formatRange} range={intervalo} />}
+      {pageSizeOptions && (
+        <span className={styles.pageSize}>
+          <span aria-hidden="true">Itens por página</span>
+          <Select
+            aria-label="Itens por página"
+            options={pageSizeOptions.map((opcao) => ({ value: String(opcao), label: formatNumber(opcao) }))}
+            size="sm"
+            value={tamanho === undefined ? undefined : String(tamanho)}
+            onValueChange={(valor) => trocarTamanho(Number(valor))}
+          />
+        </span>
+      )}
+      {totalDePaginas > 1 && (
+        <PaginationSteps
+          atual={atual}
+          disabled={disabled}
+          irPara={irPara}
+          paginas={paginas}
+          showFirstLast={showFirstLast}
+          totalDePaginas={totalDePaginas}
         />
+      )}
+    </nav>
+  );
+}
+
+function PaginationSteps({
+  atual,
+  disabled,
+  irPara,
+  paginas,
+  showFirstLast,
+  totalDePaginas,
+}: {
+  atual: number;
+  disabled: boolean;
+  irPara: (pagina: number) => void;
+  paginas: (number | null)[];
+  showFirstLast: boolean;
+  totalDePaginas: number;
+}) {
+  const noInicio = disabled || atual === 1 || undefined;
+  const noFim = disabled || atual === totalDePaginas || undefined;
+
+  return (
+    <>
+      {showFirstLast && (
+        <button
+          className={styles.step}
+          type="button"
+          aria-label="Primeira página"
+          aria-disabled={noInicio}
+          onClick={() => atual > 1 && irPara(1)}
+        >
+          <IconChevronBarLeft size={14} />
+        </button>
       )}
       {/* `aria-disabled`, e nao `disabled`: desabilitado na borda, o botao perdia o foco de quem acabou de usa-lo. */}
       <button
         className={styles.step}
         type="button"
         aria-label="Página anterior"
-        aria-disabled={disabled || atual === 1 || undefined}
+        aria-disabled={noInicio}
         onClick={() => atual > 1 && irPara(atual - 1)}
       >
         <IconChevronLeft size={14} />
@@ -111,12 +194,23 @@ export function Pagination({
         className={styles.step}
         type="button"
         aria-label="Próxima página"
-        aria-disabled={disabled || atual === pageCount || undefined}
-        onClick={() => atual < pageCount && irPara(atual + 1)}
+        aria-disabled={noFim}
+        onClick={() => atual < totalDePaginas && irPara(atual + 1)}
       >
         <IconChevronRight size={14} />
       </button>
-    </nav>
+      {showFirstLast && (
+        <button
+          className={styles.step}
+          type="button"
+          aria-label="Última página"
+          aria-disabled={noFim}
+          onClick={() => atual < totalDePaginas && irPara(totalDePaginas)}
+        >
+          <IconChevronBarRight size={14} />
+        </button>
+      )}
+    </>
   );
 }
 
