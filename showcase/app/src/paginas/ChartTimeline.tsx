@@ -996,5 +996,6 @@ const dias = jornadaDoMes(mes);
     { nome: 'formatTime', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Instantes no balão, na descrição e na tabela: 07:12 ou 05/10 14:00.' },
     { nome: 'formatTick', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Marcas do eixo: 6h, 05/10 ou Seg 05/10.' },
     { nome: 'onSegmentClick', tipo: '(segment, row) => void', descricao: 'Clique, Enter ou Espaço num intervalo. Com ele, os intervalos viram botões.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
   ],
 };

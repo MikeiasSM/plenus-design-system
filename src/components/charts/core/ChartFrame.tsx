@@ -60,6 +60,8 @@ export interface ChartFrameProps {
   title: string;
   /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
   tooltip?: Omit<ChartTooltipProps, 'children'>;
+  /** Centro da marca em foco pelo teclado, onde o balao se fixa. */
+  tooltipAnchor?: ChartTooltipProps['anchor'];
   width: number;
 }
 
@@ -90,6 +92,7 @@ export function ChartFrame({
   table,
   title,
   tooltip,
+  tooltipAnchor,
   width,
 }: ChartFrameProps) {
   const tituloId = useId();
@@ -157,7 +160,7 @@ export function ChartFrame({
           ) : alternavel && emTabela ? (
             table
           ) : width === 0 || height === 0 ? null : tooltip ? (
-            <ChartTooltip {...tooltip}>{desenho}</ChartTooltip>
+            <ChartTooltip anchor={tooltipAnchor} {...tooltip}>{desenho}</ChartTooltip>
           ) : (
             desenho
           )}

@@ -1,2 +1,2 @@
 export { ChartScatter } from './ChartScatter';
-export type { ChartScatterPoint, ChartScatterProps, ChartScatterSeries } from './ChartScatter';
+export type { ChartScatterPoint, ChartScatterPointClick, ChartScatterProps, ChartScatterSeries } from './ChartScatter';

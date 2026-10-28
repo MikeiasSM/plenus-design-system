@@ -94,6 +94,7 @@ describe('ChartPie', () => {
     fireEvent.keyDown(servicos, { key: 'ArrowRight' });
     const produtos = screen.getByRole('button', { name: /^Produtos:/ });
     expect(produtos).toHaveFocus();
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Produtos');
 
     fireEvent.keyDown(produtos, { key: ' ' });
     expect(aoClicar).toHaveBeenCalledWith({ label: 'Produtos', value: 40 });

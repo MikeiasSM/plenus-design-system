@@ -767,5 +767,6 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'height', tipo: "number | 'fill'", padrao: '440', descricao: 'Altura máxima, ou a do contêiner. A largura estreita encolhe a altura até a proporção da geometria.' },
     { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela".' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados'", descricao: 'Quando nenhuma região tem valor.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
   ],
 };

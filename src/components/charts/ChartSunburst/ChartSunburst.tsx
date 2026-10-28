@@ -13,6 +13,7 @@ import {
   ringDiameter,
   truncateToWidth,
   useChartMetrics,
+  useMarkNavigation,
   useSeriesToggle,
   widestLabel,
   type ChartHeight,
@@ -45,6 +46,8 @@ export interface ChartSunburstProps extends ChartRootProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
+  /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
+  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -117,6 +120,7 @@ export function ChartSunburst({
   nodes,
   onHiddenGroupsChange,
   onHoverNode,
+  onNodeClick,
   palette,
   ringGap = 2,
   showLabels = true,
@@ -200,6 +204,12 @@ export function ChartSunburst({
     onHoverNode?.(arco && hoverPath(arco));
   }
 
+  const marcas = useMarkNavigation({
+    onActivate: onNodeClick && (({ column }) => onNodeClick(hoverPath(arcos[column]))),
+    onFocusMark: (posicao) => focar(posicao && arcos[posicao.column]),
+    present: arcos.map((_, column) => ({ column, row: 0 })),
+  });
+
   function corDe(arco: Arco) {
     const raizDoRamo = arco.ancestors().find((ancestral) => ancestral.depth === 1)?.data;
     const base =
@@ -216,6 +226,7 @@ export function ChartSunburst({
 
   return (
     <ChartFrame
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       centerOrigin
       containerRef={ref}
       empty={nodes.length === 0}
@@ -244,27 +255,30 @@ export function ChartSunburst({
             })
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
     >
-      {arcos.map((arco, indice) => (
-        <path
-          aria-label={descreverArco(arco)}
-          className={`${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`}
-          d={arcPath({
-            cornerRadius: sliceRadius ?? raioDoCanto,
-            endAngle: arco.x1,
-            innerRadius: arco.y0 + (arco.depth > 1 ? ringGap : 0),
-            outerRadius: arco.y1,
-            startAngle: arco.x0,
-          })}
-          fill={corDe(arco)}
-          key={indice}
-          onMouseEnter={() => focar(arco)}
-          onMouseLeave={() => focar(null)}
-        >
-          {!showTooltip && !onHoverNode && <title>{descreverArco(arco)}</title>}
-        </path>
-      ))}
+      <g {...marcas.groupProps}>
+        {arcos.map((arco, indice) => (
+          <path
+            aria-label={descreverArco(arco)}
+            {...marcas.markProps({ column: indice, row: 0 }, `${styles.arc} ${aceso(arco) ? '' : styles.arcDim}`)}
+            d={arcPath({
+              cornerRadius: sliceRadius ?? raioDoCanto,
+              endAngle: arco.x1,
+              innerRadius: arco.y0 + (arco.depth > 1 ? ringGap : 0),
+              outerRadius: arco.y1,
+              startAngle: arco.x0,
+            })}
+            fill={corDe(arco)}
+            key={indice}
+            onMouseEnter={() => focar(arco)}
+            onMouseLeave={() => focar(null)}
+          >
+            {!showTooltip && !onHoverNode && <title>{descreverArco(arco)}</title>}
+          </path>
+        ))}
+      </g>
 
       {showLabels &&
         arcos

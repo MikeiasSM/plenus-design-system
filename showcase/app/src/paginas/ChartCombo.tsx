@@ -344,5 +344,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
+    { nome: 'onMarkClick', tipo: '(mark: ChartMarkClick) => void', descricao: 'Torna barras e pontos botões de uma grade só: setas laterais entre categorias, verticais entre séries.' },
   ],
 };

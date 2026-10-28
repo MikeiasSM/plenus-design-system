@@ -44,6 +44,7 @@ export interface CartesianFrameProps {
   table?: ChartFrameProps['table'];
   title: string;
   tooltip?: ChartFrameProps['tooltip'];
+  tooltipAnchor?: ChartFrameProps['tooltipAnchor'];
   width: number;
   xAxis: CartesianAxis;
   yAxis: CartesianAxis;
@@ -108,6 +109,7 @@ export function CartesianFrame({
   table,
   title,
   tooltip,
+  tooltipAnchor,
   width,
   xAxis,
   yAxis,
@@ -135,6 +137,7 @@ export function CartesianFrame({
       table={table}
       title={title}
       tooltip={tooltip}
+      tooltipAnchor={tooltipAnchor}
       width={width}
     >
       <g transform={`translate(${margins.left} ${margins.top})`}>

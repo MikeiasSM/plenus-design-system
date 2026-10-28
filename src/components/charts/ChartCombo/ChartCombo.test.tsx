@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartCombo, type ChartComboSeries } from './ChartCombo';
 
 const meses = ['04/26', '05/26', '06/26'];
@@ -203,5 +203,23 @@ describe('ChartCombo', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('com clique na marca, barras e pontos sao botoes de uma grade so', () => {
+    const aoClicar = vi.fn();
+    render(<ChartCombo categories={meses} onMarkClick={aoClicar} series={faturamentoEConversao} title="Vendas" />);
+    const barra = screen.getByRole('button', { name: /^Faturamento, 05\/26/ });
+
+    expect(screen.getByRole('group', { name: 'Vendas' })).toBeInTheDocument();
+
+    act(() => barra.focus());
+    fireEvent.keyDown(barra, { key: 'ArrowDown' });
+    expect(screen.getByRole('button', { name: /^Conversão, 05\/26/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith({ category: '05/26', index: 1, series: 'Conversão', value: 8 });
+
+    fireEvent.click(barra);
+    expect(aoClicar).toHaveBeenLastCalledWith({ category: '05/26', index: 1, series: 'Faturamento', value: 800 });
   });
 });

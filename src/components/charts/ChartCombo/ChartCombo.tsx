@@ -14,6 +14,7 @@ import {
   useChartMetrics,
   useHoveredBand,
   useSeriesToggle,
+  useMarkNavigation,
   useTweenedNumbers,
   valueLabelRoom,
   valueLabelsFor,
@@ -24,6 +25,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartMarkClick,
   type MarkVisibility,
   type ChartPoint,
   type ChartRootProps,
@@ -75,6 +77,8 @@ export interface ChartComboProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Clique na barra ou no ponto da linha. Com ele, as marcas viram botoes percorridos pelas setas. */
+  onMarkClick?: (mark: ChartMarkClick) => void;
   /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
   onHoverCategory?: (index: number | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -141,6 +145,7 @@ export function ChartCombo({
   legendAlign,
   onHiddenSeriesChange,
   onHoverCategory,
+  onMarkClick,
   palette,
   series,
   showDataLabels = 'hidden',
@@ -162,6 +167,19 @@ export function ChartCombo({
   });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
+  const marcas = useMarkNavigation({
+    onActivate: onMarkClick && (({ column, row }) =>
+      onMarkClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 })),
+    onFocusMark: (posicao) => {
+      focarFaixa(posicao?.column ?? null);
+      setSerieEmFoco(posicao?.row ?? null);
+    },
+    present: series.flatMap((serie, row) =>
+      isHidden(serie.label)
+        ? []
+        : categories.flatMap((_, column) => (Number.isFinite(serie.values[column] ?? Number.NaN) ? [{ column, row }] : [])),
+    ),
+  });
 
   const formatarDireita = formatRightValue ?? formatValue;
   const temEixoDireito = series.some((serie) => eixoDa(serie) === 'right');
@@ -269,6 +287,7 @@ export function ChartCombo({
   return (
     <CartesianFrame
       axisReveal={axisReveal}
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
@@ -305,6 +324,7 @@ export function ChartCombo({
             })
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
       yAxis={{
@@ -322,146 +342,151 @@ export function ChartCombo({
         <BandCursor offset={escalaCategorias(categories[faixaEmFoco]) ?? 0} plot={plot} size={vao} />
       )}
 
-      {series.map((serie, indiceSerie) => {
-        if (serie.kind !== 'bar') {
-          return null;
-        }
+      <g {...marcas.groupProps}>
+        {series.map((serie, indiceSerie) => {
+          if (serie.kind !== 'bar') {
+            return null;
+          }
 
-        const oculta = isHidden(serie.label);
-        const escala = escalaDa(serie);
-        const formatar = formatoDa(serie);
-        const base = escala(0);
+          const oculta = isHidden(serie.label);
+          const escala = escalaDa(serie);
+          const formatar = formatoDa(serie);
+          const base = escala(0);
 
-        return (
-          <g
-            aria-hidden={oculta || undefined}
-            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={indiceSerie}
-          >
-            {categories.map((categoria, indiceCategoria) => {
-              const valor = serie.values[indiceCategoria];
-
-              if (valor === null || valor === undefined || !Number.isFinite(valor)) {
-                return null;
-              }
-
-              const ponta = escala(valor);
-
-              return (
-                <path
-                  aria-label={`${serie.label}, ${categoria}: ${formatar(valor)}`}
-                  className={styles.bar}
-                  d={roundedBarPath(
-                    (escalaCategorias(categoria) ?? 0) + faixaDa(indiceSerie).offset,
-                    Math.min(base, ponta),
-                    faixaDa(indiceSerie).thickness,
-                    Math.abs(ponta - base),
-                    [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto],
-                  )}
-                  fill={cores[indiceSerie]}
-                  key={indiceCategoria}
-                  onMouseEnter={() => {
-                    focarFaixa(indiceCategoria);
-                    setSerieEmFoco(indiceSerie);
-                  }}
-                  onMouseLeave={() => {
-                    focarFaixa(null);
-                    setSerieEmFoco(null);
-                  }}
-                />
-              );
-            })}
-
-            {showDataLabels !== 'hidden' &&
-              categories.map((categoria, indiceCategoria) => {
+          return (
+            <g
+              aria-hidden={oculta || undefined}
+              className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+              key={indiceSerie}
+            >
+              {categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
 
                 if (valor === null || valor === undefined || !Number.isFinite(valor)) {
                   return null;
                 }
 
+                const ponta = escala(valor);
+
                 return (
-                  <text
-                    className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
+                  <path
+                    aria-label={`${serie.label}, ${categoria}: ${formatar(valor)}`}
+                    {...marcas.markProps({ column: indiceCategoria, row: indiceSerie }, styles.bar)}
+                    d={roundedBarPath(
+                      (escalaCategorias(categoria) ?? 0) + faixaDa(indiceSerie).offset,
+                      Math.min(base, ponta),
+                      faixaDa(indiceSerie).thickness,
+                      Math.abs(ponta - base),
+                      [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto],
+                    )}
+                    fill={cores[indiceSerie]}
                     key={indiceCategoria}
-                    textAnchor="middle"
-                    x={
-                      (escalaCategorias(categoria) ?? 0) +
-                      faixaDa(indiceSerie).offset +
-                      faixaDa(indiceSerie).thickness / 2
-                    }
-                    y={escala(valor) - 6}
-                  >
-                    {formatar(valor)}
-                  </text>
+                    onMouseEnter={() => {
+                      focarFaixa(indiceCategoria);
+                      setSerieEmFoco(indiceSerie);
+                    }}
+                    onMouseLeave={() => {
+                      focarFaixa(null);
+                      setSerieEmFoco(null);
+                    }}
+                  />
                 );
               })}
-          </g>
-        );
-      })}
 
-      {series.map((serie, indiceSerie) => {
-        if (serie.kind !== 'line') {
-          return null;
-        }
+              {showDataLabels !== 'hidden' &&
+                categories.map((categoria, indiceCategoria) => {
+                  const valor = serie.values[indiceCategoria];
 
-        const oculta = isHidden(serie.label);
-        const escala = escalaDa(serie);
-        const formatar = formatoDa(serie);
-        const pontos = categories.map<ChartPoint | null>((categoria, indice) => {
-          const valor = serie.values[indice];
+                  if (valor === null || valor === undefined || !Number.isFinite(valor)) {
+                    return null;
+                  }
 
-          if (valor === null || valor === undefined || !Number.isFinite(valor)) {
+                  return (
+                    <text
+                      className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
+                      key={indiceCategoria}
+                      textAnchor="middle"
+                      x={
+                        (escalaCategorias(categoria) ?? 0) +
+                        faixaDa(indiceSerie).offset +
+                        faixaDa(indiceSerie).thickness / 2
+                      }
+                      y={escala(valor) - 6}
+                    >
+                      {formatar(valor)}
+                    </text>
+                  );
+                })}
+            </g>
+          );
+        })}
+
+        {series.map((serie, indiceSerie) => {
+          if (serie.kind !== 'line') {
             return null;
           }
 
-          return { x: (escalaCategorias(categoria) ?? 0) + vao / 2, y: escala(valor) };
-        });
+          const oculta = isHidden(serie.label);
+          const escala = escalaDa(serie);
+          const formatar = formatoDa(serie);
+          const pontos = categories.map<ChartPoint | null>((categoria, indice) => {
+            const valor = serie.values[indice];
 
-        return (
-          <g
-            aria-hidden={oculta || undefined}
-            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
-            key={indiceSerie}
-          >
-            <path
-              className={styles.line}
-              d={linePath(pontos, curve)}
-              fill="none"
-              stroke={cores[indiceSerie]}
-            />
+            if (valor === null || valor === undefined || !Number.isFinite(valor)) {
+              return null;
+            }
 
-            {pontos.map((ponto, indice) =>
-              ponto === null ? null : (
-                <circle
-                  aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
-                  className={markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? styles.dotVisible : styles.dot}
-                  cx={ponto.x}
-                  cy={ponto.y}
-                  stroke={cores[indiceSerie]}
-                  key={indice}
-                  r={4}
-                />
-              ),
-            )}
+            return { x: (escalaCategorias(categoria) ?? 0) + vao / 2, y: escala(valor) };
+          });
 
-            {showDataLabels !== 'hidden' &&
-              pontos.map((ponto, indice) =>
+          return (
+            <g
+              aria-hidden={oculta || undefined}
+              className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+              key={indiceSerie}
+            >
+              <path
+                className={styles.line}
+                d={linePath(pontos, curve)}
+                fill="none"
+                stroke={cores[indiceSerie]}
+              />
+
+              {pontos.map((ponto, indice) =>
                 ponto === null ? null : (
-                  <text
-                    className={`${styles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : styles.valueLabelHidden}`}
+                  <circle
+                    aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
+                    {...marcas.markProps(
+                      { column: indice, row: indiceSerie },
+                      markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? styles.dotVisible : styles.dot,
+                    )}
+                    cx={ponto.x}
+                    cy={ponto.y}
+                    stroke={cores[indiceSerie]}
                     key={indice}
-                    textAnchor="middle"
-                    x={ponto.x}
-                    y={ponto.y - 10}
-                  >
-                    {formatar(serie.values[indice] ?? 0)}
-                  </text>
+                    r={4}
+                  />
                 ),
               )}
-          </g>
-        );
-      })}
+
+              {showDataLabels !== 'hidden' &&
+                pontos.map((ponto, indice) =>
+                  ponto === null ? null : (
+                    <text
+                      className={`${styles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : styles.valueLabelHidden}`}
+                      key={indice}
+                      textAnchor="middle"
+                      x={ponto.x}
+                      y={ponto.y - 10}
+                    >
+                      {formatar(serie.values[indice] ?? 0)}
+                    </text>
+                  ),
+                )}
+            </g>
+          );
+        })}
+      </g>
     </CartesianFrame>
   );
 }

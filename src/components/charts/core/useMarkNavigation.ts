@@ -33,8 +33,12 @@ const DIRECTIONS: Record<string, MarkPosition> = {
 
 const keyOf = ({ column, row }: MarkPosition) => `${row}:${column}`;
 
+function markFrom(event: SyntheticEvent) {
+  return (event.target as Element).closest?.('[data-mark]') ?? null;
+}
+
 function positionFrom(event: SyntheticEvent): MarkPosition | null {
-  const mark = (event.target as Element).getAttribute?.('data-mark');
+  const mark = markFrom(event)?.getAttribute('data-mark');
   const [row, column] = mark?.split(':').map(Number) ?? [];
 
   return Number.isInteger(row) && Number.isInteger(column) ? { column, row } : null;
@@ -56,10 +60,11 @@ function neighbor(present: readonly MarkPosition[], from: MarkPosition, { column
 /**
  * Marcas como botoes, quando o grafico tem clique na marca: uma parada de
  * tabulacao para o grupo, setas entre as marcas, Home e End nas pontas da
- * linha e Enter ou Espaco para ativar.
+ * linha e Enter ou Espaco para ativar. A marca em foco ancora o balao no centro dela.
  */
 export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavigationOptions) {
   const [tabStop, setTabStop] = useState<string | null>(null);
+  const [tooltipAnchor, setTooltipAnchor] = useState<{ x: number; y: number }>();
   const interactive = onActivate !== undefined;
   const keys = present.map(keyOf);
   const stop = tabStop !== null && keys.includes(tabStop) ? tabStop : keys[0];
@@ -100,7 +105,10 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
   return {
     groupProps: interactive
       ? {
-          onBlur: () => onFocusMark?.(null),
+          onBlur: () => {
+            setTooltipAnchor(undefined);
+            onFocusMark?.(null);
+          },
           onClick: (event: SyntheticEvent) => {
             const position = positionFrom(event);
             if (position) {
@@ -111,6 +119,8 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
           onFocus: (event: SyntheticEvent) => {
             const position = positionFrom(event);
             if (position) {
+              const box = markFrom(event)!.getBoundingClientRect();
+              setTooltipAnchor({ x: box.left + box.width / 2, y: box.top + box.height / 2 });
               setTabStop(keyOf(position));
               onFocusMark?.(position);
             }
@@ -119,6 +129,7 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
         }
       : {},
     interactive,
+    tooltipAnchor,
     /** Atributos da marca, somando a classe propria dela a de botao. */
     markProps: (position: MarkPosition, className?: string) =>
       interactive

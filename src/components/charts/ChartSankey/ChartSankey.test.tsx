@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ChartSankey, type ChartSankeyFlow } from './ChartSankey';
 
 const caixa: ChartSankeyFlow[] = [
@@ -80,7 +80,7 @@ describe('ChartSankey', () => {
 
   it('da a ligacao espessura proporcional ao valor', () => {
     render(<ChartSankey flows={caixa} title="Fluxo" />);
-    const espessuras = ligacoes().map((no) => Number(no.getAttribute('stroke-width')));
+    const espessuras = ligacoes().map((no) => parseFloat((no as SVGElement).style.strokeWidth));
 
     expect(espessuras[0]).toBeGreaterThan(espessuras[1]);
   });
@@ -275,5 +275,21 @@ describe('ChartSankey', () => {
     expect(balao).toHaveTextContent('R$ 600');
     expect(balao).toHaveTextContent('60%');
     expect(ligacoes()[0].querySelector('title')).toBeNull();
+  });
+
+  it('com clique na ligacao, as ligacoes sao botoes e o foco realca a faixa', () => {
+    fixarTamanho();
+    const aoClicar = vi.fn();
+    render(<ChartSankey flows={caixa} onFlowClick={aoClicar} title="Caixa" />);
+    const custos = screen.getByRole('button', { name: /^Receita → Custos/ });
+
+    expect(screen.getByRole('group', { name: 'Caixa' })).toBeInTheDocument();
+
+    act(() => custos.focus());
+    expect(custos.getAttribute('class')).toContain('linkOn');
+
+    fireEvent.keyDown(custos, { key: 'ArrowRight' });
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith(caixa[1]);
   });
 });

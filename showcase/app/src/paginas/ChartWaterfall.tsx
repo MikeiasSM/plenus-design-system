@@ -271,5 +271,6 @@ export const pagina: Pagina = {
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
     { nome: 'onHoverStep', tipo: '(index: number | null) => void', descricao: 'Passo sob o ponteiro; costura para o ChartTooltip.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'onStepClick', tipo: '(step: ChartWaterfallStep, index: number) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
   ],
 };

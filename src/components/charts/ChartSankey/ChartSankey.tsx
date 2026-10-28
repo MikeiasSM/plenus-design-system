@@ -8,6 +8,7 @@ import {
   measureLabel,
   truncateToWidth,
   useChartMetrics,
+  useMarkNavigation,
   widestLabel,
   type ChartHeight,
   type ChartRootProps,
@@ -57,6 +58,8 @@ export interface ChartSankeyProps extends ChartRootProps {
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
+  /** Clique na ligacao. Com ele, as ligacoes viram botoes percorridos pelas setas. */
+  onFlowClick?: (flow: ChartSankeyFlow) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showFlowValues?: boolean;
@@ -164,6 +167,7 @@ export function ChartSankey({
   nodes,
   nodePadding = 12,
   nodeWidth = 12,
+  onFlowClick,
   palette,
   showFlowValues = false,
   showLabels = true,
@@ -247,6 +251,12 @@ export function ChartSankey({
 
     return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
+
+  const marcas = useMarkNavigation({
+    onActivate: onFlowClick && (({ column }) => onFlowClick(flows[grafo.links[column].index])),
+    onFocusMark: (posicao) => setEmFoco(posicao?.column ?? null),
+    present: grafo.links.map((_, column) => ({ column, row: 0 })),
+  });
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
@@ -367,6 +377,7 @@ export function ChartSankey({
 
   return (
     <ChartFrame
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       containerRef={ref}
       empty={flows.length === 0 || ciclico || totalDoFluxo <= 0}
       emptyMessage={ciclico ? cyclicMessage : emptyMessage}
@@ -385,19 +396,21 @@ export function ChartSankey({
             }
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
     >
-      <g className={styles.links}>
+      <g className={styles.links} {...marcas.groupProps}>
         {grafo.links.map((ligacao, indice) => (
           <path
             aria-label={descreverLigacao(ligacao)}
-            className={classeDa(indice)}
+            {...marcas.markProps({ column: indice, row: 0 }, classeDa(indice))}
             d={caminhoDa(ligacao)}
             key={indice}
             onMouseEnter={() => setEmFoco(indice)}
             onMouseLeave={() => setEmFoco(null)}
             stroke={corDa(ligacao)}
-            strokeWidth={Math.max(ligacao.width, 1)}
+            // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
+            style={{ strokeWidth: Math.max(ligacao.width, 1) }}
           >
             {!showTooltip && <title>{descreverLigacao(ligacao)}</title>}
           </path>

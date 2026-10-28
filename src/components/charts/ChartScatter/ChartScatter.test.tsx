@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartScatter, type ChartScatterSeries } from './ChartScatter';
 
 const carteira: ChartScatterSeries[] = [
@@ -108,5 +108,22 @@ describe('ChartScatter', () => {
     expect(balao).toHaveTextContent('Prazo');
     expect(balao).toHaveTextContent('Receita');
     expect(bolhas()[1].querySelector('title')).toBeNull();
+  });
+
+  it('com clique no ponto, os pontos sao botoes e o foco pelo teclado abre a guia', () => {
+    const aoClicar = vi.fn();
+    render(<ChartScatter onPointClick={aoClicar} series={carteira} title="Carteira" />);
+    const aurora = screen.getByRole('button', { name: /^Clientes, Aurora/ });
+
+    expect(screen.getByRole('group', { name: 'Carteira' })).toBeInTheDocument();
+
+    act(() => aurora.focus());
+    expect(guias()).toHaveLength(2);
+
+    fireEvent.keyDown(aurora, { key: 'ArrowRight' });
+    expect(screen.getByRole('button', { name: /^Clientes, Belo/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith({ index: 1, point: carteira[0].points[1], series: 'Clientes' });
   });
 });

@@ -8,6 +8,7 @@ import {
   roundedBarPath,
   useChartMetrics,
   useHoveredBand,
+  useMarkNavigation,
   useTweenedNumbers,
   valueLabelRoom,
   valueLabelsFor,
@@ -38,6 +39,8 @@ export interface ChartWaterfallProps extends ChartRootProps {
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   labelAngle?: AxisLabelAngle;
+  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
+  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
   onHoverStep?: (index: number | null) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
@@ -108,6 +111,7 @@ export function ChartWaterfall({
   height = 280,
   labelAngle = 'auto',
   onHoverStep,
+  onStepClick,
   showDataLabels = 'visible',
   showTooltip = true,
   steps,
@@ -122,6 +126,11 @@ export function ChartWaterfall({
   const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(onHoverStep);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
+  const marcas = useMarkNavigation({
+    onActivate: onStepClick && (({ column }) => onStepClick(steps[column], column)),
+    onFocusMark: (posicao) => focarPasso(posicao?.column ?? null),
+    present: trechos.flatMap((trecho, column) => (trecho ? [{ column, row: 0 }] : [])),
+  });
 
   const cores = useMemo(
     () => resolveSeriesColors(steps.map((passo) => ({ color: passo.color, intent: intencaoDe(passo) }))),
@@ -209,6 +218,7 @@ export function ChartWaterfall({
   return (
     <CartesianFrame
       axisReveal={axisReveal}
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       containerRef={ref}
       empty={steps.length === 0}
       emptyMessage={emptyMessage}
@@ -236,6 +246,7 @@ export function ChartWaterfall({
             }
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasPassos, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
@@ -266,33 +277,35 @@ export function ChartWaterfall({
         })}
       </g>
 
-      {steps.map((passo, indice) => {
-        const trecho = trechos[indice];
+      <g {...marcas.groupProps}>
+        {steps.map((passo, indice) => {
+          const trecho = trechos[indice];
 
-        if (!trecho) {
-          return null;
-        }
+          if (!trecho) {
+            return null;
+          }
 
-        const topo = Math.min(escalaValores(trecho.inicio), escalaValores(trecho.fim));
-        const altura = Math.abs(escalaValores(trecho.fim) - escalaValores(trecho.inicio));
+          const topo = Math.min(escalaValores(trecho.inicio), escalaValores(trecho.fim));
+          const altura = Math.abs(escalaValores(trecho.fim) - escalaValores(trecho.inicio));
 
-        return (
-          <path
-            aria-label={`${passo.label}: ${rotuloDe(passo)}`}
-            className={styles.bar}
-            d={roundedBarPath(faixaDe(indice), topo, escalaPassos.bandwidth(), altura, [
-              raioDoCanto,
-              raioDoCanto,
-              raioDoCanto,
-              raioDoCanto,
-            ])}
-            fill={cores[indice]}
-            key={indice}
-            onMouseEnter={() => focarPasso(indice)}
-            onMouseLeave={() => focarPasso(null)}
-          />
-        );
-      })}
+          return (
+            <path
+              aria-label={`${passo.label}: ${rotuloDe(passo)}`}
+              {...marcas.markProps({ column: indice, row: 0 }, styles.bar)}
+              d={roundedBarPath(faixaDe(indice), topo, escalaPassos.bandwidth(), altura, [
+                raioDoCanto,
+                raioDoCanto,
+                raioDoCanto,
+                raioDoCanto,
+              ])}
+              fill={cores[indice]}
+              key={indice}
+              onMouseEnter={() => focarPasso(indice)}
+              onMouseLeave={() => focarPasso(null)}
+            />
+          );
+        })}
+      </g>
 
       {showDataLabels !== 'hidden' &&
         steps.map((passo, indice) => {

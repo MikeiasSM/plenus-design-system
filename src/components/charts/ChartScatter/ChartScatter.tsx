@@ -5,6 +5,7 @@ import {
   useCartesianLayout,
   chartHeight,
   useChartMetrics,
+  useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelsFor,
@@ -32,6 +33,13 @@ export interface ChartScatterSeries extends SeriesAppearance {
   points: readonly ChartScatterPoint[];
 }
 
+/** Argumento do clique num ponto: a posicao dele na lista da serie e a propria serie. */
+export interface ChartScatterPointClick {
+  index: number;
+  point: ChartScatterPoint;
+  series: string;
+}
+
 export interface ChartScatterProps extends ChartRootProps {
   accent?: string;
   defaultHiddenSeries?: readonly string[];
@@ -50,6 +58,8 @@ export interface ChartScatterProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Clique no ponto. Com ele, os pontos viram botoes percorridos pelas setas, na ordem da lista. */
+  onPointClick?: (point: ChartScatterPointClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
@@ -91,6 +101,7 @@ export function ChartScatter({
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
+  onPointClick,
   palette,
   series,
   showTooltip = true,
@@ -176,6 +187,22 @@ export function ChartScatter({
     () => linearScale({ domain: { min: minY, max: maxY }, nice: false, range: [plot.height, 0] }),
     [maxY, minY, plot.height],
   );
+  const marcas = useMarkNavigation({
+    onActivate: onPointClick && (({ column, row }) =>
+      onPointClick({ index: column, point: series[row].points[column], series: series[row].label })),
+    onFocusMark: (posicao) => {
+      const ponto = posicao && series[posicao.row].points[posicao.column];
+      setGuia(ponto ? { x: escalaX(ponto.x), y: escalaY(ponto.y) } : null);
+      setEmFoco(posicao && { ponto: posicao.column, serie: posicao.row });
+    },
+    present: series.flatMap((serie, row) =>
+      isHidden(serie.label)
+        ? []
+        : serie.points.flatMap((ponto, column) =>
+            Number.isFinite(ponto.x) && Number.isFinite(ponto.y) ? [{ column, row }] : [],
+          ),
+    ),
+  });
   const escalaRaio = useMemo(() => radiusScale(maiorZ, FAIXA_DE_RAIO), [maiorZ]);
 
   const marcasX = ticksFor(alvoX, plot.width);
@@ -212,6 +239,7 @@ export function ChartScatter({
   return (
     <CartesianFrame
       axisReveal={axisReveal}
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       containerRef={ref}
       empty={series.every((serie) => serie.points.length === 0)}
       emptyMessage={emptyMessage}
@@ -244,6 +272,7 @@ export function ChartScatter({
             }
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
       xAxis={{ hideLine: true, labelRotation: rotation, ticks: ticksX, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: ticksY, visibility: yAxis }}
@@ -256,45 +285,47 @@ export function ChartScatter({
         </g>
       )}
 
-      {series.map((serie, indiceSerie) => (
-        <g
-          aria-hidden={isHidden(serie.label) || undefined}
-          className={`${styles.series} ${isHidden(serie.label) ? styles.seriesOff : ''}`}
-          key={indiceSerie}
-        >
-          {serie.points.map((ponto, indice) => {
-            if (!Number.isFinite(ponto.x) || !Number.isFinite(ponto.y)) {
-              return null;
-            }
+      <g {...marcas.groupProps}>
+        {series.map((serie, indiceSerie) => (
+          <g
+            aria-hidden={isHidden(serie.label) || undefined}
+            className={`${styles.series} ${isHidden(serie.label) ? styles.seriesOff : ''}`}
+            key={indiceSerie}
+          >
+            {serie.points.map((ponto, indice) => {
+              if (!Number.isFinite(ponto.x) || !Number.isFinite(ponto.y)) {
+                return null;
+              }
 
-            const x = escalaX(ponto.x);
-            const y = escalaY(ponto.y);
-            const z = zValido(ponto);
+              const x = escalaX(ponto.x);
+              const y = escalaY(ponto.y);
+              const z = zValido(ponto);
 
-            return (
-              <circle
-                aria-label={descrever(serie, ponto)}
-                className={styles.bubble}
-                cx={x}
-                cy={y}
-                fill={cores[indiceSerie]}
-                key={indice}
-                onMouseEnter={() => {
-                  setGuia({ x, y });
-                  setEmFoco({ ponto: indice, serie: indiceSerie });
-                }}
-                onMouseLeave={() => {
-                  setGuia(null);
-                  setEmFoco(null);
-                }}
-                r={z === undefined ? RAIO_SEM_Z : escalaRaio(z)}
-              >
-                {!showTooltip && <title>{descrever(serie, ponto)}</title>}
-              </circle>
-            );
-          })}
-        </g>
-      ))}
+              return (
+                <circle
+                  aria-label={descrever(serie, ponto)}
+                  {...marcas.markProps({ column: indice, row: indiceSerie }, styles.bubble)}
+                  cx={x}
+                  cy={y}
+                  fill={cores[indiceSerie]}
+                  key={indice}
+                  onMouseEnter={() => {
+                    setGuia({ x, y });
+                    setEmFoco({ ponto: indice, serie: indiceSerie });
+                  }}
+                  onMouseLeave={() => {
+                    setGuia(null);
+                    setEmFoco(null);
+                  }}
+                  r={z === undefined ? RAIO_SEM_Z : escalaRaio(z)}
+                >
+                  {!showTooltip && <title>{descrever(serie, ponto)}</title>}
+                </circle>
+              );
+            })}
+          </g>
+        ))}
+      </g>
     </CartesianFrame>
   );
 }

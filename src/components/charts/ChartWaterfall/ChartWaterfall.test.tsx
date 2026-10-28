@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartWaterfall, type ChartWaterfallStep } from './ChartWaterfall';
 
 const dre: ChartWaterfallStep[] = [
@@ -131,5 +131,21 @@ describe('ChartWaterfall', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('com clique no passo, as barras sao botoes e o foco abre o balao do passo', () => {
+    const aoClicar = vi.fn();
+    render(<ChartWaterfall onStepClick={aoClicar} steps={dre} title="DRE" />);
+    const receita = screen.getByRole('button', { name: /^Receita:/ });
+
+    expect(screen.getByRole('group', { name: 'DRE' })).toBeInTheDocument();
+
+    act(() => receita.focus());
+    fireEvent.keyDown(receita, { key: 'End' });
+    expect(screen.getByRole('button', { name: /^Resultado:/ })).toHaveFocus();
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Resultado');
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith(dre[3], 3);
   });
 });

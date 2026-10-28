@@ -8,6 +8,7 @@ import {
   pathTooltip,
   truncateToWidth,
   useChartMetrics,
+  useMarkNavigation,
   useSeriesToggle,
   type ChartHeight,
   type ChartHoveredNode,
@@ -53,6 +54,8 @@ export interface ChartTreemapProps extends ChartRootProps {
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
+  /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
+  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -87,6 +90,7 @@ export function ChartTreemap({
   nodes,
   onHiddenGroupsChange,
   onHoverNode,
+  onNodeClick,
   palette,
   showDataLabels = true,
   showTooltip = true,
@@ -139,6 +143,12 @@ export function ChartTreemap({
     onHoverNode?.(folha && hoverPath(folha));
   }
 
+  const marcas = useMarkNavigation({
+    onActivate: onNodeClick && (({ column }) => onNodeClick(hoverPath(retangulos[column]))),
+    onFocusMark: (posicao) => focar(posicao && retangulos[posicao.column]),
+    present: retangulos.map((_, column) => ({ column, row: 0 })),
+  });
+
   /** A folha herda a cor do grupo, e a intencao propria vence a herdada. */
   function corDa(folha: (typeof retangulos)[number]) {
     const proprio = folha.data;
@@ -169,6 +179,7 @@ export function ChartTreemap({
 
   return (
     <ChartFrame
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       containerRef={ref}
       empty={nodes.length === 0 || semValor}
       emptyMessage={emptyMessage}
@@ -185,57 +196,60 @@ export function ChartTreemap({
           ? pathTooltip({ color: foco ? corDa(foco) : undefined, format: formatTooltipValue ?? formatValue, path: foco && hoverPath(foco) })
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
     >
-      {retangulos.map((folha) => {
-        const largura = folha.x1 - folha.x0;
-        const altura = folha.y1 - folha.y0;
-        const disponivel = largura - CHART_LABEL_OFFSET * 2;
-        const cabeORotulo = showDataLabels && disponivel > 0 && altura >= font.lineHeight + CHART_LABEL_OFFSET;
-        const cabeOValor = cabeORotulo && altura >= font.lineHeight * 2 + CHART_LABEL_OFFSET;
-        const descricao = `${folha.data.label}: ${formatValue(folha.value ?? 0)}`;
-        const cor = corDa(folha);
+      <g {...marcas.groupProps}>
+        {retangulos.map((folha, indice) => {
+          const largura = folha.x1 - folha.x0;
+          const altura = folha.y1 - folha.y0;
+          const disponivel = largura - CHART_LABEL_OFFSET * 2;
+          const cabeORotulo = showDataLabels && disponivel > 0 && altura >= font.lineHeight + CHART_LABEL_OFFSET;
+          const cabeOValor = cabeORotulo && altura >= font.lineHeight * 2 + CHART_LABEL_OFFSET;
+          const descricao = `${folha.data.label}: ${formatValue(folha.value ?? 0)}`;
+          const cor = corDa(folha);
 
-        return (
-          <g className={styles.cell} key={`${folha.data.label}-${folha.x0}-${folha.y0}`}>
-            <rect
-              aria-label={descricao}
-              className={styles.tile}
-              fill={cor}
-              height={altura}
-              width={largura}
-              onMouseEnter={() => focar(folha)}
-              onMouseLeave={() => focar(null)}
-              x={folha.x0}
-              y={folha.y0}
-            >
-              {!showTooltip && !onHoverNode && <title>{descricao}</title>}
-            </rect>
-
-            {cabeORotulo && (
-              <text
-                className={styles.label}
-                fill={textColorOn(cor)}
-                x={folha.x0 + CHART_LABEL_OFFSET}
-                y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 0.6}
+          return (
+            <g className={styles.cell} key={`${folha.data.label}-${folha.x0}-${folha.y0}`}>
+              <rect
+                aria-label={descricao}
+                {...marcas.markProps({ column: indice, row: 0 }, styles.tile)}
+                fill={cor}
+                height={altura}
+                width={largura}
+                onMouseEnter={() => focar(folha)}
+                onMouseLeave={() => focar(null)}
+                x={folha.x0}
+                y={folha.y0}
               >
-                {truncateToWidth(folha.data.label, font, disponivel)}
-              </text>
-            )}
+                {!showTooltip && !onHoverNode && <title>{descricao}</title>}
+              </rect>
 
-            {cabeOValor && (
-              <text
-                className={styles.value}
-                fill={textColorOn(cor)}
-                x={folha.x0 + CHART_LABEL_OFFSET}
-                y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 1.6}
-              >
-                {truncateToWidth(formatValue(folha.value ?? 0), font, disponivel)}
-              </text>
-            )}
-          </g>
-        );
-      })}
+              {cabeORotulo && (
+                <text
+                  className={styles.label}
+                  fill={textColorOn(cor)}
+                  x={folha.x0 + CHART_LABEL_OFFSET}
+                  y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 0.6}
+                >
+                  {truncateToWidth(folha.data.label, font, disponivel)}
+                </text>
+              )}
+
+              {cabeOValor && (
+                <text
+                  className={styles.value}
+                  fill={textColorOn(cor)}
+                  x={folha.x0 + CHART_LABEL_OFFSET}
+                  y={folha.y0 + CHART_LABEL_OFFSET + font.lineHeight * 1.6}
+                >
+                  {truncateToWidth(formatValue(folha.value ?? 0), font, disponivel)}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </g>
     </ChartFrame>
   );
 }

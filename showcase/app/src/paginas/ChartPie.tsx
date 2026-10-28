@@ -280,5 +280,6 @@ const cores = resolveSeriesColors(receita);
     { nome: 'onHiddenSlicesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'onHoverSlice', tipo: '(slice: ChartPieSlice | null) => void', descricao: 'Fatia sob o ponteiro, já agrupada; costura para o ChartTooltip.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'onSliceClick', tipo: '(slice: ChartPieSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco.' },
   ],
 };

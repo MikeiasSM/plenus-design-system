@@ -130,6 +130,7 @@ export function ChartPie({
             })
           : undefined
       }
+      tooltipAnchor={anel.marks.tooltipAnchor}
       width={width}
     >
       <g {...anel.marks.groupProps}>

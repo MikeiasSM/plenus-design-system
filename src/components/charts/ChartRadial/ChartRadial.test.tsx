@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartRadial, type ChartRadialTrack } from './ChartRadial';
 
 const metas: ChartRadialTrack[] = [
@@ -115,5 +115,21 @@ describe('ChartRadial', () => {
     expect(balao).toHaveTextContent('Vendas');
     expect(balao).toHaveTextContent('Meta');
     expect(balao).toHaveTextContent('72%');
+  });
+
+  it('com clique no anel, os aneis sao botoes e o clique no arco preenchido conta como do anel', () => {
+    const aoClicar = vi.fn();
+    render(<ChartRadial onTrackClick={aoClicar} title="Metas" tracks={metas} />);
+    const vendas = screen.getByRole('button', { name: 'Vendas: 72' });
+
+    expect(screen.getByRole('group', { name: 'Metas' })).toBeInTheDocument();
+
+    fireEvent.click(arcos()[0]);
+    expect(aoClicar).toHaveBeenCalledWith(metas[0]);
+
+    act(() => vendas.focus());
+    fireEvent.keyDown(vendas, { key: 'ArrowRight' });
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenLastCalledWith(metas[1]);
   });
 });

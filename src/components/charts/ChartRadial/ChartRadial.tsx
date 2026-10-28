@@ -8,6 +8,7 @@ import {
   fitCenterText,
   ringDiameter,
   useChartMetrics,
+  useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
   type ChartHeight,
@@ -42,6 +43,8 @@ export interface ChartRadialProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
+  /** Clique no anel. Com ele, os aneis viram botoes percorridos pelas setas. */
+  onTrackClick?: (track: ChartRadialTrack) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
@@ -80,6 +83,7 @@ export function ChartRadial({
   legend = 'bottom',
   legendAlign,
   onHiddenTracksChange,
+  onTrackClick,
   palette,
   showCenter = true,
   showTooltip = true,
@@ -116,6 +120,11 @@ export function ChartRadial({
   const animadas = useTweenedNumbers(fracoes, { from: fracoes.map(() => 0) });
 
   const [emFoco, setEmFoco] = useState<number | null>(null);
+  const marcas = useMarkNavigation({
+    onActivate: onTrackClick && (({ column }) => onTrackClick(tracks[column])),
+    onFocusMark: (posicao) => setEmFoco(posicao?.column ?? null),
+    present: tracks.flatMap((anel, column) => (isHidden(anel.label) || !valido(anel) ? [] : [{ column, row: 0 }])),
+  });
 
   function linhasDoBalao() {
     const anel = emFoco === null ? undefined : tracks[emFoco];
@@ -159,6 +168,7 @@ export function ChartRadial({
 
   return (
     <ChartFrame
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       centerOrigin
       containerRef={ref}
       empty={tracks.length === 0}
@@ -187,46 +197,55 @@ export function ChartRadial({
             }
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
     >
-      {tracks.map((anel, indice) => {
-        const externo = raioDe(indice);
-        const interno = externo - espessuraCabivel;
-        const fracao = animadas[indice] ?? 0;
-        const preenchido = comeco + volta * fracao;
-        const descricao = valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label;
+      <g {...marcas.groupProps}>
+        {tracks.map((anel, indice) => {
+          const externo = raioDe(indice);
+          const interno = externo - espessuraCabivel;
+          const fracao = animadas[indice] ?? 0;
+          const preenchido = comeco + volta * fracao;
+          const descricao = valido(anel) ? `${anel.label}: ${formatValue(anel.value)}` : anel.label;
 
-        return (
-          <g key={indice} onMouseEnter={() => setEmFoco(indice)} onMouseLeave={() => setEmFoco(null)}>
-            <path
-              aria-label={descricao}
-              className={styles.track}
-              d={arcPath({
-                cornerRadius: canto,
-                endAngle: comeco + volta,
-                innerRadius: interno,
-                outerRadius: externo,
-                startAngle: comeco,
-              })}
+          return (
+            <g
+              aria-label={marcas.interactive ? descricao : undefined}
+              key={indice}
+              onMouseEnter={() => setEmFoco(indice)}
+              onMouseLeave={() => setEmFoco(null)}
+              {...marcas.markProps({ column: indice, row: 0 })}
             >
-              {!showTooltip && <title>{descricao}</title>}
-            </path>
-            {fracao > 0 && (
               <path
-                className={styles.fill}
+                aria-label={descricao}
+                className={styles.track}
                 d={arcPath({
                   cornerRadius: canto,
-                  endAngle: preenchido,
+                  endAngle: comeco + volta,
                   innerRadius: interno,
                   outerRadius: externo,
                   startAngle: comeco,
                 })}
-                fill={cores[indice]}
-              />
-            )}
-          </g>
-        );
-      })}
+              >
+                {!showTooltip && <title>{descricao}</title>}
+              </path>
+              {fracao > 0 && (
+                <path
+                  className={styles.fill}
+                  d={arcPath({
+                    cornerRadius: canto,
+                    endAngle: preenchido,
+                    innerRadius: interno,
+                    outerRadius: externo,
+                    startAngle: comeco,
+                  })}
+                  fill={cores[indice]}
+                />
+              )}
+            </g>
+          );
+        })}
+      </g>
 
       {centro && (
         <g className={styles.center}>

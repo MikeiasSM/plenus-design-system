@@ -302,5 +302,7 @@ export const pagina: Pagina = {
       descricao: 'Caminho do grupo ao nó sob o ponteiro, com os valores somados; costura para o ChartTooltip.',
     },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
+    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os retângulos botões; o clique entrega o caminho do grupo até o nó.' },
   ],
 };

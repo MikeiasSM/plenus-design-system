@@ -12,7 +12,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `createPalette(cor, { onSolid })`: paleta própria de um produto, gerada e medida a partir de uma cor, para espalhar num elemento. Recusa a cor que mede menos de 1,5:1 contra a superfície clara, com o tom aceito mais próximo na mensagem.
 - Token `--pl-color-primary-strong`, o traço da cor primária: texto, borda de seleção, anel de foco e aba ativa, a 4,5:1 sobre a superfície.
 - Gráficos: `palette`, uma lista de cores em rotação ou `{ base }`, que gera os tons da cor base. Tipo `ChartPalette`.
-- Clique na marca: `onBarClick` no `ChartBar`, `onPointClick` no `ChartLine` e no `ChartArea`, e `onSliceClick` no `ChartPie` e no `ChartDonut`. Com ele, as marcas viram botões com uma parada de tabulação só, setas entre categorias e séries, `Home` e `End` nas pontas e `Enter` ou `Espaço` para ativar. Na linha e na área, o clique na faixa vale pelo ponto mais próximo. Tipo `ChartMarkClick`.
+- Clique na marca em todos os gráficos de dados, menos o `ChartGauge`, que mostra um valor só: `onBarClick` no `ChartBar`; `onPointClick` no `ChartLine`, no `ChartArea` e no `ChartScatter`; `onSliceClick` no `ChartPie` e no `ChartDonut`; `onMarkClick` no `ChartCombo`, para barras e pontos; `onTrackClick` no `ChartRadial`; `onNodeClick` no `ChartTreemap` e no `ChartSunburst`, com o caminho até o nó; `onFlowClick` no `ChartSankey`; e `onStepClick` no `ChartWaterfall`. Com ele, as marcas viram botões com uma parada de tabulação só, setas entre categorias e séries, `Home` e `End` nas pontas e `Enter` ou `Espaço` para ativar, e o balão abre no foco do teclado. Na linha e na área, o clique na faixa vale pelo ponto mais próximo. Tipos `ChartMarkClick` e `ChartScatterPointClick`.
 
 ### Alterado
 

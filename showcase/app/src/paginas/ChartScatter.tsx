@@ -259,5 +259,7 @@ export const pagina: Pagina = {
     { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
+    { nome: 'onPointClick', tipo: '(point: ChartScatterPointClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas na ordem da lista; o foco abre a guia e o balão.' },
   ],
 };

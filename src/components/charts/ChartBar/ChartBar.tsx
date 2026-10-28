@@ -322,6 +322,7 @@ export function ChartBar({
             })
           : undefined
       }
+      tooltipAnchor={marcas.tooltipAnchor}
       width={width}
       xAxis={{ ...(vertical ? eixoDeCategoria : eixoDeValor), visibility: xAxis }}
       yAxis={{ ...(vertical ? eixoDeValor : eixoDeCategoria), visibility: yAxis }}

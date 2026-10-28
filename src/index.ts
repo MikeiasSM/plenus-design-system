@@ -301,6 +301,7 @@ export type { ChartAreaProps, ChartAreaSeries } from './components/charts/ChartA
 export { ChartScatter } from './components/charts/ChartScatter';
 export type {
   ChartScatterPoint,
+  ChartScatterPointClick,
   ChartScatterProps,
   ChartScatterSeries,
 } from './components/charts/ChartScatter';

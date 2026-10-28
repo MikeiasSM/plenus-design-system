@@ -274,6 +274,7 @@ export function ChartLine({
             })
           : undefined
       }
+      tooltipAnchor={pontos.tooltipAnchor}
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}

@@ -288,5 +288,7 @@ export const pagina: Pagina = {
     { nome: 'height', tipo: "number | 'fill'", padrao: '320', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'cyclicMessage', tipo: 'string', padrao: "'O fluxo volta sobre si mesmo e não pode ser desenhado'", descricao: 'Mensagem quando o fluxo tem ciclo.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
+    { nome: 'onFlowClick', tipo: '(flow: ChartSankeyFlow) => void', descricao: 'Torna as ligações botões, percorridos pelas setas; o foco realça a faixa e abre o balão.' },
   ],
 };

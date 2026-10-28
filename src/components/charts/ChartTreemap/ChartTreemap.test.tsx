@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartTreemap, type ChartTreemapNode } from './ChartTreemap';
 
 const produtos: ChartTreemapNode[] = [
@@ -144,5 +144,22 @@ describe('ChartTreemap', () => {
       [null],
     ]);
     expect(document.querySelector('rect title')).toBeNull();
+  });
+
+  it('com clique no no, os retangulos sao botoes e o clique entrega o caminho ate o no', () => {
+    const aoClicar = vi.fn();
+    render(<ChartTreemap nodes={produtos} onNodeClick={aoClicar} title="Produtos" />);
+    const servicoA = screen.getByRole('button', { name: /^Serviço A:/ });
+
+    expect(screen.getByRole('group', { name: 'Produtos' })).toBeInTheDocument();
+
+    act(() => servicoA.focus());
+    fireEvent.keyDown(servicoA, { key: 'ArrowRight' });
+    fireEvent.keyDown(document.activeElement!, { key: ' ' });
+
+    expect(aoClicar).toHaveBeenCalledWith([
+      { label: 'Margem alta', value: 660 },
+      { label: 'Serviço B', value: 260 },
+    ]);
   });
 });

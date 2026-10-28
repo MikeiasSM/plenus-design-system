@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartSunburst, type ChartSunburstNode } from './ChartSunburst';
 
 const despesas: ChartSunburstNode[] = [
@@ -185,5 +185,23 @@ describe('ChartSunburst', () => {
       { label: 'Aluguel', value: 300 },
     ]);
     expect(document.querySelector('path title')).toBeNull();
+  });
+
+  it('com clique no arco, os arcos sao botoes e o clique entrega o caminho ate o no', () => {
+    const aoClicar = vi.fn();
+    render(<ChartSunburst nodes={despesas} onNodeClick={aoClicar} title="Despesas" />);
+    const operacionais = screen.getByRole('button', { name: /^Operacionais:/ });
+
+    expect(screen.getByRole('group', { name: 'Despesas' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /^Aluguel:/ }));
+    expect(aoClicar).toHaveBeenCalledWith([
+      { label: 'Operacionais', value: 800 },
+      { label: 'Aluguel', value: 300 },
+    ]);
+
+    act(() => operacionais.focus());
+    fireEvent.keyDown(operacionais, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenLastCalledWith([{ label: 'Operacionais', value: 800 }]);
   });
 });

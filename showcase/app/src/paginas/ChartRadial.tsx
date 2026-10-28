@@ -235,5 +235,7 @@ export const pagina: Pagina = {
     { nome: 'defaultHiddenTracks', tipo: 'readonly string[]', descricao: 'Anéis ocultos de início, no modo não controlado.' },
     { nome: 'onHiddenTracksChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
+    { nome: 'onTrackClick', tipo: '(track: ChartRadialTrack) => void', descricao: 'Torna os anéis botões, percorridos pelas setas; o balão abre no foco.' },
   ],
 };
