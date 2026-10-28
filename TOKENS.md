@@ -139,7 +139,7 @@ A escala real deve ser definida em:
 
 Evitar valores arbitrários quando existir um token equivalente.
 
-A altura dos campos de formulário também é token, em `src/tokens/semantic/control.css`: `--pl-control-height-sm`, `--pl-control-height-md` e `--pl-control-height-lg`. O médio é a altura do `Button` médio, e é por ele que uma peça montada pelo produto alinha com os campos numa barra, sem copiar o número. O grande, de 56px, é o do campo de destaque, como a busca principal de uma página.
+A altura dos campos de formulário também é token, em `src/tokens/semantic/control.css`: `--pl-control-height-sm`, `--pl-control-height-md` e `--pl-control-height-lg`. O pequeno e o médio são as alturas do `Button` pequeno e médio, e é por eles que uma peça montada pelo produto alinha com os campos numa barra, sem copiar o número. O respiro vertical dos campos e desses botões é calculado a partir do token, e não escrito à parte. O grande, de 56px, é o do campo de destaque, como a busca principal de uma página.
 
 No mesmo arquivo ficam os dois estados de interação dos controles. `--pl-control-border-hover` é a borda sob o ponteiro, metade da cor primária sobre a borda forte do tema, para o hover não se confundir com o foco. `--pl-control-focus-halo` é o halo do foco, em volta da borda primária.
 

@@ -52,12 +52,12 @@
 }
 
 .sm .input {
-  padding: 7px 10px;
+  padding: calc((var(--pl-control-height-sm) - var(--pl-type-body-line-height)) / 2 - 1px) 10px;
   font-size: var(--pl-type-caption-size);
 }
 
 .md .input {
-  padding: 10px 12px;
+  padding: calc((var(--pl-control-height-md) - var(--pl-type-body-line-height)) / 2 - 1px) 12px;
 }
 
 .input:focus-visible {
@@ -71,9 +71,10 @@
 
 .trigger {
   display: flex;
+  align-self: stretch;
   align-items: center;
   justify-content: center;
-  padding: var(--pl-space-2) var(--pl-space-3);
+  padding: 0 var(--pl-space-3);
   border: 0;
   background: none;
   color: var(--pl-color-text-secondary);

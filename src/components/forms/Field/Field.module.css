@@ -40,7 +40,7 @@
 .control {
   width: 100%;
   min-height: var(--pl-control-height-md);
-  padding: 10px 12px;
+  padding: calc((var(--pl-control-height-md) - var(--pl-type-body-line-height)) / 2 - 1px) 12px;
   border: 1px solid var(--pl-color-border-strong);
   border-radius: var(--pl-radius-md);
   background-color: var(--pl-color-surface);
@@ -76,7 +76,7 @@
 
 .sm {
   min-height: var(--pl-control-height-sm);
-  padding: 7px 10px;
+  padding: calc((var(--pl-control-height-sm) - var(--pl-type-body-line-height)) / 2 - 1px) 10px;
   font-size: var(--pl-type-caption-size);
 }
 

@@ -232,7 +232,7 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, todas as propriedades nativas de <button> e o ref.',
   api: [
     { nome: 'variant', tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger'", padrao: "'primary'", descricao: 'Peso visual da ação.' },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura de 28, 42 ou 48px; o médio alinha com o InputText.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura de 32, 36 ou 40px; o pequeno e o médio alinham com o campo do mesmo tamanho.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Indicador de atividade; o clique é ignorado.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido.' },

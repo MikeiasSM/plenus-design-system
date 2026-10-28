@@ -236,7 +236,7 @@ export const pagina: Pagina = {
       padrao: "'secondary'",
       descricao: 'Peso visual, como no Button.',
     },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Quadrado de 28, 42 ou 48px, a altura do Button.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Quadrado de 32, 36 ou 40px, a altura do Button.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Herdado do Button: envio só quando pedido.' },
   ],

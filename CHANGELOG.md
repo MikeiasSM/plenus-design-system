@@ -11,6 +11,9 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `ChartHeatmap`: a célula com `value: null` passa a ser hachurada, como no `ChartMap`; o cinza liso continua com `noDataStyle="neutral"`.
 - `ChartHeatmap`: o cruzamento que não está em `cells` fica em branco, sem célula, sem foco e fora da contagem de sem dado. Antes ele era desenhado como sem dado.
 - `ChartHeatmap`: a escala sequencial de valores não negativos, sem `domain`, parte do zero, e não mais do menor valor.
+- `Button` e `ButtonIcon` passam à escala compacta, em degraus de 4px: `sm` de 28 para 32px, `md` de 42 para 36px e `lg` de 48 para 40px, todos com fonte de 14px. O `sm` usava 12px e o `lg`, 16px.
+- `--pl-control-height-md` passa de 42 para 36px, e os campos médios acompanham: `InputText` e os demais montados no `Field`, `Select`, `ComboBox`, `InputPassword`, `DatePicker`, `TimePicker` e `DateTimePicker`.
+- `SegmentedControl` passa de 34 para 32px no `sm` e de 42 para 36px no `md`.
 
 ### Adicionado
 
@@ -27,6 +30,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `ChartHeatmap`: o balão abre na célula sem dado e no foco do teclado.
 - `ChartHeatmap`: `onHoverCell` não recebe mais `null` entre uma seta e outra, e o balão não pisca ao cruzar o vão entre as células.
 - `ChartHeatmap`: o vão entre células cai para 1 px quando a célula tem menos de 14 px.
+- Os campos pequenos mediam 36px apesar do token de 32px: o respiro vertical era escrito à parte e vencia o `min-height`. O respiro dos campos e do `Button` `sm` e `md` passa a sair do token.
+- O botão do calendário e o do horário empurravam a caixa do `DatePicker`, do `TimePicker` e do `DateTimePicker` pequenos; agora ocupam a altura da caixa.
 
 ## [0.2.7] — 2026-10-27
 

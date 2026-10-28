@@ -652,6 +652,17 @@ Pedido pelo Painel e entregue em 27/10/2026, antes do `DataGrid`, por decisao do
 - Sem `label` o icone sai da arvore de acessibilidade, que e o certo quando ha texto ao lado dizendo a mesma coisa. Com `label`, ganha nome acessivel para o caso em que carrega o significado sozinho.
 - Os de interface cobrem o que os componentes usam e as acoes gerais; o resto vem da suite.
 
+### Escala dos botoes e dos campos
+
+Decidida pelo mantenedor em 27/10/2026, a partir do artefato https://claude.ai/artifact/TgRcWKA6tettUyjTNBDP9R. Nos dois produtos que usam a biblioteca, os botoes pareciam grandes, e o degrau do `sm` ao `md` (14px) era mais que o dobro do `md` ao `lg` (6px).
+
+- **Escala compacta, 32/36/40px, toda em 14px**, a do shadcn/ui. O Untitled UI, base visual, usa 36/40/44: corrigia a proporcao, mas fazia o pequeno crescer. O desvio da base visual e consciente: a queixa era de tamanho, e nao so de proporcao.
+- **Os campos acompanham o medio**: `--pl-control-height-md` foi a 36px. O pequeno ja era 32px no token.
+- **O respiro vertical sai do token.** Os campos pequenos declaravam 32px e mediam 36px, porque o respiro escrito a parte vencia o `min-height`. Campos e `Button` `sm` e `md` calculam o respiro a partir de `--pl-control-height-*`; o `lg` do botao, sem par entre os campos, fica em 9px.
+- `ButtonIcon` em 32, 36 e 40px, com o icone de 16, 18 e 20px. `SegmentedControl` em 32 e 36px. O botao do calendario e o do horario passam a ocupar a altura da caixa, sem respiro vertical, para nao empurrar o campo pequeno.
+- Medido em Chrome, no Showcase: botoes 32/36/40; `ButtonIcon` 32/36/40; campos 32 e 36 em `InputText`, `Select`, `ComboBox`, `InputPassword`, `DatePicker`, `TimePicker` e `DateTimePicker`; o campo `lg` segue em 56px.
+- Mudanca incompativel, conforme `CONTRIBUTING.md` secao 11: entra na 0.3.0, com a revisao do `ChartHeatmap`.
+
 ### ButtonIcon
 
 Entrou no catalogo por decisao do mantenedor em 18/10/2026, como componente proprio da familia `Button`, e nao como variante dele.

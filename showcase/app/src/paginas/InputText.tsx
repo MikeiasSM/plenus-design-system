@@ -258,7 +258,7 @@ export const pagina: Pagina = {
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e marca o campo como inválido.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone decorativo à frente do texto, como a lupa de uma busca.' },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 42 ou 56px. O lg é o da busca de destaque.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px. O lg é o da busca de destaque.' },
     { nome: 'showCharacterCount', tipo: 'boolean', padrao: 'false', descricao: 'Mostra o contador, contra o maxLength quando houver.' },
     { nome: 'maxLength', tipo: 'number', descricao: 'Limite nativo de caracteres.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Obrigatório nativo, com asterisco no rótulo.' },
