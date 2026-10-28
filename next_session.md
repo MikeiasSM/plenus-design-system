@@ -1,41 +1,46 @@
 # Próxima sessão
 
-Passagem de contexto entre máquinas, em 27/10/2026. Não normativo; o acompanhamento completo está em `PROGRESS.md`.
+Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanhamento completo está em `PROGRESS.md`.
+
+## Branch de trabalho
+
+Todo o trabalho desta sessão está na branch `preparacao-0.3.0`, publicada no GitHub e **sem merge na `main`**. Ela concentra o que vai para a 0.3.0, que traz mudanças incompatíveis (`CONTRIBUTING.md` §11). O `CHANGELOG.md` está em "Não publicado".
+
+| Commit | Conteúdo |
+| --- | --- |
+| `f2c6977` | Revisão do `ChartHeatmap` contra o mercado |
+| `56e549c` | Escala compacta dos botões e dos campos |
+| `070d44d` | Zona de envio do `FileUpload` em coluna e variante `dangerGhost` |
+| `176788d` | Fase 0 do DataGrid registrada no `PROGRESS.md` |
 
 ## Feito
 
-- **0.2.6 publicada**: licença proprietária, `CHANGELOG.md`, política de versão (`CONTRIBUTING.md` §10 e §11), `'use client'`, CI em PR e push na `main`, propriedades nativas, `ref` e `hideTitle` nos gráficos, hover mais suave e halo de foco (`--pl-control-border-hover`, `--pl-control-focus-halo`).
-- **0.2.7 publicada**: `ChartHeatmap`, e a escala de cor e a legenda em barra extraídas do `ChartMap` para o núcleo dos gráficos (`ChartColorScale`, `ChartColorCategory`; os nomes antigos saem na 0.4.0).
-- Relatório de compatibilidade do Painel avaliado; as decisões do mantenedor estão em `PROGRESS.md`, seção "Relatorio de compatibilidade com o Painel".
-- Resposta ao time do Painel: https://claude.ai/artifact/QHZyQy1JBCPtMaZbc9PN9a
+- **`ChartHeatmap` revisado** a partir de pesquisa de mercado (artefato https://claude.ai/artifact/KsQoUPeFoxGLzwrR8Cw3mD): sem dado hachurado, cruzamento ausente em branco, escala a partir de zero, contraste do texto com halo onde nenhuma cor fixa passa, colunas em cima, células quadradas, destaque de linha e coluna, visão em tabela e balão no foco. A hachura e o aviso de desenvolvimento passaram ao núcleo dos gráficos.
+- **Escala compacta dos botões e campos**: 32, 36 e 40 px, todos em 14 px, decidida no artefato https://claude.ai/artifact/TgRcWKA6tettUyjTNBDP9R. O respiro vertical dos campos e dos botões `sm` e `md` passou a sair do token; o campo pequeno media 36 px apesar dos 32 declarados.
+- **`FileUpload`** com ícone discreto, texto e restrições em cima e botão embaixo. **`dangerGhost`** no `Button` e no `ButtonIcon`, a ação destrutiva discreta.
+- **DataGrid, fase 0**: pesquisa e plano, protótipo aprovado e prova de virtualização. Decisões e resultados no `PROGRESS.md`, seção "DataGrid: fase 0".
+  - Pesquisa e plano: https://claude.ai/artifact/Gk9TR3yiRtQ6ir49qQLQmM
+  - Protótipo de interação: https://claude.ai/artifact/YSBhYGrUFVkAzYWa68cy7o
+  - Prova de virtualização, com medidor: https://claude.ai/artifact/TKR59WipNY13aKAwMGKJJ9
 
-## Regra de processo
+## Pendente antes da fase 1 do DataGrid
 
-Componente visual novo passa por um artefato de referência aprovado pelo mantenedor **antes** da implementação. O `ChartHeatmap` não passou e ainda não foi visto em navegador real: conferir em `npm run dev:showcase`.
+1. **Teste no NVDA** do protótipo, com o mantenedor. Roteiro: Tab até a grade ("Pedidos de compra, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe e Enter ("Itens de …"); `Esc` volta à linha do pedido; `Alt+↓` num título abre o filtro.
+2. **Rodar o medidor da prova de virtualização** no navegador do mantenedor; os números do Chrome headless são só comparação.
+3. **`Pagination`** com seletor de tamanho de página e primeira e última página, que o rodapé do DataGrid usa.
 
-## Próximo: DataGrid
+Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação, conforme o plano.
 
-Vem logo depois do heatmap, por decisão do mantenedor. Antes do código, fechar com ele:
+## O que a prova ensinou para o componente
 
-1. Artefato de referência do visual e da interação.
-2. Modo servidor por um caminho só: recomendado `onQueryChange`, em vez de um evento por fatia.
-3. Tecla que entra no detalhe sem disputar a seta entre células: sugerido `Alt+↓` para entrar e `Esc` para voltar à linha.
-4. Fase 1 sem seleção entre páginas nem modo servidor completo.
-
-Começa pelo State Motor (`ARCHITECTURE.md` §7) e segue o escopo de `PROGRESS.md`, "Familia de tabela".
+- Uma rolagem só; as grades aninhadas não rolam e são recortadas pela tela da grade de fora.
+- Alturas medidas e guardadas pelo caminho da linha; posições em cache, recalculadas só quando uma altura muda; rolagem por busca binária.
+- Rolagem corrigida por ancoragem num lugar só, com a âncora registrada no instante em que a altura muda e a correção só quando a posição de rolagem é a mesma do registro.
+- Estado do detalhe fora do componente, entregue por `state` e `setState`.
 
 ## Fila depois do DataGrid
 
-- Tema por subárvore e por `prefers-color-scheme`. Cuidado: variável definida no ancestral que referencia variável do descendente fica inválida; os tokens calculados em `:root` precisam ser redeclarados no escopo do tema.
-- Guarda de `prefers-reduced-motion` nos dezoito módulos que animam; `base.css` restrito à biblioteca.
-- `ToastProvider` por árvore, mantendo `showToast`, e `portalContainer` nos overlays.
-- Teste do pacote construído em app real (Vite, Next com Server Components, CommonJS), axe e navegador real.
-- Visão em tabela nos gráficos, depois `onPointClick` e `onSliceClick`.
-- Ícones em um módulo por ícone, em `icons/*`.
-- Recursos genéricos pedidos pelo Painel (`PROGRESS.md`).
-- Receita com react-hook-form.
-- **0.3.0**: migração para a convenção de API, CSS por componente, formatadores em inglês com apelidos obsoletos.
-- Por último: cor de marca em tempo de execução (gerador livre ou os oito temas institucionais).
+Sem mudança em relação à sessão anterior: tema por subárvore e `prefers-color-scheme`; guarda de `prefers-reduced-motion`; `ToastProvider` por árvore e `portalContainer`; teste do pacote construído em app real; visão em tabela e clique na marca nos gráficos; ícones em um módulo por ícone; recursos genéricos pedidos pelo Painel; receita com react-hook-form; migração da API para a convenção na 0.3.0; por último, cor de marca em tempo de execução.
 
 ## Pendência de publicação
 
@@ -44,4 +49,4 @@ Começa pelo State Motor (`ARCHITECTURE.md` §7) e segue o escopo de `PROGRESS.m
 ## Ambiente
 
 - Publicação: tag `vX.Y.Z` na `main`; o Actions confere versão, seção do CHANGELOG, tipos, testes, build, pacote e contraste.
-- Push só pelo mantenedor ou com autorização explícita dele.
+- Agents de uso geral rodam em Sonnet; Opus só para revisão.
