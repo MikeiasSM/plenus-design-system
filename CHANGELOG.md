@@ -6,6 +6,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.2.7] — 2026-10-27
+
 ### Adicionado
 
 - `ChartHeatmap`, matriz de calor de duas categorias, com escala sequencial, divergente ou por faixas, valor na célula quando cabe e células clicáveis percorridas pelas setas.
