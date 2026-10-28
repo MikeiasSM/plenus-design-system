@@ -4,11 +4,22 @@ function equals(text: string, term: string) {
   return collator.compare(text, term) === 0;
 }
 
+export function equalsTerm(text: string, term: string) {
+  return equals(text.normalize('NFC'), term.normalize('NFC'));
+}
+
 export function startsWithTerm(text: string, term: string) {
   const target = text.normalize('NFC');
   const search = term.normalize('NFC');
 
   return equals(target.slice(0, search.length), search);
+}
+
+export function endsWithTerm(text: string, term: string) {
+  const target = text.normalize('NFC');
+  const search = term.normalize('NFC');
+
+  return equals(target.slice(Math.max(target.length - search.length, 0)), search);
 }
 
 export function containsTerm(text: string, term: string) {

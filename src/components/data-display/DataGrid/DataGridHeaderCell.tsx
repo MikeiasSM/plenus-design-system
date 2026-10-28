@@ -1,11 +1,20 @@
 import { useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
-import { IconArrowDown, IconArrowUp, IconMore } from '../../icons';
+import { IconArrowDown, IconArrowUp, IconFilter, IconMore } from '../../icons';
 import { Menu, type MenuSection } from '../../overlays/Menu';
+import { Popover } from '../../overlays/Popover';
 import type { DataGridSortItem } from './gridState';
 import styles from './DataGrid.module.css';
 
 /** Largura mínima de uma coluna redimensionada pela pessoa. */
 export const MIN_COLUMN_WIDTH = 48;
+
+/** O funil da coluna que filtra: destacado com filtro ativo, abre o painel do tipo. */
+export interface DataGridHeaderFilter {
+  active: boolean;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
+  renderPanel: () => ReactNode;
+}
 
 interface DataGridHeaderCellProps {
   /** Se a coluna arrastada pode cair aqui: só dentro da mesma área, fixa ou não. */
@@ -15,6 +24,7 @@ interface DataGridHeaderCellProps {
   columnId: string;
   /** Caixa de seleção de todas e o espaço da seta, na primeira coluna. */
   controls: ReactNode;
+  filter: DataGridHeaderFilter | undefined;
   focused: boolean;
   header: string;
   label: ReactNode;
@@ -44,6 +54,7 @@ export function DataGridHeaderCell({
   colIndex,
   columnId,
   controls,
+  filter,
   focused,
   header,
   label,
@@ -67,6 +78,8 @@ export function DataGridHeaderCell({
   /* Com o ponteiro capturado, o clique de soltar cai na borda, e não no título, que ordenaria. */
   const resizeStart = useRef<{ x: number; width: number } | null>(null);
   const [dropTarget, setDropTarget] = useState(false);
+  const filterButton = useRef<HTMLButtonElement>(null);
+  const stateId = `${labelId}-filtered`;
 
   function startResize(event: PointerEvent<HTMLSpanElement>) {
     event.preventDefault();
@@ -89,7 +102,7 @@ export function DataGridHeaderCell({
   return (
     <div
       aria-colindex={colIndex}
-      aria-labelledby={labelId}
+      aria-labelledby={filter?.active ? `${labelId} ${stateId}` : labelId}
       aria-sort={sortIndex === 0 && sortItem ? (sortItem.direction === 'asc' ? 'ascending' : 'descending') : undefined}
       className={[className, dropTarget && styles.dropTarget].filter(Boolean).join(' ')}
       data-column={columnId}
@@ -116,7 +129,7 @@ export function DataGridHeaderCell({
         }
       }}
       onDragStart={(event) => {
-        if (resizeStart.current) {
+        if (resizeStart.current || !event.currentTarget.contains(event.target as Node)) {
           event.preventDefault();
           return;
         }
@@ -125,6 +138,9 @@ export function DataGridHeaderCell({
         onDragStart();
       }}
       onDrop={(event) => {
+        if (!event.currentTarget.contains(event.target as Node)) {
+          return;
+        }
         event.preventDefault();
         setDropTarget(false);
         onDrop();
@@ -139,13 +155,51 @@ export function DataGridHeaderCell({
       <span className={styles.headerLabel} id={labelId}>
         {label}
       </span>
+      {filter?.active && (
+        <span className={styles.visuallyHidden} id={stateId}>
+          filtrada
+        </span>
+      )}
       {sortItem && (
         <span aria-hidden="true" className={styles.sortMark}>
           {sortItem.direction === 'asc' ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
           {sortCount > 1 && <sup>{sortIndex + 1}</sup>}
         </span>
       )}
-      <span className={[styles.headerActions, menuOpen && styles.headerActionsOpen].filter(Boolean).join(' ')}>
+      <span
+        className={[styles.headerActions, (menuOpen || filter?.open || filter?.active) && styles.headerActionsOpen]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        {filter && (
+          <>
+            <button
+              aria-expanded={filter.open}
+              aria-haspopup="dialog"
+              aria-label={`Filtrar ${header}${filter.active ? ', filtro ativo' : ''}`}
+              className={[styles.headerMenuButton, filter.active && styles.filterActive].filter(Boolean).join(' ')}
+              ref={filterButton}
+              tabIndex={-1}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                filter.onOpenChange(!filter.open);
+              }}
+            >
+              <IconFilter size={14} />
+            </button>
+            <Popover
+              aria-label={`Filtro de ${header}`}
+              className={styles.filterPopover}
+              open={filter.open}
+              placement="bottom end"
+              triggerRef={filterButton}
+              onOpenChange={filter.onOpenChange}
+            >
+              {filter.renderPanel()}
+            </Popover>
+          </>
+        )}
         <Menu items={menuItems} label={`Menu da coluna ${header}`} open={menuOpen} onOpenChange={onMenuOpenChange}>
           <button
             aria-label={`Menu da coluna ${header}`}

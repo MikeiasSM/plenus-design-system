@@ -1,4 +1,14 @@
 import type { DataGridColumnState } from './columnLayout';
+import {
+  isComplete,
+  matchesFilter,
+  normalizeFilter,
+  operatorsOf,
+  type DataGridFilter,
+  type DataGridFilterKind,
+  type DataGridFilterOperator,
+} from './filterModel';
+import { aggregatorOf, type DataGridAggregator, type DataGridAggregatorId } from './summaries';
 import { formatCurrency, formatDate, formatNumber } from '../../../utils/formatters';
 import { containsTerm } from '../../../utils/textSearch';
 
@@ -17,16 +27,25 @@ export interface DataGridSortItem {
 export interface DataGridColumnModel<Row> {
   align?: DataGridAlign;
   compare?: (a: unknown, b: unknown) => number;
+  /** Tipo do filtro no funil; sem ele, sai do tipo da coluna. `false` tira o funil. */
+  filter?: DataGridFilterKind | false;
+  /** Substitui os operadores do tipo, como `[...dataGridFilterOperators.text, proprio]`. */
+  filterOperators?: readonly DataGridFilterOperator[];
+  /** Valores do filtro por conjunto no modo servidor; no cliente, saem das linhas. */
+  filterOptions?: readonly string[];
   format?: (value: unknown, row: Row) => string;
   header: string;
   id: string;
   searchable?: boolean;
   sortable?: boolean;
+  /** Agregado da linha de sumarização, sobre as linhas filtradas de todas as páginas. */
+  summary?: DataGridAggregatorId | DataGridAggregator;
   type?: DataGridColumnType;
   value?: (row: Row) => unknown;
 }
 
 export interface DataGridState {
+  filter: DataGridFilter;
   page: number;
   pageSize: number;
   search: string;
@@ -109,6 +128,66 @@ export function searchRows<Row>(rows: readonly Row[], columns: readonly DataGrid
   const searchable = columns.filter((column) => column.searchable !== false);
 
   return rows.filter((row) => searchable.some((column) => containsTerm(cellText(column, row), term)));
+}
+
+/** Cada condição lê o valor cru e o texto exibido da sua coluna; a de coluna desconhecida ou incompleta não filtra. */
+export function filterRows<Row>(rows: readonly Row[], columns: readonly DataGridColumnModel<Row>[], filter: DataGridFilter) {
+  if (filter.conditions.length === 0) {
+    return rows;
+  }
+
+  const byId = new Map(columns.map((column) => [column.id, column]));
+
+  return rows.filter((row) =>
+    matchesFilter(filter, (condition) => {
+      const column = byId.get(condition.columnId);
+      const operator = column && operatorsOf(column).find((candidate) => candidate.id === condition.operator);
+
+      if (!column || !operator || !isComplete(condition, operator)) {
+        return true;
+      }
+
+      return operator.test(cellValue(column, row), condition.value, cellText(column, row));
+    }),
+  );
+}
+
+/** Valores distintos do filtro por conjunto, como aparecem na célula, na ordem do tipo da coluna; o vazio fica no fim. */
+export function distinctTexts<Row>(rows: readonly Row[], column: DataGridColumnModel<Row>) {
+  const values = new Map<string, unknown>();
+  rows.forEach((row) => {
+    const text = cellText(column, row);
+    if (!values.has(text)) {
+      values.set(text, cellValue(column, row));
+    }
+  });
+
+  const compare = column.compare ?? typeOf(column).compare;
+  return [...values.keys()].sort((a, b) => (a === '' ? 1 : b === '' ? -1 : compare(values.get(a), values.get(b))));
+}
+
+/** Agregados das colunas com `summary`, pelos valores preenchidos. */
+export function summarize<Row>(rows: readonly Row[], columns: readonly DataGridColumnModel<Row>[]) {
+  const values: Record<string, unknown> = {};
+
+  columns.forEach((column) => {
+    const aggregator = aggregatorOf(column.summary);
+    if (aggregator) {
+      values[column.id] = aggregator.aggregate(rows.map((row) => cellValue(column, row)).filter((value) => !isEmpty(value)));
+    }
+  });
+
+  return values;
+}
+
+export function summaryText<Row>(column: DataGridColumnModel<Row>, value: unknown) {
+  const aggregator = aggregatorOf(column.summary);
+
+  if (isEmpty(value) || (typeof value === 'number' && !Number.isFinite(value))) {
+    return '';
+  }
+
+  return aggregator?.format ? aggregator.format(value) : typeOf(column).format(value);
 }
 
 /** Ordenação estável em vários níveis. Valor vazio fica no fim nos dois sentidos. */
@@ -195,8 +274,8 @@ export function snapshotOf(
   columns: DataGridColumnState,
   density: DataGridDensity,
 ): DataGridSnapshot {
-  const { page, pageSize, search, sort } = state;
-  return { version: 1, sort, search, page, pageSize, columns, density };
+  const { filter, page, pageSize, search, sort } = state;
+  return { version: 1, sort, search, filter, page, pageSize, columns, density };
 }
 
 /** Colunas e densidade de um retrato reconhecido; o retrato de antes delas, ou de outra versão, fica com o padrão. */
@@ -234,6 +313,7 @@ export function restoreSnapshot<Row>(
   return {
     sort,
     search: typeof saved.search === 'string' ? saved.search : fallback.search,
+    filter: saved.filter === undefined ? fallback.filter : normalizeFilter(saved.filter, columns),
     page: isPositiveInteger(saved.page) ? saved.page : fallback.page,
     pageSize: isPositiveInteger(saved.pageSize) ? saved.pageSize : fallback.pageSize,
   };

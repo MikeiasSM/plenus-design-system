@@ -55,13 +55,16 @@ function gerarPedidos(quantidade: number, metricas = 0): Pedido[] {
 
 const COLUNAS: DataGridColumn<Pedido>[] = [
   { id: 'id', header: 'Pedido', width: 110, pinned: 'start' },
-  { id: 'cliente', header: 'Cliente', flex: 2, minWidth: 180 },
-  { id: 'cidade', header: 'Cidade', minWidth: 140 },
+  { id: 'cliente', header: 'Cliente', flex: 2, minWidth: 180, filter: 'set' },
+  { id: 'cidade', header: 'Cidade', minWidth: 140, filter: 'set' },
   { id: 'emissao', header: 'Emissão', type: 'date', width: 120 },
-  { id: 'itens', header: 'Itens', type: 'number', width: 90 },
-  { id: 'valor', header: 'Valor', type: 'currency', width: 140 },
+  { id: 'itens', header: 'Itens', type: 'number', width: 90, summary: 'sum' },
+  { id: 'valor', header: 'Valor', type: 'currency', width: 150, summary: 'sum' },
   { id: 'urgente', header: 'Urgente', type: 'boolean', width: 100, searchable: false },
 ];
+
+/* O servidor simulado só busca e ordena: as colunas dele não oferecem o funil. */
+const COLUNAS_DO_SERVIDOR = COLUNAS.map((coluna) => ({ ...coluna, filter: false as const }));
 
 function colunasCom(metricas: number): DataGridColumn<Pedido>[] {
   const extras = Array.from({ length: metricas }, (_, i): DataGridColumn<Pedido> => ({
@@ -435,7 +438,7 @@ const playground = definirPlayground({
 function ModoServidor() {
   const base = useMemo(() => gerarPedidos(5000), []);
   const [consulta, setConsulta] = useState<DataGridQuery | null>(null);
-  const [resposta, setResposta] = useState<{ linhas: Pedido[]; total: number } | null>(null);
+  const [resposta, setResposta] = useState<{ linhas: Pedido[]; total: number; somas: Record<string, number> } | null>(null);
   const carregando = resposta === null;
 
   useEffect(() => {
@@ -454,7 +457,13 @@ function ModoServidor() {
           })
         : filtrados;
       const inicio = (consulta.page - 1) * consulta.pageSize;
-      setResposta({ linhas: ordenados.slice(inicio, inicio + consulta.pageSize), total: ordenados.length });
+      const somas = Object.fromEntries(
+        consulta.summaries.map(({ columnId }) => [
+          columnId,
+          filtrados.reduce((soma, pedido) => soma + Number(pedido[columnId as keyof Pedido]), 0),
+        ]),
+      );
+      setResposta({ linhas: ordenados.slice(inicio, inicio + consulta.pageSize), total: ordenados.length, somas });
     }, 400);
 
     return () => clearTimeout(timer);
@@ -462,7 +471,7 @@ function ModoServidor() {
 
   return (
     <DataGrid
-      columns={COLUNAS}
+      columns={COLUNAS_DO_SERVIDOR}
       dataMode="server"
       getRowId={idDoPedido}
       height={360}
@@ -470,6 +479,7 @@ function ModoServidor() {
       loading={carregando}
       pagination
       rows={resposta?.linhas ?? []}
+      summaryValues={resposta?.somas}
       totalRows={resposta?.total ?? 0}
       onQueryChange={(nova) => {
         setResposta(null);
@@ -596,9 +606,24 @@ function Modos() {
         detalhes da tela, até dez, e recolhe todos, põe a grade em tela cheia, de onde Esc sai, e restaura o padrão. A
         densidade entra no retrato.
       </dd>
+      <dt>Filtros</dt>
+      <dd>
+        O funil de cada título abre o filtro do tipo da coluna: texto, número, data, booleano ou conjunto de valores,
+        com busca. Até duas condições por coluna, combinadas por E ou OU. O filtro é um dado, <code>filter</code>, com
+        grupos E/OU em quantos níveis o produto montar; vai ao servidor na consulta e entra no retrato. Os operadores de
+        cada tipo estão em <code>dataGridFilterOperators</code>, e <code>filterOperators</code> na coluna troca a lista.
+        Com <code>filterApplyMode="button"</code>, só filtra no Aplicar.
+      </dd>
+      <dt>Sumarização</dt>
+      <dd>
+        <code>summary</code> na coluna, como <code>'sum'</code>, <code>'avg'</code>, <code>'count'</code>,{' '}
+        <code>'min'</code> ou <code>'max'</code>, ou um agregador próprio, desenha a linha de totais presa ao rodapé,
+        sobre as linhas filtradas de todas as páginas. No servidor, a consulta pede os agregados e{' '}
+        <code>summaryValues</code> traz a resposta.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
-        Sem linhas, a grade diz que não há registro, ou que nada atende à busca. <code>loading</code> cobre as linhas e
+        Sem linhas, a grade diz que não há registro, ou que nada atende à busca ou aos filtros, com o botão de limpar. <code>loading</code> cobre as linhas e
         marca a grade com <code>aria-busy</code>; <code>error</code> aparece no lugar delas, anunciado como alerta.
       </dd>
     </dl>
@@ -628,11 +653,11 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Modo servidor',
-      descricao: 'Busca, ordem e página vão ao servidor por onQueryChange; a grade mostra o que volta.',
+      descricao: 'Busca, ordem e página vão ao servidor por onQueryChange, com os agregados pedidos; a grade mostra o que volta, inclusive os totais.',
       Previa: ModoServidor,
       largo: true,
       codigo:
-        '<DataGrid\n  dataMode="server"\n  rows={resposta.linhas}\n  totalRows={resposta.total}\n  loading={carregando}\n  pagination\n  onQueryChange={buscar}\n  …\n/>',
+        '<DataGrid\n  dataMode="server"\n  rows={resposta.linhas}\n  totalRows={resposta.total}\n  summaryValues={resposta.somas}\n  loading={carregando}\n  pagination\n  onQueryChange={buscar}\n  …\n/>',
     },
     {
       titulo: 'Célula própria',
@@ -662,6 +687,7 @@ export const pagina: Pagina = {
     },
     { teclas: ['Ctrl+Enter'], acao: 'No cabeçalho, abre o menu da coluna. Na linha, abre ou recolhe o detalhe.' },
     { teclas: ['Ctrl+Shift+←', 'Ctrl+Shift+→'], acao: 'No cabeçalho, move a coluna, sem passar da divisa das fixas.' },
+    { teclas: ['Alt+↓'], acao: 'No cabeçalho, abre o filtro da coluna. Esc fecha e volta ao título.' },
     { teclas: ['F2'], acao: 'Entra no controle da célula.' },
     { teclas: ['Esc'], acao: 'Sai do controle e volta à célula; numa grade aninhada, volta ao detalhe da linha-mãe.' },
     { teclas: ['Espaço'], acao: 'Seleciona a linha; com Shift, a faixa desde a última. No cabeçalho, todas.' },
@@ -704,10 +730,14 @@ export const pagina: Pagina = {
     },
   ],
   notaDaApi:
-    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds, expandedIds, columnState e density. Além destas, as propriedades nativas de <div>.',
+    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, filter, page, pageSize, selectedIds, expandedIds, columnState e density. Além destas, as propriedades nativas de <div>.',
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da grade.' },
-    { nome: 'columns', tipo: 'DataGridColumn<Row>[]', descricao: 'Obrigatória. Colunas como dados: id, header, type, largura e slots.' },
+    {
+      nome: 'columns',
+      tipo: 'DataGridColumn<Row>[]',
+      descricao: 'Obrigatória. Colunas como dados: id, header, type, largura, filter, filterOperators, filterOptions, summary e slots.',
+    },
     { nome: 'rows', tipo: 'readonly Row[]', descricao: 'Obrigatória. Todas as linhas, ou a página atual no modo servidor.' },
     { nome: 'getRowId', tipo: '(row: Row) => string', descricao: 'Obrigatória. Chave estável de cada linha.' },
     { nome: 'dataMode', tipo: "'client' | 'server'", padrao: "'client'", descricao: 'Quem busca, ordena e pagina.' },
@@ -715,6 +745,18 @@ export const pagina: Pagina = {
     { nome: 'onQueryChange', tipo: '(query: DataGridQuery) => void', descricao: 'No modo servidor, a consulta a cada mudança.' },
     { nome: 'sort', tipo: 'DataGridSortItem[]', descricao: 'Ordem em vários níveis: { columnId, direction }.' },
     { nome: 'search', tipo: 'string', descricao: 'Busca global sobre o texto exibido.' },
+    {
+      nome: 'filter',
+      tipo: 'DataGridFilter',
+      descricao: 'Condições { columnId, operator, value } em grupos { logic, conditions }, E ou OU. O funil edita a da coluna.',
+    },
+    {
+      nome: 'filterApplyMode',
+      tipo: "'immediate' | 'button'",
+      padrao: "'immediate'",
+      descricao: 'Filtra ao escrever, depois de uma pausa, ou só no Aplicar do painel.',
+    },
+    { nome: 'summaryValues', tipo: 'Record<string, unknown>', descricao: 'No modo servidor, os agregados da linha de totais, pelo id da coluna.' },
     { nome: 'pagination', tipo: 'boolean', padrao: 'false', descricao: 'Divide em páginas, com a paginação no rodapé.' },
     { nome: 'page', tipo: 'number', descricao: 'Página atual, a partir de 1.' },
     { nome: 'pageSize', tipo: 'number', padrao: 'pageSizeOptions[0]', descricao: 'Linhas por página.' },

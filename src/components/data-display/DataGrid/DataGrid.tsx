@@ -13,7 +13,9 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
+import { Button } from '../../actions/Button';
 import { selectionStatus, select, selectRange, toggleAll, type SelectionState } from '../../../hooks/useSelection/selection';
+import { formatNumber } from '../../../utils/formatters';
 import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
 import { IconChevronRight } from '../../icons';
@@ -40,12 +42,26 @@ import {
   type DataGridPlacedColumn,
 } from './columnLayout';
 import {
+  activeFilterOf,
+  columnFilterOf,
+  EMPTY_FILTER,
+  filteredColumnIds,
+  filterKindOf,
+  normalizeFilter,
+  operatorsOf,
+  setColumnFilter,
+  type DataGridFilter,
+} from './filterModel';
+import { aggregatorOf } from './summaries';
+import {
   bodyItems,
   cellText,
   clampPage,
   columnAlign,
   detailKeyOf,
   detailPathOf,
+  distinctTexts,
+  filterRows,
   moveFocus,
   pageCountOf,
   pageRows,
@@ -58,6 +74,8 @@ import {
   snapshotOf,
   sortBy,
   sortRows,
+  summarize,
+  summaryText,
   toggleExpanded,
   toggleSort,
   type DataGridBodyItem,
@@ -75,6 +93,7 @@ import { DataGridSearch, DataGridTableMenu, DataGridToolbar } from './DataGridTo
 import { DataGridRow, type DataGridCellContext } from './DataGridRow';
 import { DataGridDetailRow, DETAIL_ESTIMATE, type DataGridDetailContext } from './DataGridDetail';
 import { DataGridDetailLayout } from './DataGridDetailLayout';
+import { DataGridFilterPanel, type DataGridFilterApplyMode } from './DataGridFilterPanel';
 import { DataGridHeaderCell, MIN_COLUMN_WIDTH } from './DataGridHeaderCell';
 import { buildRowLayout, rowAt, totalHeight, visibleWindow } from './rowLayout';
 import { DataGridScrollRoot } from './scrollRoot';
@@ -87,6 +106,8 @@ const MAX_FIT_WIDTH = 480;
 /** Espaço de cada controle da linha, a seta e a caixa de seleção, somado à coluna que os recebe. */
 const CONTROL_WIDTH = 24;
 const CELL_SELECTOR = '[data-column], [data-detail]';
+/** Chave de foco da linha de sumarização, que não colide com nenhuma linha. */
+const SUMMARY_KEY = '\u0001summary';
 const GRID_SELECTOR = '[role="grid"], [role="treegrid"]';
 const INTERACTIVE_SELECTOR = 'a, button, input, label, select, textarea';
 
@@ -105,8 +126,10 @@ export type DataGridSelectionMode = 'none' | 'single' | 'multiple';
 
 export type DataGridRowClickAction = 'none' | 'expand' | 'select' | 'activate';
 
-/** O que o modo servidor pede a cada mudança: a resposta são as linhas da página e o total. */
-export type DataGridQuery = DataGridState;
+/** O que o modo servidor pede a cada mudança: a resposta são as linhas da página, o total e os agregados pedidos. */
+export interface DataGridQuery extends DataGridState {
+  summaries: readonly { aggregator: string; columnId: string }[];
+}
 
 export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'onChange'> {
   /** Partes da grade, como `DataGrid.Toolbar`, desenhadas acima dela. */
@@ -123,6 +146,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   defaultColumnState?: Partial<DataGridColumnState>;
   defaultDensity?: DataGridDensity;
   defaultExpandedIds?: readonly string[];
+  defaultFilter?: DataGridFilter;
   defaultPage?: number;
   defaultPageSize?: number;
   defaultSearch?: string;
@@ -135,6 +159,10 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   expandedIds?: readonly string[];
   /** Na `single`, abrir um detalhe fecha o que estava aberto. */
   expandMode?: DataGridExpandMode;
+  /** Condições por coluna, em grupos E/OU. O funil de cada título edita a da sua coluna. */
+  filter?: DataGridFilter;
+  /** `button` só filtra no "Aplicar" do painel, para filtros caros no servidor. */
+  filterApplyMode?: DataGridFilterApplyMode;
   getRowId: (row: Row) => string;
   /** Altura da área rolável, em pixels. Na grade aninhada não vale: ela rola com a de fora. */
   height?: number;
@@ -145,6 +173,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   onColumnStateChange?: (state: DataGridColumnState) => void;
   onDensityChange?: (density: DataGridDensity) => void;
   onExpandedIdsChange?: (ids: readonly string[]) => void;
+  onFilterChange?: (filter: DataGridFilter) => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onQueryChange?: (query: DataGridQuery) => void;
@@ -174,6 +203,8 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   selectedIds?: readonly string[];
   selectionMode?: DataGridSelectionMode;
   sort?: readonly DataGridSortItem[];
+  /** No servidor, os agregados da linha de sumarização, pelo id da coluna, vindos na resposta da consulta. */
+  summaryValues?: Readonly<Record<string, unknown>>;
   totalRows?: number;
 }
 
@@ -289,6 +320,7 @@ export function DataGrid<Row>({
   defaultDensity = 'normal',
   density: densityProp,
   defaultExpandedIds = [],
+  defaultFilter = EMPTY_FILTER,
   defaultPage = 1,
   defaultPageSize,
   defaultSearch = '',
@@ -298,6 +330,8 @@ export function DataGrid<Row>({
   error,
   expandedIds: expandedIdsProp,
   expandMode = 'multiple',
+  filter: filterProp,
+  filterApplyMode = 'immediate',
   getRowId,
   height = DEFAULT_HEIGHT,
   initialState,
@@ -306,6 +340,7 @@ export function DataGrid<Row>({
   onColumnStateChange,
   onDensityChange,
   onExpandedIdsChange,
+  onFilterChange,
   onPageChange,
   onPageSizeChange,
   onQueryChange,
@@ -326,6 +361,7 @@ export function DataGrid<Row>({
   selectedIds: selectedIdsProp,
   selectionMode = 'none',
   sort: sortProp,
+  summaryValues,
   totalRows: totalRowsProp,
   ...props
 }: DataGridProps<Row>) {
@@ -348,13 +384,21 @@ export function DataGrid<Row>({
   const [memory] = useState(() => root.memories.get(gridPath));
 
   const [restored] = useState(() => {
-    const fallback = { sort: defaultSort, search: defaultSearch, page: defaultPage, pageSize: defaultPageSize ?? pageSizeOptions[0] };
+    const fallback = {
+      sort: defaultSort,
+      search: defaultSearch,
+      filter: normalizeFilter(defaultFilter, columns),
+      page: defaultPage,
+      pageSize: defaultPageSize ?? pageSizeOptions[0],
+    };
     const snapshot = memory ?? restoreSnapshot(initialState, columns, fallback);
 
     return pageSizeOptions.includes(snapshot.pageSize) ? snapshot : { ...snapshot, pageSize: fallback.pageSize };
   });
   const [sort, setSort] = useSlice(sortProp, restored.sort, onSortChange);
   const [search, setSearch] = useSlice(searchProp, restored.search, onSearchChange);
+  const [filter, setFilter] = useSlice(filterProp, restored.filter, onFilterChange);
+  const activeFilter = useMemo(() => activeFilterOf(filter, columns), [filter, columns]);
   const [page, setPage] = useSlice(pageProp, restored.page, onPageChange);
   const [pageSize, setPageSize] = useSlice(pageSizeProp, restored.pageSize, onPageSizeChange);
   const [selectedIds, setSelectedIds] = useSlice(selectedIdsProp, memory?.selectedIds ?? defaultSelectedIds, onSelectedIdsChange);
@@ -395,7 +439,11 @@ export function DataGrid<Row>({
     () => (server ? rows : searchRows(rows, searchColumns, search)),
     [server, rows, searchColumns, search],
   );
-  const sorted = useMemo(() => (server ? searched : sortRows(searched, columns, sort)), [server, searched, columns, sort]);
+  const filtered = useMemo(
+    () => (server ? searched : filterRows(searched, columns, filter)),
+    [server, searched, columns, filter],
+  );
+  const sorted = useMemo(() => (server ? filtered : sortRows(filtered, columns, sort)), [server, filtered, columns, sort]);
   const totalRows = server ? (totalRowsProp ?? rows.length) : sorted.length;
   const currentPage = !pagination ? 1 : server ? page : clampPage(page, totalRows, pageSize);
   const visibleRows = useMemo(
@@ -413,13 +461,29 @@ export function DataGrid<Row>({
     [columns, shownState, viewWidth, controlsWidth],
   );
   const columnIds = useMemo(() => placed.map((item) => item.column.id), [placed]);
+  const summaryRequests = useMemo(
+    () =>
+      placed.flatMap(({ column }) => {
+        const aggregator = aggregatorOf(column.summary);
+        return aggregator ? [{ columnId: column.id, aggregator: aggregator.id }] : [];
+      }),
+    [placed],
+  );
+  const withSummary = placed.some((item) => item.column.summary !== undefined);
+  const showsSummary = withSummary && !error;
+  const summary = useMemo(
+    () => (!withSummary ? {} : server ? (summaryValues ?? {}) : summarize(filtered, columns)),
+    [withSummary, server, summaryValues, filtered, columns],
+  );
   const rowOffset = pagination ? (currentPage - 1) * pageSize : 0;
 
-  const state: DataGridState = { sort, search, page: currentPage, pageSize };
+  const state: DataGridState = { sort, search, filter, page: currentPage, pageSize };
   const stateKey = JSON.stringify(state);
+  /* Mostrar ou ocultar uma coluna com total muda os agregados que o servidor precisa mandar. */
+  const queryKey = stateKey + JSON.stringify(summaryRequests);
   const snapshotKey = stateKey + JSON.stringify(columnState) + density;
   /* No servidor a primeira consulta sai na montagem: o retrato restaurado pode diferir do que o produto guardou. */
-  const lastStateKey = useRef<string | null>(server ? null : stateKey);
+  const lastQueryKey = useRef<string | null>(server ? null : queryKey);
   const lastSnapshotKey = useRef(snapshotKey);
 
   useEffect(() => {
@@ -430,10 +494,10 @@ export function DataGrid<Row>({
       lastSnapshotKey.current = snapshotKey;
       onStateChange?.(snapshotOf(state, columnState, density));
     }
-    if (stateKey !== lastStateKey.current) {
-      lastStateKey.current = stateKey;
+    if (queryKey !== lastQueryKey.current) {
+      lastQueryKey.current = queryKey;
       if (server) {
-        onQueryChange?.(state);
+        onQueryChange?.({ ...state, summaries: summaryRequests });
       }
     }
   });
@@ -453,6 +517,27 @@ export function DataGrid<Row>({
       const found = searchRows(rows, searchColumns, next).length;
       setAnnouncement(term ? `${found} ${found === 1 ? 'linha encontrada' : 'linhas encontradas'} para "${term}"` : 'Busca limpa');
     }
+  }
+
+  function applyFilter(next: DataGridFilter) {
+    setFilter(next);
+    backToFirstPage();
+    if (server) {
+      setAnnouncement(next.conditions.length > 0 ? 'Filtro aplicado' : 'Filtros limpos');
+      return;
+    }
+
+    const found = filterRows(searched, columns, next).length;
+    setAnnouncement(
+      next.conditions.length > 0 ? `${found} de ${searched.length} ${searched.length === 1 ? 'linha' : 'linhas'} após o filtro` : 'Filtros limpos',
+    );
+  }
+
+  function clearFilters() {
+    setFilter(EMPTY_FILTER);
+    setSearch('');
+    backToFirstPage();
+    setAnnouncement(search.trim() ? 'Filtros e busca limpos' : 'Filtros limpos');
   }
 
   function applySort(next: readonly DataGridSortItem[]) {
@@ -554,6 +639,12 @@ export function DataGrid<Row>({
     [rowKeys, visibleRows, expandedSet, withDetail, rowHasDetail],
   );
   const itemKeys = useMemo(() => items.map((item) => item.key), [items]);
+  /* A linha de sumarização entra na navegação depois da última linha. */
+  /* Com falha, as linhas dão lugar à mensagem: o foco fica no cabeçalho. */
+  const navKeys = useMemo(
+    () => (error ? [] : showsSummary ? [...itemKeys, SUMMARY_KEY] : itemKeys),
+    [error, showsSummary, itemKeys],
+  );
 
   function rowLabelOf(row: Row, rowKey: string) {
     const first = placed[0]?.column;
@@ -575,7 +666,7 @@ export function DataGrid<Row>({
   const [focus, setFocus] = useState<DataGridFocus>({ rowKey: null, columnId: columnIds[0] });
   const lastFocusedIndex = useRef(0);
   const lastFocusedColumn = useRef(0);
-  const activeFocus = reconcileFocus(focus, itemKeys, columnIds, lastFocusedIndex.current, lastFocusedColumn.current);
+  const activeFocus = reconcileFocus(focus, navKeys, columnIds, lastFocusedIndex.current, lastFocusedColumn.current);
   const pendingFocus = useRef(false);
   const gridHasFocus = useRef(false);
 
@@ -643,6 +734,7 @@ export function DataGrid<Row>({
   function restoreDefaults() {
     setSort(defaultSort);
     setSearch(defaultSearch);
+    setFilter(normalizeFilter(defaultFilter, columns));
     setPage(defaultPage);
     setPageSize(defaultPageSize ?? pageSizeOptions[0]);
     setColumnState(normalizeColumnState(defaultColumnState, columns, groupIds));
@@ -706,6 +798,12 @@ export function DataGrid<Row>({
     sections.push({
       key: 'view',
       items: [
+        {
+          key: 'clearFilters',
+          label: 'Limpar filtros',
+          disabled: filter.conditions.length === 0,
+          onSelect: () => applyFilter(EMPTY_FILTER),
+        },
         ...(nested
           ? []
           : [{ key: 'full', label: fullScreen ? 'Sair da tela cheia' : 'Tela cheia', onSelect: () => setFullScreen(!fullScreen) }]),
@@ -721,15 +819,20 @@ export function DataGrid<Row>({
     const active = document.activeElement;
 
     if (active === document.body || headRef.current?.contains(active)) {
-      focusLater(reconcileFocus({ rowKey: null, columnId }, itemKeys, columnIds, 0, lastFocusedColumn.current));
+      focusLater(reconcileFocus({ rowKey: null, columnId }, navKeys, columnIds, 0, lastFocusedColumn.current));
     }
   }
 
   /* As linhas memorizadas e a busca recebem funções estáveis, que chamam sempre a versão do último desenho. */
-  const latest = useRef({ clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail });
+  const latest = useRef({ applyColumnFilter, clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail });
   useLayoutEffect(() => {
-    latest.current = { clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail };
+    latest.current = { applyColumnFilter, clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail };
   });
+  /* O painel aplica depois de uma espera: a função estável não reinicia a espera e lê o filtro do último desenho. */
+  const applyColumnFilterFromPanel = useCallback(
+    (columnId: string, next: DataGridFilter | null) => latest.current.applyColumnFilter(columnId, next),
+    [],
+  );
   const tableMenuFromPart = useCallback(() => latest.current.tableMenu(), []);
   const searchFromPart = useCallback((next: string) => latest.current.commitSearch(next), []);
   const toggleFromRow = useCallback((rowKey: string, range: boolean) => latest.current.toggleRow(rowKey, range), []);
@@ -744,6 +847,7 @@ export function DataGrid<Row>({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const footRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(
     () =>
       buildRowLayout(
@@ -762,6 +866,7 @@ export function DataGrid<Row>({
     if (!nested) {
       root.scroller = scrollerRef.current;
       root.head = headRef.current;
+      root.foot = footRef.current;
     }
   });
 
@@ -776,7 +881,7 @@ export function DataGrid<Row>({
 
     const headHeight = root.headHeight();
     const viewTop = scroller.scrollTop + headHeight - root.contentTop(body);
-    const viewHeight = scroller.clientHeight > 0 ? scroller.clientHeight - headHeight : height;
+    const viewHeight = scroller.clientHeight > 0 ? scroller.clientHeight - headHeight - root.footHeight() : height;
     const next = visibleWindow(layoutRef.current, viewTop, viewHeight, OVERSCAN);
 
     setRowWindow((current) => (current.start === next.start && current.end === next.end ? current : next));
@@ -896,6 +1001,9 @@ export function DataGrid<Row>({
     if (rowKey === null) {
       return headRef.current?.querySelector<HTMLElement>(`:scope > [role="row"] > [data-column="${column}"]`);
     }
+    if (rowKey === SUMMARY_KEY) {
+      return footRef.current?.querySelector<HTMLElement>(`:scope > [role="row"] > [data-column="${column}"]`);
+    }
 
     const item = items[focusedIndex];
     return item?.detail
@@ -940,7 +1048,20 @@ export function DataGrid<Row>({
 
   function goTo(next: DataGridFocus) {
     focusLater(next);
+    if (next.rowKey === SUMMARY_KEY) {
+      revealSummary();
+      return;
+    }
     revealRow(next.rowKey === null ? -1 : itemKeys.indexOf(next.rowKey));
+  }
+
+  /* Fora da grade aninhada a sumarização fica presa ao rodapé, sempre à vista. */
+  function revealSummary() {
+    const foot = footRef.current;
+    if (nested && foot) {
+      const footTop = root.contentTop(foot);
+      root.reveal(footTop, footTop + foot.offsetHeight);
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -972,17 +1093,27 @@ export function DataGrid<Row>({
       return;
     }
 
+    if (rowKey === null && event.altKey && event.key === 'ArrowDown') {
+      event.preventDefault();
+      openFilter(columnId);
+      return;
+    }
+
     if (move) {
       event.preventDefault();
       if (detailRowKey !== undefined && SIDEWAYS_MOVES.has(move)) {
         return;
       }
 
-      const visible = Math.max((root.scroller?.clientHeight ?? 0) - root.headHeight(), rowHeight);
-      const index = rowKey === null ? 0 : itemKeys.indexOf(rowKey);
+      const visible = Math.max((root.scroller?.clientHeight ?? 0) - root.headHeight() - root.footHeight(), rowHeight);
+      const index = rowKey === null ? 0 : navKeys.indexOf(rowKey);
       const target = rowAt(layout, layout.offsets[index] + (move === 'pageUp' ? -visible : visible));
       const pageStep = Math.max(Math.abs(target - index), 1);
-      goTo(moveFocus({ rowKey, columnId }, move, { rowKeys: itemKeys, columnIds, pageStep }));
+      goTo(moveFocus({ rowKey, columnId }, move, { rowKeys: navKeys, columnIds, pageStep }));
+      return;
+    }
+
+    if (rowKey === SUMMARY_KEY) {
       return;
     }
 
@@ -1070,6 +1201,68 @@ export function DataGrid<Row>({
   const segments = useMemo(() => headerSegments(placed, groupsOf), [placed, groupsOf]);
   const groupRows = segments.reduce((rowsAbove, segment) => Math.max(rowsAbove, segment.level + segment.rowSpan), 0);
   const [menuColumnId, setMenuColumnId] = useState<string | null>(null);
+  const [filterColumnId, setFilterColumnId] = useState<string | null>(null);
+  const filteredIds = useMemo(() => filteredColumnIds(activeFilter), [activeFilter]);
+
+  /* No servidor, o conjunto só tem como saber os valores por `filterOptions`: a página tem só os que já passaram. */
+  function filterKindIn(column: DataGridColumn<Row>) {
+    const kind = filterKindOf(column);
+    return kind === 'set' && server && !column.filterOptions ? null : kind;
+  }
+
+  function openFilter(columnId: string) {
+    const column = columns.find((candidate) => candidate.id === columnId);
+    if (column && filterKindIn(column)) {
+      setFilterColumnId(columnId);
+    }
+  }
+
+  /* Os valores do conjunto saem das linhas que os outros filtros deixam, para a coluna não se esconder de si mesma. */
+  function setOptionsOf(column: DataGridColumn<Row>) {
+    if (column.filterOptions) {
+      return column.filterOptions;
+    }
+
+    const others = filterRows(searched, columns, setColumnFilter(filter, column.id, null));
+    return distinctTexts(others, column);
+  }
+
+  /* Aberto pelo funil ou pelo menu, o foco voltaria ao botão, onde as setas não andam. */
+  function closeFilter(columnId: string) {
+    setFilterColumnId(null);
+    requestAnimationFrame(() => latest.current.returnToHeader(columnId));
+  }
+
+  function headerFilterOf(column: DataGridColumn<Row>) {
+    const kind = filterKindIn(column);
+
+    if (!kind) {
+      return undefined;
+    }
+
+    return {
+      active: filteredIds.has(column.id),
+      open: filterColumnId === column.id,
+      onOpenChange: (open: boolean) => (open ? setFilterColumnId(column.id) : closeFilter(column.id)),
+      renderPanel: () => (
+        <DataGridFilterPanel
+          applyMode={filterApplyMode}
+          columnId={column.id}
+          header={column.header}
+          kind={kind}
+          operators={operatorsOf(column)}
+          options={() => setOptionsOf(column)}
+          value={columnFilterOf(filter, column.id)}
+          onChange={applyColumnFilterFromPanel}
+          onClose={() => closeFilter(column.id)}
+        />
+      ),
+    };
+  }
+
+  function applyColumnFilter(columnId: string, next: DataGridFilter | null) {
+    applyFilter(setColumnFilter(filter, columnId, next));
+  }
   const draggedColumn = useRef<string | null>(null);
 
   function columnMenu(column: DataGridColumn<Row>, pin: DataGridPin | undefined): MenuSection[] {
@@ -1116,6 +1309,17 @@ export function DataGrid<Row>({
         { key: 'hide', label: 'Ocultar coluna', disabled: columnIds.length === 1, onSelect: () => hideColumn(column.id) },
       ],
     };
+    const filtering: MenuSection | null = filterKindIn(column)
+      ? {
+          key: 'filter',
+          items: [
+            { key: 'filter', label: 'Filtrar', shortcut: 'Alt+↓', onSelect: () => openFilter(column.id) },
+            ...(filteredIds.has(column.id)
+              ? [{ key: 'clearFilter', label: 'Limpar filtro', onSelect: () => applyColumnFilter(column.id, null) }]
+              : []),
+          ],
+        }
+      : null;
     const group = [...(groupsOf.get(column.id) ?? [])].reverse().find((candidate) => candidate.collapsible);
     const grouping: MenuSection | null = group
       ? {
@@ -1130,7 +1334,7 @@ export function DataGrid<Row>({
         }
       : null;
 
-    return [column.sortable === false ? null : sorting, pinning, arranging, grouping].filter(
+    return [column.sortable === false ? null : sorting, filtering, pinning, arranging, grouping].filter(
       (section): section is MenuSection => section !== null,
     );
   }
@@ -1177,6 +1381,7 @@ export function DataGrid<Row>({
             </>
           )
         }
+        filter={headerFilterOf(column)}
         focused={activeFocus.rowKey === null && activeFocus.columnId === column.id}
         header={column.header}
         key={column.id}
@@ -1318,6 +1523,60 @@ export function DataGrid<Row>({
     );
   }
 
+  function renderSummaryRow() {
+    const scope = `de ${formatNumber(totalRows)} ${totalRows === 1 ? 'linha' : 'linhas'}`;
+
+    return (
+      <div aria-rowindex={summaryRowIndex} className={styles.summaryRow} role="row">
+        {rowColumns.map((column, index) => {
+          const aggregator = aggregatorOf(column.summary);
+          const focused = activeFocus.rowKey === SUMMARY_KEY && activeFocus.columnId === column.id;
+          const text = aggregator ? summaryText(column, summary[column.id]) : '';
+          /* O valor sozinho cabe na coluna estreita; o nome do agregado vai à dica e ao leitor de tela. */
+          const name = aggregator ? `${aggregator.label} de ${column.header}` : index === 0 ? `Total ${scope}` : undefined;
+
+          return (
+            <div
+              aria-colindex={index + 1}
+              className={[
+                styles.cell,
+                styles[columnAlign(column)],
+                aggregator && (column.type === 'number' || column.type === 'currency') && styles.numeric,
+                column.className,
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              data-column={column.id}
+              data-row={SUMMARY_KEY}
+              key={column.id}
+              role="gridcell"
+              style={column.style}
+              tabIndex={focused ? 0 : -1}
+              title={name && text ? `${name}: ${text}` : name}
+              onFocus={() => {
+                if (!focused) {
+                  setFocus({ rowKey: SUMMARY_KEY, columnId: column.id });
+                }
+              }}
+            >
+              {index === 0 && withDetail && <span className={styles.control} />}
+              {index === 0 && selectionMode !== 'none' && <span className={styles.control} />}
+              {aggregator && <span className={styles.visuallyHidden}>{aggregator.label}: </span>}
+              <span className={styles.text}>
+                {text}
+                {!aggregator && index === 0 && (
+                  <>
+                    Total<span className={styles.visuallyHidden}> {scope}</span>
+                  </>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   function renderMessage(content: ReactNode, alert = false) {
     return (
       <div aria-rowindex={groupRows + 2} className={styles.messageRow} role="row">
@@ -1329,8 +1588,28 @@ export function DataGrid<Row>({
   }
 
   const showsMessage = Boolean(error) || (rowKeys.length === 0 && !loading);
-  const emptyContent =
-    emptyMessage ?? (search.trim() ? `Nenhum registro atende à busca "${search.trim()}".` : 'Nenhum registro.');
+  const filtering = activeFilter.conditions.length > 0;
+  const searching = search.trim() !== '';
+  const emptyText = filtering
+    ? 'Nenhum registro atende aos filtros.'
+    : search.trim()
+      ? `Nenhum registro atende à busca "${search.trim()}".`
+      : 'Nenhum registro.';
+  /* O vazio por filtro oferece o caminho de volta. */
+  const emptyContent = emptyMessage ?? (
+    <>
+      {emptyText}
+      {(filtering || searching) && (
+        <div className={styles.messageAction}>
+          <Button size="sm" type="button" variant="secondary" onClick={clearFilters}>
+            {filtering && searching ? 'Limpar filtros e busca' : filtering ? 'Limpar filtros' : 'Limpar busca'}
+          </Button>
+        </div>
+      )}
+    </>
+  );
+  const bodyRowCount = showsMessage ? 1 : totalRows;
+  const summaryRowIndex = groupRows + bodyRowCount + 2;
 
   return (
     <DataGridScrollContext.Provider value={nested ? outerScroll : ownScroll}>
@@ -1371,7 +1650,7 @@ export function DataGrid<Row>({
                 aria-colcount={columnIds.length}
                 aria-label={label}
                 aria-multiselectable={multiple || undefined}
-                aria-rowcount={groupRows + (showsMessage ? 2 : totalRows + 1)}
+                aria-rowcount={groupRows + bodyRowCount + 1 + (showsSummary ? 1 : 0)}
                 className={styles.grid}
                 role={withDetail ? 'treegrid' : 'grid'}
                 onBlur={(event) => {
@@ -1416,6 +1695,11 @@ export function DataGrid<Row>({
                             : renderRow(item, index);
                         })}
                 </div>
+                {showsSummary && (
+                  <div className={styles.foot} ref={footRef} role="rowgroup">
+                    {renderSummaryRow()}
+                  </div>
+                )}
               </div>
             </div>
             {loading && (

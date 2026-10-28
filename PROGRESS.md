@@ -981,7 +981,32 @@ Primeira entrega da fase 3, na branch `datagrid`, em 28/10/2026. Seguem os grupo
   - restaurar o padrao avisava a pagina duas vezes;
   - "expandir os da tela" sem nada a abrir avisava a mudanca e anunciava zero.
 
-**Proximo:** teste no NVDA, que fixa a marcacao do detalhe e do cabecalho em grupos; depois a fase 4, filtros e sumarizacao.
+### DataGrid: fase 4, filtros e sumarizacao
+
+Na branch `datagrid`, em 28/10/2026.
+
+- **Filtro como dado**, em `filterModel.ts`, puro: condicoes `{ columnId, operator, value }` em grupos `{ logic, conditions }`, E ou OU, em quantos niveis o produto montar. O funil de cada coluna edita so o item do primeiro nivel que fala apenas dela; o resto do filtro fica como o produto deixou. Vai ao retrato, ainda na versao 1, e a consulta do servidor; o retrato antigo, sem ele, restaura sem filtro.
+- **Restauracao tolerante**, como a das colunas: condicao de coluna que ja nao existe, que nao filtra ou de operador desconhecido sai, e o grupo que fica vazio tambem.
+- **Operadores por tipo**, de fabrica em `dataGridFilterOperators`: texto pelo texto exibido, sem acento e sem caixa, como a busca; numero e data pelo valor; data pelo dia local, sem a hora; booleano; conjunto pelo texto exibido. A coluna estende por `filterOperators`, com a lista do tipo e os seus: registro por propriedade, sem estado global que vaze entre grades da mesma pagina.
+- **Condicao incompleta nao filtra:** o campo vazio, ou o "entre" com uma ponta so, fica de fora ate ser preenchido.
+- **Filtro no titulo, pelo funil**, como decidido no prototipo, sem linha de filtros: so nas colunas que filtram, destacado com filtro ativo e anunciado no nome do titulo. `Alt+↓` abre; `Esc` fecha e volta ao titulo. O painel e o `Popover` do sistema, com os campos do sistema.
+- **Ate duas condicoes por coluna**, com E ou OU; a segunda aparece quando a primeira esta completa. O modelo aceita mais, para um construtor de filtros que vier.
+- **Conjunto com busca:** valores distintos como aparecem na celula, na ordem do tipo, calculados sem o filtro da propria coluna, com teto de 200 na lista. Todos marcados volta a ser "sem filtro". No servidor, os valores vem de `filterOptions`.
+- **Aplicar:** no modo `immediate`, o painel filtra 250 ms depois da ultima mudanca, a mesma espera da busca; com `filterApplyMode="button"`, so no Aplicar, para filtros caros no servidor.
+- **Vazio por filtro** diz que nada atende aos filtros e oferece limpar; o vazio por busca oferece limpar a busca.
+- **Sumarizacao** por `summary` na coluna, com os agregadores de fabrica em `dataGridAggregators` ou um proprio, `{ id, label, aggregate, format? }`: a funcao fica na definicao da coluna, nunca no estado salvo. O total e sobre as linhas filtradas de todas as paginas, e a primeira coluna diz o escopo ao leitor de tela, "Total de N linhas". Na tela fica so o valor, que cabe em coluna estreita; o nome do agregado vai a dica e ao leitor de tela.
+- **Linha presa ao rodape** da area que rola, com as colunas fixas e a divisa; na grade aninhada, ela fica no fim da grade. Pelo teclado, e a linha depois da ultima, e conta em `aria-rowcount`.
+- **No servidor**, a consulta leva `summaries`, a coluna e o agregador pedidos, das colunas na tela, e `summaryValues` traz a resposta. O conjunto no servidor so aparece com `filterOptions`: a pagina so tem os valores que ja passaram.
+- **Revisao independente**, antes do commit, achou e corrigiu:
+  - abrir o painel reescrevia o filtro: um grupo de tres condicoes perdia a terceira, e o valor guardado em outra forma disparava consulta nova. So a edicao da pessoa aplica, e o filtro que nao cabe no funil aparece so com Limpar;
+  - apagar a primeira condicao escondia a segunda, que seguia filtrando; as condicoes valem em sequencia;
+  - fechar o painel antes da espera perdia o que foi escrito; fechar aplica;
+  - a linha com foco parava atras da sumarizacao presa ao rodape; a rolagem, a janela e o PageDown descontam o rodape;
+  - com falha, as setas levavam o foco a linhas e a sumarizacao que nao estavam desenhadas, e a grade saia da ordem do Tab;
+  - o numero pela metade, como "-", filtrava tudo para fora; `NaN` conta como vazio, e a virgula decimal e lida num lugar so;
+  - o painel sem nome, o soltar texto num campo dele cancelado pelo titulo, o foco que voltava ao botao do funil, a data invalida que passava em "antes de", o funil marcado por condicao incompleta e o "Limpar filtros" do vazio que limpava tambem a busca sem dizer.
+
+**Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos e do filtro; depois a fase 5, arvore.
 
 
 ### Contador de caracteres

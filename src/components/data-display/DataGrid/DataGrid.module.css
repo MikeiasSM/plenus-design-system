@@ -61,7 +61,8 @@
   box-shadow: var(--pl-sh-1);
 }
 
-.nested .head {
+.nested .head,
+.nested .foot {
   position: static;
 }
 
@@ -250,6 +251,8 @@
 
 .scroller[data-scrolled-start] > .grid > .head > .headerRow > .edgeStart::after,
 .scroller[data-scrolled-start] > .grid > .body > .row > .edgeStart::after,
+.scroller[data-scrolled-start] > .grid > .foot > .summaryRow > .edgeStart::after,
+.scroller[data-scrolled-end] > .grid > .foot > .summaryRow > .edgeEnd::after,
 .scroller[data-scrolled-end] > .grid > .head > .headerRow > .edgeEnd::after,
 .scroller[data-scrolled-end] > .grid > .body > .row > .edgeEnd::after {
   opacity: 1;
@@ -297,6 +300,51 @@
 .headerMenuButton:hover {
   background: var(--pl-color-surface-muted);
   color: var(--pl-color-text);
+}
+
+.filterActive,
+.filterActive:hover {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-primary-strong);
+}
+
+.filterPopover {
+  width: 18rem;
+}
+
+.filterPanel,
+.filterCondition {
+  display: grid;
+  gap: var(--pl-space-2);
+}
+
+.filterPanel {
+  gap: var(--pl-space-3);
+}
+
+.filterRange {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--pl-space-2);
+}
+
+.filterOptions {
+  display: grid;
+  gap: var(--pl-space-1);
+  max-height: 15rem;
+  overflow: auto;
+}
+
+.filterNote {
+  margin: 0;
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pl-space-2);
 }
 
 .resizer {
@@ -481,6 +529,30 @@
   padding: var(--pl-space-6) var(--pl-space-4);
   color: var(--pl-color-text-tertiary);
   text-align: center;
+}
+
+/* Sumarização fixa no rodapé da área que rola, sobre as linhas filtradas de todas as páginas. */
+.foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.summaryRow {
+  display: flex;
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text);
+}
+
+.summaryRow > .cell {
+  min-height: 40px;
+  border-top: 1px solid var(--pl-color-border-strong);
+  border-bottom: 0;
+  font-weight: var(--pl-type-label-weight);
+}
+
+.messageAction {
+  margin-top: var(--pl-space-3);
 }
 
 .loading {

@@ -1,1 +1,1 @@
-export { containsTerm, startsWithTerm } from './textSearch';
+export { containsTerm, endsWithTerm, equalsTerm, startsWithTerm } from './textSearch';

@@ -1,16 +1,12 @@
 import type { DataGridColumnState } from './columnLayout';
-import type { DataGridDensity, DataGridSortItem } from './gridState';
+import type { DataGridDensity, DataGridState } from './gridState';
 
 /** O que uma grade aninhada guarda ao ser desmontada pela janela virtual, para voltar como estava. */
-export interface DataGridMemory {
+export interface DataGridMemory extends DataGridState {
   columns: DataGridColumnState;
   density: DataGridDensity;
   expandedIds: readonly string[];
-  page: number;
-  pageSize: number;
-  search: string;
   selectedIds: readonly string[];
-  sort: readonly DataGridSortItem[];
 }
 
 export type DataGridDetailState = Readonly<Record<string, unknown>>;
@@ -31,6 +27,8 @@ export class DataGridScrollRoot {
   readonly detailStates = new Map<string, DataGridDetailState>();
   scroller: HTMLElement | null = null;
   head: HTMLElement | null = null;
+  /** A sumarização presa ao rodapé, que também cobre linhas. */
+  foot: HTMLElement | null = null;
   private anchor: Anchor | null = null;
   private readonly listeners = new Set<() => void>();
   private readonly onHeightsChange: () => void;
@@ -95,6 +93,10 @@ export class DataGridScrollRoot {
     }
   }
 
+  footHeight() {
+    return this.foot?.offsetHeight ?? 0;
+  }
+
   headHeight() {
     return this.head?.offsetHeight ?? 0;
   }
@@ -110,7 +112,7 @@ export class DataGridScrollRoot {
     return element.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
   }
 
-  /** Rola o mínimo para a faixa, em coordenadas do conteúdo, ficar sob o cabeçalho fixo. */
+  /** Rola o mínimo para a faixa, em coordenadas do conteúdo, ficar entre o cabeçalho e o rodapé fixos. */
   reveal(top: number, bottom: number) {
     const scroller = this.scroller;
 
@@ -121,8 +123,8 @@ export class DataGridScrollRoot {
     const visibleTop = top - this.headHeight();
     if (visibleTop < scroller.scrollTop) {
       scroller.scrollTop = visibleTop;
-    } else if (scroller.clientHeight > 0 && bottom > scroller.scrollTop + scroller.clientHeight) {
-      scroller.scrollTop = bottom - scroller.clientHeight;
+    } else if (scroller.clientHeight > 0 && bottom > scroller.scrollTop + scroller.clientHeight - this.footHeight()) {
+      scroller.scrollTop = bottom - scroller.clientHeight + this.footHeight();
     }
   }
 

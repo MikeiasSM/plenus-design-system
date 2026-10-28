@@ -193,8 +193,10 @@ export type {
   TableSize,
   TableSort,
 } from './components/data-display/Table';
-export { DataGrid } from './components/data-display/DataGrid';
+export { DataGrid, dataGridAggregators, dataGridFilterOperators } from './components/data-display/DataGrid';
 export type {
+  DataGridAggregator,
+  DataGridAggregatorId,
   DataGridAlign,
   DataGridAsidePlacement,
   DataGridCellContext,
@@ -208,6 +210,13 @@ export type {
   DataGridDetailState,
   DataGridDensity,
   DataGridExpandMode,
+  DataGridFilter,
+  DataGridFilterApplyMode,
+  DataGridFilterCondition,
+  DataGridFilterKind,
+  DataGridFilterLogic,
+  DataGridFilterOperand,
+  DataGridFilterOperator,
   DataGridPin,
   DataGridProps,
   DataGridQuery,

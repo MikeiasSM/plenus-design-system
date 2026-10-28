@@ -4,6 +4,8 @@ import {
   clampPage,
   columnAlign,
   detailKeyOf,
+  distinctTexts,
+  filterRows,
   isDetailKey,
   moveFocus,
   pageRows,
@@ -12,11 +14,14 @@ import {
   searchRows,
   snapshotOf,
   sortRows,
+  summarize,
+  summaryText,
   toggleExpanded,
   toggleSort,
   type DataGridColumnModel,
   type DataGridState,
 } from './gridState';
+import { EMPTY_FILTER, type DataGridFilter } from './filterModel';
 
 interface Order {
   id: string;
@@ -155,10 +160,16 @@ describe('pagination', () => {
 });
 
 describe('snapshots', () => {
-  const fallback: DataGridState = { sort: [], search: '', page: 1, pageSize: 25 };
+  const fallback: DataGridState = { sort: [], search: '', filter: EMPTY_FILTER, page: 1, pageSize: 25 };
 
   it('round-trips the state', () => {
-    const state: DataGridState = { sort: [{ columnId: 'total', direction: 'desc' }], search: 'sul', page: 3, pageSize: 50 };
+    const state: DataGridState = {
+      sort: [{ columnId: 'total', direction: 'desc' }],
+      search: 'sul',
+      filter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'greaterThan', value: 100 }] },
+      page: 3,
+      pageSize: 50,
+    };
 
     expect(restoreSnapshot(JSON.parse(JSON.stringify(snapshotOf(state, { collapsedGroups: [], hidden: [], order: [], pinned: {}, widths: {} }, 'normal'))), columns, fallback)).toEqual(state);
   });
@@ -179,6 +190,15 @@ describe('snapshots', () => {
           { columnId: 'total', direction: 'desc' },
         ],
         search: 7,
+        filter: {
+          logic: 'or',
+          conditions: [
+            { columnId: 'gone', operator: 'contains', value: 'x' },
+            { columnId: 'customer', operator: 'sideways', value: 'x' },
+            { columnId: 'customer', operator: 'contains', value: 'sul' },
+            { logic: 'and', conditions: [{ columnId: 'gone', operator: 'equals', value: 1 }] },
+          ],
+        },
         page: 2,
         pageSize: 0,
       },
@@ -186,7 +206,88 @@ describe('snapshots', () => {
       fallback,
     );
 
-    expect(restored).toEqual({ sort: [{ columnId: 'total', direction: 'desc' }], search: '', page: 2, pageSize: 25 });
+    expect(restored).toEqual({
+      sort: [{ columnId: 'total', direction: 'desc' }],
+      search: '',
+      filter: { logic: 'or', conditions: [{ columnId: 'customer', operator: 'contains', value: 'sul' }] },
+      page: 2,
+      pageSize: 25,
+    });
+  });
+});
+
+describe('filters', () => {
+  const where = (...conditions: DataGridFilter['conditions']): DataGridFilter => ({ logic: 'and', conditions });
+
+  it('compares text as shown, without accent or case', () => {
+    expect(ids(filterRows(orders, columns, where({ columnId: 'customer', operator: 'startsWith', value: 'oleos' })))).toEqual(['1']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'customer', operator: 'equals', value: 'ATACADO SUL' })))).toEqual(['2']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'customer', operator: 'endsWith', value: 'norte' })))).toEqual(['3']);
+  });
+
+  it('compares numbers and dates by value, and leaves empty cells out of comparisons', () => {
+    expect(ids(filterRows(orders, columns, where({ columnId: 'total', operator: 'lessThan', value: 500 })))).toEqual(['3', '4', '5']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'total', operator: 'between', value: [80, 300] })))).toEqual(['3', '4', '5']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'total', operator: 'empty' })))).toEqual(['2']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'issuedAt', operator: 'before', value: '2026-02-20' })))).toEqual(['2']);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'urgent', operator: 'true' })))).toEqual(['1', '4']);
+  });
+
+  it('combines conditions in and/or groups', () => {
+    const filter: DataGridFilter = {
+      logic: 'and',
+      conditions: [
+        { columnId: 'urgent', operator: 'false' },
+        {
+          logic: 'or',
+          conditions: [
+            { columnId: 'total', operator: 'greaterThan', value: 200 },
+            { columnId: 'customer', operator: 'contains', value: 'sul' },
+          ],
+        },
+      ],
+    };
+
+    expect(ids(filterRows(orders, columns, filter))).toEqual(['2', '3']);
+  });
+
+  it('ignores a condition still being written', () => {
+    expect(filterRows(orders, columns, where({ columnId: 'customer', operator: 'contains', value: '' }))).toHaveLength(5);
+    expect(ids(filterRows(orders, columns, where({ columnId: 'total', operator: 'between', value: [80, ''] })))).toHaveLength(5);
+    expect(filterRows(orders, columns, where({ columnId: 'total', operator: 'lessThan', value: Number.NaN }))).toHaveLength(5);
+  });
+
+  it('filters a set by the shown text, with the empty value last', () => {
+    const set = { ...columns[2], filter: 'set' as const };
+
+    expect(distinctTexts(orders, set)).toEqual(['R$\u00a080,00', 'R$\u00a0300,00', 'R$\u00a01.250,00', '']);
+    expect(ids(filterRows(orders, [set], where({ columnId: 'total', operator: 'in', value: ['R$\u00a0300,00', ''] })))).toEqual([
+      '2',
+      '3',
+      '4',
+    ]);
+  });
+});
+
+describe('summaries', () => {
+  const withSummary: DataGridColumnModel<Order>[] = [
+    { ...columns[2], summary: 'sum' },
+    { ...columns[3], summary: 'max' },
+    { ...columns[1], summary: 'count' },
+    { id: 'avg', header: 'Média', type: 'number', value: (row) => row.total, summary: 'avg' },
+  ];
+
+  it('aggregates the filled values and formats by the column type', () => {
+    const values = summarize(orders, withSummary);
+
+    expect(values).toEqual({ total: 1930, issuedAt: '2026-04-01', customer: 5, avg: 482.5 });
+    expect(summaryText(withSummary[0], values.total)).toBe('R$\u00a01.930,00');
+    expect(summaryText(withSummary[1], values.issuedAt)).toBe('01/04/2026');
+    expect(summaryText(withSummary[2], values.customer)).toBe('5');
+  });
+
+  it('leaves the cell blank when nothing is left to aggregate', () => {
+    expect(summaryText(withSummary[3], summarize([], withSummary).avg)).toBe('');
   });
 });
 

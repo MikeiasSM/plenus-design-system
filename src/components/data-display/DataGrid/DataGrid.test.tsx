@@ -115,10 +115,13 @@ describe('DataGrid', () => {
 
       searchFor('zzz');
 
-      expect(screen.getByRole('gridcell', { name: 'Nenhum registro atende à busca "zzz".' })).toHaveAttribute(
+      expect(screen.getByRole('gridcell', { name: /^Nenhum registro atende à busca "zzz"\./ })).toHaveAttribute(
         'aria-colspan',
         '3',
       );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+      expect(bodyRows()).toHaveLength(3);
     });
   });
 
@@ -228,8 +231,10 @@ describe('DataGrid', () => {
     expect(onQueryChange).toHaveBeenCalledWith({
       sort: [{ columnId: 'total', direction: 'asc' }],
       search: '',
+      filter: { logic: 'and', conditions: [] },
       page: 1,
       pageSize: 25,
+      summaries: [],
     });
     expect(firstColumn()).toEqual(['P-1', 'P-2', 'P-3']);
     expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '301');
@@ -311,6 +316,7 @@ describe('DataGrid', () => {
       version: 1,
       sort: [{ columnId: 'customer', direction: 'asc' }],
       search: '',
+      filter: { logic: 'and', conditions: [] },
       page: 1,
       pageSize: 25,
       columns: { collapsedGroups: [], hidden: [], order: ['id', 'customer', 'total'], pinned: {}, widths: {} },
@@ -419,6 +425,193 @@ describe('DataGrid', () => {
 
       expect(headers()).toEqual(['Total', 'Cliente']);
       expect(header('Cliente').style.width).toBe('200px');
+    });
+  });
+
+  describe('filters', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    function openFilter(header: string) {
+      fireEvent.keyDown(screen.getByRole('columnheader', { name: new RegExp(`^${header}`) }), { key: 'ArrowDown', altKey: true });
+      return screen.getByRole('dialog', { name: `Filtro de ${header}` });
+    }
+
+    it('filters a column from the funnel after a pause, marks the title and announces the count', () => {
+      renderGrid();
+
+      fireEvent.change(within(openFilter('Cliente')).getByRole('textbox', { name: 'Valor de Cliente' }), {
+        target: { value: 'sul' },
+      });
+      expect(bodyRows()).toHaveLength(3);
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(firstColumn()).toEqual(['P-1']);
+      expect(screen.getByRole('columnheader', { name: 'Cliente filtrada' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Filtrar Cliente, filtro ativo' })).toBeInTheDocument();
+      expect(screen.getByRole('status')).toHaveTextContent('1 de 3 linhas após o filtro');
+    });
+
+    it('offers to clear the filters when nothing is left', () => {
+      const onFilterChange = vi.fn();
+      renderGrid({
+        defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'greaterThan', value: 5000 }] },
+        onFilterChange,
+      });
+
+      expect(screen.getByRole('gridcell', { name: /^Nenhum registro atende aos filtros\./ })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }));
+
+      expect(bodyRows()).toHaveLength(3);
+      expect(onFilterChange).toHaveBeenLastCalledWith({ logic: 'and', conditions: [] });
+    });
+
+    it('filters by a set of values computed without the column own filter', () => {
+      renderGrid({ columns: [columns[0], { ...columns[1], filter: 'set' }, columns[2]] });
+
+      const panel = openFilter('Cliente');
+      fireEvent.click(within(panel).getByRole('checkbox', { name: 'Casa Norte' }));
+      fireEvent.click(within(panel).getByRole('checkbox', { name: 'Óleos Brasil' }));
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(firstColumn()).toEqual(['P-1']);
+      expect(within(panel).getAllByRole('checkbox')).toHaveLength(4);
+
+      fireEvent.change(within(panel).getByRole('searchbox', { name: 'Buscar valores de Cliente' }), {
+        target: { value: 'oleos' },
+      });
+      expect(within(panel).getByRole('checkbox', { name: 'Selecionar os 1 encontrados' })).not.toBeChecked();
+    });
+
+    it('waits for the apply button when asked to', () => {
+      renderGrid({ filterApplyMode: 'button' });
+
+      const panel = openFilter('Cliente');
+      fireEvent.change(within(panel).getByRole('textbox', { name: 'Valor de Cliente' }), { target: { value: 'sul' } });
+      act(() => vi.advanceTimersByTime(300));
+      expect(bodyRows()).toHaveLength(3);
+
+      fireEvent.click(within(panel).getByRole('button', { name: 'Aplicar' }));
+      expect(firstColumn()).toEqual(['P-1']);
+      expect(screen.queryByRole('dialog', { name: 'Filtro de Cliente' })).not.toBeInTheDocument();
+    });
+
+    it('never rewrites the filter just by opening the panel', () => {
+      const onFilterChange = vi.fn();
+      renderGrid({
+        defaultFilter: {
+          logic: 'and',
+          conditions: [{ logic: 'or', conditions: [
+            { columnId: 'total', operator: 'lessThan', value: 100 },
+            { columnId: 'total', operator: 'greaterThan', value: 1000 },
+            { columnId: 'total', operator: 'equals', value: 300 },
+          ] }],
+        },
+        onFilterChange,
+      });
+
+      expect(openFilter('Total')).toHaveTextContent('Este filtro foi montado fora do funil');
+      act(() => vi.advanceTimersByTime(300));
+      expect(onFilterChange).not.toHaveBeenCalled();
+    });
+
+    it('applies what was typed when the panel closes before the pause', () => {
+      renderGrid();
+
+      const input = within(openFilter('Cliente')).getByRole('textbox', { name: 'Valor de Cliente' });
+      fireEvent.change(input, { target: { value: 'sul' } });
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(firstColumn()).toEqual(['P-1']);
+    });
+
+    it('keeps a second condition out while the first is incomplete', () => {
+      renderGrid({
+        defaultFilter: {
+          logic: 'or',
+          conditions: [{ logic: 'or', conditions: [
+            { columnId: 'total', operator: 'greaterThan', value: 1000 },
+            { columnId: 'total', operator: 'lessThan', value: 100 },
+          ] }],
+        },
+      });
+      expect(firstColumn()).toEqual(['P-2', 'P-3']);
+
+      fireEvent.change(within(openFilter('Total')).getAllByRole('textbox', { name: 'Valor de Total' })[0], {
+        target: { value: '' },
+      });
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(bodyRows()).toHaveLength(3);
+    });
+
+    it('opens from the column menu and sends the filter to the server', () => {
+      const onQueryChange = vi.fn();
+      renderGrid({ dataMode: 'server', onQueryChange });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Menu da coluna Total' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: /Filtrar/ }));
+      const panel = screen.getByRole('dialog', { name: 'Filtro de Total' });
+      fireEvent.change(within(panel).getByRole('textbox', { name: 'Valor de Total' }), { target: { value: '100' } });
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(onQueryChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          filter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'equals', value: 100 }] },
+        }),
+      );
+      expect(bodyRows()).toHaveLength(3);
+    });
+  });
+
+  describe('summary', () => {
+    const summed: DataGridColumn<Order>[] = [columns[0], columns[1], { ...columns[2], summary: 'sum' }];
+
+    it('totals the filtered rows of every page in a row fixed at the bottom', () => {
+      renderGrid({
+        columns: summed,
+        pagination: true,
+        pageSizeOptions: [2],
+        defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'lessThan', value: 1000 }] },
+      });
+
+      const grid = screen.getByRole('grid');
+      expect(grid).toHaveAttribute('aria-rowcount', '4');
+      expect(screen.getByRole('gridcell', { name: 'Total de 2 linhas' })).toBeInTheDocument();
+      expect(screen.getByRole('gridcell', { name: /^Soma: R\$\s380,00$/ }).closest('[role="row"]')).toHaveAttribute(
+        'aria-rowindex',
+        '4',
+      );
+    });
+
+    it('is reached by the keyboard after the last row', () => {
+      renderGrid({ columns: summed });
+
+      const lastTotal = screen.getByRole('gridcell', { name: /^R\$\s80,00$/ });
+      act(() => lastTotal.focus());
+      fireEvent.keyDown(lastTotal, { key: 'ArrowDown' });
+
+      expect(screen.getByRole('gridcell', { name: /^Soma: R\$\s1.630,00$/ })).toHaveFocus();
+    });
+
+    it('leaves the row out of the navigation while a failure takes the place of the rows', () => {
+      renderGrid({ columns: summed, error: 'Falhou' });
+
+      const header = screen.getByRole('columnheader', { name: 'Total' });
+      act(() => header.focus());
+      fireEvent.keyDown(header, { key: 'ArrowDown' });
+
+      expect(screen.queryByRole('row', { name: /Soma/ })).not.toBeInTheDocument();
+      expect(document.querySelector('[tabindex="0"]')).not.toBeNull();
+    });
+
+    it('shows the aggregates the server sends and asks for them in the query', () => {
+      const onQueryChange = vi.fn();
+      renderGrid({ columns: summed, dataMode: 'server', totalRows: 300, summaryValues: { total: 99000 }, onQueryChange });
+
+      expect(screen.getByRole('gridcell', { name: /^Soma: R\$\s99.000,00$/ })).toBeInTheDocument();
+      expect(onQueryChange).toHaveBeenCalledWith(expect.objectContaining({ summaries: [{ columnId: 'total', aggregator: 'sum' }] }));
     });
   });
 
