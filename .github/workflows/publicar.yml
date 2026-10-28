@@ -108,14 +108,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # O pacote conferido vira o arquivo que sera publicado. Publicar a pasta
+      # rodava o `prepare` e levava ao registro um build que ninguem conferiu.
+      - name: Empacotar o build conferido
+        run: echo "tarball=$(npm pack --ignore-scripts | tail -n 1)" >> "$GITHUB_OUTPUT"
+        id: pacote
+
       # O token precisa ser **granular**, com escrita no escopo `@plenustech` e
       # a dispensa de 2FA marcada: o token classico exige o codigo de seis
       # digitos, que nenhuma automacao consegue responder.
-      # Sem scripts: o `prepare` reconstruiria o pacote depois de o
-      # `check:pacote` aprovar outro build, e o publicado nao seria o conferido.
       # A procedencia so existe para repositorio publico; no privado, pedi-la
       # derrubaria a publicacao.
       - name: Publicar
-        run: npm publish --ignore-scripts ${{ !github.event.repository.private && '--provenance' || '' }}
+        run: npm publish "./${{ steps.pacote.outputs.tarball }}" ${{ !github.event.repository.private && '--provenance' || '' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

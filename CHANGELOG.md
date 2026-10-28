@@ -6,6 +6,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.3.0] — 2026-10-28
+
 ### Incompatível
 
 - `ChartHeatmap`: a célula com `value: null` passa a ser hachurada, como no `ChartMap`; o cinza liso continua com `noDataStyle="neutral"`.
@@ -34,6 +36,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `ChartHeatmap`: o vão entre células cai para 1 px quando a célula tem menos de 14 px.
 - Os campos pequenos mediam 36px apesar do token de 32px: o respiro vertical era escrito à parte e vencia o `min-height`. O respiro dos campos e do `Button` `sm` e `md` passa a sair do token.
 - O botão do calendário e o do horário empurravam a caixa do `DatePicker`, do `TimePicker` e do `DateTimePicker` pequenos; agora ocupam a altura da caixa.
+- O pacote publicado é o mesmo que passou pelas conferências da publicação: o fluxo empacota o build conferido e publica esse arquivo, em vez de reconstruir o pacote no momento de publicar.
 
 ## [0.2.7] — 2026-10-27
 

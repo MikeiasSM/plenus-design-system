@@ -2,9 +2,14 @@
 
 Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanhamento completo está em `PROGRESS.md`.
 
-## Branch de trabalho
+## Branches de trabalho
 
-Todo o trabalho desta sessão está na branch `preparacao-0.3.0`, publicada no GitHub e **sem merge na `main`**. Ela concentra o que vai para a 0.3.0, que traz mudanças incompatíveis (`CONTRIBUTING.md` §11). O `CHANGELOG.md` está em "Não publicado".
+Duas branches publicadas no GitHub, **nenhuma com merge na `main`**:
+
+- **`preparacao-0.3.0`**: a 0.3.0 pronta para publicar, com a versão no `package.json` e a seção `## [0.3.0] — 2026-10-28` no `CHANGELOG.md`. Tipos, testes, build, pacote e contraste conferidos. Traz o heatmap, a escala dos botões e campos, o `FileUpload`, o `dangerGhost` e a correção do fluxo de publicação. **Para publicar**: merge na `main` e tag `v0.3.0`, decisão do mantenedor.
+- **`datagrid`**: o DataGrid segue nela até o lançamento. Por decisão do mantenedor, ele não entra na 0.3.0. Sai numa 0.3.x quando o desenho estiver validado: componente novo é adição compatível. Publicado antes da hora, cada mudança na API dele seria incompatível e pediria versão menor nova. Depois de publicada a 0.3.0, trazer a `main` para a `datagrid`.
+
+Os itens que o plano antigo reservava para a 0.3.0 (convenção de API, CSS por componente, formatadores em inglês) passam para a 0.4.0.
 
 | Commit | Conteúdo |
 | --- | --- |
@@ -12,9 +17,11 @@ Todo o trabalho desta sessão está na branch `preparacao-0.3.0`, publicada no G
 | `56e549c` | Escala compacta dos botões e dos campos |
 | `070d44d` | Zona de envio do `FileUpload` em coluna e variante `dangerGhost` |
 | `176788d` | Fase 0 do DataGrid registrada no `PROGRESS.md` |
+| último | Versão 0.3.0 e fluxo de publicação que publica o pacote conferido |
 
 ## Feito
 
+- **Visão em tabela antecipada no heatmap**, pela moldura comum dos gráficos.
 - **`ChartHeatmap` revisado** a partir de pesquisa de mercado (artefato https://claude.ai/artifact/KsQoUPeFoxGLzwrR8Cw3mD): sem dado hachurado, cruzamento ausente em branco, escala a partir de zero, contraste do texto com halo onde nenhuma cor fixa passa, colunas em cima, células quadradas, destaque de linha e coluna, visão em tabela e balão no foco. A hachura e o aviso de desenvolvimento passaram ao núcleo dos gráficos.
 - **Escala compacta dos botões e campos**: 32, 36 e 40 px, todos em 14 px, decidida no artefato https://claude.ai/artifact/TgRcWKA6tettUyjTNBDP9R. O respiro vertical dos campos e dos botões `sm` e `md` passou a sair do token; o campo pequeno media 36 px apesar dos 32 declarados.
 - **`FileUpload`** com ícone discreto, texto e restrições em cima e botão embaixo. **`dangerGhost`** no `Button` e no `ButtonIcon`, a ação destrutiva discreta.
@@ -42,9 +49,9 @@ Depois, a fase 1: State Motor do DataGrid (`ARCHITECTURE.md` §7) e a fundação
 
 Sem mudança em relação à sessão anterior: tema por subárvore e `prefers-color-scheme`; guarda de `prefers-reduced-motion`; `ToastProvider` por árvore e `portalContainer`; teste do pacote construído em app real; visão em tabela e clique na marca nos gráficos; ícones em um módulo por ícone; recursos genéricos pedidos pelo Painel; receita com react-hook-form; migração da API para a convenção na 0.3.0; por último, cor de marca em tempo de execução.
 
-## Pendência de publicação
+## Publicação
 
-`npm publish --ignore-scripts` ainda roda o `prepare` no Actions: o pacote sai reconstruído, não o conferido. Corrigir em `.github/workflows/publicar.yml` publicando o tarball de `npm pack`.
+O fluxo agora empacota o build conferido com `npm pack` e publica esse arquivo; antes, `npm publish` na pasta rodava o `prepare` e levava ao registro um build não conferido. A 0.3.0 é a primeira publicação com o fluxo corrigido: conferir no Actions que o passo "Empacotar o build conferido" gera o arquivo e que a procedência continua saindo.
 
 ## Ambiente
 
