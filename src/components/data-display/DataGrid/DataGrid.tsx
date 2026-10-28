@@ -16,9 +16,13 @@ import {
 import { selectionStatus, select, selectRange, toggleAll, type SelectionState } from '../../../hooks/useSelection/selection';
 import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
+import { IconChevronRight } from '../../icons';
 import { Pagination } from '../../navigation/Pagination';
 import type { MenuSection } from '../../overlays/Menu';
 import {
+  effectiveHidden,
+  flattenColumns,
+  headerSegments,
   moveColumn,
   moveColumnTo,
   normalizeColumnState,
@@ -26,8 +30,12 @@ import {
   placeColumns,
   resizeColumn,
   setColumnHidden,
+  toggleGroupCollapsed,
+  type DataGridColumnGroupSizing,
   type DataGridColumnSizing,
   type DataGridColumnState,
+  type DataGridGroupInfo,
+  type DataGridHeaderSegment,
   type DataGridPin,
   type DataGridPlacedColumn,
 } from './columnLayout';
@@ -86,6 +94,11 @@ export interface DataGridColumn<Row> extends DataGridColumnModel<Row>, DataGridC
   renderHeader?: (column: DataGridColumn<Row>) => ReactNode;
 }
 
+/** Grupo de títulos acima das colunas de `children`, em quantos níveis houver. */
+export type DataGridColumnGroup<Row> = DataGridColumnGroupSizing<DataGridColumn<Row>>;
+
+export type DataGridColumnDefinition<Row> = DataGridColumn<Row> | DataGridColumnGroup<Row>;
+
 export type DataGridSelectionMode = 'none' | 'single' | 'multiple';
 
 export type DataGridRowClickAction = 'none' | 'expand' | 'select' | 'activate';
@@ -99,7 +112,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   /** Ordem, ocultas, fixas e larguras, como a pessoa deixou pelo menu da coluna e pelo arrasto. */
   columnState?: DataGridColumnState;
   /** Lista estável, memorizada pelo produto: uma lista nova a cada desenho refaz a busca e a ordenação. */
-  columns: readonly DataGridColumn<Row>[];
+  columns: readonly DataGridColumnDefinition<Row>[];
   /** No servidor, `rows` é a página atual e `totalRows` o total; a busca, a ordem e a página vão por `onQueryChange`. */
   dataMode?: 'client' | 'server';
   /** Parcial: o que faltar sai da definição das colunas. */
@@ -257,7 +270,7 @@ export function DataGrid<Row>({
   children,
   className,
   columnState: columnStateProp,
-  columns,
+  columns: definitions,
   dataMode = 'client',
   defaultColumnState,
   defaultExpandedIds = [],
@@ -300,6 +313,12 @@ export function DataGrid<Row>({
   totalRows: totalRowsProp,
   ...props
 }: DataGridProps<Row>) {
+  const { columns, groupsOf } = useMemo(() => flattenColumns(definitions), [definitions]);
+  const groupIds = useMemo(
+    () => [...new Set([...groupsOf.values()].flatMap((path) => path.map((group) => group.id)))],
+    [groupsOf],
+  );
+
   /* Dentro do detalhe de outra grade, esta rola com a de fora e guarda o próprio estado nela, pelo caminho. */
   const outerScroll = useContext(DataGridScrollContext);
   const outerLevel = useContext(DataGridLevelContext);
@@ -325,17 +344,25 @@ export function DataGrid<Row>({
   const [selectedIds, setSelectedIds] = useSlice(selectedIdsProp, memory?.selectedIds ?? defaultSelectedIds, onSelectedIdsChange);
   const [expandedIds, setExpandedIds] = useSlice(expandedIdsProp, memory?.expandedIds ?? defaultExpandedIds, onExpandedIdsChange);
   const [savedColumnState] = useState(
-    () => memory?.columns ?? normalizeColumnState(snapshotColumnsOf(initialState) ?? defaultColumnState, columns),
+    () => memory?.columns ?? normalizeColumnState(snapshotColumnsOf(initialState) ?? defaultColumnState, columns, groupIds),
   );
   const [rawColumnState, setColumnState] = useSlice(columnStateProp, savedColumnState, onColumnStateChange);
   /* Concilia a cada troca das colunas: a coluna nova entra, a removida sai, inclusive no estado controlado. */
-  const columnState = useMemo(() => normalizeColumnState(rawColumnState, columns), [rawColumnState, columns]);
+  const columnState = useMemo(
+    () => normalizeColumnState(rawColumnState, columns, groupIds),
+    [rawColumnState, columns, groupIds],
+  );
+  /* Na tela, saem também as colunas de um grupo recolhido; o estado guarda só as ocultas pela pessoa. */
+  const shownState = useMemo(
+    () => ({ ...columnState, hidden: effectiveHidden(columnState, columns, groupsOf) }),
+    [columnState, columns, groupsOf],
+  );
   const [announcement, setAnnouncement] = useState('');
   const anchorKey = useRef<string>(undefined);
   const baseId = useId();
 
   const server = dataMode === 'server';
-  const hiddenKey = columnState.hidden.join('\n');
+  const hiddenKey = shownState.hidden.join('\n');
   const searchColumns = useMemo(
     () => columns.filter((column) => !hiddenKey.split('\n').includes(column.id)),
     [columns, hiddenKey],
@@ -358,8 +385,8 @@ export function DataGrid<Row>({
   const controlsWidth = (selectionMode === 'none' ? 0 : CONTROL_WIDTH) + (withDetail ? CONTROL_WIDTH : 0);
   const [viewWidth, setViewWidth] = useState(0);
   const placed = useMemo(
-    () => placeColumns(columns, columnState, viewWidth, controlsWidth),
-    [columns, columnState, viewWidth, controlsWidth],
+    () => placeColumns(columns, shownState, viewWidth, controlsWidth),
+    [columns, shownState, viewWidth, controlsWidth],
   );
   const columnIds = useMemo(() => placed.map((item) => item.column.id), [placed]);
   const rowOffset = pagination ? (currentPage - 1) * pageSize : 0;
@@ -419,16 +446,37 @@ export function DataGrid<Row>({
     setAnnouncement(announcement);
   }
 
-  function moveColumnBy(columnId: string, step: -1 | 1) {
-    const next = moveColumn(columnState, columnId, step);
+  function groupKeyOf(columnId: string) {
+    return groupsOf.get(columnId)?.at(-1)?.id ?? '';
+  }
 
-    if (next === columnState) {
-      setAnnouncement(`${headerOf(columnId)} não passa da divisa das colunas fixas`);
+  /* O passo conta só as colunas na tela, e a nova ordem volta ao estado sem as que o grupo recolhido escondeu. */
+  function steppedOrder(columnId: string, step: -1 | 1) {
+    const next = moveColumn(shownState, columnId, step, groupKeyOf);
+    return next === shownState ? null : next.order;
+  }
+
+  function droppedOrder(columnId: string, targetId: string) {
+    const next = moveColumnTo(shownState, columnId, targetId, groupKeyOf);
+    return next === shownState ? null : next.order;
+  }
+
+  function moveColumnBy(columnId: string, step: -1 | 1) {
+    const order = steppedOrder(columnId, step);
+
+    if (!order) {
+      setAnnouncement(`${headerOf(columnId)} não sai do próprio grupo nem passa da divisa das fixas`);
       return;
     }
 
-    const position = placeColumns(columns, next, 0, 0).findIndex((item) => item.column.id === columnId) + 1;
+    const next = { ...columnState, order };
+    const position = placeColumns(columns, { ...shownState, order }, 0, 0).findIndex((item) => item.column.id === columnId) + 1;
     changeColumns(next, `${headerOf(columnId)} na posição ${position} de ${columnIds.length}`);
+  }
+
+  function toggleGroup(group: DataGridGroupInfo) {
+    const collapsing = !columnState.collapsedGroups.includes(group.id);
+    changeColumns(toggleGroupCollapsed(columnState, group.id), `${group.header} ${collapsing ? 'recolhido' : 'expandido'}`);
   }
 
   function pinColumnTo(columnId: string, pin: DataGridPin | null) {
@@ -891,6 +939,8 @@ export function DataGrid<Row>({
   const multiple = selectionMode === 'multiple';
   const contextValue = useMemo(() => ({ label, search, setSearch: searchFromPart }), [label, search, searchFromPart]);
 
+  const segments = useMemo(() => headerSegments(placed, groupsOf), [placed, groupsOf]);
+  const groupRows = segments.reduce((rowsAbove, segment) => Math.max(rowsAbove, segment.level + segment.rowSpan), 0);
   const [menuColumnId, setMenuColumnId] = useState<string | null>(null);
   const draggedColumn = useRef<string | null>(null);
 
@@ -924,7 +974,7 @@ export function DataGrid<Row>({
           label: 'Mover para a esquerda',
           shortcut: 'Ctrl+Shift+←',
           shortcutKeys: 'Control+Shift+ArrowLeft',
-          disabled: moveColumn(columnState, column.id, -1) === columnState,
+          disabled: !steppedOrder(column.id, -1),
           onSelect: () => moveColumnBy(column.id, -1),
         },
         {
@@ -932,14 +982,29 @@ export function DataGrid<Row>({
           label: 'Mover para a direita',
           shortcut: 'Ctrl+Shift+→',
           shortcutKeys: 'Control+Shift+ArrowRight',
-          disabled: moveColumn(columnState, column.id, 1) === columnState,
+          disabled: !steppedOrder(column.id, 1),
           onSelect: () => moveColumnBy(column.id, 1),
         },
         { key: 'hide', label: 'Ocultar coluna', disabled: columnIds.length === 1, onSelect: () => hideColumn(column.id) },
       ],
     };
+    const group = [...(groupsOf.get(column.id) ?? [])].reverse().find((candidate) => candidate.collapsible);
+    const grouping: MenuSection | null = group
+      ? {
+          key: 'group',
+          items: [
+            {
+              key: 'collapse',
+              label: `${columnState.collapsedGroups.includes(group.id) ? 'Expandir' : 'Recolher'} o grupo ${group.header}`,
+              onSelect: () => toggleGroup(group),
+            },
+          ],
+        }
+      : null;
 
-    return column.sortable === false ? [pinning, arranging] : [sorting, pinning, arranging];
+    return [column.sortable === false ? null : sorting, pinning, arranging, grouping].filter(
+      (section): section is MenuSection => section !== null,
+    );
   }
 
   function renderHeaderCell(column: (typeof rowColumns)[number], index: number) {
@@ -951,7 +1016,7 @@ export function DataGrid<Row>({
     return (
       <DataGridHeaderCell
         canDrop={() =>
-          draggedColumn.current !== null && moveColumnTo(columnState, draggedColumn.current, column.id) !== columnState
+          draggedColumn.current !== null && droppedOrder(draggedColumn.current, column.id) !== null
         }
         className={[
           styles.cell,
@@ -994,7 +1059,7 @@ export function DataGrid<Row>({
         sortCount={sort.length}
         sortIndex={sortIndex}
         sortItem={sort[sortIndex]}
-        style={column.style}
+        style={{ ...column.style, gridColumn: index + 1, gridRow: groupRows + 1 }}
         width={item.width - (host ? controlsWidth : 0)}
         onDragStart={() => {
           draggedColumn.current = column.id;
@@ -1004,11 +1069,9 @@ export function DataGrid<Row>({
         }}
         onDrop={() => {
           const source = draggedColumn.current;
-          if (source) {
-            const next = moveColumnTo(columnState, source, column.id);
-            if (next !== columnState) {
-              changeColumns(next, `${headerOf(source)} movida`);
-            }
+          const order = source ? droppedOrder(source, column.id) : null;
+          if (source && order) {
+            changeColumns({ ...columnState, order }, `${headerOf(source)} movida`);
           }
         }}
         onFit={() => fitColumn(column.id)}
@@ -1026,12 +1089,66 @@ export function DataGrid<Row>({
     );
   }
 
+  function renderSegment(segment: DataGridHeaderSegment) {
+    const { group } = segment;
+    const last = placed[segment.first + segment.span - 1];
+    const edge = segment.pin === 'start' ? last.edge : segment.pin === 'end' && placed[segment.first].edge;
+    const pinStyle = placedStyle({ ...last, offset: segment.offset, width: segment.width });
+    const style = {
+      ...pinStyle,
+      gridColumn: `${segment.first + 1} / span ${segment.span}`,
+      gridRow: `${segment.level + 1} / span ${segment.rowSpan}`,
+    };
+    const className = [
+      styles.groupCell,
+      segment.pin && styles.pinned,
+      edge && (segment.pin === 'start' ? styles.edgeStart : styles.edgeEnd),
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    if (!group) {
+      return <div className={className} key={segment.key} role="presentation" style={style} />;
+    }
+
+    const collapsed = columnState.collapsedGroups.includes(group.id);
+    const labelId = `${baseId}-group-${segment.level}-${segment.first}`;
+
+    return (
+      <div
+        aria-colindex={segment.first + 1}
+        aria-colspan={segment.span}
+        aria-labelledby={labelId}
+        className={className}
+        key={segment.key}
+        role="columnheader"
+        style={style}
+      >
+        <span className={styles.groupLabel} id={labelId}>
+          {group.header}
+        </span>
+        {group.collapsible && (
+          <button
+            aria-expanded={!collapsed}
+            aria-label={`${collapsed ? 'Expandir' : 'Recolher'} ${group.header}`}
+            className={styles.expander}
+            tabIndex={-1}
+            type="button"
+            onClick={() => toggleGroup(group)}
+          >
+            <IconChevronRight size={14} />
+          </button>
+        )}
+      </div>
+    );
+  }
+
   function renderRow(item: DataGridBodyItem, index: number) {
     const row = visibleRows[item.rowIndex];
 
     return (
       <DataGridRow
-        ariaRowIndex={rowOffset + item.rowIndex + 2}
+        ariaRowIndex={rowOffset + item.rowIndex + groupRows + 2}
         columns={rowColumns}
         expanded={hasDetail(row) ? expandedSet.has(item.rowKey) : undefined}
         focusedColumnId={activeFocus.rowKey === item.key ? activeFocus.columnId : undefined}
@@ -1075,7 +1192,7 @@ export function DataGrid<Row>({
 
   function renderMessage(content: ReactNode, alert = false) {
     return (
-      <div aria-rowindex={2} className={styles.messageRow} role="row">
+      <div aria-rowindex={groupRows + 2} className={styles.messageRow} role="row">
         <div aria-colindex={1} aria-colspan={columnIds.length} className={styles.message} role="gridcell">
           {alert ? <div role="alert">{content}</div> : content}
         </div>
@@ -1114,7 +1231,7 @@ export function DataGrid<Row>({
                 aria-colcount={columnIds.length}
                 aria-label={label}
                 aria-multiselectable={multiple || undefined}
-                aria-rowcount={showsMessage ? 2 : totalRows + 1}
+                aria-rowcount={groupRows + (showsMessage ? 2 : totalRows + 1)}
                 className={styles.grid}
                 role={withDetail ? 'treegrid' : 'grid'}
                 onBlur={(event) => {
@@ -1125,8 +1242,18 @@ export function DataGrid<Row>({
                 }}
                 onKeyDown={handleKeyDown}
               >
-                <div className={styles.head} ref={headRef} role="rowgroup">
-                  <div aria-rowindex={1} className={styles.headerRow} role="row">
+                <div
+                  className={[styles.head, groupRows > 0 && styles.grouped].filter(Boolean).join(' ')}
+                  ref={headRef}
+                  role="rowgroup"
+                  style={{ gridTemplateColumns: placed.map((item) => `${item.width}px`).join(' ') }}
+                >
+                  {Array.from({ length: groupRows }, (_, level) => (
+                    <div aria-rowindex={level + 1} className={styles.headerRow} key={level} role="row">
+                      {segments.filter((segment) => segment.level === level).map(renderSegment)}
+                    </div>
+                  ))}
+                  <div aria-rowindex={groupRows + 1} className={styles.headerRow} role="row">
                     {rowColumns.map(renderHeaderCell)}
                   </div>
                 </div>

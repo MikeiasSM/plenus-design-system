@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { DataGrid, type DataGridColumn, type DataGridDetailContext } from '.';
+import { DataGrid, type DataGridColumn, type DataGridColumnDefinition, type DataGridDetailContext } from '.';
 
 interface Order {
   id: string;
@@ -313,7 +313,7 @@ describe('DataGrid', () => {
       search: '',
       page: 1,
       pageSize: 25,
-      columns: { hidden: [], order: ['id', 'customer', 'total'], pinned: {}, widths: {} },
+      columns: { collapsedGroups: [], hidden: [], order: ['id', 'customer', 'total'], pinned: {}, widths: {} },
     });
   });
 
@@ -418,6 +418,56 @@ describe('DataGrid', () => {
 
       expect(headers()).toEqual(['Total', 'Cliente']);
       expect(header('Cliente').style.width).toBe('200px');
+    });
+  });
+
+  describe('header groups', () => {
+    const grouped: DataGridColumnDefinition<Order>[] = [
+      { id: 'id', header: 'Nº', width: 80 },
+      {
+        id: 'sale',
+        header: 'Venda',
+        collapsible: true,
+        children: [
+          { id: 'customer', header: 'Cliente', hideWhenCollapsed: true },
+          { id: 'total', header: 'Total', type: 'currency' },
+        ],
+      },
+    ];
+
+    it('draws the group above its columns and counts its row', () => {
+      renderGrid({ columns: grouped });
+
+      const group = screen.getByRole('columnheader', { name: 'Venda' });
+      expect(group).toHaveAttribute('aria-colspan', '2');
+      expect(group).toHaveAttribute('aria-colindex', '2');
+      expect(group.parentElement).toHaveAttribute('aria-rowindex', '1');
+      expect(screen.getByRole('columnheader', { name: 'Cliente' }).parentElement).toHaveAttribute('aria-rowindex', '2');
+      expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '5');
+      expect(screen.getByRole('gridcell', { name: 'Atacado Sul' }).parentElement).toHaveAttribute('aria-rowindex', '3');
+    });
+
+    it('collapses a group, hiding the marked columns, and keeps it in the column state', () => {
+      const onColumnStateChange = vi.fn();
+      renderGrid({ columns: grouped, onColumnStateChange });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Recolher Venda' }));
+
+      expect(screen.queryByRole('columnheader', { name: 'Cliente' })).not.toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: 'Venda' })).toHaveAttribute('aria-colspan', '1');
+      expect(screen.getByRole('button', { name: 'Expandir Venda' })).toHaveAttribute('aria-expanded', 'false');
+      expect(onColumnStateChange).toHaveBeenLastCalledWith(expect.objectContaining({ collapsedGroups: ['sale'], hidden: [] }));
+    });
+
+    it('keeps a column inside its group when moving it', () => {
+      renderGrid({ columns: grouped });
+      const customer = screen.getByRole('columnheader', { name: 'Cliente' });
+      act(() => customer.focus());
+
+      fireEvent.keyDown(customer, { key: 'ArrowLeft', ctrlKey: true, shiftKey: true });
+
+      expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual(['Venda', 'Nº', 'Cliente', 'Total']);
+      expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('Cliente não sai do próprio grupo');
     });
   });
 

@@ -955,7 +955,15 @@ Primeira entrega da fase 3, na branch `datagrid`, em 28/10/2026. Seguem os grupo
   Fica para depois o indicador de soltura, sempre a esquerda do titulo, mesmo quando a coluna entra depois dele.
 - **Medido no Chrome headless**, com 10.000 linhas, 30 colunas e duas fixas: rolagem vertical a 14,6 ms de media, contra 11 sem fixas, nenhum quadro acima de 50 ms; horizontal a 6 ms.
 
-**Proximo:** grupos de cabecalho e menu da tabela, depois o teste no NVDA, que fixa a marcacao do detalhe.
+**Grupos de cabecalho**, segunda entrega:
+
+- **`children` na lista de colunas**, como decidido no prototipo, em quantos niveis houver. O componente achata as colunas logo na entrada; o resto trabalha com as folhas e o caminho de grupos de cada uma.
+- **Cabecalho em caixas** por grade CSS, uma trilha por coluna, com as linhas de `role="row"` em `display: contents`. O grupo sem subgrupo desce ate os titulos; acima das colunas sem grupo fica um bloco so, dividido apenas na divisa das fixas; o grupo com colunas fixas e soltas se parte na divisa. O bloco vazio e apresentacao, sem papel de titulo.
+- **`aria-colspan` e `aria-colindex`** nas caixas de grupo; as linhas de grupo contam em `aria-rowcount` e deslocam o `aria-rowindex` do corpo.
+- **Recolher:** `collapsible` no grupo poe a seta; as colunas com `hideWhenCollapsed` saem da tela, e o grupo recolhido fica em `columnState.collapsedGroups`, separado das ocultas pela pessoa. Pelo teclado, o menu da coluna recolhe e expande o grupo dela; a seta do grupo nao e parada de foco.
+- **Mover dentro do grupo:** o passo e o arrasto so trocam a coluna com as irmas do grupo imediato, contando so as que estao na tela.
+
+**Proximo:** menu da tabela, depois o teste no NVDA, que fixa a marcacao do detalhe.
 
 
 ### Contador de caracteres

@@ -199,6 +199,8 @@ export type {
   DataGridAsidePlacement,
   DataGridCellContext,
   DataGridColumn,
+  DataGridColumnDefinition,
+  DataGridColumnGroup,
   DataGridColumnState,
   DataGridColumnType,
   DataGridDetailContext,

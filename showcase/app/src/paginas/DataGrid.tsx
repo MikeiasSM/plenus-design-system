@@ -9,6 +9,7 @@ import {
   SegmentedControl,
   type DataGridAsidePlacement,
   type DataGridColumn,
+  type DataGridColumnDefinition,
   type DataGridDetailContext,
   type DataGridQuery,
   type DataGridRowClickAction,
@@ -263,6 +264,41 @@ function MasterDetail() {
       </DataGrid>
     </div>
   );
+}
+
+const COLUNAS_EM_GRUPOS: DataGridColumnDefinition<Pedido>[] = [
+  { id: 'id', header: 'Pedido', width: 110, pinned: 'start' },
+  {
+    id: 'origem',
+    header: 'Origem',
+    children: [
+      { id: 'cliente', header: 'Cliente', flex: 2, minWidth: 180 },
+      { id: 'cidade', header: 'Cidade', minWidth: 140 },
+    ],
+  },
+  {
+    id: 'financeiro',
+    header: 'Financeiro',
+    collapsible: true,
+    children: [
+      { id: 'emissao', header: 'Emissão', type: 'date', width: 120, hideWhenCollapsed: true },
+      {
+        id: 'volume',
+        header: 'Volume',
+        children: [
+          { id: 'itens', header: 'Itens', type: 'number', width: 90, hideWhenCollapsed: true },
+          { id: 'valor', header: 'Valor', type: 'currency', width: 140 },
+        ],
+      },
+    ],
+  },
+  { id: 'urgente', header: 'Urgente', type: 'boolean', width: 100, searchable: false },
+];
+
+function GruposDeCabecalho() {
+  const pedidos = useMemo(() => gerarPedidos(300), []);
+
+  return <DataGrid columns={COLUNAS_EM_GRUPOS} getRowId={idDoPedido} height={360} label="Pedidos em grupos" rows={pedidos} />;
 }
 
 function renderItensSimples({ row }: DataGridDetailContext<Pedido>) {
@@ -544,6 +580,13 @@ function Modos() {
         coluna dentro da mesma área. A coluna redimensionada deixa de ser flexível. Tudo isso vive em{' '}
         <code>columnState</code> e entra no retrato do <code>onStateChange</code>.
       </dd>
+      <dt>Grupos de cabeçalho</dt>
+      <dd>
+        Um item com <code>children</code> é um grupo, desenhado em caixa acima das colunas dele. O grupo sem subgrupo
+        desce até os títulos; acima das colunas sem grupo fica um bloco só. Com <code>collapsible</code>, a seta do grupo
+        recolhe e esconde as colunas marcadas com <code>hideWhenCollapsed</code>; o grupo recolhido fica em{' '}
+        <code>columnState</code>.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
         Sem linhas, a grade diz que não há registro, ou que nada atende à busca. <code>loading</code> cobre as linhas e
@@ -564,6 +607,15 @@ export const pagina: Pagina = {
       largo: true,
       codigo:
         "<DataGrid\n  renderDetail={({ row, state, setState }) => (\n    <DataGrid.DetailLayout aside={…} asideTitle=\"Entregas\">\n      <DataGrid label={`Itens de ${row.id}`} renderDetail={renderEntregas} … />\n    </DataGrid.DetailLayout>\n  )}\n  rowClickAction=\"expand\"\n  …\n/>",
+    },
+    {
+      titulo: 'Grupos de cabeçalho',
+      descricao:
+        'children agrupa colunas em quantos níveis houver. O grupo Financeiro recolhe: saem as colunas com hideWhenCollapsed. Cada coluna só se move dentro do próprio grupo.',
+      Previa: GruposDeCabecalho,
+      largo: true,
+      codigo:
+        "{\n  id: 'financeiro',\n  header: 'Financeiro',\n  collapsible: true,\n  children: [\n    { id: 'emissao', header: 'Emissão', hideWhenCollapsed: true },\n    { id: 'volume', header: 'Volume', children: [ … ] },\n  ],\n}",
     },
     {
       titulo: 'Modo servidor',

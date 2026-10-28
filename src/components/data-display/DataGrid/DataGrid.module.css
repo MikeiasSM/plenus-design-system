@@ -51,14 +51,50 @@
   min-width: 100%;
 }
 
+/* Os títulos e as caixas dos grupos se alinham pela grade CSS do cabeçalho, uma trilha por coluna. */
 .head {
   position: sticky;
   top: 0;
   z-index: 2;
+  display: grid;
 }
 
 .headerRow {
+  display: contents;
+}
+
+.groupCell {
   display: flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 var(--pl-space-3);
+  border-bottom: 1px solid var(--pl-color-border);
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.groupCell.pinned {
+  z-index: 3;
+  background: var(--pl-color-surface-subtle);
+}
+
+.groupLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Cabeçalho em caixas: com grupos, toda caixa tem a mesma borda à direita e embaixo. */
+.grouped > .headerRow > :is(.groupCell, .headerCell) {
+  border-right: 1px solid var(--pl-color-border);
+  border-bottom-color: var(--pl-color-border);
 }
 
 .body {

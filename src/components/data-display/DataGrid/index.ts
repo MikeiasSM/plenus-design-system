@@ -4,6 +4,8 @@ export type { DataGridDetailContext } from './DataGridDetail';
 export type { DataGridAsidePlacement, DataGridDetailLayoutProps } from './DataGridDetailLayout';
 export type {
   DataGridColumn,
+  DataGridColumnDefinition,
+  DataGridColumnGroup,
   DataGridProps,
   DataGridQuery,
   DataGridRowClickAction,

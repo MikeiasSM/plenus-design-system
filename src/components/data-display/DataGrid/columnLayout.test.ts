@@ -1,5 +1,8 @@
 import {
   defaultColumnState,
+  effectiveHidden,
+  flattenColumns,
+  headerSegments,
   moveColumn,
   moveColumnTo,
   normalizeColumnState,
@@ -7,6 +10,8 @@ import {
   placeColumns,
   resizeColumn,
   setColumnHidden,
+  toggleGroupCollapsed,
+  type DataGridColumnGroupSizing,
   type DataGridColumnSizing,
 } from './columnLayout';
 
@@ -27,6 +32,7 @@ function ids(state = initial, viewWidth = 0) {
 describe('columnLayout', () => {
   it('starts from the definition, with the declared pins', () => {
     expect(initial).toEqual({
+      collapsedGroups: [],
       hidden: [],
       order: ['id', 'customer', 'city', 'total', 'actions'],
       pinned: { id: 'start', actions: 'end' },
@@ -80,6 +86,7 @@ describe('columnLayout', () => {
     };
 
     expect(normalizeColumnState(saved, columns)).toEqual({
+      collapsedGroups: [],
       order: ['total', 'actions', 'customer', 'city', 'id'],
       hidden: ['city'],
       pinned: { actions: 'end', total: 'end' },
@@ -87,5 +94,53 @@ describe('columnLayout', () => {
     });
     expect(normalizeColumnState(null, columns)).toEqual(initial);
     expect(normalizeColumnState({ hidden: ['city'] }, columns)).toEqual({ ...initial, hidden: ['city'] });
+  });
+
+  describe('groups', () => {
+    const definitions: (DataGridColumnSizing | DataGridColumnGroupSizing<DataGridColumnSizing>)[] = [
+      { id: 'id', width: 80 },
+      {
+        id: 'money',
+        header: 'Financeiro',
+        collapsible: true,
+        children: [
+          { id: 'values', header: 'Valores', children: [{ id: 'gross', width: 100, hideWhenCollapsed: true }, { id: 'net', width: 100 }] },
+          { id: 'items', width: 90 },
+        ],
+      },
+      { id: 'status', header: 'Situação', children: [{ id: 'state', width: 100 }] },
+    ];
+    const { columns: leaves, groupsOf } = flattenColumns(definitions);
+    const state = defaultColumnState(leaves);
+
+    function boxes(columnState = state) {
+      const placed = placeColumns(leaves, { ...columnState, hidden: effectiveHidden(columnState, leaves, groupsOf) }, 0, 0);
+      return headerSegments(placed, groupsOf).map((s) => `${s.group?.header ?? '-'} ${s.level}/${s.rowSpan} ${s.first}+${s.span}`);
+    }
+
+    it('flattens the leaves in order, each with the path of its groups', () => {
+      expect(leaves.map((column) => column.id)).toEqual(['id', 'gross', 'net', 'items', 'state']);
+      expect(groupsOf.get('net')?.map((group) => group.header)).toEqual(['Financeiro', 'Valores']);
+    });
+
+    it('stacks the boxes: a group without subgroups goes down to the titles, and ungrouped columns get one block', () => {
+      expect(boxes()).toEqual(['- 0/2 0+1', 'Financeiro 0/1 1+3', 'Situação 0/2 4+1', 'Valores 1/1 1+2', '- 1/1 3+1']);
+    });
+
+    it('splits a group at the pinned edge', () => {
+      expect(boxes(pinColumn(state, 'gross', 'start'))).toContain('Financeiro 0/1 0+1');
+    });
+
+    it('hides the marked columns of a collapsed group', () => {
+      expect(effectiveHidden(toggleGroupCollapsed(state, 'money'), leaves, groupsOf)).toEqual(['gross']);
+    });
+
+    it('moves a column only among the siblings of its group', () => {
+      const groupKeyOf = (id: string) => groupsOf.get(id)?.at(-1)?.id ?? '';
+
+      expect(moveColumn(state, 'items', -1, groupKeyOf)).toBe(state);
+      expect(moveColumn(state, 'net', -1, groupKeyOf).order).toEqual(['id', 'net', 'gross', 'items', 'state']);
+      expect(moveColumnTo(state, 'id', 'state', groupKeyOf)).toBe(state);
+    });
   });
 });

@@ -160,7 +160,7 @@ describe('snapshots', () => {
   it('round-trips the state', () => {
     const state: DataGridState = { sort: [{ columnId: 'total', direction: 'desc' }], search: 'sul', page: 3, pageSize: 50 };
 
-    expect(restoreSnapshot(JSON.parse(JSON.stringify(snapshotOf(state, { hidden: [], order: [], pinned: {}, widths: {} }))), columns, fallback)).toEqual(state);
+    expect(restoreSnapshot(JSON.parse(JSON.stringify(snapshotOf(state, { collapsedGroups: [], hidden: [], order: [], pinned: {}, widths: {} }))), columns, fallback)).toEqual(state);
   });
 
   it('falls back on an unknown version or shape', () => {
