@@ -53,7 +53,7 @@ function gerarPedidos(quantidade: number, metricas = 0): Pedido[] {
 }
 
 const COLUNAS: DataGridColumn<Pedido>[] = [
-  { id: 'id', header: 'Pedido', width: 110 },
+  { id: 'id', header: 'Pedido', width: 110, pinned: 'start' },
   { id: 'cliente', header: 'Cliente', flex: 2, minWidth: 180 },
   { id: 'cidade', header: 'Cidade', minWidth: 140 },
   { id: 'emissao', header: 'Emissão', type: 'date', width: 120 },
@@ -537,6 +537,13 @@ function Modos() {
         <code>DataGrid.DetailLayout</code> põe um conteúdo ao lado, como um gráfico, à direita, à esquerda ou num diálogo,
         com a proporção em <code>asideSize</code>, 40% por padrão. A grade não sabe o que há no lateral.
       </dd>
+      <dt>Colunas</dt>
+      <dd>
+        O menu de cada título ordena, fixa à esquerda ou à direita, ajusta a largura ao conteúdo, move e oculta a
+        coluna. A borda do título redimensiona, e o clique duplo nela ajusta ao conteúdo; arrastar o título move a
+        coluna dentro da mesma área. A coluna redimensionada deixa de ser flexível. Tudo isso vive em{' '}
+        <code>columnState</code> e entra no retrato do <code>onStateChange</code>.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
         Sem linhas, a grade diz que não há registro, ou que nada atende à busca. <code>loading</code> cobre as linhas e
@@ -592,7 +599,8 @@ export const pagina: Pagina = {
       teclas: ['Enter'],
       acao: 'No cabeçalho, ordena; com Shift, soma a coluna à ordem. Na linha, faz a ação do clique ou entra no controle. No detalhe, entra no conteúdo.',
     },
-    { teclas: ['Ctrl+Enter'], acao: 'Na linha, abre ou recolhe o detalhe.' },
+    { teclas: ['Ctrl+Enter'], acao: 'No cabeçalho, abre o menu da coluna. Na linha, abre ou recolhe o detalhe.' },
+    { teclas: ['Ctrl+Shift+←', 'Ctrl+Shift+→'], acao: 'No cabeçalho, move a coluna, sem passar da divisa das fixas.' },
     { teclas: ['F2'], acao: 'Entra no controle da célula.' },
     { teclas: ['Esc'], acao: 'Sai do controle e volta à célula; numa grade aninhada, volta ao detalhe da linha-mãe.' },
     { teclas: ['Espaço'], acao: 'Seleciona a linha; com Shift, a faixa desde a última. No cabeçalho, todas.' },
@@ -635,7 +643,7 @@ export const pagina: Pagina = {
     },
   ],
   notaDaApi:
-    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds e expandedIds. Além destas, as propriedades nativas de <div>.',
+    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds, expandedIds e columnState. Além destas, as propriedades nativas de <div>.',
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da grade.' },
     { nome: 'columns', tipo: 'DataGridColumn<Row>[]', descricao: 'Obrigatória. Colunas como dados: id, header, type, largura e slots.' },
@@ -667,6 +675,11 @@ export const pagina: Pagina = {
       descricao: 'Ação do clique na linha e do Enter sobre ela.',
     },
     { nome: 'onRowActivate', tipo: '(row: Row) => void', descricao: "Com rowClickAction='activate', abre o registro." },
+    {
+      nome: 'columnState',
+      tipo: 'DataGridColumnState',
+      descricao: 'Ordem, ocultas, fixas e larguras dadas pela pessoa. Em defaultColumnState, pode ser parcial.',
+    },
     { nome: 'initialState', tipo: 'unknown', descricao: 'Retrato salvo, aplicado de uma vez na montagem.' },
     { nome: 'onStateChange', tipo: '(snapshot: DataGridSnapshot) => void', descricao: 'Retrato versionado a cada mudança.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },

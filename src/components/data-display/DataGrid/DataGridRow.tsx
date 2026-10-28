@@ -11,6 +11,8 @@ export interface DataGridCellContext<Row> {
 }
 
 export interface DataGridRowColumn<Row> extends DataGridColumnModel<Row> {
+  /** Coluna fixa e divisa das fixas. */
+  className: string;
   renderCell?: (context: DataGridCellContext<Row>) => ReactNode;
   style: CSSProperties;
 }
@@ -83,6 +85,7 @@ export const DataGridRow = memo(function DataGridRow<Row>({
               styles.cell,
               styles[columnAlign(column)],
               (column.type === 'number' || column.type === 'currency') && styles.numeric,
+              column.className,
             ]
               .filter(Boolean)
               .join(' ')}

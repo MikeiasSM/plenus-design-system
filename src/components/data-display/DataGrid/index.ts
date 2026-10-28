@@ -19,3 +19,4 @@ export type {
   DataGridSortItem,
 } from './gridState';
 export type { DataGridDetailState } from './scrollRoot';
+export type { DataGridColumnState, DataGridPin } from './columnLayout';

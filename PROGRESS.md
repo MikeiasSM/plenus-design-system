@@ -929,7 +929,33 @@ Master-detail, na branch `datagrid`, em 28/10/2026.
   A ancora ganhou testes proprios, com posicoes simuladas.
 - **Fica para a fase 3:** expandir todos do nivel atual com teto, que depende do menu da tabela.
 
-**Proximo:** teste no NVDA, que fixa a marcacao do detalhe; depois a fase 3, colunas e menus.
+### DataGrid: fase 3, colunas
+
+Primeira entrega da fase 3, na branch `datagrid`, em 28/10/2026. Seguem os grupos de cabecalho e o menu da tabela.
+
+- **Estado das colunas** em `columnLayout.ts`, puro: ordem, ocultas, fixas e larguras dadas pela pessoa, no trio `columnState`, `defaultColumnState` e `onColumnStateChange`. E conciliado com as colunas atuais a cada troca delas: o id removido sai, a coluna nova entra depois da vizinha da definicao. Entra no retrato do `onStateChange`, no campo `columns`, ainda na versao 1: o retrato antigo, sem ele, restaura a disposicao padrao. Fica fora da consulta ao servidor.
+- **Larguras calculadas, e nao mais pelo `flex` do CSS:** as colunas fixas precisam do deslocamento em pixels. A sobra da largura medida vai as flexiveis pelo peso; a coluna redimensionada pela pessoa vira fixa.
+- **Colunas fixas dos dois lados** por `position: sticky`, com o fundo herdado da linha, para a selecao e o realce continuarem por baixo. A divisa e a sombra aparecem so quando ha conteudo rolado por baixo.
+- **Menu do titulo**, pelo `Menu` do sistema: ordenar, fixar, ajustar ao conteudo, mover e ocultar. `Ctrl+Enter` abre; ao fechar, o foco volta ao titulo, ou ao vizinho se a coluna saiu. O clique num item do menu atravessa o portal pela arvore do React e chegava ao titulo, que reordenava por cima da acao escolhida; o titulo passou a ignorar evento de fora do proprio DOM.
+- **Mover:** `Ctrl+Shift` com as setas, ou arrastando o titulo, sempre dentro da mesma area, fixa ou nao, com a posicao anunciada.
+- **Ajustar ao conteudo** mede o conteudo natural das celulas desenhadas e do titulo com `Range`, com teto de 480 px. A primeira versao media `scrollWidth`, que nunca fica menor que a celula: a coluna so alargava.
+- **A busca considera so as colunas visiveis**, coerente com a regra de comparar o texto exibido.
+- **Revisao independente**, antes do commit, achou e corrigiu:
+  - soltar a borda do titulo sobre o proprio texto ordenava a coluna; o redimensionar captura o ponteiro, e o clique cai na borda. A captura tambem tirou os ouvintes de `window`, que vazavam se a grade desmontasse no meio do arrasto;
+  - ocultar a coluna com foco levava o foco a primeira coluna; vai a que toma o lugar dela;
+  - a sombra da divisa, em `box-shadow` com seletor mais forte, apagava o anel de foco da celula de divisa; passou a um pseudoelemento;
+  - cada largura do arrasto refazia a busca e a ordenacao; a busca so se refaz quando as ocultas mudam;
+  - clicar fora do menu devolvia o foco ao titulo; so o fechamento por opcao ou `Esc` devolve;
+  - a coluna arrastada ficava guardada quando o arrasto era cancelado;
+  - uma coluna nova perdia a fixacao da definicao quando o retrato salvo ja trazia fixas;
+  - id de coluna com espaco quebrava o `aria-labelledby` do titulo;
+  - o rotulo da linha, no anuncio e no detalhe, saia da primeira coluna da definicao, e nao da exibida;
+  - num titulo alinhado ao fim, o botao do menu cobria a caixa de selecionar todas;
+  - a primeira pintura saia com a largura base e saltava.
+  Fica para depois o indicador de soltura, sempre a esquerda do titulo, mesmo quando a coluna entra depois dele.
+- **Medido no Chrome headless**, com 10.000 linhas, 30 colunas e duas fixas: rolagem vertical a 14,6 ms de media, contra 11 sem fixas, nenhum quadro acima de 50 ms; horizontal a 6 ms.
+
+**Proximo:** grupos de cabecalho e menu da tabela, depois o teste no NVDA, que fixa a marcacao do detalhe.
 
 
 ### Contador de caracteres

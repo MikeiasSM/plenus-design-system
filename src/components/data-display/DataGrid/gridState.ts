@@ -1,3 +1,4 @@
+import type { DataGridColumnState } from './columnLayout';
 import { formatCurrency, formatDate, formatNumber } from '../../../utils/formatters';
 import { containsTerm } from '../../../utils/textSearch';
 
@@ -32,7 +33,9 @@ export interface DataGridState {
   sort: readonly DataGridSortItem[];
 }
 
+/** Retrato para o produto guardar: a consulta e a disposição das colunas. A seleção e a expansão ficam fora. */
 export interface DataGridSnapshot extends DataGridState {
+  columns: DataGridColumnState;
   version: 1;
 }
 
@@ -142,6 +145,11 @@ export function sortRows<Row>(
   });
 }
 
+/** Pelo menu da coluna: a direção escolhida passa a ser a ordem; sem direção, a coluna sai dela. */
+export function sortBy(sort: readonly DataGridSortItem[], columnId: string, direction: DataGridSortDirection | null) {
+  return direction ? [{ columnId, direction }] : sort.filter((item) => item.columnId !== columnId);
+}
+
 /** Sem empilhar, a coluna passa a ser a única ordenação. Cada clique avança: crescente, decrescente, sem ordem. */
 export function toggleSort(sort: readonly DataGridSortItem[], columnId: string, stack = false): DataGridSortItem[] {
   const current = sort.find((item) => item.columnId === columnId);
@@ -173,8 +181,14 @@ export function pageRows<Row>(rows: readonly Row[], page: number, pageSize: numb
   return rows.slice(start, start + pageSize);
 }
 
-export function snapshotOf(state: DataGridState): DataGridSnapshot {
-  return { version: 1, sort: state.sort, search: state.search, page: state.page, pageSize: state.pageSize };
+export function snapshotOf(state: DataGridState, columns: DataGridColumnState): DataGridSnapshot {
+  return { version: 1, sort: state.sort, search: state.search, page: state.page, pageSize: state.pageSize, columns };
+}
+
+/** As colunas de um retrato reconhecido; o retrato de antes delas, ou de outra versão, deixa a disposição padrão. */
+export function snapshotColumnsOf(snapshot: unknown) {
+  const versioned = typeof snapshot === 'object' && snapshot !== null && (snapshot as { version?: unknown }).version === 1;
+  return versioned ? (snapshot as { columns?: unknown }).columns : undefined;
 }
 
 function isPositiveInteger(value: unknown): value is number {
@@ -285,8 +299,11 @@ export function reconcileFocus(
   rowKeys: readonly string[],
   columnIds: readonly string[],
   lastRowIndex = 0,
+  lastColumnIndex = 0,
 ) {
-  const columnId = columnIds.includes(focus.columnId) ? focus.columnId : columnIds[0];
+  const columnId = columnIds.includes(focus.columnId)
+    ? focus.columnId
+    : columnIds[Math.min(lastColumnIndex, columnIds.length - 1)];
   const parentKey = isDetailKey(focus.rowKey) ? (focus.rowKey as string).slice(DETAIL_PREFIX.length) : null;
   const rowKey =
     focus.rowKey === null || rowKeys.includes(focus.rowKey)

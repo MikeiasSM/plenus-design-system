@@ -16,8 +16,21 @@ import {
 import { selectionStatus, select, selectRange, toggleAll, type SelectionState } from '../../../hooks/useSelection/selection';
 import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
-import { IconArrowDown, IconArrowUp } from '../../icons';
 import { Pagination } from '../../navigation/Pagination';
+import type { MenuSection } from '../../overlays/Menu';
+import {
+  moveColumn,
+  moveColumnTo,
+  normalizeColumnState,
+  pinColumn,
+  placeColumns,
+  resizeColumn,
+  setColumnHidden,
+  type DataGridColumnSizing,
+  type DataGridColumnState,
+  type DataGridPin,
+  type DataGridPlacedColumn,
+} from './columnLayout';
 import {
   bodyItems,
   cellText,
@@ -31,7 +44,9 @@ import {
   reconcileFocus,
   restoreSnapshot,
   searchRows,
+  snapshotColumnsOf,
   snapshotOf,
+  sortBy,
   sortRows,
   toggleExpanded,
   toggleSort,
@@ -49,6 +64,7 @@ import { DataGridSearch, DataGridToolbar } from './DataGridToolbar';
 import { DataGridRow, type DataGridCellContext } from './DataGridRow';
 import { DataGridDetailRow, DETAIL_ESTIMATE, type DataGridDetailContext } from './DataGridDetail';
 import { DataGridDetailLayout } from './DataGridDetailLayout';
+import { DataGridHeaderCell, MIN_COLUMN_WIDTH } from './DataGridHeaderCell';
 import { buildRowLayout, rowAt, totalHeight, visibleWindow } from './rowLayout';
 import { DataGridScrollRoot } from './scrollRoot';
 import styles from './DataGrid.module.css';
@@ -56,7 +72,8 @@ import styles from './DataGrid.module.css';
 const ROW_HEIGHT = 40;
 const OVERSCAN = 6;
 const DEFAULT_HEIGHT = 480;
-const DEFAULT_MIN_WIDTH = 120;
+/** Teto do ajuste ao conteúdo: um texto longo não toma a tela inteira. */
+const MAX_FIT_WIDTH = 480;
 /** Espaço de cada controle da linha, a seta e a caixa de seleção, somado à coluna que os recebe. */
 const CONTROL_WIDTH = 24;
 const CELL_SELECTOR = '[data-column], [data-detail]';
@@ -64,15 +81,9 @@ const GRID_SELECTOR = '[role="grid"], [role="treegrid"]';
 const INTERACTIVE_SELECTOR = 'a, button, input, label, select, textarea';
 
 /** Controles dentro da célula usam `tabIndex={-1}`: a grade tem uma parada de Tab só, e Enter entra na célula. */
-export interface DataGridColumn<Row> extends DataGridColumnModel<Row> {
-  /** Peso na divisão da sobra de largura. Sem `width` nem `flex`, a coluna é flexível com peso 1. */
-  flex?: number;
-  maxWidth?: number;
-  minWidth?: number;
+export interface DataGridColumn<Row> extends DataGridColumnModel<Row>, DataGridColumnSizing {
   renderCell?: (context: DataGridCellContext<Row>) => ReactNode;
   renderHeader?: (column: DataGridColumn<Row>) => ReactNode;
-  /** Largura fixa, em pixels. */
-  width?: number;
 }
 
 export type DataGridSelectionMode = 'none' | 'single' | 'multiple';
@@ -85,10 +96,14 @@ export type DataGridQuery = DataGridState;
 export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'onChange'> {
   /** Partes da grade, como `DataGrid.Toolbar`, desenhadas acima dela. */
   children?: ReactNode;
+  /** Ordem, ocultas, fixas e larguras, como a pessoa deixou pelo menu da coluna e pelo arrasto. */
+  columnState?: DataGridColumnState;
   /** Lista estável, memorizada pelo produto: uma lista nova a cada desenho refaz a busca e a ordenação. */
   columns: readonly DataGridColumn<Row>[];
   /** No servidor, `rows` é a página atual e `totalRows` o total; a busca, a ordem e a página vão por `onQueryChange`. */
   dataMode?: 'client' | 'server';
+  /** Parcial: o que faltar sai da definição das colunas. */
+  defaultColumnState?: Partial<DataGridColumnState>;
   defaultExpandedIds?: readonly string[];
   defaultPage?: number;
   defaultPageSize?: number;
@@ -109,6 +124,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   initialState?: unknown;
   label: string;
   loading?: boolean;
+  onColumnStateChange?: (state: DataGridColumnState) => void;
   onExpandedIdsChange?: (ids: readonly string[]) => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -118,7 +134,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   onSearchChange?: (search: string) => void;
   onSelectedIdsChange?: (ids: readonly string[]) => void;
   onSortChange?: (sort: readonly DataGridSortItem[]) => void;
-  /** Retrato versionado da busca, da ordem e da página, para o produto guardar onde quiser. */
+  /** Retrato versionado da busca, da ordem, da página e das colunas, para o produto guardar onde quiser. */
   onStateChange?: (snapshot: DataGridSnapshot) => void;
   page?: number;
   pageSize?: number;
@@ -157,20 +173,17 @@ function useSlice<T>(value: T | undefined, initial: T, onChange?: (value: T) => 
   return [current, set] as const;
 }
 
-function columnStyle<Row>(column: DataGridColumn<Row>, controlsWidth: number): CSSProperties {
-  if (column.width !== undefined) {
-    const width = column.width + controlsWidth;
-    return { flex: `0 0 ${width}px`, width };
-  }
-
-  const minWidth = (column.minWidth ?? DEFAULT_MIN_WIDTH) + controlsWidth;
-
-  return {
-    flex: `${column.flex ?? 1} 1 ${minWidth}px`,
-    minWidth,
-    maxWidth: column.maxWidth === undefined ? undefined : column.maxWidth + controlsWidth,
-  };
+function placedStyle({ offset, pin, width }: DataGridPlacedColumn<unknown>): CSSProperties {
+  return { width, left: pin === 'start' ? offset : undefined, right: pin === 'end' ? offset : undefined };
 }
+
+function placedClass({ edge, pin }: DataGridPlacedColumn<unknown>) {
+  const edgeClass = edge && (pin === 'start' ? styles.edgeStart : styles.edgeEnd);
+  return [pin && styles.pinned, edgeClass].filter(Boolean).join(' ');
+}
+
+const PIN_NAMES: Record<DataGridPin, string> = { start: 'à esquerda', end: 'à direita' };
+const NO_MENU: MenuSection[] = [];
 
 const FOCUS_MOVES: Record<string, DataGridFocusMove> = {
   ArrowUp: 'up',
@@ -243,8 +256,10 @@ function sortAnnouncement<Row>(sort: readonly DataGridSortItem[], columns: reado
 export function DataGrid<Row>({
   children,
   className,
+  columnState: columnStateProp,
   columns,
   dataMode = 'client',
+  defaultColumnState,
   defaultExpandedIds = [],
   defaultPage = 1,
   defaultPageSize,
@@ -260,6 +275,7 @@ export function DataGrid<Row>({
   initialState,
   label,
   loading = false,
+  onColumnStateChange,
   onExpandedIdsChange,
   onPageChange,
   onPageSizeChange,
@@ -308,12 +324,26 @@ export function DataGrid<Row>({
   const [pageSize, setPageSize] = useSlice(pageSizeProp, restored.pageSize, onPageSizeChange);
   const [selectedIds, setSelectedIds] = useSlice(selectedIdsProp, memory?.selectedIds ?? defaultSelectedIds, onSelectedIdsChange);
   const [expandedIds, setExpandedIds] = useSlice(expandedIdsProp, memory?.expandedIds ?? defaultExpandedIds, onExpandedIdsChange);
+  const [savedColumnState] = useState(
+    () => memory?.columns ?? normalizeColumnState(snapshotColumnsOf(initialState) ?? defaultColumnState, columns),
+  );
+  const [rawColumnState, setColumnState] = useSlice(columnStateProp, savedColumnState, onColumnStateChange);
+  /* Concilia a cada troca das colunas: a coluna nova entra, a removida sai, inclusive no estado controlado. */
+  const columnState = useMemo(() => normalizeColumnState(rawColumnState, columns), [rawColumnState, columns]);
   const [announcement, setAnnouncement] = useState('');
   const anchorKey = useRef<string>(undefined);
   const baseId = useId();
 
   const server = dataMode === 'server';
-  const searched = useMemo(() => (server ? rows : searchRows(rows, columns, search)), [server, rows, columns, search]);
+  const hiddenKey = columnState.hidden.join('\n');
+  const searchColumns = useMemo(
+    () => columns.filter((column) => !hiddenKey.split('\n').includes(column.id)),
+    [columns, hiddenKey],
+  );
+  const searched = useMemo(
+    () => (server ? rows : searchRows(rows, searchColumns, search)),
+    [server, rows, searchColumns, search],
+  );
   const sorted = useMemo(() => (server ? searched : sortRows(searched, columns, sort)), [server, searched, columns, sort]);
   const totalRows = server ? (totalRowsProp ?? rows.length) : sorted.length;
   const currentPage = !pagination ? 1 : server ? page : clampPage(page, totalRows, pageSize);
@@ -324,29 +354,36 @@ export function DataGrid<Row>({
   const rowIdOf = useRef(getRowId);
   rowIdOf.current = getRowId;
   const rowKeys = useMemo(() => visibleRows.map((row) => rowIdOf.current(row)), [visibleRows]);
-  const columnIds = useMemo(() => columns.map((column) => column.id), [columns]);
+  const withDetail = renderDetail !== undefined;
+  const controlsWidth = (selectionMode === 'none' ? 0 : CONTROL_WIDTH) + (withDetail ? CONTROL_WIDTH : 0);
+  const [viewWidth, setViewWidth] = useState(0);
+  const placed = useMemo(
+    () => placeColumns(columns, columnState, viewWidth, controlsWidth),
+    [columns, columnState, viewWidth, controlsWidth],
+  );
+  const columnIds = useMemo(() => placed.map((item) => item.column.id), [placed]);
   const rowOffset = pagination ? (currentPage - 1) * pageSize : 0;
 
   const state: DataGridState = { sort, search, page: currentPage, pageSize };
   const stateKey = JSON.stringify(state);
+  const snapshotKey = stateKey + JSON.stringify(columnState);
   /* No servidor a primeira consulta sai na montagem: o retrato restaurado pode diferir do que o produto guardou. */
   const lastStateKey = useRef<string | null>(server ? null : stateKey);
+  const lastSnapshotKey = useRef(snapshotKey);
 
   useEffect(() => {
     if (nested) {
-      root.memories.set(gridPath, { ...state, expandedIds, selectedIds });
+      root.memories.set(gridPath, { ...state, columns: columnState, expandedIds, selectedIds });
     }
-    if (stateKey === lastStateKey.current) {
-      return;
+    if (snapshotKey !== lastSnapshotKey.current) {
+      lastSnapshotKey.current = snapshotKey;
+      onStateChange?.(snapshotOf(state, columnState));
     }
-
-    const mounting = lastStateKey.current === null;
-    lastStateKey.current = stateKey;
-    if (!mounting) {
-      onStateChange?.(snapshotOf(state));
-    }
-    if (server) {
-      onQueryChange?.(state);
+    if (stateKey !== lastStateKey.current) {
+      lastStateKey.current = stateKey;
+      if (server) {
+        onQueryChange?.(state);
+      }
     }
   });
 
@@ -362,19 +399,74 @@ export function DataGrid<Row>({
     setSearch(next);
     backToFirstPage();
     if (!server) {
-      const found = searchRows(rows, columns, next).length;
+      const found = searchRows(rows, searchColumns, next).length;
       setAnnouncement(term ? `${found} ${found === 1 ? 'linha encontrada' : 'linhas encontradas'} para "${term}"` : 'Busca limpa');
     }
   }
 
-  function requestSort(columnId: string, stack: boolean) {
-    const next = toggleSort(sort, columnId, stack);
+  function applySort(next: readonly DataGridSortItem[]) {
     setSort(next);
     backToFirstPage();
     setAnnouncement(sortAnnouncement(next, columns));
   }
 
-  const withDetail = renderDetail !== undefined;
+  function headerOf(columnId: string) {
+    return columns.find((column) => column.id === columnId)?.header ?? columnId;
+  }
+
+  function changeColumns(next: DataGridColumnState, announcement: string) {
+    setColumnState(next);
+    setAnnouncement(announcement);
+  }
+
+  function moveColumnBy(columnId: string, step: -1 | 1) {
+    const next = moveColumn(columnState, columnId, step);
+
+    if (next === columnState) {
+      setAnnouncement(`${headerOf(columnId)} não passa da divisa das colunas fixas`);
+      return;
+    }
+
+    const position = placeColumns(columns, next, 0, 0).findIndex((item) => item.column.id === columnId) + 1;
+    changeColumns(next, `${headerOf(columnId)} na posição ${position} de ${columnIds.length}`);
+  }
+
+  function pinColumnTo(columnId: string, pin: DataGridPin | null) {
+    changeColumns(
+      pinColumn(columnState, columnId, pin),
+      `${headerOf(columnId)} ${pin ? `fixada ${PIN_NAMES[pin]}` : 'desafixada'}`,
+    );
+  }
+
+  function hideColumn(columnId: string) {
+    changeColumns(setColumnHidden(columnState, columnId, true), `${headerOf(columnId)} oculta`);
+  }
+
+  /* Mede o conteúdo natural das células desenhadas da coluna, inclusive o título: o texto ocupa a célula inteira. */
+  function fitColumn(columnId: string) {
+    const selector = `:scope > [role="row"] > [data-column="${CSS.escape(columnId)}"]`;
+    const cells = [
+      ...(headRef.current?.querySelectorAll<HTMLElement>(selector) ?? []),
+      ...(bodyRef.current?.querySelectorAll<HTMLElement>(selector) ?? []),
+    ];
+    const content = Math.max(
+      ...cells.map((cell) => {
+        const text = cell.querySelector<HTMLElement>(`.${styles.text}, .${styles.headerLabel}`);
+        if (!text) {
+          return cell.offsetWidth;
+        }
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        return Math.ceil(cell.offsetWidth - text.clientWidth + range.getBoundingClientRect().width);
+      }),
+    );
+    const extra = columnId === columnIds[0] ? controlsWidth : 0;
+
+    changeColumns(
+      resizeColumn(columnState, columnId, Math.min(Math.max(content - extra, MIN_COLUMN_WIDTH), MAX_FIT_WIDTH)),
+      `${headerOf(columnId)} ajustada ao conteúdo`,
+    );
+  }
 
   function hasDetail(row: Row) {
     return withDetail && (rowHasDetail?.(row) ?? true);
@@ -392,7 +484,8 @@ export function DataGrid<Row>({
   const itemKeys = useMemo(() => items.map((item) => item.key), [items]);
 
   function rowLabelOf(row: Row, rowKey: string) {
-    return (columns[0] && cellText(columns[0], row)) || rowKey;
+    const first = placed[0]?.column;
+    return (first && cellText(first, row)) || rowKey;
   }
 
   function toggleRowDetail(rowKey: string) {
@@ -409,7 +502,8 @@ export function DataGrid<Row>({
 
   const [focus, setFocus] = useState<DataGridFocus>({ rowKey: null, columnId: columnIds[0] });
   const lastFocusedIndex = useRef(0);
-  const activeFocus = reconcileFocus(focus, itemKeys, columnIds, lastFocusedIndex.current);
+  const lastFocusedColumn = useRef(0);
+  const activeFocus = reconcileFocus(focus, itemKeys, columnIds, lastFocusedIndex.current, lastFocusedColumn.current);
   const pendingFocus = useRef(false);
   const gridHasFocus = useRef(false);
 
@@ -454,10 +548,19 @@ export function DataGrid<Row>({
     }
   }
 
+  /* Fechado o menu por opção ou Esc, o foco volta ao título, ou ao vizinho se a coluna saiu. */
+  function returnToHeader(columnId: string) {
+    const active = document.activeElement;
+
+    if (active === document.body || headRef.current?.contains(active)) {
+      focusLater(reconcileFocus({ rowKey: null, columnId }, itemKeys, columnIds, 0, lastFocusedColumn.current));
+    }
+  }
+
   /* As linhas memorizadas e a busca recebem funções estáveis, que chamam sempre a versão do último desenho. */
-  const latest = useRef({ clickRow, commitSearch, toggleRow, toggleRowDetail });
+  const latest = useRef({ clickRow, commitSearch, returnToHeader, toggleRow, toggleRowDetail });
   useLayoutEffect(() => {
-    latest.current = { clickRow, commitSearch, toggleRow, toggleRowDetail };
+    latest.current = { clickRow, commitSearch, returnToHeader, toggleRow, toggleRowDetail };
   });
   const searchFromPart = useCallback((next: string) => latest.current.commitSearch(next), []);
   const toggleFromRow = useCallback((rowKey: string, range: boolean) => latest.current.toggleRow(rowKey, range), []);
@@ -528,25 +631,45 @@ export function DataGrid<Row>({
     }
   }, [nested, root, version]);
 
-  /* O detalhe tem a largura da tela, e não a das colunas: fica à vista quando a grade rola para o lado. */
+  /* A sobra da largura da tela vai às colunas flexíveis; o detalhe tem a largura da tela, e não a das colunas. */
   useLayoutEffect(() => {
     const scroller = scrollerRef.current;
 
-    if (!withDetail || !scroller || typeof ResizeObserver === 'undefined') {
+    if (!scroller || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const observer = new ResizeObserver(() =>
-      scroller.style.setProperty('--data-grid-view-width', `${scroller.clientWidth}px`),
-    );
+    const observer = new ResizeObserver(() => setViewWidth(scroller.clientWidth));
+    setViewWidth(scroller.clientWidth);
     observer.observe(scroller);
     return () => observer.disconnect();
-  }, [withDetail]);
+  }, []);
 
-  const controlsWidth = (selectionMode === 'none' ? 0 : CONTROL_WIDTH) + (withDetail ? CONTROL_WIDTH : 0);
+  const [edges, setEdges] = useState({ start: false, end: false });
+  /* A divisa das colunas fixas só aparece quando há conteúdo rolado por baixo dela. */
+  const readEdges = useCallback(() => {
+    const scroller = scrollerRef.current;
+
+    if (!scroller) {
+      return;
+    }
+
+    const start = scroller.scrollLeft > 0;
+    const end = scroller.scrollLeft < scroller.scrollWidth - scroller.clientWidth - 1;
+    setEdges((current) => (current.start === start && current.end === end ? current : { start, end }));
+  }, []);
+  useLayoutEffect(readEdges, [readEdges, placed]);
+
   const rowColumns = useMemo(
-    () => columns.map((column, index) => ({ ...column, style: columnStyle(column, index === 0 ? controlsWidth : 0) })),
-    [columns, controlsWidth],
+    () => placed.map((item) => ({ ...item.column, className: placedClass(item), style: placedStyle(item) })),
+    [placed],
+  );
+  const pinnedWidths = useMemo(
+    () => ({
+      start: placed.reduce((sum, item) => sum + (item.pin === 'start' ? item.width : 0), 0),
+      end: placed.reduce((sum, item) => sum + (item.pin === 'end' ? item.width : 0), 0),
+    }),
+    [placed],
   );
   const focusedIndex = useMemo(
     () => (activeFocus.rowKey === null ? -1 : itemKeys.indexOf(activeFocus.rowKey)),
@@ -556,6 +679,9 @@ export function DataGrid<Row>({
   useEffect(() => {
     if (focusedIndex >= 0) {
       lastFocusedIndex.current = focusedIndex;
+    }
+    if (columnIds.includes(activeFocus.columnId)) {
+      lastFocusedColumn.current = columnIds.indexOf(activeFocus.columnId);
     }
     if (activeFocus !== focus && gridHasFocus.current && !scrollerRef.current?.contains(document.activeElement)) {
       pendingFocus.current = true;
@@ -620,19 +746,27 @@ export function DataGrid<Row>({
     }
 
     cell.focus({ preventScroll: true });
-    if (cell.dataset.detail !== undefined) {
+    if (cell.dataset.detail !== undefined || cell.classList.contains(styles.pinned)) {
       return;
     }
-    if (cell.offsetLeft < scroller.scrollLeft) {
-      scroller.scrollLeft = cell.offsetLeft;
-    } else if (cell.offsetLeft + cell.offsetWidth > scroller.scrollLeft + scroller.clientWidth) {
-      scroller.scrollLeft = cell.offsetLeft + cell.offsetWidth - scroller.clientWidth;
+
+    /* A célula que rola precisa aparecer entre as fixas dos dois lados, e não por baixo delas. */
+    const left = cell.offsetLeft - pinnedWidths.start;
+    const right = cell.offsetLeft + cell.offsetWidth + pinnedWidths.end;
+    if (left < scroller.scrollLeft) {
+      scroller.scrollLeft = left;
+    } else if (right > scroller.scrollLeft + scroller.clientWidth) {
+      scroller.scrollLeft = right - scroller.clientWidth;
     }
   });
 
-  function goTo(next: DataGridFocus) {
+  function focusLater(next: DataGridFocus) {
     pendingFocus.current = true;
     setFocus(next);
+  }
+
+  function goTo(next: DataGridFocus) {
+    focusLater(next);
     revealRow(next.rowKey === null ? -1 : itemKeys.indexOf(next.rowKey));
   }
 
@@ -656,6 +790,13 @@ export function DataGrid<Row>({
 
     if (event.key === ' ') {
       event.preventDefault();
+    }
+
+    if (rowKey === null && event.ctrlKey && event.shiftKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      event.preventDefault();
+      moveColumnBy(columnId, event.key === 'ArrowLeft' ? -1 : 1);
+      focusLater({ rowKey: null, columnId });
+      return;
     }
 
     if (move) {
@@ -686,9 +827,12 @@ export function DataGrid<Row>({
 
     if (event.key === ' ' && columnId === columnIds[0] && selectionMode === 'multiple') {
       toggleEveryRow();
+    } else if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault();
+      setMenuColumnId(columnId);
     } else if (event.key === 'Enter' && column && column.sortable !== false) {
       event.preventDefault();
-      requestSort(columnId, event.shiftKey);
+      applySort(toggleSort(sort, columnId, event.shiftKey));
     }
   }
 
@@ -747,57 +891,138 @@ export function DataGrid<Row>({
   const multiple = selectionMode === 'multiple';
   const contextValue = useMemo(() => ({ label, search, setSearch: searchFromPart }), [label, search, searchFromPart]);
 
+  const [menuColumnId, setMenuColumnId] = useState<string | null>(null);
+  const draggedColumn = useRef<string | null>(null);
+
+  function columnMenu(column: DataGridColumn<Row>, pin: DataGridPin | undefined): MenuSection[] {
+    const direction = sort.find((item) => item.columnId === column.id)?.direction;
+    const sorting: MenuSection = {
+      key: 'sort',
+      items: [
+        { key: 'asc', label: 'Ordenar crescente', checked: direction === 'asc', onSelect: () => applySort(sortBy(sort, column.id, 'asc')) },
+        { key: 'desc', label: 'Ordenar decrescente', checked: direction === 'desc', onSelect: () => applySort(sortBy(sort, column.id, 'desc')) },
+        direction
+          ? { key: 'clear', label: 'Remover da ordenação', onSelect: () => applySort(sortBy(sort, column.id, null)) }
+          : { key: 'stack', label: 'Somar à ordenação', shortcut: 'Shift+Enter', onSelect: () => applySort(toggleSort(sort, column.id, true)) },
+      ],
+    };
+    const pinning: MenuSection = {
+      key: 'pin',
+      items: [
+        ...(['start', 'end'] as const)
+          .filter((side) => side !== pin)
+          .map((side) => ({ key: side, label: `Fixar ${PIN_NAMES[side]}`, onSelect: () => pinColumnTo(column.id, side) })),
+        ...(pin ? [{ key: 'unpin', label: 'Desafixar', onSelect: () => pinColumnTo(column.id, null) }] : []),
+      ],
+    };
+    const arranging: MenuSection = {
+      key: 'arrange',
+      items: [
+        { key: 'fit', label: 'Ajustar largura ao conteúdo', onSelect: () => fitColumn(column.id) },
+        {
+          key: 'left',
+          label: 'Mover para a esquerda',
+          shortcut: 'Ctrl+Shift+←',
+          shortcutKeys: 'Control+Shift+ArrowLeft',
+          disabled: moveColumn(columnState, column.id, -1) === columnState,
+          onSelect: () => moveColumnBy(column.id, -1),
+        },
+        {
+          key: 'right',
+          label: 'Mover para a direita',
+          shortcut: 'Ctrl+Shift+→',
+          shortcutKeys: 'Control+Shift+ArrowRight',
+          disabled: moveColumn(columnState, column.id, 1) === columnState,
+          onSelect: () => moveColumnBy(column.id, 1),
+        },
+        { key: 'hide', label: 'Ocultar coluna', disabled: columnIds.length === 1, onSelect: () => hideColumn(column.id) },
+      ],
+    };
+
+    return column.sortable === false ? [pinning, arranging] : [sorting, pinning, arranging];
+  }
+
   function renderHeaderCell(column: (typeof rowColumns)[number], index: number) {
-    const focused = activeFocus.rowKey === null && activeFocus.columnId === column.id;
-    const labelId = `${baseId}-header-${index}`;
-    const sortIndex = sort.findIndex((item) => item.columnId === column.id);
-    const sortItem = sort[sortIndex];
+    const item = placed[index];
+    const sortIndex = sort.findIndex((sortItem) => sortItem.columnId === column.id);
     const sortable = column.sortable !== false;
-    const align = columnAlign(column);
-    const host = column.id === hostColumnId;
+    const host = index === 0;
 
     return (
-      <div
-        aria-colindex={index + 1}
-        aria-labelledby={labelId}
-        aria-sort={sortIndex === 0 ? (sortItem.direction === 'asc' ? 'ascending' : 'descending') : undefined}
-        className={[styles.cell, styles.headerCell, styles[align], sortable && styles.sortable].filter(Boolean).join(' ')}
-        data-column={column.id}
-        data-row=""
+      <DataGridHeaderCell
+        canDrop={() =>
+          draggedColumn.current !== null && moveColumnTo(columnState, draggedColumn.current, column.id) !== columnState
+        }
+        className={[
+          styles.cell,
+          styles.headerCell,
+          styles[columnAlign(column)],
+          sortable && styles.sortable,
+          host && (withDetail || selectionMode !== 'none') && styles.withControls,
+          column.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        colIndex={index + 1}
+        columnId={column.id}
+        controls={
+          host && (
+            <>
+              {withDetail && <span className={styles.control} />}
+              {multiple && (
+                <Checkbox
+                  aria-label="Selecionar todas as linhas"
+                  checked={status === 'all'}
+                  className={styles.control}
+                  indeterminate={status === 'partial'}
+                  tabIndex={-1}
+                  onChange={toggleEveryRow}
+                  onClick={(event) => event.stopPropagation()}
+                />
+              )}
+              {selectionMode === 'single' && <span className={styles.control} />}
+            </>
+          )
+        }
+        focused={activeFocus.rowKey === null && activeFocus.columnId === column.id}
+        header={column.header}
         key={column.id}
-        role="columnheader"
+        label={column.renderHeader ? column.renderHeader(column) : column.header}
+        labelId={`${baseId}-header-${index}`}
+        menuItems={menuColumnId === column.id ? columnMenu(column, item.pin) : NO_MENU}
+        menuOpen={menuColumnId === column.id}
+        sortCount={sort.length}
+        sortIndex={sortIndex}
+        sortItem={sort[sortIndex]}
         style={column.style}
-        tabIndex={focused ? 0 : -1}
-        onClick={sortable ? (event) => requestSort(column.id, event.shiftKey) : undefined}
-        onFocus={() => {
-          if (!focused) {
-            setFocus({ rowKey: null, columnId: column.id });
+        width={item.width - (host ? controlsWidth : 0)}
+        onDragStart={() => {
+          draggedColumn.current = column.id;
+        }}
+        onDragEnd={() => {
+          draggedColumn.current = null;
+        }}
+        onDrop={() => {
+          const source = draggedColumn.current;
+          if (source) {
+            const next = moveColumnTo(columnState, source, column.id);
+            if (next !== columnState) {
+              changeColumns(next, `${headerOf(source)} movida`);
+            }
           }
         }}
-      >
-        {host && withDetail && <span className={styles.control} />}
-        {host && multiple && (
-          <Checkbox
-            aria-label="Selecionar todas as linhas"
-            checked={status === 'all'}
-            className={styles.control}
-            indeterminate={status === 'partial'}
-            tabIndex={-1}
-            onChange={toggleEveryRow}
-            onClick={(event) => event.stopPropagation()}
-          />
-        )}
-        {host && selectionMode === 'single' && <span className={styles.control} />}
-        <span className={styles.headerLabel} id={labelId}>
-          {column.renderHeader ? column.renderHeader(column) : column.header}
-        </span>
-        {sortItem && (
-          <span aria-hidden="true" className={styles.sortMark}>
-            {sortItem.direction === 'asc' ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
-            {sort.length > 1 && <sup>{sortIndex + 1}</sup>}
-          </span>
-        )}
-      </div>
+        onFit={() => fitColumn(column.id)}
+        onFocus={() => setFocus({ rowKey: null, columnId: column.id })}
+        onMenuOpenChange={(open) => {
+          setMenuColumnId(open ? column.id : null);
+          /* Clicar fora deixa o foco onde caiu: o fechamento chega com ele já fora do menu. */
+          if (!open && document.activeElement?.closest('[role="menu"]')) {
+            requestAnimationFrame(() => latest.current.returnToHeader(column.id));
+          }
+        }}
+        onResize={(width) => setColumnState(resizeColumn(columnState, column.id, width))}
+        onSort={sortable ? (event) => applySort(toggleSort(sort, column.id, event.shiftKey)) : undefined}
+      />
     );
   }
 
@@ -832,7 +1057,7 @@ export function DataGrid<Row>({
 
     return (
       <DataGridDetailRow
-        colCount={columns.length}
+        colCount={columnIds.length}
         focused={activeFocus.rowKey === item.key}
         key={item.key}
         label={`Detalhe de ${rowLabelOf(row, item.rowKey)}`}
@@ -851,7 +1076,7 @@ export function DataGrid<Row>({
   function renderMessage(content: ReactNode, alert = false) {
     return (
       <div aria-rowindex={2} className={styles.messageRow} role="row">
-        <div aria-colindex={1} aria-colspan={columns.length} className={styles.message} role="gridcell">
+        <div aria-colindex={1} aria-colspan={columnIds.length} className={styles.message} role="gridcell">
           {alert ? <div role="alert">{content}</div> : content}
         </div>
       </div>
@@ -870,13 +1095,23 @@ export function DataGrid<Row>({
           <div className={styles.viewport}>
             <div
               className={styles.scroller}
+              data-scrolled-end={edges.end || undefined}
+              data-scrolled-start={edges.start || undefined}
               ref={scrollerRef}
-              style={nested ? undefined : { height }}
-              onScroll={nested ? undefined : () => root.scrolled()}
+              style={{
+                height: nested ? undefined : height,
+                ...(withDetail && viewWidth > 0 && { '--data-grid-view-width': `${viewWidth}px` }),
+              }}
+              onScroll={() => {
+                readEdges();
+                if (!nested) {
+                  root.scrolled();
+                }
+              }}
             >
               <div
                 aria-busy={loading || undefined}
-                aria-colcount={columns.length}
+                aria-colcount={columnIds.length}
                 aria-label={label}
                 aria-multiselectable={multiple || undefined}
                 aria-rowcount={showsMessage ? 2 : totalRows + 1}

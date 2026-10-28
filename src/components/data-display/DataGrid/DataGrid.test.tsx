@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { DataGrid, type DataGridColumn, type DataGridDetailContext } from '.';
 
 interface Order {
@@ -313,6 +313,7 @@ describe('DataGrid', () => {
       search: '',
       page: 1,
       pageSize: 25,
+      columns: { hidden: [], order: ['id', 'customer', 'total'], pinned: {}, widths: {} },
     });
   });
 
@@ -324,6 +325,100 @@ describe('DataGrid', () => {
     rerender(<DataGrid columns={columns} error="Não foi possível carregar." getRowId={getRowId} label="Pedidos" rows={[]} />);
 
     expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível carregar.');
+  });
+
+  describe('columns', () => {
+    function headers() {
+      return screen.getAllByRole('columnheader').map((header) => header.textContent);
+    }
+
+    function header(name: string) {
+      return screen.getByRole('columnheader', { name });
+    }
+
+    it('opens the column menu with Ctrl+Enter, sorts from it and gives the focus back to the title', async () => {
+      renderGrid();
+      act(() => header('Cliente').focus());
+
+      fireEvent.keyDown(header('Cliente'), { key: 'Enter', ctrlKey: true });
+      const menu = screen.getByRole('menu', { name: 'Menu da coluna Cliente' });
+      fireEvent.click(within(menu).getByRole('menuitemcheckbox', { name: 'Ordenar decrescente' }));
+
+      expect(firstColumn()).toEqual(['P-2', 'P-3', 'P-1']);
+      await waitFor(() => expect(header('Cliente')).toHaveFocus());
+    });
+
+    it('hides a column from its menu and reports the column state', () => {
+      const onColumnStateChange = vi.fn();
+      renderGrid({ onColumnStateChange });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Menu da coluna Total' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Ocultar coluna' }));
+
+      expect(headers()).toEqual(['Nº', 'Cliente']);
+      expect(screen.getByRole('grid')).toHaveAttribute('aria-colcount', '2');
+      expect(onColumnStateChange).toHaveBeenLastCalledWith(expect.objectContaining({ hidden: ['total'] }));
+      expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('Total oculta');
+    });
+
+    it('gives the focus of a hidden column to the one that takes its place', async () => {
+      renderGrid();
+      act(() => header('Cliente').focus());
+
+      fireEvent.keyDown(header('Cliente'), { key: 'Enter', ctrlKey: true });
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Ocultar coluna' }));
+
+      await waitFor(() => expect(header('Total')).toHaveFocus());
+    });
+
+    it('pins a column to the edge, where it sticks', () => {
+      renderGrid();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Menu da coluna Total' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Fixar à esquerda' }));
+
+      expect(headers()).toEqual(['Total', 'Nº', 'Cliente']);
+      expect(header('Total').style.left).toBe('0px');
+      expect(screen.getByRole('gridcell', { name: /^R\$\s300,00$/ }).style.left).toBe('0px');
+    });
+
+    it('moves a column with Ctrl+Shift and the arrows, keeping the focus on it', () => {
+      renderGrid();
+      act(() => header('Nº').focus());
+
+      fireEvent.keyDown(header('Nº'), { key: 'ArrowRight', ctrlKey: true, shiftKey: true });
+
+      expect(headers()).toEqual(['Cliente', 'Nº', 'Total']);
+      expect(header('Nº')).toHaveFocus();
+      expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('Nº na posição 2 de 3');
+    });
+
+    it('moves a column by dragging its title onto another', () => {
+      renderGrid();
+      const dataTransfer = { effectAllowed: '', setData: vi.fn() };
+
+      fireEvent.dragStart(header('Total'), { dataTransfer });
+      fireEvent.dragOver(header('Nº'), { dataTransfer });
+      fireEvent.drop(header('Nº'), { dataTransfer });
+
+      expect(headers()).toEqual(['Total', 'Nº', 'Cliente']);
+    });
+
+    it('restores the columns from a saved snapshot, ignoring the ones that no longer exist', () => {
+      renderGrid({
+        initialState: {
+          version: 1,
+          sort: [],
+          search: '',
+          page: 1,
+          pageSize: 25,
+          columns: { order: ['total', 'removed', 'id', 'customer'], hidden: ['id'], pinned: {}, widths: { customer: 200 } },
+        },
+      });
+
+      expect(headers()).toEqual(['Total', 'Cliente']);
+      expect(header('Cliente').style.width).toBe('200px');
+    });
   });
 
   describe('detail', () => {
