@@ -255,6 +255,7 @@ export const pagina: Pagina = {
     { nome: 'placement', tipo: "'top' | 'bottom' | 'left' | 'right'", padrao: "'top'", descricao: 'Lado do gatilho em que o balão aparece.' },
     { nome: 'delay', tipo: 'number', padrao: '500', descricao: 'Espera, em ms, antes de aparecer no ponteiro. O foco não espera.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Controla a abertura; sem ele, o Tooltip guarda o próprio estado. Obrigatória com anchorRef.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado. Recusada com anchorRef.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar.' },
     {
       nome: 'anchorRef',

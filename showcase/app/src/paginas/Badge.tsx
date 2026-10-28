@@ -1,19 +1,32 @@
-import { Badge, Card, type BadgeTone } from '@plenustech/design-system';
+import { Badge, Card, type BadgeTone, type BadgeVariant } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const TONS = ['neutral', 'ok', 'warn', 'info', 'danger', 'primary'] as const;
+const TONS = ['neutral', 'info', 'success', 'warning', 'danger'] as const;
+const VARIANTES = ['status', 'brand'] as const;
+
+/** As linhas da matriz: cada tom, e a variante da marca, que ignora o tom. */
+const LINHAS = [
+  ...TONS.map((tom) => ({ rotulo: tom, props: { tone: tom } })),
+  { rotulo: 'variant="brand"', props: { variant: 'brand' as const } },
+];
 
 const playground = definirPlayground({
-  inicial: { tone: 'ok', children: 'Ativo', dot: true, outline: false },
+  inicial: { tone: 'success', variant: 'status', children: 'Ativo', dot: true, outline: false },
   controles: [
     { tipo: 'opcoes', nome: 'tone', opcoes: TONS },
+    { tipo: 'opcoes', nome: 'variant', opcoes: VARIANTES },
     { tipo: 'texto', nome: 'children' },
     { tipo: 'booleano', nome: 'dot' },
     { tipo: 'booleano', nome: 'outline' },
   ],
   renderizar: (valores) => (
-    <Badge dot={valores.dot} outline={valores.outline} tone={valores.tone as BadgeTone}>
+    <Badge
+      dot={valores.dot}
+      outline={valores.outline}
+      tone={valores.tone as BadgeTone}
+      variant={valores.variant as BadgeVariant}
+    >
       {valores.children}
     </Badge>
   ),
@@ -22,6 +35,7 @@ const playground = definirPlayground({
       'Badge',
       [
         ['tone', valores.tone, 'neutral'],
+        ['variant', valores.variant, 'status'],
         ['dot', valores.dot, false],
         ['outline', valores.outline, false],
       ],
@@ -54,23 +68,23 @@ function Variantes() {
         <span>outline e dot</span>
         <span>contagem</span>
       </div>
-      {TONS.map((tom) => (
-        <div className="matrix-row" key={tom}>
-          <code>{tom}</code>
+      {LINHAS.map(({ rotulo, props }) => (
+        <div className="matrix-row" key={rotulo}>
+          <code>{rotulo}</code>
           <span>
-            <Badge tone={tom}>Status</Badge>
+            <Badge {...props}>Status</Badge>
           </span>
           <span>
-            <Badge dot tone={tom}>Status</Badge>
+            <Badge dot {...props}>Status</Badge>
           </span>
           <span>
-            <Badge outline tone={tom}>Status</Badge>
+            <Badge outline {...props}>Status</Badge>
           </span>
           <span>
-            <Badge dot outline tone={tom}>Status</Badge>
+            <Badge dot outline {...props}>Status</Badge>
           </span>
           <span>
-            <Badge tone={tom}>12</Badge>
+            <Badge {...props}>12</Badge>
           </span>
         </div>
       ))}
@@ -86,12 +100,12 @@ export const pagina: Pagina = {
       descricao: 'O tom acompanha o significado: ok para concluído, warn para pendente, danger para falha.',
       Previa: () => (
         <>
-          <Badge dot tone="ok">Ativo</Badge>
-          <Badge dot tone="warn">Convidado</Badge>
+          <Badge dot tone="success">Ativo</Badge>
+          <Badge dot tone="warning">Convidado</Badge>
           <Badge dot tone="danger">Bloqueado</Badge>
         </>
       ),
-      codigo: '<Badge tone="ok" dot>\n  Ativo\n</Badge>\n<Badge tone="warn" dot>\n  Convidado\n</Badge>\n<Badge tone="danger" dot>\n  Bloqueado\n</Badge>',
+      codigo: '<Badge tone="success" dot>\n  Ativo\n</Badge>\n<Badge tone="warning" dot>\n  Convidado\n</Badge>\n<Badge tone="danger" dot>\n  Bloqueado\n</Badge>',
     },
     {
       titulo: 'Contagem no cabeçalho do cartão',
@@ -110,25 +124,25 @@ export const pagina: Pagina = {
       descricao: 'O outline pesa menos, para listas longas de resultados.',
       Previa: () => (
         <>
-          <Badge outline tone="ok">Concluído</Badge>
+          <Badge outline tone="success">Concluído</Badge>
           <Badge outline tone="danger">Falhou</Badge>
           <Badge>Sem status</Badge>
         </>
       ),
-      codigo: '<Badge tone="ok" outline>\n  Concluído\n</Badge>\n<Badge tone="danger" outline>\n  Falhou\n</Badge>\n<Badge>Sem status</Badge>',
+      codigo: '<Badge tone="success" outline>\n  Concluído\n</Badge>\n<Badge tone="danger" outline>\n  Falhou\n</Badge>\n<Badge>Sem status</Badge>',
     },
   ],
   faca: {
     Previa: () => (
       <>
-        <Badge dot tone="ok">Ativo</Badge>
+        <Badge dot tone="success">Ativo</Badge>
         <Badge tone="info">Financeiro</Badge>
       </>
     ),
     texto: 'Badge para rotular um estado ou uma categoria. Ele não responde a nada.',
   },
   evite: {
-    Previa: () => <Badge tone="primary">Situação: ativo ✕</Badge>,
+    Previa: () => <Badge variant="brand">Situação: ativo ✕</Badge>,
     texto: 'Badge imitando filtro removível: o ✕ não faz nada. O que se remove ou se liga e desliga é Tag.',
   },
   Variantes,
@@ -138,7 +152,8 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, todas as propriedades nativas de <span>.',
   api: [
-    { nome: 'tone', tipo: "'ok' | 'warn' | 'info' | 'danger' | 'primary' | 'neutral'", padrao: "'neutral'", descricao: 'Tom semântico.' },
+    { nome: 'tone', tipo: "'neutral' | 'info' | 'success' | 'warning' | 'danger'", padrao: "'neutral'", descricao: <>Tom do estado. Obsoletos: <code>ok</code>, <code>warn</code> e <code>primary</code>; use <code>success</code>, <code>warning</code> e <code>variant="brand"</code>.</> },
+    { nome: 'variant', tipo: "'status' | 'brand'", padrao: "'status'", descricao: 'brand pinta na cor da marca e ignora o tone: destaque, não estado.' },
     { nome: 'dot', tipo: 'boolean', padrao: 'false', descricao: 'Ponto decorativo antes do texto.' },
     { nome: 'outline', tipo: 'boolean', padrao: 'false', descricao: 'Contorno em vez de fundo preenchido.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'O texto do estado ou da categoria.' },

@@ -55,7 +55,7 @@ describe('List', () => {
 
   it('acumula escolhas no modo multiplo e reporta os itens', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ selectionMode: 'multiple', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: /São Paulo/ }));
     fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }));
@@ -68,7 +68,7 @@ describe('List', () => {
 
   it('substitui a escolha no modo simples', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'single', onSelectionChange: escolhido });
+    montar({ selectionMode: 'single', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: 'São Paulo' }));
     fireEvent.click(screen.getByRole('option', { name: 'Goiânia' }));
@@ -78,7 +78,7 @@ describe('List', () => {
 
   it('ignora o clique em item desabilitado', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ selectionMode: 'multiple', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: /Manaus/ }));
 
@@ -87,7 +87,7 @@ describe('List', () => {
 
   it('navega pelo teclado a partir da busca e escolhe com Enter', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'single', onSelectionChange: escolhido });
+    montar({ selectionMode: 'single', onValueChange: escolhido });
 
     const busca = screen.getByRole('searchbox');
     fireEvent.keyDown(busca, { key: 'ArrowDown' });
@@ -112,7 +112,7 @@ describe('List', () => {
 
   it('deixa Home, End e Espaco editarem o texto da busca', () => {
     const escolhido = vi.fn();
-    montar({ onSelectionChange: escolhido, selectionMode: 'single' });
+    montar({ onValueChange: escolhido, selectionMode: 'single' });
 
     const busca = screen.getByRole('searchbox');
     fireEvent.keyDown(busca, { key: 'ArrowDown' });
@@ -167,7 +167,7 @@ describe('List', () => {
       { value: 'mao', label: 'Manaus', disabled: true },
       { value: 'gyn', label: 'Goiânia' },
     ];
-    montar({ items: comBloqueioNoMeio, selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ items: comBloqueioNoMeio, selectionMode: 'multiple', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: /São Paulo/ }));
     fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }), { shiftKey: true });
@@ -180,7 +180,7 @@ describe('List', () => {
 
   it('ignora Shift e clique em item desabilitado', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ selectionMode: 'multiple', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: /São Paulo/ }));
     fireEvent.click(screen.getByRole('option', { name: /Manaus/ }), { shiftKey: true });
@@ -190,7 +190,7 @@ describe('List', () => {
 
   it('estende a escolha com Shift e seta', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ selectionMode: 'multiple', onValueChange: escolhido });
 
     fireEvent.click(screen.getByRole('option', { name: /São Paulo/ }));
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'ArrowDown', shiftKey: true });
@@ -203,7 +203,7 @@ describe('List', () => {
 
   it('marca e desmarca todos os habilitados', () => {
     const escolhido = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolhido });
+    montar({ selectionMode: 'multiple', onValueChange: escolhido });
 
     const todos = screen.getByRole('checkbox', { name: 'Selecionar todos' });
     fireEvent.click(todos);
@@ -255,7 +255,7 @@ describe('List', () => {
       <List
         items={[{ value: 'rj', label: 'Rio de Janeiro' }]}
         label="Cidades"
-        onSelectionChange={escolhido}
+        onValueChange={escolhido}
         selectionMode="multiple"
         value={[{ value: 'sp', label: 'São Paulo' }]}
       >
@@ -269,6 +269,36 @@ describe('List', () => {
       { value: 'sp', label: 'São Paulo' },
       { value: 'rj', label: 'Rio de Janeiro' },
     ]);
+  });
+
+  it('comeca pelo defaultValue e segue escolhendo sem controle', () => {
+    montar({ defaultValue: [cidades[0]], selectionMode: 'multiple' });
+
+    expect(screen.getByRole('option', { name: /São Paulo/ })).toHaveAttribute('aria-selected', 'true');
+
+    fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }));
+
+    expect(screen.getByRole('option', { name: /Goiânia/ })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('controlado pelo value, so muda quando o produto muda', () => {
+    const escolhido = vi.fn();
+    montar({ onValueChange: escolhido, selectionMode: 'single', value: [cidades[0]] });
+
+    fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }));
+
+    expect(escolhido).toHaveBeenCalledWith([cidades[2]]);
+    expect(screen.getByRole('option', { name: /São Paulo/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('option', { name: /Goiânia/ })).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('ainda chama o obsoleto onSelectionChange', () => {
+    const escolhido = vi.fn();
+    montar({ onSelectionChange: escolhido, selectionMode: 'single' });
+
+    fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }));
+
+    expect(escolhido).toHaveBeenCalledWith([cidades[2]]);
   });
 
   it('deixa o clique levar o foco a lista sem busca, que e quem o detem', () => {

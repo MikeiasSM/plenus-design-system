@@ -12,7 +12,7 @@ import { TimeSlots, isTimeAllowed, paraTextoDeHora } from './TimeSlots';
 import styles from './TimePicker.module.css';
 import { IconClock } from '../../icons';
 
-export type TimePickerSize = 'sm' | 'md';
+export type TimePickerSize = 'sm' | 'md' | 'lg';
 
 /**
  * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que

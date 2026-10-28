@@ -1,6 +1,14 @@
-import { createRef } from 'react';
+import { createRef, type Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import { Accordion } from './data-display/Accordion';
+import { Avatar } from './data-display/Avatar';
+import { Badge } from './data-display/Badge';
+import { Tag } from './data-display/Tag';
+import { Alert } from './feedback/Alert';
+import { Skeleton } from './feedback/Skeleton';
+import { Spinner } from './feedback/Spinner';
+import { ToastRegion } from './feedback/Toast';
+import { Label } from './forms/Label';
 import { Breadcrumb } from './navigation/Breadcrumb';
 import { Card } from './data-display/Card';
 import { Field } from './forms/Field';
@@ -74,5 +82,24 @@ describe('passagem de propriedades nativas', () => {
     for (const id of ['trilha', 'grupo', 'tabela', 'campo']) {
       expect(screen.getByTestId(id), id).toBeInTheDocument();
     }
+  });
+
+  it('entrega o ref a raiz dos componentes simples', () => {
+    const refs = Array.from({ length: 8 }, () => createRef<HTMLElement>());
+
+    render(
+      <>
+        <Avatar name="Ana Souza" ref={refs[0]} />
+        <Badge ref={refs[1] as Ref<HTMLSpanElement>}>Status</Badge>
+        <Tag ref={refs[2] as Ref<HTMLSpanElement>}>Filtro</Tag>
+        <Alert ref={refs[3] as Ref<HTMLDivElement>}>Aviso</Alert>
+        <Skeleton ref={refs[4] as Ref<HTMLSpanElement>} />
+        <Spinner ref={refs[5] as Ref<HTMLSpanElement>} />
+        <Label ref={refs[6] as Ref<HTMLLabelElement>}>Nome</Label>
+        <ToastRegion ref={refs[7] as Ref<HTMLDivElement>} />
+      </>,
+    );
+
+    expect(refs.every((ref) => ref.current instanceof HTMLElement)).toBe(true);
   });
 });

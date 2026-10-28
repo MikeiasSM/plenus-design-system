@@ -20,7 +20,7 @@ import { FormValue } from '../Field/FormValue';
 import styles from './Select.module.css';
 import { IconChevronDown } from '../../icons';
 
-export type SelectSize = 'sm' | 'md';
+export type SelectSize = 'sm' | 'md' | 'lg';
 
 export interface SelectOption {
   /** Segunda linha da opção, na lista aberta. O nome da opção e o gatilho fechado ficam no rótulo. */

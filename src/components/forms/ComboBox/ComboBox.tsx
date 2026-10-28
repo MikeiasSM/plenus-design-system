@@ -20,7 +20,7 @@ import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './ComboBox.module.css';
 
-export type ComboBoxSize = 'sm' | 'md';
+export type ComboBoxSize = 'sm' | 'md' | 'lg';
 
 export interface ComboBoxOption {
   /** Segunda linha da opção, como a coleção de um documento. A busca local procura só no rótulo. */

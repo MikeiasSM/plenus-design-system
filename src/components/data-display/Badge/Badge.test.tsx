@@ -22,7 +22,7 @@ describe('Badge', () => {
 
   it('supports outline presentation', () => {
     render(
-      <Badge tone="ok" outline>
+      <Badge tone="success" outline>
         Concluido
       </Badge>,
     );
@@ -34,5 +34,25 @@ describe('Badge', () => {
     render(<Badge data-testid="badge">Status</Badge>);
 
     expect(screen.getByTestId('badge')).toHaveAttribute('data-testid', 'badge');
+  });
+
+  it('paints in the brand color with variant brand, regardless of tone', () => {
+    render(<Badge variant="brand">Destaque</Badge>);
+
+    expect(screen.getByText('Destaque').className).toContain('brand');
+  });
+
+  it('still accepts the deprecated tones, mapped to the current ones', () => {
+    render(
+      <>
+        <Badge tone="ok">Ok</Badge>
+        <Badge tone="warn">Atenção</Badge>
+        <Badge tone="primary">Marca</Badge>
+      </>,
+    );
+
+    expect(screen.getByText('Ok').className).toContain('success');
+    expect(screen.getByText('Atenção').className).toContain('warning');
+    expect(screen.getByText('Marca').className).toContain('brand');
   });
 });

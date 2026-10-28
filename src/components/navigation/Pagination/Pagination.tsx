@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef } from 'react';
+import { useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
 import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
@@ -11,13 +11,15 @@ export interface PaginationRange {
 }
 
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
+  /** Pagina inicial no modo nao controlado. */
+  defaultPage?: number;
   /** Suspende a troca de pagina, como enquanto a pagina pedida carrega. Os botoes continuam focaveis. */
   disabled?: boolean;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;
   label?: string;
-  onPageChange: (page: number) => void;
-  page: number;
+  onPageChange?: (page: number) => void;
+  page?: number;
   pageCount: number;
   /** Itens por página. Com `totalItems`, mostra o intervalo da página atual. */
   pageSize?: number;
@@ -29,6 +31,7 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
 
 export function Pagination({
   className,
+  defaultPage = 1,
   disabled = false,
   formatRange,
   label = 'Paginação',
@@ -40,17 +43,23 @@ export function Pagination({
   totalItems,
   ...props
 }: PaginationProps) {
+  const [internalPage, setInternalPage] = useState(defaultPage);
+
   if (pageCount <= 1) {
     return null;
   }
 
-  const atual = Math.min(Math.max(page, 1), pageCount);
+  const atual = Math.min(Math.max(page ?? internalPage, 1), pageCount);
   const paginas = montarFaixa(atual, pageCount, siblings);
 
   function irPara(pagina: number) {
-    if (!disabled) {
-      onPageChange(pagina);
+    if (disabled) {
+      return;
     }
+    if (page === undefined) {
+      setInternalPage(pagina);
+    }
+    onPageChange?.(pagina);
   }
 
   return (

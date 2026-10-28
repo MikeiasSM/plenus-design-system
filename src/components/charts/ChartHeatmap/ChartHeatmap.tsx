@@ -6,6 +6,8 @@ import {
   NO_DATA_FILL,
   NO_DATA_HATCH,
   NoDataHatch,
+  bottomLabelRotation,
+  cartesianLayout,
   chartHeight,
   isDevelopment,
   markShown,
@@ -13,11 +15,13 @@ import {
   useCartesianLayout,
   useChartMetrics,
   useSeriesToggle,
+  type AxisLabelAngle,
   type AxisPosition,
   type AxisTick,
   type AxisVisibility,
   type ChartHeight,
   type ChartLegendAlign,
+  type CartesianLayoutOptions,
   type ChartRootProps,
   type MarkVisibility,
   type NoDataStyle,
@@ -137,6 +141,21 @@ function fromZero(config: ChartHeatmapColorScale, values: readonly number[]): Ch
 }
 
 /** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
+/**
+ * Com celula quadrada, a coluna desenhada e o lado do quadrado, mais estreito que a largura util quando a altura
+ * manda. O angulo sai dessa coluna; girar o rotulo come altura, entao a coluna e medida de novo com ele.
+ */
+function anguloDaColunaQuadrada(opcoes: Omit<CartesianLayoutOptions, 'labelAngle'>, linhas: number): AxisLabelAngle {
+  const colunas = Math.max(opcoes.bottomLabels.length, 1);
+  const lado = (angulo: AxisLabelAngle) => {
+    const { plot } = cartesianLayout({ ...opcoes, labelAngle: angulo });
+    return Math.min(plot.width / colunas, plot.height / Math.max(linhas, 1));
+  };
+  const primeiro = bottomLabelRotation(opcoes.bottomLabels, opcoes.font, lado('auto'));
+
+  return bottomLabelRotation(opcoes.bottomLabels, opcoes.font, lado(primeiro));
+}
+
 export function ChartHeatmap({
   cells,
   colorScale = { type: 'sequential' },
@@ -217,11 +236,10 @@ export function ChartHeatmap({
     }
   }, [aviso, title]);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const opcoesDoLayout = {
     bottomLabels: colunas,
     font,
     height: alturaDoDesenho,
-    labelAngle: 'auto',
     leftLabels: linhas,
     rightLabels: [],
     topRoom: 0,
@@ -230,6 +248,10 @@ export function ChartHeatmap({
     xAxisPosition,
     yAxis,
     yAxisRight: 'hidden',
+  } as const;
+  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    ...opcoesDoLayout,
+    labelAngle: squareCells ? anguloDaColunaQuadrada(opcoesDoLayout, linhas.length) : 'auto',
   });
 
   const lado = squareCells

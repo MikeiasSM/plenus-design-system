@@ -25,7 +25,9 @@ export interface ListProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultVa
   loading?: boolean;
   loadingMessage?: string;
   onSearch?: (term: string) => void;
+  /** @deprecated Use `onValueChange`. */
   onSelectionChange?: (items: readonly ListItem[]) => void;
+  onValueChange?: (items: readonly ListItem[]) => void;
   selectionMode?: ListSelectionMode;
   value?: readonly ListItem[];
 }
@@ -62,13 +64,24 @@ export function List({
   loadingMessage = 'Carregando',
   onSearch,
   onSelectionChange,
+  onValueChange,
   selectionMode = 'none',
   value,
   ...props
 }: ListProps) {
   const baseId = useId();
   const [searchPresent, setSearchPresent] = useState(false);
-  const listing = useListing({ defaultValue, items, onSearch, onSelectionChange, selectionMode, value });
+  const listing = useListing({
+    defaultValue,
+    items,
+    onSearch,
+    onSelectionChange: (selectedItems) => {
+      onValueChange?.(selectedItems);
+      onSelectionChange?.(selectedItems);
+    },
+    selectionMode,
+    value,
+  });
 
   const context: ListContextValue = {
     baseId,

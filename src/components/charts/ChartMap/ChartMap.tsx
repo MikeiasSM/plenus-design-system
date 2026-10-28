@@ -87,8 +87,12 @@ export interface ChartMapProps extends ChartRootProps {
   accent?: string;
   colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
+  /** Faixas ocultas de inicio, no modo nao controlado, pelo indice. */
+  defaultHiddenClasses?: readonly number[];
   /** Series ocultas de inicio, no modo nao controlado: categorias e series de marcadores, pelo `id`. */
   defaultHiddenSeries?: readonly string[];
+  /** Regiao escolhida de inicio, no modo nao controlado. Com ele, as regioes viram botoes. */
+  defaultSelectedRegion?: string | null;
   emptyMessage?: string;
   /** Caminho do identificador na feicao, como `properties.sigla`. E por ele que o dado casa. */
   featureIdKey?: string;
@@ -127,6 +131,8 @@ export interface ChartMapProps extends ChartRootProps {
   onMarkerClick?: (marker: ChartMapMarkerEvent) => void;
   /** Com ele, as regioes viram botoes e entram no teclado. */
   onRegionClick?: (region: ChartMapRegion) => void;
+  /** Com ele, as regioes viram botoes, e o clique escolhe a regiao ou, na escolhida, a desfaz. */
+  onSelectedRegionChange?: (id: string | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   regionLabels?: MarkVisibility;
@@ -264,14 +270,16 @@ function layoutMap({ all, callouts, fixedHeight, font, labels, maxHeight, target
 
 /**
  * Regioes pintadas pelo valor e marcadores por coordenada, sobre a geometria GeoJSON que o produto fornece. O desenho
- * e imagem nomeada pelo titulo; com `onRegionClick` ou `onMarkerClick`, um grupo cujas marcas sao botoes de tabulacao
+ * e imagem nomeada pelo titulo; com `onRegionClick`, a selecao de regiao ou `onMarkerClick`, um grupo cujas marcas sao botoes de tabulacao
  * movel. A leitura completa, com busca, esta na visao em tabela.
  */
 export function ChartMap({
   accent,
   colorScale = DEFAULT_SCALE,
   data = [],
+  defaultHiddenClasses,
   defaultHiddenSeries,
+  defaultSelectedRegion,
   emptyMessage = 'Sem dados',
   featureIdKey = 'id',
   featureLabelKey,
@@ -297,6 +305,7 @@ export function ChartMap({
   onHoverRegion,
   onMarkerClick,
   onRegionClick,
+  onSelectedRegionChange,
   palette,
   regionLabels = 'visible',
   selectedRegion,
@@ -320,6 +329,7 @@ export function ChartMap({
   // As faixas sao indices; a legenda liga e desliga por texto.
   const hiddenClassKeys = useMemo(() => hiddenClasses?.map(String), [hiddenClasses]);
   const classToggle = useSeriesToggle({
+    defaultHiddenSeries: defaultHiddenClasses?.map(String),
     hiddenSeries: hiddenClassKeys,
     onHiddenSeriesChange: onHiddenClassesChange && ((hidden) => onHiddenClassesChange(hidden.map(Number))),
   });
@@ -328,6 +338,10 @@ export function ChartMap({
   const [tabStopMark, setTabStopMark] = useState<string | null>(null);
   const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
   const [tableView, setTableView] = useState(false);
+  const regionSelectable =
+    selectedRegion !== undefined || defaultSelectedRegion !== undefined || onSelectedRegionChange !== undefined;
+  const [internalSelectedRegion, setInternalSelectedRegion] = useState(defaultSelectedRegion ?? null);
+  const currentSelectedRegion = selectedRegion === undefined ? internalSelectedRegion : selectedRegion;
 
   const regions = useMemo(
     () => regionsOf(geometry, { idKey: featureIdKey, labelKey: featureLabelKey, nameKey: featureNameKey }),
@@ -503,7 +517,8 @@ export function ChartMap({
         .sort((a, b) => b.radius - a.radius)
     : [];
 
-  const regionsInteractive = onRegionClick !== undefined;
+  const regionsInteractive =
+    onRegionClick !== undefined || onSelectedRegionChange !== undefined || defaultSelectedRegion !== undefined;
   const markersInteractive = onMarkerClick !== undefined;
   const interactive = regionsInteractive || markersInteractive;
   const regionMark = (index: number) => `region:${index}`;
@@ -511,7 +526,7 @@ export function ChartMap({
     ...(regionsInteractive ? entries.map((_, index) => regionMark(index)) : []),
     ...(markersInteractive ? placedMarkers.map((marker) => marker.key) : []),
   ];
-  const selectedIndex = entries.findIndex((entry) => entry.region.id === selectedRegion);
+  const selectedIndex = entries.findIndex((entry) => entry.region.id === currentSelectedRegion);
   const tabStop = marks.includes(tabStopMark ?? '')
     ? tabStopMark
     : regionsInteractive && selectedIndex >= 0
@@ -558,13 +573,23 @@ export function ChartMap({
     const entry = entryOfMark(mark);
     const marker = markerOfMark(mark);
 
-    if (entry && onRegionClick) {
+    if (entry && regionsInteractive) {
       setTabStopMark(mark);
-      onRegionClick(regionEvent(entry));
+      onRegionClick?.(regionEvent(entry));
+      if (regionSelectable) {
+        selectRegion(entry.region.id === currentSelectedRegion ? null : entry.region.id);
+      }
     } else if (marker && onMarkerClick) {
       setTabStopMark(mark);
       onMarkerClick(markerEvent(marker));
     }
+  }
+
+  function selectRegion(id: string | null) {
+    if (selectedRegion === undefined) {
+      setInternalSelectedRegion(id);
+    }
+    onSelectedRegionChange?.(id);
   }
 
   /** A marca vizinha na direcao da seta, pelo centro de cada uma, como no artefato do componente. */
@@ -663,7 +688,7 @@ export function ChartMap({
         return (
           <path
             aria-label={entry.description}
-            aria-pressed={regionsInteractive && selectedRegion !== undefined ? entry.region.id === selectedRegion : undefined}
+            aria-pressed={regionsInteractive && regionSelectable ? entry.region.id === currentSelectedRegion : undefined}
             className={`${styles.region} ${regionsInteractive ? styles.clickable : ''} ${dimmed ? styles.dimmed : ''}`}
             d={paths.get(entry.region.id)}
             data-mark={mark}
@@ -675,7 +700,7 @@ export function ChartMap({
           />
         );
       }),
-    [entries, highlightedKey, noDataFill, paths, regionsInteractive, selectedRegion, strokeWidth, tabStop],
+    [currentSelectedRegion, entries, highlightedKey, noDataFill, paths, regionSelectable, regionsInteractive, strokeWidth, tabStop],
   );
   const contextShapes = useMemo(
     () =>
@@ -860,7 +885,7 @@ export function ChartMap({
       id: entry.region.id,
       name: entry.region.name,
       rank: entry.rank,
-      selected: entry.region.id === selectedRegion,
+      selected: entry.region.id === currentSelectedRegion,
       share: entry.value !== null && total > 0 ? entry.value / total : undefined,
       value: entry.value,
       valueText: entry.valueText,

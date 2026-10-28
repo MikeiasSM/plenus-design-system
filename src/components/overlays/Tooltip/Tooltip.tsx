@@ -30,6 +30,8 @@ interface TooltipOnChildProps extends TooltipCommonProps {
   anchorRef?: never;
   /** O gatilho: o Tooltip o clona, soma os manipuladores e liga a descrição por `aria-describedby`. */
   children: ReactElement<Record<string, unknown>>;
+  /** Aberto no inicio, no modo nao controlado. */
+  defaultOpen?: boolean;
   delay?: number;
   id?: never;
   /** Controla a abertura; sem ele, o Tooltip guarda o próprio estado. */
@@ -40,6 +42,7 @@ interface TooltipOnAnchorProps extends TooltipCommonProps {
   /** Âncora que não é filho do Tooltip, como um elemento que precisa da própria referência e não pode ser clonado. */
   anchorRef: RefObject<HTMLElement | null>;
   children?: never;
+  defaultOpen?: never;
   delay?: never;
   /** Id do balão. O produto o põe no `aria-describedby` da âncora enquanto `open`. */
   id: string;
@@ -66,13 +69,14 @@ export function Tooltip(props: TooltipProps) {
 function TooltipOnChild({
   children,
   content,
+  defaultOpen = false,
   delay = 500,
   onOpenChange,
   open: controlledOpen,
   placement = 'top',
 }: TooltipOnChildProps) {
   const triggerRef = useRef<HTMLElement>(null);
-  const [internalOpen, setInternalOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = controlledOpen ?? internalOpen;
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const id = `tooltip-${useId()}`;

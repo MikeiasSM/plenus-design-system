@@ -184,10 +184,11 @@ function Modos() {
         Acrescenta o botão de remover, nomeado &quot;Remover&quot; seguido do texto da etiqueta por{' '}
         <code>aria-labelledby</code>. Quem tira a etiqueta da tela é o produto, ao receber o aviso.
       </dd>
-      <dt><code>selected</code></dt>
+      <dt><code>selected</code>, <code>defaultSelected</code> ou <code>onSelectedChange</code></dt>
       <dd>
         Transforma o texto num botão de alternar, com <code>aria-pressed</code> e o visto ao lado do texto quando ligada: o
-        estado não depende só da cor. O valor é controlado; <code>onSelectedChange</code> recebe o novo.
+        estado não depende só da cor. Com <code>selected</code> o valor é controlado; com <code>defaultSelected</code> a
+        etiqueta alterna sozinha. <code>onSelectedChange</code> recebe o novo estado.
       </dd>
       <dt>Os dois juntos</dt>
       <dd>Os botões ficam lado a lado, sem botão dentro de botão.</dd>
@@ -228,7 +229,7 @@ export const pagina: Pagina = {
     Previa: () => (
       <>
         <Tag>Ativo</Tag>
-        <Badge dot tone="ok">Ativo</Badge>
+        <Badge dot tone="success">Ativo</Badge>
       </>
     ),
     texto: 'Tag sem controle para rotular um estado. Isso é papel do Badge, à direita.',
@@ -243,14 +244,15 @@ export const pagina: Pagina = {
     { garantia: 'Remover nomeado', como: '"Remover" seguido do texto da etiqueta, distinto entre etiquetas.', teste: 'Tag.test.tsx' },
     { garantia: 'Estado de alternar', como: <><code>aria-pressed</code> no botão do texto.</>, teste: 'Tag.test.tsx' },
     { garantia: 'Desabilitada', como: 'Os botões nativos ficam desabilitados e não disparam os avisos.', teste: 'Tag.test.tsx' },
-    { garantia: 'Só texto', como: 'Sem onRemove nem selected, não há botão algum.', teste: 'Tag.test.tsx' },
+    { garantia: 'Só texto', como: 'Sem onRemove, selected, defaultSelected nem onSelectedChange, não há botão algum.', teste: 'Tag.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <span>, exceto children, que é obrigatório.',
   api: [
     { nome: 'children', tipo: 'ReactNode', descricao: 'Obrigatório. O texto da etiqueta, que também nomeia o remover.' },
     { nome: 'onRemove', tipo: '() => void', descricao: 'Mostra o botão de remover.' },
-    { nome: 'selected', tipo: 'boolean', descricao: 'Com ele, o texto vira botão de alternar.' },
-    { nome: 'onSelectedChange', tipo: '(selected: boolean) => void', descricao: 'Recebe o novo estado ao alternar.' },
+    { nome: 'selected', tipo: 'boolean', descricao: 'Ligada, no modo controlado. Com ele, o texto vira botão de alternar.' },
+    { nome: 'defaultSelected', tipo: 'boolean', descricao: 'Ligada no início, no modo não controlado. Também torna o texto alternável.' },
+    { nome: 'onSelectedChange', tipo: '(selected: boolean) => void', descricao: 'Recebe o novo estado ao alternar. Sozinho, já torna o texto alternável.' },
     { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Tamanho da etiqueta.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Impede alternar e remover.' },
   ],

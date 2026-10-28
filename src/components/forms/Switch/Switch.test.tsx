@@ -31,4 +31,14 @@ describe('Switch', () => {
 
     expect(screen.getByRole('switch', { name: 'Sincronizacao' })).toHaveAttribute('aria-invalid', 'true');
   });
+  it('reports the checked state through onCheckedChange alongside the native onChange', () => {
+    const onChange = vi.fn();
+    const onCheckedChange = vi.fn();
+    render(<Switch defaultChecked label="Notificar" onChange={onChange} onCheckedChange={onCheckedChange} />);
+
+    fireEvent.click(screen.getByRole('switch'));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onCheckedChange).toHaveBeenCalledWith(false);
+  });
 });

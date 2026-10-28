@@ -58,6 +58,13 @@
   min-height: var(--pl-control-height-md);
 }
 
+.lg {
+  min-height: var(--pl-control-height-lg);
+  padding: calc((var(--pl-control-height-lg) - var(--pl-type-title-line-height)) / 2 - 1px) 16px;
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}
+
 .value {
   overflow: hidden;
   text-overflow: ellipsis;

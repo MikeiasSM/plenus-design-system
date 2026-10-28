@@ -32,4 +32,14 @@ describe('Textarea', () => {
 
     expect(screen.getByRole('textbox', { name: 'Observacoes' })).toHaveAttribute('rows', '8');
   });
+  it('reports the text through onValueChange alongside the native onChange', () => {
+    const onChange = vi.fn();
+    const onValueChange = vi.fn();
+    render(<Textarea label="Observação" onChange={onChange} onValueChange={onValueChange} />);
+
+    fireEvent.change(screen.getByLabelText('Observação'), { target: { value: 'Entregar cedo' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenCalledWith('Entregar cedo');
+  });
 });

@@ -1,9 +1,9 @@
-import type { HTMLAttributes } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 import styles from './Spinner.module.css';
 
 export type SpinnerSize = 'sm' | 'md' | 'lg';
 
-export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
+export interface SpinnerProps extends ComponentPropsWithRef<'span'> {
   size?: SpinnerSize;
   label?: string;
 }

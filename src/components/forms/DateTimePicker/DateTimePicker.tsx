@@ -24,7 +24,7 @@ import { FormValue } from '../Field/FormValue';
 import styles from './DateTimePicker.module.css';
 import { IconCalendar } from '../../icons';
 
-export type DateTimePickerSize = 'sm' | 'md';
+export type DateTimePickerSize = 'sm' | 'md' | 'lg';
 
 /**
  * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que

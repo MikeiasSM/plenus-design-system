@@ -9,7 +9,7 @@ describe('List com busca assincrona', () => {
     const escolhas: ListItem[][] = [];
 
     const { rerender } = render(
-      <List items={primeira} label="Cidades" onSelectionChange={(itens) => escolhas.push([...itens])} selectionMode="multiple">
+      <List items={primeira} label="Cidades" onValueChange={(itens) => escolhas.push([...itens])} selectionMode="multiple">
         <List.Options />
       </List>,
     );
@@ -19,7 +19,7 @@ describe('List com busca assincrona', () => {
 
     // A consulta seguinte troca a colecao inteira.
     rerender(
-      <List items={segunda} label="Cidades" onSelectionChange={(itens) => escolhas.push([...itens])} selectionMode="multiple">
+      <List items={segunda} label="Cidades" onValueChange={(itens) => escolhas.push([...itens])} selectionMode="multiple">
         <List.Options />
       </List>,
     );

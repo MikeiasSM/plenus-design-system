@@ -115,4 +115,14 @@ describe('InputText', () => {
     expect(input.className).toContain('lg');
     expect(input.parentElement!.className).toContain('lg');
   });
+  it('reports the text through onValueChange alongside the native onChange', () => {
+    const onChange = vi.fn();
+    const onValueChange = vi.fn();
+    render(<InputText label="Cliente" onChange={onChange} onValueChange={onValueChange} />);
+
+    fireEvent.change(screen.getByLabelText('Cliente'), { target: { value: 'Aurora' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenCalledWith('Aurora');
+  });
 });

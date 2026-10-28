@@ -8,10 +8,14 @@ export type DialogRole = 'dialog' | 'alertdialog';
 /** O que o `Dialog` e o `Drawer` compartilham. As propriedades nativas vao ao elemento do dialogo. */
 export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label' | 'children' | 'role' | 'title'> {
   children?: ReactNode;
+  /** Aberto no inicio, no modo nao controlado. */
+  defaultOpen?: boolean;
   dismissable?: boolean;
   footer?: ReactNode;
-  onClose: () => void;
-  open: boolean;
+  /** @deprecated Use `onOpenChange`. */
+  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
 }
 
 export interface DialogTitledProps {

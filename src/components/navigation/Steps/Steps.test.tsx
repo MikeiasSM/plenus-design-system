@@ -18,14 +18,40 @@ describe('Steps', () => {
   });
 
   it('so vira botao quando a navegacao e livre', () => {
-    const onStepChange = vi.fn();
+    const onCurrentChange = vi.fn();
     const { rerender } = render(<Steps current="conta" items={items} label="Etapas" />);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
 
-    rerender(<Steps current="conta" items={items} label="Etapas" onStepChange={onStepChange} />);
+    rerender(<Steps current="conta" items={items} label="Etapas" onCurrentChange={onCurrentChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /Teste/ }));
+
+    expect(onCurrentChange).toHaveBeenCalledWith('teste');
+    expect(screen.getByRole('button', { name: /Conta/ })).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('sem controle, comeca pelo defaultCurrent e avanca no clique', () => {
+    const onCurrentChange = vi.fn();
+    render(<Steps defaultCurrent="servidor" items={items} label="Etapas" onCurrentChange={onCurrentChange} />);
+    expect(screen.getByRole('button', { name: /Servidor/ })).toHaveAttribute('aria-current', 'step');
+
+    fireEvent.click(screen.getByRole('button', { name: /Teste/ }));
+
+    expect(onCurrentChange).toHaveBeenCalledWith('teste');
+    expect(screen.getByRole('button', { name: /Teste/ })).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('sem current nem defaultCurrent, comeca pela primeira etapa', () => {
+    render(<Steps items={items} label="Etapas" />);
+
+    expect(screen.getByText('Conta').closest('[aria-current]')).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('ainda chama o obsoleto onStepChange', () => {
+    const onStepChange = vi.fn();
+    render(<Steps current="conta" items={items} label="Etapas" onStepChange={onStepChange} />);
+
     fireEvent.click(screen.getByRole('button', { name: /Teste/ }));
 
     expect(onStepChange).toHaveBeenCalledWith('teste');
-    expect(screen.getByRole('button', { name: /Conta/ })).toHaveAttribute('aria-current', 'step');
   });
 });

@@ -12,7 +12,7 @@ function Host({ dismissable = true }: { dismissable?: boolean }) {
       <Button onClick={() => setOpen(true)}>Abrir</Button>
       <Dialog
         open={open}
-        onClose={() => setOpen(false)}
+        onOpenChange={setOpen}
         dismissable={dismissable}
         title="Confirmar exclusao"
         description="Esta acao nao pode ser desfeita."
@@ -82,7 +82,7 @@ describe('Dialog', () => {
 
   it('leva id, data-* e classe ao elemento do dialogo', () => {
     render(
-      <Dialog className="largo" data-origem="cadastro" id="dialogo-cadastro" onClose={() => undefined} open title="Cadastro" />,
+      <Dialog className="largo" data-origem="cadastro" id="dialogo-cadastro" open title="Cadastro" />,
     );
 
     const dialogo = screen.getByRole('dialog', { name: 'Cadastro' });
@@ -94,7 +94,7 @@ describe('Dialog', () => {
 
   it('assume o papel de alerta na confirmacao que exige resposta', () => {
     render(
-      <Dialog onClose={() => undefined} open role="alertdialog" title="Excluir documento">
+      <Dialog open role="alertdialog" title="Excluir documento">
         Esta acao nao pode ser desfeita.
       </Dialog>,
     );
@@ -103,23 +103,23 @@ describe('Dialog', () => {
   });
 
   it('desenha o icone so quando informado, fora da leitura', () => {
-    const { rerender } = render(<Dialog onClose={() => undefined} open title="Nova secao" />);
+    const { rerender } = render(<Dialog open title="Nova secao" />);
 
     expect(document.querySelector(`.${styles.icon}`)).toBeNull();
 
-    rerender(<Dialog icon={<svg data-testid="icone" />} onClose={() => undefined} open title="Nova secao" />);
+    rerender(<Dialog icon={<svg data-testid="icone" />} open title="Nova secao" />);
 
     expect(screen.getByTestId('icone').closest('[aria-hidden="true"]')).not.toBeNull();
     expect(screen.getByRole('dialog', { name: 'Nova secao' })).toBeInTheDocument();
   });
 
   it('separa o cabecalho por linha so quando ha corpo embaixo dele', () => {
-    const { rerender } = render(<Dialog onClose={() => undefined} open title="Publicar" />);
+    const { rerender } = render(<Dialog open title="Publicar" />);
 
     expect(document.querySelector('header')).not.toHaveClass(styles.headerDivided!);
 
     rerender(
-      <Dialog onClose={() => undefined} open title="Publicar">
+      <Dialog open title="Publicar">
         Corpo
       </Dialog>,
     );
@@ -127,10 +127,37 @@ describe('Dialog', () => {
     expect(document.querySelector('header')).toHaveClass(styles.headerDivided!);
   });
 
+  it('controlado, avisa o fechamento mas so fecha quando o produto muda open', () => {
+    const onOpenChange = vi.fn();
+    render(<Dialog onOpenChange={onOpenChange} open title="Publicar" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByRole('dialog', { name: 'Publicar' })).toBeInTheDocument();
+  });
+
+  it('sem controle, abre pelo defaultOpen e fecha sozinho', () => {
+    render(<Dialog defaultOpen title="Publicar" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('ainda chama o obsoleto onClose ao fechar', () => {
+    const onClose = vi.fn();
+    render(<Dialog onClose={onClose} open title="Publicar" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   describe('sem titulo', () => {
     it('toma o nome do aria-label e nao desenha cabecalho nem o botao de fechar', () => {
       render(
-        <Dialog aria-label="Buscar no sistema" onClose={() => {}} open>
+        <Dialog aria-label="Buscar no sistema" open>
           <input aria-label="Termo" />
         </Dialog>,
       );
@@ -141,23 +168,23 @@ describe('Dialog', () => {
     });
 
     it('fecha pelo Esc, que passa a ser a saida pelo teclado', () => {
-      const onClose = vi.fn();
+      const onOpenChange = vi.fn();
       render(
-        <Dialog aria-label="Buscar no sistema" onClose={onClose} open>
+        <Dialog aria-label="Buscar no sistema" onOpenChange={onOpenChange} open>
           <input aria-label="Termo" />
         </Dialog>,
       );
 
       fireEvent.keyDown(screen.getByRole('textbox', { name: 'Termo' }), { key: 'Escape' });
 
-      expect(onClose).toHaveBeenCalled();
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
 
     it('exige o aria-label quando falta o titulo', () => {
       // @ts-expect-error sem titulo, o nome acessivel e obrigatorio
-      const semNome = <Dialog onClose={() => {}} open />;
+      const semNome = <Dialog open />;
       // @ts-expect-error titulo e aria-label nao se somam: o nome e um so
-      const comOsDois = <Dialog aria-label="Busca" onClose={() => {}} open title="Busca" />;
+      const comOsDois = <Dialog aria-label="Busca" open title="Busca" />;
 
       expect([semNome, comOsDois]).toHaveLength(2);
     });

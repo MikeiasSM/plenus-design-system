@@ -28,6 +28,8 @@ export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   expandedKeys?: readonly string[];
   items: readonly AccordionItem[];
   multiple?: boolean;
+  onExpandedKeysChange?: (keys: readonly string[]) => void;
+  /** @deprecated Use `onExpandedKeysChange`. */
   onExpandedChange?: (keys: readonly string[]) => void;
   /** Direita e a convencao da web; esquerda serve a rotulos curtos em coluna estreita. */
   iconPosition?: AccordionIconPosition;
@@ -72,6 +74,7 @@ export function Accordion({
   expandedKeys,
   items,
   multiple = false,
+  onExpandedKeysChange,
   onExpandedChange,
   iconPosition = 'right',
   divider = true,
@@ -93,7 +96,10 @@ export function Accordion({
     mode: multiple ? 'multiple' : 'single',
     defaultSelectedKeys: expandedKeys === undefined ? defaultExpandedKeys : undefined,
     selectedKeys: expandedKeys,
-    onSelectionChange: (keys) => onExpandedChange?.([...keys]),
+    onSelectionChange: (keys) => {
+      onExpandedKeysChange?.([...keys]);
+      onExpandedChange?.([...keys]);
+    },
   });
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, key: string) {

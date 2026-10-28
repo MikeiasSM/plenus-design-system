@@ -16,10 +16,30 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
+- Convenção de API (`CONTRIBUTING.md` §10). Os nomes antigos continuam aceitos, marcados como obsoletos, até a versão menor seguinte:
+  - `Accordion`: `onExpandedKeysChange` completa o trio com `expandedKeys` e `defaultExpandedKeys`; `onExpandedChange` fica obsoleto.
+  - `List`: `onValueChange` completa o trio com `value` e `defaultValue`; `onSelectionChange` fica obsoleto.
+  - `SortableList` e `Tabs`: `onSelectedKeyChange` completa o trio com `selectedKey` e `defaultSelectedKey`; `onSelectionChange` fica obsoleto.
+  - `Table`: `onSelectedIdsChange` completa o trio com `selectedIds` e `defaultSelectedIds`; `onSelectionChange` fica obsoleto.
+  - `Tag` e `ButtonTile`: `defaultSelected` para o modo não controlado; viram botão de alternar com `selected`, `defaultSelected` ou `onSelectedChange`. O `ButtonTile` ganha também `onSelectedChange`.
+  - `Steps`: `current` deixa de ser obrigatório; entram `defaultCurrent` e `onCurrentChange`, e `onStepChange` fica obsoleto. Sem etapa informada, começa na primeira.
+  - `Pagination`: `defaultPage` para o modo não controlado; `page` e `onPageChange` deixam de ser obrigatórios.
+  - `Dialog`, `Drawer` e `Popover`: `open` deixa de ser obrigatório; entram `defaultOpen` e `onOpenChange(open)`. `onClose` fica obsoleto e continua chamado ao fechar.
+  - `Tooltip`: `defaultOpen`, quando o gatilho é filho.
+  - `ChartMap`: `defaultHiddenClasses`, e `defaultSelectedRegion` com `onSelectedRegionChange` para a região escolhida; o clique escolhe a região e, na já escolhida, desfaz a escolha, quando o mapa usa seleção.
+  - `InputText` e `Textarea` ganham `onValueChange(value)`; `Checkbox` e `Switch`, `onCheckedChange(checked)`, ao lado do `onChange` nativo.
+  - `Badge`: tons `neutral`, `info`, `success`, `warning` e `danger`; `ok` e `warn` ficam obsoletos. O `primary` vira `variant="brand"`, a cor da marca, que ignora o tom; `tone="primary"` fica obsoleto. Tipo `BadgeVariant`.
+  - Tamanho `lg`, de 56px, em `InputPassword`, `Textarea`, `Select`, `ComboBox`, `DatePicker`, `DateTimePicker`, `TimePicker` e `ColorPicker`; no `SegmentedControl`, o `lg` tem os 40px do `Button` lg. Tipo `InputPasswordSize`.
+  - `ref` no tipo de `Avatar`, `Badge`, `Tag`, `Alert`, `Skeleton`, `Spinner` e `Label`. O `ToastRegion` passa a receber as propriedades nativas, o `ref` e a `className`; tipo `ToastRegionProps`.
 - Formatadores em inglês: `formatCurrency`, `formatNumber`, `formatPercent`, `formatDate`, `formatTime`, `formatDuration` e `formatFileSize`, com as opções `currency`, `decimals`, `compact`, `locale`, `format` (`'short' | 'long' | 'numeric'`) e `seconds`. A sigla compacta passa de `'sigla'` a `'symbol'`. Tipos `CompactNotation`, `FormatCurrencyOptions`, `FormatDateOptions`, `FormatFileSizeOptions`, `FormatNumberOptions`, `FormatPercentOptions` e `FormatTimeOptions`. Os nomes em português — `formatarMoeda` e os demais, com os tipos `Compacto` e `OpcoesDe*` — ficam obsoletos: continuam funcionando, com as opções em português, até a versão menor seguinte.
 - No tema claro, o traço do laranja passa do `orange.50` (3,03:1) ao `orange.70` (5,38:1) em links, abas, foco e bordas de seleção. O preenchimento continua o `orange.50`.
 - No tema escuro, a cor primária desce ao passo 40 da paleta, e o texto sobre ela passa a preto. O container e a linha primários passam a ser misturas da paleta com a superfície.
 - A borda no hover e o halo de foco dos campos derivam do traço primário.
+
+### Corrigido
+
+- `ChartHeatmap` com `squareCells`: o ângulo dos rótulos de coluna sai da coluna desenhada. Quando a altura manda, a coluna é mais estreita que a largura útil, e os rótulos se sobrepunham.
+- Escala de cor com um valor só, e esse valor zero: a célula fica no passo mais claro, e não no meio da rampa.
 
 ## [0.3.0] — 2026-10-28
 

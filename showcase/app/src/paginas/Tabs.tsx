@@ -31,7 +31,7 @@ const playground = definirPlayground({
       <Tabs
         items={ABAS_DO_MODULO.map((aba) => (aba.key === 'legado' ? { ...aba, disabled: valores.desabilitada } : aba))}
         label={valores.label}
-        onSelectionChange={(chave) => registrar(`onSelectionChange: ${chave}`)}
+        onSelectedKeyChange={(chave) => registrar(`onSelectedKeyChange: ${chave}`)}
         orientation={valores.orientation as TabsOrientation}
       />
     </div>
@@ -41,7 +41,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['items', expr('abas')],
       ['orientation', valores.orientation, 'horizontal'],
-      ['onSelectionChange', expr('setAba')],
+      ['onSelectedKeyChange', expr('setAba')],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -71,7 +71,7 @@ function Controladas() {
 
   return (
     <div className="stack" style={{ width: '100%' }}>
-      <Tabs items={ABAS_DO_MODULO} label="Configurações do módulo" onSelectionChange={setAba} selectedKey={aba} />
+      <Tabs items={ABAS_DO_MODULO} label="Configurações do módulo" onSelectedKeyChange={setAba} selectedKey={aba} />
       <p className="note">
         Aba atual: <code>{aba}</code>
       </p>
@@ -107,7 +107,7 @@ function Modos() {
       </dd>
       <dt>Controlado</dt>
       <dd>
-        Com <code>selectedKey</code>, a aba só muda quando o valor muda; <code>onSelectionChange</code> reporta a escolha.
+        Com <code>selectedKey</code>, a aba só muda quando o valor muda; <code>onSelectedKeyChange</code> reporta a escolha.
       </dd>
       <dt>Aba desabilitada</dt>
       <dd>
@@ -139,7 +139,7 @@ export const pagina: Pagina = {
       descricao: 'A aba vive no estado da página, para a rota ou outro componente lerem.',
       Previa: Controladas,
       codigo:
-        "const [aba, setAba] = useState('acesso');\n\n<Tabs\n  label=\"Configurações do módulo\"\n  items={abas}\n  selectedKey={aba}\n  onSelectionChange={setAba}\n/>",
+        "const [aba, setAba] = useState('acesso');\n\n<Tabs\n  label=\"Configurações do módulo\"\n  items={abas}\n  selectedKey={aba}\n  onSelectedKeyChange={setAba}\n/>",
     },
     {
       titulo: 'Preferências da conta',
@@ -198,7 +198,8 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome do tablist.' },
     { nome: 'selectedKey', tipo: 'string', descricao: 'Aba atual, no modo controlado.' },
     { nome: 'defaultSelectedKey', tipo: 'string', padrao: 'primeira habilitada', descricao: 'Aba inicial, no modo não controlado.' },
-    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: 'Recebe a chave da aba escolhida.' },
+    { nome: 'onSelectedKeyChange', tipo: '(key: string) => void', descricao: 'Recebe a chave da aba escolhida.' },
+    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onSelectedKeyChange</code>.</> },
     { nome: 'orientation', tipo: "'horizontal' | 'vertical'", padrao: "'horizontal'", descricao: 'Direção da lista e eixo das setas.' },
   ],
 };

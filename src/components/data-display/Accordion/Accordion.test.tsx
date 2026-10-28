@@ -85,11 +85,32 @@ describe('Accordion', () => {
   });
 
   it('reporta as secoes abertas ao produto', () => {
-    const onExpandedChange = vi.fn();
-    render(<Accordion items={secoes} multiple onExpandedChange={onExpandedChange} />);
+    const onExpandedKeysChange = vi.fn();
+    render(<Accordion items={secoes} multiple onExpandedKeysChange={onExpandedKeysChange} />);
     fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
 
-    expect(onExpandedChange).toHaveBeenCalledWith(['suporte']);
+    expect(onExpandedKeysChange).toHaveBeenCalledWith(['suporte']);
+  });
+
+  it('abre pelo defaultExpandedKeys e, controlado, so muda quando o produto muda expandedKeys', () => {
+    const { rerender } = render(<Accordion defaultExpandedKeys={['envio']} items={secoes} />);
+    expect(screen.getByRole('button', { name: /Envio/ })).toHaveAttribute('aria-expanded', 'true');
+
+    const onExpandedKeysChange = vi.fn();
+    rerender(<Accordion expandedKeys={['pagamento']} items={secoes} onExpandedKeysChange={onExpandedKeysChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
+
+    expect(onExpandedKeysChange).toHaveBeenCalledWith(['suporte']);
+    expect(screen.getByRole('button', { name: /Pagamento/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('ainda chama o obsoleto onExpandedChange', () => {
+    const onExpandedChange = vi.fn();
+    render(<Accordion items={secoes} onExpandedChange={onExpandedChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /Envio/ }));
+
+    expect(onExpandedChange).toHaveBeenCalledWith(['envio']);
   });
 
   it('fecha a secao aberta quando ela e clicada de novo, em modo unico', () => {

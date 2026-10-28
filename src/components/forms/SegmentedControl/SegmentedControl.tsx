@@ -9,7 +9,7 @@ export interface SegmentedControlItem {
   value: string;
 }
 
-export type SegmentedControlSize = 'sm' | 'md';
+export type SegmentedControlSize = 'sm' | 'md' | 'lg';
 
 export interface SegmentedControlProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue' | 'onChange'> {
   defaultValue?: string;

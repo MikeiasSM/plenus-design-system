@@ -231,10 +231,11 @@ function Modos() {
         Mostrada como dica do Tooltip no foco e, com o ponteiro, depois de meio segundo; enquanto visível, fica ligada por
         <code> aria-describedby</code>.
       </dd>
-      <dt><code>selected</code></dt>
+      <dt><code>selected</code>, <code>defaultSelected</code> ou <code>onSelectedChange</code></dt>
       <dd>
-        Só para o ladrilho que alterna: vira <code>aria-pressed</code> e mostra o estado ligado. Sem ele, o ladrilho é um
-        botão comum, sem estado.
+        Só para o ladrilho que alterna: vira <code>aria-pressed</code> e mostra o estado ligado. Com <code>selected</code> o
+        estado é controlado; com <code>defaultSelected</code> o ladrilho alterna sozinho. Sem nenhum deles, é um botão comum,
+        sem estado.
       </dd>
       <dt><code>disabled</code></dt>
       <dd>Desabilita o botão nativo: sai da ordem de tabulação e não dispara eventos.</dd>
@@ -300,7 +301,9 @@ export const pagina: Pagina = {
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Obrigatória. Ícone acima do rótulo; fica fora da leitura.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Texto visível e nome do botão, em até duas linhas.' },
     { nome: 'description', tipo: 'string', descricao: 'Dica no foco e no ponteiro, ligada por aria-describedby.' },
-    { nome: 'selected', tipo: 'boolean', descricao: 'Para o ladrilho que alterna: vira aria-pressed.' },
+    { nome: 'selected', tipo: 'boolean', descricao: 'Ligado, no modo controlado. Para o ladrilho que alterna: vira aria-pressed.' },
+    { nome: 'defaultSelected', tipo: 'boolean', descricao: 'Ligado no início, no modo não controlado. Também torna o ladrilho alternável.' },
+    { nome: 'onSelectedChange', tipo: '(selected: boolean) => void', descricao: 'Recebe o novo estado ao alternar. Sozinho, já torna o ladrilho alternável.' },
     { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Ícone de 20 ou 24px, rótulo em caption ou label, recuo lateral de 4 ou 12px.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido.' },

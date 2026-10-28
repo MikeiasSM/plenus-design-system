@@ -125,6 +125,32 @@ describe('ChartMap', () => {
     });
   });
 
+  it('sem controle, comeca pelo defaultSelectedRegion e o clique alterna a escolha', () => {
+    const onSelectedRegionChange = vi.fn();
+    render(map({ defaultSelectedRegion: 'BB', onSelectedRegionChange }));
+
+    expect(regionNamed('Beta')).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(regionNamed('Alfa'));
+    expect(onSelectedRegionChange).toHaveBeenLastCalledWith('AA');
+    expect(regionNamed('Alfa')).toHaveAttribute('aria-pressed', 'true');
+    expect(regionNamed('Beta')).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(regionNamed('Alfa'));
+    expect(onSelectedRegionChange).toHaveBeenLastCalledWith(null);
+    expect(regionNamed('Alfa')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('controlada, avisa a escolha mas so muda quando o produto muda selectedRegion', () => {
+    const onSelectedRegionChange = vi.fn();
+    render(map({ onSelectedRegionChange, selectedRegion: 'BB' }));
+
+    fireEvent.click(regionNamed('Alfa'));
+
+    expect(onSelectedRegionChange).toHaveBeenCalledWith('AA');
+    expect(regionNamed('Beta')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('percorre as regioes pelas setas, na direcao de cada uma, e marca o foco', () => {
     render(map({ onRegionClick: () => undefined }));
     const alfa = regionNamed('Alfa');
@@ -219,6 +245,13 @@ describe('ChartMap', () => {
     fireEvent.click(high);
     expect(onHiddenClassesChange).toHaveBeenLastCalledWith([1]);
     expect(high).toHaveAttribute('aria-pressed', 'false');
+    expect(regionNamed('Alfa')).toHaveAttribute('fill', 'var(--pl-color-surface-subtle)');
+  });
+
+  it('nas classes, comeca com as faixas do defaultHiddenClasses desligadas', () => {
+    render(map({ colorScale: { thresholds: [50], type: 'classes' }, defaultHiddenClasses: [1] }));
+
+    expect(screen.getByRole('button', { name: /50 ou mais/ })).toHaveAttribute('aria-pressed', 'false');
     expect(regionNamed('Alfa')).toHaveAttribute('fill', 'var(--pl-color-surface-subtle)');
   });
 

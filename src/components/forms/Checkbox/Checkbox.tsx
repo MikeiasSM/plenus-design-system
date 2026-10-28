@@ -9,6 +9,8 @@ export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'typ
   indeterminate?: boolean;
   /** Sem rotulo visivel, o nome vem de `aria-label` ou `aria-labelledby`. */
   label?: ReactNode;
+  /** A marcacao a cada mudanca, ao lado do `onChange` nativo. */
+  onCheckedChange?: (checked: boolean) => void;
 }
 
 export function Checkbox({
@@ -20,6 +22,7 @@ export function Checkbox({
   id: providedId,
   indeterminate = false,
   label,
+  onCheckedChange,
   ref,
   ...props
 }: CheckboxProps) {
@@ -50,6 +53,10 @@ export function Checkbox({
       <label className={styles.control} htmlFor={id}>
         <input
           {...props}
+          onChange={(event) => {
+            props.onChange?.(event);
+            onCheckedChange?.(event.target.checked);
+          }}
           ref={mergedRef}
           className={classes}
           id={id}
@@ -62,6 +69,7 @@ export function Checkbox({
             onChange: (event: ChangeEvent<HTMLInputElement>) => {
               group.toggle(groupValue, event.target.checked);
               props.onChange?.(event);
+              onCheckedChange?.(event.target.checked);
             },
           })}
           aria-describedby={describedBy}

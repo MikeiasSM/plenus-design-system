@@ -27,6 +27,8 @@ export interface TabsProps extends ComponentPropsWithRef<'div'> {
   fitted?: boolean;
   items: readonly TabItem[];
   label: string;
+  onSelectedKeyChange?: (key: string) => void;
+  /** @deprecated Use `onSelectedKeyChange`. */
   onSelectionChange?: (key: string) => void;
   orientation?: TabsOrientation;
   selectedKey?: string;
@@ -39,6 +41,7 @@ export function Tabs({
   fitted = false,
   items,
   label,
+  onSelectedKeyChange,
   onSelectionChange,
   orientation = 'horizontal',
   selectedKey,
@@ -59,6 +62,7 @@ export function Tabs({
     onSelectionChange: (keys) => {
       const [escolhida] = keys;
       if (escolhida !== undefined) {
+        onSelectedKeyChange?.(escolhida);
         onSelectionChange?.(escolhida);
       }
     },

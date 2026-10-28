@@ -15,6 +15,10 @@
   composes: md from '../DatePicker/DatePicker.module.css';
 }
 
+.lg {
+  composes: lg from '../DatePicker/DatePicker.module.css';
+}
+
 .input {
   composes: input from '../DatePicker/DatePicker.module.css';
 }

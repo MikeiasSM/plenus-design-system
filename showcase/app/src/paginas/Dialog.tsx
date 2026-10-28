@@ -39,9 +39,9 @@ function DialogDoPlayground({ valores, registrar }: { valores: Valores; registra
           )
         }
         icon={valores.icone ? <IconInfoCircle /> : undefined}
-        onClose={() => {
-          registrar('onClose');
-          setAberto(false);
+        onOpenChange={(valor) => {
+          registrar(`onOpenChange: ${valor}`);
+          setAberto(valor);
         }}
         open={aberto}
         role={valores.role as DialogRole}
@@ -83,7 +83,7 @@ const playground = definirPlayground({
         'Dialog',
         [
           ['open', expr('aberto')],
-          ['onClose', expr('fechar')],
+          ['onOpenChange', expr('setAberto')],
           ['title', valores.title],
           ['description', valores.description || undefined],
           ['size', valores.size, 'md'],
@@ -142,7 +142,7 @@ function ConfirmacaoDeExclusao() {
           </>
         }
         icon={<IconExclamationTriangle />}
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         role="alertdialog"
         size="sm"
@@ -169,7 +169,7 @@ function NovaSecao() {
           </>
         }
         icon={<IconPlusCircle />}
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         title="Nova seção"
       >
@@ -192,7 +192,7 @@ function SessaoExpirada() {
         description="Por segurança, entre de novo para continuar."
         dismissable={false}
         footer={<Button onClick={() => setAberto(false)}>Entrar novamente</Button>}
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         size="sm"
         title="Sessão expirada"
@@ -208,7 +208,7 @@ function PaletaDeBusca() {
   return (
     <>
       <Button onClick={() => setAberta(true)} variant="secondary">Buscar (Ctrl K)</Button>
-      <Dialog aria-label="Buscar no acervo" onClose={() => setAberta(false)} open={aberta}>
+      <Dialog aria-label="Buscar no acervo" onOpenChange={setAberta} open={aberta}>
         <ComboBox aria-label="Termo da busca" options={resultados} placeholder="Buscar documentos e coleções" />
       </Dialog>
     </>
@@ -221,7 +221,7 @@ function EdicaoLongaEmDialog() {
   return (
     <>
       <Button onClick={() => setAberto(true)} variant="secondary">Editar usuário</Button>
-      <Dialog onClose={() => setAberto(false)} open={aberto} size="lg" title="Editar usuário">
+      <Dialog onOpenChange={setAberto} open={aberto} size="lg" title="Editar usuário">
         <div className="stack">
           <InputText defaultValue="Ana Prado" label="Nome" />
           <InputText defaultValue="ana@plenustech.com" label="E-mail" />
@@ -248,7 +248,7 @@ function Variantes() {
       <Dialog
         description={`Largura máxima de ${LARGURAS[tamanho ?? 'md']}.`}
         footer={<Button onClick={() => setTamanho(null)}>Fechar</Button>}
-        onClose={() => setTamanho(null)}
+        onOpenChange={() => setTamanho(null)}
         open={tamanho !== null}
         size={tamanho ?? 'md'}
         title={`Tamanho ${tamanho ?? 'md'}`}
@@ -262,9 +262,9 @@ function Variantes() {
 function Modos() {
   return (
     <dl className="modes">
-      <dt><code>open</code> e <code>onClose</code></dt>
+      <dt><code>open</code>, <code>defaultOpen</code> e <code>onOpenChange</code></dt>
       <dd>
-        Sempre controlado. Escape, clique fora e o botão de fechar chamam <code>onClose</code>; quem abriu decide fechar.
+        Com <code>open</code>, controlado: Escape, clique fora e o botão de fechar chamam <code>onOpenChange(false)</code>, e quem abriu decide fechar. Com <code>defaultOpen</code>, abre no início e fecha sozinho.
         Fechado, não renderiza nada.
       </dd>
       <dt><code>dismissable=&#123;false&#125;</code></dt>
@@ -298,28 +298,28 @@ export const pagina: Pagina = {
       descricao: 'alertdialog para a decisão que não se desfaz, com a ação danger no rodapé.',
       Previa: ConfirmacaoDeExclusao,
       codigo:
-        '<Button variant="danger" onClick={abrir}>Excluir módulo</Button>\n<Dialog\n  open={aberto}\n  onClose={fechar}\n  role="alertdialog"\n  size="sm"\n  icon={<IconExclamationTriangle />}\n  title="Excluir módulo"\n  description="O módulo e todos os seus registros serão removidos."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button variant="danger" onClick={excluir}>Excluir</Button>\n  </>}\n>\n  Esta ação não pode ser desfeita.\n</Dialog>',
+        '<Button variant="danger" onClick={abrir}>Excluir módulo</Button>\n<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  role="alertdialog"\n  size="sm"\n  icon={<IconExclamationTriangle />}\n  title="Excluir módulo"\n  description="O módulo e todos os seus registros serão removidos."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button variant="danger" onClick={excluir}>Excluir</Button>\n  </>}\n>\n  Esta ação não pode ser desfeita.\n</Dialog>',
     },
     {
       titulo: 'Formulário curto, com ícone',
       descricao: 'O foco entra no primeiro campo e volta ao gatilho ao fechar.',
       Previa: NovaSecao,
       codigo:
-        '<Button variant="secondary" onClick={abrir}>Nova seção</Button>\n<Dialog\n  open={aberto}\n  onClose={fechar}\n  icon={<IconPlusCircle />}\n  title="Nova seção"\n  description="A seção agrupa documentos dentro da coleção."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={criar}>Criar seção</Button>\n  </>}\n>\n  <InputText label="Nome" />\n  <InputText label="Descrição" />\n</Dialog>',
+        '<Button variant="secondary" onClick={abrir}>Nova seção</Button>\n<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  icon={<IconPlusCircle />}\n  title="Nova seção"\n  description="A seção agrupa documentos dentro da coleção."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={criar}>Criar seção</Button>\n  </>}\n>\n  <InputText label="Nome" />\n  <InputText label="Descrição" />\n</Dialog>',
     },
     {
       titulo: 'Não dispensável, sem corpo',
       descricao: 'Escape e clique fora não fecham; a única saída é a ação do rodapé.',
       Previa: SessaoExpirada,
       codigo:
-        '<Dialog\n  open={expirada}\n  onClose={entrar}\n  dismissable={false}\n  size="sm"\n  title="Sessão expirada"\n  description="Por segurança, entre de novo para continuar."\n  footer={<Button onClick={entrar}>Entrar novamente</Button>}\n/>',
+        '<Dialog\n  open={expirada}\n  onOpenChange={entrar}\n  dismissable={false}\n  size="sm"\n  title="Sessão expirada"\n  description="Por segurança, entre de novo para continuar."\n  footer={<Button onClick={entrar}>Entrar novamente</Button>}\n/>',
     },
     {
       titulo: 'Paleta de busca, sem título',
       descricao: 'Sem title, o nome vem do aria-label e o diálogo não tem cabeçalho. Esc fecha.',
       Previa: PaletaDeBusca,
       codigo:
-        '<Dialog aria-label="Buscar no acervo" open={aberta} onClose={fechar}>\n  <ComboBox\n    aria-label="Termo da busca"\n    placeholder="Buscar documentos e coleções"\n    options={resultados}\n  />\n</Dialog>',
+        '<Dialog aria-label="Buscar no acervo" open={aberta} onOpenChange={setAberta}>\n  <ComboBox\n    aria-label="Termo da busca"\n    placeholder="Buscar documentos e coleções"\n    options={resultados}\n  />\n</Dialog>',
     },
   ],
   faca: {
@@ -362,8 +362,10 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao elemento do diálogo; o className soma ao do sistema.',
   api: [
-    { nome: 'open', tipo: 'boolean', descricao: 'Obrigatória. Abre o diálogo.' },
-    { nome: 'onClose', tipo: '() => void', descricao: 'Obrigatória. Pedido de fechar: Escape, clique fora ou botão de fechar.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },
+    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível. Sem ele, não há cabeçalho.' },
     { nome: 'aria-label', tipo: 'string', descricao: 'Obrigatória sem title, e recusada com ele: o nome do diálogo sem cabeçalho.' },
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },

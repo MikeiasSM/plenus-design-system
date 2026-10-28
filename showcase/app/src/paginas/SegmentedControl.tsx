@@ -27,7 +27,7 @@ const VISOES = [
   { icon: <IconClock />, label: 'Ver em linha do tempo', value: 'linha' },
 ];
 
-const TAMANHOS = ['sm', 'md'] as const;
+const TAMANHOS = ['sm', 'md', 'lg'] as const;
 
 function periodos(quantidade: number, ultimoDesabilitado: boolean) {
   return PERIODOS.slice(0, quantidade).map((periodo, indice) =>
@@ -245,7 +245,7 @@ export const pagina: Pagina = {
     { nome: 'value', tipo: 'string', descricao: 'Valor escolhido, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Valor inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa o segmento escolhido.' },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Altura do Button do mesmo tamanho.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do Button do mesmo tamanho.' },
     { nome: 'iconOnly', tipo: 'boolean', padrao: 'false', descricao: 'Mostra só os ícones; o label vira dica.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita todos os segmentos.' },

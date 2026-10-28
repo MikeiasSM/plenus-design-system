@@ -60,6 +60,12 @@
   padding: calc((var(--pl-control-height-md) - var(--pl-type-body-line-height)) / 2 - 1px) 12px;
 }
 
+.lg .input {
+  padding: calc((var(--pl-control-height-lg) - var(--pl-type-title-line-height)) / 2 - 1px) 16px;
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}
+
 .input:focus-visible {
   outline: none;
 }

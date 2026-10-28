@@ -15,6 +15,11 @@
   gap: var(--pl-space-3);
 }
 
+.lg {
+  --color-picker-size: 36px;
+  gap: var(--pl-space-3);
+}
+
 /* O contorno no texto terciário passa 3:1 sobre a superfície nos dois temas: amostra branca no claro, ou preta no escuro, não some. */
 .swatch {
   position: relative;

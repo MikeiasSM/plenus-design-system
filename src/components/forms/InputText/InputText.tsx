@@ -12,6 +12,8 @@ export interface InputTextProps extends Omit<ComponentPropsWithRef<'input'>, 'si
   /** Icone decorativo a frente do texto, como a lupa de uma busca. O nome do campo continua no `label`. */
   icon?: ReactNode;
   label?: string;
+  /** O texto a cada mudanca, ao lado do `onChange` nativo. */
+  onValueChange?: (value: string) => void;
   size?: InputTextSize;
   showCharacterCount?: boolean;
 }
@@ -31,6 +33,7 @@ export function InputText({
   showCharacterCount = false,
   defaultValue,
   onChange,
+  onValueChange,
   value,
   ref,
   ...props
@@ -41,6 +44,7 @@ export function InputText({
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     updateCount(event.target.value);
     onChange?.(event);
+    onValueChange?.(event.target.value);
   }
 
   return (

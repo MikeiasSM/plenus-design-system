@@ -32,7 +32,7 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'hint' },
     { tipo: 'texto', nome: 'error' },
     { tipo: 'texto', nome: 'emptyMessage' },
-    { tipo: 'opcoes', nome: 'size', opcoes: ['sm', 'md'] },
+    { tipo: 'opcoes', nome: 'size', opcoes: ['sm', 'md', 'lg'] },
     { tipo: 'booleano', nome: 'buscaExterna' },
     { tipo: 'booleano', nome: 'loading' },
     { tipo: 'booleano', nome: 'required' },
@@ -351,7 +351,7 @@ export const pagina: Pagina = {
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Marca o rótulo e barra o envio vazio.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o campo.' },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Altura do campo.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px.' },
     { nome: 'name', tipo: 'string', descricao: 'Nome do campo no formulário.' },
   ],
 };

@@ -165,6 +165,19 @@ describe('ChartHeatmap', () => {
     expect(Number(screen.getByText('Seg').getAttribute('y'))).toBeLessThan(0);
   });
 
+  it('com celulas quadradas, o angulo dos rotulos sai da coluna desenhada, e nao da largura util', () => {
+    const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
+    render(
+      heatmap({
+        cells: dias.flatMap((x) => [{ value: 1, x, y: 'Manhã' }, { value: 2, x, y: 'Tarde' }]),
+        height: 140,
+        squareCells: true,
+      }),
+    );
+
+    expect(rotulo('Segunda-feira')).toHaveAttribute('transform', expect.stringMatching(/^rotate\(-(45|90) /));
+  });
+
   it('nas faixas, a legenda liga e desliga as celulas de cada uma', () => {
     render(heatmap({ colorScale: { thresholds: [50], type: 'classes' } }));
 

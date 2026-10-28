@@ -71,7 +71,7 @@ export type { InputTextProps, InputTextSize } from './components/forms/InputText
 export { InputNumber } from './components/forms/InputNumber';
 export type { InputNumberProps } from './components/forms/InputNumber';
 export { InputPassword } from './components/forms/InputPassword';
-export type { InputPasswordProps } from './components/forms/InputPassword';
+export type { InputPasswordProps, InputPasswordSize } from './components/forms/InputPassword';
 export { InputCurrency } from './components/forms/InputCurrency';
 export type { InputCurrencyProps } from './components/forms/InputCurrency';
 export { Textarea } from './components/forms/Textarea';
@@ -111,7 +111,7 @@ export type { EmptyStateProps, EmptyStateSize, EmptyStateTone } from './componen
 export { Skeleton } from './components/feedback/Skeleton';
 export type { SkeletonProps, SkeletonShape } from './components/feedback/Skeleton';
 export { ToastRegion, dismissToast, showToast } from './components/feedback/Toast';
-export type { ToastAction, ToastOptions, ToastTone } from './components/feedback/Toast';
+export type { ToastAction, ToastOptions, ToastRegionProps, ToastTone } from './components/feedback/Toast';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';
@@ -147,7 +147,7 @@ export type { DialogProps, DialogRole, DialogSize } from './components/overlays/
 export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { Badge } from './components/data-display/Badge';
-export type { BadgeProps, BadgeTone } from './components/data-display/Badge';
+export type { BadgeProps, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';
 export type { TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';

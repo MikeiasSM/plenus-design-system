@@ -202,5 +202,6 @@ export const pagina: Pagina = {
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda e marca o controle como inválido.' },
     { nome: 'indeterminate', tipo: 'boolean', padrao: 'false', descricao: 'Estado de escolha parcial.' },
+    { nome: 'onCheckedChange', tipo: '(checked: boolean) => void', descricao: 'A marcação a cada mudança, ao lado do onChange nativo.' },
   ],
 };

@@ -33,6 +33,31 @@ describe('ButtonTile', () => {
     expect(screen.getByRole('button', { name: 'Arquivo', pressed: true })).toBeInTheDocument();
   });
 
+  it('alterna sozinho a partir do defaultSelected e avisa a mudanca', () => {
+    const onSelectedChange = vi.fn();
+    render(<ButtonTile defaultSelected icon={<IconFile />} label="Arquivo" onSelectedChange={onSelectedChange} />);
+    const ladrilho = screen.getByRole('button', { name: 'Arquivo' });
+
+    expect(ladrilho).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(ladrilho);
+
+    expect(ladrilho).toHaveAttribute('aria-pressed', 'false');
+    expect(onSelectedChange).toHaveBeenCalledWith(false);
+  });
+
+  it('controlado, avisa a mudanca e o onClick, mas so muda quando o produto muda selected', () => {
+    const onClick = vi.fn();
+    const onSelectedChange = vi.fn();
+    render(<ButtonTile icon={<IconFile />} label="Arquivo" onClick={onClick} onSelectedChange={onSelectedChange} selected={false} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Arquivo' }));
+
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onSelectedChange).toHaveBeenCalledWith(true);
+    expect(screen.getByRole('button', { name: 'Arquivo' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('aciona no clique e, desabilitado, nao', () => {
     const onClick = vi.fn();
     const { rerender } = render(<ButtonTile icon={<IconFile />} label="Arquivo" onClick={onClick} />);

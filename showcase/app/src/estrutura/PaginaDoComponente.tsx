@@ -229,7 +229,7 @@ export function PaginaDoComponente({ componente, familia }: { componente: Compon
         <p className="crumb">{familia}</p>
         <div className="page-title">
           <h1>{componente.nome}</h1>
-          {componente.previsto ? <Badge>Previsto</Badge> : <Badge tone="ok">Disponível</Badge>}
+          {componente.previsto ? <Badge>Previsto</Badge> : <Badge tone="success">Disponível</Badge>}
         </div>
         <p className="page-lead">{componente.papel}</p>
         {!componente.previsto && (

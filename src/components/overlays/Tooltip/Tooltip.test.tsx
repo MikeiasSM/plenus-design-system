@@ -89,6 +89,17 @@ describe('Tooltip', () => {
     expect(mudou).toHaveBeenLastCalledWith(false);
   });
 
+  it('sem controle, abre pelo defaultOpen e fecha sozinho no Escape', () => {
+    render(<Tooltip content="Ajuda" defaultOpen><Button>Salvar</Button></Tooltip>);
+    const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+    expect(gatilho).toHaveAccessibleDescription('Ajuda');
+
+    fireEvent.keyDown(gatilho, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   it('controlado, abre pelo produto e o Escape só pede para fechar', () => {
     const mudou = vi.fn();
     render(<Tooltip content="Valor inválido" onOpenChange={mudou} open><Button>Célula</Button></Tooltip>);

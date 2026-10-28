@@ -42,7 +42,7 @@ const playground = definirPlayground({
       key={`${valores.selectionMode}-${valores.items}`}
       label={valores.label || undefined}
       loading={valores.loading}
-      onSelectionChange={(itens) => registrar('onSelectionChange: ' + resumir(itens))}
+      onValueChange={(itens) => registrar('onValueChange: ' + resumir(itens))}
       selectionMode={valores.selectionMode as ListSelectionMode}
       style={{ width: '100%' }}
     >
@@ -60,7 +60,7 @@ const playground = definirPlayground({
         ['label', valores.label || undefined],
         ['selectionMode', valores.selectionMode, 'none'],
         ['loading', valores.loading, false],
-        ['onSelectionChange', valores.selectionMode === 'none' ? undefined : expr('setEscolhidos')],
+        ['onValueChange', valores.selectionMode === 'none' ? undefined : expr('setEscolhidos')],
       ],
       [
         valores.busca && '<List.Search placeholder="Buscar" />',
@@ -122,7 +122,7 @@ function SelecaoUnica() {
 
   return (
     <div className="stack" style={{ width: '100%' }}>
-      <List items={ESTADOS} label="Estado de origem" onSelectionChange={setOrigem} selectionMode="single" value={origem}>
+      <List items={ESTADOS} label="Estado de origem" onValueChange={setOrigem} selectionMode="single" value={origem}>
         <List.Search placeholder="Buscar estado" />
         <List.Options height={200} />
         <List.Empty>Nenhum estado encontrado</List.Empty>
@@ -140,7 +140,7 @@ function SelecaoMultipla() {
       <List
         items={ESTADOS}
         label="Estados atendidos"
-        onSelectionChange={setAtendidos}
+        onValueChange={setAtendidos}
         selectionMode="multiple"
         value={atendidos}
       >
@@ -186,7 +186,7 @@ function Modos() {
       </dd>
       <dt>Itens, não chaves</dt>
       <dd>
-        <code>value</code>, <code>defaultValue</code> e <code>onSelectionChange</code> trabalham com os itens escolhidos,
+        <code>value</code>, <code>defaultValue</code> e <code>onValueChange</code> trabalham com os itens escolhidos,
         e não com chaves: com busca no servidor, o escolhido pode não estar na coleção carregada, e sem o rótulo não há
         como exibi-lo.
       </dd>
@@ -236,14 +236,14 @@ export const pagina: Pagina = {
       descricao: 'Com seleção, a lista vira listbox: setas percorrem e Enter escolhe.',
       Previa: SelecaoUnica,
       codigo:
-        '<List\n  items={estados}\n  label="Estado de origem"\n  selectionMode="single"\n  value={origem}\n  onSelectionChange={setOrigem}\n>\n  <List.Search placeholder="Buscar estado" />\n  <List.Options height={200} />\n  <List.Empty>Nenhum estado encontrado</List.Empty>\n</List>',
+        '<List\n  items={estados}\n  label="Estado de origem"\n  selectionMode="single"\n  value={origem}\n  onValueChange={setOrigem}\n>\n  <List.Search placeholder="Buscar estado" />\n  <List.Options height={200} />\n  <List.Empty>Nenhum estado encontrado</List.Empty>\n</List>',
     },
     {
       titulo: 'Seleção múltipla',
       descricao: 'Marque um estado e busque outro: o marcado fica no topo. Shift com clique marca a faixa.',
       Previa: SelecaoMultipla,
       codigo:
-        '<List\n  items={estados}\n  label="Estados atendidos"\n  selectionMode="multiple"\n  value={atendidos}\n  onSelectionChange={setAtendidos}\n>\n  <List.Search placeholder="Buscar estado" />\n  <List.SelectAll label="Selecionar todos os estados" />\n  <List.Options height={200} />\n  <List.Empty>Nenhum estado encontrado</List.Empty>\n</List>',
+        '<List\n  items={estados}\n  label="Estados atendidos"\n  selectionMode="multiple"\n  value={atendidos}\n  onValueChange={setAtendidos}\n>\n  <List.Search placeholder="Buscar estado" />\n  <List.SelectAll label="Selecionar todos os estados" />\n  <List.Options height={200} />\n  <List.Empty>Nenhum estado encontrado</List.Empty>\n</List>',
     },
     {
       titulo: 'Dez mil registros',
@@ -339,7 +339,8 @@ export const pagina: Pagina = {
     { nome: 'selectionMode', tipo: "'none' | 'single' | 'multiple'", padrao: "'none'", descricao: 'Sem seleção, simples ou múltipla.' },
     { nome: 'value', tipo: 'ListItem[]', descricao: 'Itens escolhidos, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'ListItem[]', descricao: 'Itens escolhidos de início, no modo não controlado.' },
-    { nome: 'onSelectionChange', tipo: '(items: ListItem[]) => void', descricao: 'Avisa os itens escolhidos.' },
+    { nome: 'onValueChange', tipo: '(items: ListItem[]) => void', descricao: 'Avisa os itens escolhidos.' },
+    { nome: 'onSelectionChange', tipo: '(items: ListItem[]) => void', descricao: <>Obsoleto: use <code>onValueChange</code>.</> },
     { nome: 'onSearch', tipo: '(term: string) => void', descricao: 'Busca externa: avisa o termo e desliga o filtro local.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Espera da busca externa.' },
     { nome: 'loadingMessage', tipo: 'string', padrao: "'Carregando'", descricao: 'Texto do carregamento.' },

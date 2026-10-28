@@ -1,15 +1,16 @@
-import { useId, type HTMLAttributes, type ReactNode } from 'react';
+import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { IconCheck, IconClose } from '../../icons';
 import styles from './Tag.module.css';
 
 export type TagSize = 'sm' | 'md';
 
-export interface TagProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
+export interface TagProps extends Omit<ComponentPropsWithRef<'span'>, 'children'> {
   children: ReactNode;
+  defaultSelected?: boolean;
   disabled?: boolean;
   /** Mostra o botao de remover, nomeado como "Remover" seguido do texto da etiqueta. */
   onRemove?: () => void;
-  /** Com `selected`, a etiqueta vira um botao de alternar, como o filtro que se liga e desliga. */
+  /** Com `selected`, `defaultSelected` ou `onSelectedChange`, a etiqueta vira um botao de alternar, como o filtro que se liga e desliga. */
   onSelectedChange?: (selected: boolean) => void;
   selected?: boolean;
   size?: TagSize;
@@ -18,6 +19,7 @@ export interface TagProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'childre
 export function Tag({
   children,
   className,
+  defaultSelected,
   disabled = false,
   onRemove,
   onSelectedChange,
@@ -27,23 +29,32 @@ export function Tag({
 }: TagProps) {
   const textId = useId();
   const removeId = useId();
-  const toggleable = selected !== undefined;
-  const classes = [styles.tag, styles[size], selected && styles.selected, disabled && styles.disabled, className]
+  const [internalSelected, setInternalSelected] = useState(defaultSelected ?? false);
+  const toggleable = selected !== undefined || defaultSelected !== undefined || onSelectedChange !== undefined;
+  const currentSelected = selected ?? internalSelected;
+  const classes = [styles.tag, styles[size], toggleable && currentSelected && styles.selected, disabled && styles.disabled, className]
     .filter(Boolean)
     .join(' ');
+
+  function toggle() {
+    if (selected === undefined) {
+      setInternalSelected(!currentSelected);
+    }
+    onSelectedChange?.(!currentSelected);
+  }
 
   return (
     <span {...props} className={classes}>
       {toggleable ? (
         <button
-          aria-pressed={selected}
+          aria-pressed={currentSelected}
           className={styles.toggle}
           disabled={disabled}
           id={textId}
-          onClick={() => onSelectedChange?.(!selected)}
+          onClick={toggle}
           type="button"
         >
-          {selected && <IconCheck className={styles.check} />}
+          {currentSelected && <IconCheck className={styles.check} />}
           {children}
         </button>
       ) : (

@@ -44,12 +44,24 @@
   line-height: var(--pl-type-label-line-height);
 }
 
+/* A altura do `Button` lg, 40px, e nao a dos campos: o controle fica ao lado de botoes. */
+.lg .segment {
+  min-height: 32px;
+  padding: 3px 16px;
+  font-size: var(--pl-type-label-size);
+  line-height: var(--pl-type-label-line-height);
+}
+
 .sm .iconOnly {
   padding-inline: 6px;
 }
 
 .md .iconOnly {
   padding-inline: 9px;
+}
+
+.lg .iconOnly {
+  padding-inline: 11px;
 }
 
 .input {

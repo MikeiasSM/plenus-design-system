@@ -4,12 +4,14 @@ import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Textarea.module.css';
 
-export type TextareaSize = 'sm' | 'md';
+export type TextareaSize = 'sm' | 'md' | 'lg';
 
 export interface TextareaProps extends Omit<ComponentPropsWithRef<'textarea'>, 'size'> {
   error?: string;
   hint?: string;
   label?: string;
+  /** O texto a cada mudanca, ao lado do `onChange` nativo. */
+  onValueChange?: (value: string) => void;
   size?: TextareaSize;
   showCharacterCount?: boolean;
 }
@@ -29,6 +31,7 @@ export function Textarea({
   showCharacterCount = false,
   defaultValue,
   onChange,
+  onValueChange,
   value,
   ref,
   ...props
@@ -42,6 +45,7 @@ export function Textarea({
   function handleChange(event: ChangeEvent<HTMLTextAreaElement>) {
     updateCount(event.target.value);
     onChange?.(event);
+    onValueChange?.(event.target.value);
   }
 
   return (

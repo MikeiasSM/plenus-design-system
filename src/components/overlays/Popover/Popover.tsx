@@ -1,4 +1,4 @@
-import { useRef, type ComponentPropsWithRef, type ReactNode, type RefObject } from 'react';
+import { useRef, useState, type ComponentPropsWithRef, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
@@ -18,21 +18,37 @@ export type PopoverPlacement =
 /** As propriedades nativas vao ao elemento do painel; o `className` soma ao do sistema. */
 export interface PopoverProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   children: ReactNode;
+  /** Aberto no inicio, no modo nao controlado. */
+  defaultOpen?: boolean;
   offset?: number;
-  onClose: () => void;
-  open: boolean;
+  /** @deprecated Use `onOpenChange`. */
+  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
   placement?: PopoverPlacement;
   triggerRef: RefObject<HTMLElement | null>;
 }
 
-export function Popover({ open, ...props }: PopoverProps) {
+export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...props }: PopoverProps) {
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+
+  function close() {
+    if (open === undefined) {
+      setInternalOpen(false);
+    }
+    onOpenChange?.(false);
+    onClose?.();
+  }
+
   // No servidor nao ha `document` para o portal; o Popover nasce na hidratacao.
-  if (!open || typeof document === 'undefined') {
+  if (!(open ?? internalOpen) || typeof document === 'undefined') {
     return null;
   }
 
-  return createPortal(<PopoverContent {...props} />, document.body);
+  return createPortal(<PopoverContent {...props} onClose={close} />, document.body);
 }
+
+type PopoverContentProps = Omit<PopoverProps, 'defaultOpen' | 'onClose' | 'onOpenChange' | 'open'> & { onClose: () => void };
 
 function PopoverContent({
   children,
@@ -44,7 +60,7 @@ function PopoverContent({
   style,
   triggerRef,
   ...props
-}: Omit<PopoverProps, 'open'>) {
+}: PopoverContentProps) {
   const ref = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRefs(ref, refDoConsumidor);
 

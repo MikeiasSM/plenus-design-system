@@ -65,6 +65,12 @@ describe('escalas do mapa', () => {
     expect(buildColorScale({ type: 'sequential' }, [7], format).entries).toHaveLength(1);
   });
 
+  it('so zeros ficam no passo mais claro, e nao no meio da rampa', () => {
+    const scale = buildColorScale({ type: 'sequential' }, [0, 0, 0], format);
+
+    expect(scale.fillOf(datum(0))).toBe(SEQUENTIAL_TOKENS[0]);
+  });
+
   it('sem valor algum, tudo fica sem dado e a legenda nao inventa faixa', () => {
     const scale = buildColorScale({ method: 'quantile', type: 'classes' }, [], format);
 

@@ -48,6 +48,8 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   loading?: boolean;
   loadingMessage?: string;
   highlightSelectedRow?: boolean;
+  onSelectedIdsChange?: (ids: readonly string[]) => void;
+  /** @deprecated Use `onSelectedIdsChange`. */
   onSelectionChange?: (ids: readonly string[]) => void;
   onSortChange?: (sort: TableSort) => void;
   rows?: readonly TableRowItem[];
@@ -135,6 +137,7 @@ export function Table({
   label,
   loading = false,
   loadingMessage = 'Carregando',
+  onSelectedIdsChange,
   onSelectionChange,
   onSortChange,
   rows = [],
@@ -224,7 +227,10 @@ export function Table({
     items: collection,
     mode: selectionMode,
     selectedKeys: selectedIds,
-    onSelectionChange: (keys) => onSelectionChange?.([...keys]),
+    onSelectionChange: (keys) => {
+      onSelectedIdsChange?.([...keys]);
+      onSelectionChange?.([...keys]);
+    },
   });
 
   const context: TableContextValue = {

@@ -10,7 +10,7 @@ function Host() {
   return (
     <div>
       <Button ref={gatilho} onClick={() => setOpen(true)}>Filtros</Button>
-      <Popover open={open} onClose={() => setOpen(false)} triggerRef={gatilho} aria-label="Filtros">
+      <Popover open={open} onOpenChange={setOpen} triggerRef={gatilho} aria-label="Filtros">
         <Button onClick={() => setOpen(false)}>Aplicar</Button>
       </Popover>
       <Button>Depois</Button>
@@ -88,7 +88,7 @@ describe('Popover', () => {
           >
             Filtros
           </Button>
-          <Popover aria-label="Filtros" onClose={() => setOpen(false)} open={open} triggerRef={gatilho}>
+          <Popover aria-label="Filtros" onOpenChange={setOpen} open={open} triggerRef={gatilho}>
             <Button>Aplicar</Button>
           </Popover>
         </>
@@ -117,7 +117,7 @@ describe('Popover', () => {
       return (
         <>
           <Button ref={gatilho}>Filtros</Button>
-          <Popover aria-label="Filtros" data-origem="grade" id="painel" onClose={() => undefined} open triggerRef={gatilho}>
+          <Popover aria-label="Filtros" data-origem="grade" id="painel" open triggerRef={gatilho}>
             <Button>Aplicar</Button>
           </Popover>
         </>
@@ -128,5 +128,30 @@ describe('Popover', () => {
 
     expect(screen.getByRole('dialog', { name: 'Filtros' })).toHaveAttribute('id', 'painel');
     expect(screen.getByRole('dialog', { name: 'Filtros' })).toHaveAttribute('data-origem', 'grade');
+  });
+
+  it('sem controle, abre pelo defaultOpen e fecha sozinho, ainda avisando o obsoleto onClose', () => {
+    const onClose = vi.fn();
+    const onOpenChange = vi.fn();
+
+    function Solto() {
+      const gatilho = useRef<HTMLButtonElement>(null);
+
+      return (
+        <>
+          <Button ref={gatilho}>Filtros</Button>
+          <Popover aria-label="Filtros" defaultOpen onClose={onClose} onOpenChange={onOpenChange} triggerRef={gatilho}>
+            <Button>Aplicar</Button>
+          </Popover>
+        </>
+      );
+    }
+
+    render(<Solto />);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

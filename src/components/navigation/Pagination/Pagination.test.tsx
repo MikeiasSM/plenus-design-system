@@ -69,6 +69,31 @@ describe('Pagination', () => {
     expect(onPageChange).toHaveBeenCalledWith(4);
   });
 
+  it('controlada, so muda a pagina atual quando o produto muda page', () => {
+    render(<Pagination page={5} pageCount={10} onPageChange={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página 6' }));
+
+    expect(screen.getByRole('button', { name: 'Página 5' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('sem controle, comeca pelo defaultPage e troca de pagina sozinha', () => {
+    const onPageChange = vi.fn();
+    render(<Pagination defaultPage={3} pageCount={10} onPageChange={onPageChange} />);
+    expect(screen.getByRole('button', { name: 'Página 3' })).toHaveAttribute('aria-current', 'page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próxima página' }));
+
+    expect(onPageChange).toHaveBeenCalledWith(4);
+    expect(screen.getByRole('button', { name: 'Página 4' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('sem page nem defaultPage, comeca na primeira', () => {
+    render(<Pagination pageCount={10} />);
+
+    expect(screen.getByRole('button', { name: 'Página 1' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('limita a pagina informada a faixa valida', () => {
     render(<Pagination page={99} pageCount={10} onPageChange={() => undefined} />);
 

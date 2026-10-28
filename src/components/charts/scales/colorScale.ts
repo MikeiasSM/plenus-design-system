@@ -93,9 +93,9 @@ export function rampColor(stops: readonly string[], position: number) {
 }
 
 /** Passo da rampa de cada classe, espalhado do primeiro ao ultimo. */
-function classSteps(count: number) {
+function classSteps(count: number, singleStep = SINGLE_VALUE_STEP) {
   if (count === 1) {
-    return [SINGLE_VALUE_STEP];
+    return [singleStep];
   }
 
   return Array.from({ length: count }, (_, index) => Math.round((index * 6) / (count - 1)));
@@ -139,8 +139,9 @@ function classScale(
   range: readonly [number, number],
   format: (value: number) => string,
   stops: readonly string[],
+  singleStep?: number,
 ): ColorScale {
-  const steps = classSteps(thresholds.length + 1);
+  const steps = classSteps(thresholds.length + 1, singleStep);
   const colors = steps.map((step) => stops[step]);
   const measured = stops === SEQUENTIAL_TOKENS;
   const [low, high] = range;
@@ -277,9 +278,9 @@ export function buildColorScale(
   const [low = 0, high = 0] = extent(values);
   const fixedClasses = config.type === 'classes' && 'thresholds' in config;
 
-  // Um valor so nao forma escala: uma cor e uma entrada na legenda.
+  // Um valor so nao forma escala: uma cor e uma entrada na legenda. So zeros e ausencia de intensidade: o passo mais claro.
   if (low === high && config.type !== 'diverging' && !fixedClasses) {
-    return classScale([], [], [low, high], format, stops);
+    return classScale([], [], [low, high], format, stops, low === 0 ? 0 : undefined);
   }
 
   if (config.type === 'sequential') {

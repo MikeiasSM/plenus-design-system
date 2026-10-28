@@ -35,7 +35,7 @@ async function esperarOObservador() {
 describe('overlays aninhados em Dialog', () => {
   it('declara-se camada de cima, para o Dialog nao os esconder do leitor de tela', async () => {
     render(
-      <Dialog onClose={() => undefined} open title="Cadastro">
+      <Dialog open title="Cadastro">
         <Menu items={acoes} label="Acoes">
           <Button>Acoes</Button>
         </Menu>
@@ -57,11 +57,11 @@ describe('overlays aninhados em Dialog', () => {
       const [aberto, setAberto] = useState(false);
 
       return (
-        <Dialog onClose={() => undefined} open title="Cadastro">
+        <Dialog open title="Cadastro">
           <Button onClick={() => setAberto(true)} ref={gatilho}>
             Filtros
           </Button>
-          <Popover aria-label="Painel de filtros" onClose={() => setAberto(false)} open={aberto} triggerRef={gatilho}>
+          <Popover aria-label="Painel de filtros" onOpenChange={setAberto} open={aberto} triggerRef={gatilho}>
             <Button>Aplicar</Button>
           </Popover>
         </Dialog>
@@ -78,7 +78,7 @@ describe('overlays aninhados em Dialog', () => {
 
   it('vale para a lista do Select', async () => {
     render(
-      <Dialog onClose={() => undefined} open title="Cadastro">
+      <Dialog open title="Cadastro">
         <Select label="Tipo" options={tipos} />
       </Dialog>,
     );
@@ -93,7 +93,7 @@ describe('overlays aninhados em Dialog', () => {
     const fechar = vi.fn();
 
     render(
-      <Dialog onClose={fechar} open title="Cadastro">
+      <Dialog onOpenChange={fechar} open title="Cadastro">
         <ComboBox label="Tipo" options={tipos} />
       </Dialog>,
     );
@@ -119,7 +119,7 @@ describe('overlays aninhados em Dialog', () => {
     ['TimePicker', TimePicker, 'Abrir seletor de hora'],
   ])('vale para o painel do %s, que recebe o foco', async (_nome, Campo, abrir) => {
     render(
-      <Dialog onClose={() => undefined} open title="Cadastro">
+      <Dialog open title="Cadastro">
         <Campo label="Quando" />
       </Dialog>,
     );

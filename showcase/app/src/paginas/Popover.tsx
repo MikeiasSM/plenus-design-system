@@ -25,9 +25,9 @@ function PopoverDoPlayground({ valores, registrar }: { valores: Valores; registr
       <Popover
         aria-label={String(valores['aria-label']) || undefined}
         offset={Number(valores.offset)}
-        onClose={() => {
-          registrar('onClose');
-          setAberto(false);
+        onOpenChange={(valor) => {
+          registrar(`onOpenChange: ${valor}`);
+          setAberto(valor);
         }}
         open={aberto}
         placement={valores.placement as PopoverPlacement}
@@ -54,7 +54,7 @@ const playground = definirPlayground({
         'Popover',
         [
           ['open', expr('aberto')],
-          ['onClose', expr('fechar')],
+          ['onOpenChange', expr('setAberto')],
           ['triggerRef', expr('gatilho')],
           ['placement', valores.placement, 'bottom start'],
           ['offset', valores.offset, 8],
@@ -86,7 +86,7 @@ function Filtros() {
   return (
     <>
       <Button onClick={() => setAberto(!aberto)} ref={gatilho} variant="secondary">Filtros</Button>
-      <Popover aria-label="Filtros" onClose={() => setAberto(false)} open={aberto} triggerRef={gatilho}>
+      <Popover aria-label="Filtros" onOpenChange={setAberto} open={aberto} triggerRef={gatilho}>
         <PainelDeFiltros fechar={() => setAberto(false)} />
       </Popover>
     </>
@@ -100,7 +100,7 @@ function Resumo() {
   return (
     <>
       <Button onClick={() => setAberto(!aberto)} ref={gatilho} variant="ghost">Resumo do pedido</Button>
-      <Popover aria-labelledby="resumo-titulo" onClose={() => setAberto(false)} open={aberto} placement="bottom" triggerRef={gatilho}>
+      <Popover aria-labelledby="resumo-titulo" onOpenChange={setAberto} open={aberto} placement="bottom" triggerRef={gatilho}>
         <div className="stack">
           <strong id="resumo-titulo">Pedido 4821</strong>
           <span>3 itens · R$ 1.240,00</span>
@@ -119,7 +119,7 @@ function Renomear() {
   return (
     <>
       <Button onClick={() => setAberto(!aberto)} ref={gatilho} variant="secondary">{nome}</Button>
-      <Popover aria-label="Renomear" onClose={() => setAberto(false)} open={aberto} triggerRef={gatilho}>
+      <Popover aria-label="Renomear" onOpenChange={setAberto} open={aberto} triggerRef={gatilho}>
         <form
           className="stack"
           onSubmit={(evento) => {
@@ -143,7 +143,7 @@ function NaPosicao({ placement }: { placement: PopoverPlacement }) {
   return (
     <>
       <Button onClick={() => setAberto(!aberto)} ref={gatilho} size="sm" variant="secondary">{placement}</Button>
-      <Popover aria-label={placement} onClose={() => setAberto(false)} open={aberto} placement={placement} triggerRef={gatilho}>
+      <Popover aria-label={placement} onOpenChange={setAberto} open={aberto} placement={placement} triggerRef={gatilho}>
         placement=&quot;{placement}&quot;
       </Popover>
     </>
@@ -166,9 +166,9 @@ function Variantes() {
 function Modos() {
   return (
     <dl className="modes">
-      <dt><code>open</code> e <code>onClose</code></dt>
+      <dt><code>open</code>, <code>defaultOpen</code> e <code>onOpenChange</code></dt>
       <dd>
-        Sempre controlado. Escape e clique fora chamam <code>onClose</code>. O clique no gatilho não conta como fora: é de
+        Com <code>open</code>, controlado: Escape e clique fora chamam <code>onOpenChange(false)</code>. Com <code>defaultOpen</code>, abre no início e fecha sozinho. O clique no gatilho não conta como fora: é de
         quem escreveu o gatilho, que decide se alterna.
       </dd>
       <dt>Não modal</dt>
@@ -203,21 +203,21 @@ export const pagina: Pagina = {
       descricao: 'O gatilho alterna o painel; Aplicar fecha. A página atrás continua livre.',
       Previa: Filtros,
       codigo:
-        'const gatilho = useRef<HTMLButtonElement>(null);\n\n<Button ref={gatilho} variant="secondary" onClick={() => setAberto(!aberto)}>\n  Filtros\n</Button>\n<Popover open={aberto} onClose={fechar} triggerRef={gatilho} aria-label="Filtros">\n  <Checkbox defaultChecked label="Somente ativos" />\n  <Checkbox label="Com pendência" />\n  <Button size="sm" onClick={fechar}>Aplicar</Button>\n</Popover>',
+        'const gatilho = useRef<HTMLButtonElement>(null);\n\n<Button ref={gatilho} variant="secondary" onClick={() => setAberto(!aberto)}>\n  Filtros\n</Button>\n<Popover open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="Filtros">\n  <Checkbox defaultChecked label="Somente ativos" />\n  <Checkbox label="Com pendência" />\n  <Button size="sm" onClick={fechar}>Aplicar</Button>\n</Popover>',
     },
     {
       titulo: 'Nomeado pelo título interno',
       descricao: 'aria-labelledby aponta o título que o painel já mostra.',
       Previa: Resumo,
       codigo:
-        '<Popover\n  open={aberto}\n  onClose={fechar}\n  triggerRef={gatilho}\n  placement="bottom"\n  aria-labelledby="resumo-titulo"\n>\n  <strong id="resumo-titulo">Pedido 4821</strong>\n  <span>3 itens · R$ 1.240,00</span>\n</Popover>',
+        '<Popover\n  open={aberto}\n  onOpenChange={setAberto}\n  triggerRef={gatilho}\n  placement="bottom"\n  aria-labelledby="resumo-titulo"\n>\n  <strong id="resumo-titulo">Pedido 4821</strong>\n  <span>3 itens · R$ 1.240,00</span>\n</Popover>',
     },
     {
       titulo: 'Edição rápida',
       descricao: 'O foco entra no campo ao abrir; Enter salva e Escape desiste, devolvendo o foco ao gatilho.',
       Previa: Renomear,
       codigo:
-        '<Popover open={aberto} onClose={fechar} triggerRef={gatilho} aria-label="Renomear">\n  <form onSubmit={salvar}>\n    <InputText defaultValue={nome} label="Nome" name="nome" size="sm" />\n    <Button size="sm" type="submit">Salvar</Button>\n  </form>\n</Popover>',
+        '<Popover open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="Renomear">\n  <form onSubmit={salvar}>\n    <InputText defaultValue={nome} label="Nome" name="nome" size="sm" />\n    <Button size="sm" type="submit">Salvar</Button>\n  </form>\n</Popover>',
     },
   ],
   Variantes,
@@ -237,8 +237,10 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao painel, como aria-label e id; o className soma ao do sistema.',
   api: [
-    { nome: 'open', tipo: 'boolean', descricao: 'Obrigatória. Abre o painel.' },
-    { nome: 'onClose', tipo: '() => void', descricao: 'Obrigatória. Pedido de fechar: Escape ou clique fora.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape ou clique fora.' },
+    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
     { nome: 'triggerRef', tipo: 'RefObject<HTMLElement | null>', descricao: 'Obrigatória. O elemento em que o painel se ancora.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Obrigatória. Conteúdo do painel.' },
     {

@@ -58,9 +58,9 @@ function DrawerDoPlayground({ valores, registrar }: { valores: Valores; registra
             </>
           )
         }
-        onClose={() => {
-          registrar('onClose');
-          setAberto(false);
+        onOpenChange={(valor) => {
+          registrar(`onOpenChange: ${valor}`);
+          setAberto(valor);
         }}
         open={aberto}
         side={valores.side as DrawerSide}
@@ -98,7 +98,7 @@ const playground = definirPlayground({
         'Drawer',
         [
           ['open', expr('aberto')],
-          ['onClose', expr('fechar')],
+          ['onOpenChange', expr('setAberto')],
           ['title', valores.title],
           ['description', valores.description || undefined],
           ['side', valores.side, 'right'],
@@ -147,7 +147,7 @@ function EdicaoDeUsuario() {
             <Button onClick={() => setAberto(false)}>Salvar</Button>
           </>
         }
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         title="Editar usuário"
       >
@@ -165,7 +165,7 @@ function Filtros() {
       <Button onClick={() => setAberto(true)} variant="secondary">Filtros</Button>
       <Drawer
         footer={<Button onClick={() => setAberto(false)}>Aplicar filtros</Button>}
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         side="left"
         size="sm"
@@ -189,7 +189,7 @@ function Historico() {
       <Button onClick={() => setAberto(true)} variant="secondary">Ver histórico</Button>
       <Drawer
         description="Alterações dos últimos 30 dias."
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         size="lg"
         title="Histórico de Ana Prado"
@@ -212,7 +212,7 @@ function ConfirmacaoEmDrawer() {
       <Button onClick={() => setAberto(true)} variant="danger">Excluir usuário</Button>
       <Drawer
         footer={<Button onClick={() => setAberto(false)} variant="danger">Excluir</Button>}
-        onClose={() => setAberto(false)}
+        onOpenChange={setAberto}
         open={aberto}
         size="sm"
         title="Excluir usuário?"
@@ -250,7 +250,7 @@ function Variantes() {
       </div>
       <Drawer
         description={aberta ? `Largura máxima de ${LARGURAS[aberta.size]}, presa à ${aberta.side === 'left' ? 'esquerda' : 'direita'}.` : undefined}
-        onClose={() => setAberta(null)}
+        onOpenChange={() => setAberta(null)}
         open={aberta !== null}
         side={aberta?.side}
         size={aberta?.size}
@@ -265,9 +265,9 @@ function Variantes() {
 function Modos() {
   return (
     <dl className="modes">
-      <dt><code>open</code> e <code>onClose</code></dt>
+      <dt><code>open</code>, <code>defaultOpen</code> e <code>onOpenChange</code></dt>
       <dd>
-        Sempre controlado. Escape, clique fora e o botão de fechar chamam <code>onClose</code>; quem abriu decide fechar.
+        Com <code>open</code>, controlado: Escape, clique fora e o botão de fechar chamam <code>onOpenChange(false)</code>, e quem abriu decide fechar. Com <code>defaultOpen</code>, abre no início e fecha sozinho.
         Fechado, não renderiza nada.
       </dd>
       <dt><code>dismissable=&#123;false&#125;</code></dt>
@@ -293,21 +293,21 @@ export const pagina: Pagina = {
       descricao: 'Formulário ao lado da lista, com as ações no rodapé fixo.',
       Previa: EdicaoDeUsuario,
       codigo:
-        '<Drawer\n  open={aberto}\n  onClose={fechar}\n  title="Editar usuário"\n  description="As mudanças valem no próximo acesso."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={salvar}>Salvar</Button>\n  </>}\n>\n  <InputText defaultValue="Ana Prado" label="Nome" />\n  <InputText defaultValue="ana@plenustech.com" label="E-mail" />\n  <SegmentedControl defaultValue="ativo" items={situacoes} label="Situação" />\n</Drawer>',
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  title="Editar usuário"\n  description="As mudanças valem no próximo acesso."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={salvar}>Salvar</Button>\n  </>}\n>\n  <InputText defaultValue="Ana Prado" label="Nome" />\n  <InputText defaultValue="ana@plenustech.com" label="E-mail" />\n  <SegmentedControl defaultValue="ativo" items={situacoes} label="Situação" />\n</Drawer>',
     },
     {
       titulo: 'Filtros à esquerda',
       descricao: 'side="left" e size="sm" para um painel estreito que sai do lado da navegação.',
       Previa: Filtros,
       codigo:
-        '<Drawer\n  open={aberto}\n  onClose={fechar}\n  side="left"\n  size="sm"\n  title="Filtros"\n  footer={<Button onClick={aplicar}>Aplicar filtros</Button>}\n>\n  <Checkbox defaultChecked label="Somente ativos" />\n  <Checkbox label="Com pendência" />\n  <Checkbox label="Criados este mês" />\n</Drawer>',
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  side="left"\n  size="sm"\n  title="Filtros"\n  footer={<Button onClick={aplicar}>Aplicar filtros</Button>}\n>\n  <Checkbox defaultChecked label="Somente ativos" />\n  <Checkbox label="Com pendência" />\n  <Checkbox label="Criados este mês" />\n</Drawer>',
     },
     {
       titulo: 'Detalhe longo',
       descricao: 'Sem rodapé: o corpo rola e o cabeçalho, com o fechar, fica à vista.',
       Previa: Historico,
       codigo:
-        '<Drawer\n  open={aberto}\n  onClose={fechar}\n  size="lg"\n  title="Histórico de Ana Prado"\n  description="Alterações dos últimos 30 dias."\n>\n  {historico.map((linha) => (\n    <p key={linha.id}>{linha.texto}</p>\n  ))}\n</Drawer>',
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  size="lg"\n  title="Histórico de Ana Prado"\n  description="Alterações dos últimos 30 dias."\n>\n  {historico.map((linha) => (\n    <p key={linha.id}>{linha.texto}</p>\n  ))}\n</Drawer>',
     },
   ],
   faca: {
@@ -335,7 +335,7 @@ export const pagina: Pagina = {
       como: <><code>role=&quot;dialog&quot;</code> e <code>aria-modal</code>, com nome e descrição vindos do título e da descrição.</>,
       teste: 'Drawer.test.tsx',
     },
-    { garantia: 'Fechar', como: 'Escape e o botão de fechar chamam onClose.', teste: 'Drawer.test.tsx' },
+    { garantia: 'Fechar', como: 'Escape e o botão de fechar chamam onOpenChange(false).', teste: 'Drawer.test.tsx' },
     { garantia: 'Lado', como: 'Sai da direita por padrão, ou da esquerda com side="left".', teste: 'Drawer.test.tsx' },
     {
       garantia: 'Foco e fundo',
@@ -345,8 +345,10 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao elemento da gaveta; o className soma ao do sistema.',
   api: [
-    { nome: 'open', tipo: 'boolean', descricao: 'Obrigatória. Abre a gaveta.' },
-    { nome: 'onClose', tipo: '() => void', descricao: 'Obrigatória. Pedido de fechar: Escape, clique fora ou botão de fechar.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },
+    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
     { nome: 'title', tipo: 'string', descricao: 'Obrigatória. Título visível e nome acessível.' },
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Corpo, que rola quando passa da altura.' },

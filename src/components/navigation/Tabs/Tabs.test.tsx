@@ -75,18 +75,34 @@ describe('Tabs', () => {
   });
 
   it('respeita a aba controlada e reporta a escolha', () => {
-    const onSelectionChange = vi.fn();
+    const onSelectedKeyChange = vi.fn();
     const { rerender } = render(
-      <Tabs label="Config" items={abas} selectedKey="acesso" onSelectionChange={onSelectionChange} />,
+      <Tabs label="Config" items={abas} selectedKey="acesso" onSelectedKeyChange={onSelectedKeyChange} />,
     );
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de acesso');
 
     fireEvent.click(screen.getByRole('tab', { name: 'Logs' }));
-    expect(onSelectionChange).toHaveBeenCalledWith('logs');
+    expect(onSelectedKeyChange).toHaveBeenCalledWith('logs');
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de acesso');
 
-    rerender(<Tabs label="Config" items={abas} selectedKey="logs" onSelectionChange={onSelectionChange} />);
+    rerender(<Tabs label="Config" items={abas} selectedKey="logs" onSelectedKeyChange={onSelectedKeyChange} />);
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de logs');
+  });
+
+  it('comeca pelo defaultSelectedKey e troca sem controle', () => {
+    montar({ defaultSelectedKey: 'acesso' });
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de acesso');
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Logs' }));
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de logs');
+  });
+
+  it('ainda chama o obsoleto onSelectionChange', () => {
+    const onSelectionChange = vi.fn();
+    montar({ onSelectionChange });
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Logs' }));
+    expect(onSelectionChange).toHaveBeenCalledWith('logs');
   });
 
   it('mantem uma aba alcancavel pelo Tab quando a escolhida nao existe ou esta desabilitada', () => {

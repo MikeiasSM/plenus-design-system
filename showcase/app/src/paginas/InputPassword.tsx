@@ -4,7 +4,7 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const AUTOCOMPLETES = ['current-password', 'new-password'] as const;
-const TAMANHOS = ['sm', 'md'] as const;
+const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const MINIMO = 8;
 
 function validarSenha(senha: string) {
@@ -54,7 +54,7 @@ const playground = definirPlayground({
         onValidationChange={(mensagem) => registrar(`onValidationChange: ${mensagem ? `"${mensagem}"` : 'undefined'}`)}
         required={valores.required}
         showToggle={valores.showToggle}
-        size={valores.size as 'sm' | 'md'}
+        size={valores.size as 'sm' | 'md' | 'lg'}
         validate={valores.validar ? validarSenha : undefined}
         validateOnBlur={valores.validateOnBlur}
       />
@@ -238,6 +238,6 @@ export const pagina: Pagina = {
     { nome: 'showToggle', tipo: 'boolean', padrao: 'true', descricao: 'Mostra o botão de revelação.' },
     { nome: 'allowCopy', tipo: 'boolean', padrao: 'false', descricao: 'Libera copiar e recortar.' },
     { nome: 'autoComplete', tipo: 'string', padrao: "'current-password'", descricao: "Use 'new-password' em cadastro e troca." },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Altura do campo.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px.' },
   ],
 };

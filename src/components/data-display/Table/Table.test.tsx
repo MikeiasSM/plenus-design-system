@@ -137,7 +137,7 @@ describe('Table', () => {
 
   it('marca a linha e reporta os identificadores', () => {
     const escolheu = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolheu });
+    montar({ selectionMode: 'multiple', onSelectedIdsChange: escolheu });
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
 
@@ -147,7 +147,7 @@ describe('Table', () => {
 
   it('usa radio na selecao unica e substitui a escolha', () => {
     const escolheu = vi.fn();
-    montar({ selectionMode: 'single', onSelectionChange: escolheu });
+    montar({ selectionMode: 'single', onSelectedIdsChange: escolheu });
 
     fireEvent.click(screen.getByRole('radio', { name: 'Selecionar Ana Prado' }));
     fireEvent.click(screen.getByRole('radio', { name: 'Selecionar Bruno Dias' }));
@@ -163,7 +163,7 @@ describe('Table', () => {
 
   it('marca a faixa com Shift', () => {
     const escolheu = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolheu });
+    montar({ selectionMode: 'multiple', onSelectedIdsChange: escolheu });
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Célia Nunes' }), { shiftKey: true });
@@ -173,7 +173,7 @@ describe('Table', () => {
 
   it('marca todas as linhas e mostra o indeterminado na escolha parcial', () => {
     const escolheu = vi.fn();
-    montar({ selectionMode: 'multiple', onSelectionChange: escolheu });
+    montar({ selectionMode: 'multiple', onSelectedIdsChange: escolheu });
 
     const todas = screen.getByRole('checkbox', { name: 'Selecionar todas as linhas' }) as HTMLInputElement;
 
@@ -196,7 +196,7 @@ describe('Table', () => {
 
   it('desmarca pela caixa na selecao unica, e anuncia a chave como chave', () => {
     const escolheu = vi.fn();
-    montar({ selectionControl: 'toggle', selectionMode: 'single', onSelectionChange: escolheu });
+    montar({ selectionControl: 'toggle', selectionMode: 'single', onSelectedIdsChange: escolheu });
 
     const chave = screen.getByRole('switch', { name: 'Selecionar Ana Prado' });
 
@@ -291,6 +291,25 @@ describe('Table', () => {
     montar({ defaultSelectedIds: ['2'], selectionMode: 'multiple' });
 
     expect(screen.getByRole('checkbox', { name: 'Selecionar Bruno Dias' })).toBeChecked();
+  });
+
+  it('controlada pelo selectedIds, so muda quando o produto muda', () => {
+    const escolheu = vi.fn();
+    montar({ onSelectedIdsChange: escolheu, selectedIds: ['2'], selectionMode: 'multiple' });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
+
+    expect(escolheu).toHaveBeenCalledWith(['2', '1']);
+    expect(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' })).not.toBeChecked();
+  });
+
+  it('ainda chama o obsoleto onSelectionChange', () => {
+    const escolheu = vi.fn();
+    montar({ onSelectionChange: escolheu, selectionMode: 'multiple' });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
+
+    expect(escolheu).toHaveBeenCalledWith(['1']);
   });
 
   it('chaveia a linha pelo identificador, sem pedir a chave a quem a escreve', () => {

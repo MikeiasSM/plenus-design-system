@@ -91,7 +91,7 @@ function TabelaDoPlayground({ controle, registrar, rotulosNasLinhas, vazia, ...p
           <Table
             {...props}
             label="Membros da equipe"
-            onSelectionChange={(ids) => registrar(`onSelectionChange: [${ids.join(', ')}]`)}
+            onSelectedIdsChange={(ids) => registrar(`onSelectedIdsChange: [${ids.join(', ')}]`)}
             onSortChange={mudarOrdem}
             rows={membros}
             selectionControl={controle === 'padrão' ? undefined : (controle as TableSelectionControl)}
@@ -110,7 +110,7 @@ function TabelaDoPlayground({ controle, registrar, rotulosNasLinhas, vazia, ...p
                   </Table.Cell>
                   <Table.Cell>{membro.funcao}</Table.Cell>
                   <Table.Cell>
-                    <Badge tone={membro.status === 'Ativo' ? 'ok' : 'warn'}>{membro.status}</Badge>
+                    <Badge tone={membro.status === 'Ativo' ? 'success' : 'warning'}>{membro.status}</Badge>
                   </Table.Cell>
                 </Table.Row>
               )}
@@ -246,7 +246,7 @@ function EquipeEmCartao() {
         <Card.Body flush>
           <Table
             label="Membros da equipe"
-            onSelectionChange={setEscolhidos}
+            onSelectedIdsChange={setEscolhidos}
             onSortChange={setOrdem}
             rows={equipe}
             selectionMode="multiple"
@@ -266,7 +266,7 @@ function EquipeEmCartao() {
                   </Table.Cell>
                   <Table.Cell>{membro.funcao}</Table.Cell>
                   <Table.Cell>
-                    <Badge tone={membro.status === 'Ativo' ? 'ok' : 'warn'}>{membro.status}</Badge>
+                    <Badge tone={membro.status === 'Ativo' ? 'success' : 'warning'}>{membro.status}</Badge>
                   </Table.Cell>
                   <Table.Cell>
                     <Menu
@@ -463,7 +463,7 @@ export const pagina: Pagina = {
       label="Membros da equipe"
       rows={membros}
       selectionMode="multiple"
-      onSelectionChange={setEscolhidos}
+      onSelectedIdsChange={setEscolhidos}
       sort={ordem}
       onSortChange={setOrdem}
     >
@@ -582,7 +582,8 @@ export const pagina: Pagina = {
     { nome: 'selectionControl', tipo: "'checkbox' | 'radio' | 'toggle'", descricao: 'Sem ele, radio na única e checkbox na múltipla.' },
     { nome: 'selectedIds', tipo: 'readonly string[]', descricao: 'Seleção controlada.' },
     { nome: 'defaultSelectedIds', tipo: 'readonly string[]', descricao: 'Seleção inicial, no modo não controlado.' },
-    { nome: 'onSelectionChange', tipo: '(ids: readonly string[]) => void', descricao: 'Recebe os ids marcados.' },
+    { nome: 'onSelectedIdsChange', tipo: '(ids: readonly string[]) => void', descricao: 'Recebe os ids marcados.' },
+    { nome: 'onSelectionChange', tipo: '(ids: readonly string[]) => void', descricao: <>Obsoleto: use <code>onSelectedIdsChange</code>.</> },
     { nome: 'highlightSelectedRow', tipo: 'boolean', padrao: 'true', descricao: 'Fundo na linha marcada.' },
     { nome: 'sort', tipo: 'TableSort', descricao: <>Ordenação controlada: <code>{'{ column, direction }'}</code>.</> },
     { nome: 'defaultSort', tipo: 'TableSort', descricao: 'Ordenação inicial, no modo não controlado.' },

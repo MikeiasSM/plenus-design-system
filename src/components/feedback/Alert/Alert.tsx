@@ -1,9 +1,9 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 import styles from './Alert.module.css';
 
 export type AlertTone = 'info' | 'success' | 'warning' | 'danger';
 
-export interface AlertProps extends HTMLAttributes<HTMLDivElement> {
+export interface AlertProps extends ComponentPropsWithRef<'div'> {
   tone?: AlertTone;
   title?: string;
   children?: ReactNode;

@@ -33,10 +33,10 @@ function EtapasDoPlayground({
       current={atual}
       items={itens}
       label={label}
-      onStepChange={
+      onCurrentChange={
         livre
           ? (chave) => {
-              registrar(`onStepChange: ${chave}`);
+              registrar(`onCurrentChange: ${chave}`);
               setAtual(chave);
             }
           : undefined
@@ -70,7 +70,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['items', expr('etapas')],
       ['current', valores.livre ? expr('etapa') : valores.current],
-      ['onStepChange', valores.livre ? expr('setEtapa') : undefined],
+      ['onCurrentChange', valores.livre ? expr('setEtapa') : undefined],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -79,8 +79,8 @@ const playground = definirPlayground({
         : { nivel: 'falha', titulo: 'Navegação sem nome', detalhe: 'label é obrigatório: distingue esta região das outras <nav>.' },
       { nivel: 'ok', titulo: 'Posição anunciada', detalhe: 'A atual leva aria-current="step"; as anteriores, ", concluída" para o leitor de tela.' },
       valores.livre
-        ? { nivel: 'ok', titulo: 'Navegação livre', detalhe: 'Com onStepChange, cada etapa é um botão.' }
-        : { nivel: 'ok', titulo: 'Só indicador', detalhe: 'Sem onStepChange, as etapas são texto; avançar e voltar ficam no produto.' },
+        ? { nivel: 'ok', titulo: 'Navegação livre', detalhe: 'Com onCurrentChange, cada etapa é um botão.' }
+        : { nivel: 'ok', titulo: 'Só indicador', detalhe: 'Sem onCurrentChange, as etapas são texto; avançar e voltar ficam no produto.' },
     ];
 
     return verificacoes;
@@ -115,7 +115,7 @@ function Livre() {
 
   return (
     <div style={{ width: '100%' }}>
-      <Steps current={etapa} items={ETAPAS_DO_EMAIL} label="Etapas do e-mail" onStepChange={setEtapa} />
+      <Steps current={etapa} items={ETAPAS_DO_EMAIL} label="Etapas do e-mail" onCurrentChange={setEtapa} />
     </div>
   );
 }
@@ -139,9 +139,9 @@ function Modos() {
   return (
     <dl className="modes">
       <dt>Só indicador</dt>
-      <dd>Sem <code>onStepChange</code>, as etapas são texto e mostram onde a pessoa está.</dd>
+      <dd>Sem <code>onCurrentChange</code>, as etapas são texto e mostram onde a pessoa está.</dd>
       <dt>Navegação livre</dt>
-      <dd>Com <code>onStepChange</code>, cada etapa vira botão, para quem pode ir e voltar livremente.</dd>
+      <dd>Com <code>onCurrentChange</code>, cada etapa vira botão, para quem pode ir e voltar livremente.</dd>
       <dt>Estados</dt>
       <dd>
         As anteriores à atual contam como concluídas, com o visto; a atual leva <code>aria-current=&quot;step&quot;</code>;
@@ -165,9 +165,9 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Navegação livre',
-      descricao: 'Clique em qualquer etapa: com onStepChange, cada uma é botão.',
+      descricao: 'Clique em qualquer etapa: com onCurrentChange, cada uma é botão.',
       Previa: Livre,
-      codigo: '<Steps\n  label="Etapas do e-mail"\n  items={etapas}\n  current={etapa}\n  onStepChange={setEtapa}\n/>',
+      codigo: '<Steps\n  label="Etapas do e-mail"\n  items={etapas}\n  current={etapa}\n  onCurrentChange={setEtapa}\n/>',
     },
   ],
   faca: {
@@ -197,7 +197,7 @@ export const pagina: Pagina = {
   Variantes,
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Com onStepChange, percorre as etapas; sem ele, o indicador não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Com onCurrentChange, percorre as etapas; sem ele, o indicador não recebe foco.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Vai à etapa, na navegação livre.' },
   ],
   garantias: [
@@ -207,13 +207,15 @@ export const pagina: Pagina = {
       teste: 'Steps.test.tsx',
     },
     { garantia: 'Concluídas anunciadas', como: 'As anteriores somam ", concluída" ao texto, não só o visto.', teste: 'Steps.test.tsx' },
-    { garantia: 'Botão só quando navega', como: <>Sem <code>onStepChange</code>, nenhum botão é criado.</>, teste: 'Steps.test.tsx' },
+    { garantia: 'Botão só quando navega', como: <>Sem <code>onCurrentChange</code>, nenhum botão é criado.</>, teste: 'Steps.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <nav> e o ref, exceto children.',
   api: [
     { nome: 'items', tipo: 'readonly StepItem[]', descricao: <>Cada etapa: <code>key</code>, <code>label</code> e <code>description</code>.</> },
-    { nome: 'current', tipo: 'string', descricao: 'Obrigatória. Chave da etapa atual.' },
+    { nome: 'current', tipo: 'string', descricao: 'Chave da etapa atual, no modo controlado.' },
+    { nome: 'defaultCurrent', tipo: 'string', descricao: 'Etapa inicial, no modo não controlado. Sem ela, a primeira.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome da navegação.' },
-    { nome: 'onStepChange', tipo: '(key: string) => void', descricao: 'Com ela, cada etapa vira botão.' },
+    { nome: 'onCurrentChange', tipo: '(key: string) => void', descricao: 'Com ela, cada etapa vira botão.' },
+    { nome: 'onStepChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onCurrentChange</code>.</> },
   ],
 };

@@ -31,6 +31,8 @@ export interface SortableListProps extends Omit<ComponentPropsWithRef<'div'>, 'c
   /** Nome da lista, para o leitor de tela. */
   label: string;
   onReorder: (fromIndex: number, toIndex: number) => void;
+  onSelectedKeyChange?: (key: string) => void;
+  /** @deprecated Use `onSelectedKeyChange`. */
   onSelectionChange?: (key: string) => void;
   /** `null` deixa a lista controlada sem nenhum item escolhido. */
   selectedKey?: string | null;
@@ -55,6 +57,7 @@ export function SortableList({
   items,
   label,
   onReorder,
+  onSelectedKeyChange,
   onSelectionChange,
   selectedKey,
   ...props
@@ -73,6 +76,7 @@ export function SortableList({
     onSelectionChange: (keys) => {
       const [key] = keys;
       if (key !== undefined) {
+        onSelectedKeyChange?.(key);
         onSelectionChange?.(key);
       }
     },

@@ -145,5 +145,6 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'O que é alternado. Obrigatório.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda e marca o controle como inválido.' },
+    { nome: 'onCheckedChange', tipo: '(checked: boolean) => void', descricao: 'A marcação a cada mudança, ao lado do onChange nativo.' },
   ],
 };

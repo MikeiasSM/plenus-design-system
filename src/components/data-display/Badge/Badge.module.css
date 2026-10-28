@@ -24,12 +24,12 @@
   background: currentColor;
 }
 
-.ok {
+.success {
   --badge-tone: var(--pl-color-on-success-container);
   --badge-surface: var(--pl-color-success-container);
 }
 
-.warn {
+.warning {
   --badge-tone: var(--pl-color-on-warning-container);
   --badge-surface: var(--pl-color-warning-container);
 }
@@ -44,7 +44,7 @@
   --badge-surface: var(--pl-color-danger-container);
 }
 
-.primary {
+.brand {
   --badge-tone: var(--pl-color-on-primary-container);
   --badge-surface: var(--pl-color-primary-container);
 }

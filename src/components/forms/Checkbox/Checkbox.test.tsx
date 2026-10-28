@@ -47,4 +47,14 @@ describe('Checkbox', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('Required.');
   });
+  it('reports the checked state through onCheckedChange alongside the native onChange', () => {
+    const onChange = vi.fn();
+    const onCheckedChange = vi.fn();
+    render(<Checkbox label="Recorrente" onChange={onChange} onCheckedChange={onCheckedChange} />);
+
+    fireEvent.click(screen.getByLabelText('Recorrente'));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
 });

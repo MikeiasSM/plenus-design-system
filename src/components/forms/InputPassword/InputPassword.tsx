@@ -11,6 +11,8 @@ import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './InputPassword.module.css';
 
+export type InputPasswordSize = 'sm' | 'md' | 'lg';
+
 export interface InputPasswordProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
   error?: string;
   hint?: string;
@@ -20,7 +22,7 @@ export interface InputPasswordProps extends Omit<ComponentPropsWithRef<'input'>,
   showToggle?: boolean;
   validate?: (value: string) => string | undefined;
   validateOnBlur?: boolean;
-  size?: 'sm' | 'md';
+  size?: InputPasswordSize;
 }
 
 export function InputPassword({

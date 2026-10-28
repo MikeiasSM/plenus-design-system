@@ -233,9 +233,10 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <nav> e o ref.',
   api: [
-    { nome: 'page', tipo: 'number', descricao: 'Obrigatória. Página atual, a partir de 1.' },
+    { nome: 'page', tipo: 'number', descricao: 'Página atual, a partir de 1, no modo controlado.' },
+    { nome: 'defaultPage', tipo: 'number', padrao: '1', descricao: 'Página inicial, no modo não controlado.' },
     { nome: 'pageCount', tipo: 'number', descricao: 'Obrigatória. Total de páginas.' },
-    { nome: 'onPageChange', tipo: '(page: number) => void', descricao: 'Obrigatória. Recebe a página escolhida.' },
+    { nome: 'onPageChange', tipo: '(page: number) => void', descricao: 'Recebe a página escolhida.' },
     { nome: 'siblings', tipo: 'number', padrao: '1', descricao: 'Páginas mostradas de cada lado da atual.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Suspende a troca; os botões continuam focáveis.' },
     { nome: 'label', tipo: 'string', padrao: "'Paginação'", descricao: 'Nome da região de navegação.' },

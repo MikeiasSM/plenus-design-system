@@ -14,7 +14,7 @@ import { readIsoDate } from './iso';
 import styles from './DatePicker.module.css';
 import { IconCalendar } from '../../icons';
 
-export type DatePickerSize = 'sm' | 'md';
+export type DatePickerSize = 'sm' | 'md' | 'lg';
 
 /**
  * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que

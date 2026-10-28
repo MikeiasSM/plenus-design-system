@@ -16,7 +16,7 @@ function Tela() {
 
   return (
     <div className="stack" style={{ width: '100%', maxWidth: 420 }}>
-      <Tabs items={ABAS} label="Seções do cliente" onSelectionChange={setAba} selectedKey={aba} />
+      <Tabs items={ABAS} label="Seções do cliente" onSelectedKeyChange={setAba} selectedKey={aba} />
       <div className="row">
         <Button>Emitir fatura</Button>
         <Button variant="secondary">Exportar</Button>

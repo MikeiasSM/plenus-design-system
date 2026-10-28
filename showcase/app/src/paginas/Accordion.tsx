@@ -33,7 +33,7 @@ const playground = definirPlayground({
         items={politicas.map((item) => (item.key === 'suporte' ? { ...item, disabled: valores.desabilitada } : item))}
         key={String(valores.multiple)}
         multiple={valores.multiple}
-        onExpandedChange={(chaves) => registrar(`onExpandedChange: [${chaves.join(', ')}]`)}
+        onExpandedKeysChange={(chaves) => registrar(`onExpandedKeysChange: [${chaves.join(', ')}]`)}
       />
     </div>
   ),
@@ -43,7 +43,7 @@ const playground = definirPlayground({
       ['multiple', valores.multiple, false],
       ['iconPosition', valores.iconPosition, 'right'],
       ['divider', valores.divider, true],
-      ['onExpandedChange', expr('setAbertas')],
+      ['onExpandedKeysChange', expr('setAbertas')],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -76,7 +76,7 @@ function AbrirTodas() {
           {todasAbertas ? 'Recolher todas' : 'Abrir todas'}
         </Button>
       </div>
-      <Accordion expandedKeys={abertas} items={politicas} multiple onExpandedChange={setAbertas} />
+      <Accordion expandedKeys={abertas} items={politicas} multiple onExpandedKeysChange={setAbertas} />
     </div>
   );
 }
@@ -113,7 +113,7 @@ function Modos() {
       <dt>Não controlado</dt>
       <dd><code>defaultExpandedKeys</code> dá as seções abertas no início, e o componente guarda o resto.</dd>
       <dt>Controlado</dt>
-      <dd><code>expandedKeys</code> com <code>onExpandedChange</code>: o produto decide quais ficam abertas.</dd>
+      <dd><code>expandedKeys</code> com <code>onExpandedKeysChange</code>: o produto decide quais ficam abertas.</dd>
       <dt>Item <code>disabled</code></dt>
       <dd>O gatilho fica desabilitado e as setas o pulam.</dd>
       <dt>Painel fechado</dt>
@@ -152,7 +152,7 @@ export const pagina: Pagina = {
       descricao: 'Controlado: um botão fora do acordeão abre e recolhe todas as seções.',
       Previa: AbrirTodas,
       codigo:
-        "const [abertas, setAbertas] = useState<readonly string[]>([]);\n\n<Button onClick={() => setAbertas(politicas.map((item) => item.key))}>\n  Abrir todas\n</Button>\n<Accordion\n  items={politicas}\n  multiple\n  expandedKeys={abertas}\n  onExpandedChange={setAbertas}\n/>",
+        "const [abertas, setAbertas] = useState<readonly string[]>([]);\n\n<Button onClick={() => setAbertas(politicas.map((item) => item.key))}>\n  Abrir todas\n</Button>\n<Accordion\n  items={politicas}\n  multiple\n  expandedKeys={abertas}\n  onExpandedKeysChange={setAbertas}\n/>",
     },
   ],
   Variantes,
@@ -174,7 +174,8 @@ export const pagina: Pagina = {
     { nome: 'multiple', tipo: 'boolean', padrao: 'false', descricao: 'Permite várias seções abertas.' },
     { nome: 'defaultExpandedKeys', tipo: 'readonly string[]', descricao: 'Abertas no início, no modo não controlado.' },
     { nome: 'expandedKeys', tipo: 'readonly string[]', descricao: 'Abertas, no modo controlado.' },
-    { nome: 'onExpandedChange', tipo: '(keys: readonly string[]) => void', descricao: 'Recebe as chaves abertas a cada mudança.' },
+    { nome: 'onExpandedKeysChange', tipo: '(keys: readonly string[]) => void', descricao: 'Recebe as chaves abertas a cada mudança.' },
+    { nome: 'onExpandedChange', tipo: '(keys: readonly string[]) => void', descricao: <>Obsoleto: use <code>onExpandedKeysChange</code>.</> },
     { nome: 'iconPosition', tipo: "'left' | 'right'", padrao: "'right'", descricao: 'Lado do chevron, que gira ao abrir.' },
     { nome: 'divider', tipo: 'boolean', padrao: 'true', descricao: 'Divisor entre as seções, com a folga que ele exige.' },
   ],

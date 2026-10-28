@@ -1,7 +1,7 @@
-import type { LabelHTMLAttributes } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 import styles from './Label.module.css';
 
-export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
+export interface LabelProps extends ComponentPropsWithRef<'label'> {
   required?: boolean;
 }
 

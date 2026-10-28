@@ -22,7 +22,7 @@ const EXTREMOS = [
   ...CORES.slice(1, 3),
 ];
 
-const TAMANHOS = ['sm', 'md'] as const;
+const TAMANHOS = ['sm', 'md', 'lg'] as const;
 
 const playground = definirPlayground({
   inicial: { label: 'Cor do texto', size: 'md', padrao: true, labelDoPadrao: '', opcoes: 6, disabled: false },
@@ -223,7 +223,7 @@ export const pagina: Pagina = {
     { nome: 'value', tipo: 'string | null', descricao: 'Valor escolhido, no modo controlado; null é a amostra padrão.' },
     { nome: 'defaultValue', tipo: 'string | null', descricao: 'Valor inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Avisa a amostra escolhida.' },
-    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Amostras de 20 ou 28px.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Amostras de 20, 28 ou 36px.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita todas as amostras.' },
   ],

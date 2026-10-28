@@ -11,7 +11,7 @@ export interface ColorPickerOption {
   value: string;
 }
 
-export type ColorPickerSize = 'sm' | 'md';
+export type ColorPickerSize = 'sm' | 'md' | 'lg';
 
 export interface ColorPickerProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue' | 'onChange'> {
   /** Primeira amostra, que significa sem cor: escolhida, o valor é `null`. */

@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type FocusEvent } from 'react';
+import { useEffect, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent } from 'react';
 import { Button } from '../../actions/Button';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTriangle, IconInfoCircle } from '../../icons';
 import { dismissToast, getServerToasts, getToasts, subscribeToasts, type ToastEntry } from './toastStore';
@@ -14,12 +14,14 @@ const TONE_ICONS = {
   warning: IconExclamationTriangle,
 };
 
+export type ToastRegionProps = ComponentPropsWithRef<'div'>;
+
 /** Canto onde os avisos de `showToast` aparecem. Montado uma vez, na raiz da aplicacao. */
-export function ToastRegion() {
+export function ToastRegion({ className, ...props }: ToastRegionProps) {
   const toasts = useSyncExternalStore(subscribeToasts, getToasts, getServerToasts);
 
   return (
-    <div className={styles.region}>
+    <div {...props} className={[styles.region, className].filter(Boolean).join(' ')}>
       {toasts.slice(-VISIBLE_LIMIT).map((toast) => (
         <Toast key={toast.id} toast={toast} />
       ))}

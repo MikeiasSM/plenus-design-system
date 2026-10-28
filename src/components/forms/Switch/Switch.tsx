@@ -5,6 +5,8 @@ export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type'
   error?: string;
   hint?: string;
   label: string;
+  /** O estado a cada mudanca, ao lado do `onChange` nativo. */
+  onCheckedChange?: (checked: boolean) => void;
 }
 
 export function Switch({
@@ -15,6 +17,7 @@ export function Switch({
   hint,
   id: providedId,
   label,
+  onCheckedChange,
   ref,
   ...props
 }: SwitchProps) {
@@ -31,6 +34,10 @@ export function Switch({
       <label className={styles.control} htmlFor={id}>
         <input
           {...props}
+          onChange={(event) => {
+            props.onChange?.(event);
+            onCheckedChange?.(event.target.checked);
+          }}
           ref={ref}
           className={classes}
           id={id}

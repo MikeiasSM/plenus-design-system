@@ -1,9 +1,9 @@
-import type { HTMLAttributes } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 import styles from './Skeleton.module.css';
 
 export type SkeletonShape = 'line' | 'circle' | 'block';
 
-export interface SkeletonProps extends HTMLAttributes<HTMLSpanElement> {
+export interface SkeletonProps extends ComponentPropsWithRef<'span'> {
   /** Numero em pixels ou qualquer medida CSS. Sem altura, cada forma tem a sua: linha de texto, avatar ou bloco. */
   height?: number | string;
   shape?: SkeletonShape;

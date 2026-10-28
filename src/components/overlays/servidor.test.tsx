@@ -9,7 +9,7 @@ function PopoverAberto() {
   const gatilho = useRef<HTMLButtonElement>(null);
 
   return (
-    <Popover aria-label="Filtros" onClose={() => undefined} open triggerRef={gatilho}>
+    <Popover aria-label="Filtros" open triggerRef={gatilho}>
       Conteudo
     </Popover>
   );
@@ -17,7 +17,7 @@ function PopoverAberto() {
 
 describe('overlay aberto no servidor', () => {
   it('renderiza sem `document`, e o portal nasce na hidratacao', () => {
-    expect(() => renderToString(<Dialog onClose={() => undefined} open title="Cadastro" />)).not.toThrow();
+    expect(() => renderToString(<Dialog open title="Cadastro" />)).not.toThrow();
     expect(() => renderToString(<PopoverAberto />)).not.toThrow();
     expect(() =>
       renderToString(

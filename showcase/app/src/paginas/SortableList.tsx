@@ -81,8 +81,8 @@ function EstruturaDoDocumento({
           registrar?.(`onReorder: ${de} → ${para}`);
           setBlocos((atuais) => moverBloco(atuais, de, para));
         }}
-        onSelectionChange={(chave) => {
-          registrar?.(`onSelectionChange: ${chave}`);
+        onSelectedKeyChange={(chave) => {
+          registrar?.(`onSelectedKeyChange: ${chave}`);
           setEscolhido(chave);
         }}
         selectedKey={escolhido}
@@ -112,7 +112,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['items', expr('blocos')],
       ['selectedKey', expr('escolhido')],
-      ['onSelectionChange', expr('setEscolhido')],
+      ['onSelectedKeyChange', expr('setEscolhido')],
       ['onReorder', expr('(de, para) => setBlocos(mover(blocos, de, para))')],
     ]),
   verificar: (valores) => {
@@ -165,7 +165,7 @@ function Modos() {
       </dd>
       <dt>Escolha controlada ou não</dt>
       <dd>
-        <code>selectedKey</code> com <code>onSelectionChange</code>, ou só <code>defaultSelectedKey</code>.{' '}
+        <code>selectedKey</code> com <code>onSelectedKeyChange</code>, ou só <code>defaultSelectedKey</code>.{' '}
         <code>selectedKey={'{null}'}</code> deixa a lista controlada sem nenhum item escolhido.
       </dd>
       <dt>Arrasto</dt>
@@ -187,7 +187,7 @@ export const pagina: Pagina = {
       descricao: 'Reordene pela alça ou com Alt e as setas; o estado é do exemplo, que move e exclui os blocos de verdade.',
       Previa: () => <EstruturaDoDocumento />,
       codigo:
-        "const [blocos, setBlocos] = useState(blocosDoDocumento);\n\n<SortableList\n  label=\"Estrutura do documento\"\n  items={blocos.map((bloco) => ({\n    key: bloco.id,\n    title: bloco.tipo,\n    excerpt: bloco.trecho,\n    icon: bloco.icone,\n    level: bloco.nivel,\n    actions: <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} size=\"sm\" variant=\"dangerGhost\" onClick={() => excluir(bloco.id)} />,\n  }))}\n  selectedKey={escolhido}\n  onSelectionChange={setEscolhido}\n  onReorder={(de, para) => setBlocos(mover(blocos, de, para))}\n/>",
+        "const [blocos, setBlocos] = useState(blocosDoDocumento);\n\n<SortableList\n  label=\"Estrutura do documento\"\n  items={blocos.map((bloco) => ({\n    key: bloco.id,\n    title: bloco.tipo,\n    excerpt: bloco.trecho,\n    icon: bloco.icone,\n    level: bloco.nivel,\n    actions: <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} size=\"sm\" variant=\"dangerGhost\" onClick={() => excluir(bloco.id)} />,\n  }))}\n  selectedKey={escolhido}\n  onSelectedKeyChange={setEscolhido}\n  onReorder={(de, para) => setBlocos(mover(blocos, de, para))}\n/>",
     },
   ],
   Variantes,
@@ -207,7 +207,7 @@ export const pagina: Pagina = {
       como: <>Só a linha escolhida tem <code>tabIndex=0</code>; alça e ações ficam com -1.</>,
       teste: 'SortableList.test.tsx',
     },
-    { garantia: 'Escolha segue o foco', como: 'Setas, Home e End movem o foco e avisam onSelectionChange.', teste: 'SortableList.test.tsx' },
+    { garantia: 'Escolha segue o foco', como: 'Setas, Home e End movem o foco e avisam onSelectedKeyChange.', teste: 'SortableList.test.tsx' },
     { garantia: 'Controlada', como: <>Com <code>selectedKey</code>, a escolha só muda quando o produto aceita.</>, teste: 'SortableList.test.tsx' },
     { garantia: 'Ação não escolhe', como: 'O clique num controle da linha é do controle.', teste: 'SortableList.test.tsx' },
     {
@@ -233,6 +233,7 @@ export const pagina: Pagina = {
     { nome: 'onReorder', tipo: '(fromIndex: number, toIndex: number) => void', descricao: 'Obrigatória. Pede a mudança de posição; quem reordena é o produto.' },
     { nome: 'selectedKey', tipo: 'string | null', descricao: 'Linha escolhida, no modo controlado. null para nenhuma.' },
     { nome: 'defaultSelectedKey', tipo: 'string', descricao: 'Linha escolhida no início, no modo não controlado.' },
-    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: 'Avisa a linha escolhida.' },
+    { nome: 'onSelectedKeyChange', tipo: '(key: string) => void', descricao: 'Avisa a linha escolhida.' },
+    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onSelectedKeyChange</code>.</> },
   ],
 };

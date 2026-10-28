@@ -136,7 +136,7 @@ function ExcluirComConfirmacao() {
             <Button onClick={() => setConfirmando(false)} variant="danger">Excluir</Button>
           </>
         }
-        onClose={() => setConfirmando(false)}
+        onOpenChange={setConfirmando}
         open={confirmando}
         role="alertdialog"
         size="sm"
@@ -196,7 +196,7 @@ export const pagina: Pagina = {
       descricao: 'O foco volta ao gatilho antes do onSelect; ao fechar o Dialog, ele retorna ao gatilho.',
       Previa: ExcluirComConfirmacao,
       codigo:
-        "<Menu\n  label=\"Ações do documento\"\n  items={[\n    { key: 'renomear', label: 'Renomear', onSelect: renomear },\n    { key: 'excluir', label: 'Excluir', onSelect: () => setConfirmando(true) },\n  ]}\n>\n  <Button variant=\"secondary\">Documento</Button>\n</Menu>\n<Dialog\n  open={confirmando}\n  onClose={() => setConfirmando(false)}\n  role=\"alertdialog\"\n  size=\"sm\"\n  title=\"Excluir documento\"\n  footer={...}\n>\n  Esta ação não pode ser desfeita.\n</Dialog>",
+        "<Menu\n  label=\"Ações do documento\"\n  items={[\n    { key: 'renomear', label: 'Renomear', onSelect: renomear },\n    { key: 'excluir', label: 'Excluir', onSelect: () => setConfirmando(true) },\n  ]}\n>\n  <Button variant=\"secondary\">Documento</Button>\n</Menu>\n<Dialog\n  open={confirmando}\n  onOpenChange={setConfirmando}\n  role=\"alertdialog\"\n  size=\"sm\"\n  title=\"Excluir documento\"\n  footer={...}\n>\n  Esta ação não pode ser desfeita.\n</Dialog>",
     },
   ],
   Modos,

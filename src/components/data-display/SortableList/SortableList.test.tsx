@@ -53,8 +53,8 @@ describe('SortableList', () => {
   });
 
   it('as setas, Home e End movem o foco e a escolha juntos', () => {
-    const onSelectionChange = vi.fn();
-    render(<SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectionChange={onSelectionChange} />);
+    const onSelectedKeyChange = vi.fn();
+    render(<SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectedKeyChange={onSelectedKeyChange} />);
 
     act(() => linha('Título').focus());
     fireEvent.keyDown(linha('Título'), { key: 'ArrowDown' });
@@ -66,29 +66,38 @@ describe('SortableList', () => {
 
     fireEvent.keyDown(linha('Imagem'), { key: 'Home' });
     expect(linha('Título')).toHaveFocus();
-    expect(onSelectionChange.mock.calls).toEqual([['paragrafo'], ['imagem'], ['titulo']]);
+    expect(onSelectedKeyChange.mock.calls).toEqual([['paragrafo'], ['imagem'], ['titulo']]);
   });
 
   it('controlada, so muda a escolha quando o produto aceita', () => {
-    const onSelectionChange = vi.fn();
+    const onSelectedKeyChange = vi.fn();
     render(
-      <SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectionChange={onSelectionChange} selectedKey={null} />,
+      <SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectedKeyChange={onSelectedKeyChange} selectedKey={null} />,
     );
 
     fireEvent.click(screen.getByText('Imagem'));
 
-    expect(onSelectionChange).toHaveBeenCalledWith('imagem');
+    expect(onSelectedKeyChange).toHaveBeenCalledWith('imagem');
     expect(screen.getAllByRole('row').every((row) => row.getAttribute('aria-selected') === 'false')).toBe(true);
   });
 
-  it('o clique numa acao da linha nao escolhe a linha', () => {
+  it('ainda chama o obsoleto onSelectionChange', () => {
     const onSelectionChange = vi.fn();
+    render(<SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectionChange={onSelectionChange} />);
+
+    fireEvent.click(screen.getByText('Imagem'));
+
+    expect(onSelectionChange).toHaveBeenCalledWith('imagem');
+  });
+
+  it('o clique numa acao da linha nao escolhe a linha', () => {
+    const onSelectedKeyChange = vi.fn();
     const comAcao = blocos.map((bloco) => ({ ...bloco, actions: <button type="button">Excluir {bloco.title}</button> }));
-    render(<SortableList items={comAcao} label="Estrutura" onReorder={vi.fn()} onSelectionChange={onSelectionChange} />);
+    render(<SortableList items={comAcao} label="Estrutura" onReorder={vi.fn()} onSelectedKeyChange={onSelectedKeyChange} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Excluir Imagem' }));
 
-    expect(onSelectionChange).not.toHaveBeenCalled();
+    expect(onSelectedKeyChange).not.toHaveBeenCalled();
   });
 
   it('as setas para os lados percorrem a alca e as acoes, fora da ordem do Tab', () => {
