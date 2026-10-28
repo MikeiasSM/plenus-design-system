@@ -37,6 +37,7 @@ import {
 } from './timelineLayout';
 import { autoDomain, durationMs, formatPosition, timeTicks, toDate, toPosition } from './timelineTime';
 import { timelineTooltip, type TimelineMarker, type TimelineRowBand, type TimelineTarget } from './timelineTooltip';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartTimeline.module.css';
 
 /** Em `calendar`, `Date` ou milissegundos desde a epoca; em `dayHours`, `Date` pela hora do dia ou a hora decimal. */
@@ -934,10 +935,10 @@ export function ChartTimeline({
 
       {xAxis !== 'hidden' && (
         <g aria-hidden="true" className={`${styles.passThrough} ${xAxis === 'onHover' ? styles.axisOnHover : ''}`}>
-          <line className={styles.axisLine} x1={xStart} x2={xEnd} y1={axisLineY} y2={axisLineY} />
+          <line className={chartStyles.axisLine} x1={xStart} x2={xEnd} y1={axisLineY} y2={axisLineY} />
           {ticks.map((tick) => (
             <text
-              className={styles.axisLabel}
+              className={chartStyles.axisLabel}
               dominantBaseline={axisOnTop ? 'auto' : 'hanging'}
               key={tick.position}
               textAnchor={tickAnchor(x(tick.position), tick.label)}
@@ -1071,7 +1072,7 @@ export function ChartTimeline({
       position={legend}
     />
   );
-  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
+  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: `${styles.title} ${chartStyles.title}` });
 
   return (
     <figure {...figureProps}>

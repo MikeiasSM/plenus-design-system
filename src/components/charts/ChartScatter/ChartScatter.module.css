@@ -20,10 +20,3 @@
   }
 }
 
-.series {
-  composes: series from '../core/Chart.module.css';
-}
-
-.seriesOff {
-  composes: seriesOff from '../core/Chart.module.css';
-}

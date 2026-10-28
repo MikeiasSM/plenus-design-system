@@ -1,4 +1,5 @@
 import { createContext, useContext, useId, type ComponentPropsWithRef, type ReactNode } from 'react';
+import fieldStyles from '../Field/Field.module.css';
 import styles from './RadioGroup.module.css';
 
 interface RadioGroupContexto {
@@ -76,7 +77,7 @@ export function RadioGroup({
         </legend>
         <div className={styles.options}>{children}</div>
         {(error || hint) && (
-          <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
+          <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
             {error || hint}
           </span>
         )}

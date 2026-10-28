@@ -84,10 +84,4 @@
 }
 
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
-.hint {
-  composes: hint from '../Field/Field.module.css';
-}
 
-.errorMessage {
-  composes: errorMessage from '../Field/Field.module.css';
-}

@@ -1,6 +1,7 @@
 import { useCallback, useId, type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useCheckboxGroup } from '../CheckboxGroup/CheckboxGroup';
+import fieldStyles from '../Field/Field.module.css';
 import styles from './Checkbox.module.css';
 
 export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
@@ -79,7 +80,7 @@ export function Checkbox({
         {label && <span className={styles.text}>{label}</span>}
       </label>
       {(error || hint) && (
-        <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
+        <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
           {error || hint}
         </span>
       )}

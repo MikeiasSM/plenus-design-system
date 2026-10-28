@@ -16,10 +16,6 @@
   white-space: nowrap;
 }
 
-.hiddenText {
-  composes: hiddenText from '../Steps/Steps.module.css';
-}
-
 .list {
   display: flex;
   align-items: center;

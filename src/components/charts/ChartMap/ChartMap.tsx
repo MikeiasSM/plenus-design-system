@@ -39,6 +39,7 @@ import {
 import { CALLOUT_GAP, calloutWidth, planLabels, type LabelCandidate, type LabelPlan } from './mapLabels';
 import { buildColorScale, type ChartColorScale, type ColorScale } from '../scales/colorScale';
 import type { Point, Ring } from './polylabel';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartMap.module.css';
 
 export interface ChartMapRegionDatum {
@@ -897,7 +898,7 @@ export function ChartMap({
           .filter((point) => validPoints.has(point))
           .map((point) => ({ key: `${series.id}:${point.id}`, name: point.label, series: series.label, value: formatValue(point.value) })),
   );
-  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
+  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: chartStyles.title });
 
   return (
     <figure {...figureProps}>

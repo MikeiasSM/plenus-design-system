@@ -19,12 +19,10 @@
 }
 
 .link {
-  composes: tab from '../Tabs/Tabs.module.css';
   text-decoration: none;
 }
 
 .current {
-  composes: active from '../Tabs/Tabs.module.css';
   border-bottom-color: var(--pl-color-primary-strong);
 }
 

@@ -1,31 +1,4 @@
 /* Campo e gatilho sao os do `DatePicker`: os tres seletores tem a mesma caixa. */
-.field {
-  composes: field from '../DatePicker/DatePicker.module.css';
-}
-
-.error {
-  composes: error from '../DatePicker/DatePicker.module.css';
-}
-
-.sm {
-  composes: sm from '../DatePicker/DatePicker.module.css';
-}
-
-.md {
-  composes: md from '../DatePicker/DatePicker.module.css';
-}
-
-.lg {
-  composes: lg from '../DatePicker/DatePicker.module.css';
-}
-
-.input {
-  composes: input from '../DatePicker/DatePicker.module.css';
-}
-
-.trigger {
-  composes: trigger from '../DatePicker/DatePicker.module.css';
-}
 
 .panel {
   z-index: 95;

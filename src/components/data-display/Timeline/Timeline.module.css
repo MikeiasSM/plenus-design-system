@@ -32,20 +32,8 @@
   background: var(--pl-color-border);
 }
 
-.complete {
-  composes: complete from '../../navigation/Steps/Steps.module.css';
-}
-
 .complete:not(:last-child)::after {
   background: var(--pl-color-primary);
-}
-
-.current {
-  composes: current from '../../navigation/Steps/Steps.module.css';
-}
-
-.marker {
-  composes: marker from '../../navigation/Steps/Steps.module.css';
 }
 
 .dot {
@@ -67,16 +55,8 @@
   padding-top: calc((var(--steps-marker) - var(--pl-type-label-line-height)) / 2);
 }
 
-.label {
-  composes: label from '../../navigation/Steps/Steps.module.css';
-}
-
 .upcoming .label {
   color: var(--pl-color-text-tertiary);
-}
-
-.description {
-  composes: description from '../../navigation/Steps/Steps.module.css';
 }
 
 .date {
@@ -84,10 +64,6 @@
   font-size: var(--pl-type-caption-size);
   line-height: var(--pl-type-caption-line-height);
   font-variant-numeric: tabular-nums;
-}
-
-.hiddenText {
-  composes: hiddenText from '../../navigation/Steps/Steps.module.css';
 }
 
 /* Compacta, para painéis estreitos: o marcador mede a entrelinha do rótulo, que fica em caption com o peso de label. */

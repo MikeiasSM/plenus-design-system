@@ -1,15 +1,4 @@
 /* O grupo, a legenda e as mensagens são os do RadioGroup: as duas perguntas de formulário se leem iguais. */
-.group {
-  composes: group from '../RadioGroup/RadioGroup.module.css';
-}
-
-.legend {
-  composes: legend from '../RadioGroup/RadioGroup.module.css';
-}
-
-.required {
-  composes: required from '../RadioGroup/RadioGroup.module.css';
-}
 
 .options {
   display: flex;
@@ -25,10 +14,3 @@
   column-gap: var(--pl-space-5);
 }
 
-.hint {
-  composes: hint from '../Field/Field.module.css';
-}
-
-.errorMessage {
-  composes: errorMessage from '../Field/Field.module.css';
-}

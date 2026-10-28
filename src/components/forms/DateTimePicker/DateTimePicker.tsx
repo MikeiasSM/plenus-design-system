@@ -21,6 +21,7 @@ import { TimeSlots } from '../TimePicker/TimeSlots';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
+import datePickerStyles from '../DatePicker/DatePicker.module.css';
 import styles from './DateTimePicker.module.css';
 import { IconCalendar } from '../../icons';
 
@@ -219,7 +220,7 @@ export function DateTimePicker({
             value={escolhido ? toIsoDateTime(escolhido) : ''}
           />
           <div
-            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], error && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -228,7 +229,7 @@ export function DateTimePicker({
               aria-invalid={invalid || undefined}
               aria-required={required || undefined}
               autoComplete="off"
-              className={styles.input}
+              className={datePickerStyles.input}
               disabled={disabled}
               id={id}
               inputMode="numeric"
@@ -247,7 +248,7 @@ export function DateTimePicker({
               aria-expanded={open}
               aria-haspopup="dialog"
               aria-label="Abrir calendário"
-              className={styles.trigger}
+              className={datePickerStyles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
               ref={triggerRef}

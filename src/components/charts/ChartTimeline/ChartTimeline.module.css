@@ -1,5 +1,4 @@
 .figure {
-  composes: figure from '../core/Chart.module.css';
   min-width: 0;
 }
 
@@ -11,7 +10,6 @@
 }
 
 .title {
-  composes: title from '../core/Chart.module.css';
   min-width: 0;
 }
 
@@ -318,14 +316,6 @@
   stroke: var(--pl-color-primary-strong);
   stroke-width: 2;
   pointer-events: none;
-}
-
-.axisLine {
-  composes: axisLine from '../core/Chart.module.css';
-}
-
-.axisLabel {
-  composes: axisLabel from '../core/Chart.module.css';
 }
 
 /* A altura do grafico e a lista de linhas: o eixo `onHover` guarda o lugar e so aparece, sem empurrar a pagina. */

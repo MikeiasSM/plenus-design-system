@@ -248,17 +248,6 @@
 }
 
 /* Os controles de selecao tem o visual dos do sistema, sem trocar o elemento nativo. */
-.checkbox {
-  composes: input from '../../forms/Checkbox/Checkbox.module.css';
-}
-
-.radio {
-  composes: input from '../../forms/RadioGroup/RadioGroup.module.css';
-}
-
-.toggle {
-  composes: input from '../../forms/Switch/Switch.module.css';
-}
 
 .checkbox,
 .radio,

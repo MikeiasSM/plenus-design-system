@@ -31,6 +31,7 @@ import {
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartBar.module.css';
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
@@ -256,7 +257,7 @@ export function ChartBar({
 
     return (
       <text
-        className={`${styles.valueLabel} ${markShown(showDataLabels, emFoco) ? '' : styles.valueLabelHidden}`}
+        className={`${chartStyles.valueLabel} ${markShown(showDataLabels, emFoco) ? '' : chartStyles.valueLabelHidden}`}
         dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
         key={chave}
         textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
@@ -344,7 +345,7 @@ export function ChartBar({
         return (
           <g
             aria-hidden={oculta || undefined}
-            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            className={`${chartStyles.series} ${oculta ? chartStyles.seriesOff : ''}`}
             key={indiceSerie}
           >
             {categories.map((categoria, indiceCategoria) => {

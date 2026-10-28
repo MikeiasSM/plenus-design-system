@@ -1,4 +1,5 @@
 import { useId, type ComponentPropsWithRef } from 'react';
+import fieldStyles from '../Field/Field.module.css';
 import styles from './Switch.module.css';
 
 export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
@@ -49,7 +50,7 @@ export function Switch({
         <span className={styles.text}>{label}</span>
       </label>
       {(error || hint) && (
-        <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
+        <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
           {error || hint}
         </span>
       )}

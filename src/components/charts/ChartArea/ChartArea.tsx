@@ -36,6 +36,7 @@ import {
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartArea.module.css';
 /**
  * Faixa sem vizinha desenhada. O contorno entre ela e o nada nao tem tracado, e
@@ -353,7 +354,7 @@ export function ChartArea({
         return (
           <g
             aria-hidden={oculta || undefined}
-            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            className={`${chartStyles.series} ${oculta ? chartStyles.seriesOff : ''}`}
             key={indiceSerie}
           >
             <path
@@ -362,7 +363,7 @@ export function ChartArea({
               fillOpacity={stacked ? 0.4 : undefined}
             />
             <path
-              className={styles.outline}
+              className={chartStyles.line}
               d={linePath(contorno, curve)}
               fill="none"
               stroke={cores[indiceSerie]}
@@ -377,7 +378,7 @@ export function ChartArea({
 
               const descricao = `${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`;
 
-              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolada(faixas, indice) ? styles.dotVisible : styles.dot;
+              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolada(faixas, indice) ? chartStyles.dotVisible : chartStyles.dot;
 
               return (
                 <circle
@@ -408,7 +409,7 @@ export function ChartArea({
 
                 return (
                   <text
-                    className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
+                    className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                     key={indice}
                     textAnchor={textAnchor}
                     x={faixa.x + dx}

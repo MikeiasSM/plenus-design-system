@@ -7,6 +7,7 @@ import {
   type ChartTimelineSegment,
   type ChartTimelineSeries,
 } from './ChartTimeline';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartTimeline.module.css';
 
 const series: ChartTimelineSeries[] = [
@@ -395,7 +396,7 @@ describe('ChartTimeline', () => {
   });
 
   it('desenha o eixo em horas, com o formato do consumidor, e o esconde quando pedido', () => {
-    const ticks = () => [...document.querySelectorAll(`.${styles.axisLabel}`)].map((tick) => tick.textContent);
+    const ticks = () => [...document.querySelectorAll(`.${chartStyles.axisLabel}`)].map((tick) => tick.textContent);
     const { rerender } = render(journey());
 
     expect(ticks()).toEqual(['0h', '3h', '6h', '9h', '12h', '15h', '18h', '21h', '24h']);

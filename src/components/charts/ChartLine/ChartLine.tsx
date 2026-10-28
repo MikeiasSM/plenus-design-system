@@ -34,6 +34,7 @@ import {
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartLine.module.css';
 /**
  * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
@@ -291,11 +292,11 @@ export function ChartLine({
         return (
           <g
             aria-hidden={oculta || undefined}
-            className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+            className={`${chartStyles.series} ${oculta ? chartStyles.seriesOff : ''}`}
             key={indiceSerie}
           >
             <path
-              className={styles.line}
+              className={chartStyles.line}
               d={linePath(pontosPorSerie[indiceSerie], curve)}
               fill="none"
               stroke={cores[indiceSerie]}
@@ -308,7 +309,7 @@ export function ChartLine({
 
               const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
 
-              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? styles.dotVisible : styles.dot;
+              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
 
               return (
                 <circle
@@ -337,7 +338,7 @@ export function ChartLine({
 
                 return (
                   <text
-                    className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
+                    className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                     key={indice}
                     textAnchor={textAnchor}
                     x={ponto.x + dx}

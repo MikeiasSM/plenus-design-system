@@ -1,34 +1,5 @@
 .figure {
-  composes: figure from '../core/Chart.module.css';
   min-width: 0;
-}
-
-.title {
-  composes: title from '../core/Chart.module.css';
-}
-
-.body {
-  composes: body from '../core/Chart.module.css';
-}
-
-.bodyColumn {
-  composes: bodyColumn from '../core/Chart.module.css';
-}
-
-.bodyRow {
-  composes: bodyRow from '../core/Chart.module.css';
-}
-
-.plot {
-  composes: plot from '../core/Chart.module.css';
-}
-
-.plotFill {
-  composes: plotFill from '../core/Chart.module.css';
-}
-
-.canvas {
-  composes: canvas from '../core/Chart.module.css';
 }
 
 /* O trilho existe mesmo sem valor: a escala inteira continua legível. */

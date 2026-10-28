@@ -16,6 +16,9 @@ import {
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
+import checkboxStyles from '../../forms/Checkbox/Checkbox.module.css';
+import radioGroupStyles from '../../forms/RadioGroup/RadioGroup.module.css';
+import switchStyles from '../../forms/Switch/Switch.module.css';
 import styles from './Table.module.css';
 import { EmptyState } from '../../feedback/EmptyState';
 import { Skeleton } from '../../feedback/Skeleton';
@@ -27,6 +30,13 @@ export type TableBreakpoint = 'sm' | 'md' | 'lg';
 export type SortDirection = 'ascending' | 'descending';
 export type TableSelectionMode = 'none' | 'single' | 'multiple';
 export type TableSelectionControl = 'checkbox' | 'radio' | 'toggle';
+
+/** O controle de selecao veste a caixa do campo correspondente. */
+const CONTROL_INPUT: Record<TableSelectionControl, string> = {
+  checkbox: checkboxStyles.input,
+  radio: radioGroupStyles.input,
+  toggle: switchStyles.input,
+};
 
 export interface TableRowItem {
   disabled?: boolean;
@@ -308,7 +318,7 @@ function TableHeader({ children }: TableHeaderProps) {
             <input
               aria-label="Selecionar todas as linhas"
               checked={selection.status === 'all'}
-              className={styles.checkbox}
+              className={`${styles.checkbox} ${checkboxStyles.input}`}
               disabled={selection.empty}
               onChange={selection.toggleAll}
               ref={(node) => {
@@ -485,7 +495,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
           <input
             aria-label={label ?? 'Selecionar linha'}
             checked={selected}
-            className={styles[selection.control]}
+            className={`${styles[selection.control]} ${CONTROL_INPUT[selection.control]}`}
             disabled={disabled}
             name={selection.control === 'radio' ? `${baseId}-selecao` : undefined}
             onChange={() => undefined}

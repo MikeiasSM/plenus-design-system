@@ -1,5 +1,6 @@
 import { useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
+import stepsStyles from '../Steps/Steps.module.css';
 import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
 
@@ -143,7 +144,7 @@ function PaginationRangeText({
   return (
     <span className={styles.range} role="status">
       <span aria-hidden="true">{`${inicio}–${fim} de ${total}`}</span>
-      <span className={styles.hiddenText}>{`Itens ${inicio} a ${fim} de ${total}`}</span>
+      <span className={stepsStyles.hiddenText}>{`Itens ${inicio} a ${fim} de ${total}`}</span>
     </span>
   );
 }

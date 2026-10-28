@@ -1,5 +1,4 @@
 .figure {
-  composes: figure from '../core/Chart.module.css';
   min-width: 0;
 }
 
@@ -19,10 +18,6 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.title {
-  composes: title from '../core/Chart.module.css';
 }
 
 .subtitle {
@@ -193,14 +188,6 @@ text.label {
 }
 
 /* Legenda: a escala vem da ColorLegend; aqui ficam so os marcadores. */
-
-.markerBlock {
-  composes: legendBlock from '../core/ColorLegend.module.css';
-}
-
-.markerTitle {
-  composes: legendTitle from '../core/ColorLegend.module.css';
-}
 
 .sizeKey {
   display: flex;

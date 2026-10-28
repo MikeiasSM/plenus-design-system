@@ -38,6 +38,7 @@ import {
   targetBase,
   tickLabelPriority,
 } from './gaugeScale';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartGauge.module.css';
 
 /** Uma faixa da escala. A cor segue a regra da família: `color`, depois `intent`, depois a paleta. */
@@ -316,7 +317,7 @@ export function ChartGauge({
         aria-valuemin={measured === null ? undefined : domain.min}
         aria-valuenow={measured === null ? undefined : reached}
         aria-valuetext={valueText}
-        className={styles.canvas}
+        className={`${styles.canvas} ${chartStyles.canvas}`}
         height={drawingHeight}
         role={measured === null ? 'img' : 'meter'}
         viewBox={`0 0 ${width} ${drawingHeight}`}
@@ -492,17 +493,17 @@ export function ChartGauge({
     />
   );
   const tip = tooltip();
-  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
+  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: chartStyles.title });
 
   return (
     <figure {...figureProps}>
       <figcaption className={titleClassName}>{title}</figcaption>
 
-      <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`}>
+      <div className={`${chartStyles.body} ${lateral ? chartStyles.bodyRow : chartStyles.bodyColumn}`}>
         {(legend === 'top' || legend === 'left') && legendView}
 
         <div
-          className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`}
+          className={`${chartStyles.plot} ${fillHeight ? chartStyles.plotFill : ''}`}
           ref={ref}
           style={fillHeight ? undefined : { minHeight: drawingHeight }}
         >

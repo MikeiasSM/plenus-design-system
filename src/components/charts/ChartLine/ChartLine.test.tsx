@@ -137,7 +137,7 @@ describe('ChartLine', () => {
 
     expect(visiveisDe('Produtos')).toHaveLength(3);
     expect(visiveisDe('Serviços')).toHaveLength(0);
-    expect(document.querySelectorAll(`text.${lineStyles.valueLabelHidden}`).length).toBe(3);
+    expect(document.querySelectorAll(`text.${chartStyles.valueLabelHidden}`).length).toBe(3);
   });
 
   it('com clique no ponto, os pontos sao botoes e as setas andam entre categorias e series', () => {

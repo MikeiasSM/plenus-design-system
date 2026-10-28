@@ -33,6 +33,7 @@ import {
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartCombo.module.css';
 /**
  * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
@@ -356,7 +357,7 @@ export function ChartCombo({
           return (
             <g
               aria-hidden={oculta || undefined}
-              className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+              className={`${chartStyles.series} ${oculta ? chartStyles.seriesOff : ''}`}
               key={indiceSerie}
             >
               {categories.map((categoria, indiceCategoria) => {
@@ -403,7 +404,7 @@ export function ChartCombo({
 
                   return (
                     <text
-                      className={`${styles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : styles.valueLabelHidden}`}
+                      className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                       key={indiceCategoria}
                       textAnchor="middle"
                       x={
@@ -442,11 +443,11 @@ export function ChartCombo({
           return (
             <g
               aria-hidden={oculta || undefined}
-              className={`${styles.series} ${oculta ? styles.seriesOff : ''}`}
+              className={`${chartStyles.series} ${oculta ? chartStyles.seriesOff : ''}`}
               key={indiceSerie}
             >
               <path
-                className={styles.line}
+                className={chartStyles.line}
                 d={linePath(pontos, curve)}
                 fill="none"
                 stroke={cores[indiceSerie]}
@@ -458,7 +459,7 @@ export function ChartCombo({
                     aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
                     {...marcas.markProps(
                       { column: indice, row: indiceSerie },
-                      markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? styles.dotVisible : styles.dot,
+                      markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? chartStyles.dotVisible : chartStyles.dot,
                     )}
                     cx={ponto.x}
                     cy={ponto.y}
@@ -473,7 +474,7 @@ export function ChartCombo({
                 pontos.map((ponto, indice) =>
                   ponto === null ? null : (
                     <text
-                      className={`${styles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : styles.valueLabelHidden}`}
+                      className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                       key={indice}
                       textAnchor="middle"
                       x={ponto.x}

@@ -1,6 +1,8 @@
 import { createContext, useContext, useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import fieldStyles from '../Field/Field.module.css';
+import radioGroupStyles from '../RadioGroup/RadioGroup.module.css';
 import styles from './CheckboxGroup.module.css';
 
 interface CheckboxGroupContextValue {
@@ -77,16 +79,16 @@ export function CheckboxGroup({
       <fieldset
         {...props}
         ref={mergedRef}
-        className={[styles.group, className].filter(Boolean).join(' ')}
+        className={[radioGroupStyles.group, className].filter(Boolean).join(' ')}
         aria-describedby={describedBy}
       >
-        <legend className={styles.legend}>
+        <legend className={radioGroupStyles.legend}>
           {label}
-          {required && <span className={styles.required} aria-hidden="true">*</span>}
+          {required && <span className={radioGroupStyles.required} aria-hidden="true">*</span>}
         </legend>
         <div className={[styles.options, styles[orientation]].join(' ')}>{children}</div>
         {(error || hint) && (
-          <span className={error ? styles.errorMessage : styles.hint} id={messageId} role={error ? 'alert' : undefined}>
+          <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
             {error || hint}
           </span>
         )}

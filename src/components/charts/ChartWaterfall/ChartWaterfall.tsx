@@ -22,6 +22,7 @@ import {
 import { resolveSeriesColors, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartWaterfall.module.css';
 
 export interface ChartWaterfallStep {
@@ -319,7 +320,7 @@ export function ChartWaterfall({
 
           return (
             <text
-              className={`${styles.valueLabel} ${markShown(showDataLabels, indice === passoEmFoco) ? '' : styles.valueLabelHidden}`}
+              className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indice === passoEmFoco) ? '' : chartStyles.valueLabelHidden}`}
               key={indice}
               textAnchor="middle"
               x={faixaDe(indice) + escalaPassos.bandwidth() / 2}

@@ -9,6 +9,7 @@ import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import { readIsoTime, toIsoTime } from '../DatePicker/iso';
 import { TimeSlots, isTimeAllowed, paraTextoDeHora } from './TimeSlots';
+import datePickerStyles from '../DatePicker/DatePicker.module.css';
 import styles from './TimePicker.module.css';
 import { IconClock } from '../../icons';
 
@@ -164,7 +165,7 @@ export function TimePicker({
             value={paraTextoDeHora(escolhido)}
           />
           <div
-            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], error && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -173,7 +174,7 @@ export function TimePicker({
               aria-invalid={invalid || undefined}
               aria-required={required || undefined}
               autoComplete="off"
-              className={styles.input}
+              className={datePickerStyles.input}
               disabled={disabled}
               id={id}
               inputMode="numeric"
@@ -192,7 +193,7 @@ export function TimePicker({
               aria-expanded={open}
               aria-haspopup="dialog"
               aria-label="Abrir seletor de hora"
-              className={styles.trigger}
+              className={datePickerStyles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
               ref={triggerRef}

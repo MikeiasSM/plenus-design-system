@@ -1,4 +1,5 @@
 import type { ComponentPropsWithRef, ElementType } from 'react';
+import tabsStyles from '../Tabs/Tabs.module.css';
 import styles from './TabsNav.module.css';
 
 export interface TabsNavItem {
@@ -32,7 +33,7 @@ export function TabsNav({ as: Link = 'a', className, current, fitted = false, it
             <li className={styles.item} key={item.key}>
               <Link
                 aria-current={atual ? 'page' : undefined}
-                className={[styles.link, atual && styles.current].filter(Boolean).join(' ')}
+                className={[`${styles.link} ${tabsStyles.tab}`, atual && `${styles.current} ${tabsStyles.active}`].filter(Boolean).join(' ')}
                 href={item.href}
                 {...item.linkProps}
               >

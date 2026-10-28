@@ -19,6 +19,7 @@ import {
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
+import chartStyles from '../core/Chart.module.css';
 import styles from './ChartScatter.module.css';
 
 export interface ChartScatterPoint {
@@ -289,7 +290,7 @@ export function ChartScatter({
         {series.map((serie, indiceSerie) => (
           <g
             aria-hidden={isHidden(serie.label) || undefined}
-            className={`${styles.series} ${isHidden(serie.label) ? styles.seriesOff : ''}`}
+            className={`${chartStyles.series} ${isHidden(serie.label) ? chartStyles.seriesOff : ''}`}
             key={indiceSerie}
           >
             {serie.points.map((ponto, indice) => {

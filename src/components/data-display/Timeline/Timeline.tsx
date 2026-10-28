@@ -1,5 +1,6 @@
 import type { ComponentPropsWithRef } from 'react';
 import { IconCheck } from '../../icons';
+import stepsStyles from '../../navigation/Steps/Steps.module.css';
 import styles from './Timeline.module.css';
 
 export type TimelineSize = 'sm' | 'md';
@@ -32,17 +33,17 @@ export function Timeline({ className, current, items, label, size = 'md', ...pro
         return (
           <li
             aria-current={state === 'current' ? 'step' : undefined}
-            className={[styles.item, styles[state]].join(' ')}
+            className={[styles.item, styles[state], stepsStyles[state]].filter(Boolean).join(' ')}
             key={item.key}
           >
-            <span aria-hidden="true" className={styles.marker}>
+            <span aria-hidden="true" className={`${styles.marker} ${stepsStyles.marker}`}>
               {state === 'complete' ? <IconCheck /> : <span className={styles.dot} />}
             </span>
             <span className={styles.text}>
-              <span className={styles.label}>{item.label}</span>
-              {state === 'complete' && <span className={styles.hiddenText}>, concluído</span>}
-              {state === 'current' && <span className={styles.hiddenText}>, atual</span>}
-              {item.description && <span className={styles.description}>{item.description}</span>}
+              <span className={`${styles.label} ${stepsStyles.label}`}>{item.label}</span>
+              {state === 'complete' && <span className={stepsStyles.hiddenText}>, concluído</span>}
+              {state === 'current' && <span className={stepsStyles.hiddenText}>, atual</span>}
+              {item.description && <span className={stepsStyles.description}>{item.description}</span>}
               {item.date && <span className={styles.date}>{item.date}</span>}
             </span>
           </li>

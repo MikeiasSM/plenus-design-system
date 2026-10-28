@@ -1,4 +1,5 @@
 import { ChartLegend, ColorLegend, keyByLabel, type ColorLegendProps } from '../core';
+import colorLegendStyles from '../core/ColorLegend.module.css';
 import styles from './ChartMap.module.css';
 
 export interface MapLegendSeries {
@@ -28,8 +29,8 @@ export function ChartMapLegend({
   return (
     <ColorLegend {...legend}>
       {markerSeries.length > 0 && (
-        <div className={styles.markerBlock}>
-          <span className={styles.markerTitle}>{markerValueLabel}</span>
+        <div className={colorLegendStyles.legendBlock}>
+          <span className={colorLegendStyles.legendTitle}>{markerValueLabel}</span>
           <ChartLegend
             align={legend.align}
             entries={markerSeries}
