@@ -74,7 +74,7 @@
 }
 
 .tile[aria-pressed='true'] {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
 }
@@ -85,7 +85,7 @@
 
 .tile:not(:disabled):focus-visible {
   outline: none;
-  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary);
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
 }
 
 .tile:disabled {

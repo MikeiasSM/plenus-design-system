@@ -15,7 +15,7 @@ import {
   type ChartLegendPosition,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import styles from './ChartRadial.module.css';
 
@@ -42,6 +42,8 @@ export interface ChartRadialProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
@@ -78,6 +80,7 @@ export function ChartRadial({
   legend = 'bottom',
   legendAlign,
   onHiddenTracksChange,
+  palette,
   showCenter = true,
   showTooltip = true,
   startAngle = 0,
@@ -97,7 +100,7 @@ export function ChartRadial({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um anel nao pode
   // repintar os demais.
-  const cores = useMemo(() => resolveSeriesColors(tracks, { accent }), [accent, tracks]);
+  const cores = useMemo(() => resolveSeriesColors(tracks, { accent, palette }), [accent, palette, tracks]);
 
   // Valor invalido tem o destino do ausente: nao entra no maximo nem preenche o anel.
   const valido = (anel: ChartRadialTrack) => Number.isFinite(anel.value);

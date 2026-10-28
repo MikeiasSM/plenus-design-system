@@ -49,8 +49,22 @@ const PALAVRAS_DE_ANIMACAO = new Set([
   'revert-layer', 'reverse', 'running', 'step-end', 'step-start', 'unset',
 ]);
 
-/** Seletores sem classe que o CSS dos componentes pode ter: tokens no documento e o `box-sizing`. */
-const SELETORES_GLOBAIS = new Set([':root', ':root[data-theme=dark]', '*', '*:before', '*:after']);
+/**
+ * Seletores sem classe que o CSS dos componentes pode ter: tokens no documento, tokens no escopo de
+ * `data-palette`, que so valem onde o produto pos o atributo, e o `box-sizing`.
+ */
+const SELETORES_GLOBAIS = new Set([
+  ':root',
+  ':root[data-theme=dark]',
+  '[data-palette]',
+  '[data-palette=orange]',
+  '[data-palette=blue]',
+  '[data-palette=purple]',
+  ':root[data-theme=dark] [data-palette]',
+  '*',
+  '*:before',
+  '*:after',
+]);
 
 /**
  * Keyframe referenciado precisa existir no mesmo arquivo. O CSS Modules
@@ -75,11 +89,14 @@ function keyframesOrfaos(css) {
   return [...orfaos];
 }
 
-/** Variavel usada sem ser declarada em lugar algum do CSS publicado: a regra cai no valor inicial, em silencio. */
+/**
+ * Variavel usada sem ser declarada em lugar algum do CSS publicado: a regra cai no valor inicial, em silencio.
+ * A que traz valor reserva, como `--pl-palette-solid`, e opcional por desenho.
+ */
 function variaveisSemDefinicao(css) {
   const definidas = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
 
-  return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]))].filter((nome) => !definidas.has(nome));
+  return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1]))].filter((nome) => !definidas.has(nome));
 }
 
 /** Seletor sem classe no CSS dos componentes reescreve a pagina do hospedeiro; o lugar dele e o `reset.css`. */

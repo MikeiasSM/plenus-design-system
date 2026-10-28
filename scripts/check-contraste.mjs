@@ -18,11 +18,16 @@ const ARQUIVOS = [
   'src/tokens/primitive/brand.css',
   'src/tokens/primitive/neutral.css',
   'src/tokens/primitive/status.css',
+  'src/tokens/semantic/palette.css',
   'src/tokens/semantic/color.css',
   'src/tokens/semantic/chart.css',
   'src/tokens/semantic/code.css',
+  'src/tokens/semantic/control.css',
   'src/styles/tokens.css',
 ];
+
+// O laranja e a paleta padrao; as demais so valem no escopo de `data-palette`.
+const PALETAS = ['orange', 'blue', 'purple'];
 
 const TEXTO_MINIMO = 4.5;
 const CONTROLE_MINIMO = 3;
@@ -46,6 +51,8 @@ const PARES = [
   ['--pl-color-on-info-container', '--pl-color-info-container', TEXTO_MINIMO, 'mensagem informativa'],
   ['--pl-color-danger-text', '--pl-color-surface', TEXTO_MINIMO, 'erro sob o campo'],
   ['--pl-color-primary', '--pl-color-background', CONTROLE_MINIMO, 'contorno do botao'],
+  ['--pl-color-primary-strong', '--pl-color-surface', TEXTO_MINIMO, 'traco primario'],
+  ['--pl-color-primary-strong', '--pl-color-background', TEXTO_MINIMO, 'traco na pagina'],
   ['--pl-color-border-strong', '--pl-color-surface', CONTROLE_MINIMO, 'contorno do campo'],
   ['--pl-chart-series-1', '--pl-color-surface', CONTROLE_MINIMO, 'serie 1 no desenho'],
   ['--pl-chart-series-2', '--pl-color-surface', CONTROLE_MINIMO, 'serie 2 no desenho'],
@@ -70,14 +77,15 @@ const PARES = [
  * sinal acessivel do foco e a troca da borda, nao o halo.
  */
 const ACEITAS = new Set([
-  'claro|--pl-color-on-primary|--pl-color-primary',
-  'escuro|--pl-color-on-primary|--pl-color-primary',
-  'claro|--pl-color-primary|--pl-color-background',
-  'claro|--pl-color-border-strong|--pl-color-surface',
-  'escuro|--pl-color-border-strong|--pl-color-surface',
+  'orange claro|--pl-color-on-primary|--pl-color-primary',
+  'orange claro|--pl-color-primary|--pl-color-background',
+  ...PALETAS.flatMap((paleta) => [
+    `${paleta} claro|--pl-color-border-strong|--pl-color-surface`,
+    `${paleta} escuro|--pl-color-border-strong|--pl-color-surface`,
+  ]),
 ]);
 
-function declaracoesPorTema() {
+function declaracoesPorTema(paleta) {
   const claro = new Map();
   const escuro = new Map();
 
@@ -94,8 +102,16 @@ function declaracoesPorTema() {
         continue;
       }
 
+      const partes = seletor.split(',').map((parte) => parte.trim());
+      const daPaleta = partes.some((parte) => parte === `[data-palette='${paleta}']`);
+      const geral = partes.some((parte) => !/^\[data-palette='\w+'\]$/.test(parte));
+
+      if (!geral && !daPaleta) {
+        continue;
+      }
+
       // Uma lista com `:root` puro vale nos dois temas; so a que e toda escura vale so no escuro.
-      const alvos = seletor.split(',').every((parte) => parte.includes('data-theme')) ? [escuro] : [claro, escuro];
+      const alvos = partes.every((parte) => parte.includes('data-theme')) ? [escuro] : [claro, escuro];
 
       for (const declaracao of bloco[2].matchAll(/(--pl-[\w-]+)\s*:\s*([^;]+);/g)) {
         for (const alvo of alvos) {
@@ -108,7 +124,7 @@ function declaracoesPorTema() {
   return { claro, escuro };
 }
 
-/** Segue a cadeia de `var()` ate chegar a uma cor literal. */
+/** Segue a cadeia de `var()`, com o valor reserva, ate chegar a uma cor literal; mistura `color-mix` em oklab. */
 function resolver(tokens, nome, visitados = new Set()) {
   const valor = tokens.get(nome);
 
@@ -116,11 +132,58 @@ function resolver(tokens, nome, visitados = new Set()) {
     return undefined;
   }
 
-  visitados.add(nome);
+  return resolverValor(tokens, valor, new Set([...visitados, nome]));
+}
 
-  const referencia = valor.match(/var\(\s*(--[\w-]+)/);
+function resolverValor(tokens, valor, visitados) {
+  const mistura = valor.match(/^color-mix\(in oklab,\s*(.+?)\s+(\d+(?:\.\d+)?)%,\s*(.+)\)$/);
 
-  return referencia ? resolver(tokens, referencia[1], visitados) : valor;
+  if (mistura) {
+    const a = resolverValor(tokens, mistura[1], visitados);
+    const b = resolverValor(tokens, mistura[3], visitados);
+
+    return a && b ? misturarOklab(a, b, Number(mistura[2]) / 100) : undefined;
+  }
+
+  const referencia = valor.match(/^var\(\s*(--[\w-]+)\s*(?:,\s*(.+))?\)$/);
+
+  if (!referencia) {
+    return valor;
+  }
+
+  return resolver(tokens, referencia[1], visitados) ?? (referencia[2] ? resolverValor(tokens, referencia[2], visitados) : undefined);
+}
+
+function paraOklab(hex) {
+  const [r, g, b] = [0, 2, 4].map((inicio) => canalLinear(parseInt(hex.replace('#', '').slice(inicio, inicio + 2), 16)));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ];
+}
+
+function deOklab([L, A, B]) {
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+  const canais = [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ].map((c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055));
+
+  return `#${canais.map((c) => Math.round(Math.min(1, Math.max(0, c)) * 255).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function misturarOklab(a, b, parte) {
+  const [x, y] = [paraOklab(a), paraOklab(b)];
+
+  return deOklab(x.map((valor, indice) => valor * parte + y[indice] * (1 - parte)));
 }
 
 function canalLinear(valor) {
@@ -152,15 +215,18 @@ function contraste(frente, fundo) {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-const temas = declaracoesPorTema();
 const naoMedidos = [];
 const reprovados = [];
 const linhas = [];
 
-for (const [nomeDoTema, tokens] of [
-  ['claro', temas.claro],
-  ['escuro', temas.escuro],
-]) {
+for (const [nomeDoTema, tokens] of PALETAS.flatMap((paleta) => {
+  const temas = declaracoesPorTema(paleta);
+
+  return [
+    [`${paleta} claro`, temas.claro],
+    [`${paleta} escuro`, temas.escuro],
+  ];
+})) {
   for (const [frente, fundo, minimo, papel] of PARES) {
     const corFrente = resolver(tokens, frente);
     const corFundo = resolver(tokens, fundo);
@@ -176,7 +242,7 @@ for (const [nomeDoTema, tokens] of [
     const aceita = ACEITAS.has(chave);
 
     linhas.push(
-      `  ${nomeDoTema.padEnd(7)} ${papel.padEnd(22)} ${medida.toFixed(2).padStart(6)}:1  ` +
+      `  ${nomeDoTema.padEnd(14)} ${papel.padEnd(22)} ${medida.toFixed(2).padStart(6)}:1  ` +
         `minimo ${minimo}  ${passa ? 'ok' : aceita ? 'excecao aceita' : 'REPROVADO'}`,
     );
 

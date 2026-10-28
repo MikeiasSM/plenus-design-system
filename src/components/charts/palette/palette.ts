@@ -1,3 +1,5 @@
+import { isHexColor, oklchToHex, toOklch } from '../../../utils/palette/color';
+
 /** Quantidade de series que a paleta do Design System cobre. */
 export const SERIES_TOKENS = 6;
 
@@ -39,4 +41,45 @@ export function paletteWithAccent(accent: string, quantidade: number) {
   );
 
   return [accent, ...Array.from({ length: quantidade - 1 }, (_, i) => restantes[i % restantes.length])];
+}
+
+/** Cores das series sem cor propria: uma lista em rotacao, ou uma cor base que gera os tons. */
+export type ChartPalette = readonly string[] | { base: string };
+
+const TOM_MAIS_ESCURO = 0.36;
+const TOM_MAIS_CLARO = 0.86;
+
+/**
+ * Tons da cor base, do mais escuro ao mais claro, na mesma matiz. Saem em
+ * hexadecimal para que o texto sobre cada um continue medido.
+ */
+function tonesOf(base: string, quantidade: number) {
+  if (quantidade === 1) {
+    return [base];
+  }
+
+  const { C, h } = toOklch(base);
+
+  return Array.from({ length: quantidade }, (_, indice) =>
+    oklchToHex({
+      C,
+      L: TOM_MAIS_ESCURO + ((TOM_MAIS_CLARO - TOM_MAIS_ESCURO) * indice) / (quantidade - 1),
+      h,
+    }),
+  );
+}
+
+/** Uma cor por serie a partir da paleta do grafico. A cor base fora do hexadecimal pinta todas com ela. */
+export function paletteOf(palette: ChartPalette, quantidade: number) {
+  if (quantidade <= 0) {
+    return [];
+  }
+
+  if ('base' in palette) {
+    return isHexColor(palette.base) ? tonesOf(palette.base, quantidade) : Array.from({ length: quantidade }, () => palette.base);
+  }
+
+  return palette.length === 0
+    ? seriesColors(quantidade)
+    : Array.from({ length: quantidade }, (_, indice) => palette[indice % palette.length]);
 }

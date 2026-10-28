@@ -24,13 +24,13 @@
 }
 
 .zone:has(.input:focus-visible) {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: var(--pl-control-focus-halo);
 }
 
 .dragging {
   border-style: solid;
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   background: color-mix(in srgb, var(--pl-color-primary-container) 45%, var(--pl-color-surface));
 }
 
@@ -55,7 +55,7 @@
 }
 
 .dragging .icon {
-  color: var(--pl-color-primary);
+  color: var(--pl-color-primary-strong);
 }
 
 .text {

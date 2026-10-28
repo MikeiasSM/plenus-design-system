@@ -21,7 +21,7 @@ import {
   type ChartLegendPosition,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartSunburst.module.css';
 
@@ -47,6 +47,8 @@ export interface ChartSunburstProps extends ChartRootProps {
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   /** Folga entre dois aneis vizinhos. */
   ringGap?: number;
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
@@ -115,6 +117,7 @@ export function ChartSunburst({
   nodes,
   onHiddenGroupsChange,
   onHoverNode,
+  palette,
   ringGap = 2,
   showLabels = true,
   showTooltip = true,
@@ -133,7 +136,7 @@ export function ChartSunburst({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
   // repintar os demais.
-  const coresDeNivelZero = useMemo(() => resolveSeriesColors(nodes, { accent }), [accent, nodes]);
+  const coresDeNivelZero = useMemo(() => resolveSeriesColors(nodes, { accent, palette }), [accent, palette, nodes]);
 
   const visiveis = useMemo(
     () => nodes.filter((grupo) => !isHidden(grupo.label)),

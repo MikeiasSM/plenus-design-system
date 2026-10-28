@@ -55,7 +55,7 @@
 
 .slotInput:focus-visible {
   outline: none;
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: var(--pl-control-focus-halo);
 }
 

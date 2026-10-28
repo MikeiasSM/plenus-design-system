@@ -15,7 +15,7 @@
 }
 
 .field:focus-within {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: var(--pl-control-focus-halo);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .trigger:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: -2px;
   border-radius: var(--pl-radius-sm);
 }
@@ -144,7 +144,7 @@
 }
 
 .navigate:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 1px;
 }
 
@@ -207,7 +207,7 @@
 
 .day:focus-visible {
   outline: none;
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: 0 0 0 2px var(--pl-color-primary-container);
 }
 

@@ -15,7 +15,7 @@ import {
   type ChartLegendPosition,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartScatter.module.css';
@@ -50,6 +50,8 @@ export interface ChartScatterProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -89,6 +91,7 @@ export function ChartScatter({
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
+  palette,
   series,
   showTooltip = true,
   title,
@@ -113,7 +116,7 @@ export function ChartScatter({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
-  const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
+  const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
   const naEscala = useMemo(() => seriesInScale(series, isOutOfScale), [isOutOfScale, series]);
 

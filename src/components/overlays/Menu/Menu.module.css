@@ -75,7 +75,7 @@
 .check {
   flex: none;
   visibility: hidden;
-  color: var(--pl-color-primary);
+  color: var(--pl-color-primary-strong);
 }
 
 .checkOn {

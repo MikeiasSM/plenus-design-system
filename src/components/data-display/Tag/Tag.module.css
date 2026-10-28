@@ -55,7 +55,7 @@
 }
 
 .tag:has(.toggle:focus-visible) {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: var(--pl-control-focus-halo);
 }
 
@@ -88,7 +88,7 @@
 
 .remove:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--pl-color-primary);
+  box-shadow: 0 0 0 2px var(--pl-color-primary-strong);
 }
 
 .disabled {

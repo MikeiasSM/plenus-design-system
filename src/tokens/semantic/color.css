@@ -1,12 +1,4 @@
 :root {
-  --pl-color-primary: var(--pl-brand-orange-50);
-  --pl-color-primary-hover: var(--pl-brand-orange-60);
-  --pl-color-primary-active: var(--pl-brand-orange-70);
-  --pl-color-primary-container: var(--pl-brand-orange-10);
-  --pl-color-primary-line: var(--pl-brand-orange-30);
-  --pl-color-on-primary: var(--pl-neutral-white);
-  --pl-color-on-primary-container: var(--pl-brand-orange-80);
-
   --pl-color-background: #F6F7F8;
   --pl-color-surface: var(--pl-neutral-white);
   --pl-color-surface-subtle: #FAFAFB;
@@ -38,14 +30,6 @@
 }
 
 :root[data-theme="dark"] {
-  --pl-color-primary: var(--pl-brand-orange-50);
-  --pl-color-primary-hover: var(--pl-brand-orange-40);
-  --pl-color-primary-active: var(--pl-brand-orange-30);
-  --pl-color-primary-container: #2C2015;
-  --pl-color-primary-line: #4A3218;
-  --pl-color-on-primary: var(--pl-neutral-white);
-  --pl-color-on-primary-container: var(--pl-color-primary);
-
   --pl-color-background: #141517;
   --pl-color-surface: #1B1D20;
   --pl-color-surface-subtle: #202226;
@@ -74,4 +58,32 @@
   --pl-color-info: #6BA6E8;
   --pl-color-info-container: #16202C;
   --pl-color-on-info-container: var(--pl-color-info);
+}
+
+/* A cor primaria sai da paleta ativa e e recalculada em cada escopo com
+   `data-palette`. O solido e o preenchimento; o forte e o traco, lido contra a
+   superficie: texto, borda e foco. No escuro, o solido desce ao passo 40, que se
+   le contra a superficie escura em todas as paletas. */
+:root,
+[data-palette] {
+  --pl-color-primary: var(--pl-palette-solid, var(--pl-palette-50));
+  --pl-color-primary-hover: var(--pl-palette-60);
+  --pl-color-primary-active: var(--pl-palette-70);
+  --pl-color-primary-strong: var(--pl-palette-strong-light);
+  --pl-color-primary-container: var(--pl-palette-10);
+  --pl-color-primary-line: var(--pl-palette-30);
+  --pl-color-on-primary: var(--pl-palette-on-solid);
+  --pl-color-on-primary-container: var(--pl-palette-80);
+}
+
+:root[data-theme="dark"],
+:root[data-theme="dark"] [data-palette] {
+  --pl-color-primary: var(--pl-palette-40);
+  --pl-color-primary-hover: var(--pl-palette-30);
+  --pl-color-primary-active: var(--pl-palette-20);
+  --pl-color-primary-strong: var(--pl-palette-strong-dark);
+  --pl-color-primary-container: color-mix(in oklab, var(--pl-palette-40) 16%, var(--pl-color-surface));
+  --pl-color-primary-line: color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface));
+  --pl-color-on-primary: var(--pl-palette-on-40);
+  --pl-color-on-primary-container: var(--pl-palette-30);
 }

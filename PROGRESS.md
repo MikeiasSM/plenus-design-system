@@ -401,7 +401,7 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
 - **Mudam a regra:**
   - Formatadores em ingles (`formatCurrency`), com os nomes em portugues aceitos como obsoletos ate a versao menor seguinte. Altera a tabela de idioma do `CLAUDE.md`, `ARCHITECTURE.md` secao 9.1 e `CONTRIBUTING.md` secao 8.
   - Tema por subarvore e por `prefers-color-scheme`. Substitui o seletor `:root[data-theme]` fixado na 0.2.0.
-  - Cor de marca em tempo de execucao. Aprovada, com a forma a discutir por ultimo: gerador livre ou os oito temas institucionais.
+  - Cor de marca em tempo de execucao. Forma decidida em 28/10/2026: paletas prontas por `data-palette` e paleta propria por `createPalette`, no mesmo contrato. Ver "Paletas de marca" abaixo.
   - CSS por componente na 0.3.0, mantendo o `styles.css` agregado.
   - Guarda de `prefers-reduced-motion` nos dezoito modulos que animam, e o bloco do `base.css` restrito a biblioteca.
   - Visao em tabela nos graficos primeiro; teclado marca a marca so onde houver clique na marca, como no `ChartMap`. Acrescenta essa linha ao catalogo.
@@ -894,6 +894,20 @@ Ponto de partida, nao contrato: o mantenedor pode ter esquecido recursos do lega
 - O pacote documentado para consumidores precisa possuir entrypoint, exports e declaracoes TypeScript configurados.
 - Utilitarios reutilizaveis so devem ser considerados parte da API publica quando forem exportados por `src/index.ts`.
 - O Showcase deve consumir componentes oficiais e possuir uma fonte de entrada claramente definida.
+
+### Paletas de marca
+
+Desenho aprovado em artefato pelo mantenedor em 28/10/2026, com a mesma tela em cada paleta, nos dois temas, e as oito cores da personalizacao do Painel medidas.
+
+- **Um contrato so.** A identidade chega aos semanticos pela paleta ativa, `--pl-palette-*`. O laranja e o padrao; `data-palette="blue"` e `"purple"` trocam a paleta em qualquer elemento, e os semanticos sao recalculados no escopo. A paleta propria declara as mesmas variaveis, ou as recebe de `createPalette`.
+- **Preenchimento e traco.** `color.primary` ficou com o preenchimento; o texto, a borda de selecao, o anel de foco e a aba ativa passaram a `color.primary-strong`, medido a 4,5:1. Borda que acompanha um fundo primario continua `color.primary`. A borda no hover e o halo dos campos derivam do traco.
+- **Escuro no passo 40.** O 50 do azul mede 2,79:1 e o do roxo 1,94:1 contra a superficie escura. No laranja escuro o texto do botao passa a preto, a 9,79:1.
+- **Cores extremas.** Adaptar amarelo e creme com borda deixou a tela pior que a marca. O preenchimento tem piso visual de 1,5:1 contra a superficie clara: o creme e recusado; o amarelo (1,78:1) e o verde (2,34:1) do Painel entram. O texto sobre a cor e o branco ou o grafite, o que medir mais.
+- **Decisao do produto.** O Painel usa branco sobre o amarelo e o verde sem relato de dificuldade. A biblioteca nao relaxa a regra: o produto impoe com `createPalette(cor, { onSolid })`, e a biblioteca aceita e avisa em desenvolvimento.
+- **Gerador.** Rampa de luminosidade fixa na matiz da cor. O preto puro gerava rosa, porque matiz indefinida vira zero; cor sem croma passou a gerar rampa neutra.
+- **Graficos.** `palette` em treze graficos: lista em rotacao ou `{ base }`, com tons da mesma matiz em luminosidade. Fica entre a intencao e o `accent` na precedencia. O `ChartGauge` e o `ChartWaterfall` ficam fora: um arco so e passos pintados por intencao.
+- **Laudo.** `check:contraste` mede as tres paletas nos dois temas e resolve `color-mix` em oklab e o valor reserva de `var()`. As excecoes agora sao por paleta: a do laranja continua a mesma.
+- **Pendente:** o tema por subarvore segue em fila; `data-palette` ja vale por subarvore, `data-theme` ainda nao.
 
 ## Ordem de implementacao
 

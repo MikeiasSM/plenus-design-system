@@ -65,7 +65,7 @@
 }
 
 .current {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
   font-weight: var(--pl-type-label-weight);
@@ -83,6 +83,6 @@
 /* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
 .page:focus-visible,
 .step:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
 }

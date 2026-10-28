@@ -16,6 +16,7 @@
 @import '../tokens/primitive/brand.css';
 @import '../tokens/primitive/neutral.css';
 @import '../tokens/primitive/status.css';
+@import '../tokens/semantic/palette.css';
 @import '../tokens/semantic/color.css';
 @import '../tokens/semantic/typography.css';
 @import '../tokens/semantic/chart.css';

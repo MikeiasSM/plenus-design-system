@@ -217,6 +217,8 @@ export type {
   OpcoesDePercentual,
   OpcoesDeTamanhoDeArquivo,
 } from './utils/formatters';
+export { createPalette } from './utils/palette';
+export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
@@ -338,5 +340,5 @@ export type {
   NoDataStyle,
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
-export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';
+export type { ChartPalette, SeriesAppearance, SeriesIntent } from './components/charts/palette';
 export type { ChartColorCategory, ChartColorScale } from './components/charts/scales';

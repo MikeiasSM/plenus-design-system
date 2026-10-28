@@ -22,7 +22,7 @@ import {
   type MarkVisibility,
   type NoDataStyle,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import { ChartMapLegend } from './ChartMapLegend';
 import { ChartMapTable, type MapTableMarkerRow, type MapTableRegionRow } from './ChartMapTable';
@@ -127,6 +127,8 @@ export interface ChartMapProps extends ChartRootProps {
   onMarkerClick?: (marker: ChartMapMarkerEvent) => void;
   /** Com ele, as regioes viram botoes e entram no teclado. */
   onRegionClick?: (region: ChartMapRegion) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   regionLabels?: MarkVisibility;
   selectedRegion?: string | null;
   showDataLabels?: MarkVisibility;
@@ -295,6 +297,7 @@ export function ChartMap({
   onHoverRegion,
   onMarkerClick,
   onRegionClick,
+  palette,
   regionLabels = 'visible',
   selectedRegion,
   showDataLabels = 'hidden',
@@ -417,7 +420,7 @@ export function ChartMap({
   }, [orphanKey, title]);
 
   const markerSeries = markers ?? [];
-  const markerColors = useMemo(() => resolveSeriesColors(markerSeries, { accent }), [accent, markerSeries]);
+  const markerColors = useMemo(() => resolveSeriesColors(markerSeries, { accent, palette }), [accent, palette, markerSeries]);
   const validPoints = new Set(
     markerSeries.flatMap((series) =>
       series.points.filter(

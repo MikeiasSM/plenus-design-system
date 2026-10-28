@@ -210,6 +210,21 @@ export const pagina: Pagina = {
 />`,
     },
     {
+      titulo: 'Paleta do gráfico',
+      descricao: 'Uma cor base gera os tons da mesma matiz, do mais escuro ao mais claro; uma lista gira entre as fatias.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartPie formatValue={formatarCompacto} height={240} palette={{ base: '#1F6FB2' }} showDataLabels slices={DESPESAS_POR_TIPO} title="Estrutura de despesas" />
+        </div>
+      ),
+      codigo: `<ChartPie
+  title="Estrutura de despesas"
+  slices={despesas}
+  palette={{ base: '#1F6FB2' }}
+  showDataLabels
+/>`,
+    },
+    {
       titulo: 'Fatia no ponteiro',
       descricao: 'onHoverSlice entrega a fatia já agrupada; a coluna calculada mostra a parte do total.',
       Previa: FatiaNoPonteiro,
@@ -255,6 +270,7 @@ const cores = resolveSeriesColors(receita);
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual, a partir da fração. O padrão arredonda ao inteiro, como 42%.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
+    { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'sliceRadius', tipo: 'number', descricao: 'Raio dos cantos da fatia. Sem valor, o token de raio pequeno.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda.' },

@@ -20,7 +20,7 @@ import {
   type CornerRadii,
   type LabelFont,
 } from '../core';
-import { INTENT_TOKENS, resolveSeriesColors, textColorOn, type SeriesAppearance, type SeriesIntent } from '../palette';
+import { INTENT_TOKENS, resolveSeriesColors, textColorOn, type ChartPalette, type SeriesAppearance, type SeriesIntent } from '../palette';
 import { linearScale } from '../scales';
 import { formatarPercentual } from '../../../utils/formatters';
 import { formatarDuracao } from '../../../utils/formatters/formatarDuracao';
@@ -156,6 +156,8 @@ export interface ChartTimelineProps extends ChartRootProps {
   /** Com ele, os intervalos viram botoes e entram no teclado. */
   onSegmentClick?: (segment: ChartTimelineSegment, row: ChartTimelineRow) => void;
   overlap?: ChartTimelineOverlap;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   referenceLines?: readonly ChartTimelineReferenceLine[];
   rowBands?: readonly ChartTimelineRowBand[];
   rowGap?: number;
@@ -298,6 +300,7 @@ export function ChartTimeline({
   onHiddenSeriesChange,
   onSegmentClick,
   overlap = 'stack',
+  palette,
   referenceLines = [],
   rowBands,
   rowGap = 4,
@@ -338,7 +341,7 @@ export function ChartTimeline({
   const segmentNodes = useRef(new Map<number, SVGGElement>());
   const interactive = onSegmentClick !== undefined;
 
-  const colors = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
+  const colors = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
   const colorByLabel = new Map<string, string>();
   series.forEach((entry, index) => {
     // Rotulo repetido e a mesma serie, como na legenda dos demais graficos: vale a primeira cor.

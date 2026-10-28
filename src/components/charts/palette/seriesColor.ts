@@ -1,4 +1,4 @@
-import { SERIES_TOKENS, paletteWithAccent, seriesColors } from './palette';
+import { SERIES_TOKENS, paletteWithAccent, paletteOf, seriesColors, type ChartPalette } from './palette';
 
 /**
  * Papel da serie quando a cor carrega significado. Uma serie com intencao nao
@@ -14,6 +14,7 @@ export interface SeriesAppearance {
 
 export interface ResolveSeriesColorsOptions {
   accent?: string;
+  palette?: ChartPalette;
 }
 
 /** Token de cada intencao. A paleta e quem detem esse mapa. */
@@ -66,19 +67,23 @@ export function textColorOn(color: string) {
 }
 
 /**
- * Cor de cada serie, em tres niveis de precedencia: a cor informada pelo
- * implementador vence; depois a intencao semantica; por fim a paleta
- * categorica, que abre com a cor de tema quando houver.
+ * Cor de cada serie, em quatro niveis de precedencia: a cor informada pelo
+ * implementador vence; depois a intencao semantica; depois a paleta do grafico;
+ * por fim a paleta categorica, que abre com a cor de tema quando houver.
  *
  * Series com cor ou intencao nao consomem posicao da paleta, para que as
  * categoricas sigam a ordem sem deixar buracos.
  */
 export function resolveSeriesColors(
   series: readonly SeriesAppearance[],
-  { accent }: ResolveSeriesColorsOptions = {},
+  { accent, palette }: ResolveSeriesColorsOptions = {},
 ) {
   const categoricas = series.filter((serie) => !serie.color && !serie.intent).length;
-  const paleta = accent ? paletteWithAccent(accent, categoricas) : seriesColors(categoricas);
+  const paleta = palette
+    ? paletteOf(palette, categoricas)
+    : accent
+      ? paletteWithAccent(accent, categoricas)
+      : seriesColors(categoricas);
   let proxima = 0;
 
   return series.map((serie) => {

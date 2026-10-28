@@ -61,7 +61,7 @@
 }
 
 .current .marker {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: 0 0 0 4px var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
 }
@@ -85,7 +85,7 @@ button.text {
 }
 
 button.text:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
 }
 

@@ -145,7 +145,7 @@
 .groupButton:focus-visible,
 .scroll:focus-visible,
 .tableScroll:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
 }
 
@@ -315,7 +315,7 @@
 
 .focusRing {
   fill: none;
-  stroke: var(--pl-color-primary);
+  stroke: var(--pl-color-primary-strong);
   stroke-width: 2;
   pointer-events: none;
 }

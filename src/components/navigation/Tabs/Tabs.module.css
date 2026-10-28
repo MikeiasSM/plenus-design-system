@@ -15,7 +15,7 @@
 }
 
 .horizontal .active {
-  border-bottom-color: var(--pl-color-primary);
+  border-bottom-color: var(--pl-color-primary-strong);
 }
 
 /* Na vertical a lista vira coluna ao lado do painel, util quando os rotulos
@@ -39,7 +39,7 @@
 }
 
 .vertical .active {
-  border-right-color: var(--pl-color-primary);
+  border-right-color: var(--pl-color-primary-strong);
 }
 
 .vertical .panel {
@@ -78,7 +78,7 @@
 
 /* Anel de foco proprio, para dentro: a lista horizontal rola e recortaria um anel para fora. */
 .tab:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: -2px;
 }
 
@@ -103,6 +103,6 @@
 }
 
 .panel:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
 }

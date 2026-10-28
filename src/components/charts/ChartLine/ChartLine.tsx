@@ -28,7 +28,7 @@ import {
   type MarkVisibility,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartLine.module.css';
@@ -69,6 +69,8 @@ export interface ChartLineProps extends ChartRootProps {
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Indice da categoria mais proxima do ponteiro, ou `null` ao sair. */
   onHoverCategory?: (index: number | null) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   series: readonly ChartLineSeries[];
   /** Valor acima de cada ponto: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDataLabels?: MarkVisibility;
@@ -101,6 +103,7 @@ export function ChartLine({
   legendAlign,
   onHiddenSeriesChange,
   onHoverCategory,
+  palette,
   series,
   showDataLabels = 'hidden',
   showDots = 'onHover',
@@ -122,7 +125,7 @@ export function ChartLine({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
-  const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
+  const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
   const dominio = useMemo(
     () =>

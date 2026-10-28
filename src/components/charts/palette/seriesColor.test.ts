@@ -1,3 +1,4 @@
+import { toOklch } from '../../../utils/palette/color';
 import { resolveSeriesColors, textColorOn } from './seriesColor';
 
 describe('cor de cada serie', () => {
@@ -91,5 +92,24 @@ describe('o cenario do DRE', () => {
     expect(resolveSeriesColors(dre, { accent: '#6E2A92' })).toEqual(
       resolveSeriesColors(dre, { accent: '#F26B35' }),
     );
+  });
+
+  it('a lista do grafico gira entre as series sem cor e vence a cor de tema', () => {
+    expect(
+      resolveSeriesColors([{}, { color: '#123456' }, {}, {}], { accent: '#F26B35', palette: ['#0E7C6B', '#E0A030'] }),
+    ).toEqual(['#0E7C6B', '#123456', '#E0A030', '#0E7C6B']);
+  });
+
+  it('a cor base gera tons da mesma matiz, do mais escuro ao mais claro, com texto medido', () => {
+    const cores = resolveSeriesColors([{}, {}, {}, {}], { palette: { base: '#1F6FB2' } });
+    const luminosidade = cores.map((cor) => toOklch(cor).L);
+
+    expect(new Set(cores).size).toBe(4);
+    luminosidade.slice(1).forEach((valor, indice) => expect(valor).toBeGreaterThan(luminosidade[indice]));
+    cores.forEach((cor) => expect(textColorOn(cor)).toMatch(/on-(light|dark)/));
+  });
+
+  it('uma serie so com cor base recebe a propria cor', () => {
+    expect(resolveSeriesColors([{}], { palette: { base: '#1F6FB2' } })).toEqual(['#1F6FB2']);
   });
 });

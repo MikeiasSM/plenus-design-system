@@ -70,6 +70,18 @@ describe('ChartPie', () => {
     ]);
   });
 
+  it('pinta as fatias com a paleta do grafico, e a fatia com cor propria a vence', () => {
+    render(
+      <ChartPie
+        palette={['#0E7C6B', '#E0A030']}
+        slices={[...composicao, { color: '#123456', label: 'Outros', value: 10 }]}
+        title="Receita"
+      />,
+    );
+
+    expect(fatias().map((fatia) => fatia.getAttribute('fill'))).toEqual(['#0E7C6B', '#E0A030', '#123456']);
+  });
+
   it('desliga a fatia pela legenda', () => {
     render(<ChartPie slices={composicao} title="Receita" />);
     const botao = screen.getByRole('button', { name: /Produtos/ });

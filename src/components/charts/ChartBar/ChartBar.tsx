@@ -26,7 +26,7 @@ import {
   type CornerRadii,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartBar.module.css';
@@ -55,6 +55,8 @@ export interface ChartBarProps extends ChartRootProps {
   /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
   onHoverCategory?: (index: number | null) => void;
   orientation?: ChartBarOrientation;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   series: readonly ChartBarSeries[];
   /**
    * Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. Em `onHover`,
@@ -85,6 +87,7 @@ export function ChartBar({
   onHiddenSeriesChange,
   onHoverCategory,
   orientation = 'vertical',
+  palette,
   series,
   showDataLabels = 'hidden',
   showTooltip = true,
@@ -109,7 +112,7 @@ export function ChartBar({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
-  const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
+  const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
   // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, entao a
   // serie desligada encolhe enquanto as demais ocupam o lugar dela.

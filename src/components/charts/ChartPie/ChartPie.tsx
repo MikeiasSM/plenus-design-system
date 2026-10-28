@@ -14,7 +14,7 @@ import {
   type ChartRootProps,
   type ChartSlice,
 } from '../core';
-import { textColorOn } from '../palette';
+import { textColorOn, type ChartPalette } from '../palette';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartPie.module.css';
 
@@ -37,6 +37,8 @@ export interface ChartPieProps extends ChartRootProps {
   onHoverSlice?: (slice: ChartSlice | null) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
@@ -63,6 +65,7 @@ export function ChartPie({
   onHiddenSlicesChange,
   onHoverSlice,
   otherLabel = 'Outros',
+  palette,
   showDataLabels = false,
   showLegendValues = false,
   showTooltip = true,
@@ -77,6 +80,7 @@ export function ChartPie({
 
   const anel = useSliceRing({
     accent,
+    palette,
     defaultHiddenSlices,
     hiddenSlices,
     onHiddenSlicesChange,

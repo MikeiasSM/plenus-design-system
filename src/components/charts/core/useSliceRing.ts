@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { resolveSeriesColors } from '../palette';
+import { resolveSeriesColors, type ChartPalette } from '../palette';
 import { sliceAngles, type ArcAngles } from './arcs';
 import { groupSmallSlices, type ChartSlice } from './slices';
 import { useSeriesToggle } from './useSeriesToggle';
@@ -7,6 +7,7 @@ import { useTweenedNumbers } from './useTweenedNumbers';
 
 export interface UseSliceRingOptions {
   accent?: string;
+  palette?: ChartPalette;
   defaultHiddenSlices?: readonly string[];
   hiddenSlices?: readonly string[];
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
@@ -37,6 +38,7 @@ export interface SliceRing {
  */
 export function useSliceRing({
   accent,
+  palette,
   defaultHiddenSlices,
   hiddenSlices,
   onHiddenSlicesChange,
@@ -59,7 +61,7 @@ export function useSliceRing({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma fatia nao pode
   // repintar as demais.
-  const colors = useMemo(() => resolveSeriesColors(reunidas, { accent }), [accent, reunidas]);
+  const colors = useMemo(() => resolveSeriesColors(reunidas, { accent, palette }), [accent, palette, reunidas]);
 
   const values = reunidas.map((fatia) =>
     isHidden(fatia.label) || !Number.isFinite(fatia.value) ? 0 : Math.max(fatia.value, 0),

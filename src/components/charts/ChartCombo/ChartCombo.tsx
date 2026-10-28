@@ -28,7 +28,7 @@ import {
   type ChartPoint,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartCombo.module.css';
@@ -77,6 +77,8 @@ export interface ChartComboProps extends ChartRootProps {
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
   onHoverCategory?: (index: number | null) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   series: readonly ChartComboSeries[];
   /**
    * Valor de cada barra e de cada ponto. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
@@ -139,6 +141,7 @@ export function ChartCombo({
   legendAlign,
   onHiddenSeriesChange,
   onHoverCategory,
+  palette,
   series,
   showDataLabels = 'hidden',
   showTooltip = true,
@@ -165,7 +168,7 @@ export function ChartCombo({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
-  const cores = useMemo(() => resolveSeriesColors(series, { accent }), [accent, series]);
+  const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
   // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, entao a
   // barra desligada encolhe enquanto as demais ocupam o lugar dela.

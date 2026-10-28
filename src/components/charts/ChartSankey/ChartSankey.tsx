@@ -12,7 +12,7 @@ import {
   type ChartHeight,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesAppearance } from '../palette';
+import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
 import styles from './ChartSankey.module.css';
 
@@ -57,6 +57,8 @@ export interface ChartSankeyProps extends ChartRootProps {
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   showFlowValues?: boolean;
   showLabels?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
@@ -162,6 +164,7 @@ export function ChartSankey({
   nodes,
   nodePadding = 12,
   nodeWidth = 12,
+  palette,
   showFlowValues = false,
   showLabels = true,
   showTooltip = true,
@@ -191,7 +194,7 @@ export function ChartSankey({
 
   // A cor sai da lista inteira e na ordem dos nos, para uma ligacao herdar
   // sempre a cor do no de que ela depende.
-  const cores = useMemo(() => resolveSeriesColors(declarados, { accent }), [accent, declarados]);
+  const cores = useMemo(() => resolveSeriesColors(declarados, { accent, palette }), [accent, palette, declarados]);
 
   /**
    * O rotulo fica sempre a direita do no, como na referencia. So o de saida

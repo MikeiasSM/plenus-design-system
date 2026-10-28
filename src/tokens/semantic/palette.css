@@ -1,0 +1,57 @@
+/* Paleta ativa: a rampa que alimenta a cor primaria. O laranja vale por padrao;
+   `data-palette` troca a paleta em qualquer elemento, inclusive numa subarvore.
+   A paleta propria de um produto declara as mesmas variaveis, como as que
+   `createPalette` devolve. Solido, texto sobre ele e traco sao declarados porque
+   o CSS nao mede contraste. */
+:root,
+[data-palette='orange'] {
+  --pl-palette-10: var(--pl-brand-orange-10);
+  --pl-palette-20: var(--pl-brand-orange-20);
+  --pl-palette-30: var(--pl-brand-orange-30);
+  --pl-palette-40: var(--pl-brand-orange-40);
+  --pl-palette-50: var(--pl-brand-orange-50);
+  --pl-palette-60: var(--pl-brand-orange-60);
+  --pl-palette-70: var(--pl-brand-orange-70);
+  --pl-palette-80: var(--pl-brand-orange-80);
+  --pl-palette-90: var(--pl-brand-orange-90);
+  --pl-palette-100: var(--pl-brand-orange-100);
+  /* O branco sobre o laranja mede 3,03:1: excecao aceita, registrada em `PROGRESS.md`. */
+  --pl-palette-on-solid: var(--pl-neutral-white);
+  --pl-palette-on-40: var(--pl-neutral-black);
+  --pl-palette-strong-light: var(--pl-brand-orange-70);
+  --pl-palette-strong-dark: var(--pl-brand-orange-40);
+}
+
+[data-palette='blue'] {
+  --pl-palette-10: var(--pl-brand-blue-10);
+  --pl-palette-20: var(--pl-brand-blue-20);
+  --pl-palette-30: var(--pl-brand-blue-30);
+  --pl-palette-40: var(--pl-brand-blue-40);
+  --pl-palette-50: var(--pl-brand-blue-50);
+  --pl-palette-60: var(--pl-brand-blue-60);
+  --pl-palette-70: var(--pl-brand-blue-70);
+  --pl-palette-80: var(--pl-brand-blue-80);
+  --pl-palette-90: var(--pl-brand-blue-90);
+  --pl-palette-100: var(--pl-brand-blue-100);
+  --pl-palette-on-solid: var(--pl-neutral-white);
+  --pl-palette-on-40: var(--pl-neutral-black);
+  --pl-palette-strong-light: var(--pl-brand-blue-50);
+  --pl-palette-strong-dark: var(--pl-brand-blue-40);
+}
+
+[data-palette='purple'] {
+  --pl-palette-10: var(--pl-brand-purple-10);
+  --pl-palette-20: var(--pl-brand-purple-20);
+  --pl-palette-30: var(--pl-brand-purple-30);
+  --pl-palette-40: var(--pl-brand-purple-40);
+  --pl-palette-50: var(--pl-brand-purple-50);
+  --pl-palette-60: var(--pl-brand-purple-60);
+  --pl-palette-70: var(--pl-brand-purple-70);
+  --pl-palette-80: var(--pl-brand-purple-80);
+  --pl-palette-90: var(--pl-brand-purple-90);
+  --pl-palette-100: var(--pl-brand-purple-100);
+  --pl-palette-on-solid: var(--pl-neutral-white);
+  --pl-palette-on-40: var(--pl-neutral-black);
+  --pl-palette-strong-light: var(--pl-brand-purple-50);
+  --pl-palette-strong-dark: var(--pl-brand-purple-40);
+}

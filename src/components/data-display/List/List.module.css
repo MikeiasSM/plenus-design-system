@@ -28,7 +28,7 @@
 
 .search:focus-visible {
   outline: none;
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-strong);
   box-shadow: var(--pl-control-focus-halo);
 }
 
@@ -81,7 +81,7 @@
 .focused {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
-  box-shadow: inset 0 0 0 1px var(--pl-color-primary);
+  box-shadow: inset 0 0 0 1px var(--pl-color-primary-strong);
 }
 
 .disabled {

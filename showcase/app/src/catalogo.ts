@@ -134,6 +134,10 @@ export const familias: readonly Familia[] = [
     ],
   },
   {
+    nome: 'Fundamentos',
+    componentes: [componente('Paletas', 'Paletas de marca prontas e próprias, por data-palette e createPalette.', { importa: 'createPalette' })],
+  },
+  {
     nome: 'Ícones',
     componentes: [componente('Icon', 'Biblioteca oficial de ícones do Design System.', { importa: 'IconSearch' })],
   },

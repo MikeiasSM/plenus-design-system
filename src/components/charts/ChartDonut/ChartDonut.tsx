@@ -13,6 +13,7 @@ import {
   type ChartRootProps,
   type ChartSlice,
 } from '../core';
+import type { ChartPalette } from '../palette';
 import { formatarNumero } from '../../../utils/formatters';
 import styles from './ChartDonut.module.css';
 
@@ -37,6 +38,8 @@ export interface ChartDonutProps extends ChartRootProps {
   onHoverSlice?: (slice: ChartSlice | null) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showCenter?: boolean;
@@ -66,6 +69,7 @@ export function ChartDonut({
   onHiddenSlicesChange,
   onHoverSlice,
   otherLabel = 'Outros',
+  palette,
   showCenter = true,
   showLegendValues = true,
   showTooltip = true,
@@ -81,6 +85,7 @@ export function ChartDonut({
 
   const anel = useSliceRing({
     accent,
+    palette,
     defaultHiddenSlices,
     hiddenSlices,
     onHiddenSlicesChange,

@@ -19,6 +19,7 @@ import {
   INTENT_TOKENS,
   resolveSeriesColors,
   textColorOn,
+  type ChartPalette,
   type SeriesAppearance,
   type SeriesIntent,
 } from '../palette';
@@ -54,6 +55,8 @@ export interface ChartTreemapProps extends ChartRootProps {
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  palette?: ChartPalette;
   showDataLabels?: boolean;
   /**
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
@@ -84,6 +87,7 @@ export function ChartTreemap({
   nodes,
   onHiddenGroupsChange,
   onHoverNode,
+  palette,
   showDataLabels = true,
   showTooltip = true,
   title,
@@ -99,7 +103,7 @@ export function ChartTreemap({
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
   // repintar os demais.
-  const coresDeGrupo = useMemo(() => resolveSeriesColors(nodes, { accent }), [accent, nodes]);
+  const coresDeGrupo = useMemo(() => resolveSeriesColors(nodes, { accent, palette }), [accent, palette, nodes]);
 
   // Sem valor positivo nao ha area a repartir: anuncia vazio. Desligar todos os grupos, nao: a legenda e a volta.
   const semValor = useMemo(

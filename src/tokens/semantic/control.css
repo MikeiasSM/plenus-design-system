@@ -4,8 +4,13 @@
   --pl-control-height-sm: 32px;
   --pl-control-height-md: 36px;
   --pl-control-height-lg: 56px;
-  --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary) 50%, var(--pl-color-border-strong));
+}
+
+/* Derivados da cor primaria: recalculados em cada escopo de paleta, como ela. */
+:root,
+[data-palette] {
+  --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary-strong) 50%, var(--pl-color-border-strong));
   --pl-control-focus-halo:
-    0 0 0 3px color-mix(in srgb, var(--pl-color-primary) 14%, transparent),
-    0 0 6px 1px color-mix(in srgb, var(--pl-color-primary) 16%, transparent);
+    0 0 0 3px color-mix(in srgb, var(--pl-color-primary-strong) 14%, transparent),
+    0 0 6px 1px color-mix(in srgb, var(--pl-color-primary-strong) 16%, transparent);
 }

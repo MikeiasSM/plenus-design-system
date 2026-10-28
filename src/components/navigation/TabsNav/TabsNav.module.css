@@ -25,7 +25,7 @@
 
 .current {
   composes: active from '../Tabs/Tabs.module.css';
-  border-bottom-color: var(--pl-color-primary);
+  border-bottom-color: var(--pl-color-primary-strong);
 }
 
 .fitted .item {

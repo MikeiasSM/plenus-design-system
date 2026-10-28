@@ -6,6 +6,19 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- Paletas de marca: `data-palette="blue"` e `data-palette="purple"` trocam a identidade em qualquer elemento, inclusive numa subárvore. O laranja continua o padrão.
+- `createPalette(cor, { onSolid })`: paleta própria de um produto, gerada e medida a partir de uma cor, para espalhar num elemento. Recusa a cor que mede menos de 1,5:1 contra a superfície clara, com o tom aceito mais próximo na mensagem.
+- Token `--pl-color-primary-strong`, o traço da cor primária: texto, borda de seleção, anel de foco e aba ativa, a 4,5:1 sobre a superfície.
+- Gráficos: `palette`, uma lista de cores em rotação ou `{ base }`, que gera os tons da cor base. Tipo `ChartPalette`.
+
+### Alterado
+
+- No tema claro, o traço do laranja passa do `orange.50` (3,03:1) ao `orange.70` (5,38:1) em links, abas, foco e bordas de seleção. O preenchimento continua o `orange.50`.
+- No tema escuro, a cor primária desce ao passo 40 da paleta, e o texto sobre ela passa a preto. O container e a linha primários passam a ser misturas da paleta com a superfície.
+- A borda no hover e o halo de foco dos campos derivam do traço primário.
+
 ## [0.3.0] — 2026-10-28
 
 ### Incompatível

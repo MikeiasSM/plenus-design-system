@@ -156,7 +156,7 @@ A costura avisa o que está sob o ponteiro, na forma de cada família: a categor
 
 Apesar do nome, ele não conhece gráfico algum: recebe linhas e colunas, e quem as monta é o gráfico ou quem o usa. Isso o torna utilizável fora dos gráficos, num cartão de indicador ou numa célula de tabela.
 
-A cor de uma série se resolve em três níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; por fim a paleta categórica, que abre com a cor de tema quando houver.
+A cor de uma série se resolve em quatro níveis: a cor informada pelo consumidor vence; depois a intenção semântica — `positive`, `negative`, `warning` e `neutral` —, que usa os tokens de status e ignora a paleta; depois a `palette` do gráfico, uma lista em rotação ou `{ base }`, que gera os tons de uma cor; por fim a paleta categórica, que abre com a cor de tema quando houver.
 
 Séries com intenção não entram na rotação categórica. Pintar uma despesa com a cor de tema escolhida pelo usuário trocaria o significado da barra a cada usuário.
 

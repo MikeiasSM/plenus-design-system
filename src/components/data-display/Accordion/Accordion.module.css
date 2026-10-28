@@ -98,7 +98,7 @@
 
 /* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
 .trigger:focus-visible {
-  outline: 2px solid var(--pl-color-primary);
+  outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
 }
 

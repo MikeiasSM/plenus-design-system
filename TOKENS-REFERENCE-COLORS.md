@@ -184,28 +184,54 @@ color.info
 color.danger
 ```
 
-## Mapeamento do tema principal
+## Paleta ativa
 
-O tema laranja e o tema principal inicial da marca:
+A identidade de marca chega aos tokens semanticos por uma paleta ativa, o contrato `--pl-palette-*`, declarado em `src/tokens/semantic/palette.css`:
 
-```text
-color.primary        -> brand.orange.50
-color.primary-hover  -> brand.orange.60
-color.primary-active -> brand.orange.70
-color.primary-container -> brand.orange.10
+| Variavel | Papel |
+| --- | --- |
+| `--pl-palette-10` a `--pl-palette-100` | Rampa de dez tons, do mais claro ao mais escuro; o 50 e um tom medio |
+| `--pl-palette-solid` | Cor da marca como preenchimento; sem ela, vale o 50 |
+| `--pl-palette-on-solid` | Texto sobre o preenchimento no tema claro |
+| `--pl-palette-on-40` | Texto sobre o preenchimento no tema escuro |
+| `--pl-palette-strong-light` | Traco no tema claro: texto, borda e foco, a 4,5:1 sobre a superficie |
+| `--pl-palette-strong-dark` | Traco no tema escuro, com o mesmo minimo |
+
+O CSS nao mede contraste, por isso o texto e o traco sao declarados, e nao calculados.
+
+O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` trocam a identidade em qualquer elemento, inclusive numa subarvore, e os tokens semanticos sao recalculados nesse escopo:
+
+| Token | Tema claro | Tema escuro |
+| --- | --- | --- |
+| `color.primary` | `palette.solid` | `palette.40` |
+| `color.primary-hover` | `palette.60` | `palette.30` |
+| `color.primary-active` | `palette.70` | `palette.20` |
+| `color.primary-strong` | `palette.strong-light` | `palette.strong-dark` |
+| `color.primary-container` | `palette.10` | `palette.40` a 16% sobre a superficie |
+| `color.primary-line` | `palette.30` | `palette.40` a 34% sobre a superficie |
+| `color.on-primary` | `palette.on-solid` | `palette.on-40` |
+| `color.on-primary-container` | `palette.80` | `palette.30` |
+
+No escuro o preenchimento desce ao passo 40: o 50 do azul mede 2,79:1 e o do roxo 1,94:1 contra a superficie escura.
+
+`color.primary` e o preenchimento: fundo do botao primario, do interruptor ligado, da selecao. `color.primary-strong` e o traco: texto, borda de selecao, anel de foco e aba ativa. Nas paletas em que a cor da marca ja se le contra a superficie, os dois coincidem; no laranja, o traco claro e o `brand.orange.70`, a 5,38:1.
+
+### Paleta propria
+
+Um produto declara as mesmas variaveis num elemento com `data-palette`, ou as recebe medidas de `createPalette`:
+
+```tsx
+<div {...createPalette('#67BD50')}>...</div>
 ```
 
-Temas alternativos podem trocar apenas a identidade de marca:
+A regra de `createPalette`:
 
-```text
-Tema Blue:
-color.primary -> brand.blue.50
+- A cor e o preenchimento quando mede ao menos 1,5:1 contra a superficie clara. Abaixo disso ela some na tela, e a funcao recusa com o tom aceito mais proximo na mensagem.
+- O texto sobre o preenchimento e o branco ou o grafite, o que medir mais.
+- O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
+- A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
 
-Tema Purple:
-color.primary -> brand.purple.50
-```
-
-O mapeamento completo de cada tema devera definir tambem `on-primary`, containers, bordas, foco e estados para os modos claro e escuro.
+O texto sobre o preenchimento pode ser imposto pelo produto, com `createPalette(cor, { onSolid })`. A biblioteca aceita e, em desenvolvimento, avisa no console com a medida. A decisao fica registrada no codigo do produto, e o padrao da biblioteca continua acessivel.
 
 ## Cores de dados
 
@@ -235,6 +261,12 @@ Acima de seis series a paleta se repete. Distinguir mais que isso por cor nao e 
 Uma aplicacao pode abrir a paleta com a identidade que o usuario escolheu. Ela ocupa a primeira posicao, e a posicao que repetiria essa cor e saltada.
 
 Derivar as demais series a partir da cor escolhida esta descartado: girar a matiz em passos iguais nao separa as series de forma perceptivel e reprova na verificacao de deficiencia de visao de cores.
+
+### Paleta do grafico
+
+O grafico aceita `palette`: uma lista de cores em rotacao, ou `{ base }`, que gera tons da mesma matiz, do mais escuro ao mais claro. Os tons variam em luminosidade, e nao em matiz, e por isso nao caem na regra acima. Saem em hexadecimal, para que o texto sobre cada um continue medido.
+
+A precedencia, da mais forte para a mais fraca: cor da serie, intencao, `palette`, `accent` e a paleta do tema. Cor informada pelo produto nao tem tom proprio para o tema escuro; ela vale como foi escolhida.
 
 ### Series com intencao
 
