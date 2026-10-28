@@ -18,7 +18,9 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 ## Próximos passos do DataGrid
 
 1. **Teste no NVDA**, com o mantenedor, para fixar a marcação do detalhe. Roteiro no Showcase, exemplo "Master-detail em três níveis": Tab até a grade ("Pedidos com itens, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe ("Detalhe de P-00001") e Enter ("Itens de P-00001"); `Esc` volta ao detalhe. Conferir se a linha de detalhe sem `aria-rowindex` atrapalha a contagem lida.
-2. **Fase 5, árvore**, e **fase 6, exportação**.
+2. **Fase 6, exportação**.
+
+A fase 5, árvore, está feita: `getChildren`, recuo, carga sob demanda por `rowHasChildren`, ordem entre irmãos e filtro que mantém os ancestrais. Decisões no `PROGRESS.md`, seção "DataGrid: fase 5, arvore".
 
 A fase 4, filtros e sumarização, está feita: filtro como dado, com grupos E/OU, funil no título com o filtro do tipo, `Alt+↓`, conjunto com busca, aplicar no botão como opção, linha de totais presa ao rodapé e agregados do servidor. Decisões no `PROGRESS.md`, seção "DataGrid: fase 4, filtros e sumarizacao".
 

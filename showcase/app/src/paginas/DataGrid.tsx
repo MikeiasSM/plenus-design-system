@@ -305,6 +305,87 @@ function GruposDeCabecalho() {
   return <DataGrid columns={COLUNAS_EM_GRUPOS} getRowId={idDoPedido} height={360} label="Pedidos em grupos" rows={pedidos} />;
 }
 
+interface Conta {
+  id: string;
+  nome: string;
+  natureza: 'Receita' | 'Despesa';
+  saldo: number;
+  /** Indefinido: as filhas vêm do servidor quando a conta abre. */
+  filhas?: Conta[];
+}
+
+const GRUPOS_DE_RECEITA = ['Vendas', 'Serviços', 'Locações', 'Juros recebidos', 'Outras receitas'];
+const GRUPOS_DE_DESPESA = ['Pessoal', 'Ocupação', 'Logística', 'Tecnologia', 'Tributos', 'Investimentos'];
+const SUBCONTAS = ['Matriz', 'Filial Sul', 'Filial Norte', 'Filial Leste', 'Filial Oeste', 'Centro de distribuição'];
+/** Conta cujas filhas chegam sob demanda, para mostrar a carga ao abrir. */
+const SOB_DEMANDA = '2.6';
+
+function contasDe(prefixo: string, natureza: Conta['natureza'], semente: number): Conta[] {
+  return SUBCONTAS.map((nome, i) => ({
+    id: `${prefixo}.${i + 1}`,
+    nome,
+    natureza,
+    saldo: ((semente * (i + 7) * 7919) % 90000) + 1000,
+  }));
+}
+
+function grupoDe(prefixo: string, nomes: string[], natureza: Conta['natureza']): Conta[] {
+  return nomes.map((nome, i) => {
+    const id = `${prefixo}.${i + 1}`;
+    const contas = contasDe(id, natureza, i + 3);
+    const saldo = contas.reduce((soma, conta) => soma + conta.saldo, 0);
+    return { id, nome, natureza, saldo, filhas: id === SOB_DEMANDA ? undefined : contas };
+  });
+}
+
+function raizDe(id: string, nome: string, natureza: Conta['natureza'], grupos: string[]): Conta {
+  const filhas = grupoDe(id, grupos, natureza);
+  return { id, nome, natureza, saldo: filhas.reduce((soma, conta) => soma + conta.saldo, 0), filhas };
+}
+
+const PLANO_DE_CONTAS: Conta[] = [
+  raizDe('1', 'Receitas', 'Receita', GRUPOS_DE_RECEITA),
+  raizDe('2', 'Despesas', 'Despesa', GRUPOS_DE_DESPESA),
+];
+
+const COLUNAS_DA_ARVORE: DataGridColumn<Conta>[] = [
+  { id: 'nome', header: 'Conta', flex: 2, minWidth: 260 },
+  { id: 'id', header: 'Código', width: 110 },
+  { id: 'natureza', header: 'Natureza', width: 130, filter: 'set' },
+  { id: 'saldo', header: 'Saldo', type: 'currency', width: 160, summary: 'sum' },
+];
+
+function Arvore() {
+  const [carregadas, setCarregadas] = useState<Record<string, Conta[]>>({});
+  const getChildren = useCallback((conta: Conta) => conta.filhas ?? carregadas[conta.id], [carregadas]);
+  const temFilhas = useCallback((conta: Conta) => conta.id === SOB_DEMANDA || (conta.filhas?.length ?? 0) > 0, []);
+
+  function carregar(ids: readonly string[]) {
+    if (ids.includes(SOB_DEMANDA) && !carregadas[SOB_DEMANDA]) {
+      setTimeout(() => setCarregadas((atual) => ({ ...atual, [SOB_DEMANDA]: contasDe(SOB_DEMANDA, 'Despesa', GRUPOS_DE_DESPESA.length + 2) })), 800);
+    }
+  }
+
+  return (
+    <DataGrid
+      columns={COLUNAS_DA_ARVORE}
+      defaultExpandedIds={['1', '2']}
+      getChildren={getChildren}
+      getRowId={(conta) => conta.id}
+      height={420}
+      label="Plano de contas"
+      rowHasChildren={temFilhas}
+      rows={PLANO_DE_CONTAS}
+      onExpandedIdsChange={carregar}
+    >
+      <DataGrid.Toolbar>
+        <DataGrid.Search />
+        <DataGrid.TableMenu />
+      </DataGrid.Toolbar>
+    </DataGrid>
+  );
+}
+
 function renderItensSimples({ row }: DataGridDetailContext<Pedido>) {
   return <DataGrid columns={COLUNAS_DE_ITEM} getRowId={(item) => item.id} label={`Itens de ${row.id}`} rows={itensDe(row)} />;
 }
@@ -621,6 +702,15 @@ function Modos() {
         sobre as linhas filtradas de todas as páginas. No servidor, a consulta pede os agregados e{' '}
         <code>summaryValues</code> traz a resposta.
       </dd>
+      <dt>Árvore</dt>
+      <dd>
+        <code>getChildren</code> devolve os filhos de cada linha, que entram na mesma grade, recuados, com{' '}
+        <code>aria-level</code>, posição entre irmãos e a mesma expansão do detalhe. A busca e o filtro mantêm os
+        ancestrais de quem atende e o ramo inteiro de quem atende; a ordem vale entre irmãos; a paginação é pelas raízes, e
+        o total soma as raízes. Filhos <code>undefined</code> ainda não carregaram: com <code>rowHasChildren</code>, a seta
+        aparece, a linha aberta fica em carga e <code>onExpandedIdsChange</code> avisa o produto. Não se combina com{' '}
+        <code>renderDetail</code>.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
         Sem linhas, a grade diz que não há registro, ou que nada atende à busca ou aos filtros, com o botão de limpar. <code>loading</code> cobre as linhas e
@@ -650,6 +740,15 @@ export const pagina: Pagina = {
       largo: true,
       codigo:
         "{\n  id: 'financeiro',\n  header: 'Financeiro',\n  collapsible: true,\n  children: [\n    { id: 'emissao', header: 'Emissão', hideWhenCollapsed: true },\n    { id: 'volume', header: 'Volume', children: [ … ] },\n  ],\n}",
+    },
+    {
+      titulo: 'Árvore',
+      descricao:
+        'Plano de contas com os filhos como linhas da mesma grade. A busca mantém o caminho até a conta encontrada; a ordem vale entre irmãs; a conta Investimentos carrega as filhas ao abrir.',
+      Previa: Arvore,
+      largo: true,
+      codigo:
+        '<DataGrid\n  getChildren={(conta) => conta.filhas ?? carregadas[conta.id]}\n  rowHasChildren={temFilhas}\n  onExpandedIdsChange={carregar}\n  …\n/>',
     },
     {
       titulo: 'Modo servidor',
@@ -685,7 +784,7 @@ export const pagina: Pagina = {
       teclas: ['Enter'],
       acao: 'No cabeçalho, ordena; com Shift, soma a coluna à ordem. Na linha, faz a ação do clique ou entra no controle. No detalhe, entra no conteúdo.',
     },
-    { teclas: ['Ctrl+Enter'], acao: 'No cabeçalho, abre o menu da coluna. Na linha, abre ou recolhe o detalhe.' },
+    { teclas: ['Ctrl+Enter'], acao: 'No cabeçalho, abre o menu da coluna. Na linha, abre ou recolhe o detalhe ou os filhos.' },
     { teclas: ['Ctrl+Shift+←', 'Ctrl+Shift+→'], acao: 'No cabeçalho, move a coluna, sem passar da divisa das fixas.' },
     { teclas: ['Alt+↓'], acao: 'No cabeçalho, abre o filtro da coluna. Esc fecha e volta ao título.' },
     { teclas: ['F2'], acao: 'Entra no controle da célula.' },
@@ -769,6 +868,12 @@ export const pagina: Pagina = {
       descricao: 'Conteúdo do detalhe: row, level, state e setState. Uma DataGrid dentro dele fica aninhada.',
     },
     { nome: 'rowHasDetail', tipo: '(row: Row) => boolean', descricao: 'Quais linhas têm detalhe. Sem ela, todas.' },
+    {
+      nome: 'getChildren',
+      tipo: '(row: Row) => readonly Row[] | undefined',
+      descricao: 'Árvore: os filhos de cada linha, na mesma grade; undefined enquanto não carregaram.',
+    },
+    { nome: 'rowHasChildren', tipo: '(row: Row) => boolean', descricao: 'Na árvore, se a linha tem filhos ainda não carregados.' },
     { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, pelas chaves.' },
     { nome: 'expandMode', tipo: "'single' | 'multiple'", padrao: "'multiple'", descricao: 'Na single, abrir um detalhe fecha o outro.' },
     {

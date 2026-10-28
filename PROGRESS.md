@@ -1006,7 +1006,27 @@ Na branch `datagrid`, em 28/10/2026.
   - o numero pela metade, como "-", filtrava tudo para fora; `NaN` conta como vazio, e a virgula decimal e lida num lugar so;
   - o painel sem nome, o soltar texto num campo dele cancelado pelo titulo, o foco que voltava ao botao do funil, a data invalida que passava em "antes de", o funil marcado por condicao incompleta e o "Limpar filtros" do vazio que limpava tambem a busca sem dizer.
 
-**Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos e do filtro; depois a fase 5, arvore.
+### DataGrid: fase 5, arvore
+
+Na branch `datagrid`, em 28/10/2026.
+
+- **Os filhos sao linhas da mesma grade**, por `getChildren`, em `treeModel.ts`, puro: montar, podar, ordenar irmaos e achatar so os ramos abertos. E o terceiro modelo do mercado, ao lado do detalhe com conteudo livre e da grade aninhada; os dois mecanismos nao se combinam, como no Syncfusion: com `getChildren`, o `renderDetail` e ignorado, com aviso em desenvolvimento.
+- **Mesma expansao do detalhe:** `expandedIds`, a seta na primeira coluna, `Ctrl+Enter`, `rowClickAction="expand"` e o menu da tabela. Na arvore, a expansao e sempre multipla: a `single` recolheria os ancestrais.
+- **Busca e filtro sobre todas as linhas carregadas.** Fica quem atende com o ramo inteiro, e os ancestrais, com o caminho ate ele; a expansao continua a da pessoa.
+- **Ordem entre irmaos:** o filho nunca sai de baixo do pai.
+- **Paginacao pelas raizes**, com os filhos acompanhando a sua; `aria-rowindex` conta as linhas abertas das paginas de antes, e `aria-rowcount` todas as abertas. O total da sumarizacao soma as raizes: o pai costuma ja ser a soma dos filhos.
+- **Carga sob demanda sem promessa no componente:** filhos `undefined` com `rowHasChildren` verdadeiro mostram a seta; aberta, a linha fica com `aria-busy` e o indicador de carga na seta, e o produto, avisado por `onExpandedIdsChange`, traz os filhos pelo proprio `getChildren`.
+- **ARIA do APG para `treegrid`:** `aria-level`, `aria-posinset`, `aria-setsize` e `aria-expanded` na linha.
+- **Selecionar todas** marca as linhas abertas, as mesmas que a faixa com Shift percorre; um ramo recolhido nao entra.
+- **A carga e do produto, inclusive na expansao inicial:** uma linha nao carregada em `defaultExpandedIds` nao gera aviso de mudanca, e o produto confere a expansao inicial ele mesmo.
+- **Revisao independente**, antes do commit, achou e corrigiu:
+  - recolher o ramo com o foco num filho levava o foco a linha que ocupava a mesma posicao; vai ao ancestral que ficou na tela, como o detalhe faz com a linha-mae;
+  - com filtro ou busca, o total somava as raizes inteiras, que ficam so como caminho; soma os ramos mais altos que atendem, sem contar duas vezes;
+  - o anuncio da busca contava so as raizes;
+  - no servidor, `aria-rowcount` e `aria-rowindex` nao fechavam, porque a pagina conta raizes e a grade nao conhece os nos das outras; a contagem passa a desconhecida, `-1`, e o indice e o da pagina;
+  - na arvore dentro de um detalhe, o nivel recomecava em 1; e o "recolher todos" anunciava detalhes.
+
+**Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos, do filtro e da arvore; depois a fase 6, exportacao.
 
 
 ### Contador de caracteres

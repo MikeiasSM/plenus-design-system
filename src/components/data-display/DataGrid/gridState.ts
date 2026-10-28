@@ -386,7 +386,7 @@ export function moveFocus(focus: DataGridFocus, move: DataGridFocusMove, bounds:
 
 /**
  * A célula com foco que saiu da tela — linha removida ou filtrada, coluna oculta — cede o lugar à que ocupa a mesma
- * posição, ou à última que restou. O detalhe recolhido devolve o foco à linha-mãe.
+ * posição, ou à última que restou. O detalhe e o ramo recolhidos devolvem o foco à linha-mãe.
  */
 export function reconcileFocus(
   focus: DataGridFocus,
@@ -394,11 +394,20 @@ export function reconcileFocus(
   columnIds: readonly string[],
   lastRowIndex = 0,
   lastColumnIndex = 0,
+  parentOf: (rowKey: string) => string | undefined = () => undefined,
 ) {
   const columnId = columnIds.includes(focus.columnId)
     ? focus.columnId
     : columnIds[Math.min(lastColumnIndex, columnIds.length - 1)];
-  const parentKey = isDetailKey(focus.rowKey) ? (focus.rowKey as string).slice(DETAIL_PREFIX.length) : null;
+  let parentKey = isDetailKey(focus.rowKey) ? (focus.rowKey as string).slice(DETAIL_PREFIX.length) : null;
+  /* Na árvore, sobe até o ancestral que ficou na tela. */
+  if (parentKey === null && focus.rowKey !== null && !rowKeys.includes(focus.rowKey)) {
+    let ancestor = parentOf(focus.rowKey);
+    while (ancestor !== undefined && !rowKeys.includes(ancestor)) {
+      ancestor = parentOf(ancestor);
+    }
+    parentKey = ancestor ?? null;
+  }
   const rowKey =
     focus.rowKey === null || rowKeys.includes(focus.rowKey)
       ? focus.rowKey

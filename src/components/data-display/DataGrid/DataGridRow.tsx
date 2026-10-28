@@ -1,8 +1,12 @@
 import { memo, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
 import { IconChevronRight } from '../../icons';
 import { cellText, cellValue, columnAlign, type DataGridColumnModel } from './gridState';
 import styles from './DataGrid.module.css';
+
+/** Recuo de cada nível da árvore, antes da seta. */
+const INDENT = 20;
 
 export interface DataGridCellContext<Row> {
   row: Row;
@@ -20,22 +24,29 @@ export interface DataGridRowColumn<Row> extends DataGridColumnModel<Row> {
 interface DataGridRowProps<Row> {
   ariaRowIndex: number;
   columns: readonly DataGridRowColumn<Row>[];
-  /** `undefined` na linha sem detalhe. */
+  /** Nível na árvore, a partir de 0. */
+  depth: number;
+  /** `undefined` na linha sem detalhe nem filhos. */
   expanded: boolean | undefined;
   /** Coluna com foco nesta linha; nas outras linhas, nenhuma. */
   focusedColumnId: string | undefined;
   height: number;
   /** Só na grade em árvore. */
   level: number | undefined;
+  /** Aberta, com os filhos ainda por carregar. */
+  loading: boolean;
   onCellFocus: (rowKey: string, columnId: string) => void;
   /** Clique fora dos controles da linha; ausente quando a linha não responde ao clique. */
   onRowClick: ((rowKey: string, event: MouseEvent) => void) | undefined;
   onToggle: (rowKey: string, range: boolean) => void;
   onToggleExpanded: (rowKey: string) => void;
+  /** Posição entre os irmãos e quantos são, na árvore. */
+  position: number | undefined;
   row: Row;
   rowKey: string;
   selectable: boolean;
   selected: boolean | undefined;
+  setSize: number | undefined;
   top: number;
   /** A grade com detalhe reserva o espaço da seta em todas as linhas, para os textos alinharem. */
   withExpander: boolean;
@@ -45,27 +56,34 @@ interface DataGridRowProps<Row> {
 export const DataGridRow = memo(function DataGridRow<Row>({
   ariaRowIndex,
   columns,
+  depth,
   expanded,
   focusedColumnId,
   height,
   level,
+  loading,
   onCellFocus,
   onRowClick,
   onToggle,
   onToggleExpanded,
+  position,
   row,
   rowKey,
   selectable,
   selected,
+  setSize,
   top,
   withExpander,
 }: DataGridRowProps<Row>) {
   return (
     <div
+      aria-busy={loading || undefined}
       aria-expanded={expanded}
       aria-level={level}
+      aria-posinset={position}
       aria-rowindex={ariaRowIndex}
       aria-selected={selected}
+      aria-setsize={setSize}
       className={[styles.row, selected && styles.selected, expanded && styles.expanded, onRowClick && styles.clickable]
         .filter(Boolean)
         .join(' ')}
@@ -101,6 +119,7 @@ export const DataGridRow = memo(function DataGridRow<Row>({
               }
             }}
           >
+            {columnIndex === 0 && depth > 0 && <span className={styles.indent} style={{ width: depth * INDENT }} />}
             {columnIndex === 0 && withExpander && (
               <span className={styles.control}>
                 {expanded !== undefined && (
@@ -112,7 +131,7 @@ export const DataGridRow = memo(function DataGridRow<Row>({
                     type="button"
                     onClick={() => onToggleExpanded(rowKey)}
                   >
-                    <IconChevronRight size={14} />
+                    {loading ? <Spinner size="sm" /> : <IconChevronRight size={14} />}
                   </button>
                 )}
               </span>

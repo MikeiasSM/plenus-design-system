@@ -408,6 +408,10 @@
   min-width: 16px;
 }
 
+.indent {
+  flex: none;
+}
+
 .expander {
   display: inline-flex;
   align-items: center;

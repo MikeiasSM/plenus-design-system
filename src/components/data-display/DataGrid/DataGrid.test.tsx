@@ -615,6 +615,151 @@ describe('DataGrid', () => {
     });
   });
 
+  describe('tree', () => {
+    interface Account {
+      id: string;
+      name: string;
+      balance: number;
+      children?: Account[];
+    }
+
+    const accounts: Account[] = [
+      {
+        id: '1',
+        name: 'Receitas',
+        balance: 500,
+        children: [
+          { id: '1.1', name: 'Vendas', balance: 300 },
+          { id: '1.2', name: 'Aluguéis', balance: 200 },
+        ],
+      },
+      { id: '2', name: 'Despesas', balance: 100 },
+      { id: '3', name: 'Investimentos', balance: 50 },
+    ];
+    const accountColumns: DataGridColumn<Account>[] = [
+      { id: 'name', header: 'Conta' },
+      { id: 'balance', header: 'Saldo', type: 'currency', summary: 'sum' },
+    ];
+    const getChildren = (account: Account) => account.children;
+
+    function renderTree(props: Partial<Parameters<typeof DataGrid<Account>>[0]> = {}) {
+      return render(
+        <DataGrid
+          columns={accountColumns}
+          getChildren={getChildren}
+          getRowId={(account) => account.id}
+          label="Plano de contas"
+          rows={accounts}
+          {...props}
+        />,
+      );
+    }
+
+    function names() {
+      return screen
+        .getAllByRole('row')
+        .filter((row) => row.hasAttribute('data-anchor'))
+        .map((row) => within(row).getAllByRole('gridcell')[0].textContent);
+    }
+
+    it('draws the children as rows of the same grid, with level and position among siblings', () => {
+      renderTree();
+
+      expect(screen.getByRole('treegrid', { name: 'Plano de contas' })).toHaveAttribute('aria-rowcount', '5');
+      fireEvent.click(screen.getByRole('button', { name: 'Expandir Receitas' }));
+
+      expect(names()).toEqual(['Receitas', 'Vendas', 'Aluguéis', 'Despesas', 'Investimentos']);
+      const child = screen.getByRole('gridcell', { name: 'Aluguéis' }).closest('[role="row"]');
+      expect(child).toHaveAttribute('aria-level', '2');
+      expect(child).toHaveAttribute('aria-posinset', '2');
+      expect(child).toHaveAttribute('aria-setsize', '2');
+      expect(screen.getByRole('treegrid')).toHaveAttribute('aria-rowcount', '7');
+    });
+
+    it('toggles a branch with Ctrl+Enter and totals only the roots', () => {
+      renderTree();
+
+      const cell = screen.getByRole('gridcell', { name: 'Receitas' });
+      act(() => cell.focus());
+      fireEvent.keyDown(cell, { key: 'Enter', ctrlKey: true });
+
+      expect(cell.closest('[role="row"]')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('gridcell', { name: /^Soma: R\$\s650,00$/ })).toBeInTheDocument();
+    });
+
+    it('sorts among siblings and keeps the path to what the search finds', () => {
+      vi.useFakeTimers();
+      renderTree({ defaultExpandedIds: ['1'], children: <DataGrid.Search /> });
+
+      fireEvent.click(screen.getByRole('columnheader', { name: 'Conta' }));
+      expect(names()).toEqual(['Despesas', 'Investimentos', 'Receitas', 'Aluguéis', 'Vendas']);
+
+      fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'vendas' } });
+      act(() => vi.advanceTimersByTime(300));
+      expect(names()).toEqual(['Receitas', 'Vendas']);
+      vi.useRealTimers();
+    });
+
+    it('shows a branch loading until the product brings its children', () => {
+      const lazy: Account[] = [{ id: '9', name: 'Sob demanda', balance: 0 }];
+      const onExpandedIdsChange = vi.fn();
+      const props = {
+        rows: lazy,
+        rowHasChildren: (account: Account) => account.id === '9',
+        onExpandedIdsChange,
+      };
+      const { rerender } = renderTree(props);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Expandir Sob demanda' }));
+      expect(onExpandedIdsChange).toHaveBeenLastCalledWith(['9']);
+      expect(screen.getByRole('gridcell', { name: 'Sob demanda' }).closest('[role="row"]')).toHaveAttribute('aria-busy', 'true');
+
+      rerender(
+        <DataGrid
+          columns={accountColumns}
+          getChildren={(account) => (account.id === '9' ? [{ id: '9.1', name: 'Carregada', balance: 1 }] : undefined)}
+          getRowId={(account) => account.id}
+          label="Plano de contas"
+          {...props}
+        />,
+      );
+      expect(names()).toEqual(['Sob demanda', 'Carregada']);
+    });
+
+    it('takes the focus to the parent when its branch closes', () => {
+      const { rerender } = renderTree({ expandedIds: ['1'] });
+
+      const child = screen.getByRole('gridcell', { name: 'Aluguéis' });
+      act(() => child.focus());
+      rerender(
+        <DataGrid columns={accountColumns} expandedIds={[]} getChildren={getChildren} getRowId={(account) => account.id} label="Plano de contas" rows={accounts} />,
+      );
+
+      expect(screen.getByRole('gridcell', { name: 'Receitas' })).toHaveFocus();
+    });
+
+    it('counts and totals the matching branches when searching', () => {
+      vi.useFakeTimers();
+      renderTree({ children: <DataGrid.Search /> });
+
+      fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'vendas' } });
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(screen.getByRole('status')).toHaveTextContent('1 linha encontrada');
+      expect(screen.getByRole('gridcell', { name: /^Soma: R\$\s300,00$/ })).toBeInTheDocument();
+      vi.useRealTimers();
+    });
+
+    it('pages by the roots, with the children following theirs', () => {
+      renderTree({ defaultExpandedIds: ['1'], pagination: true, pageSizeOptions: [2] });
+
+      expect(names()).toEqual(['Receitas', 'Vendas', 'Aluguéis', 'Despesas']);
+      fireEvent.click(screen.getByRole('button', { name: 'Página 2' }));
+      expect(names()).toEqual(['Investimentos']);
+      expect(screen.getByRole('gridcell', { name: 'Investimentos' }).closest('[role="row"]')).toHaveAttribute('aria-rowindex', '6');
+    });
+  });
+
   describe('table menu', () => {
     function rowOf(name: string) {
       return screen.getByRole('gridcell', { name }).closest('[role="row"]');
