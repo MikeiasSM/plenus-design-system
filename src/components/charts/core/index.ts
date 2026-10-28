@@ -81,3 +81,5 @@ export type { ColorLegendEntry, ColorLegendProps } from './ColorLegend';
 export { NO_DATA_FILL, NO_DATA_HATCH, NoDataHatch } from './NoDataHatch';
 export type { NoDataStyle } from './NoDataHatch';
 export { isDevelopment } from '../../../utils/isDevelopment';
+export { useMarkNavigation } from './useMarkNavigation';
+export type { ChartMarkClick, MarkNavigationOptions, MarkPosition } from './useMarkNavigation';

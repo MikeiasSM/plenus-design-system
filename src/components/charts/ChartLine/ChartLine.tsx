@@ -13,6 +13,7 @@ import {
   pointLabelPlacement,
   useChartMetrics,
   useHoveredBand,
+  useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelRoom,
@@ -27,6 +28,8 @@ import {
   type ChartPoint,
   type MarkVisibility,
   type ChartRootProps,
+  type ChartMarkClick,
+  type MarkPosition,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
@@ -67,6 +70,8 @@ export interface ChartLineProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
+  onPointClick?: (point: ChartMarkClick) => void;
   /** Indice da categoria mais proxima do ponteiro, ou `null` ao sair. */
   onHoverCategory?: (index: number | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -103,6 +108,7 @@ export function ChartLine({
   legendAlign,
   onHiddenSeriesChange,
   onHoverCategory,
+  onPointClick,
   palette,
   series,
   showDataLabels = 'hidden',
@@ -164,7 +170,11 @@ export function ChartLine({
   const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(onHoverCategory);
   const [alturaDoPonteiro, setAlturaDoPonteiro] = useState<number | null>(null);
   const comFaixas =
-    showTooltip || onHoverCategory !== undefined || showDots === 'onHover' || showDataLabels === 'onHover';
+    showTooltip ||
+    onHoverCategory !== undefined ||
+    onPointClick !== undefined ||
+    showDots === 'onHover' ||
+    showDataLabels === 'onHover';
 
   // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
   // duas, as marcas exibiriam valores quebrados durante a transicao.
@@ -198,6 +208,21 @@ export function ChartLine({
     isHidden(series[indice].label),
   );
 
+  const clicarNoPonto =
+    onPointClick &&
+    (({ column, row }: MarkPosition) =>
+      onPointClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 }));
+  const pontos = useMarkNavigation({
+    onActivate: clicarNoPonto,
+    onFocusMark: (posicao) => {
+      focarCategoria(posicao?.column ?? null);
+      setAlturaDoPonteiro(posicao ? (pontosPorSerie[posicao.row][posicao.column]?.y ?? null) : null);
+    },
+    present: series.flatMap((serie, row) =>
+      isHidden(serie.label) ? [] : pontosPorSerie[row].flatMap((ponto, column) => (ponto ? [{ column, row }] : [])),
+    ),
+  });
+
   const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
     label: categoria,
     position: escalaCategorias(categoria) ?? 0,
@@ -211,6 +236,7 @@ export function ChartLine({
 
   return (
     <CartesianFrame
+      canvasRole={pontos.interactive ? 'group' : 'img'}
       axisReveal={axisReveal}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
@@ -257,6 +283,7 @@ export function ChartLine({
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
       )}
 
+      <g {...pontos.groupProps}>
       {series.map((serie, indiceSerie) => {
         const oculta = isHidden(serie.label);
 
@@ -280,14 +307,12 @@ export function ChartLine({
 
               const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
 
+              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? styles.dotVisible : styles.dot;
+
               return (
                 <circle
+                  {...pontos.markProps({ column: indice, row: indiceSerie }, classeDoPonto)}
                   aria-label={descricao}
-                  className={
-                    markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice)
-                      ? styles.dotVisible
-                      : styles.dot
-                  }
                   cx={ponto.x}
                   cy={ponto.y}
                   stroke={cores[indiceSerie]}
@@ -324,9 +349,19 @@ export function ChartLine({
           </g>
         );
       })}
+      </g>
 
       {comFaixas && (
         <PointBands
+          onActivate={
+            clicarNoPonto &&
+            ((column) => {
+              const row = serieEmFoco ?? series.findIndex((serie) => !isHidden(serie.label));
+              if (row >= 0 && pontosPorSerie[row][column]) {
+                clicarNoPonto({ column, row });
+              }
+            })
+          }
           onHover={focarCategoria}
           onPointerY={setAlturaDoPonteiro}
           plot={plot}

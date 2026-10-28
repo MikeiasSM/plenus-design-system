@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { resolveSeriesColors, type ChartPalette } from '../palette';
 import { sliceAngles, type ArcAngles } from './arcs';
 import { groupSmallSlices, type ChartSlice } from './slices';
+import { useMarkNavigation } from './useMarkNavigation';
 import { useSeriesToggle } from './useSeriesToggle';
 import { useTweenedNumbers } from './useTweenedNumbers';
 
@@ -11,6 +12,8 @@ export interface UseSliceRingOptions {
   defaultHiddenSlices?: readonly string[];
   hiddenSlices?: readonly string[];
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
+  /** Torna as fatias botoes. Recebe a fatia ja agrupada, como `onHoverSlice`. */
+  onSliceClick?: (slice: ChartSlice) => void;
   /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
   onHoverSlice?: (slice: ChartSlice | null) => void;
   otherLabel: string;
@@ -24,6 +27,7 @@ export interface SliceRing {
   focus: (index: number | null) => void;
   focused: number | null;
   isHidden: (label: string) => boolean;
+  marks: ReturnType<typeof useMarkNavigation>;
   ratioOf: (index: number) => number;
   slices: readonly ChartSlice[];
   toggle: (label: string) => void;
@@ -43,6 +47,7 @@ export function useSliceRing({
   hiddenSlices,
   onHiddenSlicesChange,
   onHoverSlice,
+  onSliceClick,
   otherLabel,
   slices,
   smallSliceThreshold,
@@ -83,17 +88,26 @@ export function useSliceRing({
     endAngle: animados[indice * 2 + 1] ?? 0,
   }));
 
+  // A fatia entregue e a **agrupada**: as pequenas ja viraram uma so, entao o
+  // indice do anel nao corresponde ao que o consumidor informou.
+  const focus = (indice: number | null) => {
+    setFocused(indice);
+    onHoverSlice?.(indice === null ? null : reunidas[indice] ?? null);
+  };
+
+  const marks = useMarkNavigation({
+    onActivate: onSliceClick && (({ column }) => onSliceClick(reunidas[column])),
+    onFocusMark: (posicao) => focus(posicao?.column ?? null),
+    present: values.flatMap((valor, column) => (valor > 0 ? [{ column, row: 0 }] : [])),
+  });
+
   return {
     angles,
     colors,
-    // A fatia entregue e a **agrupada**: as pequenas ja viraram uma so, entao o
-    // indice do anel nao corresponde ao que o consumidor informou.
-    focus: (indice) => {
-      setFocused(indice);
-      onHoverSlice?.(indice === null ? null : reunidas[indice] ?? null);
-    },
+    focus,
     focused,
     isHidden,
+    marks,
     ratioOf: (indice) => (total > 0 ? (values[indice] ?? 0) / total : 0),
     slices: reunidas,
     toggle,

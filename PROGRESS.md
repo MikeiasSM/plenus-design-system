@@ -390,7 +390,7 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
 - `ToastProvider` com estado por arvore, mantendo `showToast`, e `portalContainer` nos overlays.
 - Teste do pacote construido num app real (Vite, Next com Server Components, CommonJS), axe e navegador real.
 - Visao em tabela nos graficos que ainda nao a tem, o caso que o catalogo reserva para quando houver consumidor; o Painel e esse consumidor. `ChartMap` e `ChartTimeline` ja a tem.
-- Clique na marca dos graficos (`onPointClick`, `onSliceClick`), no modelo do `onRegionClick` do `ChartMap`.
+- Clique na marca dos graficos, no modelo do `onRegionClick` do `ChartMap`. Feito em `ChartBar`, `ChartLine`, `ChartArea`, `ChartPie` e `ChartDonut`, por `useMarkNavigation`, o hook do nucleo que torna as marcas botoes e as percorre pelas setas. Faltam `ChartCombo`, `ChartScatter`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey` e `ChartWaterfall`; o `ChartGauge` fica fora, com um valor so.
 - Migracao da API para a convencao, na 0.3.0: estado controlado, tons e escala `sm`, `md` e `lg` nos campos.
 - Icones em um modulo por icone, num subcaminho `icons/*`, sem tirar o `icons` atual.
 - Recursos genericos pedidos: intervalo de datas com atalhos, submenu e alinhamento no `Menu`, `Dialog` `xl` com `onBeforeClose`, `Toast` com varias acoes, `ComboBox` com aplicar, limpar e selecionar todos, `Pagination` com tamanho de pagina e primeira e ultima, e indicador com variacao. Cada um entra no catalogo quando for desenhado.

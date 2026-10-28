@@ -34,6 +34,8 @@ export interface ChartDonutProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
+  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
+  onSliceClick?: (slice: ChartSlice) => void;
   /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
   onHoverSlice?: (slice: ChartSlice | null) => void;
   /** Rotulo da fatia que reune as pequenas. */
@@ -68,6 +70,7 @@ export function ChartDonut({
   legendAlign,
   onHiddenSlicesChange,
   onHoverSlice,
+  onSliceClick,
   otherLabel = 'Outros',
   palette,
   showCenter = true,
@@ -90,6 +93,7 @@ export function ChartDonut({
     hiddenSlices,
     onHiddenSlicesChange,
     onHoverSlice,
+    onSliceClick,
     otherLabel,
     slices,
     smallSliceThreshold,
@@ -110,6 +114,7 @@ export function ChartDonut({
 
   return (
     <ChartFrame
+      canvasRole={anel.marks.interactive ? 'group' : 'img'}
       centerOrigin
       containerRef={ref}
       empty={anel.slices.length === 0 || slices.every((fatia) => !(fatia.value > 0))}
@@ -142,10 +147,11 @@ export function ChartDonut({
       }
       width={width}
     >
+      <g {...anel.marks.groupProps}>
       {anel.slices.map((fatia, indice) => (
         <path
+          {...anel.marks.markProps({ column: indice, row: 0 }, styles.slice)}
           aria-label={`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}
-          className={styles.slice}
           d={arcPath({
             ...anel.angles[indice],
             cornerRadius: canto,
@@ -158,6 +164,7 @@ export function ChartDonut({
           onMouseLeave={() => anel.focus(null)}
         />
       ))}
+      </g>
 
       {showCenter && (
         <g className={styles.center}>

@@ -12,6 +12,7 @@ import {
   roundedBarPath,
   useChartMetrics,
   useHoveredBand,
+  useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
   valueLabelRoom,
@@ -24,6 +25,7 @@ import {
   type ChartLegendPosition,
   type MarkVisibility,
   type CornerRadii,
+  type ChartMarkClick,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
@@ -51,6 +53,8 @@ export interface ChartBarProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Torna as barras botoes, percorridos pelas setas. */
+  onBarClick?: (bar: ChartMarkClick) => void;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
   onHoverCategory?: (index: number | null) => void;
@@ -84,6 +88,7 @@ export function ChartBar({
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
+  onBarClick,
   onHiddenSeriesChange,
   onHoverCategory,
   orientation = 'vertical',
@@ -108,6 +113,17 @@ export function ChartBar({
   });
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
+  const marcas = useMarkNavigation({
+    onActivate: onBarClick && (({ column, row }) =>
+      onBarClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] })),
+    onFocusMark: (posicao) => {
+      focarFaixa(posicao?.column ?? null);
+      setSerieEmFoco(posicao?.row ?? null);
+    },
+    present: series.flatMap((serie, row) =>
+      isHidden(serie.label) ? [] : categories.flatMap((_, column) => (Number.isFinite(serie.values[column]) ? [{ column, row }] : [])),
+    ),
+  });
   const vertical = orientation === 'vertical';
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -267,6 +283,7 @@ export function ChartBar({
 
   return (
     <CartesianFrame
+      canvasRole={marcas.interactive ? 'group' : 'img'}
       axisReveal={axisReveal}
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
@@ -319,6 +336,7 @@ export function ChartBar({
         />
       )}
 
+      <g {...marcas.groupProps}>
       {series.map((serie, indiceSerie) => {
         const oculta = isHidden(serie.label);
 
@@ -343,8 +361,8 @@ export function ChartBar({
 
               return (
                 <path
+                  {...marcas.markProps({ column: indiceCategoria, row: indiceSerie }, styles.bar)}
                   aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria])}`}
-                  className={styles.bar}
                   d={roundedBarPath(
                     vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim),
                     vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento,
@@ -383,6 +401,7 @@ export function ChartBar({
           </g>
         );
       })}
+      </g>
 
       {showDataLabels !== 'hidden' &&
         stacked &&

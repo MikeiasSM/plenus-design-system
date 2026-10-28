@@ -335,6 +335,7 @@ export type {
   ChartHoveredNode,
   ChartLegendAlign,
   ChartLegendPosition,
+  ChartMarkClick,
   ChartRootProps,
   MarkVisibility,
   NoDataStyle,

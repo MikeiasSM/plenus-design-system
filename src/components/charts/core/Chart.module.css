@@ -180,6 +180,10 @@
   fill: transparent;
 }
 
+.hoverBandActive {
+  cursor: pointer;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -319,4 +323,20 @@
 .hatchLine {
   stroke: var(--pl-chart-no-data-hatch);
   stroke-width: 2.5;
+}
+
+/* Marca que e botao, quando o grafico tem clique na marca. */
+.interactiveMark {
+  cursor: pointer;
+  outline: none;
+}
+
+.interactiveMark:focus-visible {
+  stroke: var(--pl-color-primary-strong);
+  stroke-width: 2;
+}
+
+/* O ponto escondido aparece quando recebe o foco pelo teclado. */
+.dot.interactiveMark:focus-visible {
+  opacity: 1;
 }

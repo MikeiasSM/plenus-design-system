@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartPie, type ChartPieSlice } from './ChartPie';
 
 const composicao: ChartPieSlice[] = [
@@ -80,6 +80,23 @@ describe('ChartPie', () => {
     );
 
     expect(fatias().map((fatia) => fatia.getAttribute('fill'))).toEqual(['#0E7C6B', '#E0A030', '#123456']);
+  });
+
+  it('com clique na fatia, as fatias sao botoes percorridos pelas setas', () => {
+    const aoClicar = vi.fn();
+    render(<ChartPie onSliceClick={aoClicar} slices={composicao} title="Receita" />);
+    const servicos = screen.getByRole('button', { name: /^Serviços:/ });
+
+    expect(screen.getByRole('group', { name: 'Receita' })).toBeInTheDocument();
+    expect(servicos).toHaveAttribute('tabindex', '0');
+
+    act(() => servicos.focus());
+    fireEvent.keyDown(servicos, { key: 'ArrowRight' });
+    const produtos = screen.getByRole('button', { name: /^Produtos:/ });
+    expect(produtos).toHaveFocus();
+
+    fireEvent.keyDown(produtos, { key: ' ' });
+    expect(aoClicar).toHaveBeenCalledWith({ label: 'Produtos', value: 40 });
   });
 
   it('desliga a fatia pela legenda', () => {

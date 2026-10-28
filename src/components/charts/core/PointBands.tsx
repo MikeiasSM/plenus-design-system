@@ -3,6 +3,8 @@ import type { ChartPoint } from './shapes';
 import styles from './Chart.module.css';
 
 export interface PointBandsProps {
+  /** Clique na faixa da categoria, quando o grafico tem clique no ponto. */
+  onActivate?: (index: number) => void;
   onHover: (index: number | null) => void;
   /** Altura do ponteiro na area de desenho, para quem escolhe a serie mais proxima dele. */
   onPointerY?: (y: number | null) => void;
@@ -15,7 +17,7 @@ export interface PointBandsProps {
  * Faixas invisiveis sobre a area de desenho, uma por categoria, que vao do ponto
  * ate o meio do caminho para cada vizinho: o ponteiro sempre cai no ponto mais proximo.
  */
-export function PointBands({ onHover, onPointerY, plot, positions }: PointBandsProps) {
+export function PointBands({ onActivate, onHover, onPointerY, plot, positions }: PointBandsProps) {
   return (
     <g>
       {positions.map((position, index) => {
@@ -24,9 +26,10 @@ export function PointBands({ onHover, onPointerY, plot, positions }: PointBandsP
 
         return (
           <rect
-            className={styles.hoverBand}
+            className={onActivate ? `${styles.hoverBand} ${styles.hoverBandActive}` : styles.hoverBand}
             height={plot.height}
             key={index}
+            onClick={onActivate && (() => onActivate(index))}
             onMouseEnter={() => onHover(index)}
             onMouseLeave={() => {
               onHover(null);

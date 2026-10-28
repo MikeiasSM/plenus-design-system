@@ -33,6 +33,8 @@ export interface ChartPieProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
+  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
+  onSliceClick?: (slice: ChartSlice) => void;
   /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
   onHoverSlice?: (slice: ChartSlice | null) => void;
   /** Rotulo da fatia que reune as pequenas. */
@@ -64,6 +66,7 @@ export function ChartPie({
   legendAlign,
   onHiddenSlicesChange,
   onHoverSlice,
+  onSliceClick,
   otherLabel = 'Outros',
   palette,
   showDataLabels = false,
@@ -85,6 +88,7 @@ export function ChartPie({
     hiddenSlices,
     onHiddenSlicesChange,
     onHoverSlice,
+    onSliceClick,
     otherLabel,
     slices,
     smallSliceThreshold,
@@ -95,6 +99,7 @@ export function ChartPie({
 
   return (
     <ChartFrame
+      canvasRole={anel.marks.interactive ? 'group' : 'img'}
       centerOrigin
       containerRef={ref}
       empty={anel.slices.length === 0 || slices.every((fatia) => !(fatia.value > 0))}
@@ -127,10 +132,11 @@ export function ChartPie({
       }
       width={width}
     >
+      <g {...anel.marks.groupProps}>
       {anel.slices.map((fatia, indice) => (
         <path
+          {...anel.marks.markProps({ column: indice, row: 0 }, styles.slice)}
           aria-label={`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}
-          className={styles.slice}
           d={arcPath({ ...anel.angles[indice], cornerRadius: canto, innerRadius: 0, outerRadius: raio })}
           fill={anel.colors[indice]}
           key={indice}
@@ -138,6 +144,7 @@ export function ChartPie({
           onMouseLeave={() => anel.focus(null)}
         />
       ))}
+      </g>
 
       {showDataLabels &&
         anel.slices.map((fatia, indice) => {

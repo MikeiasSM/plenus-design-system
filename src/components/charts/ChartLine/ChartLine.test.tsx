@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import chartStyles from '../core/Chart.module.css';
 import { ChartLine, type ChartLineSeries } from './ChartLine';
 import lineStyles from './ChartLine.module.css';
@@ -138,5 +138,22 @@ describe('ChartLine', () => {
     expect(visiveisDe('Produtos')).toHaveLength(3);
     expect(visiveisDe('Serviços')).toHaveLength(0);
     expect(document.querySelectorAll(`text.${lineStyles.valueLabelHidden}`).length).toBe(3);
+  });
+
+  it('com clique no ponto, os pontos sao botoes e as setas andam entre categorias e series', () => {
+    const aoClicar = vi.fn();
+    render(<ChartLine categories={meses} onPointClick={aoClicar} series={series} title="Receita" />);
+    const primeiro = screen.getByRole('button', { name: /^Serviços, 04\/26/ });
+
+    expect(screen.getByRole('group', { name: 'Receita' })).toBeInTheDocument();
+    expect(primeiro).toHaveAttribute('tabindex', '0');
+
+    act(() => primeiro.focus());
+    fireEvent.keyDown(primeiro, { key: 'ArrowRight' });
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    expect(screen.getByRole('button', { name: /^Produtos, 05\/26/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith({ category: '05/26', index: 1, series: 'Produtos', value: series[1].values[1] });
   });
 });

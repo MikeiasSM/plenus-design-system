@@ -417,4 +417,44 @@ describe('ChartBar', () => {
 
     expect(Number(rotulo?.getAttribute('y'))).toBeGreaterThan(barra.y + barra.altura);
   });
+
+  it('sem clique na barra, o desenho e imagem e as barras nao sao botoes', () => {
+    render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+
+    expect(screen.getByRole('img', { name: 'DRE' })).toBeInTheDocument();
+    expect(screen.queryAllByRole('button', { name: /Receita,/ })).toHaveLength(0);
+  });
+
+  it('com clique na barra, cada barra e botao, com uma parada de tabulacao so', () => {
+    const aoClicar = vi.fn();
+    render(<ChartBar categories={periodos} onBarClick={aoClicar} series={dre} title="DRE" />);
+    const botoes = screen.getAllByRole('button', { name: /, \d{2}\/2026:/ });
+
+    expect(screen.getByRole('group', { name: 'DRE' })).toBeInTheDocument();
+    expect(botoes).toHaveLength(6);
+    expect(botoes.filter((botao) => botao.getAttribute('tabindex') === '0')).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /Despesas, 09\/2026/ }));
+
+    expect(aoClicar).toHaveBeenCalledWith({ category: '09/2026', index: 1, series: 'Despesas', value: 8000 });
+  });
+
+  it('as setas andam entre categorias e series, e Enter ativa a barra em foco', () => {
+    const aoClicar = vi.fn();
+    render(<ChartBar categories={periodos} onBarClick={aoClicar} series={dre} title="DRE" />);
+    const primeira = screen.getByRole('button', { name: /Receita, 08\/2026/ });
+
+    act(() => primeira.focus());
+    fireEvent.keyDown(primeira, { key: 'ArrowRight' });
+    expect(screen.getByRole('button', { name: /Receita, 09\/2026/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    expect(screen.getByRole('button', { name: /Deduções, 09\/2026/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Home' });
+    expect(screen.getByRole('button', { name: /Deduções, 08\/2026/ })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    expect(aoClicar).toHaveBeenCalledWith({ category: '08/2026', index: 0, series: 'Deduções', value: 179000 });
+  });
 });
