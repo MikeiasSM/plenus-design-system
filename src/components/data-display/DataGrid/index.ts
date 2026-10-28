@@ -1,6 +1,15 @@
 export { DataGrid } from './DataGrid';
 export { dataGridFilterOperators } from './filterModel';
 export { dataGridAggregators } from './summaries';
+export { dataGridCsvExporter } from './exporters';
+export type {
+  DataGridExportCell,
+  DataGridExportColumn,
+  DataGridExporter,
+  DataGridExportModel,
+  DataGridExportRow,
+  DataGridExportScope,
+} from './exportModel';
 export type {
   DataGridFilter,
   DataGridFilterCondition,

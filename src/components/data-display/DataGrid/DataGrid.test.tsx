@@ -760,6 +760,62 @@ describe('DataGrid', () => {
     });
   });
 
+  describe('export', () => {
+    function exportVia(label: string) {
+      fireEvent.click(screen.getByRole('button', { name: 'Menu da tabela Pedidos' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: label }));
+    }
+
+    it('hands the exporter the shown columns, the filtered rows in order and the totals', async () => {
+      const exporter = { id: 'xlsx', label: 'XLSX', export: vi.fn() };
+      renderGrid({
+        children: <DataGrid.TableMenu />,
+        columns: [columns[0], columns[1], { ...columns[2], summary: 'sum' }],
+        defaultColumnState: { hidden: ['customer'] },
+        defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'lessThan', value: 1000 }] },
+        defaultSort: [{ columnId: 'total', direction: 'asc' }],
+        exporters: [exporter],
+      });
+
+      exportVia('Exportar XLSX');
+      await act(async () => undefined);
+
+      const model = exporter.export.mock.calls[0][0];
+      expect(model.columns.map((column: { id: string }) => column.id)).toEqual(['id', 'total']);
+      expect(model.rows.map((row: { cells: { text: string }[] }) => row.cells[0].text)).toEqual(['P-3', 'P-1']);
+      expect(model.rows[0].cells[1]).toEqual({ text: expect.stringMatching(/^R\$\s80,00$/), value: 80 });
+      expect(model.summary[1].value).toBe(380);
+      expect(model.summary[0].text).toBe('Total');
+      expect(screen.getByRole('status')).toHaveTextContent('XLSX exportado');
+    });
+
+    it('exports only the selected rows when asked', () => {
+      const exporter = { id: 'csv', label: 'CSV', export: vi.fn() };
+      renderGrid({ children: <DataGrid.TableMenu />, defaultSelectedIds: ['P-2'], exporters: [exporter], selectionMode: 'multiple' });
+
+      exportVia('Exportar CSV da selecionada');
+
+      const model = exporter.export.mock.calls[0][0];
+      expect(model.scope).toBe('selected');
+      expect(model.rows).toHaveLength(1);
+      expect(model.summary).toBeUndefined();
+    });
+
+    it('downloads a CSV by default', () => {
+      const createObjectURL = vi.fn(() => 'blob:x');
+      const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+      vi.stubGlobal('URL', Object.assign(class extends URL {}, { createObjectURL, revokeObjectURL: vi.fn() }));
+      renderGrid({ children: <DataGrid.TableMenu /> });
+
+      exportVia('Exportar CSV');
+
+      expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+      expect(click).toHaveBeenCalled();
+      click.mockRestore();
+      vi.unstubAllGlobals();
+    });
+  });
+
   describe('table menu', () => {
     function rowOf(name: string) {
       return screen.getByRole('gridcell', { name }).closest('[role="row"]');

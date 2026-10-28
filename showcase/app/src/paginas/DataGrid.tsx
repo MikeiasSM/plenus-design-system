@@ -711,6 +711,14 @@ function Modos() {
         aparece, a linha aberta fica em carga e <code>onExpandedIdsChange</code> avisa o produto. Não se combina com{' '}
         <code>renderDetail</code>.
       </dd>
+      <dt>Exportação</dt>
+      <dd>
+        O menu da tabela exporta as colunas na ordem da tela e as linhas filtradas na ordem atual, com os totais; também
+        só as selecionadas ou só a página. O CSV vem no núcleo, em UTF-8 com BOM e separador <code>;</code>, com número
+        sem milhar e vírgula decimal, como a planilha em português lê. Na árvore, os ramos saem abertos, com o nível na
+        primeira coluna. XLSX e PDF entram por <code>exporters</code>: cada exportador recebe o modelo, com o texto exibido
+        e o valor cru de cada célula, e escreve o arquivo com a biblioteca que o produto escolher.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
         Sem linhas, a grade diz que não há registro, ou que nada atende à busca ou aos filtros, com o botão de limpar. <code>loading</code> cobre as linhas e
@@ -891,6 +899,12 @@ export const pagina: Pagina = {
     { nome: 'density', tipo: "'compact' | 'normal' | 'comfortable'", padrao: "'normal'", descricao: 'Altura das linhas: 32, 40 ou 48 pixels.' },
     { nome: 'initialState', tipo: 'unknown', descricao: 'Retrato salvo, aplicado de uma vez na montagem.' },
     { nome: 'onStateChange', tipo: '(snapshot: DataGridSnapshot) => void', descricao: 'Retrato versionado a cada mudança.' },
+    {
+      nome: 'exporters',
+      tipo: 'readonly DataGridExporter[]',
+      padrao: '[dataGridCsvExporter]',
+      descricao: 'Formatos do menu da tabela: { id, label, export(model) }.',
+    },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },
     { nome: 'error', tipo: 'ReactNode', descricao: 'Falha mostrada no lugar das linhas.' },
     { nome: 'emptyMessage', tipo: 'ReactNode', descricao: 'Texto da grade vazia.' },

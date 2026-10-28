@@ -53,11 +53,14 @@ import {
   setColumnFilter,
   type DataGridFilter,
 } from './filterModel';
+import { dataGridCsvExporter } from './exporters';
+import type { DataGridExporter, DataGridExportModel, DataGridExportScope } from './exportModel';
 import { aggregatorOf } from './summaries';
 import { buildTree, flattenTree, parentKeysOf, pruneTree, sortTree, topRows, treeRows } from './treeModel';
 import {
   bodyItems,
   cellText,
+  cellValue,
   clampPage,
   columnAlign,
   detailKeyOf,
@@ -158,6 +161,8 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   emptyMessage?: ReactNode;
   /** Falha ao carregar, mostrada no lugar das linhas. */
   error?: ReactNode;
+  /** Formatos do menu da tabela. O CSV vem no núcleo; XLSX e PDF entram por exportador do produto. */
+  exporters?: readonly DataGridExporter[];
   expandedIds?: readonly string[];
   /** Na `single`, abrir um detalhe fecha o que estava aberto. */
   expandMode?: DataGridExpandMode;
@@ -237,6 +242,9 @@ function placedClass({ edge, pin }: DataGridPlacedColumn<unknown>) {
   const edgeClass = edge && (pin === 'start' ? styles.edgeStart : styles.edgeEnd);
   return [pin && styles.pinned, edgeClass].filter(Boolean).join(' ');
 }
+
+const DEFAULT_EXPORTERS = [dataGridCsvExporter];
+const SCOPE_NAMES: Record<Exclude<DataGridExportScope, 'selected'>, string> = { filtered: '', page: ' da página' };
 
 const PIN_NAMES: Record<DataGridPin, string> = { start: 'à esquerda', end: 'à direita' };
 const NO_MENU: MenuSection[] = [];
@@ -334,6 +342,7 @@ export function DataGrid<Row>({
   defaultSort = [],
   emptyMessage,
   error,
+  exporters = DEFAULT_EXPORTERS,
   expandedIds: expandedIdsProp,
   expandMode = 'multiple',
   filter: filterProp,
@@ -815,6 +824,71 @@ export function DataGrid<Row>({
     setAnnouncement(`${opening.length} ${opened[opening.length === 1 ? 0 : 1]}`);
   }
 
+  /* As colunas na ordem da tela e as linhas do escopo na ordem atual; na árvore, com os ramos todos abertos. */
+  function exportModelOf(scope: DataGridExportScope): DataGridExportModel {
+    const exported = placed.map((item) => item.column);
+    const everyNode =
+      treeBranches &&
+      flattenTree(
+        treeBranches,
+        (row) => rowIdOf.current(row),
+        () => true,
+        () => false,
+      );
+    const flat = (list: readonly Row[]) => list.map((row) => ({ row, depth: 0, key: rowIdOf.current(row) }));
+    const scoped = server || scope === 'page' ? (pageNodes ?? flat(visibleRows)) : (everyNode ?? flat(sorted));
+    const chosen = scope === 'selected' ? scoped.filter((item) => selectedSet.has(item.key)) : scoped;
+
+    return {
+      title: label,
+      scope,
+      tree,
+      columns: exported.map((column) => ({
+        header: column.header,
+        id: column.id,
+        numeric: (column.type === 'number' || column.type === 'currency') && !column.format,
+      })),
+      rows: chosen.map(({ row, depth }) => ({
+        depth,
+        cells: exported.map((column) => ({ text: cellText(column, row), value: cellValue(column, row) })),
+      })),
+      summary:
+        showsSummary && scope === 'filtered' && !server
+          ? exported.map((column, index) => ({
+              text: aggregatorOf(column.summary) ? summaryText(column, summary[column.id]) : index === 0 ? 'Total' : '',
+              value: summary[column.id],
+            }))
+          : undefined,
+    };
+  }
+
+  /* Só as selecionadas que o escopo alcança: a que o filtro escondeu, ou que está em outra página do servidor, não vai. */
+  function exportItems() {
+    const reachable = server ? rowKeys : selectableItems.map((item) => item.key);
+    const selectedCount = reachable.filter((key) => selectedSet.has(key)).length;
+    const selectedName = selectedCount === 1 ? ' da selecionada' : ` das ${selectedCount} selecionadas`;
+    const scopes: DataGridExportScope[] = [
+      server ? 'page' : 'filtered',
+      ...(selectedCount > 0 ? ['selected' as const] : []),
+      ...(pagination && !server ? ['page' as const] : []),
+    ];
+
+    return exporters.flatMap((exporter) =>
+      scopes.map((scope) => ({
+        key: `${exporter.id}-${scope}`,
+        label: `Exportar ${exporter.label}${scope === 'selected' ? selectedName : SCOPE_NAMES[scope]}`,
+        onSelect: async () => {
+          try {
+            await exporter.export(exportModelOf(scope));
+            setAnnouncement(`${exporter.label} exportado`);
+          } catch {
+            setAnnouncement(`Não foi possível exportar ${exporter.label}`);
+          }
+        },
+      })),
+    );
+  }
+
   function restoreDefaults() {
     setSort(defaultSort);
     setSearch(defaultSearch);
@@ -877,6 +951,10 @@ export function DataGrid<Row>({
           },
         ],
       });
+    }
+
+    if (exporters.length > 0) {
+      sections.push({ key: 'export', items: exportItems() });
     }
 
     sections.push({

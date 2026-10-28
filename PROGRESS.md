@@ -1026,7 +1026,19 @@ Na branch `datagrid`, em 28/10/2026.
   - no servidor, `aria-rowcount` e `aria-rowindex` nao fechavam, porque a pagina conta raizes e a grade nao conhece os nos das outras; a contagem passa a desconhecida, `-1`, e o indice e o da pagina;
   - na arvore dentro de um detalhe, o nivel recomecava em 1; e o "recolher todos" anunciava detalhes.
 
-**Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos, do filtro e da arvore; depois a fase 6, exportacao.
+### DataGrid: fase 6, exportacao
+
+Na branch `datagrid`, em 28/10/2026.
+
+- **Modelo de exportacao**, em `exportModel.ts`, puro: as colunas na ordem da tela, sem as ocultas; as linhas do escopo na ordem atual, cada celula com o texto exibido e o valor cru; e os totais, quando ha. O exportador decide o que usar: o CSV escreve o texto, menos numero e moeda, que vao como numero.
+- **Escopos:** as filtradas, de todas as paginas, que sem filtro sao todas; as selecionadas; a pagina. No servidor, a grade so tem a pagina, e oferece a pagina e as selecionadas dela; o resto e do produto, que tem a consulta. Os totais vao so com as filtradas: sobre as selecionadas, seriam outra conta.
+- **CSV no nucleo**, `dataGridCsvExporter`: UTF-8 com BOM, separador `;` e quebra CRLF, como a planilha em portugues abre sem perguntar; numero sem milhar e com virgula decimal, para a planilha ler como numero. Na arvore, todos os ramos carregados saem abertos, com o nivel na primeira coluna.
+- **Texto que a planilha leria como formula**, comecando por `=`, `+`, `-`, `@`, tab ou CR, ganha o apostrofo na frente, como a OWASP recomenda e o MUI X faz por padrao. Numero e moeda nao passam por isso: vao como numero.
+- **O exportador pode ser assincrono**, como o de XLSX que carrega a biblioteca sob demanda; o anuncio sai depois, e a falha e anunciada.
+- **Revisao independente**, antes do commit, achou e corrigiu: o numero com o ruido do ponto flutuante e em notacao cientifica, que a planilha nao le; a injecao de formula; o "das selecionadas" oferecido quando o filtro escondia todas, agora com a contagem; a linha de totais sem rotulo; a coluna numerica com formato proprio, que saia com o valor cru diferente da tela; e o endereco do arquivo revogado antes de o Safari comecar o download.
+- **XLSX e PDF por exportador**, `{ id, label, export(model) }`, passado em `exporters`, sem dependencia nova no sistema, como o mandamento 13 pede. O subcaminho opcional com ExcelJS e jsPDF, previsto no plano, depende de decisao sobre dependencia e fica fora ate ela.
+
+**Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos, do filtro e da arvore; depois o lancamento, numa versao de correcao.
 
 
 ### Contador de caracteres
