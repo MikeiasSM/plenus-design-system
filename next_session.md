@@ -21,7 +21,6 @@ Os itens que o plano antigo reservava para a 0.3.0 (convenção de API, CSS por 
 
 ## Feito
 
-- **Visão em tabela antecipada no heatmap**, pela moldura comum dos gráficos.
 - **`ChartHeatmap` revisado** a partir de pesquisa de mercado (artefato https://claude.ai/artifact/KsQoUPeFoxGLzwrR8Cw3mD): sem dado hachurado, cruzamento ausente em branco, escala a partir de zero, contraste do texto com halo onde nenhuma cor fixa passa, colunas em cima, células quadradas, destaque de linha e coluna, visão em tabela e balão no foco. A hachura e o aviso de desenvolvimento passaram ao núcleo dos gráficos.
 - **Escala compacta dos botões e campos**: 32, 36 e 40 px, todos em 14 px, decidida no artefato https://claude.ai/artifact/TgRcWKA6tettUyjTNBDP9R. O respiro vertical dos campos e dos botões `sm` e `md` passou a sair do token; o campo pequeno media 36 px apesar dos 32 declarados.
 - **`FileUpload`** com ícone discreto, texto e restrições em cima e botão embaixo. **`dangerGhost`** no `Button` e no `ButtonIcon`, a ação destrutiva discreta.
