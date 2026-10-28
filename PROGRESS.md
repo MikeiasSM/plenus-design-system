@@ -900,7 +900,36 @@ Fundacao, na branch `datagrid`, em 28/10/2026. Exportado no indice, mas fora de 
   O nome do cabecalho passou a vir do texto visivel, por `aria-labelledby`. Sairam a medicao da altura, que a propriedade ja fixa, e codigo morto.
 - **Achado fora da grade:** o tema nao declara `color-scheme`, e o canto da barra de rolagem fica branco no escuro em toda area rolavel. Entra com o tema por subarvore.
 
-**Proximo:** teste no NVDA, depois a fase 2, master-detail.
+### DataGrid: fase 2
+
+Master-detail, na branch `datagrid`, em 28/10/2026.
+
+- **API:** `renderDetail({ row, level, state, setState })` e `rowHasDetail`; expansao pelo trio `expandedIds`, `defaultExpandedIds` e `onExpandedIdsChange`, com `expandMode` `single` ou `multiple`; `rowClickAction` `none`, `expand`, `select` ou `activate`, com `onRowActivate`. O padrao e `none`: a linha da fase 1 nao muda de comportamento.
+- **Detalhe como linha irma de largura total**, logo abaixo da linha-mae, numa celula so com `aria-colspan` e o nome "Detalhe de" seguido do texto da primeira coluna. Com `renderDetail`, a grade passa a `treegrid`, com `aria-expanded` so nas linhas com detalhe e `aria-level`. A linha de detalhe nao conta em `aria-rowcount` nem leva `aria-rowindex`, como no prototipo; o NVDA confirma ou corrige.
+- **A seta de expandir** fica na primeira coluna, antes da caixa de selecao, e o espaco dela e reservado em todas as linhas e no cabecalho, para os textos alinharem.
+- **Uma rolagem so.** A `DataGrid` dentro do detalhe se reconhece aninhada pelo contexto, nao rola na vertical e desenha so o trecho que aparece na tela da grade de fora. A rolagem, as alturas e o estado guardado moram numa raiz compartilhada, `scrollRoot.ts`, criada pela grade de fora.
+- **Alturas medidas** por `ResizeObserver` em cada detalhe, de qualquer nivel, e guardadas pelo caminho da linha. As posicoes so sao recalculadas quando uma altura muda; a rolagem segue por busca binaria.
+- **Estado guardado pelo caminho:** o do conteudo, entregue por `state` e `setState`, e o das grades aninhadas: ordem, busca, pagina, tamanho, expansao e selecao. Volta ao remontar, depois de rolar ou de recolher e abrir.
+- **Ancora de rolagem.** A primeira versao seguia a prova: registro na primeira altura que muda, solto no quadro seguinte. No navegador, com um detalhe cortado pelo topo crescendo 116 px, a linha visivel saltava 116 px: a altura sobe nivel a nivel em quadros diferentes, e o registro do segundo nivel ja via linhas aninhadas deslocadas. A ancora passou a valer ate a pessoa rolar; a correcao da propria grade nao conta como rolagem. Ela e solta tambem quando as chaves dos itens de qualquer grade mudam, ordem, busca, dados ou expansao, para nao puxar a rolagem de volta a uma linha que mudou de lugar por outro motivo. A comparacao e por chave, e nao por identidade: o produto costuma passar uma lista nova a cada desenho.
+- **Largura do detalhe:** o conteudo acompanha a largura da tela, e nao a das colunas, e fica a vista quando a grade rola para o lado. A primeira versao usava `container-type` no rolador, que zera a largura intrinseca dele e encolhia a grade dentro de conteiner que se ajusta ao conteudo; passou a uma variavel com a largura medida.
+- **Teclado:** a seta para baixo chega ao detalhe como a uma linha; nele, as setas laterais nao andam. `Enter` ou `F2` entra no conteudo, na celula com foco de uma grade aninhada quando houver; `Esc` volta a celula do detalhe, e de uma grade aninhada, ao detalhe da linha-mae. `Ctrl+Enter` abre e recolhe. Com `rowClickAction`, `Enter` faz a acao do clique e `F2` continua entrando nos controles. No detalhe, o Tab segue a ordem do conteudo, que e do produto, como no prototipo aprovado.
+- **`DataGrid.DetailLayout`:** lateral a direita, a esquerda ou em `Dialog`, com `asideSize` em porcentagem, 40 por padrao. O conteudo principal fica sempre no mesmo lugar da arvore: a primeira versao trocava a arvore no modo dialogo, a grade de itens remontava ao abrir o grafico e o foco nao voltava ao botao.
+- **Medido no Chrome headless**, so como comparacao, no exemplo do Showcase: 1.000 pedidos, 20 abertos, dez deles com o grafico do item ao lado e as entregas do primeiro item abertas, metade em grafico, cerca de 60 graficos montados. Rolando 120 px por quadro: 7 ms de media, nenhum quadro acima de 50 ms, ate cerca de 1.500 nos. Estado do lateral e da forma das entregas preservado depois de rolar ate o fim e voltar; salto zero com um detalhe acima da tela crescendo 116 px; abrir um detalhe na tela nao rola a grade. O playground com 10.000 linhas e 30 colunas, com detalhe ligado e nenhum aberto, mede 11 ms, como na fase 1.
+- **Revisao independente**, antes do commit, achou e corrigiu:
+  - a janela de uma grade aninhada so se reposicionava quando uma altura era medida; recolher, ordenar ou buscar na grade de fora movia o detalhe sem avisar, e linhas da aninhada podiam faltar. Toda grade avisa a raiz quando a propria disposicao muda;
+  - duas grades no mesmo detalhe dividiam o caminho, e a memoria de uma valia para a outra. O caminho da grade aninhada leva o nome dela;
+  - uma grade no lateral em dialogo se achava aninhada, porque o contexto atravessa o portal. O dialogo zera o nivel;
+  - o lateral em dialogo sem `onAsideClose` prendia a pessoa; a propriedade e obrigatoria;
+  - `asideSize` repartia so a sobra e nao era porcentagem; passou a base de cada lado, com a largura minima decidindo a quebra;
+  - o foco num detalhe que o produto recolhe ia para a linha seguinte; volta a linha-mae;
+  - `Enter` no detalhe podia entrar numa grade de nivel mais fundo; entra na de primeiro nivel;
+  - `rowHasDetail` lido por referencia ficava velho; entrou nas dependencias, memorizado pelo produto como `columns`;
+  - `PageUp` e `PageDown` contavam o detalhe como uma linha; andam uma tela pela altura;
+  - a linha de detalhe ganhou `aria-level` da linha-mae mais um.
+  A ancora ganhou testes proprios, com posicoes simuladas.
+- **Fica para a fase 3:** expandir todos do nivel atual com teto, que depende do menu da tabela.
+
+**Proximo:** teste no NVDA, que fixa a marcacao do detalhe; depois a fase 3, colunas e menus.
 
 
 ### Contador de caracteres

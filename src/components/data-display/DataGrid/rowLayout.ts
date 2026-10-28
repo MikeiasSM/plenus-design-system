@@ -1,20 +1,16 @@
-/** Posições das linhas para a janela virtual: altura medida por chave, estimada até a primeira medida. */
+/** Posições das linhas e dos detalhes para a janela virtual, a partir das alturas de cada um. */
 
 export interface RowLayout {
   /** `offsets[i]` é o topo da linha `i`; o último elemento é a altura total. */
   offsets: readonly number[];
 }
 
-export function buildRowLayout(
-  rowKeys: readonly string[],
-  heights: ReadonlyMap<string, number>,
-  estimate: number,
-): RowLayout {
-  const offsets = new Array<number>(rowKeys.length + 1);
+export function buildRowLayout(heights: readonly number[]): RowLayout {
+  const offsets = new Array<number>(heights.length + 1);
   offsets[0] = 0;
 
-  for (let i = 0; i < rowKeys.length; i += 1) {
-    offsets[i + 1] = offsets[i] + (heights.get(rowKeys[i]) ?? estimate);
+  for (let i = 0; i < heights.length; i += 1) {
+    offsets[i + 1] = offsets[i] + heights[i];
   }
 
   return { offsets };

@@ -1,7 +1,10 @@
 import {
+  bodyItems,
   cellText,
   clampPage,
   columnAlign,
+  detailKeyOf,
+  isDetailKey,
   moveFocus,
   pageRows,
   reconcileFocus,
@@ -9,6 +12,7 @@ import {
   searchRows,
   snapshotOf,
   sortRows,
+  toggleExpanded,
   toggleSort,
   type DataGridColumnModel,
   type DataGridState,
@@ -224,5 +228,30 @@ describe('focus', () => {
     expect(reconcileFocus(focus, [], ['b'])).toEqual({ rowKey: null, columnId: 'b' });
     expect(reconcileFocus(focus, ['r1', 'r3'], ['b'], 1)).toEqual({ rowKey: 'r3', columnId: 'b' });
     expect(reconcileFocus(focus, ['r1'], ['b'], 1)).toEqual({ rowKey: 'r1', columnId: 'b' });
+  });
+
+  it('gives the focus of a collapsed detail back to its row', () => {
+    const focus = { rowKey: detailKeyOf('r1'), columnId: 'b' };
+
+    expect(reconcileFocus(focus, ['r1', 'r2'], ['b'], 1)).toEqual({ rowKey: 'r1', columnId: 'b' });
+  });
+});
+
+describe('expansion', () => {
+  it('opens and closes, keeping one open in single mode', () => {
+    expect(toggleExpanded(['a'], 'b', 'multiple')).toEqual(['a', 'b']);
+    expect(toggleExpanded(['a', 'b'], 'a', 'multiple')).toEqual(['b']);
+    expect(toggleExpanded(['a'], 'b', 'single')).toEqual(['b']);
+    expect(toggleExpanded(['b'], 'b', 'single')).toEqual([]);
+  });
+
+  it('places each open detail right after its row, with a key no row can take', () => {
+    const items = bodyItems(['a', 'b', 'c'], (rowKey) => rowKey !== 'b');
+
+    expect(items.map((item) => item.key)).toEqual(['a', detailKeyOf('a'), 'b', 'c', detailKeyOf('c')]);
+    expect(items[4]).toEqual({ detail: true, key: detailKeyOf('c'), rowIndex: 2, rowKey: 'c' });
+    expect(isDetailKey(items[1].key)).toBe(true);
+    expect(isDetailKey('a')).toBe(false);
+    expect(isDetailKey(null)).toBe(false);
   });
 });

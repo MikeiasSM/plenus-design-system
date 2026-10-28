@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { DataGrid, type DataGridColumn } from '.';
+import { DataGrid, type DataGridColumn, type DataGridDetailContext } from '.';
 
 interface Order {
   id: string;
@@ -324,5 +324,230 @@ describe('DataGrid', () => {
     rerender(<DataGrid columns={columns} error="Não foi possível carregar." getRowId={getRowId} label="Pedidos" rows={[]} />);
 
     expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível carregar.');
+  });
+
+  describe('detail', () => {
+    interface Item {
+      id: string;
+      product: string;
+    }
+
+    const itemColumns: DataGridColumn<Item>[] = [{ id: 'product', header: 'Produto' }];
+    const itemsOf = (order: Order): Item[] => [
+      { id: `${order.id}-a`, product: `Cabo de ${order.id}` },
+      { id: `${order.id}-b`, product: `Disjuntor de ${order.id}` },
+    ];
+
+    function renderItems({ row }: DataGridDetailContext<Order>) {
+      return <DataGrid columns={itemColumns} getRowId={(item) => item.id} label={`Itens de ${row.id}`} rows={itemsOf(row)} />;
+    }
+
+    function renderNotes({ row, state, setState }: DataGridDetailContext<Order>) {
+      const note = typeof state.note === 'string' ? state.note : '';
+      return <input aria-label={`Nota de ${row.id}`} value={note} onChange={(event) => setState({ note: event.target.value })} />;
+    }
+
+    function rowOf(name: string) {
+      return screen.getByRole('gridcell', { name }).closest('[role="row"]');
+    }
+
+    it('turns into a tree grid with an expander only on the rows that have a detail', () => {
+      renderGrid({ renderDetail: renderItems, rowHasDetail: (order) => order.id !== 'P-3' });
+
+      expect(screen.getByRole('treegrid', { name: 'Pedidos' })).toBeInTheDocument();
+      expect(rowOf('Atacado Sul')).toHaveAttribute('aria-expanded', 'false');
+      expect(rowOf('Atacado Sul')).toHaveAttribute('aria-level', '1');
+      expect(rowOf('Casa Norte')).not.toHaveAttribute('aria-expanded');
+      expect(screen.queryByRole('button', { name: 'Expandir P-3' })).not.toBeInTheDocument();
+    });
+
+    it('opens a full-width detail named after its row, right below it', () => {
+      renderGrid({ renderDetail: renderItems });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Expandir P-1' }));
+
+      const detail = screen.getByRole('gridcell', { name: 'Detalhe de P-1' });
+      expect(detail).toHaveAttribute('aria-colspan', '3');
+      expect(rowOf('Atacado Sul')).toHaveAttribute('aria-expanded', 'true');
+      expect(within(detail).getByRole('grid', { name: 'Itens de P-1' })).toBeInTheDocument();
+      expect(rowOf('Atacado Sul')?.nextElementSibling).toBe(detail.parentElement);
+      expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('P-1 expandido');
+    });
+
+    it('toggles with Ctrl+Enter and keeps one open in single mode', () => {
+      renderGrid({ renderDetail: renderItems, expandMode: 'single' });
+
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Atacado Sul' }), { key: 'Enter', ctrlKey: true });
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Óleos Brasil' }), { key: 'Enter', ctrlKey: true });
+
+      expect(screen.queryByRole('gridcell', { name: 'Detalhe de P-1' })).not.toBeInTheDocument();
+      expect(screen.getByRole('gridcell', { name: 'Detalhe de P-2' })).toBeInTheDocument();
+
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Óleos Brasil' }), { key: 'Enter', ctrlKey: true });
+      expect(screen.queryByRole('gridcell', { name: 'Detalhe de P-2' })).not.toBeInTheDocument();
+    });
+
+    it('reaches the detail with the arrow, enters the nested grid with Enter and comes back with Escape', () => {
+      renderGrid({ renderDetail: renderItems, defaultExpandedIds: ['P-1'] });
+      const cell = screen.getByRole('gridcell', { name: 'Atacado Sul' });
+
+      act(() => cell.focus());
+      fireEvent.keyDown(cell, { key: 'ArrowDown' });
+      const detail = screen.getByRole('gridcell', { name: 'Detalhe de P-1' });
+      expect(detail).toHaveFocus();
+
+      fireEvent.keyDown(detail, { key: 'ArrowRight' });
+      expect(detail).toHaveFocus();
+
+      fireEvent.keyDown(detail, { key: 'Enter' });
+      const nestedHeader = screen.getByRole('columnheader', { name: 'Produto' });
+      expect(nestedHeader).toHaveFocus();
+
+      fireEvent.keyDown(nestedHeader, { key: 'ArrowDown' });
+      expect(screen.getByRole('gridcell', { name: 'Cabo de P-1' })).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Cabo de P-1' }), { key: 'Escape' });
+      expect(detail).toHaveFocus();
+
+      fireEvent.keyDown(detail, { key: 'ArrowDown' });
+      expect(screen.getByRole('gridcell', { name: 'Óleos Brasil' })).toHaveFocus();
+    });
+
+    it('keeps the detail state and the nested grid state after collapsing and opening again', () => {
+      renderGrid({
+        renderDetail: (context) => (
+          <>
+            {renderNotes(context)}
+            {renderItems(context)}
+          </>
+        ),
+      });
+      const toggle = () =>
+        fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Atacado Sul' }), { key: 'Enter', ctrlKey: true });
+
+      toggle();
+      fireEvent.change(screen.getByRole('textbox', { name: 'Nota de P-1' }), { target: { value: 'Conferir frete' } });
+      fireEvent.click(screen.getByRole('columnheader', { name: 'Produto' }));
+      fireEvent.click(screen.getByRole('columnheader', { name: 'Produto' }));
+      toggle();
+      expect(screen.queryByRole('textbox', { name: 'Nota de P-1' })).not.toBeInTheDocument();
+
+      toggle();
+      expect(screen.getByRole('textbox', { name: 'Nota de P-1' })).toHaveValue('Conferir frete');
+      expect(screen.getByRole('columnheader', { name: 'Produto' })).toHaveAttribute('aria-sort', 'descending');
+    });
+
+    it('nests without a scroll of its own', () => {
+      renderGrid({ renderDetail: renderItems, defaultExpandedIds: ['P-1'] });
+
+      const nested = screen.getByRole('grid', { name: 'Itens de P-1' });
+      expect((nested.parentElement as HTMLElement).style.height).toBe('');
+    });
+
+    it('runs the chosen row click action, but not on the controls of the row', () => {
+      const onSelectedIdsChange = vi.fn();
+      renderGrid({ renderDetail: renderItems, rowClickAction: 'expand', selectionMode: 'multiple', onSelectedIdsChange });
+
+      fireEvent.click(screen.getByRole('gridcell', { name: 'Óleos Brasil' }));
+      expect(screen.getByRole('gridcell', { name: 'Detalhe de P-2' })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar P-1' }));
+      expect(onSelectedIdsChange).toHaveBeenLastCalledWith(['P-1']);
+      expect(screen.queryByRole('gridcell', { name: 'Detalhe de P-1' })).not.toBeInTheDocument();
+    });
+
+    it('activates the row with a click or Enter, leaving F2 for the cell controls', () => {
+      const onRowActivate = vi.fn();
+      renderGrid({ rowClickAction: 'activate', onRowActivate });
+
+      fireEvent.click(screen.getByRole('gridcell', { name: 'Casa Norte' }));
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Atacado Sul' }), { key: 'Enter' });
+
+      expect(onRowActivate.mock.calls.map(([order]) => order.id)).toEqual(['P-3', 'P-1']);
+    });
+
+    it('asks for the change when the expansion is controlled', () => {
+      const onExpandedIdsChange = vi.fn();
+      renderGrid({ renderDetail: renderItems, expandedIds: [], onExpandedIdsChange });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Expandir P-2' }));
+
+      expect(onExpandedIdsChange).toHaveBeenCalledWith(['P-2']);
+      expect(screen.queryByRole('gridcell', { name: 'Detalhe de P-2' })).not.toBeInTheDocument();
+    });
+
+    it('gives the focus back to the parent row when the product closes the detail', () => {
+      const props = { columns, getRowId, label: 'Pedidos', rows: orders, renderDetail: renderNotes };
+      const { rerender } = render(<DataGrid {...props} expandedIds={['P-1']} />);
+
+      act(() => screen.getByRole('textbox', { name: 'Nota de P-1' }).focus());
+      rerender(<DataGrid {...props} expandedIds={[]} />);
+
+      expect(document.activeElement).toHaveAttribute('data-row', 'P-1');
+    });
+
+    it('leaves a grid in the aside dialog on its own scroll, not nested', () => {
+      renderGrid({
+        defaultExpandedIds: ['P-1'],
+        renderDetail: ({ row }) => (
+          <DataGrid.DetailLayout
+            aside={<DataGrid columns={itemColumns} getRowId={(item) => item.id} label="Entregas" rows={itemsOf(row)} />}
+            asidePlacement="dialog"
+            asideTitle="Entregas"
+            onAsideClose={vi.fn()}
+          >
+            {renderItems({ row, level: 1, state: {}, setState: vi.fn() })}
+          </DataGrid.DetailLayout>
+        ),
+      });
+
+      const inDialog = screen.getByRole('grid', { name: 'Entregas', hidden: true });
+      expect((inDialog.parentElement as HTMLElement).style.height).toBe('480px');
+    });
+  });
+
+  describe('DetailLayout', () => {
+    it('places the aside next to the content and closes it', () => {
+      const onAsideClose = vi.fn();
+      render(
+        <DataGrid.DetailLayout aside={<p>Gráfico</p>} asideTitle="Entregas" onAsideClose={onAsideClose}>
+          <p>Itens</p>
+        </DataGrid.DetailLayout>,
+      );
+
+      expect(screen.getByRole('region', { name: 'Entregas' })).toHaveTextContent('Gráfico');
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      expect(onAsideClose).toHaveBeenCalled();
+    });
+
+    it('shows only the content without an aside, and the aside in a dialog when asked', () => {
+      const { rerender } = render(
+        <DataGrid.DetailLayout onAsideClose={vi.fn()} asideTitle="Entregas">
+          <p>Itens</p>
+        </DataGrid.DetailLayout>,
+      );
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+
+      rerender(
+        <DataGrid.DetailLayout onAsideClose={vi.fn()} aside={<p>Gráfico</p>} asidePlacement="dialog" asideTitle="Entregas">
+          <p>Itens</p>
+        </DataGrid.DetailLayout>,
+      );
+      expect(screen.getByRole('dialog', { name: 'Entregas' })).toHaveTextContent('Gráfico');
+    });
+
+    it('keeps the content mounted when the aside opens, in any placement', () => {
+      const content = <input aria-label="Filtro dos itens" />;
+      const { rerender } = render(<DataGrid.DetailLayout onAsideClose={vi.fn()} asidePlacement="dialog" asideTitle="Entregas">{content}</DataGrid.DetailLayout>);
+      const input = screen.getByRole('textbox', { name: 'Filtro dos itens' });
+
+      rerender(
+        <DataGrid.DetailLayout onAsideClose={vi.fn()} aside={<p>Gráfico</p>} asidePlacement="dialog" asideTitle="Entregas">
+          {content}
+        </DataGrid.DetailLayout>,
+      );
+
+      expect(screen.getByRole('textbox', { name: 'Filtro dos itens', hidden: true })).toBe(input);
+    });
   });
 });

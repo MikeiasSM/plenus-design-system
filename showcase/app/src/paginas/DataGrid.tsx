@@ -1,5 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Badge, DataGrid, type DataGridColumn, type DataGridQuery } from '@plenustech/design-system';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Badge,
+  ButtonIcon,
+  ChartBar,
+  DataGrid,
+  formatDate,
+  IconChartBar,
+  SegmentedControl,
+  type DataGridAsidePlacement,
+  type DataGridColumn,
+  type DataGridDetailContext,
+  type DataGridQuery,
+  type DataGridRowClickAction,
+} from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -62,19 +75,217 @@ function colunasCom(metricas: number): DataGridColumn<Pedido>[] {
 
 const idDoPedido = (pedido: Pedido) => pedido.id;
 
+interface Item {
+  id: string;
+  produto: string;
+  quantidade: number;
+  unitario: number;
+  total: number;
+}
+
+interface Entrega {
+  id: string;
+  data: string;
+  quantidade: number;
+  nota: string;
+}
+
+const PRODUTOS = ['Cabo flexível 2,5 mm', 'Disjuntor 20 A', 'Luva PVC 25 mm', 'Tinta acrílica 18 L', 'Lâmpada LED 9 W', 'Tomada 10 A'];
+
+function sementeDe(id: string) {
+  return [...id].reduce((soma, letra) => (soma * 31 + letra.charCodeAt(0)) % 10007, 7);
+}
+
+function itensDe(pedido: Pedido): Item[] {
+  const semente = sementeDe(pedido.id);
+
+  return Array.from({ length: (semente % 5) + 2 }, (_, i) => {
+    const quantidade = ((semente + i * 13) % 40) + 2;
+    const unitario = ((semente * (i + 3)) % 18000) / 100 + 5;
+    return {
+      id: `${pedido.id}-${i + 1}`,
+      produto: PRODUTOS[(semente + i) % PRODUTOS.length],
+      quantidade,
+      unitario,
+      total: Math.round(quantidade * unitario * 100) / 100,
+    };
+  });
+}
+
+function entregasDe(item: Item): Entrega[] {
+  const semente = sementeDe(item.id);
+  const partes = (semente % 4) + 1;
+
+  return Array.from({ length: partes }, (_, i) => ({
+    id: `${item.id}-${i + 1}`,
+    data: `2026-10-${String(((semente + i * 6) % 27) + 1).padStart(2, '0')}`,
+    quantidade: Math.max(Math.round(item.quantidade / partes), 1),
+    nota: `NF ${40000 + ((semente + i) % 9999)}`,
+  }));
+}
+
+const COLUNAS_DE_ITEM: DataGridColumn<Item>[] = [
+  { id: 'produto', header: 'Produto', flex: 2, minWidth: 200 },
+  { id: 'quantidade', header: 'Quantidade', type: 'number', width: 120 },
+  { id: 'unitario', header: 'Unitário', type: 'currency', width: 130 },
+  { id: 'total', header: 'Total', type: 'currency', width: 140 },
+];
+
+const COLUNAS_DE_ENTREGA: DataGridColumn<Entrega>[] = [
+  { id: 'data', header: 'Data', type: 'date', width: 130 },
+  { id: 'quantidade', header: 'Quantidade', type: 'number', width: 120 },
+  { id: 'nota', header: 'Nota fiscal', minWidth: 140 },
+];
+
+const FORMAS = [
+  { label: 'Tabela', value: 'tabela' },
+  { label: 'Gráfico', value: 'grafico' },
+];
+
+/** No lateral e no diálogo o contêiner já mostra o título; o gráfico o guarda só para o leitor de tela. */
+function GraficoDeEntregas({ hideTitle = false, item }: { hideTitle?: boolean; item: Item }) {
+  const entregas = entregasDe(item);
+
+  return (
+    <ChartBar
+      categories={entregas.map((entrega) => formatDate(entrega.data).slice(0, 5))}
+      height={180}
+      hideTitle={hideTitle}
+      series={[{ label: 'Quantidade', values: entregas.map((entrega) => entrega.quantidade) }]}
+      title={`Entregas de ${item.produto}`}
+    />
+  );
+}
+
+/** Terceiro nível: a escolha entre tabela e gráfico fica no estado do detalhe e volta depois de rolar ou recolher. */
+function renderEntregas({ row, state, setState }: DataGridDetailContext<Item>) {
+  const forma = state.forma === 'grafico' ? 'grafico' : 'tabela';
+
+  return (
+    <>
+      <SegmentedControl
+        items={FORMAS}
+        label={`Forma das entregas de ${row.produto}`}
+        size="sm"
+        value={forma}
+        onValueChange={(valor) => setState({ forma: valor })}
+      />
+      {forma === 'grafico' ? (
+        <GraficoDeEntregas item={row} />
+      ) : (
+        <DataGrid
+          columns={COLUNAS_DE_ENTREGA}
+          getRowId={(entrega) => entrega.id}
+          label={`Entregas de ${row.produto}`}
+          rows={entregasDe(row)}
+        />
+      )}
+    </>
+  );
+}
+
+function MasterDetail() {
+  const pedidos = useMemo(() => gerarPedidos(1000), []);
+  const [lateral, setLateral] = useState<DataGridAsidePlacement>('end');
+
+  /* Segundo nível: o botão da linha abre o gráfico do item ao lado; o mesmo botão fecha, o de outro item troca. */
+  const renderItens = useCallback(
+    ({ row, state, setState }: DataGridDetailContext<Pedido>) => {
+      const itens = itensDe(row);
+      const aberto = itens.find((item) => item.id === state.grafico);
+      const colunas: DataGridColumn<Item>[] = [
+        ...COLUNAS_DE_ITEM,
+        {
+          id: 'grafico',
+          header: 'Gráfico',
+          width: 90,
+          sortable: false,
+          searchable: false,
+          renderCell: ({ row: item }) => (
+            <ButtonIcon
+              aria-pressed={item.id === state.grafico}
+              icon={<IconChartBar size={14} />}
+              label={`Gráfico de ${item.produto}`}
+              size="sm"
+              tabIndex={-1}
+              variant="ghost"
+              onClick={() => setState({ grafico: item.id === state.grafico ? null : item.id })}
+            />
+          ),
+        },
+      ];
+
+      return (
+        <DataGrid.DetailLayout
+          aside={aberto && <GraficoDeEntregas hideTitle item={aberto} />}
+          asidePlacement={lateral}
+          asideTitle={aberto ? `Entregas de ${aberto.produto}` : ''}
+          onAsideClose={() => setState({ grafico: null })}
+        >
+          <DataGrid
+            columns={colunas}
+            getRowId={(item) => item.id}
+            label={`Itens de ${row.id}`}
+            renderDetail={renderEntregas}
+            rows={itens}
+          />
+        </DataGrid.DetailLayout>
+      );
+    },
+    [lateral],
+  );
+
+  return (
+    <div className="stack">
+      <SegmentedControl
+        items={[
+          { label: 'Lateral à direita', value: 'end' },
+          { label: 'À esquerda', value: 'start' },
+          { label: 'Em diálogo', value: 'dialog' },
+        ]}
+        label="Lugar do gráfico do item"
+        size="sm"
+        value={lateral}
+        onValueChange={(valor) => setLateral(valor as DataGridAsidePlacement)}
+      />
+      <DataGrid
+        columns={COLUNAS}
+        getRowId={idDoPedido}
+        height={560}
+        label="Pedidos com itens"
+        renderDetail={renderItens}
+        rowClickAction="expand"
+        rows={pedidos}
+      >
+        <DataGrid.Toolbar>
+          <DataGrid.Search />
+        </DataGrid.Toolbar>
+      </DataGrid>
+    </div>
+  );
+}
+
+function renderItensSimples({ row }: DataGridDetailContext<Pedido>) {
+  return <DataGrid columns={COLUNAS_DE_ITEM} getRowId={(item) => item.id} label={`Itens de ${row.id}`} rows={itensDe(row)} />;
+}
+
 function GradeDoPlayground({
   colunas,
+  detalhe,
   linhas,
   loading,
   pagination,
   registrar,
+  rowClickAction,
   selectionMode,
 }: {
   colunas: number;
+  detalhe: boolean;
   linhas: number;
   loading: boolean;
   pagination: boolean;
   registrar: (evento: string) => void;
+  rowClickAction: DataGridRowClickAction;
   selectionMode: 'none' | 'single' | 'multiple';
 }) {
   const metricas = Math.max(colunas - COLUNAS.length, 0);
@@ -88,8 +299,12 @@ function GradeDoPlayground({
       label="Pedidos"
       loading={loading}
       pagination={pagination}
+      renderDetail={detalhe ? renderItensSimples : undefined}
+      rowClickAction={rowClickAction}
       rows={pedidos}
       selectionMode={selectionMode}
+      onExpandedIdsChange={(ids) => registrar(`onExpandedIdsChange: [${ids.join(', ')}]`)}
+      onRowActivate={(pedido) => registrar(`onRowActivate: ${pedido.id}`)}
       onSelectedIdsChange={(ids) => registrar(`onSelectedIdsChange: ${ids.length} linhas`)}
       onSortChange={(ordem) => registrar(`onSortChange: ${JSON.stringify(ordem)}`)}
       onStateChange={(retrato) => registrar(`onStateChange: ${JSON.stringify(retrato)}`)}
@@ -102,21 +317,33 @@ function GradeDoPlayground({
 }
 
 const playground = definirPlayground({
-  inicial: { linhas: 10000, colunas: 7, selectionMode: 'multiple', pagination: false, loading: false },
+  inicial: {
+    linhas: 10000,
+    colunas: 7,
+    selectionMode: 'multiple',
+    detalhe: true,
+    rowClickAction: 'none',
+    pagination: false,
+    loading: false,
+  },
   controles: [
     { tipo: 'numero', nome: 'linhas', min: 0, max: 50000, passo: 1000 },
     { tipo: 'numero', nome: 'colunas', min: 7, max: 30 },
     { tipo: 'opcoes', nome: 'selectionMode', opcoes: ['none', 'single', 'multiple'] },
+    { tipo: 'booleano', nome: 'detalhe' },
+    { tipo: 'opcoes', nome: 'rowClickAction', opcoes: ['none', 'expand', 'select', 'activate'] },
     { tipo: 'booleano', nome: 'pagination' },
     { tipo: 'booleano', nome: 'loading' },
   ],
   renderizar: (valores, registrar) => (
     <GradeDoPlayground
       colunas={valores.colunas}
+      detalhe={valores.detalhe}
       linhas={valores.linhas}
       loading={valores.loading}
       pagination={valores.pagination}
       registrar={registrar}
+      rowClickAction={valores.rowClickAction as DataGridRowClickAction}
       selectionMode={valores.selectionMode as 'none' | 'single' | 'multiple'}
     />
   ),
@@ -129,6 +356,8 @@ const playground = definirPlayground({
         ['rows', expr('pedidos')],
         ['getRowId', expr('(pedido) => pedido.id')],
         ['selectionMode', valores.selectionMode, 'none'],
+        ['renderDetail', valores.detalhe ? expr('({ row }) => <ItensDoPedido pedido={row} />') : undefined],
+        ['rowClickAction', valores.rowClickAction, 'none'],
         ['pagination', valores.pagination, false],
         ['loading', valores.loading, false],
       ],
@@ -145,6 +374,14 @@ const playground = definirPlayground({
         nivel: 'ok',
         titulo: 'Janela virtual',
         detalhe: 'Só as linhas visíveis e uma margem estão no DOM; cada uma leva aria-rowindex absoluto.',
+      });
+    }
+
+    if (valores.detalhe) {
+      verificacoes.push({
+        nivel: 'ok',
+        titulo: 'Grade em árvore',
+        detalhe: 'role="treegrid", aria-expanded nas linhas com detalhe e o detalhe numa célula nomeada pela linha-mãe.',
       });
     }
 
@@ -288,6 +525,18 @@ function Modos() {
         <code>onStateChange</code> entrega um retrato versionado da busca, da ordem e da página; <code>initialState</code>{' '}
         o restaura de uma vez, ignorando o que já não existe, como uma coluna removida. A seleção não entra no retrato.
       </dd>
+      <dt>Master-detail</dt>
+      <dd>
+        <code>renderDetail</code> desenha o detalhe numa linha de largura total, logo abaixo da linha-mãe; <code>rowHasDetail</code>{' '}
+        tira a seta de quem não tem. O conteúdo é livre: uma <code>DataGrid</code> dentro dele fica aninhada, sem rolagem
+        própria, e rola com a de fora, em quantos níveis houver. O detalhe que sai da tela é desmontado; o estado dele,
+        entregue por <code>state</code> e <code>setState</code>, e o das grades de dentro ficam guardados e voltam.
+      </dd>
+      <dt>Lateral do detalhe</dt>
+      <dd>
+        <code>DataGrid.DetailLayout</code> põe um conteúdo ao lado, como um gráfico, à direita, à esquerda ou num diálogo,
+        com a proporção em <code>asideSize</code>, 40% por padrão. A grade não sabe o que há no lateral.
+      </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
         Sem linhas, a grade diz que não há registro, ou que nada atende à busca. <code>loading</code> cobre as linhas e
@@ -300,6 +549,15 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Master-detail em três níveis',
+      descricao:
+        'Pedidos, itens e entregas numa rolagem só. O botão de gráfico do item abre o lateral; nas entregas, a escolha entre tabela e gráfico volta depois de rolar ou recolher.',
+      Previa: MasterDetail,
+      largo: true,
+      codigo:
+        "<DataGrid\n  renderDetail={({ row, state, setState }) => (\n    <DataGrid.DetailLayout aside={…} asideTitle=\"Entregas\">\n      <DataGrid label={`Itens de ${row.id}`} renderDetail={renderEntregas} … />\n    </DataGrid.DetailLayout>\n  )}\n  rowClickAction=\"expand\"\n  …\n/>",
+    },
     {
       titulo: 'Modo servidor',
       descricao: 'Busca, ordem e página vão ao servidor por onQueryChange; a grade mostra o que volta.',
@@ -330,9 +588,13 @@ export const pagina: Pagina = {
     { teclas: ['Home', 'End'], acao: 'Primeira e última célula da linha.' },
     { teclas: ['Ctrl+Home', 'Ctrl+End'], acao: 'Primeira célula do cabeçalho e última da grade.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Uma tela de linhas para cima ou para baixo.' },
-    { teclas: ['Enter'], acao: 'No cabeçalho, ordena; com Shift, soma a coluna à ordem. Na célula, entra no controle dela.' },
+    {
+      teclas: ['Enter'],
+      acao: 'No cabeçalho, ordena; com Shift, soma a coluna à ordem. Na linha, faz a ação do clique ou entra no controle. No detalhe, entra no conteúdo.',
+    },
+    { teclas: ['Ctrl+Enter'], acao: 'Na linha, abre ou recolhe o detalhe.' },
     { teclas: ['F2'], acao: 'Entra no controle da célula.' },
-    { teclas: ['Esc'], acao: 'Sai do controle e volta à célula.' },
+    { teclas: ['Esc'], acao: 'Sai do controle e volta à célula; numa grade aninhada, volta ao detalhe da linha-mãe.' },
     { teclas: ['Espaço'], acao: 'Seleciona a linha; com Shift, a faixa desde a última. No cabeçalho, todas.' },
   ],
   garantias: [
@@ -352,13 +614,28 @@ export const pagina: Pagina = {
       teste: 'DataGrid.test.tsx',
     },
     {
+      garantia: 'Detalhe nomeado',
+      como: (
+        <>
+          role=&quot;treegrid&quot;, <code>aria-expanded</code> e <code>aria-level</code> nas linhas com detalhe; o detalhe é uma
+          célula só, com <code>aria-colspan</code> e o nome da linha-mãe.
+        </>
+      ),
+      teste: 'DataGrid.test.tsx',
+    },
+    {
+      garantia: 'Estado que sobrevive',
+      como: 'O estado do detalhe e o das grades aninhadas ficam guardados pelo caminho da linha e voltam ao remontar.',
+      teste: 'DataGrid.test.tsx',
+    },
+    {
       garantia: 'Dois modos de teclado',
       como: 'Enter ou F2 entra no controle da célula; Esc volta; Tab circula dentro dela.',
       teste: 'DataGrid.test.tsx',
     },
   ],
   notaDaApi:
-    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize e selectedIds. Além destas, as propriedades nativas de <div>.',
+    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds e expandedIds. Além destas, as propriedades nativas de <div>.',
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da grade.' },
     { nome: 'columns', tipo: 'DataGridColumn<Row>[]', descricao: 'Obrigatória. Colunas como dados: id, header, type, largura e slots.' },
@@ -375,11 +652,26 @@ export const pagina: Pagina = {
     { nome: 'pageSizeOptions', tipo: 'readonly number[]', padrao: '[25, 50, 100]', descricao: 'Tamanhos oferecidos no rodapé.' },
     { nome: 'selectionMode', tipo: "'none' | 'single' | 'multiple'", padrao: "'none'", descricao: 'Caixa de seleção na primeira coluna.' },
     { nome: 'selectedIds', tipo: 'readonly string[]', descricao: 'Linhas selecionadas, pelas chaves.' },
+    {
+      nome: 'renderDetail',
+      tipo: '(context: DataGridDetailContext<Row>) => ReactNode',
+      descricao: 'Conteúdo do detalhe: row, level, state e setState. Uma DataGrid dentro dele fica aninhada.',
+    },
+    { nome: 'rowHasDetail', tipo: '(row: Row) => boolean', descricao: 'Quais linhas têm detalhe. Sem ela, todas.' },
+    { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, pelas chaves.' },
+    { nome: 'expandMode', tipo: "'single' | 'multiple'", padrao: "'multiple'", descricao: 'Na single, abrir um detalhe fecha o outro.' },
+    {
+      nome: 'rowClickAction',
+      tipo: "'none' | 'expand' | 'select' | 'activate'",
+      padrao: "'none'",
+      descricao: 'Ação do clique na linha e do Enter sobre ela.',
+    },
+    { nome: 'onRowActivate', tipo: '(row: Row) => void', descricao: "Com rowClickAction='activate', abre o registro." },
     { nome: 'initialState', tipo: 'unknown', descricao: 'Retrato salvo, aplicado de uma vez na montagem.' },
     { nome: 'onStateChange', tipo: '(snapshot: DataGridSnapshot) => void', descricao: 'Retrato versionado a cada mudança.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },
     { nome: 'error', tipo: 'ReactNode', descricao: 'Falha mostrada no lugar das linhas.' },
     { nome: 'emptyMessage', tipo: 'ReactNode', descricao: 'Texto da grade vazia.' },
-    { nome: 'height', tipo: 'number', padrao: '480', descricao: 'Altura da área rolável, em pixels.' },
+    { nome: 'height', tipo: 'number', padrao: '480', descricao: 'Altura da área rolável, em pixels. Não vale na grade aninhada.' },
   ],
 };

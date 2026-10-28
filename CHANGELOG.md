@@ -9,6 +9,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Adicionado
 
 - `DataGrid`, fase 1: grade com colunas como dados, tipos de coluna, ordenação simples e empilhada, busca global, paginação no cliente e modo servidor por `onQueryChange`, seleção única e múltipla, janela virtual, teclado em dois modos e retrato do estado por `initialState` e `onStateChange`. Partes `DataGrid.Toolbar` e `DataGrid.Search`. Segue em desenvolvimento até o lançamento.
+- `DataGrid`, fase 2, master-detail: `renderDetail` e `rowHasDetail`, expansão pelo trio `expandedIds`, `defaultExpandedIds` e `onExpandedIdsChange`, `expandMode` e `rowClickAction` com `onRowActivate`. O detalhe é uma linha de largura total; uma `DataGrid` dentro dele fica aninhada, sem rolagem própria, em quantos níveis houver. O estado do detalhe, por `state` e `setState`, e o das grades aninhadas sobrevivem à rolagem e a recolher. Parte `DataGrid.DetailLayout`, com conteúdo lateral ao lado ou em diálogo.
 
 - `Pagination`: seletor de itens por página, com `pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. Com o seletor, o componente fica na tela mesmo com uma página só.
 - `Pagination`: `showFirstLast`, os passos para a primeira e a última página.

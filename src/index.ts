@@ -196,11 +196,17 @@ export type {
 export { DataGrid } from './components/data-display/DataGrid';
 export type {
   DataGridAlign,
+  DataGridAsidePlacement,
   DataGridCellContext,
   DataGridColumn,
   DataGridColumnType,
+  DataGridDetailContext,
+  DataGridDetailLayoutProps,
+  DataGridDetailState,
+  DataGridExpandMode,
   DataGridProps,
   DataGridQuery,
+  DataGridRowClickAction,
   DataGridSearchProps,
   DataGridSelectionMode,
   DataGridSnapshot,

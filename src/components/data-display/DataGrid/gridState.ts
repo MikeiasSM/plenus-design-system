@@ -211,6 +211,16 @@ export function restoreSnapshot<Row>(
   };
 }
 
+const DETAIL_PREFIX = '\u0000';
+
+export function detailKeyOf(rowKey: string) {
+  return DETAIL_PREFIX + rowKey;
+}
+
+export function isDetailKey(key: string | null) {
+  return key !== null && key.startsWith(DETAIL_PREFIX);
+}
+
 /** Linha `null` é a do cabeçalho. A posição é por chave, para o foco acompanhar a linha quando a ordem muda. */
 export interface DataGridFocus {
   columnId: string;
@@ -268,7 +278,7 @@ export function moveFocus(focus: DataGridFocus, move: DataGridFocusMove, bounds:
 
 /**
  * A célula com foco que saiu da tela — linha removida ou filtrada, coluna oculta — cede o lugar à que ocupa a mesma
- * posição, ou à última que restou.
+ * posição, ou à última que restou. O detalhe recolhido devolve o foco à linha-mãe.
  */
 export function reconcileFocus(
   focus: DataGridFocus,
@@ -277,10 +287,51 @@ export function reconcileFocus(
   lastRowIndex = 0,
 ) {
   const columnId = columnIds.includes(focus.columnId) ? focus.columnId : columnIds[0];
+  const parentKey = isDetailKey(focus.rowKey) ? (focus.rowKey as string).slice(DETAIL_PREFIX.length) : null;
   const rowKey =
     focus.rowKey === null || rowKeys.includes(focus.rowKey)
       ? focus.rowKey
-      : (rowKeys[Math.min(lastRowIndex, rowKeys.length - 1)] ?? null);
+      : parentKey !== null && rowKeys.includes(parentKey)
+        ? parentKey
+        : (rowKeys[Math.min(lastRowIndex, rowKeys.length - 1)] ?? null);
 
   return columnId === focus.columnId && rowKey === focus.rowKey ? focus : { columnId, rowKey };
+}
+
+export type DataGridExpandMode = 'single' | 'multiple';
+
+/** Na `single`, abrir um detalhe fecha o outro. */
+export function toggleExpanded(expandedIds: readonly string[], rowKey: string, mode: DataGridExpandMode) {
+  if (expandedIds.includes(rowKey)) {
+    return expandedIds.filter((id) => id !== rowKey);
+  }
+
+  return mode === 'single' ? [rowKey] : [...expandedIds, rowKey];
+}
+
+/** Linha ou detalhe aberto, na ordem da tela: o detalhe vem logo depois da linha-mãe. */
+export interface DataGridBodyItem {
+  detail: boolean;
+  /** Chave de foco: a da linha, ou a do detalhe, que não colide com nenhuma linha. */
+  key: string;
+  rowIndex: number;
+  rowKey: string;
+}
+
+export function bodyItems(rowKeys: readonly string[], opened: (rowKey: string, rowIndex: number) => boolean) {
+  const items: DataGridBodyItem[] = [];
+
+  rowKeys.forEach((rowKey, rowIndex) => {
+    items.push({ detail: false, key: rowKey, rowIndex, rowKey });
+    if (opened(rowKey, rowIndex)) {
+      items.push({ detail: true, key: detailKeyOf(rowKey), rowIndex, rowKey });
+    }
+  });
+
+  return items;
+}
+
+/** Endereço de um detalhe entre os níveis: as alturas e o estado guardados sobrevivem ao desmonte por ele. */
+export function detailPathOf(gridPath: string, rowKey: string) {
+  return `${gridPath}\u001f${rowKey}`;
 }

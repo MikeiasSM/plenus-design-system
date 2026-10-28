@@ -1,10 +1,9 @@
 import { buildRowLayout, rowAt, totalHeight, visibleWindow } from './rowLayout';
 
 describe('rowLayout', () => {
-  const keys = ['a', 'b', 'c', 'd', 'e'];
-  const layout = buildRowLayout(keys, new Map([['b', 100]]), 40);
+  const layout = buildRowLayout([40, 100, 40, 40, 40]);
 
-  it('uses the measured height and estimates the rest', () => {
+  it('accumulates the heights into offsets', () => {
     expect(layout.offsets).toEqual([0, 40, 140, 180, 220, 260]);
     expect(totalHeight(layout)).toBe(260);
   });
@@ -19,6 +18,6 @@ describe('rowLayout', () => {
   it('draws the visible rows plus the overscan, within bounds', () => {
     expect(visibleWindow(layout, 150, 50, 1)).toEqual({ start: 1, end: 5 });
     expect(visibleWindow(layout, 0, 30, 0)).toEqual({ start: 0, end: 1 });
-    expect(visibleWindow(buildRowLayout([], new Map(), 40), 0, 300, 4)).toEqual({ start: 0, end: 0 });
+    expect(visibleWindow(buildRowLayout([]), 0, 300, 4)).toEqual({ start: 0, end: 0 });
   });
 });

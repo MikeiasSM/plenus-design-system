@@ -13,11 +13,12 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 - **`Pagination`** com seletor de itens por página (`pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`) e os passos para a primeira e a última página (`showFirstLast`). Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. `pageCount` passou a ser opcional, saindo de `totalItems` e do tamanho.
 - **`Select`** sem `label` nomeia a lista aberta pelo `aria-label` do gatilho.
 - **DataGrid, fase 1**: motor puro (`gridState.ts`), colunas como dados, ordenação simples e empilhada, busca global, paginação no cliente e modo servidor, seleção, janela virtual, teclado em dois modos e retrato do estado. Decisões e medidas no `PROGRESS.md`, seção "DataGrid: fase 1". No Showcase, a página do DataGrid tem playground com até 50.000 linhas e 30 colunas.
+- **DataGrid, fase 2**: master-detail em N níveis numa rolagem só, estado do detalhe e das grades aninhadas guardado pelo caminho, alturas medidas com âncora, `DataGrid.DetailLayout`. Decisões e medidas no `PROGRESS.md`, seção "DataGrid: fase 2". No Showcase, o exemplo "Master-detail em três níveis".
 
 ## Próximos passos do DataGrid
 
-1. **Teste no NVDA**, com o mantenedor, antes de fixar a marcação do detalhe. Roteiro no protótipo: Tab até a grade ("Pedidos de compra, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe e Enter ("Itens de …"); `Esc` volta à linha do pedido; `Alt+↓` num título abre o filtro. A grade da fase 1 também pode ser testada no Showcase.
-2. **Fase 2, master-detail**: `renderDetail`, `rowHasDetail`, expansão, estado do detalhe no motor por caminho, alturas medidas com ancoragem, N níveis numa rolagem só.
+1. **Teste no NVDA**, com o mantenedor, para fixar a marcação do detalhe. Roteiro no Showcase, exemplo "Master-detail em três níveis": Tab até a grade ("Pedidos com itens, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe ("Detalhe de P-00001") e Enter ("Itens de P-00001"); `Esc` volta ao detalhe. Conferir se a linha de detalhe sem `aria-rowindex` atrapalha a contagem lida.
+2. **Fase 3, colunas e menus**: menu de coluna e de tabela, colunas fixas dos dois lados, redimensionar, mover, ocultar, grupos de cabeçalho, densidade, tela cheia. Entra aqui o "expandir todos do nível atual", com teto.
 
 O medidor da prova de virtualização já rodou no navegador do mantenedor, sem problema.
 

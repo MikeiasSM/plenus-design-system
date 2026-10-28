@@ -1,5 +1,6 @@
-import { memo, type CSSProperties, type ReactNode } from 'react';
+import { memo, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { Checkbox } from '../../forms/Checkbox';
+import { IconChevronRight } from '../../icons';
 import { cellText, cellValue, columnAlign, type DataGridColumnModel } from './gridState';
 import styles from './DataGrid.module.css';
 
@@ -17,39 +18,59 @@ export interface DataGridRowColumn<Row> extends DataGridColumnModel<Row> {
 interface DataGridRowProps<Row> {
   ariaRowIndex: number;
   columns: readonly DataGridRowColumn<Row>[];
+  /** `undefined` na linha sem detalhe. */
+  expanded: boolean | undefined;
   /** Coluna com foco nesta linha; nas outras linhas, nenhuma. */
   focusedColumnId: string | undefined;
   height: number;
+  /** Só na grade em árvore. */
+  level: number | undefined;
   onCellFocus: (rowKey: string, columnId: string) => void;
+  /** Clique fora dos controles da linha; ausente quando a linha não responde ao clique. */
+  onRowClick: ((rowKey: string, event: MouseEvent) => void) | undefined;
   onToggle: (rowKey: string, range: boolean) => void;
+  onToggleExpanded: (rowKey: string) => void;
   row: Row;
   rowKey: string;
   selectable: boolean;
   selected: boolean | undefined;
   top: number;
+  /** A grade com detalhe reserva o espaço da seta em todas as linhas, para os textos alinharem. */
+  withExpander: boolean;
 }
 
 /** Memorizada: ao rolar, só as linhas que entram na janela são desenhadas. */
 export const DataGridRow = memo(function DataGridRow<Row>({
   ariaRowIndex,
   columns,
+  expanded,
   focusedColumnId,
   height,
+  level,
   onCellFocus,
+  onRowClick,
   onToggle,
+  onToggleExpanded,
   row,
   rowKey,
   selectable,
   selected,
   top,
+  withExpander,
 }: DataGridRowProps<Row>) {
   return (
     <div
+      aria-expanded={expanded}
+      aria-level={level}
       aria-rowindex={ariaRowIndex}
       aria-selected={selected}
-      className={[styles.row, selected && styles.selected].filter(Boolean).join(' ')}
+      className={[styles.row, selected && styles.selected, expanded && styles.expanded, onRowClick && styles.clickable]
+        .filter(Boolean)
+        .join(' ')}
+      data-anchor=""
       role="row"
       style={{ height, transform: `translateY(${top}px)` }}
+      onClick={onRowClick && ((event) => onRowClick(rowKey, event))}
     >
       {columns.map((column, columnIndex) => {
         const text = cellText(column, row);
@@ -77,6 +98,22 @@ export const DataGridRow = memo(function DataGridRow<Row>({
               }
             }}
           >
+            {columnIndex === 0 && withExpander && (
+              <span className={styles.control}>
+                {expanded !== undefined && (
+                  <button
+                    aria-expanded={expanded}
+                    aria-label={`${expanded ? 'Recolher' : 'Expandir'} ${text || rowKey}`}
+                    className={styles.expander}
+                    tabIndex={-1}
+                    type="button"
+                    onClick={() => onToggleExpanded(rowKey)}
+                  >
+                    <IconChevronRight size={14} />
+                  </button>
+                )}
+              </span>
+            )}
             {columnIndex === 0 && selectable && (
               <Checkbox
                 aria-label={`Selecionar ${text || rowKey}`}
