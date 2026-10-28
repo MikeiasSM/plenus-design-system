@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import styles from './ChartTooltip.module.css';
 
 export interface ChartTooltipRow {
@@ -211,7 +211,7 @@ function Balao({
   const colunaBase = calculada?.column ?? colunas.length - 1;
   const baseDoTotal = somar(rows.map((linha) => linha.values[colunaBase] ?? 0));
   const calcular = calculada?.compute ?? ((valor: number, total: number) => (total === 0 ? 0 : valor / total));
-  const formatarCalculada = calculada?.format ?? ((valor: number) => formatarPercentual(valor, { casasDecimais: 2 }));
+  const formatarCalculada = calculada?.format ?? ((valor: number) => formatPercent(valor, { decimals: 2 }));
 
   const { x, y } = encaixar(ponteiro, medida.largura, medida.altura);
   const celulas = `1fr ${'auto '.repeat(colunas.length + (calculada ? 1 : 0))}`.trim();
@@ -233,7 +233,7 @@ function Balao({
 
             {colunas.map((coluna, indice) => (
               <span className={`${styles.value} ${linha.emphasis ? styles.emphasis : ''}`} key={indice}>
-                {(linha.format ?? coluna.format ?? formatarNumero)(linha.values[indice] ?? 0)}
+                {(linha.format ?? coluna.format ?? formatNumber)(linha.values[indice] ?? 0)}
               </span>
             ))}
 
@@ -254,7 +254,7 @@ function Balao({
               <span className={`${styles.value} ${styles.totalValue}`} key={indice}>
                 {coluna.total === 'none'
                   ? ''
-                  : (coluna.format ?? formatarNumero)(
+                  : (coluna.format ?? formatNumber)(
                       totalizar(coluna.total ?? 'sum', rows.map((linha) => linha.values[indice] ?? 0)),
                     )}
               </span>

@@ -13,7 +13,7 @@ import {
 } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
-import { formatarEntradaDataHora, lerEntradaDataHora } from '../../../utils/formatters';
+import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { readIsoDate, readIsoDateTime, toIsoDateTime } from '../DatePicker/iso';
@@ -161,7 +161,7 @@ export function DateTimePicker({
   }
 
   function handleChange(entrada: string) {
-    const mascarado = formatarEntradaDataHora(entrada);
+    const mascarado = formatDateTimeInput(entrada);
 
     setDigitando(true);
     setTexto(mascarado);
@@ -169,7 +169,7 @@ export function DateTimePicker({
     // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
     // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
     // consumidor com meia-noite enquanto a tela mostrava `18:4`.
-    const lido = lerEntradaDataHora(mascarado);
+    const lido = parseDateTimeInput(mascarado);
     const dia = lido && toCalendarDate(lido);
 
     definir(lido && dia && !isUnavailable(dia, limites) ? lido : null);

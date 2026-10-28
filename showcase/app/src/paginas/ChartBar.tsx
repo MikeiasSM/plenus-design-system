@@ -3,7 +3,7 @@ import {
   Button,
   ChartBar,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartBarOrientation,
@@ -158,7 +158,7 @@ function LeituraNoPonteiro() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{}, { format: formatarMoeda }]}
+        columns={[{}, { format: formatCurrency }]}
         rows={
           faixa === null
             ? []
@@ -384,7 +384,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
 
 <ChartTooltip
   title={faixa === null ? '' : \`Distribuição em \${meses[faixa]}\`}
-  columns={[{}, { format: formatarMoeda }]}
+  columns={[{}, { format: formatCurrency }]}
   rows={faixa === null ? [] : formas.map((forma, indice) => ({
     color: cores[indice],
     label: forma.label,
@@ -447,7 +447,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Barras em pé ou deitadas.' },
     { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as séries; sinais mistos divergem a partir do zero.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor além da ponta; empilhada, o total da categoria. Em onHover, os da série da barra sob o ponteiro.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },

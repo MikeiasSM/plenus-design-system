@@ -2,7 +2,7 @@ import { useState, type FocusEvent, type Ref } from 'react';
 import { useDecimalInput } from '../../../hooks/useDecimalInput';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { InputText, type InputTextProps } from '../InputText';
-import { formatarEntradaMonetaria } from '../../../utils/formatters';
+import { formatCurrencyInput } from '../../../utils/formatters';
 
 export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
   currency?: string;
@@ -26,7 +26,7 @@ export function InputCurrency({
   const mergedRef = useMergedRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>);
   const [focused, setFocused] = useState(false);
   const displayValue =
-    focused || !decimalInput.value ? decimalInput.text : formatarEntradaMonetaria(decimalInput.value, currency, decimalScale);
+    focused || !decimalInput.value ? decimalInput.text : formatCurrencyInput(decimalInput.value, currency, decimalScale);
 
   function handleFocus(event: FocusEvent<HTMLInputElement>) {
     setFocused(true);

@@ -1,5 +1,5 @@
 import {
-  formatarNumero,
+  formatNumber,
   type ChartBarSeries,
   type ChartPieSlice,
   type ChartSunburstNode,
@@ -101,11 +101,11 @@ export function accentDa(opcao: string | number | boolean) {
   return /#[0-9A-F]{6}/i.exec(String(opcao))?.[0];
 }
 
-export const formatarCompacto = (valor: number) => formatarNumero(valor, { compacto: true });
+export const formatarCompacto = (valor: number) => formatNumber(valor, { compact: true });
 
 /** Formatos de número dos playgrounds, cada um com o código que o produz. */
 export const FORMATOS: Record<string, { codigo: string; formatar: (valor: number) => string }> = {
-  compacto: { codigo: '(valor) => formatarNumero(valor, { compacto: true })', formatar: formatarCompacto },
-  sigla: { codigo: "(valor) => formatarNumero(valor, { compacto: 'sigla' })", formatar: (valor) => formatarNumero(valor, { compacto: 'sigla' }) },
-  exato: { codigo: 'formatarNumero', formatar: formatarNumero },
+  compacto: { codigo: '(valor) => formatNumber(valor, { compact: true })', formatar: formatarCompacto },
+  sigla: { codigo: "(valor) => formatNumber(valor, { compact: 'symbol' })", formatar: (valor) => formatNumber(valor, { compact: 'symbol' }) },
+  exato: { codigo: 'formatNumber', formatar: formatNumber },
 };

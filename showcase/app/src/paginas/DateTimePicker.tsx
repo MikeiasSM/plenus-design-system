@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, DateTimePicker, formatarData, formatarHora, type DateTimePickerSize } from '@plenustech/design-system';
+import { Button, DateTimePicker, formatDate, formatTime, type DateTimePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -94,7 +94,7 @@ function Agendamento() {
       <DateTimePicker label="Agendamento" onValueChange={setAgendamento} value={agendamento} />
       <p className="note">
         {agendamento
-          ? `value: "${agendamento}", ou ${formatarData(agendamento.slice(0, 10), { formato: 'longo' })} às ${formatarHora(agendamento.slice(11, 16))}`
+          ? `value: "${agendamento}", ou ${formatDate(agendamento.slice(0, 10), { format: 'long' })} às ${formatTime(agendamento.slice(11, 16))}`
           : 'value: null'}
       </p>
     </div>
@@ -166,7 +166,7 @@ export const pagina: Pagina = {
   exemplos: [
     {
       titulo: 'Controlado',
-      descricao: 'O valor é texto ISO; formatarData e formatarHora o apresentam.',
+      descricao: 'O valor é texto ISO; formatDate e formatTime o apresentam.',
       Previa: Agendamento,
       codigo:
         "const [agendamento, setAgendamento] = useState<string | null>('2026-03-09T18:40');\n\n<DateTimePicker\n  label=\"Agendamento\"\n  value={agendamento}\n  onValueChange={setAgendamento}\n/>",

@@ -22,8 +22,8 @@ import {
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, textColorOn, type ChartPalette, type SeriesAppearance, type SeriesIntent } from '../palette';
 import { linearScale } from '../scales';
-import { formatarPercentual } from '../../../utils/formatters';
-import { formatarDuracao } from '../../../utils/formatters/formatarDuracao';
+import { formatPercent } from '../../../utils/formatters';
+import { formatDuration } from '../../../utils/formatters/formatDuration';
 import { ChartTimelineTable, type TimelineTableEntry, type TimelineTableRow } from './ChartTimelineTable';
 import {
   layoutTimeline,
@@ -287,7 +287,7 @@ export function ChartTimeline({
   formatTick,
   formatTime,
   formatTooltipValue,
-  formatValue = formatarDuracao,
+  formatValue = formatDuration,
   groups = [],
   hiddenSeries,
   highlightOnHover = false,
@@ -545,7 +545,7 @@ export function ChartTimeline({
       segment.label !== segment.series ? segment.label : undefined,
       `${formatInstant(segment.start)} a ${formatInstant(segment.end)}`,
       formatValue(duration(segment)),
-      showProgress && segment.progress !== undefined ? `${formatarPercentual(segment.progress)} concluído` : undefined,
+      showProgress && segment.progress !== undefined ? `${formatPercent(segment.progress)} concluído` : undefined,
       clipNote(shape),
     ]
       .filter(Boolean)
@@ -1023,7 +1023,7 @@ export function ChartTimeline({
       duration: formatValue(duration(range)),
       end: formatInstant(range.end),
       name,
-      progress: progress === undefined ? undefined : formatarPercentual(progress),
+      progress: progress === undefined ? undefined : formatPercent(progress),
       start: formatInstant(range.start),
     });
 

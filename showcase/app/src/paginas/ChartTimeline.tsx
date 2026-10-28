@@ -3,8 +3,8 @@ import {
   ButtonIcon,
   Card,
   ChartTimeline,
-  formatarDuracao,
-  formatarPercentual,
+  formatDuration,
+  formatPercent,
   IconChevronLeft,
   IconChevronRight,
   type AxisVisibility,
@@ -182,7 +182,7 @@ function totaisDaJornada(intervalos: readonly ChartTimelineSegment[]) {
 function resumoDoDia(_dia: ChartTimelineRow, intervalos: readonly ChartTimelineSegment[]) {
   const { fora, total } = totaisDaJornada(intervalos);
 
-  return total > 0 ? { title: formatarDuracao(total), subtitle: `${formatarDuracao(fora)} fora` } : undefined;
+  return total > 0 ? { title: formatDuration(total), subtitle: `${formatDuration(fora)} fora` } : undefined;
 }
 
 const OUTUBRO = jornadaDoMes(ULTIMO_MES);
@@ -198,7 +198,7 @@ function JornadaDoMes() {
     <div style={{ width: '100%' }}>
       <Card>
         <Card.Header
-          description={`${formatarDuracao(total)} trabalhadas · ${formatarDuracao(fora)} fora da jornada`}
+          description={`${formatDuration(total)} trabalhadas · ${formatDuration(fora)} fora da jornada`}
           title={`${NOMES_DOS_MESES[mes - PRIMEIRO_MES]} de 2026`}
           trailing={
             <div className="demo-row">
@@ -306,7 +306,7 @@ const CRONOGRAMA: ChartTimelineProps = {
   formatValue: formatarDias,
   formatTime: diaMes,
   rowSummary: (_tarefa, [etapa]) =>
-    etapa && { title: formatarPercentual(etapa.progress ?? 0), subtitle: formatarDias(somaDasPontas([etapa])) },
+    etapa && { title: formatPercent(etapa.progress ?? 0), subtitle: formatarDias(somaDasPontas([etapa])) },
 };
 
 /* ---- Disponibilidade de servicos: modo estados ------------------------------------------------------------------- */
@@ -352,8 +352,8 @@ function disponibilidade(_servico: ChartTimelineRow, estados: readonly ChartTime
 
   return total > 0
     ? {
-        title: formatarPercentual(operacional / total, { casasDecimais: 1 }),
-        subtitle: fora ? `${formatarDuracao(fora)} fora` : 'sem queda',
+        title: formatPercent(operacional / total, { decimals: 1 }),
+        subtitle: fora ? `${formatDuration(fora)} fora` : 'sem queda',
       }
     : undefined;
 }
@@ -414,7 +414,7 @@ const PLANTOES: ChartTimelineProps = {
   formatTime: (data) => `${rotuloDoDia(data)} ${doisDigitos(data.getHours())}:${doisDigitos(data.getMinutes())}`,
   rowSummary: (_pessoa, turnos) => {
     const plantoes = turnos.filter((turno) => turno.series !== 'Sobreaviso').length;
-    return turnos.length ? { title: formatarDuracao(somaDasPontas(turnos)), subtitle: `${plantoes} plantões` } : undefined;
+    return turnos.length ? { title: formatDuration(somaDasPontas(turnos)), subtitle: `${plantoes} plantões` } : undefined;
   },
 };
 
@@ -456,7 +456,7 @@ const SALAS: ChartTimelineProps = {
   showSegmentLabels: 'visible',
   rowSummary: (_sala, reunioes) => {
     const ocupado = duracaoEmHoras(reunioes);
-    return ocupado ? { title: formatarDuracao(ocupado), subtitle: `${formatarPercentual(ocupado / (13 * HORA))} do dia` } : undefined;
+    return ocupado ? { title: formatDuration(ocupado), subtitle: `${formatPercent(ocupado / (13 * HORA))} do dia` } : undefined;
   },
 };
 
@@ -775,7 +775,7 @@ const dias = jornadaDoMes(mes);
 <Card>
   <Card.Header
     title={nomeDoMes(mes)}
-    description={\`\${formatarDuracao(total)} trabalhadas · \${formatarDuracao(fora)} fora da jornada\`}
+    description={\`\${formatDuration(total)} trabalhadas · \${formatDuration(fora)} fora da jornada\`}
     trailing={
       <>
         <ButtonIcon icon={<IconChevronLeft />} label="Mês anterior" onClick={() => setMes(mes - 1)} size="sm" />
@@ -794,7 +794,7 @@ const dias = jornadaDoMes(mes);
       rowBands={dias.rowBands}
       markers={dias.markers}
       bands={adicionalNoturno}
-      rowSummary={(dia, intervalos) => ({ title: formatarDuracao(total(intervalos)), subtitle: \`\${formatarDuracao(fora(intervalos))} fora\` })}
+      rowSummary={(dia, intervalos) => ({ title: formatDuration(total(intervalos)), subtitle: \`\${formatDuration(fora(intervalos))} fora\` })}
       density="sm"
       rowGap={2}
       showSegmentLabels="hidden"
@@ -826,7 +826,7 @@ const dias = jornadaDoMes(mes);
   segmentLabel="label"
   formatValue={formatarDias}
   formatTime={formatarDiaMes}
-  rowSummary={(tarefa, [etapa]) => etapa && { title: formatarPercentual(etapa.progress ?? 0), subtitle: formatarDias(duracao(etapa)) }}
+  rowSummary={(tarefa, [etapa]) => etapa && { title: formatPercent(etapa.progress ?? 0), subtitle: formatarDias(duracao(etapa)) }}
   density="sm"
   legend="bottom"
 />`,
@@ -946,7 +946,7 @@ const dias = jornadaDoMes(mes);
     { garantia: 'Legenda como filtro', como: 'A série desligada sai do desenho, do resumo e da tabela.', teste: 'ChartTimeline.test.tsx' },
     { garantia: 'Instante inválido', como: 'NaN ou data inválida não vira geometria: o intervalo não é desenhado.', teste: 'ChartTimeline.test.tsx' },
     { garantia: 'Eixo de tempo', como: 'Faixa automática arredondada à hora ou ao dia; marcas por hora, dia, semana ou mês, pelo espaço.', teste: 'timelineTime.test.ts' },
-    { garantia: 'Duração', como: <><code>formatarDuracao</code>: <code>10h16m</code>, <code>48m</code>, <code>12h</code>.</>, teste: 'formatarDuracao.test.ts' },
+    { garantia: 'Duração', como: <><code>formatDuration</code>: <code>10h16m</code>, <code>48m</code>, <code>12h</code>.</>, teste: 'formatDuration.test.ts' },
   ],
   api: [
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do desenho.' },
@@ -991,7 +991,7 @@ const dias = jornadaDoMes(mes);
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão: no intervalo, série, período e duração; na linha, os totais por série.' },
     { nome: 'highlightOnHover', tipo: 'boolean', padrao: 'false', descricao: 'Esmaece as outras séries sob o ponteiro ou o foco.' },
-    { nome: 'formatValue', tipo: '(durationMs: number) => string', padrao: 'formatarDuracao', descricao: 'Formato das durações no rótulo, na descrição e na tabela.' },
+    { nome: 'formatValue', tipo: '(durationMs: number) => string', padrao: 'formatDuration', descricao: 'Formato das durações no rótulo, na descrição e na tabela.' },
     { nome: 'formatTooltipValue', tipo: '(durationMs: number) => string', padrao: 'formatValue', descricao: 'Formato das durações só no balão.' },
     { nome: 'formatTime', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Instantes no balão, na descrição e na tabela: 07:12 ou 05/10 14:00.' },
     { nome: 'formatTick', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Marcas do eixo: 6h, 05/10 ou Seg 05/10.' },

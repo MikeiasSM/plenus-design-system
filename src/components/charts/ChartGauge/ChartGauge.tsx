@@ -13,7 +13,7 @@ import {
   type MarkVisibility,
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import { layoutGauge, pointAt, type GaugeCenterLayout, type OutsideLabel } from './gaugeLayout';
 import {
   gaugeCenter,
@@ -151,7 +151,7 @@ export function ChartGauge({
   emptyMessage = 'Sem dados no período',
   endAngle = 90,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height,
   indicator = 'fill',
   intent,

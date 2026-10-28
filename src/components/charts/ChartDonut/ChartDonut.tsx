@@ -14,7 +14,7 @@ import {
   type ChartSlice,
 } from '../core';
 import type { ChartPalette } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartDonut.module.css';
 
 export type { ChartSlice as ChartDonutSlice };
@@ -63,7 +63,7 @@ export function ChartDonut({
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   hiddenSlices,
   legend = 'right',

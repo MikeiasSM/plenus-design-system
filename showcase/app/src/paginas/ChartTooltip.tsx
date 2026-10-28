@@ -3,7 +3,7 @@ import {
   ChartBar,
   ChartSunburst,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   resolveSeriesColors,
   type ChartHoveredNode,
   type ChartTooltipTotal,
@@ -50,8 +50,8 @@ function BalaoDoPlayground({ registrar, valores }: { registrar: (evento: string)
       <ChartTooltip
         columns={
           duasColunas
-            ? [{ total: valores.totalDaQuantidade as ChartTooltipTotal }, { format: formatarMoeda }]
-            : [{ format: formatarMoeda }]
+            ? [{ total: valores.totalDaQuantidade as ChartTooltipTotal }, { format: formatCurrency }]
+            : [{ format: formatCurrency }]
         }
         computed={valores.computed === 'none' ? 'none' : undefined}
         rows={
@@ -106,8 +106,8 @@ const playground = definirPlayground({
           'columns',
           expr(
             valores.colunas === 'quantidade e valor'
-              ? `[${valores.totalDaQuantidade === 'sum' ? '{}' : `{ total: '${valores.totalDaQuantidade}' }`}, { format: formatarMoeda }]`
-              : '[{ format: formatarMoeda }]',
+              ? `[${valores.totalDaQuantidade === 'sum' ? '{}' : `{ total: '${valores.totalDaQuantidade}' }`}, { format: formatCurrency }]`
+              : '[{ format: formatCurrency }]',
           ),
         ],
         ['computed', valores.computed === 'none' ? 'none' : undefined],
@@ -156,7 +156,7 @@ function MediaNoTotal() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda, total: 'average' }]}
+        columns={[{ format: formatCurrency, total: 'average' }]}
         computed="none"
         rows={faixa === null ? [] : COMPOSICAO.map((serie, indice) => ({ color: cores[indice], label: serie.label, values: [serie.values[faixa]] }))}
         showTotal
@@ -175,7 +175,7 @@ function CaminhoNoAnel() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed={{ compute: (valor) => valor / TOTAL_DE_DESPESAS }}
         rows={(caminho ?? []).map((nivel, indice, niveis) => ({
           emphasis: indice === niveis.length - 1,
@@ -194,14 +194,14 @@ function CaminhoNoAnel() {
 function ForaDoGrafico() {
   return (
     <ChartTooltip
-      columns={[{ format: formatarMoeda }]}
+      columns={[{ format: formatCurrency }]}
       rows={MESES.map((mes, indice) => ({ label: mes, values: [FATURAMENTO[indice]] }))}
       showTotal
       title="Faturamento por mês"
     >
       <div className="demo-box">
         <p className="note">Faturamento do semestre</p>
-        <strong>{formatarMoeda(FATURAMENTO.reduce((soma, valor) => soma + valor, 0))}</strong>
+        <strong>{formatCurrency(FATURAMENTO.reduce((soma, valor) => soma + valor, 0))}</strong>
       </div>
     </ChartTooltip>
   );
@@ -250,7 +250,7 @@ export const pagina: Pagina = {
       Previa: MediaNoTotal,
       codigo: `<ChartTooltip
   title={faixa === null ? '' : meses[faixa]}
-  columns={[{ format: formatarMoeda, total: 'average' }]}
+  columns={[{ format: formatCurrency, total: 'average' }]}
   computed="none"
   rows={faixa === null ? [] : series.map((serie, indice) => ({
     color: cores[indice],
@@ -270,7 +270,7 @@ export const pagina: Pagina = {
       codigo: `<ChartTooltip
   title={caminho?.at(-1)?.label}
   subtitle="Valor e fatia do total de despesas"
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed={{ compute: (valor) => valor / totalDeDespesas }}
   rows={(caminho ?? []).map((nivel, indice, niveis) => ({
     emphasis: indice === niveis.length - 1,
@@ -287,7 +287,7 @@ export const pagina: Pagina = {
       Previa: ForaDoGrafico,
       codigo: `<ChartTooltip
   title="Faturamento por mês"
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   rows={meses.map((mes, indice) => ({ label: mes, values: [faturamento[indice]] }))}
   showTotal
 >
@@ -320,7 +320,7 @@ export const pagina: Pagina = {
   api: [
     { nome: 'children', tipo: 'ReactNode', descricao: 'A área que o ponteiro percorre, em geral o gráfico.' },
     { nome: 'rows', tipo: 'readonly ChartTooltipRow[]', descricao: <><code>{'{ label, values, color?, emphasis? }'}</code>, uma por medida.</> },
-    { nome: 'columns', tipo: 'readonly ChartTooltipColumn[]', descricao: <><code>{'{ format?, total? }'}</code> por coluna. Sem ela, uma por valor, em <code>formatarNumero</code>.</> },
+    { nome: 'columns', tipo: 'readonly ChartTooltipColumn[]', descricao: <><code>{'{ format?, total? }'}</code> por coluna. Sem ela, uma por valor, em <code>formatNumber</code>.</> },
     {
       nome: 'computed',
       tipo: "ChartTooltipComputed | 'none'",

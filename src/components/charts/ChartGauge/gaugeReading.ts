@@ -1,4 +1,4 @@
-import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import type { ChartTooltipRow } from '../ChartTooltip';
 import type { SeriesIntent } from '../palette';
 import type { ChartGaugeDelta, ChartGaugeTarget } from './ChartGauge';
@@ -54,7 +54,7 @@ export function gaugeReading(options: {
 }
 
 export function formatAttainment(reading: GaugeReading, value: number) {
-  return formatarPercentual(value / (reading.base ?? 1));
+  return formatPercent(value / (reading.base ?? 1));
 }
 
 /** O número como a exibição escolhida o mostra. */
@@ -83,7 +83,7 @@ export function segmentName(segment: GaugeSegment) {
 export function deltaText(delta: ChartGaugeDelta) {
   const sign = delta.value > 0 ? '+' : delta.value < 0 ? '−' : '±';
 
-  return sign + (delta.format ?? formatarNumero)(Math.abs(delta.value));
+  return sign + (delta.format ?? formatNumber)(Math.abs(delta.value));
 }
 
 export function hasDelta(delta: ChartGaugeDelta | undefined): delta is ChartGaugeDelta {
@@ -218,7 +218,7 @@ export function valueTooltip(options: {
     rows.push({
       color: percent ? color : undefined,
       emphasis: percent,
-      format: formatarPercentual,
+      format: formatPercent,
       label: 'Atingido',
       values: [value / (reading.base ?? 1)],
     });

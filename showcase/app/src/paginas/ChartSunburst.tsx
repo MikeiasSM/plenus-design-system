@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ChartSunburst,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
@@ -92,7 +92,7 @@ function CaminhoNoPonteiro() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed={{ compute: (valor) => valor / TOTAL_DE_DESPESAS }}
         rows={(caminho ?? []).map((nivel, indice, niveis) => ({
           emphasis: indice === niveis.length - 1,
@@ -195,7 +195,7 @@ export const pagina: Pagina = {
 <ChartTooltip
   title={caminho?.at(-1)?.label}
   subtitle="Valor e fatia do total de despesas"
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed={{ compute: (valor) => valor / totalDeDespesas }}
   rows={(caminho ?? []).map((nivel, indice, niveis) => ({
     emphasis: indice === niveis.length - 1,
@@ -234,7 +234,7 @@ export const pagina: Pagina = {
     { nome: 'showLabels', tipo: 'boolean', padrao: 'true', descricao: 'Rótulo projetado no anel externo.' },
     { nome: 'ringGap', tipo: 'number', padrao: '2', descricao: 'Folga entre dois anéis vizinhos.' },
     { nome: 'sliceRadius', tipo: 'number', descricao: 'Raio das pontas de cada arco. Sem valor, o token de raio pequeno.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do valor nos rótulos e nas descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do valor nos rótulos e nas descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual, a partir da fração. O padrão arredonda ao inteiro, como 42%.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica dos grupos.' },

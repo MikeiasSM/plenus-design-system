@@ -2,9 +2,9 @@ import { useState } from 'react';
 import {
   ChartGauge,
   ChartRadial,
-  formatarMoeda,
-  formatarNumero,
-  formatarPercentual,
+  formatCurrency,
+  formatNumber,
+  formatPercent,
   SegmentedControl,
   Table,
   type ChartGaugeIndicator,
@@ -22,13 +22,13 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 
-const moedaCompacta = (valor: number) => formatarMoeda(valor, { compacto: true });
-const moedaExata = (valor: number) => formatarMoeda(valor, { casasDecimais: 0 });
-const percentual = (valor: number) => `${formatarNumero(valor)}%`;
-const comSinal = (valor: number) => (valor > 0 ? '+' : '') + formatarNumero(valor, { casasDecimais: 0 });
-const milissegundos = (valor: number) => `${formatarNumero(valor, { casasDecimais: 0 })} ms`;
-const pontosPercentuais = (variacao: number) => `${formatarNumero(variacao, { casasDecimais: 1 })} p.p.`;
-const pontos = (variacao: number) => `${formatarNumero(variacao, { casasDecimais: 0 })} pts`;
+const moedaCompacta = (valor: number) => formatCurrency(valor, { compact: true });
+const moedaExata = (valor: number) => formatCurrency(valor, { decimals: 0 });
+const percentual = (valor: number) => `${formatNumber(valor)}%`;
+const comSinal = (valor: number) => (valor > 0 ? '+' : '') + formatNumber(valor, { decimals: 0 });
+const milissegundos = (valor: number) => `${formatNumber(valor, { decimals: 0 })} ms`;
+const pontosPercentuais = (variacao: number) => `${formatNumber(variacao, { decimals: 1 })} p.p.`;
+const pontos = (variacao: number) => `${formatNumber(variacao, { decimals: 0 })} pts`;
 
 /* ---- Cenários do artefato --------------------------------------------------------------------------------------- */
 
@@ -88,9 +88,9 @@ const CENARIOS: Record<string, Cenario> = {
       delta: { value: 120_000, label: 'vs. setembro', format: moedaCompacta },
     },
     codigo: {
-      formatValue: '(valor) => formatarMoeda(valor, { compacto: true })',
-      formatTooltipValue: '(valor) => formatarMoeda(valor, { casasDecimais: 0 })',
-      delta: "{ value: 120000, label: 'vs. setembro', format: (variacao) => formatarMoeda(variacao, { compacto: true }) }",
+      formatValue: '(valor) => formatCurrency(valor, { compact: true })',
+      formatTooltipValue: '(valor) => formatCurrency(valor, { decimals: 0 })',
+      delta: "{ value: 120000, label: 'vs. setembro', format: (variacao) => formatCurrency(variacao, { compact: true }) }",
     },
   },
   'SLA de atendimento': {
@@ -105,8 +105,8 @@ const CENARIOS: Record<string, Cenario> = {
       delta: { value: 3.2, label: 'vs. setembro', format: pontosPercentuais },
     },
     codigo: {
-      formatValue: '(valor) => `${formatarNumero(valor)}%`',
-      delta: "{ value: 3.2, label: 'vs. setembro', format: (variacao) => `${formatarNumero(variacao, { casasDecimais: 1 })} p.p.` }",
+      formatValue: '(valor) => `${formatNumber(valor)}%`',
+      delta: "{ value: 3.2, label: 'vs. setembro', format: (variacao) => `${formatNumber(variacao, { decimals: 1 })} p.p.` }",
     },
   },
   'NPS do trimestre': {
@@ -122,8 +122,8 @@ const CENARIOS: Record<string, Cenario> = {
       delta: { value: 6, label: 'vs. 2º tri', format: pontos },
     },
     codigo: {
-      formatValue: "(valor) => (valor > 0 ? '+' : '') + formatarNumero(valor, { casasDecimais: 0 })",
-      delta: "{ value: 6, label: 'vs. 2º tri', format: (variacao) => `${formatarNumero(variacao, { casasDecimais: 0 })} pts` }",
+      formatValue: "(valor) => (valor > 0 ? '+' : '') + formatNumber(valor, { decimals: 0 })",
+      delta: "{ value: 6, label: 'vs. 2º tri', format: (variacao) => `${formatNumber(variacao, { decimals: 0 })} pts` }",
     },
   },
   'Tempo de resposta': {
@@ -138,8 +138,8 @@ const CENARIOS: Record<string, Cenario> = {
       delta: { value: -18, label: 'vs. hora anterior', intent: 'positive', format: milissegundos },
     },
     codigo: {
-      formatValue: '(valor) => `${formatarNumero(valor, { casasDecimais: 0 })} ms`',
-      delta: "{ value: -18, label: 'vs. hora anterior', intent: 'positive', format: (variacao) => `${formatarNumero(variacao, { casasDecimais: 0 })} ms` }",
+      formatValue: '(valor) => `${formatNumber(valor, { decimals: 0 })} ms`',
+      delta: "{ value: -18, label: 'vs. hora anterior', intent: 'positive', format: (variacao) => `${formatNumber(variacao, { decimals: 0 })} ms` }",
     },
   },
 };
@@ -378,7 +378,7 @@ function CpuPorServidor() {
                 <div style={{ width: 96 }}>
                   <ChartGauge
                     colorBySegment
-                    formatValue={(valor) => formatarPercentual(valor / 100)}
+                    formatValue={(valor) => formatPercent(valor / 100)}
                     height={52}
                     segments={FAIXAS_DE_CPU}
                     size="compact"
@@ -415,7 +415,7 @@ function SaudeDoServico() {
       <ChartGauge
         {...SAUDE_COMUM}
         centerLabel="30 dias"
-        formatValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 2 })}
+        formatValue={(valor) => formatPercent(valor / 100, { decimals: 2 })}
         max={100}
         min={99}
         segments={[
@@ -430,7 +430,7 @@ function SaudeDoServico() {
       <ChartGauge
         {...SAUDE_COMUM}
         centerLabel="última hora"
-        formatValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 1 })}
+        formatValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
         max={5}
         segments={[
           { to: 1, intent: 'positive', label: 'Normal' },
@@ -646,7 +646,7 @@ export const pagina: Pagina = {
   title="SLA de atendimento"
   value={87.4}
   max={100}
-  formatValue={(valor) => \`\${formatarNumero(valor)}%\`}
+  formatValue={(valor) => \`\${formatNumber(valor)}%\`}
   thickness={18}
   trackRadius={5}
   segments={[
@@ -658,7 +658,7 @@ export const pagina: Pagina = {
   colorBySegment
   target={{ value: 95 }}
   centerLabel="chamados no prazo"
-  delta={{ value: 3.2, label: 'vs. setembro', format: (variacao) => \`\${formatarNumero(variacao, { casasDecimais: 1 })} p.p.\` }}
+  delta={{ value: 3.2, label: 'vs. setembro', format: (variacao) => \`\${formatNumber(variacao, { decimals: 1 })} p.p.\` }}
   height={200}
   legend="bottom"
 />`,
@@ -694,7 +694,7 @@ export const pagina: Pagina = {
   value={42}
   min={-100}
   max={100}
-  formatValue={(valor) => (valor > 0 ? '+' : '') + formatarNumero(valor, { casasDecimais: 0 })}
+  formatValue={(valor) => (valor > 0 ? '+' : '') + formatNumber(valor, { decimals: 0 })}
   startAngle={-120}
   endAngle={120}
   segments={[
@@ -710,7 +710,7 @@ export const pagina: Pagina = {
   tickCount={4}
   scaleLabels="ticks"
   centerLabel="1.284 respostas"
-  delta={{ value: 6, label: 'vs. 2º tri', format: (variacao) => \`\${formatarNumero(variacao, { casasDecimais: 0 })} pts\` }}
+  delta={{ value: 6, label: 'vs. 2º tri', format: (variacao) => \`\${formatNumber(variacao, { decimals: 0 })} pts\` }}
   height={230}
 />`,
     },
@@ -744,7 +744,7 @@ export const pagina: Pagina = {
   title="Tempo de resposta da API (p95)"
   value={320}
   max={1000}
-  formatValue={(valor) => \`\${formatarNumero(valor, { casasDecimais: 0 })} ms\`}
+  formatValue={(valor) => \`\${formatNumber(valor, { decimals: 0 })} ms\`}
   startAngle={-135}
   endAngle={135}
   thickness={14}
@@ -759,7 +759,7 @@ export const pagina: Pagina = {
   ticks="majorAndMinor"
   scaleLabels="ticks"
   centerLabel="últimos 15 min"
-  delta={{ value: -18, label: 'vs. hora anterior', intent: 'positive', format: (variacao) => \`\${formatarNumero(variacao, { casasDecimais: 0 })} ms\` }}
+  delta={{ value: -18, label: 'vs. hora anterior', intent: 'positive', format: (variacao) => \`\${formatNumber(variacao, { decimals: 0 })} ms\` }}
   height={250}
   legend="bottom"
 />`,
@@ -796,8 +796,8 @@ export const pagina: Pagina = {
       codigo: `<ChartGauge
   title="Faturamento de outubro"
   value={1840000}
-  formatValue={(valor) => formatarMoeda(valor, { compacto: true })}
-  formatTooltipValue={(valor) => formatarMoeda(valor, { casasDecimais: 0 })}
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
+  formatTooltipValue={(valor) => formatCurrency(valor, { decimals: 0 })}
   valueDisplay="percentOfTarget"
   segmentUnit="percentOfTarget"
   segments={[
@@ -814,7 +814,7 @@ export const pagina: Pagina = {
   colorBySegment
   ticks="major"
   scaleLabels="ticks"
-  delta={{ value: 120000, label: 'vs. setembro', format: (variacao) => formatarMoeda(variacao, { compacto: true }) }}
+  delta={{ value: 120000, label: 'vs. setembro', format: (variacao) => formatCurrency(variacao, { compact: true }) }}
   height={260}
   legend="bottom"
 />`,
@@ -827,7 +827,7 @@ export const pagina: Pagina = {
   <ChartGauge
     title={\`CPU de \${servidor.id}\`}
     value={servidor.cpu}
-    formatValue={(valor) => formatarPercentual(valor / 100)}
+    formatValue={(valor) => formatPercent(valor / 100)}
     size="compact"
     thickness={7}
     trackRadius={3}
@@ -849,10 +849,10 @@ export const pagina: Pagina = {
       codigo: `const comum = { size: 'compact', startAngle: -120, endAngle: 120, thickness: 8, trackRadius: 4, height: 104, segmentStyle: 'rim', colorBySegment: true };
 
 <ChartGauge {...comum} title="Disponibilidade" value={99.95} min={99} max={100}
-  formatValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 2 })}
+  formatValue={(valor) => formatPercent(valor / 100, { decimals: 2 })}
   target={{ label: 'SLA', value: 99.9 }} centerLabel="30 dias" segments={faixasDoSla} />
 <ChartGauge {...comum} title="Taxa de erro" value={0.8} max={5}
-  formatValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 1 })}
+  formatValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
   centerLabel="última hora" segments={faixasDeErro} />
 <ChartGauge {...comum} title="Fila de chamados" value={42} centerLabel="abertos" segments={faixasDaFila} />`,
     },
@@ -864,8 +864,8 @@ export const pagina: Pagina = {
       Previa: MetaGlobalEPorVendedor,
       codigo: `const [exibicao, setExibicao] = useState('percentOfTarget');
 const comum = {
-  formatValue: (valor) => formatarMoeda(valor, { compacto: true }),
-  formatTooltipValue: (valor) => formatarMoeda(valor, { casasDecimais: 0 }),
+  formatValue: (valor) => formatCurrency(valor, { compact: true }),
+  formatTooltipValue: (valor) => formatCurrency(valor, { decimals: 0 }),
   valueDisplay: exibicao,
   segmentUnit: 'percentOfTarget',
   segments: [
@@ -903,7 +903,7 @@ const comum = {
       <div style={{ width: '100%' }}>
         <ChartRadial
           endAngle={90}
-          formatValue={(valor) => formatarPercentual(valor / 100)}
+          formatValue={(valor) => formatPercent(valor / 100)}
           height={180}
           startAngle={-90}
           title="Atingimento da meta"
@@ -966,7 +966,7 @@ const comum = {
     { nome: 'max', tipo: 'number', padrao: '100 · com meta, 120% dela', descricao: 'Fim da escala. O valor acima dele satura o arco e é avisado.' },
     { nome: 'valueDisplay', tipo: "'value' | 'percentOfTarget'", padrao: "'value'", descricao: 'O centro, a escala e os intervalos no formatValue ou no atingimento da meta. Sem meta, vale value.' },
     { nome: 'origin', tipo: 'number', padrao: 'automático', descricao: 'De onde o arco parte. Sem ele, o zero quando a escala o cruza; senão, min.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do centro, da escala e da meta.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do centro, da escala e da meta.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato exato do balão e, na leitura contra a meta, do aria-valuetext.' },
     { nome: 'startAngle', tipo: 'number', padrao: '-90', descricao: 'Ângulo inicial, em graus a partir do topo.' },
     { nome: 'endAngle', tipo: 'number', padrao: '90', descricao: '-90 e 90 dão a meia-lua; -120 e 120, 240°; -135 e 135, 270°.' },

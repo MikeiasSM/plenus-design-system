@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import {
   CartesianFrame,
   ColorLegend,
@@ -142,7 +142,7 @@ export function ChartHeatmap({
   colorScale = { type: 'sequential' },
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 320,
   highlight = 'cell',
   legend = 'bottom',

@@ -1,6 +1,6 @@
 import {
   ChartRadial,
-  formatarPercentual,
+  formatPercent,
   type ChartLegendAlign,
   type ChartLegendPosition,
 } from '@plenustech/design-system';
@@ -20,7 +20,7 @@ const VENDEDORES = [
   { label: 'Célia Nunes', value: 18 },
 ];
 
-const formatarMeta = (valor: number) => formatarPercentual(valor / 100);
+const formatarMeta = (valor: number) => formatPercent(valor / 100);
 
 const playground = definirPlayground({
   inicial: {
@@ -77,7 +77,7 @@ const playground = definirPlayground({
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
       ['accent', accentDa(valores.accent)],
-      ['formatValue', expr('(valor) => formatarPercentual(valor / 100)')],
+      ['formatValue', expr('(valor) => formatPercent(valor / 100)')],
     ]),
   verificar: (valores) => {
     const volta = valores.endAngle - valores.startAngle;
@@ -152,7 +152,7 @@ export const pagina: Pagina = {
     { label: 'Assinaturas', value: 88, max: 100 },
   ]}
   height={280}
-  formatValue={(valor) => formatarPercentual(valor / 100)}
+  formatValue={(valor) => formatPercent(valor / 100)}
 />`,
     },
     {
@@ -178,7 +178,7 @@ export const pagina: Pagina = {
   endAngle={90}
   thickness={22}
   height={220}
-  formatValue={(valor) => formatarPercentual(valor / 100)}
+  formatValue={(valor) => formatPercent(valor / 100)}
 />`,
     },
     {
@@ -225,7 +225,7 @@ export const pagina: Pagina = {
     { nome: 'thickness', tipo: 'number', padrao: '16', descricao: 'Espessura de cada anel, em pixels; cede quando os anéis não cabem.' },
     { nome: 'showCenter', tipo: 'boolean', padrao: 'true', descricao: 'Valor do primeiro anel visível no centro.' },
     { nome: 'centerLabel', tipo: 'string', descricao: 'Texto sob o valor do centro. Sem ele, o rótulo do primeiro anel.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do centro, da legenda e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do centro, da legenda e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'trackRadius', tipo: 'number', descricao: 'Raio das pontas do arco. Sem valor, o token de raio pequeno.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },

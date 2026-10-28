@@ -24,7 +24,7 @@ import {
   type SeriesAppearance,
   type SeriesIntent,
 } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartTreemap.module.css';
 
 export interface ChartTreemapNode extends SeriesAppearance {
@@ -80,7 +80,7 @@ export function ChartTreemap({
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   gap = 5,
   height = 280,
   hiddenGroups,

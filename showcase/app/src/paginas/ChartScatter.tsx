@@ -1,6 +1,6 @@
 import {
   ChartScatter,
-  formatarPercentual,
+  formatPercent,
   type AxisVisibility,
   type ChartLegendAlign,
   type ChartLegendPosition,
@@ -46,7 +46,7 @@ const FATURAMENTO_ANUAL: ChartScatterSeries[] = [
 ];
 
 const formatarDias = (valor: number) => `${valor} d`;
-const formatarMargem = (valor: number) => formatarPercentual(valor / 100);
+const formatarMargem = (valor: number) => formatPercent(valor / 100);
 
 /** Os mesmos clientes, sem a medida do tamanho. */
 function semZ(series: readonly ChartScatterSeries[]) {
@@ -103,7 +103,7 @@ const playground = definirPlayground({
       ['yAxis', valores.yAxis, 'visible'],
       ['accent', accentDa(valores.accent)],
       ['formatX', expr('(valor) => `${valor} d`')],
-      ['formatY', expr('(valor) => formatarPercentual(valor / 100)')],
+      ['formatY', expr('(valor) => formatPercent(valor / 100)')],
       ['formatZ', valores.tamanhoPorZ ? expr('formatarCompacto') : undefined],
     ]),
   verificar: (valores) => {
@@ -193,7 +193,7 @@ export const pagina: Pagina = {
     },
   ]}
   formatX={(valor) => \`\${valor} d\`}
-  formatY={(valor) => formatarPercentual(valor / 100)}
+  formatY={(valor) => formatPercent(valor / 100)}
   formatZ={formatarCompacto}
 />`,
     },
@@ -244,9 +244,9 @@ export const pagina: Pagina = {
       tipo: 'readonly ChartScatterSeries[]',
       descricao: <><code>{'{ label, points, color?, intent? }'}</code>; cada ponto <code>{'{ x, y, z?, label? }'}</code>.</>,
     },
-    { nome: 'formatX', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo X e das descrições.' },
-    { nome: 'formatY', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo Y e das descrições.' },
-    { nome: 'formatZ', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do tamanho nas descrições.' },
+    { nome: 'formatX', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo X e das descrições.' },
+    { nome: 'formatY', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo Y e das descrições.' },
+    { nome: 'formatZ', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do tamanho nas descrições.' },
     { nome: 'includeZero', tipo: "boolean | 'x' | 'y'", padrao: 'true', descricao: 'Eixos cujo domínio inclui o zero.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },

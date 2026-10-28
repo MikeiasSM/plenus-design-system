@@ -17,7 +17,7 @@ import {
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import styles from './ChartRadial.module.css';
 
 export interface ChartRadialTrack extends SeriesAppearance {
@@ -77,7 +77,7 @@ export function ChartRadial({
   emptyMessage = 'Sem dados no período',
   endAngle = 360,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   hiddenTracks,
   legend = 'bottom',
@@ -137,7 +137,7 @@ export function ChartRadial({
     const linhas = [{ color: cores[emFoco], label: 'Valor', values: [anel.value] }, { label: 'Meta', values: [meta] }];
 
     return meta > 0
-      ? [...linhas, { format: (fracao: number) => formatarPercentual(fracao), label: 'Atingido', values: [anel.value / meta] }]
+      ? [...linhas, { format: (fracao: number) => formatPercent(fracao), label: 'Atingido', values: [anel.value / meta] }]
       : linhas;
   }
 

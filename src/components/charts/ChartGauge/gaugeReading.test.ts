@@ -1,10 +1,10 @@
-import { formatarMoeda, formatarNumero } from '../../../utils/formatters';
+import { formatCurrency, formatNumber } from '../../../utils/formatters';
 import { deltaText, gaugeCenter, gaugeReading, gaugeValueText, type CenterLine } from './gaugeReading';
 import { gaugeSegments, segmentAt } from './gaugeScale';
 
-const percent = (valor: number) => `${formatarNumero(valor)}%`;
-const currency = (valor: number) => formatarMoeda(valor, { compacto: true });
-const exactCurrency = (valor: number) => formatarMoeda(valor, { casasDecimais: 0 });
+const percent = (valor: number) => `${formatNumber(valor)}%`;
+const currency = (valor: number) => formatCurrency(valor, { compact: true });
+const exactCurrency = (valor: number) => formatCurrency(valor, { decimals: 0 });
 const texts = (lines: readonly CenterLine[]) => lines.map((line) => line.text);
 
 describe('gaugeReading', () => {
@@ -26,7 +26,7 @@ describe('gaugeReading', () => {
 
 describe('deltaText', () => {
   it('escreve o sinal e entrega o modulo ao formato', () => {
-    const format = (variacao: number) => `${formatarNumero(variacao, { casasDecimais: 1 })} p.p.`;
+    const format = (variacao: number) => `${formatNumber(variacao, { decimals: 1 })} p.p.`;
 
     expect(deltaText({ format, value: 3.2 })).toBe('+3,2 p.p.');
     expect(deltaText({ format, value: -3.2 })).toBe('−3,2 p.p.');
@@ -41,7 +41,7 @@ describe('gaugeValueText', () => {
 
   it('diz o valor, a faixa, a meta e a variacao', () => {
     const text = gaugeValueText({
-      delta: { format: (v) => `${formatarNumero(v, { casasDecimais: 1 })} p.p.`, label: 'vs. setembro', value: 3.2 },
+      delta: { format: (v) => `${formatNumber(v, { decimals: 1 })} p.p.`, label: 'vs. setembro', value: 3.2 },
       domain,
       reading,
       segment: segmentAt(segments, 87.4),

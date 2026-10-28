@@ -1,5 +1,5 @@
 import { type ComponentPropsWithRef } from 'react';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './Pagination.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
 
@@ -129,7 +129,7 @@ function PaginationRangeText({
     );
   }
 
-  const [inicio, fim, total] = [range.start, range.end, range.total].map((numero) => formatarNumero(numero));
+  const [inicio, fim, total] = [range.start, range.end, range.total].map((numero) => formatNumber(numero));
 
   return (
     <span className={styles.range} role="status">

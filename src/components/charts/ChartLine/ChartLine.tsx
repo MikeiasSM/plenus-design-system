@@ -33,7 +33,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartLine.module.css';
 /**
  * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
@@ -99,7 +99,7 @@ export function ChartLine({
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   includeZero = true,
   hiddenSeries,

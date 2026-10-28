@@ -256,7 +256,7 @@ export const pagina: Pagina = {
       teste: 'FileUpload.test.tsx',
     },
     { garantia: 'Estado do envio', como: <>Cada linha anuncia enviando, enviado ou a falha por <code>role=&quot;status&quot;</code>.</>, teste: 'FileUpload.test.tsx' },
-    { garantia: 'Tamanho legível', como: 'Base 1024, com os separadores da localidade.', teste: 'formatarTamanhoDeArquivo.test.ts' },
+    { garantia: 'Tamanho legível', como: 'Base 1024, com os separadores da localidade.', teste: 'formatFileSize.test.ts' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div>, que vão à raiz. O Design System não envia o arquivo: recebe, valida e mostra.',
   api: [

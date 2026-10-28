@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, DatePicker, formatarData, type DatePickerSize } from '@plenustech/design-system';
+import { Button, DatePicker, formatDate, type DatePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -110,7 +110,7 @@ function Vencimento() {
     <div className="stack" style={{ width: '100%' }}>
       <DatePicker label="Vencimento" onValueChange={setVencimento} value={vencimento} />
       <p className="note">
-        {vencimento ? `value: "${vencimento}", ou ${formatarData(vencimento, { formato: 'longo' })}` : 'value: null'}
+        {vencimento ? `value: "${vencimento}", ou ${formatDate(vencimento, { format: 'long' })}` : 'value: null'}
       </p>
     </div>
   );
@@ -189,7 +189,7 @@ export const pagina: Pagina = {
   exemplos: [
     {
       titulo: 'Controlado',
-      descricao: 'Digite ou escolha: o valor é texto ISO, e formatarData o apresenta por extenso.',
+      descricao: 'Digite ou escolha: o valor é texto ISO, e formatDate o apresenta por extenso.',
       Previa: Vencimento,
       codigo:
         "const [vencimento, setVencimento] = useState<string | null>('2026-03-09');\n\n<DatePicker label=\"Vencimento\" value={vencimento} onValueChange={setVencimento} />",

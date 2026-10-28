@@ -1,8 +1,8 @@
 import {
   ChartHeatmap,
   type AxisPosition,
-  formatarNumero,
-  formatarPercentual,
+  formatNumber,
+  formatPercent,
   type AxisVisibility,
   type ChartHeatmapCell,
   type ChartHeatmapColorScale,
@@ -34,7 +34,7 @@ const VARIACAO: ChartHeatmapCell[] = REGIONAIS.flatMap((y, linha) =>
   MESES.map((x, coluna) => ({ value: (((linha * 11 + coluna * 17) % 41) - 18) / 100, x, y })),
 );
 
-const formatarVariacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatarPercentual(valor)}`;
+const formatarVariacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatPercent(valor)}`;
 
 const INDICADORES = ['Ticket médio', 'Visitas', 'Conversão', 'Descontos', 'Devoluções', 'NPS'];
 const CORRELACOES = [
@@ -48,7 +48,7 @@ const CORRELACOES = [
 const CORRELACAO: ChartHeatmapCell[] = INDICADORES.flatMap((y, linha) =>
   INDICADORES.map((x, coluna) => ({ value: CORRELACOES[linha][coluna], x, y })),
 );
-const formatarCorrelacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatarNumero(valor, { casasDecimais: 2 })}`;
+const formatarCorrelacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatNumber(valor, { decimals: 2 })}`;
 
 const COORTES = ['Mai/26', 'Jun/26', 'Jul/26', 'Ago/26', 'Set/26', 'Out/26'];
 const MESES_DA_COORTE = ['Mês 0', 'Mês 1', 'Mês 2', 'Mês 3', 'Mês 4', 'Mês 5'];
@@ -131,7 +131,7 @@ const playground = definirPlayground({
       ['cells', expr(divergente ? 'variacao' : 'atendimentos')],
       ['colorScale', escala && expr(JSON.stringify(escala).replace(/"(\w+)":/g, '$1: ').replace(/"/g, "'"))],
       ['valueLabel', divergente ? 'Variação' : 'Atendimentos'],
-      ['formatValue', divergente ? expr("(valor) => `${valor > 0 ? '+' : ''}${formatarPercentual(valor)}`") : undefined],
+      ['formatValue', divergente ? expr("(valor) => `${valor > 0 ? '+' : ''}${formatPercent(valor)}`") : undefined],
       ['showValues', valores.showValues, 'visible'],
       ['legend', valores.legend, 'bottom'],
       ['legendAlign', valores.legendAlign, 'center'],
@@ -243,7 +243,7 @@ export const pagina: Pagina = {
   title="Variação de vendas por regional"
   cells={variacao}
   colorScale={{ type: 'diverging', center: 0 }}
-  formatValue={(valor) => \`\${valor > 0 ? '+' : ''}\${formatarPercentual(valor)}\`}
+  formatValue={(valor) => \`\${valor > 0 ? '+' : ''}\${formatPercent(valor)}\`}
   valueLabel="Variação"
   height={260}
 />`,
@@ -286,7 +286,7 @@ export const pagina: Pagina = {
           <ChartHeatmap
             cells={RETENCAO}
             colorScale={{ domain: [0, 1], type: 'sequential' }}
-            formatValue={(valor) => formatarPercentual(valor, { casasDecimais: 0 })}
+            formatValue={(valor) => formatPercent(valor, { decimals: 0 })}
             height={280}
             title="Clientes que voltaram a comprar"
             valueLabel="Retenção"
@@ -298,7 +298,7 @@ export const pagina: Pagina = {
   title="Clientes que voltaram a comprar"
   cells={retencao}
   colorScale={{ type: 'sequential', domain: [0, 1] }}
-  formatValue={(valor) => formatarPercentual(valor, { casasDecimais: 0 })}
+  formatValue={(valor) => formatPercent(valor, { decimals: 0 })}
   valueLabel="Retenção"
   xAxisPosition="top"
 />`,
@@ -351,7 +351,7 @@ export const pagina: Pagina = {
     { nome: 'yCategories', tipo: 'readonly string[]', descricao: 'Ordem das linhas, de cima para baixo.' },
     { nome: 'colorScale', tipo: 'ChartHeatmapColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code>, <code>diverging</code> ou <code>classes</code>, como no <code>ChartMap</code>.</> },
     { nome: 'valueLabel', tipo: 'string', padrao: "'Valor'", descricao: 'Nome da medida, na legenda e no balão.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato da célula, da legenda e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato da célula, da legenda e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', descricao: 'Formato do balão. Sem ele, vale o formatValue.' },
     { nome: 'showValues', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'visible'", descricao: 'Valor escrito na célula, quando cabe nela.' },
     { nome: 'onCellClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: 'Torna as células botões, percorridos pelas setas.' },

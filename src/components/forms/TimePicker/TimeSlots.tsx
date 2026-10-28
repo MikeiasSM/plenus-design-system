@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Time } from '@internationalized/date';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type ListingItem } from '../../data-display/List/useListing';
-import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
+import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
 import styles from './TimePicker.module.css';
 
 export interface TimeSlotsProps {
@@ -60,7 +60,7 @@ export function TimeSlots({ autoFocus = false, baseId, label = 'Horário', max, 
     selectionMode: 'single',
     value: value ? [{ value: escolhido, label: escolhido }] : [],
     onSelectionChange: ([item]) => {
-      const lido = item && lerEntradaHora(item.value);
+      const lido = item && parseTimeInput(item.value);
 
       if (lido) {
         setDigitando(false);
@@ -79,12 +79,12 @@ export function TimeSlots({ autoFocus = false, baseId, label = 'Horário', max, 
   }, []);
 
   function handleChange(entrada: string) {
-    const mascarado = formatarEntradaHora(entrada);
+    const mascarado = formatTimeInput(entrada);
 
     setDigitando(true);
     setTexto(mascarado);
 
-    const lido = lerEntradaHora(mascarado);
+    const lido = parseTimeInput(mascarado);
 
     if (lido && isTimeAllowed(lido, min, max)) {
       onChange(lido);

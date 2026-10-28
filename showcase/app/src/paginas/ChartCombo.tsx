@@ -2,8 +2,8 @@ import { useState } from 'react';
 import {
   ChartCombo,
   ChartTooltip,
-  formatarMoeda,
-  formatarPercentual,
+  formatCurrency,
+  formatPercent,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartComboAxis,
@@ -18,7 +18,7 @@ import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, fo
 
 const META = [50000, 50000, 50000, 70000, 70000, 70000];
 
-const formatarConversao = (valor: number) => formatarPercentual(valor / 100, { casasDecimais: 1 });
+const formatarConversao = (valor: number) => formatPercent(valor / 100, { decimals: 1 });
 
 const playground = definirPlayground({
   inicial: {
@@ -131,7 +131,7 @@ function LeituraPorSerie() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: (valor) => (valor < 100 ? formatarConversao(valor) : formatarMoeda(valor)) }]}
+        columns={[{ format: (valor) => (valor < 100 ? formatarConversao(valor) : formatCurrency(valor)) }]}
         computed="none"
         rows={
           faixa === null
@@ -217,7 +217,7 @@ export const pagina: Pagina = {
     { kind: 'line', label: 'Conversão', values: conversao, axis: 'right' },
   ]}
   formatValue={formatarCompacto}
-  formatRightValue={(valor) => formatarPercentual(valor / 100, { casasDecimais: 1 })}
+  formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
 />`,
     },
     {
@@ -258,7 +258,7 @@ const cores = resolveSeriesColors([{}, {}]);
 <ChartTooltip
   title={faixa === null ? '' : meses[faixa]}
   subtitle="Faturamento na escala da esquerda, conversão na da direita."
-  columns={[{ format: (valor) => (valor < 100 ? formatarConversao(valor) : formatarMoeda(valor)) }]}
+  columns={[{ format: (valor) => (valor < 100 ? formatarConversao(valor) : formatCurrency(valor)) }]}
   computed="none"
   rows={faixa === null ? [] : [
     { color: cores[0], label: 'Faturamento', values: [faturamento[faixa]] },
@@ -325,7 +325,7 @@ const cores = resolveSeriesColors([{}, {}]);
       tipo: 'readonly ChartComboSeries[]',
       descricao: <><code>{"{ kind: 'bar' | 'line', label, values, axis?, color?, intent? }"}</code>; <code>axis</code> padrão <code>'left'</code>.</>,
     },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo esquerdo e das séries dele.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo esquerdo e das séries dele.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatRightValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato do eixo direito e das séries dele.' },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Traço das linhas.' },

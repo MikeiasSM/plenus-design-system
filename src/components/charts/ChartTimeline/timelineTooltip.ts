@@ -1,6 +1,6 @@
 import { max, min, sum } from 'd3-array';
 import type { ChartTooltipProps, ChartTooltipRow } from '../ChartTooltip';
-import { formatarPercentual } from '../../../utils/formatters';
+import { formatPercent } from '../../../utils/formatters';
 import type { ChartTimelineGroup, ChartTimelineMarker, ChartTimelineRow } from './ChartTimeline';
 import type { TimelineRange, TimelineSegment } from './timelineLayout';
 
@@ -64,7 +64,7 @@ export function timelineTooltip(target: TimelineTarget | null, options: Timeline
     ];
 
     if (options.showProgress && segment.progress !== undefined) {
-      rows.push({ format: (value) => formatarPercentual(value), label: 'Concluído', values: [segment.progress] });
+      rows.push({ format: (value) => formatPercent(value), label: 'Concluído', values: [segment.progress] });
     }
 
     return {

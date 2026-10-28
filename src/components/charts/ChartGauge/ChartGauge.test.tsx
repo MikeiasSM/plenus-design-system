@@ -1,11 +1,11 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { formatarMoeda, formatarNumero } from '../../../utils/formatters';
+import { formatCurrency, formatNumber } from '../../../utils/formatters';
 import { ChartGauge, type ChartGaugeProps, type ChartGaugeSegment } from './ChartGauge';
 import styles from './ChartGauge.module.css';
 
-const percent = (value: number) => `${formatarNumero(value)}%`;
-const currency = (value: number) => formatarMoeda(value, { compacto: true });
-const exactCurrency = (value: number) => formatarMoeda(value, { casasDecimais: 0 });
+const percent = (value: number) => `${formatNumber(value)}%`;
+const currency = (value: number) => formatCurrency(value, { compact: true });
+const exactCurrency = (value: number) => formatCurrency(value, { decimals: 0 });
 
 const slaSegments: ChartGaugeSegment[] = [
   { to: 80, intent: 'negative', label: 'Crítico' },
@@ -22,7 +22,7 @@ const goalSegments: ChartGaugeSegment[] = [
 function sla(props: Partial<ChartGaugeProps> = {}) {
   return (
     <ChartGauge
-      delta={{ format: (v) => `${formatarNumero(v, { casasDecimais: 1 })} p.p.`, label: 'vs. setembro', value: 3.2 }}
+      delta={{ format: (v) => `${formatNumber(v, { decimals: 1 })} p.p.`, label: 'vs. setembro', value: 3.2 }}
       formatValue={percent}
       max={100}
       segments={slaSegments}

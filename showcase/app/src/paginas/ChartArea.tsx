@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ChartArea,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartCurve,
@@ -129,7 +129,7 @@ function LeituraEmpilhada() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         rows={ponto === null ? [] : series.map((serie, indice) => ({ color: cores[indice], label: serie.label, values: [serie.values[ponto]] }))}
         showTotal
         title={ponto === null ? '' : MESES[ponto]}
@@ -255,7 +255,7 @@ const cores = resolveSeriesColors(series);
 
 <ChartTooltip
   title={ponto === null ? '' : meses[ponto]}
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   rows={ponto === null ? [] : series.map((serie, indice) => ({
     color: cores[indice],
     label: serie.label,
@@ -301,7 +301,7 @@ const cores = resolveSeriesColors(series);
     { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos: sempre, só os da série mais próxima do ponteiro, ou nunca.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor acima de cada ponto; em onHover, os da série mais próxima do ponteiro.' },
     { nome: 'includeZero', tipo: 'boolean', padrao: 'true', descricao: 'Inclui o zero no domínio do eixo de valor.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },

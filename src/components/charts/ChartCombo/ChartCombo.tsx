@@ -32,7 +32,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartCombo.module.css';
 /**
  * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
@@ -137,7 +137,7 @@ export function ChartCombo({
   emptyMessage = 'Sem dados no período',
   formatRightValue,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',

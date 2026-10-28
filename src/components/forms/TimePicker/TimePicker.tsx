@@ -4,7 +4,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import type { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
-import { formatarEntradaHora, lerEntradaHora } from '../../../utils/formatters';
+import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import { readIsoTime, toIsoTime } from '../DatePicker/iso';
@@ -109,13 +109,13 @@ export function TimePicker({
   }
 
   function handleChange(entrada: string) {
-    const mascarado = formatarEntradaHora(entrada);
+    const mascarado = formatTimeInput(entrada);
 
     setDigitando(true);
     setTexto(mascarado);
 
     // O valor acompanha o texto: `18:4` ou `25:99` na tela nao convivem com a hora anterior.
-    const lido = lerEntradaHora(mascarado);
+    const lido = parseTimeInput(mascarado);
 
     definir(lido && isTimeAllowed(lido, horaMinima, horaMaxima) ? lido : null);
   }

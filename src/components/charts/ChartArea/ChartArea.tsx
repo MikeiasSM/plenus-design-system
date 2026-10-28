@@ -35,7 +35,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartArea.module.css';
 /**
  * Faixa sem vizinha desenhada. O contorno entre ela e o nada nao tem tracado, e
@@ -111,7 +111,7 @@ export function ChartArea({
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   includeZero = true,
   hiddenSeries,

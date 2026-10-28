@@ -3,7 +3,7 @@ import { Button } from '../../actions/Button';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { Progress } from '../../feedback/Progress';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconFile, IconTrash, IconUpload } from '../../icons';
-import { formatarTamanhoDeArquivo } from '../../../utils/formatters/formatarTamanhoDeArquivo';
+import { formatFileSize } from '../../../utils/formatters/formatFileSize';
 import { Field } from '../Field';
 import styles from './FileUpload.module.css';
 
@@ -109,7 +109,7 @@ export function FileUpload({
 
   const tipos = tiposAceitos(accept);
   const descricaoDosTipos = listarComOu([...new Set(tipos.map(nomeDoTipo))]);
-  const limite = maxSize === undefined ? undefined : formatarTamanhoDeArquivo(maxSize);
+  const limite = maxSize === undefined ? undefined : formatFileSize(maxSize);
   const restricoes = [descricaoDosTipos, limite && `até ${limite}`].filter(Boolean).join(', ');
 
   function motivoDaRecusa({ file, reason }: FileRejection, sujeito: string) {
@@ -235,7 +235,7 @@ function FileUploadRow({ item, onCancel, onRemove, onRetry }: FileUploadRowProps
           {name}
         </span>
         <span className={styles.meta}>
-          {formatarTamanhoDeArquivo(size)}
+          {formatFileSize(size)}
           <span aria-hidden="true">·</span>
           <span className={status === 'error' ? styles.failedMessage : styles.status} role="status">
             {status === 'done' && <IconCheckCircle className={styles.doneIcon} />}

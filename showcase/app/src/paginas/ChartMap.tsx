@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import {
   Button,
   ChartMap,
-  formatarMoeda,
-  formatarNumero,
-  formatarPercentual,
+  formatCurrency,
+  formatNumber,
+  formatPercent,
   Skeleton,
   type ChartLegendAlign,
   type ChartColorScale,
@@ -98,9 +98,9 @@ const REGIOES = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
 const ufsDa = (regiao: string) =>
   MALHA_DAS_UFS.features.filter((feicao) => feicao.properties?.regiao === regiao).map((feicao) => String(feicao.id));
 
-const moedaCompacta = (valor: number) => formatarMoeda(valor, { compacto: true });
-const formatarVariacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatarPercentual(valor / 100, { casasDecimais: 1 })}`;
-const formatarCobertura = (valor: number) => formatarPercentual(valor / 100);
+const moedaCompacta = (valor: number) => formatCurrency(valor, { compact: true });
+const formatarVariacao = (valor: number) => `${valor > 0 ? '+' : ''}${formatPercent(valor / 100, { decimals: 1 })}`;
+const formatarCobertura = (valor: number) => formatPercent(valor / 100);
 const totalDe = (dados: readonly ChartMapRegionDatum[]) => dados.reduce((soma, dado) => soma + (dado.value ?? 0), 0);
 
 const MALHA = { featureNameKey: 'properties.nome', geometry: MALHA_DAS_UFS } as const;
@@ -119,7 +119,7 @@ interface Conjunto {
 const CONJUNTOS: Record<string, Conjunto> = {
   sequential: {
     codigoDosDados: 'vendasPorUf',
-    codigoDoFormato: '(valor) => formatarMoeda(valor, { compacto: true })',
+    codigoDoFormato: '(valor) => formatCurrency(valor, { compact: true })',
     data: VENDAS,
     formatValue: moedaCompacta,
     title: 'Vendas por UF',
@@ -135,7 +135,7 @@ const CONJUNTOS: Record<string, Conjunto> = {
   },
   classes: {
     codigoDosDados: 'coberturaPorUf',
-    codigoDoFormato: '(valor) => formatarPercentual(valor / 100)',
+    codigoDoFormato: '(valor) => formatPercent(valor / 100)',
     data: COBERTURA,
     formatValue: formatarCobertura,
     title: 'Cobertura de atendimento por UF',
@@ -144,14 +144,14 @@ const CONJUNTOS: Record<string, Conjunto> = {
   categorical: {
     codigoDosDados: 'regionalPorUf',
     data: REGIONAL_POR_UF,
-    formatValue: formatarNumero,
+    formatValue: formatNumber,
     title: 'Regionais responsáveis',
     valueLabel: 'Regional',
   },
   none: {
     codigoDosDados: '',
     data: [],
-    formatValue: formatarNumero,
+    formatValue: formatNumber,
     title: 'Clientes por capital',
     valueLabel: 'Clientes',
   },
@@ -306,7 +306,7 @@ const playground = definirPlayground({
       ['accent', valores.colorScale === 'categorical' || comMarcadores ? accentDa(valores.accent) : undefined],
       ['valueLabel', valores.colorScale === 'none' ? undefined : conjunto.valueLabel],
       ['formatValue', conjunto.codigoDoFormato && expr(conjunto.codigoDoFormato)],
-      ['subtitle', valores.colorScale === 'sequential' ? expr('`Total: ${formatarMoeda(total, { compacto: true })}`') : undefined],
+      ['subtitle', valores.colorScale === 'sequential' ? expr('`Total: ${formatCurrency(total, { compact: true })}`') : undefined],
       ['showShare', valores.showShare, false],
       ['noDataStyle', valores.noDataStyle, 'hatch'],
       ['regionLabels', valores.regionLabels, 'visible'],
@@ -443,12 +443,12 @@ function MunicipiosDoNordeste() {
         featureLabelKey="properties.uf"
         featureNameKey="properties.nome"
         focus={municipios.map((feicao) => String(feicao.id))}
-        formatValue={(valor) => formatarMoeda(valor)}
+        formatValue={(valor) => formatCurrency(valor)}
         geometry={{ features: [...contexto, ...municipios] }}
         key={uf ?? 'nordeste'}
         onRegionClick={uf ? undefined : (municipio) => setUf(ufDa(municipio.feature))}
         regionLabels="hidden"
-        subtitle={`${formatarNumero(municipios.length)} municípios · ${formatarMoeda(noConjunto)} por habitante no conjunto`}
+        subtitle={`${formatNumber(municipios.length)} municípios · ${formatCurrency(noConjunto)} por habitante no conjunto`}
         title={uf ? `Vendas por habitante, municípios de ${uf}` : 'Vendas por habitante, municípios do Nordeste'}
         valueLabel="Vendas por habitante"
       />
@@ -525,12 +525,12 @@ export const pagina: Pagina = {
       ),
       codigo: `<ChartMap
   title="Vendas por UF"
-  subtitle={\`Total: \${formatarMoeda(total, { compacto: true })}\`}
+  subtitle={\`Total: \${formatCurrency(total, { compact: true })}\`}
   geometry={malhaDasUfs}
   featureNameKey="properties.nome"
   data={vendasPorUf}
   valueLabel="Vendas"
-  formatValue={(valor) => formatarMoeda(valor, { compacto: true })}
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
   showShare
 />`,
     },
@@ -578,7 +578,7 @@ export const pagina: Pagina = {
   data={coberturaPorUf}
   colorScale={{ type: 'classes', thresholds: [20, 40, 60, 80] }}
   valueLabel="Municípios atendidos"
-  formatValue={(valor) => formatarPercentual(valor / 100)}
+  formatValue={(valor) => formatPercent(valor / 100)}
   legend="right"
 />`,
     },
@@ -652,7 +652,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
   data={municipios.map((feicao) => ({ id: String(feicao.id), value: feicao.properties.vendas_por_habitante_brl }))}
   colorScale={{ type: 'classes', method: 'quantile', count: 7 }}
   valueLabel="Vendas por habitante"
-  formatValue={(valor) => formatarMoeda(valor)}
+  formatValue={(valor) => formatCurrency(valor)}
   regionLabels="hidden"
   onRegionClick={uf ? undefined : (municipio) => setUf(municipio.feature.properties.uf)}
 />`,
@@ -679,7 +679,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
   data={vendasPorUf}
   focus={['MA', 'PI', 'CE', 'RN', 'PB', 'PE', 'AL', 'SE', 'BA']}
   valueLabel="Vendas"
-  formatValue={(valor) => formatarMoeda(valor, { compacto: true })}
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
   showDataLabels="visible"
   showShare
 />`,
@@ -738,7 +738,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'colorScale', tipo: 'ChartColorScale', padrao: "{ type: 'sequential' }", descricao: <><code>sequential</code> (com <code>log</code> e <code>domain</code>), <code>diverging</code> (com <code>center</code>), <code>classes</code> por <code>method</code> e <code>count</code> ou por <code>thresholds</code> e <code>labels</code>, <code>categorical</code> com <code>categories</code>, ou <code>none</code>. Na sequencial e nas classes, <code>color</code> troca o azul por outra cor, de que saem os tons: mais escuro é maior.</> },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta das categorias e dos marcadores.' },
     { nome: 'valueLabel', tipo: 'string', padrao: "'Valor'", descricao: 'Nome da medida no balão, na legenda e na tabela.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato na legenda, nos rótulos, na descrição e na tabela.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato na legenda, nos rótulos, na descrição e na tabela.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato só do balão.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', padrao: '1 casa', descricao: 'Formato da parte do total.' },
     { nome: 'showShare', tipo: 'boolean', padrao: 'false', descricao: 'Parte do total no balão e na tabela. Só em grandeza somável.' },

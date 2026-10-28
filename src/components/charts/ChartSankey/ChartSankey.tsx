@@ -14,7 +14,7 @@ import {
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import styles from './ChartSankey.module.css';
 
 export interface ChartSankeyNode extends SeriesAppearance {
@@ -161,7 +161,7 @@ export function ChartSankey({
   flowValuePosition = 'end',
   flows,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 320,
   nodeAlign = 'justify',
   nodes,
@@ -287,7 +287,7 @@ export function ChartSankey({
     return [
       { color: corDa(ligacao), label: 'Fluxo', values: [ligacao.value] },
       {
-        format: (fracao: number) => formatarPercentual(fracao),
+        format: (fracao: number) => formatPercent(fracao),
         label: `Da saída de ${ligacao.source.label}`,
         values: [saida > 0 ? ligacao.value / saida : 0],
       },

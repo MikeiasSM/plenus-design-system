@@ -200,6 +200,25 @@ export type { TimePickerProps, TimePickerSize } from './components/forms/TimePic
 export { DateTimePicker } from './components/forms/DateTimePicker';
 export type { DateTimePickerProps, DateTimePickerSize } from './components/forms/DateTimePicker';
 export {
+  formatCurrency,
+  formatDate,
+  formatDuration,
+  formatFileSize,
+  formatNumber,
+  formatPercent,
+  formatTime,
+} from './utils/formatters';
+export type {
+  CompactNotation,
+  FormatCurrencyOptions,
+  FormatDateOptions,
+  FormatFileSizeOptions,
+  FormatNumberOptions,
+  FormatPercentOptions,
+  FormatTimeOptions,
+} from './utils/formatters';
+/** Nomes em portugues, obsoletos desde a 0.4. */
+export {
   formatarData,
   formatarDuracao,
   formatarHora,

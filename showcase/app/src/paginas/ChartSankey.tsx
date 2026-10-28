@@ -1,6 +1,6 @@
 import {
   ChartSankey,
-  formatarNumero,
+  formatNumber,
   type ChartSankeyAlign,
   type ChartSankeyFlow,
   type ChartSankeyFlowColor,
@@ -230,7 +230,7 @@ export const pagina: Pagina = {
           <ChartSankey
             flowColor="neutral"
             flows={ANALISE_DE_PROPOSTAS}
-            formatValue={formatarNumero}
+            formatValue={formatNumber}
             height={420}
             title="Análise de propostas"
           />
@@ -248,7 +248,7 @@ export const pagina: Pagina = {
       descricao: 'Cada nó tem um pai só, então nenhuma ligação cruza outra; showFlowValues escreve o valor no fim de cada uma.',
       Previa: () => (
         <div style={{ width: '100%' }}>
-          <ChartSankey flows={JORNADA_DE_COBRANCA} formatValue={formatarNumero} height={380} showFlowValues title="Jornada de cobrança" />
+          <ChartSankey flows={JORNADA_DE_COBRANCA} formatValue={formatNumber} height={380} showFlowValues title="Jornada de cobrança" />
         </div>
       ),
       codigo: `<ChartSankey
@@ -283,7 +283,7 @@ export const pagina: Pagina = {
     { nome: 'showLabels', tipo: 'boolean', padrao: 'true', descricao: 'Rótulo de cada nó.' },
     { nome: 'nodeWidth', tipo: 'number', padrao: '12', descricao: 'Largura do nó.' },
     { nome: 'nodePadding', tipo: 'number', padrao: '12', descricao: 'Folga vertical entre dois nós da mesma coluna.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato dos valores e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato dos valores e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica dos nós.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '320', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'cyclicMessage', tipo: 'string', padrao: "'O fluxo volta sobre si mesmo e não pode ser desenhado'", descricao: 'Mensagem quando o fluxo tem ciclo.' },

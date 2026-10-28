@@ -2,8 +2,8 @@ import { useState } from 'react';
 import {
   ChartLine,
   ChartTooltip,
-  formatarMoeda,
-  formatarNumero,
+  formatCurrency,
+  formatNumber,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartCurve,
@@ -18,7 +18,7 @@ import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, form
 const TICKET_MEDIO = [1240, 1310, 1180, 1520, 1460, 1590];
 const TEMPERATURA = [24.1, 25.3, 23.8, 22.6, 23.4, 26.2];
 
-const formatarTemperatura = (valor: number) => `${formatarNumero(valor, { casasDecimais: 1 })} °C`;
+const formatarTemperatura = (valor: number) => `${formatNumber(valor, { decimals: 1 })} °C`;
 
 /** Tira o valor de dois meses, como uma coleta interrompida. */
 function comLacuna(valores: readonly number[]) {
@@ -139,7 +139,7 @@ function PontoMaisProximo() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed="none"
         rows={
           ponto === null
@@ -297,7 +297,7 @@ export const pagina: Pagina = {
   categories={meses}
   series={[{ label: 'Temperatura média', values: temperaturas }]}
   includeZero={false}
-  formatValue={(valor) => \`\${formatarNumero(valor, { casasDecimais: 1 })} °C\`}
+  formatValue={(valor) => \`\${formatNumber(valor, { decimals: 1 })} °C\`}
 />`,
     },
     {
@@ -309,7 +309,7 @@ const cores = resolveSeriesColors([{}, {}]);
 
 <ChartTooltip
   title={ponto === null ? '' : meses[ponto]}
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed="none"
   rows={ponto === null ? [] : [
     { color: cores[0], label: 'Serviços', values: [servicos[ponto]] },
@@ -353,7 +353,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos: sempre, só os da série mais próxima do ponteiro, ou nunca.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor acima de cada ponto; em onHover, os da série mais próxima do ponteiro.' },
     { nome: 'includeZero', tipo: 'boolean', padrao: 'true', descricao: 'Inclui o zero no domínio do eixo de valor.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },

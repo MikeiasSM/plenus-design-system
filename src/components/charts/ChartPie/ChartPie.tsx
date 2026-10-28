@@ -15,7 +15,7 @@ import {
   type ChartSlice,
 } from '../core';
 import { textColorOn, type ChartPalette } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartPie.module.css';
 
 export type { ChartSlice as ChartPieSlice };
@@ -59,7 +59,7 @@ export function ChartPie({
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   hiddenSlices,
   legend = 'bottom',

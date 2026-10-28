@@ -323,20 +323,20 @@ São permitidos no Design System quando sua responsabilidade é padronizar a apr
 
 Exemplos:
 
-- `formatarMoeda()`
-- `formatarNumero()`
-- `formatarPercentual()`
-- `formatarData()`
-- `formatarHora()`
+- `formatCurrency()`
+- `formatNumber()`
+- `formatPercent()`
+- `formatDate()`
+- `formatTime()`
 
 Esses utilitários devem receber dados e configurações suficientes para produzir uma representação consistente.
 
 Exemplo:
 
 ```ts
-formatarMoeda(1500.5, {
-  moeda: 'BRL',
-  localidade: 'pt-BR',
+formatCurrency(1500.5, {
+  currency: 'BRL',
+  locale: 'pt-BR',
 });
 ```
 

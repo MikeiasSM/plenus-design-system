@@ -30,7 +30,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartBar.module.css';
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
@@ -82,7 +82,7 @@ export function ChartBar({
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 260,
   hiddenSeries,
   labelAngle = 'auto',

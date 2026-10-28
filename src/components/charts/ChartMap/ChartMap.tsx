@@ -23,7 +23,7 @@ import {
   type NoDataStyle,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import { ChartMapLegend } from './ChartMapLegend';
 import { ChartMapTable, type MapTableMarkerRow, type MapTableRegionRow } from './ChartMapTable';
 import {
@@ -177,7 +177,7 @@ const MIN_HEIGHT = 160;
 const SIDE_LEGEND_MAX = 240;
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
 
-const defaultPercent = (ratio: number) => formatarPercentual(ratio, { casasDecimais: 1 });
+const defaultPercent = (ratio: number) => formatPercent(ratio, { decimals: 1 });
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 /** Traco mais fino quanto mais regioes: nos municipios, a borda inteira escurecia o mapa. */
@@ -279,7 +279,7 @@ export function ChartMap({
   focus,
   formatPercent = defaultPercent,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   geometry,
   height = 440,
   hiddenClasses,

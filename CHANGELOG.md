@@ -16,6 +16,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
+- Formatadores em inglês: `formatCurrency`, `formatNumber`, `formatPercent`, `formatDate`, `formatTime`, `formatDuration` e `formatFileSize`, com as opções `currency`, `decimals`, `compact`, `locale`, `format` (`'short' | 'long' | 'numeric'`) e `seconds`. A sigla compacta passa de `'sigla'` a `'symbol'`. Tipos `CompactNotation`, `FormatCurrencyOptions`, `FormatDateOptions`, `FormatFileSizeOptions`, `FormatNumberOptions`, `FormatPercentOptions` e `FormatTimeOptions`. Os nomes em português — `formatarMoeda` e os demais, com os tipos `Compacto` e `OpcoesDe*` — ficam obsoletos: continuam funcionando, com as opções em português, até a versão menor seguinte.
 - No tema claro, o traço do laranja passa do `orange.50` (3,03:1) ao `orange.70` (5,38:1) em links, abas, foco e bordas de seleção. O preenchimento continua o `orange.50`.
 - No tema escuro, a cor primária desce ao passo 40 da paleta, e o texto sobre ela passa a preto. O container e a linha primários passam a ser misturas da paleta com a superfície.
 - A borda no hover e o halo de foco dos campos derivam do traço primário.

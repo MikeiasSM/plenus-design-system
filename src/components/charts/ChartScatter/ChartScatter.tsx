@@ -18,7 +18,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { domainOf, linearScale, mergeDomains, radiusScale, ticksFor } from '../scales';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartScatter.module.css';
 
 export interface ChartScatterPoint {
@@ -92,9 +92,9 @@ export function ChartScatter({
   accent,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
-  formatX = formatarNumero,
-  formatY = formatarNumero,
-  formatZ = formatarNumero,
+  formatX = formatNumber,
+  formatY = formatNumber,
+  formatZ = formatNumber,
   height = 280,
   includeZero = true,
   hiddenSeries,

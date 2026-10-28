@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ChartTooltip,
   ChartWaterfall,
-  formatarMoeda,
+  formatCurrency,
   type AxisVisibility,
   type ChartWaterfallStep,
   type MarkVisibility,
@@ -137,7 +137,7 @@ function PassoNoPonteiro() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed="none"
         rows={
           passo === null
@@ -234,7 +234,7 @@ export const pagina: Pagina = {
 
 <ChartTooltip
   title={passo === null ? '' : passos[passo].label}
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed="none"
   rows={passo === null ? [] : [
     { label: passos[passo].total ? 'Total' : 'Variação', values: [passos[passo].value] },
@@ -262,7 +262,7 @@ export const pagina: Pagina = {
       descricao: <><code>{'{ label, value, total?, intent?, color? }'}</code>, um por passo, na ordem da conta.</>,
     },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'visible'", descricao: 'Rótulo de variação sobre cada passo; em onHover, só o do passo sob o ponteiro.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato da magnitude; o sinal é do gráfico.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato da magnitude; o sinal é do gráfico.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'xAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Eixo de baixo.' },

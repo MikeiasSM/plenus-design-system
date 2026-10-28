@@ -141,19 +141,19 @@ Novos formatadores podem ser adicionados quando padronizam uma necessidade recor
 
 Exemplos:
 
-- `formatarMoeda`
-- `formatarNumero`
-- `formatarPercentual`
-- `formatarData`
-- `formatarHora`
+- `formatCurrency`
+- `formatNumber`
+- `formatPercent`
+- `formatDate`
+- `formatTime`
 
 Esses utilitários não devem conter regras de negócio.
 
 Evitar:
 
-- `formatarStatusDaFatura()`
-- `calcularValorDaComissao()`
-- `determinarNivelDoCliente()`
+- `formatInvoiceStatus()`
+- `calculateCommission()`
+- `determineCustomerTier()`
 
 Essas responsabilidades pertencem ao domínio da aplicação.
 

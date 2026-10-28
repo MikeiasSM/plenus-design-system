@@ -4,7 +4,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
-import { formatarEntradaData, lerEntradaData } from '../../../utils/formatters';
+import { formatDateInput, parseDateInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
@@ -127,14 +127,14 @@ export function DatePicker({
   }
 
   function handleChange(entrada: string) {
-    const mascarado = formatarEntradaData(entrada);
+    const mascarado = formatDateInput(entrada);
 
     setDigitando(true);
     setTexto(mascarado);
 
     // Data fora dos limites nao se grava: o calendario ja a recusa, e o campo
     // digitado nao pode ser a porta dos fundos dela.
-    const lido = lerEntradaData(mascarado);
+    const lido = parseDateInput(mascarado);
     const permitido = lido && !isUnavailable(lido, limites) ? lido : null;
 
     definir(permitido);

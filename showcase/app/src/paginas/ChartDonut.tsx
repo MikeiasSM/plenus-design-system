@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ChartDonut,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   resolveSeriesColors,
   type ChartDonutSlice,
   type ChartLegendAlign,
@@ -117,7 +117,7 @@ function FatiaNoPonteiro() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed="none"
         rows={fatia ? [{ color: cor, label: fatia.label, values: [fatia.value] }] : []}
         title={fatia?.label}
@@ -251,7 +251,7 @@ const cores = resolveSeriesColors(receita);
 
 <ChartTooltip
   title={fatia?.label}
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed="none"
   rows={fatia ? [{
     color: cores[receita.findIndex((item) => item.label === fatia.label)],
@@ -302,7 +302,7 @@ const cores = resolveSeriesColors(receita);
     { nome: 'showLegendValues', tipo: 'boolean', padrao: 'true', descricao: 'Percentual em cada entrada da legenda.' },
     { nome: 'smallSliceThreshold', tipo: 'number', padrao: '0.02', descricao: 'Fração do total abaixo da qual a fatia é reunida.' },
     { nome: 'otherLabel', tipo: 'string', padrao: "'Outros'", descricao: 'Rótulo da fatia que reúne as pequenas.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do centro e das descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do centro e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual, a partir da fração. O padrão arredonda ao inteiro, como 42%.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },

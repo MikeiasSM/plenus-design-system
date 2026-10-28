@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { formatarDuracao } from '../../../utils/formatters/formatarDuracao';
+import { formatDuration } from '../../../utils/formatters/formatDuration';
 import {
   ChartTimeline,
   type ChartTimelineProps,
@@ -156,7 +156,7 @@ describe('ChartTimeline', () => {
   it('desliga a serie pela legenda, no desenho, no resumo e na tabela', () => {
     const onHiddenSeriesChange = vi.fn();
     const rowSummary = vi.fn((_row: ChartTimelineRow, visible: readonly ChartTimelineSegment[]) => ({
-      title: formatarDuracao(visible.reduce((total, segment) => total + (+segment.end - +segment.start) * HOUR, 0)),
+      title: formatDuration(visible.reduce((total, segment) => total + (+segment.end - +segment.start) * HOUR, 0)),
     }));
     render(journey({ onHiddenSeriesChange, rowSummary }));
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ChartPie,
   ChartTooltip,
-  formatarMoeda,
+  formatCurrency,
   resolveSeriesColors,
   type ChartLegendAlign,
   type ChartLegendPosition,
@@ -116,7 +116,7 @@ function FatiaNoPonteiro() {
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
-        columns={[{ format: formatarMoeda }]}
+        columns={[{ format: formatCurrency }]}
         computed={{ compute: (valor) => valor / TOTAL_DA_RECEITA }}
         rows={fatia ? [{ color: cor, label: fatia.label, values: [fatia.value] }] : []}
         subtitle="Valor e fatia da receita"
@@ -234,7 +234,7 @@ const cores = resolveSeriesColors(receita);
 <ChartTooltip
   title={fatia?.label}
   subtitle="Valor e fatia da receita"
-  columns={[{ format: formatarMoeda }]}
+  columns={[{ format: formatCurrency }]}
   computed={{ compute: (valor) => valor / totalDaReceita }}
   rows={fatia ? [{
     color: cores[receita.findIndex((item) => item.label === fatia.label)],
@@ -266,7 +266,7 @@ const cores = resolveSeriesColors(receita);
     { nome: 'showLegendValues', tipo: 'boolean', padrao: 'false', descricao: 'Percentual em cada entrada da legenda.' },
     { nome: 'smallSliceThreshold', tipo: 'number', padrao: '0.02', descricao: 'Fração do total abaixo da qual a fatia é reunida.' },
     { nome: 'otherLabel', tipo: 'string', padrao: "'Outros'", descricao: 'Rótulo da fatia que reúne as pequenas.' },
-    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatarNumero', descricao: 'Formato do valor nas descrições.' },
+    { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do valor nas descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
     { nome: 'formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual, a partir da fração. O padrão arredonda ao inteiro, como 42%.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },

@@ -181,11 +181,11 @@ Terminologia em português, no alcance que o corpus normativo já define:
 | Componentes | Inglês | `COMPONENTS.md` §12 |
 | Hooks | Inglês | `ARCHITECTURE.md` §8 |
 | Tokens primitivos, semânticos e tipográficos | Inglês | `TOKENS-REFERENCE-COLORS.md`, `TOKENS-REFERENCE-TYPOGRAPHY.md` |
-| Formatadores e utilitários de apresentação | Português | `ARCHITECTURE.md` §9.1, `CONTRIBUTING.md` §8 |
+| Formatadores e utilitários de apresentação | Inglês | `ARCHITECTURE.md` §9.1, `CONTRIBUTING.md` §8 |
 
 `TOKENS.md` §3 e `ARCHITECTURE.md` §3 e §5 ilustram tokens com exemplos conceituais em português. Para cor e tipografia prevalecem os documentos de referência especializados, aos quais `TOKENS.md` delega o detalhamento.
 
-Identificadores internos seguem a língua do módulo: o módulo de formatadores em português, os módulos de componente em inglês. Cada arquivo de teste segue a língua do módulo que testa.
+Identificadores internos seguem a língua do módulo: os módulos de formatadores e de componente em inglês, o Showcase em português. Os nomes em português da 0.3 (`formatarMoeda` e os demais) continuam aceitos como obsoletos até a versão menor seguinte. Cada arquivo de teste segue a língua do módulo que testa.
 
 Comunicação, comentários, mensagens de commit, documentação e Showcase: português.
 

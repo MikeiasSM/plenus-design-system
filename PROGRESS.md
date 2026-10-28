@@ -290,7 +290,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 **Nomenclatura e idioma**
 
 - Componentes de uma familia usam tipo seguido de especializacao: `InputText`, `InputNumber`, `InputPassword`, `InputCurrency`. Conceito unico mantem nome simples.
-- Componentes, hooks e tokens em ingles; formatadores e utilitarios de apresentacao em portugues.
+- Componentes, hooks, tokens e formatadores em ingles. Os formatadores eram em portugues ate a 0.3; os nomes antigos seguem como obsoletos ate a versao menor seguinte.
 - O idioma dos tokens foi confirmado como ingles pelos documentos de referencia de cores e tipografia, que prevalecem sobre os exemplos conceituais de `TOKENS.md` secao 3.
 - `COMPONENTS.md` secao 12 atualizada: `Table` para o componente basico e `DataGrid` para o completo.
 
@@ -298,7 +298,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 
 - `Field` concentra rotulo, ajuda, erro, contador e a fiacao de `id` e `aria-describedby`. O valor da contagem fica em cada controle, que e quem detem o valor.
 - Campos **derivam** o valor exibido em vez de espelhar estado em efeito.
-- Os formatadores de entrada sao mascaras, distintas do `formatarMoeda` de apresentacao de `ARCHITECTURE.md` secao 9.1.
+- Os formatadores de entrada sao mascaras, distintas do `formatCurrency` de apresentacao de `ARCHITECTURE.md` secao 9.1.
 - `Menu` e `Select` devolvem o foco ao gatilho por conta propria. O `restoreFocus` do `FocusScope` nao era observavel em teste e mascarava a ausencia.
 - Controle desabilitado na borda usa `aria-disabled`, e nao `disabled`: o botao desabilitado perde o foco de quem acabou de usa-lo. Vale nos passos da `Pagination` e nos dias indisponiveis do calendario.
 - Espalhar `overlayProps` e declarar `onKeyDown` em seguida **substitui** o manipulador da biblioteca. Encadear, sempre.
@@ -399,7 +399,7 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
 **Decisoes do mantenedor sobre o que contrariava regra**, em 27/10/2026. O documento normativo de cada mudanca aprovada e alterado no mesmo commit que a implementa.
 
 - **Mudam a regra:**
-  - Formatadores em ingles (`formatCurrency`), com os nomes em portugues aceitos como obsoletos ate a versao menor seguinte. Altera a tabela de idioma do `CLAUDE.md`, `ARCHITECTURE.md` secao 9.1 e `CONTRIBUTING.md` secao 8.
+  - Formatadores em ingles (`formatCurrency`), com os nomes em portugues aceitos como obsoletos ate a versao menor seguinte. Feito: o modulo inteiro passou ao ingles, nomes, opcoes e identificadores internos, e os sete nomes publicos antigos ficam em `deprecated.ts`, traduzindo as opcoes. Alterados a tabela de idioma do `CLAUDE.md`, `ARCHITECTURE.md` secao 9.1 e `CONTRIBUTING.md` secao 8.
   - Tema por subarvore e por `prefers-color-scheme`. Substitui o seletor `:root[data-theme]` fixado na 0.2.0.
   - Cor de marca em tempo de execucao. Forma decidida em 28/10/2026: paletas prontas por `data-palette` e paleta propria por `createPalette`, no mesmo contrato. Ver "Paletas de marca" abaixo.
   - CSS por componente na 0.3.0, mantendo o `styles.css` agregado.
@@ -461,9 +461,9 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 
 ### Formatadores e localidade
 
-`formatarMoeda`, `formatarNumero` e `formatarPercentual` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `localidade` em pt-BR por padrao. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
+`formatCurrency`, `formatNumber` e `formatPercent` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `locale` em pt-BR por padrao. Ate a 0.3 eram `formatarMoeda`, `formatarNumero` e `formatarPercentual`, que seguem como obsoletos. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
 
-- `formatarPercentual` recebe a **fracao**, nao o numero ja multiplicado: `0.42` vira `42%`. E a fracao que sai de uma divisao de duas medidas, e receber o valor pronto obrigaria cada consumidor a dividir antes de exibir.
+- `formatPercent` recebe a **fracao**, nao o numero ja multiplicado: `0.42` vira `42%`. E a fracao que sai de uma divisao de duas medidas, e receber o valor pronto obrigaria cada consumidor a dividir antes de exibir.
 - A forma compacta sai da **localidade**, e nao de um sufixo proprio: em pt-BR um milhao e `1 mi`, nao `1M`. Inventar o sufixo quebraria em qualquer outra localidade.
 - Casas decimais so entram quando declaradas. Sem elas, quem decide e a localidade — e, na moeda, a propria moeda.
 - Nenhum deles memoriza o objeto do `Intl`: a construcao repetida e cara em tese, mas o motor ja a resolve para argumentos iguais, e uma cache propria duplicaria uma otimizacao que existe abaixo.

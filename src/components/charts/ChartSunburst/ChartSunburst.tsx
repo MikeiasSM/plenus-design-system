@@ -23,7 +23,7 @@ import {
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { formatarNumero } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import styles from './ChartSunburst.module.css';
 
 export interface ChartSunburstNode extends SeriesAppearance {
@@ -112,7 +112,7 @@ export function ChartSunburst({
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
-  formatValue = formatarNumero,
+  formatValue = formatNumber,
   height = 320,
   hiddenGroups,
   legend = 'bottom',
