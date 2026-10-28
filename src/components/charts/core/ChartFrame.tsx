@@ -1,4 +1,5 @@
-import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { Button } from '../../actions/Button';
 import {
   ChartLegend,
   type ChartLegendAlign,
@@ -54,6 +55,8 @@ export interface ChartFrameProps {
   onToggleSeries?: (label: string) => void;
   root?: ChartRootProps;
   swatch?: ChartLegendSwatch;
+  /** Leitura medida a medida, no lugar do desenho, pelo botao "Ver como tabela". */
+  table?: ReactNode;
   title: string;
   /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
   tooltip?: Omit<ChartTooltipProps, 'children'>;
@@ -84,11 +87,14 @@ export function ChartFrame({
   onToggleSeries,
   root = {},
   swatch = 'square',
+  table,
   title,
   tooltip,
   width,
 }: ChartFrameProps) {
   const tituloId = useId();
+  const [emTabela, setEmTabela] = useState(false);
+  const alternavel = table !== undefined && !empty;
   const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
@@ -116,9 +122,20 @@ export function ChartFrame({
 
   return (
     <figure {...figureProps}>
-      <figcaption className={titleClassName} id={tituloId}>
-        {title}
-      </figcaption>
+      {alternavel ? (
+        <figcaption className={styles.header}>
+          <span className={titleClassName} id={tituloId}>
+            {title}
+          </span>
+          <Button aria-pressed={emTabela} onClick={() => setEmTabela((atual) => !atual)} size="sm" variant="secondary">
+            Ver como tabela
+          </Button>
+        </figcaption>
+      ) : (
+        <figcaption className={titleClassName} id={tituloId}>
+          {title}
+        </figcaption>
+      )}
 
       <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`}>
         {(legendPosition === 'top' || legendPosition === 'left') && legenda}
@@ -137,6 +154,8 @@ export function ChartFrame({
             <div className={styles.empty}>
               <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
             </div>
+          ) : alternavel && emTabela ? (
+            table
           ) : width === 0 || height === 0 ? null : tooltip ? (
             <ChartTooltip {...tooltip}>{desenho}</ChartTooltip>
           ) : (

@@ -1,22 +1,29 @@
-import { useMemo, useState, type KeyboardEvent, type SyntheticEvent } from 'react';
+import { useEffect, useId, useMemo, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react';
 import { formatarNumero } from '../../../utils/formatters';
 import {
   CartesianFrame,
   ColorLegend,
+  NO_DATA_FILL,
+  NO_DATA_HATCH,
+  NoDataHatch,
   chartHeight,
+  isDevelopment,
   markShown,
   measureLabel,
   useCartesianLayout,
   useChartMetrics,
   useSeriesToggle,
+  type AxisPosition,
   type AxisTick,
   type AxisVisibility,
   type ChartHeight,
   type ChartLegendAlign,
   type ChartRootProps,
   type MarkVisibility,
+  type NoDataStyle,
 } from '../core';
 import { bandScale, buildColorScale, type ChartColorScale } from '../scales';
+import { ChartHeatmapTable } from './ChartHeatmapTable';
 import styles from './ChartHeatmap.module.css';
 
 export interface ChartHeatmapCell {
@@ -30,7 +37,10 @@ export type ChartHeatmapColorScale = Extract<ChartColorScale, { type: 'sequentia
 
 export type ChartHeatmapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
+export type ChartHeatmapHighlight = 'cell' | 'rowColumn';
+
 export interface ChartHeatmapProps extends ChartRootProps {
+  /** Uma por cruzamento. `value: null` e sem dado; o cruzamento sem celula fica em branco. */
   cells: readonly ChartHeatmapCell[];
   colorScale?: ChartHeatmapColorScale;
   emptyMessage?: string;
@@ -38,9 +48,12 @@ export interface ChartHeatmapProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Sob o ponteiro ou o foco: so a celula, ou tambem o contorno da linha e da coluna dela. */
+  highlight?: ChartHeatmapHighlight;
   legend?: ChartHeatmapLegendPosition;
   legendAlign?: ChartLegendAlign;
   noDataLabel?: string;
+  noDataStyle?: NoDataStyle;
   /** Torna as celulas botoes, percorridos pelas setas. */
   onCellClick?: (cell: ChartHeatmapCell) => void;
   /** Celula sob o ponteiro ou o foco, ou `null` ao sair dela. */
@@ -48,10 +61,14 @@ export interface ChartHeatmapProps extends ChartRootProps {
   showTooltip?: boolean;
   /** Valor escrito na celula, quando cabe nela. */
   showValues?: MarkVisibility;
+  /** Celulas quadradas, como na matriz de correlacao. */
+  squareCells?: boolean;
   title: string;
   /** Nome da medida, na legenda e no balao. */
   valueLabel?: string;
   xAxis?: AxisVisibility;
+  /** Rotulos das colunas embaixo, como no grafico, ou em cima, como na tabela. */
+  xAxisPosition?: AxisPosition;
   /** Ordem das colunas. Sem ela, a ordem em que aparecem nas celulas. */
   xCategories?: readonly string[];
   yAxis?: AxisVisibility;
@@ -64,34 +81,59 @@ interface Position {
   row: number;
 }
 
+type Grade = readonly (readonly (ChartHeatmapCell | undefined)[])[];
+
 const CELL_GAP = 2;
+const DENSE_CELL_GAP = 1;
+const DENSE_CELL_SIZE = 14;
 const LABEL_PADDING = 4;
-const NO_DATA_FILL = 'var(--pl-chart-no-data)';
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
+
+const DIRECAO: Record<string, Position> = {
+  ArrowDown: { column: 0, row: 1 },
+  ArrowLeft: { column: -1, row: 0 },
+  ArrowRight: { column: 1, row: 0 },
+  ArrowUp: { column: 0, row: -1 },
+};
 
 const firstSeen = (values: readonly string[]) => [...new Set(values)];
 const sameCell = (a: Position | null, b: Position) => a !== null && a.column === b.column && a.row === b.row;
+const presente = (grade: Grade, position: Position) => grade[position.row]?.[position.column] !== undefined;
+const step = (from: Position, by: Position) => ({ column: from.column + by.column, row: from.row + by.row });
+const inside = (grade: Grade, position: Position) =>
+  position.row >= 0 && position.row < grade.length && position.column >= 0 && position.column < (grade[0]?.length ?? 0);
 
-/** Destino das setas, de `Home` e de `End`, preso as bordas da grade. */
-function moveFrom(position: Position, key: string, columns: number, rows: number): Position | null {
-  const clamp = (value: number, size: number) => Math.min(Math.max(value, 0), size - 1);
+function presentes(grade: Grade) {
+  return grade.flatMap((linha, row) => linha.flatMap((cell, column) => (cell === undefined ? [] : [{ column, row }])));
+}
 
-  switch (key) {
-    case 'ArrowRight':
-      return { ...position, column: clamp(position.column + 1, columns) };
-    case 'ArrowLeft':
-      return { ...position, column: clamp(position.column - 1, columns) };
-    case 'ArrowDown':
-      return { ...position, row: clamp(position.row + 1, rows) };
-    case 'ArrowUp':
-      return { ...position, row: clamp(position.row - 1, rows) };
-    case 'Home':
-      return { ...position, column: 0 };
-    case 'End':
-      return { ...position, column: columns - 1 };
-    default:
-      return null;
+/** Destino das setas, de `Home` e de `End`, saltando os cruzamentos em branco e preso as bordas da grade. */
+function moveFrom(grade: Grade, position: Position, key: string, toCorner: boolean): Position | null {
+  const direcao = DIRECAO[key];
+
+  if (direcao) {
+    let next = step(position, direcao);
+    while (inside(grade, next) && !presente(grade, next)) {
+      next = step(next, direcao);
+    }
+    return inside(grade, next) ? next : position;
   }
+
+  if (key !== 'Home' && key !== 'End') {
+    return null;
+  }
+
+  const alvos = presentes(grade).filter((candidate) => toCorner || candidate.row === position.row);
+  return (key === 'Home' ? alvos[0] : alvos.at(-1)) ?? null;
+}
+
+/** Contagem e intensidade honestas: sem `domain`, a sequencial de valores nao negativos parte de zero. */
+function fromZero(config: ChartHeatmapColorScale, values: readonly number[]): ChartHeatmapColorScale {
+  if (config.type !== 'sequential' || config.domain || config.log || values.length === 0 || values.some((value) => value < 0)) {
+    return config;
+  }
+
+  return { ...config, domain: [0, Math.max(...values)] };
 }
 
 /** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
@@ -102,16 +144,20 @@ export function ChartHeatmap({
   formatTooltipValue,
   formatValue = formatarNumero,
   height = 320,
+  highlight = 'cell',
   legend = 'bottom',
   legendAlign = 'center',
   noDataLabel = 'Sem dado',
+  noDataStyle = 'hatch',
   onCellClick,
   onHoverCell,
   showTooltip = true,
   showValues = 'visible',
+  squareCells = false,
   title,
   valueLabel = 'Valor',
   xAxis = 'visible',
+  xAxisPosition = 'bottom',
   xCategories,
   yAxis = 'visible',
   yCategories,
@@ -120,32 +166,56 @@ export function ChartHeatmap({
   const { font, height: alturaMedida, radius, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const [emFoco, setEmFoco] = useState<Position | null>(null);
+  const [ancora, setAncora] = useState<{ x: number; y: number }>();
   const [parada, setParada] = useState<Position>({ column: 0, row: 0 });
   const [faixaEmDestaque, setFaixaEmDestaque] = useState<string | null>(null);
   const faixas = useSeriesToggle({});
+  const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;
   const interativo = onCellClick !== undefined;
 
   const colunas = useMemo(() => xCategories ?? firstSeen(cells.map((cell) => cell.x)), [cells, xCategories]);
   const linhas = useMemo(() => yCategories ?? firstSeen(cells.map((cell) => cell.y)), [cells, yCategories]);
 
-  const { escala, grade, semDado } = useMemo(() => {
+  const { aviso, escala, grade, semDado } = useMemo(() => {
     const coluna = new Map(colunas.map((label, index) => [label, index]));
     const linha = new Map(linhas.map((label, index) => [label, index]));
     const matriz: (ChartHeatmapCell | undefined)[][] = linhas.map(() => colunas.map(() => undefined));
+    const foraDaOrdem: string[] = [];
+    const repetidas: string[] = [];
 
     cells.forEach((cell) => {
       const c = coluna.get(cell.x);
       const r = linha.get(cell.y);
-      if (c !== undefined && r !== undefined) {
-        matriz[r][c] = { ...cell, value: Number.isFinite(cell.value) ? cell.value : null };
+      if (c === undefined || r === undefined) {
+        foraDaOrdem.push(`${cell.x} × ${cell.y}`);
+        return;
       }
+      if (matriz[r][c] !== undefined) {
+        repetidas.push(`${cell.x} × ${cell.y}`);
+      }
+      matriz[r][c] = { ...cell, value: Number.isFinite(cell.value) ? cell.value : null };
     });
 
     const valores = matriz.flat().flatMap((cell) => (cell?.value == null ? [] : [cell.value]));
-    const vazias = matriz.flat().filter((cell) => cell?.value == null).length;
+    const vazias = matriz.flat().filter((cell) => cell !== undefined && cell.value === null).length;
+    const avisos = [
+      foraDaOrdem.length > 0 && `${foraDaOrdem.length} célula(s) fora de xCategories ou yCategories, fora do desenho: ${foraDaOrdem.join(', ')}.`,
+      repetidas.length > 0 && `${repetidas.length} célula(s) repetida(s), valendo a última: ${repetidas.join(', ')}.`,
+    ].filter(Boolean);
 
-    return { escala: buildColorScale(colorScale, valores, formatValue), grade: matriz, semDado: vazias };
+    return {
+      aviso: avisos.join(' '),
+      escala: buildColorScale(fromZero(colorScale, valores), valores, formatValue),
+      grade: matriz,
+      semDado: vazias,
+    };
   }, [cells, colorScale, colunas, formatValue, linhas]);
+
+  useEffect(() => {
+    if (aviso && isDevelopment()) {
+      console.warn(`ChartHeatmap "${title}": ${aviso}`);
+    }
+  }, [aviso, title]);
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
     bottomLabels: colunas,
@@ -157,19 +227,28 @@ export function ChartHeatmap({
     topRoom: 0,
     width,
     xAxis,
+    xAxisPosition,
     yAxis,
     yAxisRight: 'hidden',
   });
 
-  const escalaX = bandScale({ domain: colunas, padding: 0, range: [0, plot.width] });
-  const escalaY = bandScale({ domain: linhas, padding: 0, range: [0, plot.height] });
-  const larguraDaCelula = Math.max(escalaX.bandwidth() - CELL_GAP, 0);
-  const alturaDaCelula = Math.max(escalaY.bandwidth() - CELL_GAP, 0);
+  const lado = squareCells
+    ? Math.min(plot.width / Math.max(colunas.length, 1), plot.height / Math.max(linhas.length, 1))
+    : undefined;
+  const area = lado === undefined ? plot : { height: lado * linhas.length, width: lado * colunas.length };
+  const escalaX = bandScale({ domain: colunas, padding: 0, range: [0, area.width] });
+  const escalaY = bandScale({ domain: linhas, padding: 0, range: [0, area.height] });
+  const vao = Math.min(escalaX.bandwidth(), escalaY.bandwidth()) < DENSE_CELL_SIZE ? DENSE_CELL_GAP : CELL_GAP;
+  const larguraDaCelula = Math.max(escalaX.bandwidth() - vao, 0);
+  const alturaDaCelula = Math.max(escalaY.bandwidth() - vao, 0);
   const canto = Math.min(radius, larguraDaCelula / 4, alturaDaCelula / 4);
+  const semDadoFill = noDataStyle === 'hatch' ? `url(#${hatchId})` : NO_DATA_FILL;
+  const semDadoAmostra = noDataStyle === 'hatch' ? NO_DATA_HATCH : NO_DATA_FILL;
 
   const datumOf = (cell: ChartHeatmapCell | undefined) => ({ category: null, value: cell?.value ?? null });
   const celulaEm = (position: Position | null) => (position === null ? undefined : grade[position.row]?.[position.column]);
   const celulaEmFoco = celulaEm(emFoco);
+  const paradaValida = presente(grade, parada) ? parada : presentes(grade)[0];
 
   function descrever(position: Position) {
     const cell = celulaEm(position);
@@ -179,7 +258,7 @@ export function ChartHeatmap({
 
   function focar(position: Position | null) {
     setEmFoco(position);
-    onHoverCell?.(position === null ? null : (celulaEm(position) ?? { value: null, x: colunas[position.column], y: linhas[position.row] }));
+    onHoverCell?.(celulaEm(position) ?? null);
   }
 
   function posicaoDe(event: SyntheticEvent): Position | null {
@@ -191,8 +270,21 @@ export function ChartHeatmap({
     return { column, row };
   }
 
-  function ativar(position: Position) {
-    onCellClick?.(celulaEm(position) ?? { value: null, x: colunas[position.column], y: linhas[position.row] });
+  function posicaoNoPonteiro(event: MouseEvent<SVGGElement>): Position | null {
+    const caixa = event.currentTarget.getBoundingClientRect();
+    const position = {
+      column: Math.floor((event.clientX - caixa.left) / escalaX.step()),
+      row: Math.floor((event.clientY - caixa.top) / escalaY.step()),
+    };
+    return presente(grade, position) ? position : null;
+  }
+
+  function aoMoverPonteiro(event: MouseEvent<SVGGElement>) {
+    const position = posicaoNoPonteiro(event);
+    setAncora(undefined);
+    if (position === null ? emFoco !== null : !sameCell(emFoco, position)) {
+      focar(position);
+    }
   }
 
   function aoTeclar(event: KeyboardEvent<SVGGElement>) {
@@ -203,11 +295,11 @@ export function ChartHeatmap({
 
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      ativar(atual);
+      onCellClick?.(celulaEm(atual)!);
       return;
     }
 
-    const destino = moveFrom(atual, event.key, colunas.length, linhas.length);
+    const destino = moveFrom(grade, atual, event.key, event.ctrlKey);
     if (destino === null) {
       return;
     }
@@ -234,13 +326,20 @@ export function ChartHeatmap({
       formatValue={formatValue}
       gradient={escala.gradient}
       indicator={celulaEmFoco?.value == null ? undefined : escala.gradient?.position(celulaEmFoco.value)}
-      noData={semDado > 0 ? { color: NO_DATA_FILL, count: semDado, label: noDataLabel } : undefined}
+      noData={semDado > 0 ? { color: semDadoAmostra, count: semDado, label: noDataLabel } : undefined}
       onHighlight={setFaixaEmDestaque}
       onToggle={faixas.toggle}
       position={legend === 'none' ? 'bottom' : legend}
       valueLabel={valueLabel}
     />
   );
+
+  const linhaDoBalao =
+    celulaEmFoco === undefined
+      ? undefined
+      : celulaEmFoco.value === null
+        ? { color: semDadoAmostra, label: noDataLabel, values: [] }
+        : { color: escala.fillOf(datumOf(celulaEmFoco)), label: valueLabel, values: [celulaEmFoco.value] };
 
   return (
     <CartesianFrame
@@ -250,66 +349,90 @@ export function ChartHeatmap({
       empty={colunas.length === 0 || linhas.length === 0}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
-      height={alturaDoDesenho}
+      height={lado === undefined ? alturaDoDesenho : margins.top + area.height + margins.bottom}
       legendContent={legenda}
       legendPosition={legend}
       margins={margins}
-      plot={plot}
+      plot={area}
       root={root}
+      table={
+        <ChartHeatmapTable
+          columns={colunas}
+          formatValue={formatValue}
+          grade={grade}
+          noDataLabel={noDataLabel}
+          rows={linhas}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip
           ? {
-              columns: [{ format: formatTooltipValue ?? formatValue }],
+              anchor: ancora,
+              columns: celulaEmFoco?.value == null ? [] : [{ format: formatTooltipValue ?? formatValue }],
               computed: 'none',
-              rows:
-                celulaEmFoco?.value == null
-                  ? []
-                  : [{ color: escala.fillOf(datumOf(celulaEmFoco)), label: valueLabel, values: [celulaEmFoco.value] }],
+              rows: linhaDoBalao === undefined ? [] : [linhaDoBalao],
               subtitle: emFoco === null ? undefined : linhas[emFoco.row],
               title: emFoco === null ? undefined : colunas[emFoco.column],
             }
           : undefined
       }
       width={width}
-      xAxis={{ hideLine: true, labelRotation: rotation, ticks: marcasX, visibility: xAxis }}
+      xAxis={{ hideLine: true, labelRotation: rotation, position: xAxisPosition, ticks: marcasX, visibility: xAxis }}
       yAxis={{ hideLine: true, ticks: marcasY, visibility: yAxis }}
     >
       <g
-        onBlur={() => focar(null)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setAncora(undefined);
+            focar(null);
+          }
+        }}
         onClick={(event) => {
           const position = posicaoDe(event);
           if (interativo && position !== null) {
             setParada(position);
-            ativar(position);
+            onCellClick?.(celulaEm(position)!);
           }
         }}
         onFocus={(event) => {
           const position = posicaoDe(event);
           if (position !== null) {
+            const caixa = (event.target as Element).getBoundingClientRect();
+            setAncora({ x: caixa.left + caixa.width / 2, y: caixa.top + caixa.height / 2 });
             setParada(position);
             focar(position);
           }
         }}
         onKeyDown={interativo ? aoTeclar : undefined}
         onMouseLeave={() => focar(null)}
-        onMouseOver={(event) => focar(posicaoDe(event))}
+        onMouseMove={aoMoverPonteiro}
       >
+        <defs>
+          <NoDataHatch id={hatchId} />
+        </defs>
+        <rect fill="transparent" height={area.height} width={area.width} />
         {grade.map((linha, row) =>
           linha.map((cell, column) => {
+            if (cell === undefined) {
+              return null;
+            }
+
             const position = { column, row };
             const datum = datumOf(cell);
-            const chave = cell?.value == null ? undefined : escala.keyOf(datum);
+            const chave = cell.value === null ? undefined : escala.keyOf(datum);
             const oculta = chave !== undefined && faixas.isHidden(chave);
             const apagada = faixaEmDestaque !== null && chave !== faixaEmDestaque;
-            const x = (escalaX(colunas[column]) ?? 0) + CELL_GAP / 2;
-            const y = (escalaY(linhas[row]) ?? 0) + CELL_GAP / 2;
-            const texto = cell?.value == null ? '' : formatValue(cell.value);
+            const x = (escalaX(colunas[column]) ?? 0) + vao / 2;
+            const y = (escalaY(linhas[row]) ?? 0) + vao / 2;
+            const texto = cell.value === null ? '' : formatValue(cell.value);
             const cabe =
               texto !== '' &&
               measureLabel(texto, font) + LABEL_PADDING * 2 <= larguraDaCelula &&
               font.size + LABEL_PADDING <= alturaDaCelula;
             const emFocoAgora = sameCell(emFoco, position);
+            const corDoTexto = escala.textColorOf(datum);
 
             return (
               <g key={`${row}:${column}`}>
@@ -319,20 +442,20 @@ export function ChartHeatmap({
                     .filter(Boolean)
                     .join(' ')}
                   data-cell={`${row}:${column}`}
-                  fill={oculta ? HIDDEN_FILL : (escala.fillOf(datum) ?? NO_DATA_FILL)}
+                  fill={oculta ? HIDDEN_FILL : (escala.fillOf(datum) ?? semDadoFill)}
                   height={alturaDaCelula}
                   role={interativo ? 'button' : undefined}
                   rx={canto}
-                  tabIndex={interativo ? (sameCell(parada, position) ? 0 : -1) : undefined}
+                  tabIndex={interativo ? (sameCell(paradaValida ?? null, position) ? 0 : -1) : undefined}
                   width={larguraDaCelula}
                   x={x}
                   y={y}
                 />
                 {cabe && !oculta && markShown(showValues, emFocoAgora) && (
                   <text
-                    className={styles.valueLabel}
+                    className={corDoTexto === undefined ? `${styles.valueLabel} ${styles.valueLabelHalo}` : styles.valueLabel}
                     dominantBaseline="central"
-                    fill={escala.textColorOf(datum)}
+                    fill={corDoTexto}
                     textAnchor="middle"
                     x={x + larguraDaCelula / 2}
                     y={y + alturaDaCelula / 2}
@@ -343,6 +466,12 @@ export function ChartHeatmap({
               </g>
             );
           }),
+        )}
+        {highlight === 'rowColumn' && emFoco !== null && (
+          <g aria-hidden="true" className={styles.crosshair}>
+            <rect height={escalaY.bandwidth()} rx={canto} width={area.width} x={0} y={escalaY(linhas[emFoco.row]) ?? 0} />
+            <rect height={area.height} rx={canto} width={escalaX.bandwidth()} x={escalaX(colunas[emFoco.column]) ?? 0} y={0} />
+          </g>
         )}
       </g>
     </CartesianFrame>

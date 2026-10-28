@@ -602,8 +602,21 @@ Pedido pelo Painel e entregue em 27/10/2026, antes do `DataGrid`, por decisao do
 - **A escala de cor e a legenda em barra sairam do `ChartMap`** para `charts/scales/colorScale.ts` e `charts/core/ColorLegend.tsx`, compartilhadas. `ChartMapColorScale` e `ChartMapCategory` ficam como apelidos obsoletos ate a 0.4.0.
 - **O texto sobre a celula segue o passo da rampa**, medido nos dois temas: preto ate o quarto passo, branco do quinto em diante, de 4,5:1 para cima. Na divergente, branco so nos extremos; na categorica, o `chart.on-*` da cor.
 - **A moldura cartesiana ganhou `legendContent` e `canvasRole`**: a legenda propria no lugar da lista de series, e o desenho como `group` quando as marcas sao botoes.
-- **Sem calendario e sem escala de cor categorica** na primeira versao. A visao em tabela entra com a dos demais graficos.
-- Nada do heatmap foi visto em navegador real; o MCP do Playwright nao conectou nesta sessao.
+- **Sem calendario e sem escala de cor categorica** na primeira versao.
+
+**Revisao contra o mercado, em 27/10/2026.** O componente entrou sem artefato de referencia. A revisao comparou o codigo com ECharts, Highcharts, AG Charts, ApexCharts, Nivo, Carbon, MUI X, Plotly, Vega-Lite, visx e Fluent, e com Grafana, Datadog, Power BI, Tableau, Metabase, GA4 e o guia do FT: https://claude.ai/artifact/KsQoUPeFoxGLzwrR8Cw3mD. O mantenedor aprovou as recomendacoes:
+
+- **Base visual.** Nem shadcn/ui nem Untitled UI tem heatmap; o componente segue a linguagem dos graficos ja entregues, sem referencia visual externa.
+- **Sem dado hachurado por padrao**, como no `ChartMap`: o cinza liso media 1,08:1 contra o primeiro tom da rampa. A hachura e o aviso de desenvolvimento sairam do mapa para o nucleo, compartilhados.
+- **Ausente e nulo sao coisas distintas.** O cruzamento fora de `cells` fica em branco, como na coorte e na matriz triangular; `value: null` e sem dado.
+- **A sequencial parte do zero** com valores nao negativos e sem `domain`: a intensidade acompanha o valor, como a barra parte da base.
+- **Texto sobre a celula.** A regra do passo arredondado so foi medida nos sete tons puros. Nas misturas da escala continua, nenhuma cor fixa passa em todos os intervalos: no escuro, perto do quinto passo, o melhor caso e 3,96:1; com cor propria, o branco cai a 2,35:1. A escala continua e a cor propria usam o texto do tema com halo da superficie, como os rotulos do mapa; as faixas da rampa padrao seguem o preto e o branco por passo. A proposta do artefato, tokens de texto por passo, nao resolvia a continua e foi descartada pela medida.
+- **Destaque de linha e coluna** como opcao, por contorno, sem apagar as demais celulas, conforme a decisao de 18/10/2026 sobre o hover.
+- **Visao em tabela antecipada** no heatmap, pela moldura comum (`table` no `ChartFrame`): aqui a cor e a unica codificacao.
+- **Balao no foco.** O `ChartTooltip` ganhou `anchor`; o `ChartTimeline` ainda nao o usa.
+- **Fora, ate haver pedido:** escala por linha ou coluna, calendario, totais e marginais, canvas.
+- **Versao.** Hachura por padrao, ausente em branco e escala a partir de zero mudam o preenchimento e sao incompativeis pelo `CONTRIBUTING.md` secao 11.
+- Nada do heatmap foi visto em navegador real ainda.
 
 ### Datas
 

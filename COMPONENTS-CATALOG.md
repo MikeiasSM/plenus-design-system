@@ -170,7 +170,7 @@ Séries, fatias, anéis e grupos são desligados pela legenda, que é um control
 
 O `ChartMap` não embute fronteiras. O produto fornece a geometria em GeoJSON e os dados casados pelo identificador de cada região, e o mesmo componente desenha país, regiões, unidades federativas ou municípios. Descer de um nível a outro é composição do produto, que troca a geometria. Mapa de ruas, camadas sobre ele e mapa de calor por densidade são de biblioteca de mapas e ficam fora.
 
-O `ChartHeatmap` é a matriz de calor: linhas e colunas são categorias, e a cor de cada célula mede o valor no cruzamento, como dia por horário ou regional por mês. Ele usa as mesmas escalas de cor do `ChartMap` — sequencial, divergente e por faixas — e a mesma legenda.
+O `ChartHeatmap` é a matriz de calor: linhas e colunas são categorias, e a cor de cada célula mede o valor no cruzamento, como dia por horário, regional por mês, correlação entre indicadores ou retenção por coorte. Ele usa as mesmas escalas de cor do `ChartMap` — sequencial, divergente e por faixas — e a mesma legenda. A célula sem valor é hachurada; o cruzamento que não vem nos dados fica em branco. Como a cor é a única codificação, ele já traz a visão em tabela.
 
 `ChartGauge` e `ChartRadial` são arcos com papéis distintos. O `ChartRadial` mostra o progresso de uma ou mais medidas contra a meta, em anéis concêntricos. O `ChartGauge` mostra onde um único valor cai numa escala com faixas nomeadas — crítico, atenção, bom — e é um medidor: o leitor de tela o ouve como `meter`, com o valor, a faixa e a meta. A meta pode ser monetária, e a exibição em moeda ou em percentual da meta é escolha de quem usa. Vários medidores lado a lado, como a meta de cada vendedor, são composição do produto.
 

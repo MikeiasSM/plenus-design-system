@@ -4,13 +4,14 @@ import { ChartFrame } from './ChartFrame';
 import type { ChartLegendAlign, ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import type { ChartFrameProps } from './ChartFrame';
 import { Grid, type GridOrientation } from './Grid';
-import type { AxisLabelRotation, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
+import type { AxisLabelRotation, AxisPosition, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
 import type { AxisReveal } from './useCartesianLayout';
 import styles from './Chart.module.css';
 
 export interface CartesianAxis {
   hideLine?: boolean;
   labelRotation?: AxisLabelRotation;
+  position?: AxisPosition;
   ticks: readonly AxisTick[];
   visibility?: AxisVisibility;
 }
@@ -40,6 +41,7 @@ export interface CartesianFrameProps {
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
   root?: ChartFrameProps['root'];
+  table?: ChartFrameProps['table'];
   title: string;
   tooltip?: ChartFrameProps['tooltip'];
   width: number;
@@ -103,6 +105,7 @@ export function CartesianFrame({
   onToggleSeries,
   plot,
   root,
+  table,
   title,
   tooltip,
   width,
@@ -129,6 +132,7 @@ export function CartesianFrame({
       onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}
       root={root}
+      table={table}
       title={title}
       tooltip={tooltip}
       width={width}
@@ -146,8 +150,8 @@ export function CartesianFrame({
 
         {children}
 
-        <g transform={`translate(0 ${plot.height})`}>
-          <EixoDinamico axis={xAxis} length={plot.width} orientation="bottom" revealed={revealed} />
+        <g transform={`translate(0 ${xAxis.position === 'top' ? 0 : plot.height})`}>
+          <EixoDinamico axis={xAxis} length={plot.width} orientation={xAxis.position ?? 'bottom'} revealed={revealed} />
         </g>
 
         <EixoDinamico axis={yAxis} length={plot.height} orientation="left" revealed={revealed} />

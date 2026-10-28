@@ -239,6 +239,7 @@ export { ChartHeatmap } from './components/charts/ChartHeatmap';
 export type {
   ChartHeatmapCell,
   ChartHeatmapColorScale,
+  ChartHeatmapHighlight,
   ChartHeatmapLegendPosition,
   ChartHeatmapProps,
 } from './components/charts/ChartHeatmap';
@@ -325,6 +326,7 @@ export type {
 export type {
   AxisLabelAngle,
   AxisLabelRotation,
+  AxisPosition,
   AxisVisibility,
   ChartCurve,
   ChartHeight,
@@ -333,6 +335,7 @@ export type {
   ChartLegendPosition,
   ChartRootProps,
   MarkVisibility,
+  NoDataStyle,
 } from './components/charts/core';
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { SeriesAppearance, SeriesIntent } from './components/charts/palette';

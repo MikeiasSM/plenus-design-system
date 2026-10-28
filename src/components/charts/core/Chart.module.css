@@ -6,6 +6,13 @@
   width: 100%;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+}
+
 .title {
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
@@ -303,4 +310,13 @@
   .dot {
     transition: none;
   }
+}
+
+.hatchBackground {
+  fill: var(--pl-chart-no-data);
+}
+
+.hatchLine {
+  stroke: var(--pl-chart-no-data-hatch);
+  stroke-width: 2.5;
 }

@@ -105,15 +105,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.hatchBackground {
-  fill: var(--pl-chart-no-data);
-}
-
-.hatchLine {
-  stroke: var(--pl-chart-no-data-hatch);
-  stroke-width: 2.5;
-}
-
 .selectedOutline,
 .hoverOutline,
 .focusOutline {

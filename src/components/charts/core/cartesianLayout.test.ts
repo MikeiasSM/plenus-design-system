@@ -30,6 +30,22 @@ describe('calhas do eixo', () => {
     expect(longo.plot.width).toBeLessThan(curto.plot.width);
   });
 
+  it('com o eixo de baixo levado para cima, a calha dele passa para o topo', () => {
+    const embaixo = layout();
+    const emCima = layout({ xAxisPosition: 'top' });
+
+    expect(emCima.margins.top).toBe(embaixo.margins.bottom);
+    expect(emCima.margins.bottom).toBe(0);
+  });
+
+  it('em cima, os rotulos girados avancam para a direita e a calha da direita os acomoda', () => {
+    const longos = ['Ticket médio', 'Conversão', 'Devoluções'];
+    const embaixo = layout({ bottomLabels: longos, labelAngle: 45 });
+    const emCima = layout({ bottomLabels: longos, labelAngle: 45, xAxisPosition: 'top' });
+
+    expect(emCima.margins.right).toBeGreaterThan(embaixo.margins.right);
+  });
+
   it('devolve a area ao desenho quando o eixo e desabilitado', () => {
     const comEixo = layout({ leftLabels: ['R$ 1.480.900,00'] });
     const semEixo = layout({ leftLabels: ['R$ 1.480.900,00'], yAxis: 'hidden' });

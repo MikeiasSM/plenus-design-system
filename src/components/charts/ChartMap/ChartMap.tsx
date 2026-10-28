@@ -8,7 +8,11 @@ import { IconChartBar } from '../../icons';
 import { ChartTooltip, type ChartTooltipProps, type ChartTooltipRow } from '../ChartTooltip';
 import {
   chartRoot,
+  isDevelopment,
   measureLabel,
+  NO_DATA_FILL,
+  NO_DATA_HATCH,
+  NoDataHatch,
   useChartMetrics,
   useSeriesToggle,
   type ChartHeight,
@@ -16,6 +20,7 @@ import {
   type ChartRootProps,
   type LabelFont,
   type MarkVisibility,
+  type NoDataStyle,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance } from '../palette';
 import { formatarNumero, formatarPercentual } from '../../../utils/formatters';
@@ -113,7 +118,7 @@ export interface ChartMapProps extends ChartRootProps {
   markers?: readonly ChartMapMarkerSeries[];
   markerValueLabel?: string;
   noDataLabel?: string;
-  noDataStyle?: 'hatch' | 'neutral';
+  noDataStyle?: NoDataStyle;
   onHiddenClassesChange?: (hidden: readonly number[]) => void;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Regiao sob o ponteiro ou o foco, para paineis vizinhos. */
@@ -168,8 +173,6 @@ const DEFAULT_SCALE: ChartColorScale = { type: 'sequential' };
 const NARROW = 640;
 const MIN_HEIGHT = 160;
 const SIDE_LEGEND_MAX = 240;
-const NO_DATA_HATCH =
-  'repeating-linear-gradient(45deg, var(--pl-chart-no-data-hatch) 0 1.5px, var(--pl-chart-no-data) 1.5px 4px)';
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
 
 const defaultPercent = (ratio: number) => formatarPercentual(ratio, { casasDecimais: 1 });
@@ -178,17 +181,6 @@ const plural = (count: number, one: string, many: string) => `${count} ${count =
 /** Traco mais fino quanto mais regioes: nos municipios, a borda inteira escurecia o mapa. */
 function strokeWidthFor(count: number) {
   return count > 1000 ? 0.25 : count > 100 ? 0.5 : 0.8;
-}
-
-declare const process: { env: { NODE_ENV?: string } };
-
-// O bundler de quem consome substitui a expressão inteira; sem bundler e sem `process`, o aviso apenas não sai.
-function isDevelopment() {
-  try {
-    return process.env.NODE_ENV !== 'production';
-  } catch {
-    return false;
-  }
 }
 
 interface MapLayout {
@@ -656,7 +648,7 @@ export function ChartMap({
   const strokeWidth = strokeWidthFor(regions.length);
   const labelPlan = layout?.plan ?? { callouts: [], inside: [] };
   const lineHeight = plot.font.size + 1;
-  const noDataFill = noDataStyle === 'hatch' ? `url(#${hatchId})` : 'var(--pl-chart-no-data)';
+  const noDataFill = noDataStyle === 'hatch' ? `url(#${hatchId})` : NO_DATA_FILL;
 
   // As regioes nao dependem do ponteiro: o balao e o contorno passam sem refazer milhares de caminhos.
   const regionShapes = useMemo(
@@ -721,10 +713,7 @@ export function ChartMap({
       width={width}
     >
       <defs>
-        <pattern height={6} id={hatchId} patternTransform="rotate(45)" patternUnits="userSpaceOnUse" width={6}>
-          <rect className={styles.hatchBackground} height={6} width={6} />
-          <line className={styles.hatchLine} x1={0} x2={0} y1={0} y2={6} />
-        </pattern>
+        <NoDataHatch id={hatchId} />
       </defs>
 
       <g aria-hidden="true" className={styles.passThrough}>
@@ -849,7 +838,7 @@ export function ChartMap({
       markerValueLabel={markerValueLabel}
       noData={
         noDataCount > 0
-          ? { color: noDataStyle === 'hatch' ? NO_DATA_HATCH : 'var(--pl-chart-no-data)', count: noDataCount, label: noDataLabel }
+          ? { color: noDataStyle === 'hatch' ? NO_DATA_HATCH : NO_DATA_FILL, count: noDataCount, label: noDataLabel }
           : undefined
       }
       onHighlight={(key) => setHighlightedKey(key)}

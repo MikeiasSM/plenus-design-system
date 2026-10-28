@@ -46,7 +46,7 @@ export interface ColorScale {
   labelOf: (datum: ColorDatum) => string | undefined;
   /** A cor mede um valor; na categorica e na nenhuma, ela so nomeia ou nao diz nada. */
   numeric: boolean;
-  /** Cor do texto escrito sobre o preenchimento. */
+  /** Cor do texto escrito sobre o preenchimento; `undefined` onde nenhuma cor fixa garante o contraste. */
   textColorOf: (datum: ColorDatum) => string | undefined;
 }
 
@@ -142,6 +142,7 @@ function classScale(
 ): ColorScale {
   const steps = classSteps(thresholds.length + 1);
   const colors = steps.map((step) => stops[step]);
+  const measured = stops === SEQUENTIAL_TOKENS;
   const [low, high] = range;
   const names =
     thresholds.length === 0
@@ -155,16 +156,11 @@ function classScale(
     keyOf: ({ value }) => (value === null ? undefined : String(classOf(value))),
     labelOf: ({ value }) => (value === null ? undefined : names[classOf(value)]),
     numeric: true,
-    textColorOf: ({ value }) => (value === null ? undefined : textOnStep(steps[classOf(value)])),
+    textColorOf: ({ value }) => (value === null || !measured ? undefined : textOnStep(steps[classOf(value)])),
   };
 }
 
-function continuousScale(
-  stops: readonly string[],
-  position: (value: number) => number,
-  gradient: ColorGradient,
-  textOnPosition: (position: number) => string,
-): ColorScale {
+function continuousScale(stops: readonly string[], position: (value: number) => number, gradient: ColorGradient): ColorScale {
   return {
     entries: [],
     fillOf: ({ value }) => (value === null ? undefined : rampColor(stops, position(value))),
@@ -172,7 +168,7 @@ function continuousScale(
     keyOf: () => undefined,
     labelOf: () => undefined,
     numeric: true,
-    textColorOf: ({ value }) => (value === null ? undefined : textOnPosition(position(value))),
+    textColorOf: () => undefined,
   };
 }
 
@@ -198,7 +194,7 @@ function sequentialScale(
       { position: 0, value: config.log ? logLow : low },
       { position: 1, value: high },
     ],
-  }, (at) => textOnStep(Math.round(at * 6)));
+  });
 }
 
 function divergingScale(
@@ -220,7 +216,7 @@ function divergingScale(
       { position: 0.5, value: center },
       { position: 1, value: center + reach },
     ],
-  }, (at) => (Math.abs(Math.round(at * 6) - 3) === 3 ? ON_DARK : ON_LIGHT));
+  });
 }
 
 function categoricalScale(categories: readonly ChartColorCategory[], accent?: string): ColorScale {

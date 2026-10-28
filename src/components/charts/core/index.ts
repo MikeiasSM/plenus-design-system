@@ -22,6 +22,7 @@ export {
 export type {
   AxisLabelAngle,
   AxisLabelRotation,
+  AxisPosition,
   AxisVisibility,
   CartesianLayout,
   CartesianLayoutOptions,
@@ -77,3 +78,6 @@ export { useTweenedNumbers } from './useTweenedNumbers';
 export type { TweenOptions } from './useTweenedNumbers';
 export { ColorLegend, keyByLabel } from './ColorLegend';
 export type { ColorLegendEntry, ColorLegendProps } from './ColorLegend';
+export { NO_DATA_FILL, NO_DATA_HATCH, NoDataHatch } from './NoDataHatch';
+export type { NoDataStyle } from './NoDataHatch';
+export { isDevelopment } from './isDevelopment';

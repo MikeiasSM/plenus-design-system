@@ -6,6 +6,28 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Incompatível
+
+- `ChartHeatmap`: a célula com `value: null` passa a ser hachurada, como no `ChartMap`; o cinza liso continua com `noDataStyle="neutral"`.
+- `ChartHeatmap`: o cruzamento que não está em `cells` fica em branco, sem célula, sem foco e fora da contagem de sem dado. Antes ele era desenhado como sem dado.
+- `ChartHeatmap`: a escala sequencial de valores não negativos, sem `domain`, parte do zero, e não mais do menor valor.
+
+### Adicionado
+
+- `ChartHeatmap`: `xAxisPosition` (`'bottom' | 'top'`), `squareCells`, `highlight` (`'cell' | 'rowColumn'`) e `noDataStyle`.
+- `ChartHeatmap`: o botão "Ver como tabela", que troca o desenho por uma tabela de linhas por colunas.
+- `ChartHeatmap`: `Ctrl+Home` e `Ctrl+End` vão aos cantos da grade, e as setas saltam os cruzamentos em branco.
+- `ChartHeatmap`: em desenvolvimento, aviso no console para célula repetida ou fora de `xCategories` e `yCategories`.
+- `ChartTooltip`: `anchor`, ponto fixo do balão, usado para abri-lo no foco do teclado.
+- Tipos `AxisPosition`, `ChartHeatmapHighlight` e `NoDataStyle`.
+
+### Corrigido
+
+- `ChartHeatmap`: o valor escrito na escala contínua e nas faixas de cor própria ficava abaixo de 4,5:1 em parte dos tons; agora leva a cor do texto do tema com halo da superfície. Nas faixas da rampa padrão, segue o preto e o branco medidos por passo.
+- `ChartHeatmap`: o balão abre na célula sem dado e no foco do teclado.
+- `ChartHeatmap`: `onHoverCell` não recebe mais `null` entre uma seta e outra, e o balão não pisca ao cruzar o vão entre as células.
+- `ChartHeatmap`: o vão entre células cai para 1 px quando a célula tem menos de 14 px.
+
 ## [0.2.7] — 2026-10-27
 
 ### Adicionado

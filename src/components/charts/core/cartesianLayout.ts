@@ -20,6 +20,8 @@ export function markShown(visibility: MarkVisibility, seriesFocused: boolean) {
   return visibility === 'visible' || (visibility === 'onHover' && seriesFocused);
 }
 
+export type AxisPosition = 'bottom' | 'top';
+
 /** Altura do desenho: um numero fixa, `fill` entrega a decisao ao contêiner. */
 export type ChartHeight = number | 'fill';
 
@@ -61,6 +63,7 @@ export interface CartesianLayoutOptions {
   topRoom: number;
   width: number;
   xAxis: AxisVisibility;
+  xAxisPosition?: AxisPosition;
   yAxis: AxisVisibility;
   yAxisRight: AxisVisibility;
 }
@@ -139,6 +142,7 @@ export function cartesianLayout({
   topRoom,
   width,
   xAxis,
+  xAxisPosition = 'bottom',
   yAxis,
   yAxisRight,
 }: CartesianLayoutOptions): CartesianLayout {
@@ -157,11 +161,15 @@ export function cartesianLayout({
   // Sem rotacao o rotulo das pontas transborda meia largura para cada lado; a
   // folga so precisa cobrir o que a calha lateral ainda nao cobre.
   const bordaLateral = rotation === 0 ? meioRotulo : 0;
+  const rotulos = alturaDosRotulos(bottomLabels, font, rotation, embaixo);
+  const emCima = xAxisPosition === 'top';
+  const girados = emCima && embaixo && rotation !== 0;
+  const bordaDosGirados = girados ? widestLabel(bottomLabels, font) * Math.cos((rotation * Math.PI) / 180) : 0;
   const margins: ChartMargins = {
-    bottom: alturaDosRotulos(bottomLabels, font, rotation, embaixo),
+    bottom: emCima ? 0 : rotulos,
     left: Math.max(left, bordaLateral),
-    right: Math.max(right, bordaLateral),
-    top: Math.max(topRoom, CHART_EDGE_GAP),
+    right: Math.max(right, bordaLateral, bordaDosGirados),
+    top: Math.max(topRoom, emCima ? rotulos : 0, CHART_EDGE_GAP),
   };
 
   return {

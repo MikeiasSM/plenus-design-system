@@ -38,6 +38,8 @@ export interface ChartTooltipComputed {
 }
 
 export interface ChartTooltipProps {
+  /** Ponto fixo do balao, em coordenadas da janela, como a marca em foco pelo teclado. Vale sobre o ponteiro. */
+  anchor?: { x: number; y: number };
   children: ReactNode;
   columns?: readonly ChartTooltipColumn[];
   /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
@@ -99,6 +101,7 @@ function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
  * como imagem unica, e a leitura medida a medida cabe a visao em tabela.
  */
 export function ChartTooltip({
+  anchor,
   children,
   columns,
   computed,
@@ -109,7 +112,10 @@ export function ChartTooltip({
   totalLabel = 'Total',
 }: ChartTooltipProps) {
   const [ponteiro, setPonteiro] = useState<Ponto | null>(null);
-  const visivel = ponteiro !== null && rows.length > 0;
+  const [ancoraDispensada, setAncoraDispensada] = useState<Ponto | null>(null);
+  const ancora = anchor !== undefined && anchor !== ancoraDispensada ? anchor : null;
+  const ponto = ancora ?? ponteiro;
+  const visivel = ponto !== null && rows.length > 0;
 
   // Sai por qualquer motivo que nao seja o ponteiro andando pela area: rolagem,
   // tecla ou a janela mudando de tamanho deixam o balao preso a um lugar que o
@@ -119,18 +125,22 @@ export function ChartTooltip({
       return;
     }
 
-    const esconder = () => setPonteiro(null);
+    const esconder = () => {
+      setPonteiro(null);
+      setAncoraDispensada(ancora);
+    };
+    const soltarPonteiro = () => setPonteiro(null);
 
     window.addEventListener('scroll', esconder, true);
     window.addEventListener('resize', esconder);
-    window.addEventListener('keydown', esconder);
+    window.addEventListener('keydown', soltarPonteiro);
 
     return () => {
       window.removeEventListener('scroll', esconder, true);
       window.removeEventListener('resize', esconder);
-      window.removeEventListener('keydown', esconder);
+      window.removeEventListener('keydown', soltarPonteiro);
     };
-  }, [visivel]);
+  }, [ancora, visivel]);
 
   const acompanhar = (evento: PointerEvent<HTMLDivElement>) =>
     setPonteiro({ x: evento.clientX, y: evento.clientY });
@@ -148,7 +158,7 @@ export function ChartTooltip({
           <Balao
             columns={columns}
             computed={computed}
-            ponteiro={ponteiro}
+            ponteiro={ponto}
             rows={rows}
             showTotal={showTotal}
             subtitle={subtitle}
