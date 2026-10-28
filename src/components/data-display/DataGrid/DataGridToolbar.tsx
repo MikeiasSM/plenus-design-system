@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
+import { ButtonIcon } from '../../actions/ButtonIcon';
 import { InputText } from '../../forms/InputText';
-import { IconSearch } from '../../icons';
+import { IconSearch, IconSidebar } from '../../icons';
+import { Menu, type MenuSection } from '../../overlays/Menu';
 import { useDataGridContext } from './dataGridContext';
 import styles from './DataGrid.module.css';
 
@@ -55,5 +57,25 @@ export function DataGridSearch({ className, label, placeholder = 'Buscar' }: Dat
       value={draft}
       onValueChange={setDraft}
     />
+  );
+}
+
+const NO_SECTIONS: MenuSection[] = [];
+
+export interface DataGridTableMenuProps {
+  className?: string;
+  label?: string;
+}
+
+/** Colunas visíveis, densidade, detalhes, tela cheia e o padrão de volta. */
+export function DataGridTableMenu({ className, label }: DataGridTableMenuProps) {
+  const { label: gridLabel, tableMenu } = useDataGridContext('DataGrid.TableMenu');
+  const [open, setOpen] = useState(false);
+  const name = label ?? `Menu da tabela ${gridLabel}`;
+
+  return (
+    <Menu items={open ? tableMenu() : NO_SECTIONS} label={name} open={open} onOpenChange={setOpen}>
+      <ButtonIcon className={className} icon={<IconSidebar size={14} />} label={name} size="sm" variant="ghost" />
+    </Menu>
   );
 }

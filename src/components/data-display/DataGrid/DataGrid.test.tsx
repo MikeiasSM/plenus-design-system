@@ -314,6 +314,7 @@ describe('DataGrid', () => {
       page: 1,
       pageSize: 25,
       columns: { collapsedGroups: [], hidden: [], order: ['id', 'customer', 'total'], pinned: {}, widths: {} },
+      density: 'normal',
     });
   });
 
@@ -418,6 +419,95 @@ describe('DataGrid', () => {
 
       expect(headers()).toEqual(['Total', 'Cliente']);
       expect(header('Cliente').style.width).toBe('200px');
+    });
+  });
+
+  describe('table menu', () => {
+    function rowOf(name: string) {
+      return screen.getByRole('gridcell', { name }).closest('[role="row"]');
+    }
+
+    function openTableMenu() {
+      fireEvent.click(screen.getByRole('button', { name: 'Menu da tabela Pedidos' }));
+      return screen.getByRole('menu', { name: 'Menu da tabela Pedidos' });
+    }
+
+    function renderWithMenu(props: Partial<Parameters<typeof DataGrid<Order>>[0]> = {}) {
+      return renderGrid({
+        children: (
+          <DataGrid.Toolbar>
+            <DataGrid.Search />
+            <DataGrid.TableMenu />
+          </DataGrid.Toolbar>
+        ),
+        ...props,
+      });
+    }
+
+    it('shows and hides columns, and never the last visible one', () => {
+      renderWithMenu();
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Cliente' }));
+      expect(screen.queryByRole('columnheader', { name: 'Cliente' })).not.toBeInTheDocument();
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Cliente' }));
+      expect(screen.getByRole('columnheader', { name: 'Cliente' })).toBeInTheDocument();
+    });
+
+    it('changes the density of the rows and keeps it in the snapshot', () => {
+      const onStateChange = vi.fn();
+      renderWithMenu({ onStateChange });
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Compacta' }));
+
+      expect(rowOf('Atacado Sul')).toHaveStyle({ height: '32px' });
+      expect(onStateChange).toHaveBeenLastCalledWith(expect.objectContaining({ density: 'compact' }));
+    });
+
+    it('opens the details on the screen with a cap and collapses them all', () => {
+      const onExpandedIdsChange = vi.fn();
+      renderWithMenu({ renderDetail: () => <p>Itens</p>, onExpandedIdsChange });
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Expandir os da tela, até 10' }));
+      expect(onExpandedIdsChange).toHaveBeenLastCalledWith(['P-1', 'P-2', 'P-3']);
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Recolher todos' }));
+      expect(onExpandedIdsChange).toHaveBeenLastCalledWith([]);
+    });
+
+    it('goes full screen and back with Escape', () => {
+      const { container } = renderWithMenu();
+
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Tela cheia' }));
+      const root = container.firstElementChild as HTMLElement;
+      expect(root.className).toMatch(/fullScreen/);
+
+      fireEvent.keyDown(screen.getByRole('searchbox', { name: 'Buscar em Pedidos' }), { key: 'Escape' });
+      expect(root.className).toMatch(/fullScreen/);
+
+      fireEvent.keyDown(screen.getByRole('gridcell', { name: 'Atacado Sul' }), { key: 'Escape' });
+      expect(root.className).not.toMatch(/fullScreen/);
+    });
+
+    it('restores the default columns, order and density', () => {
+      renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'asc' }] });
+
+      fireEvent.click(screen.getByRole('columnheader', { name: 'Cliente' }));
+      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Total' }));
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Restaurar o padrão' }));
+
+      expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('aria-sort', 'ascending');
+    });
+
+    it('shows the whole text of a cut cell under the pointer', () => {
+      renderGrid();
+      const text = screen.getByText('Atacado Sul');
+      Object.defineProperty(text, 'scrollWidth', { configurable: true, value: 200 });
+      Object.defineProperty(text, 'clientWidth', { configurable: true, value: 80 });
+
+      fireEvent.pointerEnter(text);
+
+      expect(text).toHaveAttribute('title', 'Atacado Sul');
     });
   });
 

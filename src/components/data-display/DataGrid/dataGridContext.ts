@@ -1,10 +1,13 @@
 import { createContext, useContext } from 'react';
+import type { MenuSection } from '../../overlays/Menu';
 import type { DataGridScrollRoot } from './scrollRoot';
 
 export interface DataGridContextValue {
   label: string;
   search: string;
   setSearch: (search: string) => void;
+  /** Seções do menu da tabela com o estado de agora: o menu as pede ao abrir. */
+  tableMenu: () => MenuSection[];
 }
 
 export const DataGridContext = createContext<DataGridContextValue | null>(null);

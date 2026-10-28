@@ -18,7 +18,9 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 ## Próximos passos do DataGrid
 
 1. **Teste no NVDA**, com o mantenedor, para fixar a marcação do detalhe. Roteiro no Showcase, exemplo "Master-detail em três níveis": Tab até a grade ("Pedidos com itens, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe ("Detalhe de P-00001") e Enter ("Itens de P-00001"); `Esc` volta ao detalhe. Conferir se a linha de detalhe sem `aria-rowindex` atrapalha a contagem lida.
-2. **Fase 3, colunas e menus**: menu de coluna e de tabela, colunas fixas dos dois lados, redimensionar, mover, ocultar, grupos de cabeçalho, densidade, tela cheia. Entra aqui o "expandir todos do nível atual", com teto.
+2. **Fase 4, filtros e sumarização**: modelo de filtro com grupos E/OU e registro de operadores por tipo; filtro no título, pelo funil ao lado dos três pontos, como decidido no protótipo, e `Alt+↓` para abrir; filtro por conjunto com busca; linha de sumarização fixa no rodapé, sobre as linhas filtradas, e agregados vindos do servidor.
+
+A fase 3, colunas e menus, está feita: menu do título, colunas fixas dos dois lados, redimensionar, ajustar, mover, ocultar, grupos de cabeçalho recolhíveis, menu da tabela com densidade, tela cheia e restaurar. Decisões no `PROGRESS.md`, seção "DataGrid: fase 3, colunas".
 
 O medidor da prova de virtualização já rodou no navegador do mantenedor, sem problema.
 

@@ -11,10 +11,11 @@ export type {
   DataGridRowClickAction,
   DataGridSelectionMode,
 } from './DataGrid';
-export type { DataGridSearchProps, DataGridToolbarProps } from './DataGridToolbar';
+export type { DataGridSearchProps, DataGridTableMenuProps, DataGridToolbarProps } from './DataGridToolbar';
 export type {
   DataGridAlign,
   DataGridColumnType,
+  DataGridDensity,
   DataGridExpandMode,
   DataGridSnapshot,
   DataGridSortDirection,

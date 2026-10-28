@@ -236,12 +236,25 @@ export function effectiveHidden<Column extends DataGridColumnSizing>(
   columns: readonly Column[],
   groupsOf: ReadonlyMap<string, readonly DataGridGroupInfo[]>,
 ) {
-  const collapsed = new Set(state.collapsedGroups);
-  const byCollapse = columns.filter(
-    (column) => column.hideWhenCollapsed && (groupsOf.get(column.id) ?? []).some((group) => collapsed.has(group.id)),
+  const userHidden = new Set(state.hidden);
+  const byCollapse = new Set(
+    columns
+      .filter((column) => column.hideWhenCollapsed && !userHidden.has(column.id))
+      .filter((column) => (groupsOf.get(column.id) ?? []).some((group) => state.collapsedGroups.includes(group.id)))
+      .map((column) => column.id),
   );
 
-  return byCollapse.length === 0 ? state.hidden : [...state.hidden, ...byCollapse.map((column) => column.id)];
+  /* O grupo recolhido mantém a primeira coluna na tela: sem ela, sumiriam a seta e o caminho de volta. */
+  state.collapsedGroups.forEach((groupId) => {
+    const shown = columns.filter(
+      (column) => !userHidden.has(column.id) && (groupsOf.get(column.id) ?? []).some((group) => group.id === groupId),
+    );
+    if (shown.length > 0 && shown.every((column) => byCollapse.has(column.id))) {
+      byCollapse.delete(shown[0].id);
+    }
+  });
+
+  return byCollapse.size === 0 ? state.hidden : [...state.hidden, ...byCollapse];
 }
 
 export function resizeColumn(state: DataGridColumnState, columnId: string, width: number): DataGridColumnState {

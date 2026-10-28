@@ -963,7 +963,25 @@ Primeira entrega da fase 3, na branch `datagrid`, em 28/10/2026. Seguem os grupo
 - **Recolher:** `collapsible` no grupo poe a seta; as colunas com `hideWhenCollapsed` saem da tela, e o grupo recolhido fica em `columnState.collapsedGroups`, separado das ocultas pela pessoa. Pelo teclado, o menu da coluna recolhe e expande o grupo dela; a seta do grupo nao e parada de foco.
 - **Mover dentro do grupo:** o passo e o arrasto so trocam a coluna com as irmas do grupo imediato, contando so as que estao na tela.
 
-**Proximo:** menu da tabela, depois o teste no NVDA, que fixa a marcacao do detalhe.
+**Menu da tabela**, terceira entrega:
+
+- **`DataGrid.TableMenu`**, parte para a barra, ao lado da busca. As secoes sao montadas na hora de abrir, pelo contexto, com o estado de agora: o contexto nao muda a cada desenho da grade, e a busca nao se redesenha ao rolar.
+- **Colunas visiveis**, com o `Menu` do sistema, que fecha a cada escolha; a ultima coluna na tela nao sai.
+- **Densidade:** 32, 40 ou 48 px por linha, no trio `density`, `defaultDensity` e `onDensityChange`, no retrato e na memoria da grade aninhada.
+- **Expandir os da tela**, a partir da primeira linha visivel, com teto de dez, como o plano pedia, e so no modo `multiple`; recolher todos.
+- **Tela cheia** em `position: fixed`, abaixo dos dialogos e menus; `Esc` sai. A janela virtual so se recalculava quando a disposicao mudava, e na tela cheia desenhava 20 linhas num rolador de 930 px; o `ResizeObserver` do rolador passou a avisar a raiz.
+- **Restaurar o padrao:** ordem, busca, pagina, tamanho, colunas e densidade voltam aos valores `default*`, como no prototipo.
+- **Texto inteiro da celula cortada** por `title`, posto so quando o texto nao cabe, ao passar o ponteiro.
+- **Revisao independente** dos grupos e do menu da tabela, antes do commit, achou e corrigiu:
+  - chave repetida nas caixas do cabecalho, com colunas soltas dos dois lados de um grupo, o caso comum; a chave passou a ser a posicao;
+  - recolher um grupo cujas colunas tinham todas `hideWhenCollapsed` tirava o grupo, a seta e o caminho de volta, e podia esvaziar a grade; o grupo recolhido mantem a primeira coluna na tela;
+  - `Esc` na busca saia da tela cheia alem de limpar o campo; num campo, o `Esc` e do campo;
+  - a tela cheia na grade aninhada ficava presa a linha do detalhe, que tem `transform`; a aninhada nao oferece tela cheia;
+  - densidade salva como `"toString"` passava na validacao;
+  - restaurar o padrao avisava a pagina duas vezes;
+  - "expandir os da tela" sem nada a abrir avisava a mudanca e anunciava zero.
+
+**Proximo:** teste no NVDA, que fixa a marcacao do detalhe e do cabecalho em grupos; depois a fase 4, filtros e sumarizacao.
 
 
 ### Contador de caracteres

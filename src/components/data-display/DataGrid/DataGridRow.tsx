@@ -127,7 +127,13 @@ export const DataGridRow = memo(function DataGridRow<Row>({
                 onClick={(event) => onToggle(rowKey, event.shiftKey)}
               />
             )}
-            <span className={styles.text}>
+            <span
+              className={styles.text}
+              onPointerEnter={(event) => {
+                const element = event.currentTarget;
+                element.title = element.scrollWidth > element.clientWidth ? text : '';
+              }}
+            >
               {column.renderCell ? column.renderCell({ row, text, value: cellValue(column, row) }) : text}
             </span>
           </div>

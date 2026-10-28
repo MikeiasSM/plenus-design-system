@@ -260,6 +260,7 @@ function MasterDetail() {
       >
         <DataGrid.Toolbar>
           <DataGrid.Search />
+          <DataGrid.TableMenu />
         </DataGrid.Toolbar>
       </DataGrid>
     </div>
@@ -347,6 +348,7 @@ function GradeDoPlayground({
     >
       <DataGrid.Toolbar>
         <DataGrid.Search />
+        <DataGrid.TableMenu />
       </DataGrid.Toolbar>
     </DataGrid>
   );
@@ -533,6 +535,7 @@ function EstadoSalvo() {
       >
         <DataGrid.Toolbar>
           <DataGrid.Search />
+          <DataGrid.TableMenu />
         </DataGrid.Toolbar>
       </DataGrid>
       <pre className="note">{JSON.stringify(retrato, null, 2)}</pre>
@@ -586,6 +589,12 @@ function Modos() {
         desce até os títulos; acima das colunas sem grupo fica um bloco só. Com <code>collapsible</code>, a seta do grupo
         recolhe e esconde as colunas marcadas com <code>hideWhenCollapsed</code>; o grupo recolhido fica em{' '}
         <code>columnState</code>.
+      </dd>
+      <dt>Menu da tabela</dt>
+      <dd>
+        <code>DataGrid.TableMenu</code>, na barra, mostra e oculta colunas, troca a densidade das linhas, abre os
+        detalhes da tela, até dez, e recolhe todos, põe a grade em tela cheia, de onde Esc sai, e restaura o padrão. A
+        densidade entra no retrato.
       </dd>
       <dt>Vazio, carregando e falha</dt>
       <dd>
@@ -695,7 +704,7 @@ export const pagina: Pagina = {
     },
   ],
   notaDaApi:
-    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds, expandedIds e columnState. Além destas, as propriedades nativas de <div>.',
+    'Cada fatia de estado vem no trio valor, padrão e aviso: sort, search, page, pageSize, selectedIds, expandedIds, columnState e density. Além destas, as propriedades nativas de <div>.',
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da grade.' },
     { nome: 'columns', tipo: 'DataGridColumn<Row>[]', descricao: 'Obrigatória. Colunas como dados: id, header, type, largura e slots.' },
@@ -732,6 +741,7 @@ export const pagina: Pagina = {
       tipo: 'DataGridColumnState',
       descricao: 'Ordem, ocultas, fixas e larguras dadas pela pessoa. Em defaultColumnState, pode ser parcial.',
     },
+    { nome: 'density', tipo: "'compact' | 'normal' | 'comfortable'", padrao: "'normal'", descricao: 'Altura das linhas: 32, 40 ou 48 pixels.' },
     { nome: 'initialState', tipo: 'unknown', descricao: 'Retrato salvo, aplicado de uma vez na montagem.' },
     { nome: 'onStateChange', tipo: '(snapshot: DataGridSnapshot) => void', descricao: 'Retrato versionado a cada mudança.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },

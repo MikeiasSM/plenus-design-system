@@ -52,7 +52,9 @@ import {
   reconcileFocus,
   restoreSnapshot,
   searchRows,
-  snapshotColumnsOf,
+  isDensity,
+  ROW_HEIGHTS,
+  snapshotLayoutOf,
   snapshotOf,
   sortBy,
   sortRows,
@@ -60,6 +62,7 @@ import {
   toggleSort,
   type DataGridBodyItem,
   type DataGridColumnModel,
+  type DataGridDensity,
   type DataGridExpandMode,
   type DataGridFocus,
   type DataGridFocusMove,
@@ -68,7 +71,7 @@ import {
   type DataGridState,
 } from './gridState';
 import { DataGridContext, DataGridLevelContext, DataGridScrollContext } from './dataGridContext';
-import { DataGridSearch, DataGridToolbar } from './DataGridToolbar';
+import { DataGridSearch, DataGridTableMenu, DataGridToolbar } from './DataGridToolbar';
 import { DataGridRow, type DataGridCellContext } from './DataGridRow';
 import { DataGridDetailRow, DETAIL_ESTIMATE, type DataGridDetailContext } from './DataGridDetail';
 import { DataGridDetailLayout } from './DataGridDetailLayout';
@@ -77,7 +80,6 @@ import { buildRowLayout, rowAt, totalHeight, visibleWindow } from './rowLayout';
 import { DataGridScrollRoot } from './scrollRoot';
 import styles from './DataGrid.module.css';
 
-const ROW_HEIGHT = 40;
 const OVERSCAN = 6;
 const DEFAULT_HEIGHT = 480;
 /** Teto do ajuste ao conteúdo: um texto longo não toma a tela inteira. */
@@ -115,8 +117,11 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   columns: readonly DataGridColumnDefinition<Row>[];
   /** No servidor, `rows` é a página atual e `totalRows` o total; a busca, a ordem e a página vão por `onQueryChange`. */
   dataMode?: 'client' | 'server';
+  /** Altura das linhas: 32, 40 ou 48 pixels. */
+  density?: DataGridDensity;
   /** Parcial: o que faltar sai da definição das colunas. */
   defaultColumnState?: Partial<DataGridColumnState>;
+  defaultDensity?: DataGridDensity;
   defaultExpandedIds?: readonly string[];
   defaultPage?: number;
   defaultPageSize?: number;
@@ -138,6 +143,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   label: string;
   loading?: boolean;
   onColumnStateChange?: (state: DataGridColumnState) => void;
+  onDensityChange?: (density: DataGridDensity) => void;
   onExpandedIdsChange?: (ids: readonly string[]) => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -197,6 +203,13 @@ function placedClass({ edge, pin }: DataGridPlacedColumn<unknown>) {
 
 const PIN_NAMES: Record<DataGridPin, string> = { start: 'à esquerda', end: 'à direita' };
 const NO_MENU: MenuSection[] = [];
+/** Teto do "expandir os da tela". */
+const EXPAND_LIMIT = 10;
+const DENSITIES: { key: DataGridDensity; label: string }[] = [
+  { key: 'compact', label: 'Compacta' },
+  { key: 'normal', label: 'Padrão' },
+  { key: 'comfortable', label: 'Confortável' },
+];
 
 const FOCUS_MOVES: Record<string, DataGridFocusMove> = {
   ArrowUp: 'up',
@@ -273,6 +286,8 @@ export function DataGrid<Row>({
   columns: definitions,
   dataMode = 'client',
   defaultColumnState,
+  defaultDensity = 'normal',
+  density: densityProp,
   defaultExpandedIds = [],
   defaultPage = 1,
   defaultPageSize,
@@ -289,6 +304,7 @@ export function DataGrid<Row>({
   label,
   loading = false,
   onColumnStateChange,
+  onDensityChange,
   onExpandedIdsChange,
   onPageChange,
   onPageSizeChange,
@@ -343,9 +359,17 @@ export function DataGrid<Row>({
   const [pageSize, setPageSize] = useSlice(pageSizeProp, restored.pageSize, onPageSizeChange);
   const [selectedIds, setSelectedIds] = useSlice(selectedIdsProp, memory?.selectedIds ?? defaultSelectedIds, onSelectedIdsChange);
   const [expandedIds, setExpandedIds] = useSlice(expandedIdsProp, memory?.expandedIds ?? defaultExpandedIds, onExpandedIdsChange);
+  const [savedLayout] = useState(() => snapshotLayoutOf(initialState));
   const [savedColumnState] = useState(
-    () => memory?.columns ?? normalizeColumnState(snapshotColumnsOf(initialState) ?? defaultColumnState, columns, groupIds),
+    () => memory?.columns ?? normalizeColumnState(savedLayout.columns ?? defaultColumnState, columns, groupIds),
   );
+  const [density, setDensity] = useSlice(
+    densityProp,
+    memory?.density ?? (isDensity(savedLayout.density) ? savedLayout.density : defaultDensity),
+    onDensityChange,
+  );
+  const rowHeight = ROW_HEIGHTS[density];
+  const [fullScreen, setFullScreen] = useState(false);
   const [rawColumnState, setColumnState] = useSlice(columnStateProp, savedColumnState, onColumnStateChange);
   /* Concilia a cada troca das colunas: a coluna nova entra, a removida sai, inclusive no estado controlado. */
   const columnState = useMemo(
@@ -393,18 +417,18 @@ export function DataGrid<Row>({
 
   const state: DataGridState = { sort, search, page: currentPage, pageSize };
   const stateKey = JSON.stringify(state);
-  const snapshotKey = stateKey + JSON.stringify(columnState);
+  const snapshotKey = stateKey + JSON.stringify(columnState) + density;
   /* No servidor a primeira consulta sai na montagem: o retrato restaurado pode diferir do que o produto guardou. */
   const lastStateKey = useRef<string | null>(server ? null : stateKey);
   const lastSnapshotKey = useRef(snapshotKey);
 
   useEffect(() => {
     if (nested) {
-      root.memories.set(gridPath, { ...state, columns: columnState, expandedIds, selectedIds });
+      root.memories.set(gridPath, { ...state, columns: columnState, density, expandedIds, selectedIds });
     }
     if (snapshotKey !== lastSnapshotKey.current) {
       lastSnapshotKey.current = snapshotKey;
-      onStateChange?.(snapshotOf(state, columnState));
+      onStateChange?.(snapshotOf(state, columnState, density));
     }
     if (stateKey !== lastStateKey.current) {
       lastStateKey.current = stateKey;
@@ -596,6 +620,102 @@ export function DataGrid<Row>({
     }
   }
 
+  /* Os da tela, a partir da primeira linha visível, com teto: abrir centenas de detalhes de uma vez pesa na tela. */
+  function expandOnScreen() {
+    const scroller = root.scroller;
+    const body = bodyRef.current;
+    const viewTop = scroller && body ? scroller.scrollTop + root.headHeight() - root.contentTop(body) : 0;
+    const first = items[rowAt(layout, Math.max(viewTop, 0))]?.rowIndex ?? 0;
+    const opening = visibleRows
+      .slice(first)
+      .filter((row, index) => hasDetail(row) && !expandedSet.has(rowKeys[first + index]))
+      .slice(0, EXPAND_LIMIT)
+      .map((row) => rowIdOf.current(row));
+
+    if (opening.length === 0) {
+      return;
+    }
+
+    setExpandedIds([...expandedIds, ...opening]);
+    setAnnouncement(`${opening.length} ${opening.length === 1 ? 'detalhe aberto' : 'detalhes abertos'}`);
+  }
+
+  function restoreDefaults() {
+    setSort(defaultSort);
+    setSearch(defaultSearch);
+    setPage(defaultPage);
+    setPageSize(defaultPageSize ?? pageSizeOptions[0]);
+    setColumnState(normalizeColumnState(defaultColumnState, columns, groupIds));
+    setDensity(defaultDensity);
+    setAnnouncement('Padrão restaurado');
+  }
+
+  function tableMenu(): MenuSection[] {
+    const visible = new Set(columnIds);
+    const sections: MenuSection[] = [
+      {
+        key: 'columns',
+        title: 'Colunas visíveis',
+        items: columns.map((column) => {
+          const shown = !columnState.hidden.includes(column.id);
+          return {
+            key: column.id,
+            label: column.header,
+            checked: shown,
+            disabled: shown && visible.has(column.id) && visible.size === 1,
+            onSelect: () =>
+              changeColumns(
+                setColumnHidden(columnState, column.id, shown),
+                `${column.header} ${shown ? 'oculta' : 'visível'}`,
+              ),
+          };
+        }),
+      },
+      {
+        key: 'density',
+        title: 'Densidade',
+        items: DENSITIES.map(({ key, label: densityLabel }) => ({
+          key,
+          label: densityLabel,
+          checked: density === key,
+          onSelect: () => setDensity(key),
+        })),
+      },
+    ];
+
+    if (withDetail) {
+      sections.push({
+        key: 'detail',
+        items: [
+          ...(expandMode === 'multiple'
+            ? [{ key: 'expand', label: `Expandir os da tela, até ${EXPAND_LIMIT}`, onSelect: expandOnScreen }]
+            : []),
+          {
+            key: 'collapse',
+            label: 'Recolher todos',
+            disabled: expandedIds.length === 0,
+            onSelect: () => {
+              setExpandedIds([]);
+              setAnnouncement('Detalhes recolhidos');
+            },
+          },
+        ],
+      });
+    }
+
+    sections.push({
+      key: 'view',
+      items: [
+        ...(nested
+          ? []
+          : [{ key: 'full', label: fullScreen ? 'Sair da tela cheia' : 'Tela cheia', onSelect: () => setFullScreen(!fullScreen) }]),
+        { key: 'restore', label: 'Restaurar o padrão', onSelect: restoreDefaults },
+      ],
+    });
+
+    return sections;
+  }
+
   /* Fechado o menu por opção ou Esc, o foco volta ao título, ou ao vizinho se a coluna saiu. */
   function returnToHeader(columnId: string) {
     const active = document.activeElement;
@@ -606,10 +726,11 @@ export function DataGrid<Row>({
   }
 
   /* As linhas memorizadas e a busca recebem funções estáveis, que chamam sempre a versão do último desenho. */
-  const latest = useRef({ clickRow, commitSearch, returnToHeader, toggleRow, toggleRowDetail });
+  const latest = useRef({ clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail });
   useLayoutEffect(() => {
-    latest.current = { clickRow, commitSearch, returnToHeader, toggleRow, toggleRowDetail };
+    latest.current = { clickRow, commitSearch, returnToHeader, tableMenu, toggleRow, toggleRowDetail };
   });
+  const tableMenuFromPart = useCallback(() => latest.current.tableMenu(), []);
   const searchFromPart = useCallback((next: string) => latest.current.commitSearch(next), []);
   const toggleFromRow = useCallback((rowKey: string, range: boolean) => latest.current.toggleRow(rowKey, range), []);
   const toggleDetailFromRow = useCallback((rowKey: string) => latest.current.toggleRowDetail(rowKey), []);
@@ -627,11 +748,11 @@ export function DataGrid<Row>({
     () =>
       buildRowLayout(
         items.map((item) =>
-          item.detail ? (root.heights.get(detailPathOf(gridPath, item.rowKey)) ?? DETAIL_ESTIMATE) : ROW_HEIGHT,
+          item.detail ? (root.heights.get(detailPathOf(gridPath, item.rowKey)) ?? DETAIL_ESTIMATE) : rowHeight,
         ),
       ),
     /* `version` muda a cada altura medida, em qualquer nível. */
-    [items, root, gridPath, version],
+    [items, root, gridPath, version, rowHeight],
   );
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
@@ -687,11 +808,15 @@ export function DataGrid<Row>({
       return undefined;
     }
 
-    const observer = new ResizeObserver(() => setViewWidth(scroller.clientWidth));
+    /* A altura também muda a janela: na tela cheia, ou quando o produto muda o espaço da grade. */
+    const observer = new ResizeObserver(() => {
+      setViewWidth(scroller.clientWidth);
+      root.notify();
+    });
     setViewWidth(scroller.clientWidth);
     observer.observe(scroller);
     return () => observer.disconnect();
-  }, []);
+  }, [root]);
 
   const [edges, setEdges] = useState({ start: false, end: false });
   /* A divisa das colunas fixas só aparece quando há conteúdo rolado por baixo dela. */
@@ -853,7 +978,7 @@ export function DataGrid<Row>({
         return;
       }
 
-      const visible = Math.max((root.scroller?.clientHeight ?? 0) - root.headHeight(), ROW_HEIGHT);
+      const visible = Math.max((root.scroller?.clientHeight ?? 0) - root.headHeight(), rowHeight);
       const index = rowKey === null ? 0 : itemKeys.indexOf(rowKey);
       const target = rowAt(layout, layout.offsets[index] + (move === 'pageUp' ? -visible : visible));
       const pageStep = Math.max(Math.abs(target - index), 1);
@@ -937,7 +1062,10 @@ export function DataGrid<Row>({
   const status = useMemo(() => selectionStatus({ selectedKeys: selectedSet }, selectableItems), [selectedSet, selectableItems]);
   const hostColumnId = columnIds[0];
   const multiple = selectionMode === 'multiple';
-  const contextValue = useMemo(() => ({ label, search, setSearch: searchFromPart }), [label, search, searchFromPart]);
+  const contextValue = useMemo(
+    () => ({ label, search, setSearch: searchFromPart, tableMenu: tableMenuFromPart }),
+    [label, search, searchFromPart, tableMenuFromPart],
+  );
 
   const segments = useMemo(() => headerSegments(placed, groupsOf), [placed, groupsOf]);
   const groupRows = segments.reduce((rowsAbove, segment) => Math.max(rowsAbove, segment.level + segment.rowSpan), 0);
@@ -1108,7 +1236,7 @@ export function DataGrid<Row>({
       .join(' ');
 
     if (!group) {
-      return <div className={className} key={segment.key} role="presentation" style={style} />;
+      return <div className={className} key={`${segment.level}-${segment.first}`} role="presentation" style={style} />;
     }
 
     const collapsed = columnState.collapsedGroups.includes(group.id);
@@ -1120,7 +1248,7 @@ export function DataGrid<Row>({
         aria-colspan={segment.span}
         aria-labelledby={labelId}
         className={className}
-        key={segment.key}
+        key={`${segment.level}-${segment.first}`}
         role="columnheader"
         style={style}
       >
@@ -1152,7 +1280,7 @@ export function DataGrid<Row>({
         columns={rowColumns}
         expanded={hasDetail(row) ? expandedSet.has(item.rowKey) : undefined}
         focusedColumnId={activeFocus.rowKey === item.key ? activeFocus.columnId : undefined}
-        height={ROW_HEIGHT}
+        height={rowHeight}
         key={item.key}
         level={withDetail ? level : undefined}
         row={row}
@@ -1207,7 +1335,19 @@ export function DataGrid<Row>({
   return (
     <DataGridScrollContext.Provider value={nested ? outerScroll : ownScroll}>
       <DataGridContext.Provider value={contextValue}>
-        <div {...props} className={[styles.dataGrid, nested && styles.nested, className].filter(Boolean).join(' ')}>
+        <div
+          {...props}
+          className={[styles.dataGrid, nested && styles.nested, fullScreen && styles.fullScreen, className]
+            .filter(Boolean)
+            .join(' ')}
+          onKeyDown={(event) => {
+            props.onKeyDown?.(event);
+            const inField = (event.target as HTMLElement).closest('input, select, textarea, [contenteditable="true"]');
+            if (fullScreen && event.key === 'Escape' && !event.defaultPrevented && !inField) {
+              setFullScreen(false);
+            }
+          }}
+        >
           {children}
           <div className={styles.viewport}>
             <div
@@ -1216,7 +1356,7 @@ export function DataGrid<Row>({
               data-scrolled-start={edges.start || undefined}
               ref={scrollerRef}
               style={{
-                height: nested ? undefined : height,
+                height: nested || fullScreen ? undefined : height,
                 ...(withDetail && viewWidth > 0 && { '--data-grid-view-width': `${viewWidth}px` }),
               }}
               onScroll={() => {
@@ -1312,3 +1452,4 @@ export function DataGrid<Row>({
 DataGrid.Toolbar = DataGridToolbar;
 DataGrid.Search = DataGridSearch;
 DataGrid.DetailLayout = DataGridDetailLayout;
+DataGrid.TableMenu = DataGridTableMenu;

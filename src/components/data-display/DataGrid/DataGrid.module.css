@@ -12,6 +12,25 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+/* Tela cheia abaixo dos diálogos e menus, que continuam abrindo por cima dela. */
+.fullScreen {
+  position: fixed;
+  inset: var(--pl-space-3);
+  z-index: 90;
+  box-shadow: var(--pl-sh-2);
+}
+
+.fullScreen > .viewport {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.fullScreen > .viewport > .scroller {
+  flex: 1;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;

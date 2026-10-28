@@ -1,9 +1,10 @@
 import type { DataGridColumnState } from './columnLayout';
-import type { DataGridSortItem } from './gridState';
+import type { DataGridDensity, DataGridSortItem } from './gridState';
 
 /** O que uma grade aninhada guarda ao ser desmontada pela janela virtual, para voltar como estava. */
 export interface DataGridMemory {
   columns: DataGridColumnState;
+  density: DataGridDensity;
   expandedIds: readonly string[];
   page: number;
   pageSize: number;

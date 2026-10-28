@@ -33,9 +33,18 @@ export interface DataGridState {
   sort: readonly DataGridSortItem[];
 }
 
-/** Retrato para o produto guardar: a consulta e a disposição das colunas. A seleção e a expansão ficam fora. */
+export type DataGridDensity = 'compact' | 'normal' | 'comfortable';
+
+export const ROW_HEIGHTS: Record<DataGridDensity, number> = { compact: 32, normal: 40, comfortable: 48 };
+
+export function isDensity(value: unknown): value is DataGridDensity {
+  return typeof value === 'string' && Object.hasOwn(ROW_HEIGHTS, value);
+}
+
+/** Retrato para o produto guardar: a consulta, as colunas e a densidade. A seleção e a expansão ficam fora. */
 export interface DataGridSnapshot extends DataGridState {
   columns: DataGridColumnState;
+  density: DataGridDensity;
   version: 1;
 }
 
@@ -181,14 +190,19 @@ export function pageRows<Row>(rows: readonly Row[], page: number, pageSize: numb
   return rows.slice(start, start + pageSize);
 }
 
-export function snapshotOf(state: DataGridState, columns: DataGridColumnState): DataGridSnapshot {
-  return { version: 1, sort: state.sort, search: state.search, page: state.page, pageSize: state.pageSize, columns };
+export function snapshotOf(
+  state: DataGridState,
+  columns: DataGridColumnState,
+  density: DataGridDensity,
+): DataGridSnapshot {
+  const { page, pageSize, search, sort } = state;
+  return { version: 1, sort, search, page, pageSize, columns, density };
 }
 
-/** As colunas de um retrato reconhecido; o retrato de antes delas, ou de outra versão, deixa a disposição padrão. */
-export function snapshotColumnsOf(snapshot: unknown) {
+/** Colunas e densidade de um retrato reconhecido; o retrato de antes delas, ou de outra versão, fica com o padrão. */
+export function snapshotLayoutOf(snapshot: unknown): { columns?: unknown; density?: unknown } {
   const versioned = typeof snapshot === 'object' && snapshot !== null && (snapshot as { version?: unknown }).version === 1;
-  return versioned ? (snapshot as { columns?: unknown }).columns : undefined;
+  return versioned ? (snapshot as { columns?: unknown; density?: unknown }) : {};
 }
 
 function isPositiveInteger(value: unknown): value is number {

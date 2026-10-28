@@ -135,6 +135,12 @@ describe('columnLayout', () => {
       expect(effectiveHidden(toggleGroupCollapsed(state, 'money'), leaves, groupsOf)).toEqual(['gross']);
     });
 
+    it('keeps one column of a collapsed group on the screen, so the way back stays', () => {
+      const onlyGross = setColumnHidden(setColumnHidden(state, 'net', true), 'items', true);
+
+      expect(effectiveHidden(toggleGroupCollapsed(onlyGross, 'money'), leaves, groupsOf)).toEqual(['net', 'items']);
+    });
+
     it('moves a column only among the siblings of its group', () => {
       const groupKeyOf = (id: string) => groupsOf.get(id)?.at(-1)?.id ?? '';
 
