@@ -5,7 +5,7 @@
   min-width: 0;
 }
 
-/* Moldura tracejada com o icone em destaque, como a zona de envio do Untitled UI. */
+/* Moldura tracejada: o icone discreto, o texto e as restricoes, e o botao por ultimo. */
 .zone {
   position: relative;
   display: flex;
@@ -49,27 +49,22 @@
   cursor: not-allowed;
 }
 
-.iconBox {
-  display: inline-flex;
-  padding: 10px;
-  border: 1px solid var(--pl-color-border);
-  border-radius: var(--pl-radius-md);
-  background: var(--pl-color-surface);
-  box-shadow: var(--pl-sh-1);
-  color: var(--pl-color-text-secondary);
-  font-size: 1.25rem;
+.icon {
+  color: var(--pl-color-text-tertiary);
+  font-size: 1.5rem;
 }
 
-.dragging .iconBox {
+.dragging .icon {
   color: var(--pl-color-primary);
 }
 
-.instruction {
+.text {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--pl-space-2);
+  flex-direction: column;
+  gap: var(--pl-space-1);
+}
+
+.instruction {
   margin: 0;
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);

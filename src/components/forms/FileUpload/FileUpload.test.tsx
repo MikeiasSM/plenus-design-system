@@ -30,9 +30,9 @@ describe('FileUpload', () => {
 
     const seletor = screen.getByLabelText('Anexo');
     const abrir = vi.spyOn(seletor, 'click');
-    const escolher = screen.getByText('escolha do computador');
+    const escolher = screen.getByText('Escolher do computador');
 
-    expect(screen.queryByRole('button', { name: 'escolha do computador' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Escolher do computador' })).toBeNull();
     expect(escolher).toHaveAttribute('tabindex', '-1');
 
     fireEvent.click(escolher);

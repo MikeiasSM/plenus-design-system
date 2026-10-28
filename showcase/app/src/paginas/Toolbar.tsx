@@ -230,7 +230,7 @@ function BarraDeAcoesFixa() {
           </Button>
         </Toolbar.Group>
         <Toolbar.Group>
-          <ButtonIcon icon={<IconTrash />} label="Excluir selecionados" size="sm" variant="ghost" />
+          <ButtonIcon icon={<IconTrash />} label="Excluir selecionados" size="sm" variant="dangerGhost" />
         </Toolbar.Group>
       </Toolbar>
       <ul style={{ margin: 0, padding: '8px 24px' }}>
@@ -329,7 +329,7 @@ export const pagina: Pagina = {
       descricao: 'flat e sticky: a barra acompanha a rolagem da lista sem moldura própria.',
       Previa: BarraDeAcoesFixa,
       codigo:
-        '<Toolbar appearance="flat" sticky label="Ações dos pedidos">\n  <Toolbar.Group>\n    <Button size="sm"><IconPlus />Novo pedido</Button>\n    <Button size="sm" variant="secondary"><IconUpload />Importar</Button>\n  </Toolbar.Group>\n  <Toolbar.Group>\n    <ButtonIcon icon={<IconTrash />} label="Excluir selecionados" size="sm" variant="ghost" />\n  </Toolbar.Group>\n</Toolbar>',
+        '<Toolbar appearance="flat" sticky label="Ações dos pedidos">\n  <Toolbar.Group>\n    <Button size="sm"><IconPlus />Novo pedido</Button>\n    <Button size="sm" variant="secondary"><IconUpload />Importar</Button>\n  </Toolbar.Group>\n  <Toolbar.Group>\n    <ButtonIcon icon={<IconTrash />} label="Excluir selecionados" size="sm" variant="dangerGhost" />\n  </Toolbar.Group>\n</Toolbar>',
     },
   ],
   faca: {

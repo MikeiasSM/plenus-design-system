@@ -3,9 +3,9 @@ import { Button, IconPlusCircle, type ButtonSize, type ButtonVariant } from '@pl
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
+const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
-const ALTURAS: Record<ButtonSize, number> = { sm: 28, md: 42, lg: 48 };
+const ALTURAS: Record<ButtonSize, number> = { sm: 32, md: 36, lg: 40 };
 // Texto sobre o fundo de cada variante, medido nos tokens do tema claro.
 const CONTRASTES: Record<ButtonVariant, string> = {
   primary: '3,03:1',
@@ -13,6 +13,7 @@ const CONTRASTES: Record<ButtonVariant, string> = {
   soft: '7,27:1',
   ghost: '6,27:1',
   danger: '6,95:1',
+  dangerGhost: '7,86:1',
 };
 
 const playground = definirPlayground({
@@ -182,6 +183,12 @@ export const pagina: Pagina = {
       codigo: '<Button variant="danger" onClick={confirmar}>\n  Excluir módulo\n</Button>',
     },
     {
+      titulo: 'Ação destrutiva discreta',
+      descricao: 'dangerGhost para excluir dentro de uma linha, de uma lista ou de uma barra, onde o vermelho sólido pesaria.',
+      Previa: () => <Button variant="dangerGhost">Excluir rascunho</Button>,
+      codigo: '<Button variant="dangerGhost" onClick={excluir}>\n  Excluir rascunho\n</Button>',
+    },
+    {
       titulo: 'Ações de baixa ênfase',
       descricao: 'Numa barra de ferramentas, ghost e soft não competem com a ação principal.',
       Previa: () => (
@@ -231,7 +238,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, todas as propriedades nativas de <button> e o ref.',
   api: [
-    { nome: 'variant', tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger'", padrao: "'primary'", descricao: 'Peso visual da ação.' },
+    { nome: 'variant', tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerGhost'", padrao: "'primary'", descricao: 'Peso visual da ação. dangerGhost é a destrutiva discreta, só o texto em vermelho.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura de 32, 36 ou 40px; o pequeno e o médio alinham com o campo do mesmo tamanho.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Indicador de atividade; o clique é ignorado.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },

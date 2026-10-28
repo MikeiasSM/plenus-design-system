@@ -88,6 +88,16 @@
   filter: brightness(0.9);
 }
 
+.dangerGhost {
+  --button-hover-shadow: var(--pl-color-danger-solid);
+  background: transparent;
+  color: var(--pl-color-danger-text);
+}
+
+.dangerGhost:not(:disabled):not([aria-disabled='true']):hover {
+  background: var(--pl-color-danger-container);
+}
+
 /* Degraus de 4px, 32, 36 e 40: o pequeno e o medio tem a altura dos campos do mesmo tamanho. */
 .sm {
   padding: calc((var(--pl-control-height-sm) - var(--pl-type-label-line-height)) / 2 - 1px) 12px;

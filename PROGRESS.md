@@ -663,6 +663,11 @@ Decidida pelo mantenedor em 27/10/2026, a partir do artefato https://claude.ai/a
 - Medido em Chrome, no Showcase: botoes 32/36/40; `ButtonIcon` 32/36/40; campos 32 e 36 em `InputText`, `Select`, `ComboBox`, `InputPassword`, `DatePicker`, `TimePicker` e `DateTimePicker`; o campo `lg` segue em 56px.
 - Mudanca incompativel, conforme `CONTRIBUTING.md` secao 11: entra na 0.3.0, com a revisao do `ChartHeatmap`.
 
+### Ajustes vistos nos produtos, em 27/10/2026
+
+- **`FileUpload`.** O botao no meio da frase ("Arraste o arquivo aqui ou [escolha do computador]") quebrava a leitura, e o icone em caixa com borda e sombra parecia outro botao. A zona passou a icone solto em `text-tertiary`, texto, restricoes e o botao por ultimo, "Escolher do computador".
+- **Destrutiva discreta.** A unica variante vermelha era `danger`, solida, pesada demais para a lixeira de uma linha; a `SortableList` e a `Toolbar` do Showcase usavam `ghost`, e a exclusao nao se distinguia. Entrou `dangerGhost` no `Button` e no `ButtonIcon`, a "tertiary destructive" do Untitled UI: `danger-text` sobre transparente, `danger-container` no hover, 7,86:1 no claro e 5,86:1 no escuro. A lixeira do `FileUpload` continua `ghost`: remover um anexo ainda nao enviado nao apaga nada.
+
 ### ButtonIcon
 
 Entrou no catalogo por decisao do mantenedor em 18/10/2026, como componente proprio da familia `Button`, e nao como variante dele.

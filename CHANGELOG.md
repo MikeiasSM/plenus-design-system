@@ -14,6 +14,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Button` e `ButtonIcon` passam à escala compacta, em degraus de 4px: `sm` de 28 para 32px, `md` de 42 para 36px e `lg` de 48 para 40px, todos com fonte de 14px. O `sm` usava 12px e o `lg`, 16px.
 - `--pl-control-height-md` passa de 42 para 36px, e os campos médios acompanham: `InputText` e os demais montados no `Field`, `Select`, `ComboBox`, `InputPassword`, `DatePicker`, `TimePicker` e `DateTimePicker`.
 - `SegmentedControl` passa de 34 para 32px no `sm` e de 42 para 36px no `md`.
+- `FileUpload`: a zona de envio traz o ícone solto, sem caixa, o texto e as restrições em cima e o botão embaixo, agora "Escolher do computador". Antes, o botão ficava na frase, depois de "ou".
 
 ### Adicionado
 
@@ -23,6 +24,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `ChartHeatmap`: em desenvolvimento, aviso no console para célula repetida ou fora de `xCategories` e `yCategories`.
 - `ChartTooltip`: `anchor`, ponto fixo do balão, usado para abri-lo no foco do teclado.
 - Tipos `AxisPosition`, `ChartHeatmapHighlight` e `NoDataStyle`.
+- `Button` e `ButtonIcon`: variante `dangerGhost`, a destrutiva discreta, com o texto e o ícone em vermelho e o fundo vermelho suave sob o ponteiro, para excluir dentro de linhas, listas e barras.
 
 ### Corrigido
 

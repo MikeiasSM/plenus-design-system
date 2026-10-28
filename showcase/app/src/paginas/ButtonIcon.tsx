@@ -14,7 +14,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger'] as const;
+const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const ALTURAS: Record<ButtonSize, number> = { sm: 28, md: 42, lg: 48 };
 const ICONES: Record<string, ReactNode> = {
@@ -232,7 +232,7 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'Nome do botão, obrigatório: vai ao leitor de tela e à dica.' },
     {
       nome: 'variant',
-      tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger'",
+      tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerGhost'",
       padrao: "'secondary'",
       descricao: 'Peso visual, como no Button.',
     },

@@ -2,7 +2,7 @@ import { forwardRef, type ButtonHTMLAttributes, type MouseEvent } from 'react';
 import { Spinner } from '../../feedback/Spinner';
 import styles from './Button.module.css';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerGhost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

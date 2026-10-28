@@ -179,21 +179,19 @@ export function FileUpload({
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
-            <span aria-hidden="true" className={styles.iconBox}>
-              <IconUpload />
-            </span>
-            <p className={styles.instruction}>
-              {multiple ? 'Arraste os arquivos aqui ou' : 'Arraste o arquivo aqui ou'}
-              {/* Fora da tabulacao e da arvore: o controle acessivel e o seletor nativo, que recebe o foco. */}
-              <Button aria-hidden disabled={disabled} onClick={choose} size="sm" tabIndex={-1} variant="secondary">
-                escolha do computador
-              </Button>
-            </p>
-            {restricoes && (
-              <p className={styles.restrictions} id={restrictionsId}>
-                {restricoes.charAt(0).toUpperCase() + restricoes.slice(1)}
-              </p>
-            )}
+            <IconUpload className={styles.icon} />
+            <div className={styles.text}>
+              <p className={styles.instruction}>{multiple ? 'Arraste os arquivos aqui' : 'Arraste o arquivo aqui'}</p>
+              {restricoes && (
+                <p className={styles.restrictions} id={restrictionsId}>
+                  {restricoes.charAt(0).toUpperCase() + restricoes.slice(1)}
+                </p>
+              )}
+            </div>
+            {/* Fora da tabulacao e da arvore: o controle acessivel e o seletor nativo, que recebe o foco. */}
+            <Button aria-hidden disabled={disabled} onClick={choose} size="sm" tabIndex={-1} variant="secondary">
+              Escolher do computador
+            </Button>
             <input
               accept={accept}
               aria-describedby={describedBy}

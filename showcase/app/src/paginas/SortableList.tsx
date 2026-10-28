@@ -50,7 +50,7 @@ function itensDe(blocos: readonly Bloco[], opcoes: OpcoesDaEstrutura, excluir: (
     icon: opcoes.icones ? bloco.icone : undefined,
     level: opcoes.aninhado ? bloco.nivel : undefined,
     actions: opcoes.acoes ? (
-      <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} onClick={() => excluir(bloco.id)} size="sm" variant="ghost" />
+      <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} onClick={() => excluir(bloco.id)} size="sm" variant="dangerGhost" />
     ) : undefined,
   }));
 }
@@ -187,7 +187,7 @@ export const pagina: Pagina = {
       descricao: 'Reordene pela alça ou com Alt e as setas; o estado é do exemplo, que move e exclui os blocos de verdade.',
       Previa: () => <EstruturaDoDocumento />,
       codigo:
-        "const [blocos, setBlocos] = useState(blocosDoDocumento);\n\n<SortableList\n  label=\"Estrutura do documento\"\n  items={blocos.map((bloco) => ({\n    key: bloco.id,\n    title: bloco.tipo,\n    excerpt: bloco.trecho,\n    icon: bloco.icone,\n    level: bloco.nivel,\n    actions: <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} size=\"sm\" variant=\"ghost\" onClick={() => excluir(bloco.id)} />,\n  }))}\n  selectedKey={escolhido}\n  onSelectionChange={setEscolhido}\n  onReorder={(de, para) => setBlocos(mover(blocos, de, para))}\n/>",
+        "const [blocos, setBlocos] = useState(blocosDoDocumento);\n\n<SortableList\n  label=\"Estrutura do documento\"\n  items={blocos.map((bloco) => ({\n    key: bloco.id,\n    title: bloco.tipo,\n    excerpt: bloco.trecho,\n    icon: bloco.icone,\n    level: bloco.nivel,\n    actions: <ButtonIcon icon={<IconTrash />} label={`Excluir ${bloco.tipo}`} size=\"sm\" variant=\"dangerGhost\" onClick={() => excluir(bloco.id)} />,\n  }))}\n  selectedKey={escolhido}\n  onSelectionChange={setEscolhido}\n  onReorder={(de, para) => setBlocos(mover(blocos, de, para))}\n/>",
     },
   ],
   Variantes,
