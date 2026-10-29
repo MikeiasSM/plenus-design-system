@@ -105,7 +105,8 @@ function seletoresDePagina(css) {
   const seletores = new Set();
 
   for (const regra of semKeyframes.matchAll(/([^{}@;]+)\{[^{}]*\}/g)) {
-    for (const parte of regra[1].split(',')) {
+    // Vírgula dentro de `:is()` ou `:not()` não separa seletores.
+    for (const parte of regra[1].split(/,(?![^(]*\))/)) {
       const seletor = parte.trim();
 
       if (seletor && !seletor.includes('.') && !SELETORES_GLOBAIS.has(seletor)) {

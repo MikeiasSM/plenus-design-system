@@ -4,6 +4,8 @@ import {
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
+  useRef,
   useState,
   type ComponentPropsWithRef,
   type ReactNode,
@@ -12,12 +14,21 @@ import styles from './Card.module.css';
 
 export type CardHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
+/** `sm` encolhe o respiro e poe a descricao em largura inteira abaixo do titulo, que para na terceira linha. */
+export type CardSize = 'sm' | 'md';
+
+/** O que o `trailing` faz quando o titulo, numa linha so, nao cabe ao lado dele. */
+export type CardTrailingWhenNarrow = 'keep' | 'wrap' | 'hide';
+
 export interface CardProps extends ComponentPropsWithRef<'section'> {
   children: ReactNode;
+  size?: CardSize;
 }
 
 interface CardContextValue {
   registerTitle: () => () => void;
+  size: CardSize;
+  titled: boolean;
   titleId: string;
 }
 
@@ -33,7 +44,16 @@ function useCardContext(part: string) {
   return context;
 }
 
-export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, ...props }: CardProps) {
+/** Id do titulo do cabecalho, enquanto ele existir, para quem compoe sobre o Card nomear algo por ele. */
+export function useCardTitle() {
+  const { titled, titleId } = useCardContext('useCardTitle');
+
+  return titled ? titleId : undefined;
+}
+
+const join = (...classes: (string | false | undefined)[]) => classes.filter(Boolean).join(' ');
+
+export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, size = 'md', ...props }: CardProps) {
   const baseId = useId();
   const [titled, setTitled] = useState(false);
   const titleId = baseId + '-title';
@@ -44,6 +64,8 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, .
       setTitled(true);
       return () => setTitled(false);
     }, []),
+    size,
+    titled,
     titleId,
   };
 
@@ -51,58 +73,109 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, .
     <section
       {...props}
       aria-labelledby={ariaLabelledBy ?? (titled ? titleId : undefined)}
-      className={[styles.card, className].filter(Boolean).join(' ')}
+      className={join(styles.card, size === 'sm' && styles.sm, className)}
     >
       <CardContext.Provider value={context}>{children}</CardContext.Provider>
     </section>
   );
 }
 
-export interface CardHeaderProps {
+export interface CardHeaderProps extends Omit<ComponentPropsWithRef<'header'>, 'title'> {
   badge?: ReactNode;
   description?: ReactNode;
   headingLevel?: CardHeadingLevel;
   title: string;
   trailing?: ReactNode;
+  trailingWhenNarrow?: CardTrailingWhenNarrow;
 }
 
-function CardHeader({ badge, description, headingLevel = 3, title, trailing }: CardHeaderProps) {
-  const { registerTitle, titleId } = useCardContext('Card.Header');
+/**
+ * Se o `trailing` desceu de linha. Ele continua no fluxo mesmo oculto, sem altura, para a quebra seguir
+ * medindo a largura dele; fora do fluxo, o titulo voltaria a caber e ele reapareceria.
+ */
+function useTrailingWrapped(enabled: boolean) {
+  const titleRow = useRef<HTMLDivElement>(null);
+  const trailing = useRef<HTMLDivElement>(null);
+  const [wrapped, setWrapped] = useState(false);
+
+  useLayoutEffect(() => {
+    const row = titleRow.current;
+    const end = trailing.current;
+
+    if (!enabled || !row || !end) {
+      setWrapped(false);
+      return;
+    }
+
+    const measure = () => setWrapped(end.offsetTop > row.offsetTop);
+    measure();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(row.parentElement ?? row);
+
+    return () => observer.disconnect();
+  }, [enabled]);
+
+  return { titleRow, trailing, wrapped };
+}
+
+function CardHeader({
+  badge,
+  className,
+  description,
+  headingLevel = 3,
+  title,
+  trailing,
+  trailingWhenNarrow = 'keep',
+  ...props
+}: CardHeaderProps) {
+  const { registerTitle, size, titleId } = useCardContext('Card.Header');
   const Heading = ('h' + headingLevel) as 'h2';
+  const flowing = size === 'sm' || trailingWhenNarrow !== 'keep';
+  const narrow = useTrailingWrapped(Boolean(trailing) && trailingWhenNarrow === 'hide');
 
   useEffect(registerTitle, [registerTitle]);
 
   return (
-    <header className={styles.header}>
-      <div className={styles.headline}>
-        <div className={styles.titleRow}>
-          <Heading className={styles.title} id={titleId}>
-            {title}
-          </Heading>
-          {badge}
-        </div>
-        {description && <p className={styles.description}>{description}</p>}
+    <header
+      {...props}
+      className={join(styles.header, flowing && styles.flowing, trailingWhenNarrow === 'keep' && styles.keep, className)}
+    >
+      <div className={styles.titleRow} ref={narrow.titleRow}>
+        <Heading className={styles.title} id={titleId}>
+          {title}
+        </Heading>
+        {badge}
       </div>
-      {trailing && <div className={styles.trailing}>{trailing}</div>}
+      {description && <p className={styles.description}>{description}</p>}
+      {trailing && (
+        <div className={join(styles.trailing, narrow.wrapped && styles.trailingHidden)} ref={narrow.trailing}>
+          {trailing}
+        </div>
+      )}
     </header>
   );
 }
 
-export interface CardBodyProps {
+export interface CardBodyProps extends ComponentPropsWithRef<'div'> {
   children: ReactNode;
   flush?: boolean;
 }
 
-function CardBody({ children, flush = false }: CardBodyProps) {
-  return <div className={flush ? styles.bodyFlush : styles.body}>{children}</div>;
+function CardBody({ className, flush = false, ...props }: CardBodyProps) {
+  return <div {...props} className={join(flush ? styles.bodyFlush : styles.body, className)} />;
 }
 
-export interface CardFooterProps {
+export interface CardFooterProps extends ComponentPropsWithRef<'footer'> {
   children: ReactNode;
 }
 
-function CardFooter({ children }: CardFooterProps) {
-  return <footer className={styles.footer}>{children}</footer>;
+function CardFooter({ className, ...props }: CardFooterProps) {
+  return <footer {...props} className={join(styles.footer, className)} />;
 }
 
 Card.Header = CardHeader;

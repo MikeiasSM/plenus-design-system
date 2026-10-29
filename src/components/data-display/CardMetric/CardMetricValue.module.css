@@ -1,0 +1,76 @@
+.valuePart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.label {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/* O tamanho vem da medida, em degraus da escala oficial; os tokens daqui valem antes dela. */
+.value {
+  margin: 0;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-heading);
+  font-size: var(--pl-type-display-large-size);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: var(--pl-type-display-large-line-height);
+  white-space: nowrap;
+}
+
+.valueButton {
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: help;
+}
+
+.valueButton:focus-visible {
+  outline: none;
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+}
+
+.printOnly {
+  display: none;
+}
+
+@media print {
+  .valueButton {
+    display: none;
+  }
+
+  .printOnly {
+    display: inline;
+  }
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+  margin: 0;
+  color: var(--pl-color-danger-text);
+}
+
+.error svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

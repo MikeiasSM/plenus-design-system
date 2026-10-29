@@ -1,0 +1,13 @@
+.trend {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  cursor: help;
+}
+
+.trend:focus-visible {
+  outline: none;
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+}

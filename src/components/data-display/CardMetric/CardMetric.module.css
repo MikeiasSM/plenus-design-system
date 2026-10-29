@@ -1,0 +1,73 @@
+/* O botao de ativacao cobre o cartao; os controles dentro dele sobem acima, e o texto fica abaixo. */
+.frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.frame:has(> .activate:focus-visible) {
+  outline: none;
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+}
+
+.frame:has(> .activate:hover) {
+  border-color: var(--pl-color-border-strong);
+}
+
+.activate {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.activate:focus-visible {
+  outline: none;
+}
+
+.frame :is(button, a[href], [tabindex]):not(.activate) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Atualizando: os dados continuam na tela, e uma linha no topo diz que outros estao chegando. */
+.updating::before {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--pl-color-primary);
+  content: '';
+  animation: updating 1.2s var(--pl-ease) infinite alternate;
+}
+
+@keyframes updating {
+  from {
+    opacity: 0.25;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .updating::before {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -172,7 +172,23 @@ export type {
   CardHeaderProps,
   CardHeadingLevel,
   CardProps,
+  CardSize,
+  CardTrailingWhenNarrow,
 } from './components/data-display/Card';
+export { CardMetric } from './components/data-display/CardMetric';
+export type {
+  CardMetricBarProps,
+  CardMetricBodyProps,
+  CardMetricChartProps,
+  CardMetricComparison,
+  CardMetricDirection,
+  CardMetricPolarity,
+  CardMetricProps,
+  CardMetricSegment,
+  CardMetricTone,
+  CardMetricTrendProps,
+  CardMetricValueProps,
+} from './components/data-display/CardMetric';
 export { CodeBlock } from './components/data-display/CodeBlock';
 export { SortableList } from './components/data-display/SortableList';
 export type { SortableListItem, SortableListProps } from './components/data-display/SortableList';

@@ -67,6 +67,7 @@ export const familias: readonly Familia[] = [
     componentes: [
       componente('Avatar', 'Representação visual de uma pessoa ou entidade.'),
       componente('Card', 'Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios.'),
+      componente('CardMetric', 'Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe.'),
       componente('Badge', 'Rótulo curto de estado ou categoria.'),
       componente('Tag', 'Etiqueta operada: removível, como o filtro ativo, ou de alternar.'),
       componente('Accordion', 'Seções expansíveis de conteúdo.'),
