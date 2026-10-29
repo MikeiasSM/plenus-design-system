@@ -17,8 +17,9 @@ export interface CardMetricComparison {
 }
 
 /** A seta segue o sinal; a cor segue o sinal e a polaridade. `tone` e `direction` vencem o calculo. */
-export function comparisonTone({ change = 0, direction, polarity = 'higherIsBetter', tone }: CardMetricComparison) {
-  const arrow: CardMetricDirection = direction ?? (change > 0 ? 'up' : change < 0 ? 'down' : 'flat');
+export function comparisonTone({ change, direction, polarity = 'higherIsBetter', tone }: CardMetricComparison) {
+  const ratio = Number.isFinite(change) ? (change as number) : 0;
+  const arrow: CardMetricDirection = direction ?? (ratio > 0 ? 'up' : ratio < 0 ? 'down' : 'flat');
 
   if (tone) {
     return { direction: arrow, tone };

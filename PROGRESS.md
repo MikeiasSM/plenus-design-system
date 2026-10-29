@@ -1060,6 +1060,12 @@ Em 28/10/2026, quatro revisoes independentes sobre tudo o que mudou desde a `v0.
 
 Ficam registrados, sem correcao agora: a linha de detalhe sem `aria-rowindex`, decisao confirmada no teste com NVDA; redimensionar a coluna pelo teclado, que e funcionalidade nova; o anuncio da contagem no modo servidor quando a resposta chega; e a arvore com milhares de niveis de profundidade, que estoura a pilha da recursao.
 
+Na mesma data, a `feature/card-metric` entrou nesta branch para sair junto, e passou por duas revisoes independentes. Corrigido:
+
+- **Card:** o cabecalho padrao voltou as medidas da 0.4.0, sem o espaco da coluna do trailing quando ele nao existe e sem afastar a descricao do titulo quando o trailing e alto; o `sm` nao vaza mais para um `Card` aninhado; em `wrap` e `hide`, a ordem do DOM segue a da tela; o `hide` nao deixa sobra de espaco e esta documentado como saida tambem do leitor de tela e do Tab; `Card.Header` recusa `children`, que descartava. A pagina do `Card` no Showcase passou a mostrar `size` e `trailingWhenNarrow`.
+- **CardMetric:** com `onActivate`, so `button`, link e `[tabindex]` subiam acima da cobertura, e um `SegmentedControl`, `Switch` ou `Checkbox` no cartao abria o detalhe; a regra ainda forcava `position` em botoes de dentro. Agora o conteudo sobe sem receber o ponteiro, os controles o recebem de volta, com especificidade zero. A variacao ausente ou invalida virava "0,0%"; a frase da tendencia passou a trazer a diferenca absoluta e se ela e favoravel; "Atualizando" e anunciado numa regiao viva permanente; o erro aparece mesmo sem o `Value`; o nome do valor traz o rotulo; a barra nao desenha segmento zero ou invalido, e o balao nao mostra percentual no total com negativos, por `total: false` no `ChartTooltip`.
+- Ficam registrados: o anel de foco do cartao depende de `:has()`; a direcao da seta segue o valor bruto, e um `0,0004` sai como alta de 0,0%; a medida do valor nao refaz quando a fonte termina de carregar.
+
 **Proximo:** publicar a 0.5.0, com o DataGrid como "Disponivel" no catalogo.
 
 

@@ -57,7 +57,7 @@ describe('CardMetric', () => {
     montar({ updating: true });
 
     expect(screen.getByRole('region', { name: 'Faturamento' })).toHaveAttribute('aria-busy', 'true');
-    expect(screen.getByText('Atualizando')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Atualizando');
     expect(screen.getByRole('button', { name: /R\$ 1,5 M/ })).toBeInTheDocument();
   });
 
@@ -69,10 +69,47 @@ describe('CardMetric', () => {
     expect(screen.queryByRole('img', { name: /Situação dos títulos/ })).not.toBeInTheDocument();
   });
 
+  it('em erro, a mensagem aparece mesmo sem o valor', () => {
+    render(
+      <CardMetric error="Falhou">
+        <Card.Header title="Vendas" />
+        <CardMetric.Body>
+          <CardMetric.Bar segments={[{ label: 'A', value: 1 }]} title="Composição" />
+        </CardMetric.Body>
+      </CardMetric>,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Falhou');
+  });
+
+  it('diz a diferenca e o sentido, e nao inventa variacao que nao veio', () => {
+    render(
+      <CardMetric>
+        <Card.Header
+          title="Prazo"
+          trailing={
+            <CardMetric.Trend
+              comparisons={[
+                { change: 0.052, label: 'vs. meta', polarity: 'lowerIsBetter', value: 2 },
+                { label: 'vs. ano anterior', value: 500 },
+              ]}
+            />
+          }
+        />
+      </CardMetric>,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Tendência: Alta de 5,2% (+2), desfavorável, vs. meta; Sem variação calculada (+500), vs. ano anterior',
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('le a tendencia como frase e abre o balao no foco', () => {
     montar();
 
-    const tendencia = screen.getByRole('button', { name: 'Tendência: Alta de 12,4%, vs. mês anterior' });
+    const tendencia = screen.getByRole('button', { name: 'Tendência: Alta de 12,4%, favorável, vs. mês anterior' });
     fireEvent.focus(tendencia);
 
     expect(screen.getByText('Comparações')).toBeInTheDocument();

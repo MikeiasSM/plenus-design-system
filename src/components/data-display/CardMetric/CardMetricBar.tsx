@@ -76,7 +76,8 @@ export function CardMetricBar({
   const tooltip = useAnchoredTooltip();
   const [hovered, setHovered] = useState<number | null>(null);
   const rootClass = [styles.bar, orientation === 'vertical' && styles.vertical, className].filter(Boolean).join(' ');
-  const magnitude = segments.reduce((sum, segment) => sum + Math.abs(segment.value), 0);
+  const drawn = segments.filter((segment) => Number.isFinite(segment.value) && segment.value !== 0);
+  const magnitude = drawn.reduce((sum, segment) => sum + Math.abs(segment.value), 0);
 
   if (error) {
     return null;
@@ -126,7 +127,9 @@ export function CardMetricBar({
       <ChartTooltip
         anchor={tooltip.anchor}
         columns={[{ format: formatValue, total: () => signedTotal }]}
-        computed={showPercent ? { compute: share, format: formatPercent } : 'none'}
+        computed={
+          showPercent ? { compute: share, format: formatPercent, total: !drawn.some((segment) => segment.value < 0) } : 'none'
+        }
         rows={rows}
         showTotal
         title={title}
@@ -139,7 +142,7 @@ export function CardMetricBar({
           role="img"
           tabIndex={0}
         >
-          {segments.map((segment, index) => (
+          {segments.map((segment, index) => drawn.includes(segment) && (
             <span
               className={[styles.segment, segment.value < 0 && styles.negative].filter(Boolean).join(' ')}
               data-active={hovered === index || undefined}

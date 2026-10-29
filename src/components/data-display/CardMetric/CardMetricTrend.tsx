@@ -15,6 +15,9 @@ export interface CardMetricTrendProps extends Omit<ComponentPropsWithRef<'button
 }
 
 const WORD = { down: 'Queda', flat: 'Estável', up: 'Alta' } as const;
+const MEANING = { danger: ', desfavorável', neutral: '', success: ', favorável' } as const;
+
+const knownChange = (comparison: CardMetricComparison) => Number.isFinite(comparison.change);
 
 const percentWithDecimal = (ratio: number) => formatRatio(ratio, { decimals: 1 });
 
@@ -37,16 +40,22 @@ export function CardMetricTrend({
   }
 
   const { direction, tone } = comparisonTone(first);
-  const magnitude = (comparison: CardMetricComparison) => formatPercent(Math.abs(comparison.change ?? 0));
+  const magnitude = (comparison: CardMetricComparison) =>
+    knownChange(comparison) ? formatPercent(Math.abs(comparison.change as number)) : '—';
   const signed = (ratio: number) => (ratio > 0 ? '+' : '') + formatPercent(ratio);
-  const phrase = (comparison: CardMetricComparison) =>
-    `${WORD[comparisonTone(comparison).direction]} de ${magnitude(comparison)}, ${comparison.label}`;
+  const difference = (comparison: CardMetricComparison) =>
+    comparison.value === undefined ? '' : ` (${signedValue(comparison.value, comparison.formatValue)})`;
+  const phrase = (comparison: CardMetricComparison) => {
+    const { direction: way, tone: sense } = comparisonTone(comparison);
+    const change = knownChange(comparison) ? `${WORD[way]} de ${magnitude(comparison)}` : 'Sem variação calculada';
+    return `${change}${difference(comparison)}${MEANING[sense]}, ${comparison.label}`;
+  };
   const rows = comparisons.map((comparison) => ({
     label:
       comparison.value === undefined
         ? comparison.label
         : `${comparison.label} · ${signedValue(comparison.value, comparison.formatValue)}`,
-    values: [comparison.change ?? 0],
+    values: [knownChange(comparison) ? (comparison.change as number) : Number.NaN],
   }));
   const Arrow = direction === 'up' ? IconArrowUp : direction === 'down' ? IconArrowDown : null;
 

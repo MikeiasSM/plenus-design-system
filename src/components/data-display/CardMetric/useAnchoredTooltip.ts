@@ -1,7 +1,6 @@
+import { TOOLTIP_OFFSET } from '../../charts/ChartTooltip/ChartTooltip';
 import { useState, type FocusEventHandler, type KeyboardEventHandler, type MouseEventHandler } from 'react';
 
-/** Desconta o afastamento que o ChartTooltip soma ao ponto, para o balao abrir rente ao gatilho. */
-const AFASTAMENTO = 16;
 
 interface TriggerHandlers<T extends Element> {
   onBlur?: FocusEventHandler<T>;
@@ -19,7 +18,7 @@ export function useAnchoredTooltip() {
 
   const anchorBelow = (trigger: Element) => {
     const { bottom, left } = trigger.getBoundingClientRect();
-    setAnchor({ x: left - AFASTAMENTO, y: bottom + 8 - AFASTAMENTO });
+    setAnchor({ x: left - TOOLTIP_OFFSET, y: bottom + 8 - TOOLTIP_OFFSET });
   };
 
   const triggerProps = <T extends Element>(own: TriggerHandlers<T> = {}): TriggerHandlers<T> => ({

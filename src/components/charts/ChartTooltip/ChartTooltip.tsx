@@ -35,6 +35,8 @@ export interface ChartTooltipComputed {
   /** Valor da linha, a partir do valor dela e do total da coluna base. */
   compute?: (value: number, total: number) => number;
   format?: (value: number) => string;
+  /** `false` deixa a linha de total sem ela, como o percentual de uma soma com negativos. */
+  total?: boolean;
 }
 
 export interface ChartTooltipProps {
@@ -57,7 +59,7 @@ interface Ponto {
 }
 
 /** Distancia entre o ponteiro e o balao, para o cursor nao cobrir o texto. */
-const AFASTAMENTO = 16;
+export const TOOLTIP_OFFSET = 16;
 
 /** Folga minima ate a borda da janela. */
 const MARGEM = 8;
@@ -83,12 +85,12 @@ function totalizar(operador: ChartTooltipTotal, valores: readonly number[]) {
  * enquanto couber, e vira para o lado oposto ao encostar na borda.
  */
 function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
-  const cabeADireita = x + AFASTAMENTO + largura <= window.innerWidth - MARGEM;
-  const cabeAbaixo = y + AFASTAMENTO + altura <= window.innerHeight - MARGEM;
+  const cabeADireita = x + TOOLTIP_OFFSET + largura <= window.innerWidth - MARGEM;
+  const cabeAbaixo = y + TOOLTIP_OFFSET + altura <= window.innerHeight - MARGEM;
 
   return {
-    x: cabeADireita ? x + AFASTAMENTO : Math.max(x - AFASTAMENTO - largura, MARGEM),
-    y: cabeAbaixo ? y + AFASTAMENTO : Math.max(y - AFASTAMENTO - altura, MARGEM),
+    x: cabeADireita ? x + TOOLTIP_OFFSET : Math.max(x - TOOLTIP_OFFSET - largura, MARGEM),
+    y: cabeAbaixo ? y + TOOLTIP_OFFSET : Math.max(y - TOOLTIP_OFFSET - altura, MARGEM),
   };
 }
 
@@ -262,7 +264,7 @@ function Balao({
 
             {calculada && (
               <span className={`${styles.computed} ${styles.totalValue}`}>
-                {formatarCalculada(calcular(baseDoTotal, baseDoTotal))}
+                {calculada.total === false ? '' : formatarCalculada(calcular(baseDoTotal, baseDoTotal))}
               </span>
             )}
           </>

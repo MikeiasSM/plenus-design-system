@@ -1,4 +1,5 @@
 import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { IconExclamationCircle } from '../../icons';
 import { Card, useCardTitle } from '../Card/Card';
 import { CardMetricBar } from './CardMetricBar';
 import { CardMetricBody } from './CardMetricBody';
@@ -17,7 +18,7 @@ export interface CardMetricProps extends ComponentPropsWithRef<'section'> {
   loading?: boolean;
   /** Dados validos na tela enquanto os novos chegam, como na troca de filtro. */
   updating?: boolean;
-  /** Mensagem curta. Presente, o valor da lugar a ela e as demais partes saem. */
+  /** Mensagem curta. Presente, ela aparece no corpo do cartao e as partes saem. */
   error?: string;
 }
 
@@ -41,13 +42,26 @@ export function CardMetric({
     <Card
       {...props}
       aria-busy={busy || undefined}
-      className={[styles.frame, updating && styles.updating, className].filter(Boolean).join(' ')}
+      className={[styles.frame, onActivate && styles.activatable, updating && styles.updating, className]
+        .filter(Boolean)
+        .join(' ')}
       size="sm"
     >
       <CardMetricContext.Provider value={{ error, loading, onActivate }}>
         {onActivate && <ActivateButton label={activateLabel} onActivate={onActivate} />}
         {children}
-        {updating && <span className={styles.visuallyHidden}>Atualizando</span>}
+        {error && (
+          <CardMetricBody>
+            <p className={styles.error} role="alert">
+              <IconExclamationCircle aria-hidden="true" size={16} />
+              {error}
+            </p>
+          </CardMetricBody>
+        )}
+        {/* Presente desde o início: a região viva só anuncia o texto que muda dentro dela. */}
+        <span className={styles.visuallyHidden} role="status">
+          {updating ? 'Atualizando' : ''}
+        </span>
       </CardMetricContext.Provider>
     </Card>
   );

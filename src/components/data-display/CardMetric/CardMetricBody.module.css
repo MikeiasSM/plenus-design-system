@@ -8,6 +8,11 @@
   padding: 0 var(--pl-space-4) var(--pl-space-4);
 }
 
+/* Com erro, as partes saem e o corpo do produto fica vazio: a mensagem vem num corpo próprio. */
+.body:empty {
+  display: none;
+}
+
 .horizontal {
   flex-direction: row;
   align-items: flex-end;

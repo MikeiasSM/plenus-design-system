@@ -1,4 +1,6 @@
+/* O respiro é declarado em cada cartão: o `sm` de fora não chega a um `Card` aninhado. */
 .card {
+  --card-gap: var(--pl-space-5);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -22,7 +24,17 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--pl-space-1) var(--pl-space-4);
-  padding: var(--card-gap, var(--pl-space-5));
+  padding: var(--card-gap);
+}
+
+/* Sem trailing, a coluna dele não reserva o espaço entre as duas: o título tem a largura de sempre. */
+.header:not(.flowing, :has(> .trailing)) {
+  column-gap: 0;
+}
+
+/* A altura que um trailing alto acrescenta fica na linha da descrição, e ela continua junto ao título. */
+.header:has(> .description) {
+  grid-template-rows: auto 1fr;
 }
 
 .titleRow {
@@ -51,17 +63,14 @@
   flex-basis: 0;
 }
 
-.flowing > .trailing {
-  order: 1;
-}
-
 .flowing > .description {
   flex: 1 0 100%;
-  order: 2;
 }
 
+/* Some também do leitor de tela e do Tab; a margem devolve o espaço entre linhas que ele ocuparia. */
 .trailingHidden {
   height: 0;
+  margin-top: calc(-1 * var(--pl-space-1));
   overflow: hidden;
   visibility: hidden;
 }
@@ -95,7 +104,7 @@
 }
 
 .body {
-  padding: var(--card-gap, var(--pl-space-5));
+  padding: var(--card-gap);
 }
 
 .bodyFlush {
@@ -107,7 +116,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--pl-space-4);
-  padding: var(--pl-space-4) var(--card-gap, var(--pl-space-5));
+  padding: var(--pl-space-4) var(--card-gap);
   border-top: 1px solid var(--pl-color-border);
 }
 
@@ -117,7 +126,7 @@
   border-bottom: 1px solid var(--pl-color-border);
 }
 
-.sm .title {
+.headerSm > .titleRow > .title {
   display: -webkit-box;
   overflow: hidden;
   overflow-wrap: anywhere;
@@ -125,7 +134,7 @@
   -webkit-line-clamp: 3;
 }
 
-.sm .description {
+.headerSm > .description {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;

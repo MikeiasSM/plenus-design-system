@@ -28,9 +28,29 @@
   outline: none;
 }
 
-.frame :is(button, a[href], [tabindex]):not(.activate) {
+/* O conteúdo sobe acima do botão sem receber o ponteiro, que passa a ele; os controles o recebem de volta.
+   Especificidade zero: a regra de cada controle, como o `pointer-events` do SegmentedControl, continua valendo. */
+:where(.activatable > :not(.activate)) {
   position: relative;
   z-index: 2;
+  pointer-events: none;
+}
+
+:where(.activatable > :not(.activate)) :where(a[href], button, input, label, select, summary, textarea, [tabindex]) {
+  pointer-events: auto;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+  margin: 0;
+  color: var(--pl-color-danger-text);
+}
+
+.error svg {
+  flex: none;
+  margin-top: 2px;
 }
 
 /* Atualizando: os dados continuam na tela, e uma linha no topo diz que outros estao chegando. */

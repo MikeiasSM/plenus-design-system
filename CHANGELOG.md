@@ -2,7 +2,7 @@
 
 Mudanças de cada versão publicada de `@plenustech/design-system`, da mais recente para a mais antiga.
 
-A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]
+A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
 ## [Não publicado]
 
@@ -25,6 +25,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Pagination`: seletor de itens por página, com `pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. Com o seletor, o componente fica na tela mesmo com uma página só.
 - `Pagination`: `showFirstLast`, os passos para a primeira e a última página.
 - Ícones curados `IconSliders`, `IconChevronBarLeft` e `IconChevronBarRight`.
+- `ChartTooltip`: `total: false` na coluna calculada deixa a linha de total sem ela, como o percentual de uma soma com negativos.
 - `CardMetric`, o cartão de um indicador. O produto o monta com o `Card.Header` e as partes `CardMetric.Body`, `CardMetric.Value`, `CardMetric.Trend`, `CardMetric.Bar` e `CardMetric.Chart`, e põe no cabeçalho as ações que quiser.
   - `onActivate` cobre o cartão com um botão nomeado "Abrir detalhes de" e o título, abaixo dos controles de dentro: o clique num controle não abre o detalhe.
   - `loading`, `updating` e `error` chegam às partes: esqueleto em cada uma, a linha de atualização no topo, ou a mensagem no lugar do valor.
@@ -33,8 +34,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
   - `Bar` mostra a composição de um total, horizontal ou vertical, com `palette`, `paletteOrder` e o agrupamento dos positivos pequenos no balão. O negativo ocupa a magnitude, tracejado.
   - `Chart` desenha área ou linha sem eixos no espaço que sobra no cartão, com `showTooltip` e `onPointClick` do gráfico.
   - `Body` com `orientation="horizontal"` põe as partes lado a lado.
-- `Card`: `size="sm"`, com menos respiro, a descrição em largura inteira e o título até a terceira linha.
-- `Card.Header`: `trailingWhenNarrow`, para o `trailing` que não cabe ao lado do título numa linha. `keep`, o padrão, mantém a disposição de sempre; `wrap` o desce para baixo do título; `hide` o esconde.
+- `Card`: `size="sm"`, com menos respiro, o título até a terceira linha e a descrição até a segunda, em largura inteira e abaixo do `trailing`.
+- `Card.Header`: `trailingWhenNarrow`, para o `trailing` que não cabe ao lado do título numa linha. `keep`, o padrão, mantém a disposição de sempre; `wrap` o desce para baixo do título; `hide` o esconde também do leitor de tela e do Tab, e por isso serve só a informação repetida em outro lugar, nunca à única via de uma ação.
 - As partes do `Card` aceitam as propriedades nativas, o `ref` e a `className`, como pede a convenção de API.
 
 ### Alterado

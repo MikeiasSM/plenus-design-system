@@ -19,8 +19,11 @@
   font-family: var(--pl-font-heading);
   font-size: var(--pl-type-display-large-size);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: var(--pl-type-display-large-weight);
   line-height: var(--pl-type-display-large-line-height);
+  /* No menor degrau, o que ainda não cabe termina em reticências, e não cortado no meio. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -51,19 +54,6 @@
   .printOnly {
     display: inline;
   }
-}
-
-.error {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--pl-space-2);
-  margin: 0;
-  color: var(--pl-color-danger-text);
-}
-
-.error svg {
-  flex: none;
-  margin-top: 2px;
 }
 
 .visuallyHidden {

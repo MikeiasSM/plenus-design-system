@@ -109,7 +109,7 @@ Daí decorre o resto: o `Table` usa marcação tabular nativa e a tabulação pe
 
 O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima.
 
-O `CardMetric` é o `Card` de um indicador. O produto o monta com o `Card.Header` e as partes `Value`, `Trend`, `Bar` e `Chart`, e põe no cabeçalho as ações que quiser; o componente não conhece nenhuma delas. A `Bar` mostra a composição de um total, e o `Chart`, a evolução, só em área ou linha: outros gráficos não se leem nesse tamanho. Um painel de gráfico com eixos e legenda é um `Card` com o gráfico no corpo.
+O `CardMetric` é o `Card` de um indicador. O produto o monta com o `Card.Header` e as partes `Body`, `Value`, `Trend`, `Bar` e `Chart`, e põe no cabeçalho as ações que quiser; o componente não conhece nenhuma delas. A `Bar` mostra a composição de um total, e o `Chart`, a evolução, só em área ou linha: outros gráficos não se leem nesse tamanho. Um painel de gráfico com eixos e legenda é um `Card` com o gráfico no corpo.
 
 A fronteira entre `Badge` e `Tag` é o controle. O `Badge` só rotula um estado ou uma categoria e não responde a nada. A `Tag` é operada: removida, como o filtro ativo de uma busca, ou ligada e desligada, como o papel escolhido entre vários.
 

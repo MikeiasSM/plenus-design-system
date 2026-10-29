@@ -80,7 +80,7 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, s
   );
 }
 
-export interface CardHeaderProps extends Omit<ComponentPropsWithRef<'header'>, 'title'> {
+export interface CardHeaderProps extends Omit<ComponentPropsWithRef<'header'>, 'children' | 'title'> {
   badge?: ReactNode;
   description?: ReactNode;
   headingLevel?: CardHeadingLevel;
@@ -140,10 +140,23 @@ function CardHeader({
 
   useEffect(registerTitle, [registerTitle]);
 
+  /* Em fluxo, o trailing vem antes da descrição também no DOM, na ordem em que aparece. */
+  const trailingBox = trailing && (
+    <div className={join(styles.trailing, narrow.wrapped && styles.trailingHidden)} ref={narrow.trailing}>
+      {trailing}
+    </div>
+  );
+
   return (
     <header
       {...props}
-      className={join(styles.header, flowing && styles.flowing, trailingWhenNarrow === 'keep' && styles.keep, className)}
+      className={join(
+        styles.header,
+        flowing && styles.flowing,
+        trailingWhenNarrow === 'keep' && styles.keep,
+        size === 'sm' && styles.headerSm,
+        className,
+      )}
     >
       <div className={styles.titleRow} ref={narrow.titleRow}>
         <Heading className={styles.title} id={titleId}>
@@ -151,12 +164,9 @@ function CardHeader({
         </Heading>
         {badge}
       </div>
+      {flowing && trailingBox}
       {description && <p className={styles.description}>{description}</p>}
-      {trailing && (
-        <div className={join(styles.trailing, narrow.wrapped && styles.trailingHidden)} ref={narrow.trailing}>
-          {trailing}
-        </div>
-      )}
+      {!flowing && trailingBox}
     </header>
   );
 }

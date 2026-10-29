@@ -2,7 +2,6 @@ import type { ComponentPropsWithRef } from 'react';
 import { ChartTooltip } from '../../charts/ChartTooltip';
 import { measureLabel, useChartMetrics, type LabelFont } from '../../charts/core';
 import { Skeleton } from '../../feedback/Skeleton';
-import { IconExclamationCircle } from '../../icons';
 import { formatNumber } from '../../../utils/formatters';
 import { useAnchoredTooltip } from './useAnchoredTooltip';
 import { useCardMetric } from './CardMetricContext';
@@ -51,14 +50,7 @@ export function CardMetricValue({
   const caption = label && <span className={styles.label}>{label}</span>;
 
   if (error) {
-    return (
-      <div {...props} className={rootClass}>
-        <p className={styles.error} role="alert">
-          <IconExclamationCircle aria-hidden="true" size={16} />
-          {error}
-        </p>
-      </div>
-    );
+    return null;
   }
 
   if (loading) {
@@ -110,7 +102,7 @@ export function CardMetricValue({
         >
           <button
             {...tooltip.triggerProps()}
-            aria-label={`${shown}, valor exato ${exact}`}
+            aria-label={`${label ? `${label}: ` : ''}${shown}, valor exato ${exact}`}
             className={styles.valueButton}
             type="button"
           >

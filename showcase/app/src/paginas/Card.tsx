@@ -1,8 +1,10 @@
-import { Badge, Button, Card, type CardHeadingLevel } from '@plenustech/design-system';
+import { Badge, Button, Card, type CardHeadingLevel, type CardSize, type CardTrailingWhenNarrow } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const NIVEIS = ['2', '3', '4', '5', '6'] as const;
+const TAMANHOS = ['md', 'sm'] as const;
+const ESTREITO = ['keep', 'wrap', 'hide'] as const;
 
 const playground = definirPlayground({
   inicial: {
@@ -10,6 +12,8 @@ const playground = definirPlayground({
     title: 'Membros da equipe',
     description: 'Gerencie quem tem acesso ao espaço de trabalho.',
     headingLevel: '3',
+    size: 'md' as CardSize,
+    trailingWhenNarrow: 'keep' as CardTrailingWhenNarrow,
     badge: true,
     trailing: true,
     flush: false,
@@ -20,6 +24,8 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'title' },
     { tipo: 'texto', nome: 'description' },
     { tipo: 'opcoes', nome: 'headingLevel', opcoes: NIVEIS },
+    { tipo: 'opcoes', nome: 'size', opcoes: TAMANHOS },
+    { tipo: 'opcoes', nome: 'trailingWhenNarrow', opcoes: ESTREITO },
     { tipo: 'booleano', nome: 'badge' },
     { tipo: 'booleano', nome: 'trailing' },
     { tipo: 'booleano', nome: 'flush' },
@@ -27,7 +33,7 @@ const playground = definirPlayground({
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
-      <Card>
+      <Card size={valores.size}>
         {valores.cabecalho && (
           <Card.Header
             badge={valores.badge ? <Badge>12</Badge> : undefined}
@@ -35,6 +41,7 @@ const playground = definirPlayground({
             headingLevel={Number(valores.headingLevel) as CardHeadingLevel}
             title={valores.title}
             trailing={valores.trailing ? <Button onClick={() => registrar('Convidar: onClick')} size="sm">Convidar</Button> : undefined}
+            trailingWhenNarrow={valores.trailingWhenNarrow}
           />
         )}
         <Card.Body flush={valores.flush}>
@@ -58,11 +65,12 @@ const playground = definirPlayground({
         ['headingLevel', Number(valores.headingLevel), 3],
         ['badge', valores.badge ? expr('<Badge>12</Badge>') : undefined],
         ['trailing', valores.trailing ? expr('<Button size="sm">Convidar</Button>') : undefined],
+        ['trailingWhenNarrow', valores.trailingWhenNarrow, 'keep'],
       ]);
     const corpo = gerarJsx('Card.Body', [['flush', valores.flush, false]], 'Conteúdo');
     const rodape = valores.rodape && gerarJsx('Card.Footer', [], '…');
 
-    return gerarJsx('Card', [], [cabecalho, corpo, rodape].filter(Boolean).join('\n'));
+    return gerarJsx('Card', [['size', valores.size, 'md']], [cabecalho, corpo, rodape].filter(Boolean).join('\n'));
   },
   verificar: (valores) => {
     const titulo = valores.title.trim();
@@ -190,15 +198,29 @@ export const pagina: Pagina = {
     { garantia: 'Nome de fora', como: <>O <code>aria-labelledby</code> do consumidor prevalece.</>, teste: 'Card.test.tsx' },
     { garantia: 'Nível de título', como: <><code>headingLevel</code> escolhe de h2 a h6.</>, teste: 'Card.test.tsx' },
   ],
-  notaDaApi: 'O Card aceita as propriedades nativas de <section> e o ref. As partes só existem dentro dele.',
+  notaDaApi:
+    'O Card e cada parte aceitam as propriedades nativas do próprio elemento, o ref e a className. As partes só existem dentro do Card.',
   api: [
     { nome: 'Card children', tipo: 'ReactNode', descricao: 'Obrigatório. As partes do cartão.' },
     { nome: 'Card aria-labelledby', tipo: 'string', descricao: 'Nome vindo de fora; vence o título do cabeçalho.' },
+    {
+      nome: 'Card size',
+      tipo: "'md' | 'sm'",
+      padrao: "'md'",
+      descricao: 'sm: menos respiro, título até a terceira linha, descrição até a segunda e em largura inteira, abaixo do trailing.',
+    },
     { nome: 'Card.Header title', tipo: 'string', descricao: 'Obrigatório. Título e nome da região.' },
     { nome: 'Card.Header description', tipo: 'ReactNode', descricao: 'Texto de apoio abaixo do título.' },
     { nome: 'Card.Header badge', tipo: 'ReactNode', descricao: 'Ao lado do título, como uma contagem.' },
     { nome: 'Card.Header trailing', tipo: 'ReactNode', descricao: 'À direita do cabeçalho, como uma ação.' },
     { nome: 'Card.Header headingLevel', tipo: '2 | 3 | 4 | 5 | 6', padrao: '3', descricao: 'Nível do título.' },
+    {
+      nome: 'Card.Header trailingWhenNarrow',
+      tipo: "'keep' | 'wrap' | 'hide'",
+      padrao: "'keep'",
+      descricao:
+        'O trailing que não cabe ao lado do título numa linha: keep o mantém ao lado, wrap o desce, hide o esconde também do leitor de tela e do Tab, e por isso serve só a informação repetida, nunca a única via de uma ação.',
+    },
     { nome: 'Card.Body children', tipo: 'ReactNode', descricao: 'Obrigatório. O conteúdo.' },
     { nome: 'Card.Body flush', tipo: 'boolean', padrao: 'false', descricao: 'Encosta o conteúdo nas bordas.' },
     { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Obrigatório. Rodapé, com os itens nas pontas.' },
