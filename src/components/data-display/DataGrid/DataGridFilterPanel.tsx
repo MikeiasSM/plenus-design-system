@@ -95,7 +95,7 @@ export function DataGridFilterPanel({
   options,
   value,
 }: DataGridFilterPanelProps) {
-  const [editable] = useState(() => fitsEditor(value, kind));
+  const [editable, setEditable] = useState(() => fitsEditor(value, kind));
   const [draft, setDraftState] = useState(() => draftOf(value, operators));
   const [selected, setSelectedState] = useState<readonly string[] | null>(() => {
     const condition = value?.conditions[0];
@@ -155,6 +155,7 @@ export function DataGridFilterPanel({
     setDraftState(draftOf(null, operators));
     setSelectedState(null);
     setEdited(false);
+    setEditable(true);
     onChange(columnId, null);
   }
 

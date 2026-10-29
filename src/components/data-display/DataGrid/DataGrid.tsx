@@ -442,7 +442,9 @@ export function DataGrid<Row>({
     () => ({ ...columnState, hidden: effectiveHidden(columnState, columns, groupsOf) }),
     [columnState, columns, groupsOf],
   );
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncementState] = useState({ text: '', repeat: false });
+  /* O mesmo aviso duas vezes não mudaria a região viva, e o leitor de tela o calaria. */
+  const setAnnouncement = (text: string) => setAnnouncementState((current) => ({ text, repeat: !current.repeat }));
   const anchorKey = useRef<string>(undefined);
   const baseId = useId();
 
@@ -563,7 +565,7 @@ export function DataGrid<Row>({
   const queryKey = stateKey + JSON.stringify(summaryRequests);
   const snapshotKey = stateKey + JSON.stringify(columnState) + density;
   /* No servidor a primeira consulta sai na montagem: o retrato restaurado pode diferir do que o produto guardou. */
-  const lastQueryKey = useRef<string | null>(server ? null : queryKey);
+  const lastQueryKey = useRef<string | null>(server ? (memory?.queryKey ?? null) : queryKey);
   const lastSnapshotKey = useRef(snapshotKey);
 
   useEffect(() => {
@@ -574,7 +576,7 @@ export function DataGrid<Row>({
 
   useEffect(() => {
     if (nested) {
-      root.memories.set(gridPath, { ...state, columns: columnState, density, expandedIds, selectedIds });
+      root.memories.set(gridPath, { ...state, columns: columnState, density, expandedIds, queryKey, selectedIds });
     }
     if (snapshotKey !== lastSnapshotKey.current) {
       lastSnapshotKey.current = snapshotKey;
@@ -600,7 +602,7 @@ export function DataGrid<Row>({
     setSearch(next);
     backToFirstPage();
     if (!server) {
-      const found = searchRows(allRows, searchColumns, next).length;
+      const found = filterRows(searchRows(allRows, searchColumns, next), columns, filter).length;
       setAnnouncement(term ? `${found} ${found === 1 ? 'linha encontrada' : 'linhas encontradas'} para "${term}"` : 'Busca limpa');
     }
   }
@@ -711,9 +713,7 @@ export function DataGrid<Row>({
     );
   }
 
-  function hasDetail(row: Row) {
-    return withDetail && (rowHasDetail?.(row) ?? true);
-  }
+  const hasDetail = useCallback((row: Row) => withDetail && (rowHasDetail?.(row) ?? true), [withDetail, rowHasDetail]);
 
   function canExpand(row: Row, rowKey: string) {
     return tree ? (nodeOf.get(rowKey)?.expandable ?? false) : hasDetail(row);
@@ -722,9 +722,9 @@ export function DataGrid<Row>({
     () =>
       bodyItems(
         rowKeys,
-        (rowKey, index) => withDetail && expandedSet.has(rowKey) && (rowHasDetail?.(visibleRows[index]) ?? true),
+        (rowKey, index) => expandedSet.has(rowKey) && hasDetail(visibleRows[index]),
       ),
-    [rowKeys, visibleRows, expandedSet, withDetail, rowHasDetail],
+    [rowKeys, visibleRows, expandedSet, hasDetail],
   );
   const itemKeys = useMemo(() => items.map((item) => item.key), [items]);
   /* A sumarização entra na navegação depois da última linha; com falha, a mensagem toma o lugar das linhas. */
@@ -797,8 +797,10 @@ export function DataGrid<Row>({
     }
   }
 
+  /* O clique num Popover ou Menu da célula atravessa o portal pela árvore do React: não é clique na linha. */
   function clickRow(rowKey: string, event: MouseEvent) {
-    if (!(event.target as Element).closest(INTERACTIVE_SELECTOR)) {
+    const target = event.target as Element;
+    if ((event.currentTarget as Element).contains(target) && !target.closest(INTERACTIVE_SELECTOR)) {
       runRowAction(rowKey, event.shiftKey);
     }
   }
@@ -825,16 +827,22 @@ export function DataGrid<Row>({
   }
 
   /* As colunas na ordem da tela e as linhas do escopo na ordem atual; na árvore, com os ramos todos abertos. */
-  function exportModelOf(scope: DataGridExportScope): DataGridExportModel {
-    const exported = placed.map((item) => item.column);
-    const everyNode =
+  /* Na árvore, a exportação leva os ramos todos abertos, e não só os da tela. */
+  function everyTreeNode() {
+    return (
       treeBranches &&
       flattenTree(
         treeBranches,
         (row) => rowIdOf.current(row),
         () => true,
         () => false,
-      );
+      )
+    );
+  }
+
+  function exportModelOf(scope: DataGridExportScope): DataGridExportModel {
+    const exported = placed.map((item) => item.column);
+    const everyNode = everyTreeNode();
     const flat = (list: readonly Row[]) => list.map((row) => ({ row, depth: 0, key: rowIdOf.current(row) }));
     const scoped = server || scope === 'page' ? (pageNodes ?? flat(visibleRows)) : (everyNode ?? flat(sorted));
     const chosen = scope === 'selected' ? scoped.filter((item) => selectedSet.has(item.key)) : scoped;
@@ -864,7 +872,7 @@ export function DataGrid<Row>({
 
   /* Só as selecionadas que o escopo alcança: a que o filtro escondeu, ou que está em outra página do servidor, não vai. */
   function exportItems() {
-    const reachable = server ? rowKeys : selectableItems.map((item) => item.key);
+    const reachable = server ? rowKeys : (everyTreeNode()?.map((node) => node.key) ?? selectableItems.map((item) => item.key));
     const selectedCount = reachable.filter((key) => selectedSet.has(key)).length;
     const selectedName = selectedCount === 1 ? ' da selecionada' : ` das ${selectedCount} selecionadas`;
     const scopes: DataGridExportScope[] = [
@@ -1828,8 +1836,8 @@ export function DataGrid<Row>({
                 onBlur={(event) => {
                   gridHasFocus.current = event.currentTarget.contains(event.relatedTarget as Node | null);
                 }}
-                onFocus={() => {
-                  gridHasFocus.current = true;
+                onFocus={(event) => {
+                  gridHasFocus.current = event.currentTarget.contains(event.target);
                 }}
                 onKeyDown={handleKeyDown}
               >
@@ -1897,7 +1905,8 @@ export function DataGrid<Row>({
             </div>
           )}
           <div aria-live="polite" className={styles.visuallyHidden} role="status">
-            {announcement}
+            {announcement.text}
+            {announcement.repeat && '\u00a0'}
           </div>
         </div>
       </DataGridContext.Provider>

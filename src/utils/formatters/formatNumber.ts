@@ -1,3 +1,5 @@
+import { numberFormat } from './intlCache';
+
 /**
  * `true` compacta na forma da localidade: em pt-BR, `500 mil` e `1,5 mi`. `'symbol'` usa as siglas
  * `k`, `M`, `B` e `T` — `500 k`, `1,5 M` —, com a virgula e o milhar da localidade.
@@ -75,11 +77,11 @@ export function formatNumber(value: number, { compact, decimals, locale = 'pt-BR
 
   if (compact === 'symbol') {
     return withSymbol(value, decimals, (reduced, digits) =>
-      new Intl.NumberFormat(locale, { ...SIGN, ...digits }).format(reduced),
+      numberFormat(locale, { ...SIGN, ...digits }).format(reduced),
     );
   }
 
-  return new Intl.NumberFormat(locale, { ...SIGN, ...notation(compact), ...fractionDigits(decimals) }).format(value);
+  return numberFormat(locale, { ...SIGN, ...notation(compact), ...fractionDigits(decimals) }).format(value);
 }
 
 /**
@@ -98,11 +100,11 @@ export function formatCurrency(
 
   if (compact === 'symbol') {
     return withSymbol(value, decimals, (reduced, digits) =>
-      new Intl.NumberFormat(locale, { ...SIGN, currency, style: 'currency', ...digits }).format(reduced),
+      numberFormat(locale, { ...SIGN, currency, style: 'currency', ...digits }).format(reduced),
     );
   }
 
-  return new Intl.NumberFormat(locale, {
+  return numberFormat(locale, {
     ...SIGN,
     currency,
     style: 'currency',
@@ -121,5 +123,5 @@ export function formatPercent(value: number, { decimals = 0, locale = 'pt-BR' }:
     return '';
   }
 
-  return new Intl.NumberFormat(locale, { ...SIGN, style: 'percent', ...fractionDigits(decimals) }).format(value);
+  return numberFormat(locale, { ...SIGN, style: 'percent', ...fractionDigits(decimals) }).format(value);
 }

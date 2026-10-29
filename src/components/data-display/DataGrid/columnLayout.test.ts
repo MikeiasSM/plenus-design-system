@@ -55,6 +55,12 @@ describe('columnLayout', () => {
     expect(placed.map((item) => item.width)).toEqual([104, 284, 192, 120, 60]);
   });
 
+  it('gives the width a flexible column cannot take to the other flexible ones', () => {
+    const capped: DataGridColumnSizing[] = [{ id: 'a', maxWidth: 150 }, { id: 'b' }];
+
+    expect(placeColumns(capped, defaultColumnState(capped), 1000, 0).map((item) => item.width)).toEqual([150, 850]);
+  });
+
   it('keeps a resized column fixed and leaves the hidden ones out', () => {
     const state = setColumnHidden(resizeColumn(initial, 'customer', 180.4), 'city', true);
     const placed = placeColumns(columns, state, 1000, 0);

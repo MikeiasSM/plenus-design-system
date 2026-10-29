@@ -180,7 +180,7 @@ function Modos() {
       <dt><code>pageCount</code> ausente</dt>
       <dd>Sai de <code>totalItems</code> e do tamanho da página.</dd>
       <dt><code>page</code> fora da faixa</dt>
-      <dd>É limitada entre 1 e <code>pageCount</code>.</dd>
+      <dd>É limitada entre 1 e o total de páginas.</dd>
     </dl>
   );
 }

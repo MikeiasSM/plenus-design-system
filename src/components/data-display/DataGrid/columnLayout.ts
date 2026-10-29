@@ -129,14 +129,38 @@ export function placeColumns<Column extends DataGridColumnSizing>(
     (column, index) =>
       (state.widths[column.id] ?? column.width ?? column.minWidth ?? DEFAULT_MIN_WIDTH) + extraOf(index),
   );
-  const spare = Math.max(viewWidth - bases.reduce((sum, base) => sum + base, 0), 0);
-  const weights = display.reduce((sum, column) => sum + (flexible(column) ? (column.flex ?? 1) : 0), 0);
+  const maxOf = (column: Column, index: number) =>
+    column.maxWidth === undefined ? Infinity : column.maxWidth + extraOf(index);
+  const widths = [...bases];
+  let growing = display.flatMap((column, index) => (flexible(column) ? [index] : []));
+  let spare = Math.max(viewWidth - bases.reduce((sum, base) => sum + base, 0), 0);
 
-  const placed = display.map((column, index): DataGridPlacedColumn<Column> => {
-    const share = flexible(column) && weights > 0 ? Math.floor((spare * (column.flex ?? 1)) / weights) : 0;
-    const max = column.maxWidth === undefined ? Infinity : column.maxWidth + extraOf(index);
-    return { column, edge: false, offset: 0, pin: state.pinned[column.id], width: Math.min(bases[index] + share, max) };
-  });
+  /* A coluna que bate no máximo para, e a sobra dela volta às outras flexíveis. */
+  while (spare > 0 && growing.length > 0) {
+    const weights = growing.reduce((sum, index) => sum + (display[index].flex ?? 1), 0);
+    const capped = growing.filter((index) => bases[index] + (spare * (display[index].flex ?? 1)) / weights >= maxOf(display[index], index));
+
+    if (capped.length === 0) {
+      growing.forEach((index) => {
+        widths[index] = bases[index] + Math.floor((spare * (display[index].flex ?? 1)) / weights);
+      });
+      break;
+    }
+
+    capped.forEach((index) => {
+      widths[index] = maxOf(display[index], index);
+      spare -= widths[index] - bases[index];
+    });
+    growing = growing.filter((index) => !capped.includes(index));
+  }
+
+  const placed = display.map((column, index): DataGridPlacedColumn<Column> => ({
+    column,
+    edge: false,
+    offset: 0,
+    pin: state.pinned[column.id],
+    width: Math.min(widths[index], maxOf(column, index)),
+  }));
 
   let start = 0;
   placed.forEach((item) => {
@@ -244,9 +268,10 @@ export function effectiveHidden<Column extends DataGridColumnSizing>(
       .map((column) => column.id),
   );
 
-  /* O grupo recolhido mantém a primeira coluna na tela: sem ela, sumiriam a seta e o caminho de volta. */
+  /* O grupo recolhido mantém a primeira coluna da tela: sem ela, sumiriam a seta e o caminho de volta. */
+  const position = new Map(state.order.map((id, index) => [id, index]));
   state.collapsedGroups.forEach((groupId) => {
-    const shown = columns.filter(
+    const shown = [...columns].sort((a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0)).filter(
       (column) => !userHidden.has(column.id) && (groupsOf.get(column.id) ?? []).some((group) => group.id === groupId),
     );
     if (shown.length > 0 && shown.every((column) => byCollapse.has(column.id))) {

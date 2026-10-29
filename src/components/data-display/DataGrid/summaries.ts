@@ -18,12 +18,22 @@ function numbers(values: readonly unknown[]) {
   return values.map(Number).filter(Number.isFinite);
 }
 
+/** O número vem antes da data: `Date.parse` leria "10" como um mês de 2001. */
+function measureOf(value: unknown) {
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  const number = typeof value === 'number' ? value : Number(String(value).trim() || NaN);
+  return Number.isNaN(number) ? Date.parse(String(value)) : number;
+}
+
 /** Mínimo e máximo comparam número ou data, e devolvem o valor original, que o tipo da coluna formata. */
 function extreme(values: readonly unknown[], pick: (a: number, b: number) => boolean) {
   let best: { measure: number; value: unknown } | undefined;
 
   values.forEach((value) => {
-    const measure = value instanceof Date ? value.getTime() : typeof value === 'number' ? value : Date.parse(String(value));
+    const measure = measureOf(value);
     if (Number.isFinite(measure) && (!best || pick(measure, best.measure))) {
       best = { measure, value };
     }

@@ -235,17 +235,22 @@ function MenuList({
 
   function openSubmenu(item: MenuItem, initial: InitialFocus) {
     clearTimeout(hoverTimer.current);
+    returnFocusFromSubmenu();
     submenuAnchor.current = nodes.current.get(item.key) ?? null;
     setSubmenu({ key: item.key, focus: initial });
   }
 
-  /* O foco que estava no submenu volta ao item pai, e nao se perde no `body`. */
-  function closeSubmenu() {
-    clearTimeout(hoverTimer.current);
+  /* O foco que estava no submenu volta ao item pai, e nao se perde no `body` quando ele sai ou troca. */
+  function returnFocusFromSubmenu() {
     if (submenu && submenuList.current?.contains(document.activeElement)) {
       focus(submenu.key);
       nodes.current.get(submenu.key)?.focus();
     }
+  }
+
+  function closeSubmenu() {
+    clearTimeout(hoverTimer.current);
+    returnFocusFromSubmenu();
     setSubmenu(null);
   }
 
@@ -381,7 +386,7 @@ function MenuList({
       })}
       {openItem?.items &&
         createPortal(
-          <FocusScope>
+          <FocusScope key={openItem.key}>
             <MenuList
               anchorRef={submenuAnchor}
               initialFocus={submenu?.focus ?? null}

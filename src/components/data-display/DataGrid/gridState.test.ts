@@ -114,6 +114,13 @@ describe('sortRows', () => {
     expect(ids(stacked)).toEqual(['1', '4', '3', '5', '2']);
   });
 
+  it('keeps ordering when a value is not a number or a date', () => {
+    const rows = [{ id: '1', d: '2024-03-01' }, { id: '2', d: 'xx' }, { id: '3', d: '2024-01-01' }];
+    const byDate: DataGridColumnModel<(typeof rows)[number]>[] = [{ id: 'd', header: 'Data', type: 'date' }];
+
+    expect(sortRows(rows, byDate, [{ columnId: 'd', direction: 'asc' }]).map((row) => row.id)).toEqual(['3', '1', '2']);
+  });
+
   it('orders dates chronologically', () => {
     expect(ids(sortRows(orders, columns, [{ columnId: 'issuedAt', direction: 'asc' }]))).toEqual(['2', '3', '4', '1', '5']);
   });
@@ -251,6 +258,29 @@ describe('filters', () => {
     expect(ids(filterRows(orders, columns, filter))).toEqual(['2', '3']);
   });
 
+  it('reads 1 and 0 as the yes and no the cell shows, and equal numbers within float noise', () => {
+    const rows = [{ id: 'a', flag: 1, total: 10.1 + 20.2 }, { id: 'b', flag: 0, total: 5 }];
+    const cols: DataGridColumnModel<(typeof rows)[number]>[] = [
+      { id: 'flag', header: 'Ativo', type: 'boolean' },
+      { id: 'total', header: 'Total', type: 'currency' },
+    ];
+
+    expect(filterRows(rows, cols, where({ columnId: 'flag', operator: 'true' })).map((row) => row.id)).toEqual(['a']);
+    expect(filterRows(rows, cols, where({ columnId: 'total', operator: 'equals', value: 30.3 })).map((row) => row.id)).toEqual(['a']);
+  });
+
+  it('leaves out of an or group a condition still being written', () => {
+    const filter: DataGridFilter = {
+      logic: 'or',
+      conditions: [
+        { columnId: 'total', operator: 'greaterThan', value: 1000 },
+        { columnId: 'total', operator: 'lessThan', value: '' },
+      ],
+    };
+
+    expect(ids(filterRows(orders, columns, filter))).toEqual(['1']);
+  });
+
   it('ignores a condition still being written', () => {
     expect(filterRows(orders, columns, where({ columnId: 'customer', operator: 'contains', value: '' }))).toHaveLength(5);
     expect(ids(filterRows(orders, columns, where({ columnId: 'total', operator: 'between', value: [80, ''] })))).toHaveLength(5);
@@ -284,6 +314,13 @@ describe('summaries', () => {
     expect(summaryText(withSummary[0], values.total)).toBe('R$\u00a01.930,00');
     expect(summaryText(withSummary[1], values.issuedAt)).toBe('01/04/2026');
     expect(summaryText(withSummary[2], values.customer)).toBe('5');
+  });
+
+  it('reads numbers in text as numbers for the minimum and the maximum', () => {
+    const rows = [{ v: '5' }, { v: '10' }, { v: '100' }];
+    const max: DataGridColumnModel<(typeof rows)[number]>[] = [{ id: 'v', header: 'Valor', type: 'number', summary: 'max' }];
+
+    expect(summarize(rows, max).v).toBe('100');
   });
 
   it('leaves the cell blank when nothing is left to aggregate', () => {

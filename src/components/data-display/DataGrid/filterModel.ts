@@ -42,9 +42,14 @@ function isBlank(value: unknown) {
   return value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value));
 }
 
-/** Aceita a vírgula decimal do campo; o texto parcial, como "-", vira `NaN`, que conta como vazio. */
+/** Aceita a vírgula decimal, com ou sem ponto de milhar; o texto parcial, como "-", vira `NaN`, que conta como vazio. */
 export function numberOf(value: unknown) {
-  return typeof value === 'number' ? value : Number(String(value).replace(',', '.'));
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  const text = String(value);
+  return Number(text.includes(',') ? text.replace(/\./g, '').replace(',', '.') : text);
 }
 
 function rangeOf(operand: unknown) {
@@ -75,6 +80,11 @@ function filled(test: DataGridFilterOperator['test']): DataGridFilterOperator['t
   return (value, operand, text) => !isBlank(value) && test(value, operand, text);
 }
 
+/** Com a tolerância do ponto flutuante: `10.1 + 20.2` é o 30,30 que a célula mostra. */
+function sameNumber(a: number, b: number) {
+  return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+}
+
 function numeric(id: string, label: string, test: (value: number, operand: number) => boolean): DataGridFilterOperator {
   return { id, label, operand: 'single', test: filled((value, operand) => test(numberOf(value), numberOf(operand))) };
 }
@@ -100,8 +110,8 @@ export const dataGridFilterOperators: Record<DataGridFilterKind, readonly DataGr
     ...EMPTY_OPERATORS,
   ],
   number: [
-    numeric('equals', 'Igual a', (value, operand) => value === operand),
-    numeric('notEquals', 'Diferente de', (value, operand) => value !== operand),
+    numeric('equals', 'Igual a', sameNumber),
+    numeric('notEquals', 'Diferente de', (value, operand) => !sameNumber(value, operand)),
     numeric('greaterThan', 'Maior que', (value, operand) => value > operand),
     numeric('greaterThanOrEqual', 'Maior ou igual a', (value, operand) => value >= operand),
     numeric('lessThan', 'Menor que', (value, operand) => value < operand),
@@ -134,8 +144,8 @@ export const dataGridFilterOperators: Record<DataGridFilterKind, readonly DataGr
     ...EMPTY_OPERATORS,
   ],
   boolean: [
-    { id: 'true', label: 'Sim', operand: 'none', test: (value) => value === true },
-    { id: 'false', label: 'Não', operand: 'none', test: (value) => value === false },
+    { id: 'true', label: 'Sim', operand: 'none', test: filled((value) => Boolean(value)) },
+    { id: 'false', label: 'Não', operand: 'none', test: filled((value) => !value) },
   ],
   set: [{ id: 'in', label: 'Está entre', operand: 'list', test: (_, operand, text) => rangeOf(operand).includes(text) }],
 };

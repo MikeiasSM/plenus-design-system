@@ -247,7 +247,7 @@ export const pagina: Pagina = {
   ],
   Modos,
   teclado: [
-    { teclas: ['Enter', 'Espaço'], acao: 'No gatilho, abre o menu na primeira opção; num item, aciona e fecha.' },
+    { teclas: ['Enter', 'Espaço'], acao: 'No gatilho, abre o menu na primeira opção; num item, aciona e fecha; num item com submenu, abre-o na primeira opção.' },
     { teclas: ['↓'], acao: 'No gatilho, abre na primeira opção; no menu, vai à próxima, pulando as desabilitadas.' },
     { teclas: ['↑'], acao: 'No gatilho, abre na última opção; no menu, vai à anterior, pulando as desabilitadas.' },
     { teclas: ['Home', 'End'], acao: 'Primeira e última opção habilitada.' },

@@ -6,6 +6,8 @@ export interface DataGridMemory extends DataGridState {
   columns: DataGridColumnState;
   density: DataGridDensity;
   expandedIds: readonly string[];
+  /** A última consulta enviada ao servidor: o detalhe que volta à tela não a repete. */
+  queryKey: string;
   selectedIds: readonly string[];
 }
 

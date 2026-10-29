@@ -17,7 +17,7 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   defaultPage?: number;
   /** Tamanho de pagina inicial no modo nao controlado. Sem ele, a primeira opcao de `pageSizeOptions`. */
   defaultPageSize?: number;
-  /** Suspende a troca de pagina, como enquanto a pagina pedida carrega. Os botoes continuam focaveis. */
+  /** Suspende os botoes de pagina, como enquanto a pagina pedida carrega; continuam focaveis. O seletor de tamanho segue ativo. */
   disabled?: boolean;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;

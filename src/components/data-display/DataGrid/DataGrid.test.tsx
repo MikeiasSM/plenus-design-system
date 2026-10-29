@@ -110,6 +110,17 @@ describe('DataGrid', () => {
       expect(screen.getByRole('status')).toHaveTextContent('1 linha encontrada');
     });
 
+    it('counts the found rows after the column filters', () => {
+      renderGrid({
+        children: <DataGrid.Toolbar><DataGrid.Search /></DataGrid.Toolbar>,
+        defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'lessThan', value: 1000 }] },
+      });
+
+      searchFor('P-');
+
+      expect(screen.getByRole('status')).toHaveTextContent('2 linhas encontradas para "P-"');
+    });
+
     it('says when nothing matches', () => {
       renderGrid({ children: <DataGrid.Search /> });
 

@@ -1,3 +1,5 @@
+import { dateTimeFormat } from './intlCache';
+
 export interface FormatDateOptions {
   format?: 'long' | 'numeric' | 'short';
   locale?: string;
@@ -43,7 +45,7 @@ export function formatDate(value: Date | string, { format = 'numeric', locale = 
     return '';
   }
 
-  return new Intl.DateTimeFormat(locale, STYLES[format]).format(date);
+  return dateTimeFormat(locale, STYLES[format]).format(date);
 }
 
 export function formatTime(value: Date | string, { locale = 'pt-BR', seconds = false }: FormatTimeOptions = {}) {
@@ -53,7 +55,7 @@ export function formatTime(value: Date | string, { locale = 'pt-BR', seconds = f
     return '';
   }
 
-  return new Intl.DateTimeFormat(locale, {
+  return dateTimeFormat(locale, {
     hour: '2-digit',
     minute: '2-digit',
     second: seconds ? '2-digit' : undefined,

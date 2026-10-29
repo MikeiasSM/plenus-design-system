@@ -1047,7 +1047,20 @@ Feito pelo mantenedor, em 28/10/2026, no Showcase: grade basica, filtro, linha d
 - **Unico defeito:** no filtro de conjunto, as setas sobre os valores rolavam a pagina. Agora andam entre os valores, com Home e End nas pontas.
 - **Esc no filtro:** fecha o painel e devolve o foco ao titulo. Com o NVDA em modo de foco automatico, o primeiro Esc e do proprio leitor, que volta ao modo de navegacao; o segundo chega a pagina.
 
-**Proximo:** lancamento, numa versao de correcao.
+### Revisao final antes da publicacao
+
+Em 28/10/2026, quatro revisoes independentes sobre tudo o que mudou desde a `v0.4.0`: nucleo do DataGrid, motores puros, partes visuais e `Menu`, `Pagination` e documentacao. Nenhum defeito alto no DataGrid; corrigido:
+
+- **Desempenho:** os formatadores montavam um `Intl` a cada celula; com 50.000 linhas, formatar uma coluna de moeda levava 1,2 s e uma de data 2,0 s, a cada tecla da busca. Agora o `Intl` fica em cache por localidade e opcao: 55 ms e 100 ms.
+- **Motores:** um valor que nao e numero nem data desfazia a ordem da coluna inteira; a condicao incompleta num grupo OU aceitava todas as linhas; minimo e maximo liam "10" como data; o filtro sim/nao ignorava 1 e 0; "Igual a" errava pelo ruido do ponto flutuante; a sobra da coluna que bate no `maxWidth` ficava vazia; o grupo recolhido mantinha a primeira coluna da definicao, e nao da tela; o operando com ponto de milhar virava `NaN`.
+- **Nucleo:** a contagem da busca ignorava o filtro de coluna; na arvore, exportar as selecionadas contava so os ramos abertos; a grade aninhada no servidor repetia a consulta ao reabrir o detalhe; um aviso igual ao anterior nao era lido.
+- **Partes:** o painel de filtro que nao cabia no editor ficava preso no aviso depois de Limpar; o clique num Popover ou Menu da celula, pelo portal, acionava a linha; o foco nesses portais marcava a grade como focada; na arvore, a linha-mae aberta perdia a borda.
+- **Menu:** trocar de um submenu para outro deixava o foco no `body`; o submenu passa a ser remontado por item e o foco volta ao pai antes da troca.
+- **Versao:** o `Select` sem `label` mudou o nome acessivel da lista, o que o CONTRIBUTING §11 classifica como incompativel; a proxima versao e a 0.5.0.
+
+Ficam registrados, sem correcao agora: a linha de detalhe sem `aria-rowindex`, decisao confirmada no teste com NVDA; redimensionar a coluna pelo teclado, que e funcionalidade nova; o anuncio da contagem no modo servidor quando a resposta chega; e a arvore com milhares de niveis de profundidade, que estoura a pilha da recursao.
+
+**Proximo:** publicar a 0.5.0, com o DataGrid como "Disponivel" no catalogo.
 
 
 ### Contador de caracteres

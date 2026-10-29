@@ -277,6 +277,53 @@ describe('Menu', () => {
       expect(screen.getByRole('button', { name: 'Acoes' })).toHaveFocus();
     });
 
+    it('troca de submenu sem perder o foco, e o novo recebe o foco pelo clique', () => {
+      render(
+        <Menu
+          label="Acoes"
+          items={[
+            { key: 'colunas', label: 'Colunas', items: [{ key: 'nome', label: 'Nome' }] },
+            { key: 'densidade', label: 'Densidade', items: [{ key: 'compacta', label: 'Compacta' }] },
+          ]}
+        >
+          <Button>Acoes</Button>
+        </Menu>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Colunas' }));
+      expect(screen.getByRole('menuitem', { name: 'Nome' })).toHaveFocus();
+
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Densidade' }));
+
+      expect(screen.queryByRole('menu', { name: 'Colunas' })).not.toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Compacta' })).toHaveFocus();
+    });
+
+    it('fecha tudo no clique fora, e nao no clique dentro do submenu', () => {
+      render(
+        <>
+          <Menu label="Acoes" items={comSubmenu}>
+            <Button>Acoes</Button>
+          </Menu>
+          <button type="button">Fora</button>
+        </>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Exportar' }));
+      const clicar = (alvo: Element) => {
+        fireEvent.pointerDown(alvo);
+        fireEvent.mouseDown(alvo);
+        fireEvent.pointerUp(alvo);
+        fireEvent.mouseUp(alvo);
+      };
+
+      clicar(screen.getByRole('menu', { name: 'Exportar' }));
+      expect(screen.getByRole('menu', { name: 'Acoes' })).toBeInTheDocument();
+
+      clicar(screen.getByRole('button', { name: 'Fora' }));
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
     it('abre ao passar o ponteiro, depois de uma espera, e fecha ao passar a outro item', () => {
       vi.useFakeTimers();
       const pai = abrir();

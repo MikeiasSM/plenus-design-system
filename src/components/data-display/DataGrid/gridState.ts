@@ -1,6 +1,6 @@
 import type { DataGridColumnState } from './columnLayout';
 import {
-  isComplete,
+  activeFilterOf,
   matchesFilter,
   normalizeFilter,
   operatorsOf,
@@ -75,8 +75,17 @@ interface ColumnTypeDefinition {
 
 const collator = new Intl.Collator('pt-BR', { numeric: true, sensitivity: 'base' });
 
+/* O que não é número fica depois dos números: devolver NaN quebraria a ordem da coluna inteira. */
+function compareMeasures(a: number, b: number) {
+  if (Number.isNaN(a) || Number.isNaN(b)) {
+    return Number(Number.isNaN(a)) - Number(Number.isNaN(b));
+  }
+
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function compareNumbers(a: unknown, b: unknown) {
-  return Number(a) - Number(b);
+  return compareMeasures(Number(a), Number(b));
 }
 
 function timeOf(value: unknown) {
@@ -87,7 +96,7 @@ const columnTypes: Record<DataGridColumnType, ColumnTypeDefinition> = {
   text: { align: 'start', compare: (a, b) => collator.compare(String(a), String(b)), format: String },
   number: { align: 'end', compare: compareNumbers, format: (value) => formatNumber(Number(value)) },
   currency: { align: 'end', compare: compareNumbers, format: (value) => formatCurrency(Number(value)) },
-  date: { align: 'start', compare: (a, b) => timeOf(a) - timeOf(b), format: (value) => formatDate(value as Date | string) },
+  date: { align: 'start', compare: (a, b) => compareMeasures(timeOf(a), timeOf(b)), format: (value) => formatDate(value as Date | string) },
   boolean: { align: 'center', compare: compareNumbers, format: (value) => (value ? 'Sim' : 'Não') },
 };
 
@@ -130,20 +139,22 @@ export function searchRows<Row>(rows: readonly Row[], columns: readonly DataGrid
   return rows.filter((row) => searchable.some((column) => containsTerm(cellText(column, row), term)));
 }
 
-/** Cada condição lê o valor cru e o texto exibido da sua coluna; a de coluna desconhecida ou incompleta não filtra. */
+/** Cada condição lê o valor cru e o texto exibido da sua coluna; a de coluna desconhecida ou incompleta sai antes, também do OU. */
 export function filterRows<Row>(rows: readonly Row[], columns: readonly DataGridColumnModel<Row>[], filter: DataGridFilter) {
-  if (filter.conditions.length === 0) {
+  const active = activeFilterOf(filter, columns);
+
+  if (active.conditions.length === 0) {
     return rows;
   }
 
   const byId = new Map(columns.map((column) => [column.id, column]));
 
   return rows.filter((row) =>
-    matchesFilter(filter, (condition) => {
+    matchesFilter(active, (condition) => {
       const column = byId.get(condition.columnId);
       const operator = column && operatorsOf(column).find((candidate) => candidate.id === condition.operator);
 
-      if (!column || !operator || !isComplete(condition, operator)) {
+      if (!column || !operator) {
         return true;
       }
 
