@@ -330,9 +330,29 @@
 
 .filterOptions {
   display: grid;
-  gap: var(--pl-space-1);
   max-height: 15rem;
+  margin-inline: calc(-1 * var(--pl-space-2));
   overflow: auto;
+}
+
+/* O valor em destaque, como o item do menu: pelo mouse e pelas setas. */
+.filterOptions > div {
+  padding: var(--pl-space-1) var(--pl-space-2);
+  border-radius: var(--pl-radius-sm);
+}
+
+.filterOptions label {
+  width: 100%;
+}
+
+.filterOptions > div:hover,
+.filterOptions > div:has(input:focus-visible) {
+  background: var(--pl-color-primary-container);
+}
+
+.filterOptions > div:hover label > span,
+.filterOptions > div:has(input:focus-visible) label > span {
+  color: var(--pl-color-on-primary-container);
 }
 
 .filterNote {
