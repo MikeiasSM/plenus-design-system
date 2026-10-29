@@ -115,6 +115,39 @@ function UltimaAcao() {
   );
 }
 
+function Exibicao() {
+  const [densidade, setDensidade] = useState('Padrão');
+
+  return (
+    <Menu
+      items={[
+        {
+          key: 'densidade',
+          label: 'Densidade',
+          items: ['Compacta', 'Padrão', 'Confortável'].map((opcao) => ({
+            key: opcao,
+            label: opcao,
+            checked: densidade === opcao,
+            onSelect: () => setDensidade(opcao),
+          })),
+        },
+        {
+          key: 'exportar',
+          label: 'Exportar',
+          items: [
+            { key: 'csv', label: 'CSV' },
+            { key: 'pdf', label: 'PDF' },
+          ],
+        },
+        { key: 'restaurar', label: 'Restaurar o padrão', onSelect: () => setDensidade('Padrão') },
+      ]}
+      label="Opções da exibição"
+    >
+      <Button variant="secondary">Exibição</Button>
+    </Menu>
+  );
+}
+
 function ExcluirComConfirmacao() {
   const [confirmando, setConfirmando] = useState(false);
 
@@ -170,6 +203,12 @@ function Modos() {
       </dd>
       <dt>Clique fora</dt>
       <dd>Fecha sem devolver o foco, que fica com o que foi clicado.</dd>
+      <dt>Submenu</dt>
+      <dd>
+        Um item com <code>items</code> abre outro menu ao lado, com os mesmos itens e grupos, e o <code>onSelect</code> dele não
+        é chamado. Abre pelo teclado ou ao passar o ponteiro, com uma espera curta: atravessar na diagonal não o fecha.
+        Escolher no submenu fecha tudo e devolve o foco ao gatilho.
+      </dd>
       <dt>Lista longa</dt>
       <dd>A altura para em 360px, ou no espaço disponível, e a lista rola.</dd>
       <dt>Gatilho</dt>
@@ -192,6 +231,13 @@ export const pagina: Pagina = {
         "const acoes: MenuItem[] = [\n  { key: 'editar', label: 'Editar', onSelect: editar },\n  { key: 'duplicar', label: 'Duplicar', onSelect: duplicar },\n  { key: 'arquivar', label: 'Arquivar', disabled: true },\n  { key: 'excluir', label: 'Excluir', onSelect: excluir },\n];\n\n<Menu label=\"Ações do módulo\" items={acoes}>\n  <Button variant=\"secondary\">Ações</Button>\n</Menu>",
     },
     {
+      titulo: 'Submenus',
+      descricao: 'Densidade e Exportar abrem ao lado. Escolher uma densidade fecha o menu inteiro.',
+      Previa: Exibicao,
+      codigo:
+        "<Menu\n  label=\"Opções da exibição\"\n  items={[\n    {\n      key: 'densidade',\n      label: 'Densidade',\n      items: densidades.map((d) => ({ key: d, label: d, checked: d === atual, onSelect: () => setAtual(d) })),\n    },\n    { key: 'exportar', label: 'Exportar', items: [{ key: 'csv', label: 'CSV' }, { key: 'pdf', label: 'PDF' }] },\n  ]}\n>\n  <Button variant=\"secondary\">Exibição</Button>\n</Menu>",
+    },
+    {
       titulo: 'Item que abre uma confirmação',
       descricao: 'O foco volta ao gatilho antes do onSelect; ao fechar o Dialog, ele retorna ao gatilho.',
       Previa: ExcluirComConfirmacao,
@@ -205,8 +251,11 @@ export const pagina: Pagina = {
     { teclas: ['↓'], acao: 'No gatilho, abre na primeira opção; no menu, vai à próxima, pulando as desabilitadas.' },
     { teclas: ['↑'], acao: 'No gatilho, abre na última opção; no menu, vai à anterior, pulando as desabilitadas.' },
     { teclas: ['Home', 'End'], acao: 'Primeira e última opção habilitada.' },
+    { teclas: ['→'], acao: 'Num item com submenu, abre o submenu na primeira opção.' },
+    { teclas: ['←'], acao: 'No submenu, fecha ele e volta ao item que o abriu.' },
     { teclas: ['Letra'], acao: 'Leva à próxima opção que começa por ela.' },
-    { teclas: ['Esc', 'Tab'], acao: 'Fecham o menu e devolvem o foco ao gatilho.' },
+    { teclas: ['Esc'], acao: 'Fecha o menu e devolve o foco ao gatilho; no submenu, volta ao item que o abriu.' },
+    { teclas: ['Tab'], acao: 'Fecha o menu, com os submenus, e devolve o foco ao gatilho.' },
   ],
   garantias: [
     {
@@ -217,6 +266,11 @@ export const pagina: Pagina = {
     { garantia: 'Foco nos itens', como: 'Foco real na primeira opção ao abrir; as setas pulam as desabilitadas.', teste: 'Menu.test.tsx' },
     { garantia: 'Busca por digitação', como: 'Uma letra leva à opção que começa por ela.', teste: 'Menu.test.tsx' },
     { garantia: 'Foco devolvido', como: 'Escape fecha e devolve o foco ao gatilho, antes do onSelect na escolha.', teste: 'Menu.test.tsx' },
+    {
+      garantia: 'Submenu anunciado',
+      como: 'O item pai tem aria-haspopup="menu" e aria-expanded; o foco volta a ele ao fechar o submenu.',
+      teste: 'Menu.test.tsx',
+    },
     { garantia: 'Abertura controlada', como: 'Com open, o menu só pede a mudança, sem decidir por conta própria.', teste: 'Menu.test.tsx' },
     {
       garantia: 'Atalho anunciado',

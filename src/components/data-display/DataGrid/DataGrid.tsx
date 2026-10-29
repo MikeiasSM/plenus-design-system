@@ -876,7 +876,7 @@ export function DataGrid<Row>({
     return exporters.flatMap((exporter) =>
       scopes.map((scope) => ({
         key: `${exporter.id}-${scope}`,
-        label: `Exportar ${exporter.label}${scope === 'selected' ? selectedName : SCOPE_NAMES[scope]}`,
+        label: `${exporter.label}${scope === 'selected' ? selectedName : SCOPE_NAMES[scope]}`,
         onSelect: async () => {
           try {
             await exporter.export(exportModelOf(scope));
@@ -904,32 +904,37 @@ export function DataGrid<Row>({
     const visible = new Set(columnIds);
     const sections: MenuSection[] = [
       {
-        key: 'columns',
-        title: 'Colunas visíveis',
-        items: columns.map((column) => {
-          const shown = !columnState.hidden.includes(column.id);
-          return {
-            key: column.id,
-            label: column.header,
-            checked: shown,
-            disabled: shown && visible.has(column.id) && visible.size === 1,
-            onSelect: () =>
-              changeColumns(
-                setColumnHidden(columnState, column.id, shown),
-                `${column.header} ${shown ? 'oculta' : 'visível'}`,
-              ),
-          };
-        }),
-      },
-      {
-        key: 'density',
-        title: 'Densidade',
-        items: DENSITIES.map(({ key, label: densityLabel }) => ({
-          key,
-          label: densityLabel,
-          checked: density === key,
-          onSelect: () => setDensity(key),
-        })),
+        key: 'layout',
+        items: [
+          {
+            key: 'columns',
+            label: 'Colunas',
+            items: columns.map((column) => {
+              const shown = !columnState.hidden.includes(column.id);
+              return {
+                key: column.id,
+                label: column.header,
+                checked: shown,
+                disabled: shown && visible.has(column.id) && visible.size === 1,
+                onSelect: () =>
+                  changeColumns(
+                    setColumnHidden(columnState, column.id, shown),
+                    `${column.header} ${shown ? 'oculta' : 'visível'}`,
+                  ),
+              };
+            }),
+          },
+          {
+            key: 'density',
+            label: 'Densidade',
+            items: DENSITIES.map(({ key, label: densityLabel }) => ({
+              key,
+              label: densityLabel,
+              checked: density === key,
+              onSelect: () => setDensity(key),
+            })),
+          },
+        ],
       },
     ];
 
@@ -954,7 +959,7 @@ export function DataGrid<Row>({
     }
 
     if (exporters.length > 0) {
-      sections.push({ key: 'export', items: exportItems() });
+      sections.push({ key: 'export', items: [{ key: 'export', label: 'Exportar', items: exportItems() }] });
     }
 
     sections.push({

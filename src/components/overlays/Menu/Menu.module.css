@@ -82,6 +82,23 @@
   visibility: visible;
 }
 
+.submenuMark {
+  flex: none;
+  color: var(--pl-color-text-tertiary);
+}
+
+/* O item cujo submenu está aberto continua marcado enquanto o ponteiro anda no submenu. */
+.item[aria-expanded='true'] {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.item[aria-expanded='true'] .submenuMark,
+.item:hover:not(:disabled) .submenuMark,
+.item:focus-visible .submenuMark {
+  color: inherit;
+}
+
 .danger,
 .danger .icon {
   color: var(--pl-color-danger-text);

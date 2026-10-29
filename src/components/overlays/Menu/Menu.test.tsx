@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
 import { Menu, type MenuItem } from './Menu';
 
@@ -221,5 +221,80 @@ describe('Menu', () => {
     expect(duplicar).toHaveAttribute('aria-keyshortcuts', 'Control+Shift+D');
     expect(duplicar).toHaveTextContent('Ctrl+Shift+D');
     expect(screen.getByRole('menuitem', { name: 'Buscar' })).toHaveAttribute('aria-keyshortcuts', 'Meta+K Control+K');
+  });
+
+  describe('submenu', () => {
+    const exportar = vi.fn();
+    const comSubmenu: MenuItem[] = [
+      { key: 'editar', label: 'Editar' },
+      {
+        key: 'exportar',
+        label: 'Exportar',
+        items: [
+          { key: 'csv', label: 'CSV', onSelect: exportar },
+          { key: 'pdf', label: 'PDF' },
+        ],
+      },
+    ];
+
+    function abrir() {
+      render(<Menu label="Acoes" items={comSubmenu}><Button>Acoes</Button></Menu>);
+      fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+      return screen.getByRole('menuitem', { name: 'Exportar' });
+    }
+
+    it('abre com a seta para a direita no primeiro item e volta ao pai com a seta para a esquerda', () => {
+      const pai = abrir();
+      expect(pai).toHaveAttribute('aria-haspopup', 'menu');
+      expect(pai).toHaveAttribute('aria-expanded', 'false');
+
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      fireEvent.keyDown(pai, { key: 'ArrowRight' });
+
+      expect(pai).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('menuitem', { name: 'CSV' })).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByRole('menuitem', { name: 'CSV' }), { key: 'ArrowLeft' });
+
+      expect(screen.queryByRole('menu', { name: 'Exportar' })).not.toBeInTheDocument();
+      expect(screen.getByRole('menu', { name: 'Acoes' })).toBeInTheDocument();
+      expect(pai).toHaveFocus();
+    });
+
+    it('fecha so o submenu com Esc e o menu inteiro ao escolher', () => {
+      const pai = abrir();
+      fireEvent.click(pai);
+      fireEvent.keyDown(screen.getByRole('menuitem', { name: 'CSV' }), { key: 'Escape' });
+
+      expect(screen.getByRole('menu', { name: 'Acoes' })).toBeInTheDocument();
+      expect(pai).toHaveFocus();
+
+      fireEvent.click(pai);
+      fireEvent.click(screen.getByRole('menuitem', { name: 'CSV' }));
+
+      expect(exportar).toHaveBeenCalledOnce();
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Acoes' })).toHaveFocus();
+    });
+
+    it('abre ao passar o ponteiro, depois de uma espera, e fecha ao passar a outro item', () => {
+      vi.useFakeTimers();
+      const pai = abrir();
+
+      fireEvent.pointerEnter(pai);
+      expect(screen.queryByRole('menu', { name: 'Exportar' })).not.toBeInTheDocument();
+      act(() => vi.advanceTimersByTime(200));
+      expect(screen.getByRole('menu', { name: 'Exportar' })).toBeInTheDocument();
+
+      fireEvent.pointerEnter(screen.getByRole('menuitem', { name: 'Editar' }));
+      fireEvent.pointerEnter(screen.getByRole('menu', { name: 'Exportar' }));
+      act(() => vi.advanceTimersByTime(200));
+      expect(screen.getByRole('menu', { name: 'Exportar' })).toBeInTheDocument();
+
+      fireEvent.pointerEnter(screen.getByRole('menuitem', { name: 'Editar' }));
+      act(() => vi.advanceTimersByTime(200));
+      expect(screen.queryByRole('menu', { name: 'Exportar' })).not.toBeInTheDocument();
+      vi.useRealTimers();
+    });
   });
 });

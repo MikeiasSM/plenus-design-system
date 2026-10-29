@@ -779,7 +779,8 @@ describe('DataGrid', () => {
   describe('export', () => {
     function exportVia(label: string) {
       fireEvent.click(screen.getByRole('button', { name: 'Menu da tabela Pedidos' }));
-      fireEvent.click(screen.getByRole('menuitem', { name: label }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Exportar' }));
+      fireEvent.click(within(screen.getByRole('menu', { name: 'Exportar' })).getByRole('menuitem', { name: label }));
     }
 
     it('hands the exporter the shown columns, the filtered rows in order and the totals', async () => {
@@ -793,7 +794,7 @@ describe('DataGrid', () => {
         exporters: [exporter],
       });
 
-      exportVia('Exportar XLSX');
+      exportVia('XLSX');
       await act(async () => undefined);
 
       const model = exporter.export.mock.calls[0][0];
@@ -809,7 +810,7 @@ describe('DataGrid', () => {
       const exporter = { id: 'csv', label: 'CSV', export: vi.fn() };
       renderGrid({ children: <DataGrid.TableMenu />, defaultSelectedIds: ['P-2'], exporters: [exporter], selectionMode: 'multiple' });
 
-      exportVia('Exportar CSV da selecionada');
+      exportVia('CSV da selecionada');
 
       const model = exporter.export.mock.calls[0][0];
       expect(model.scope).toBe('selected');
@@ -823,7 +824,7 @@ describe('DataGrid', () => {
       vi.stubGlobal('URL', Object.assign(class extends URL {}, { createObjectURL, revokeObjectURL: vi.fn() }));
       renderGrid({ children: <DataGrid.TableMenu /> });
 
-      exportVia('Exportar CSV');
+      exportVia('CSV');
 
       expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
       expect(click).toHaveBeenCalled();
@@ -842,6 +843,11 @@ describe('DataGrid', () => {
       return screen.getByRole('menu', { name: 'Menu da tabela Pedidos' });
     }
 
+    function openTableSubmenu(name: string) {
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name }));
+      return screen.getByRole('menu', { name });
+    }
+
     function renderWithMenu(props: Partial<Parameters<typeof DataGrid<Order>>[0]> = {}) {
       return renderGrid({
         children: (
@@ -857,10 +863,10 @@ describe('DataGrid', () => {
     it('shows and hides columns, and never the last visible one', () => {
       renderWithMenu();
 
-      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Cliente' }));
+      fireEvent.click(within(openTableSubmenu('Colunas')).getByRole('menuitemcheckbox', { name: 'Cliente' }));
       expect(screen.queryByRole('columnheader', { name: 'Cliente' })).not.toBeInTheDocument();
 
-      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Cliente' }));
+      fireEvent.click(within(openTableSubmenu('Colunas')).getByRole('menuitemcheckbox', { name: 'Cliente' }));
       expect(screen.getByRole('columnheader', { name: 'Cliente' })).toBeInTheDocument();
     });
 
@@ -868,7 +874,7 @@ describe('DataGrid', () => {
       const onStateChange = vi.fn();
       renderWithMenu({ onStateChange });
 
-      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Compacta' }));
+      fireEvent.click(within(openTableSubmenu('Densidade')).getByRole('menuitemcheckbox', { name: 'Compacta' }));
 
       expect(rowOf('Atacado Sul')).toHaveStyle({ height: '32px' });
       expect(onStateChange).toHaveBeenLastCalledWith(expect.objectContaining({ density: 'compact' }));
@@ -903,7 +909,7 @@ describe('DataGrid', () => {
       renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'asc' }] });
 
       fireEvent.click(screen.getByRole('columnheader', { name: 'Cliente' }));
-      fireEvent.click(within(openTableMenu()).getByRole('menuitemcheckbox', { name: 'Total' }));
+      fireEvent.click(within(openTableSubmenu('Colunas')).getByRole('menuitemcheckbox', { name: 'Total' }));
       fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Restaurar o padrão' }));
 
       expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('aria-sort', 'ascending');

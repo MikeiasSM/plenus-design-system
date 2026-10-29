@@ -226,6 +226,8 @@ A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens po
 
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 
+O `Menu` admite submenu: o item com itens próprios abre outra lista ao lado, pela seta para a direita, pelo Enter ou ao passar o ponteiro, e a seta para a esquerda volta ao item pai. Escolher em qualquer nível fecha o menu inteiro. O submenu serve para agrupar escolhas de um mesmo assunto, como densidade ou formato de exportação.
+
 O `Popover` é um diálogo não modal: ao abrir, o foco entra nele, e volta ao gatilho ao fechar. Ele não serve de painel para um campo em que a pessoa continua digitando, porque o foco precisa ficar no campo. Esse caso tem dois caminhos. Quando o painel é uma lista de resultados ou sugestões, é o `ComboBox`, com a opção composta e os grupos: o foco fica no campo, e as setas percorrem as opções por `aria-activedescendant`. Quando não é uma lista, como uma prévia ou uma dica sobre o que se digita, o painel fica no fluxo da página, logo abaixo do campo, e não sobreposto: o campo o aponta por `aria-controls`, e a mudança que precisa ser ouvida sai numa região viva, com `role="status"`.
 
 ## 10. Ícones

@@ -1,6 +1,7 @@
 import {
   cloneElement,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -8,13 +9,14 @@ import {
   type ReactElement,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
-import { IconCheck } from '../../icons';
+import { IconCheck, IconChevronRight } from '../../icons';
 import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
 
@@ -24,6 +26,8 @@ export interface MenuItem {
   disabled?: boolean;
   /** Icone decorativo antes do texto. */
   icon?: ReactNode;
+  /** Com eles, o item abre um submenu, e o `onSelect` não é chamado. */
+  items?: readonly (MenuItem | MenuSection)[];
   key: string;
   label: string;
   onSelect?: () => void;
@@ -62,8 +66,14 @@ function encadear<E>(proprio: ((evento: E) => void) | undefined, seguinte: (even
   };
 }
 
+/** Espera do ponteiro antes de abrir ou trocar o submenu: atravessar na diagonal não o fecha. */
+const HOVER_DELAY = 150;
+
+type InitialFocus = 'first' | 'last' | null;
+
 export function Menu({ children, defaultOpen = false, items, label, onOpenChange, open: controlledOpen }: MenuProps) {
   const triggerRef = useRef<HTMLElement>(null);
+  const ownerId = useId();
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const [openedWith, setOpenedWith] = useState<'first' | 'last'>('first');
   const open = controlledOpen ?? internalOpen;
@@ -115,11 +125,12 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
           // Sem `contain` aqui: ele disputaria o foco com o gatilho quando o menu fecha.
           <FocusScope>
             <MenuList
+              anchorRef={triggerRef}
+              initialFocus={openedWith}
               items={items}
               label={label}
-              openedWith={openedWith}
+              ownerId={ownerId}
               onClose={fechar}
-              triggerRef={triggerRef}
             />
           </FocusScope>,
           document.body,
@@ -129,24 +140,43 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
 }
 
 function ehSecao(entrada: MenuItem | MenuSection): entrada is MenuSection {
-  return 'items' in entrada;
+  return !('label' in entrada);
+}
+
+interface MenuListProps {
+  /** O gatilho, no menu; o item pai, no submenu. */
+  anchorRef: RefObject<HTMLElement | null>;
+  initialFocus: InitialFocus;
+  items: readonly (MenuItem | MenuSection)[];
+  label: string;
+  listRef?: Ref<HTMLDivElement>;
+  /** Só no submenu: fecha ele e devolve o foco ao item pai. */
+  onBack?: () => void;
+  /** Fecha o menu inteiro, com os submenus. */
+  onClose: (devolverFoco: boolean) => void;
+  onPointerEnter?: () => void;
+  ownerId: string;
 }
 
 function MenuList({
+  anchorRef,
+  initialFocus,
   items: entradas,
   label,
+  listRef,
+  onBack,
   onClose,
-  openedWith,
-  triggerRef,
-}: {
-  items: readonly (MenuItem | MenuSection)[];
-  label: string;
-  onClose: (devolverFoco: boolean) => void;
-  openedWith: 'first' | 'last';
-  triggerRef: React.RefObject<HTMLElement | null>;
-}) {
+  onPointerEnter,
+  ownerId,
+}: MenuListProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRefs(ref, listRef);
   const nodes = useRef(new Map<string, HTMLElement>());
+  const isSubmenu = onBack !== undefined;
+  const [submenu, setSubmenu] = useState<{ key: string; focus: InitialFocus } | null>(null);
+  const submenuAnchor = useRef<HTMLElement | null>(null);
+  const submenuList = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   // O teclado percorre os itens de todos os grupos como uma lista so.
   const items = useMemo(() => entradas.flatMap((entrada) => (ehSecao(entrada) ? entrada.items : [entrada])), [entradas]);
   const collection = useMemo<SelectionItem[]>(
@@ -154,27 +184,31 @@ function MenuList({
     [items],
   );
   const selection = useSelection({ items: collection, mode: 'none' });
-  const { focusedKey, focusFirst, focusLast, focusNext, focusPrevious, search } = selection;
+  const { focus, focusedKey, focusFirst, focusLast, focusNext, focusPrevious, search } = selection;
+  const openItem = submenu ? items.find((item) => item.key === submenu.key) : undefined;
 
   // useOverlayPosition entrega toda a altura disponivel; limitamos para que
   // uma lista longa nao ocupe a tela inteira.
   // Sem isto o gatilho conta como "fora": o ponteiro fecha o menu e o clique
   // dele reabre em seguida, e o menu pisca sem abrir.
+  // O submenu vive noutro portal: clicar nele nao e clicar fora.
   const { overlayProps } = useOverlay(
     {
-      isOpen: true,
+      isOpen: !isSubmenu,
       onClose: () => onClose(false),
       isDismissable: true,
       shouldCloseOnBlur: false,
-      shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
+      shouldCloseOnInteractOutside: (elemento) =>
+        !anchorRef.current?.contains(elemento) && !elemento.closest(`[data-menu-owner="${ownerId}"]`),
     },
     ref,
   );
   const { overlayProps: positionProps } = useOverlayPosition({
-    targetRef: triggerRef,
+    targetRef: anchorRef,
     overlayRef: ref,
-    placement: 'bottom start',
-    offset: 6,
+    placement: isSubmenu ? 'end top' : 'bottom start',
+    offset: isSubmenu ? 2 : 6,
+    crossOffset: isSubmenu ? -5 : 0,
     containerPadding: 8,
     isOpen: true,
   });
@@ -182,14 +216,16 @@ function MenuList({
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 360, 360);
 
   useEffect(() => {
-    if (openedWith === 'last') {
+    if (initialFocus === 'last') {
       focusLast();
-    } else {
+    } else if (initialFocus === 'first') {
       focusFirst();
     }
-    // Posicao inicial depende apenas de como o menu foi aberto.
+    // O submenu aberto pelo ponteiro recebe o foco depois, quando o teclado entra nele.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialFocus]);
+
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
   useEffect(() => {
     if (focusedKey) {
@@ -197,8 +233,37 @@ function MenuList({
     }
   }, [focusedKey]);
 
+  function openSubmenu(item: MenuItem, initial: InitialFocus) {
+    clearTimeout(hoverTimer.current);
+    submenuAnchor.current = nodes.current.get(item.key) ?? null;
+    setSubmenu({ key: item.key, focus: initial });
+  }
+
+  /* O foco que estava no submenu volta ao item pai, e nao se perde no `body`. */
+  function closeSubmenu() {
+    clearTimeout(hoverTimer.current);
+    if (submenu && submenuList.current?.contains(document.activeElement)) {
+      focus(submenu.key);
+      nodes.current.get(submenu.key)?.focus();
+    }
+    setSubmenu(null);
+  }
+
+  function hover(item: MenuItem) {
+    const next = item.items && !item.disabled ? item : null;
+    clearTimeout(hoverTimer.current);
+    if ((submenu?.key ?? null) !== (next?.key ?? null)) {
+      hoverTimer.current = setTimeout(() => (next ? openSubmenu(next, null) : closeSubmenu()), HOVER_DELAY);
+    }
+  }
+
   function acionar(item: MenuItem) {
     if (item.disabled) {
+      return;
+    }
+
+    if (item.items) {
+      openSubmenu(item, 'first');
       return;
     }
 
@@ -212,11 +277,14 @@ function MenuList({
     return (
       <button
         aria-checked={marcavel ? item.checked : undefined}
+        aria-expanded={item.items ? submenu?.key === item.key : undefined}
+        aria-haspopup={item.items ? 'menu' : undefined}
         aria-keyshortcuts={item.shortcutKeys ?? (item.shortcut ? toAriaKeyShortcuts(item.shortcut) : undefined)}
         className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
         disabled={item.disabled}
         key={item.key}
         onClick={() => acionar(item)}
+        onPointerEnter={() => hover(item)}
         ref={(node) => {
           if (node) {
             nodes.current.set(item.key, node);
@@ -240,12 +308,21 @@ function MenuList({
           </kbd>
         )}
         {marcavel && <IconCheck className={[styles.check, item.checked && styles.checkOn].filter(Boolean).join(' ')} />}
+        {item.items && <IconChevronRight aria-hidden="true" className={styles.submenuMark} />}
       </button>
     );
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === 'ArrowDown') {
+    const focusedItem = items.find((item) => item.key === focusedKey);
+
+    if (event.key === 'ArrowRight' && focusedItem?.items && !focusedItem.disabled) {
+      event.preventDefault();
+      openSubmenu(focusedItem, 'first');
+    } else if (onBack && (event.key === 'ArrowLeft' || event.key === 'Escape')) {
+      event.preventDefault();
+      onBack();
+    } else if (event.key === 'ArrowDown') {
       event.preventDefault();
       focusNext();
     } else if (event.key === 'ArrowUp') {
@@ -267,17 +344,23 @@ function MenuList({
   return (
     <div
       {...overlayProps}
+      data-menu-owner={ownerId}
       data-react-aria-top-layer="true"
-      ref={ref}
+      ref={mergedRef}
       className={styles.menu}
       style={{ ...positionProps.style, maxHeight: alturaMaxima }}
       role="menu"
       aria-label={label}
       onKeyDown={(event) => {
+        // O submenu fica no menu pela arvore do React: a tecla dele nao sobe ao menu de fora.
+        if (isSubmenu) {
+          event.stopPropagation();
+        }
         // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
         handleKeyDown(event);
         overlayProps.onKeyDown?.(event);
       }}
+      onPointerEnter={onPointerEnter}
     >
       {entradas.map((entrada, indice) => {
         if (!ehSecao(entrada)) {
@@ -296,6 +379,23 @@ function MenuList({
           </div>
         );
       })}
+      {openItem?.items &&
+        createPortal(
+          <FocusScope>
+            <MenuList
+              anchorRef={submenuAnchor}
+              initialFocus={submenu?.focus ?? null}
+              items={openItem.items}
+              label={openItem.label}
+              listRef={submenuList}
+              ownerId={ownerId}
+              onBack={closeSubmenu}
+              onClose={onClose}
+              onPointerEnter={() => clearTimeout(hoverTimer.current)}
+            />
+          </FocusScope>,
+          document.body,
+        )}
     </div>
   );
 }
