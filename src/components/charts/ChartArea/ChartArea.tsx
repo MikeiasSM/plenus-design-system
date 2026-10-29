@@ -100,6 +100,8 @@ export interface ChartAreaProps extends ChartRootProps {
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
+  /** Linhas horizontais de referência e a linha do zero. */
+  showGrid?: boolean;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
 }
@@ -130,6 +132,7 @@ export function ChartArea({
   stacked = false,
   title,
   xAxis = 'visible',
+  showGrid = true,
   yAxis = 'visible',
   yAxisRight = 'hidden',
   ...root
@@ -280,13 +283,17 @@ export function ChartArea({
       containerRef={ref}
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
-      grid={[
-        {
-          baseline: escalaValores(0),
-          lines: marcasDeValor.map((valor) => escalaValores(valor)),
-          orientation: 'horizontal',
-        },
-      ]}
+      grid={
+        showGrid
+          ? [
+              {
+                baseline: escalaValores(0),
+                lines: marcasDeValor.map((valor) => escalaValores(valor)),
+                orientation: 'horizontal',
+              },
+            ]
+          : undefined
+      }
       fillHeight={fillHeight}
       height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({

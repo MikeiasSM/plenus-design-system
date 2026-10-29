@@ -23,7 +23,7 @@ export interface CardMetricChartProps extends Omit<ComponentPropsWithRef<'div'>,
 }
 
 /**
- * Area ou linha sem eixos, legenda nem pontos, no espaco que sobra do cartao. O desenho e o ChartArea ou o
+ * Area ou linha sem eixos, grade, legenda nem pontos, no espaco que sobra do cartao. O desenho e o ChartArea ou o
  * ChartLine da lib; esta parte so mede o lugar e responde aos estados da moldura.
  */
 export function CardMetricChart({
@@ -72,6 +72,7 @@ export function CardMetricChart({
               onPointClick={onPointClick}
               series={[{ label: title, values }]}
               showDots="hidden"
+              showGrid={false}
               showTooltip={showTooltip}
               title={title}
               xAxis="hidden"

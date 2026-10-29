@@ -29,6 +29,14 @@ describe('ChartArea', () => {
     expect(screen.getByRole('img', { name: 'Volume acumulado' })).toBeInTheDocument();
   });
 
+  it('tira a grade e a linha do zero com showGrid desligado', () => {
+    const { container, rerender } = render(<ChartArea categories={meses} series={series} title="Receita" />);
+    expect(container.querySelectorAll(`.${chartStyles.gridLine}, .${chartStyles.gridBaseline}`).length).toBeGreaterThan(0);
+
+    rerender(<ChartArea categories={meses} series={series} showGrid={false} title="Receita" />);
+    expect(container.querySelectorAll(`.${chartStyles.gridLine}, .${chartStyles.gridBaseline}`)).toHaveLength(0);
+  });
+
   it('preenche com gradiente quando as areas nao empilham', () => {
     render(<ChartArea categories={meses} series={series} title="Volume" />);
 

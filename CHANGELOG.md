@@ -25,6 +25,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Pagination`: seletor de itens por página, com `pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. Com o seletor, o componente fica na tela mesmo com uma página só.
 - `Pagination`: `showFirstLast`, os passos para a primeira e a última página.
 - Ícones curados `IconSliders`, `IconChevronBarLeft` e `IconChevronBarRight`.
+- `ChartArea` e `ChartLine`: `showGrid`, como no `ChartTimeline`; `false` tira as linhas de referência e a do zero. O `CardMetric.Chart` desenha sem elas.
 - `ChartTooltip`: `total: false` na coluna calculada deixa a linha de total sem ela, como o percentual de uma soma com negativos.
 - `CardMetric`, o cartão de um indicador. O produto o monta com o `Card.Header` e as partes `CardMetric.Body`, `CardMetric.Value`, `CardMetric.Trend`, `CardMetric.Bar` e `CardMetric.Chart`, e põe no cabeçalho as ações que quiser.
   - `onActivate` cobre o cartão com um botão nomeado "Abrir detalhes de" e o título, abaixo dos controles de dentro: o clique num controle não abre o detalhe.
