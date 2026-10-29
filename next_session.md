@@ -4,20 +4,17 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 
 ## Estado
 
-- **Publicado:** 0.4.0 no npm, com procedência, pela tag `v0.4.0` na `main`.
-- **`datagrid`**: parte da `main` da 0.4.0 e soma a `Pagination` nova e a fase 1 do DataGrid. O DataGrid segue nela até o lançamento, numa versão de correção quando o desenho estiver validado: componente novo é adição compatível.
-- A `Pagination` não depende do DataGrid. Se o Painel precisar dela antes, ela pode ir sozinha à `main`, numa 0.4.1.
+- **Publicado:** 0.5.0 no npm, pela tag `v0.5.0` na `main`, em 28/10/2026: `DataGrid` completo (fases 1 a 6), `CardMetric` e o `Card` com `size` e `trailingWhenNarrow`, submenu no `Menu`, `Pagination` com itens por página e `showGrid` no `ChartArea` e no `ChartLine`. Incompatível: o nome acessível da lista do `Select` sem `label`.
+- **Antes da publicação:** revisão independente de tudo desde a 0.4.0 e da `feature/card-metric`, com as correções registradas no `PROGRESS.md`, seções "Revisao final antes da publicacao".
+- **Showcase:** menu lateral por módulos recolhíveis e controles booleanos alinhados à faixa dos controles.
 
-## Feito nesta sessão
+## A discutir
 
-- **`Pagination`** com seletor de itens por página (`pageSizeOptions` e o trio `pageSize`, `defaultPageSize` e `onPageSizeChange`) e os passos para a primeira e a última página (`showFirstLast`). Ao trocar o tamanho, a página passa à que contém o primeiro item da atual. `pageCount` passou a ser opcional, saindo de `totalItems` e do tamanho.
-- **`Select`** sem `label` nomeia a lista aberta pelo `aria-label` do gatilho.
-- **DataGrid, fase 1**: motor puro (`gridState.ts`), colunas como dados, ordenação simples e empilhada, busca global, paginação no cliente e modo servidor, seleção, janela virtual, teclado em dois modos e retrato do estado. Decisões e medidas no `PROGRESS.md`, seção "DataGrid: fase 1". No Showcase, a página do DataGrid tem playground com até 50.000 linhas e 30 colunas.
-- **DataGrid, fase 2**: master-detail em N níveis numa rolagem só, estado do detalhe e das grades aninhadas guardado pelo caminho, alturas medidas com âncora, `DataGrid.DetailLayout`. Decisões e medidas no `PROGRESS.md`, seção "DataGrid: fase 2". No Showcase, o exemplo "Master-detail em três níveis".
+O levantamento do que resta está na conversa de 28/10/2026: fila aprovada do relatório do Painel (`ToastProvider` e `portalContainer`, teste do pacote num app real, visão em tabela nos gráficos, ícones por módulo, recursos genéricos, tema por subárvore, tokens), decisões do mantenedor (valor numérico do `InputNumber` e do `InputCurrency`, toque nos gráficos, API comum dos gráficos, `d3-sankey`, ícones de interface geral, XLSX/PDF) e o que ficou sob demanda.
 
 ## Próximos passos do DataGrid
 
-1. **Lançamento**, numa versão de correção. O teste no NVDA está feito; o resultado está no `PROGRESS.md`, seção "DataGrid: teste no NVDA". Ficam para decisão: o adaptador opcional de XLSX e PDF, que traz dependência, e o que o plano deixou sob demanda (virtualização de colunas, edição de célula, agrupar por coluna, linhas fixas no topo, copiar, construtor de filtros).
+1. **Lançado na 0.5.0.** O teste no NVDA está feito; o resultado está no `PROGRESS.md`, seção "DataGrid: teste no NVDA". Ficam para decisão: o adaptador opcional de XLSX e PDF, que traz dependência, e o que o plano deixou sob demanda (virtualização de colunas, edição de célula, agrupar por coluna, linhas fixas no topo, copiar, construtor de filtros).
 
 A fase 6, exportação, está feita: modelo de exportação, CSV no núcleo e outros formatos por `exporters`. Decisões no `PROGRESS.md`, seção "DataGrid: fase 6, exportacao".
 

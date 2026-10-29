@@ -101,7 +101,7 @@ A opção do `ComboBox` pode ser composta: uma segunda linha, como a coleção d
 | `Timeline` | Histórico de estados de um registro, com datas e o estado atual destacado. | Disponível |
 | `SortableList` | Lista reordenável por arrasto ou teclado, com seleção de um item. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
-| `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Previsto |
+| `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Disponível |
 
 O critério entre os dois é quem decide quais linhas existem na página. No `Table`, o consumidor escreve a linha e todas estão presentes. No `DataGrid`, o componente decide e mantém apenas a faixa visível, o que é o que torna possível a virtualização.
 

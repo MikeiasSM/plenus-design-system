@@ -6,6 +6,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.0] — 2026-10-28
+
 ### Incompatível
 
 - `Select` sem `label` nomeia a lista aberta pelo `aria-label` do gatilho; antes ela se chamava "Selecione", o texto de espera. Quem buscava a lista por esse nome, como `getByRole('listbox', { name: 'Selecione' })`, passa a buscá-la pelo `aria-label` do gatilho.

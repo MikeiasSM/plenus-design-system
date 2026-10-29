@@ -1066,7 +1066,7 @@ Na mesma data, a `feature/card-metric` entrou nesta branch para sair junto, e pa
 - **CardMetric:** com `onActivate`, so `button`, link e `[tabindex]` subiam acima da cobertura, e um `SegmentedControl`, `Switch` ou `Checkbox` no cartao abria o detalhe; a regra ainda forcava `position` em botoes de dentro. Agora o conteudo sobe sem receber o ponteiro, os controles o recebem de volta, com especificidade zero. A variacao ausente ou invalida virava "0,0%"; a frase da tendencia passou a trazer a diferenca absoluta e se ela e favoravel; "Atualizando" e anunciado numa regiao viva permanente; o erro aparece mesmo sem o `Value`; o nome do valor traz o rotulo; a barra nao desenha segmento zero ou invalido, e o balao nao mostra percentual no total com negativos, por `total: false` no `ChartTooltip`.
 - Ficam registrados: o anel de foco do cartao depende de `:has()`; a direcao da seta segue o valor bruto, e um `0,0004` sai como alta de 0,0%; a medida do valor nao refaz quando a fonte termina de carregar.
 
-**Proximo:** publicar a 0.5.0, com o DataGrid como "Disponivel" no catalogo.
+**Publicado:** 0.5.0, em 28/10/2026, pela tag `v0.5.0` na `main`, com o DataGrid como "Disponivel" no catalogo.
 
 
 ### Contador de caracteres
