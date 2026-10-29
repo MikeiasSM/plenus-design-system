@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconSearch, InputText, SegmentedControl, SkipLink, ToastRegion } from '@plenustech/design-system';
+import { IconChevronRight, IconSearch, InputText, SegmentedControl, SkipLink, ToastRegion } from '@plenustech/design-system';
 import { version } from '../../../package.json';
 import { familias } from './catalogo';
 import { PaginaDoComponente } from './estrutura/PaginaDoComponente';
@@ -55,6 +55,25 @@ export function App() {
   const atual = familias
     .flatMap((familia) => familia.componentes.map((componente) => ({ componente, familia: familia.nome })))
     .find(({ componente }) => componente.nome.toLowerCase() === rota.componente);
+
+  // A familia da pagina aberta comeca expandida; as outras, como a pessoa as deixou.
+  const [abertas, setAbertas] = useState<ReadonlySet<string>>(() => new Set(atual ? [atual.familia] : []));
+  const [familiaAtual, setFamiliaAtual] = useState(atual?.familia);
+
+  if (atual?.familia !== familiaAtual) {
+    setFamiliaAtual(atual?.familia);
+    if (atual && !abertas.has(atual.familia)) {
+      setAbertas(new Set([...abertas, atual.familia]));
+    }
+  }
+
+  function alternar(nome: string) {
+    const proximas = new Set(abertas);
+    if (!proximas.delete(nome)) {
+      proximas.add(nome);
+    }
+    setAbertas(proximas);
+  }
 
   const filtradas = familias
     .map((familia) => ({
@@ -147,25 +166,40 @@ export function App() {
           <a aria-current={atual ? undefined : 'page'} className="sidebar-home" href="#/">
             Visão geral
           </a>
-          {filtradas.map((familia) => (
-            <div className="sidebar-group" key={familia.nome}>
-              <p className="sidebar-title">
-                <span>{familia.nome}</span>
-                <span>{familia.componentes.length}</span>
-              </p>
-              {familia.componentes.map((componente) => (
-                <a
-                  aria-current={componente === atual?.componente ? 'page' : undefined}
-                  className="sidebar-item"
-                  href={`#/${componente.nome.toLowerCase()}`}
-                  key={componente.nome}
+          {filtradas.map((familia) => {
+            // Na busca, todas abertas: o resultado nao pode ficar escondido num modulo recolhido.
+            const aberta = Boolean(termo) || abertas.has(familia.nome);
+            const listaId = `familia-${normalizar(familia.nome).replace(/\W+/g, '-')}`;
+
+            return (
+              <div className="sidebar-group" key={familia.nome}>
+                <button
+                  aria-controls={listaId}
+                  aria-expanded={aberta}
+                  className="sidebar-title"
+                  onClick={() => alternar(familia.nome)}
+                  type="button"
                 >
-                  {componente.nome}
-                  {componente.previsto && <span className="sidebar-planned">previsto</span>}
-                </a>
-              ))}
-            </div>
-          ))}
+                  <IconChevronRight aria-hidden="true" className="sidebar-chevron" size={12} />
+                  <span>{familia.nome}</span>
+                  <span className="sidebar-count">{familia.componentes.length}</span>
+                </button>
+                <div className="sidebar-items" hidden={!aberta} id={listaId}>
+                  {familia.componentes.map((componente) => (
+                    <a
+                      aria-current={componente === atual?.componente ? 'page' : undefined}
+                      className="sidebar-item"
+                      href={`#/${componente.nome.toLowerCase()}`}
+                      key={componente.nome}
+                    >
+                      {componente.nome}
+                      {componente.previsto && <span className="sidebar-planned">previsto</span>}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
           {filtradas.length === 0 && <p className="sidebar-empty">Nenhum componente com esse nome.</p>}
         </nav>
 
