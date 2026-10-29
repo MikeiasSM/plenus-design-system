@@ -938,11 +938,11 @@ export function DataGrid<Row>({
         key: 'detail',
         items: [
           ...(tree || expandMode === 'multiple'
-            ? [{ key: 'expand', label: `Expandir as ${EXPAND_LIMIT} primeiras linhas visíveis`, onSelect: expandOnScreen }]
+            ? [{ key: 'expand', label: `Expandir ${EXPAND_LIMIT} linhas`, onSelect: expandOnScreen }]
             : []),
           {
             key: 'collapse',
-            label: 'Recolher todas as linhas',
+            label: 'Recolher todas',
             disabled: expandedIds.length === 0,
             onSelect: () => {
               setExpandedIds([]);
