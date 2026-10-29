@@ -36,7 +36,11 @@ function CampoDoControle({
   const { nome } = controle;
 
   if (controle.tipo === 'booleano') {
-    return <Switch checked={Boolean(valor)} label={nome} onChange={(evento) => mudar(evento.currentTarget.checked)} />;
+    return (
+      <div className="pg-boolean">
+        <Switch checked={Boolean(valor)} label={nome} onChange={(evento) => mudar(evento.currentTarget.checked)} />
+      </div>
+    );
   }
 
   if (controle.tipo === 'texto') {

@@ -405,12 +405,12 @@ body {
   max-width: 100%;
 }
 
-/* Centro da linha: o Switch, sem rotulo acima, fica no meio dos campos vizinhos, e nao colado no topo. */
+/* Pela base: os controles da linha ficam na mesma faixa, e os rotulos acima deles nao entram na conta. */
 .pg-controls {
   display: grid;
   flex: 1 1 100%;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  align-items: center;
+  align-items: end;
   gap: var(--pl-space-4);
   padding: var(--pl-space-4);
   border-top: 1px solid var(--pl-color-border);
@@ -418,6 +418,13 @@ body {
 
 .pg-controls > button {
   justify-self: start;
+}
+
+/* O booleano nao tem rotulo acima: ocupa a altura de um controle e fica no meio dela. */
+.pg-boolean {
+  display: flex;
+  align-items: center;
+  min-height: var(--pl-control-height-sm);
 }
 
 .pg-field {
