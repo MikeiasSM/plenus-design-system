@@ -45,6 +45,11 @@
   max-width: 100%;
 }
 
+/* As opções da tabela ficam na ponta oposta; o que o produto puser antes delas segue à esquerda. */
+.tableMenu {
+  margin-inline-start: auto;
+}
+
 .viewport {
   position: relative;
 }

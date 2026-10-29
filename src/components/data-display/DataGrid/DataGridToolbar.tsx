@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { InputText } from '../../forms/InputText';
-import { IconSearch, IconSidebar } from '../../icons';
+import { IconSearch, IconSliders } from '../../icons';
 import { Menu, type MenuSection } from '../../overlays/Menu';
 import { useDataGridContext } from './dataGridContext';
 import styles from './DataGrid.module.css';
@@ -75,7 +75,13 @@ export function DataGridTableMenu({ className, label }: DataGridTableMenuProps) 
 
   return (
     <Menu items={open ? tableMenu() : NO_SECTIONS} label={name} open={open} onOpenChange={setOpen}>
-      <ButtonIcon className={className} icon={<IconSidebar size={14} />} label={name} size="sm" variant="ghost" />
+      <ButtonIcon
+        className={[styles.tableMenu, className].filter(Boolean).join(' ')}
+        icon={<IconSliders size={14} />}
+        label={name}
+        size="sm"
+        variant="ghost"
+      />
     </Menu>
   );
 }

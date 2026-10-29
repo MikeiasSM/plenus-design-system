@@ -41,6 +41,7 @@ export {
   IconRedo,
   IconSearch,
   IconSidebar,
+  IconSliders,
   IconStructure,
   IconTablet,
   IconTrash,
