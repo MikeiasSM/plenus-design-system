@@ -1,0 +1,40 @@
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  padding: 0 var(--pl-space-4) var(--pl-space-4);
+}
+
+.horizontal {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: var(--pl-space-4);
+}
+
+.horizontal > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* A barra vertical fica a esquerda, da altura das partes ao lado. */
+.body:has(> [data-orientation='vertical']) {
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--pl-space-4);
+}
+
+.body > [data-orientation='vertical'] {
+  flex: none;
+  order: -1;
+}
+
+.body:has(> [data-orientation='vertical']) > :not([data-orientation='vertical']) {
+  flex: 1 1 0;
+  align-self: flex-end;
+  min-width: 0;
+}

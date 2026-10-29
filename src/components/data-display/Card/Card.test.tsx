@@ -90,4 +90,54 @@ describe('Card', () => {
 
     expect(screen.queryByRole('region')).not.toBeInTheDocument();
   });
+
+  it('as partes aceitam className e propriedades nativas', () => {
+    render(
+      <Card size="sm">
+        <Card.Header className="meu-cabecalho" data-testid="cabecalho" title="Resumo" />
+        <Card.Body className="meu-corpo" data-testid="corpo">Conteudo</Card.Body>
+        <Card.Footer data-testid="rodape">Rodape</Card.Footer>
+      </Card>,
+    );
+
+    expect(screen.getByTestId('cabecalho')).toHaveClass('meu-cabecalho');
+    expect(screen.getByTestId('corpo')).toHaveClass('meu-corpo');
+    expect(screen.getByTestId('rodape')).toBeInTheDocument();
+  });
+
+  describe('trailingWhenNarrow', () => {
+    afterEach(() => Reflect.deleteProperty(HTMLElement.prototype, 'offsetTop'));
+
+    /** O jsdom nao tem layout: a linha de cada elemento vem de fora. */
+    function trailingDesceDeLinha() {
+      Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.className.includes('trailing') ? 40 : 0;
+        },
+      });
+    }
+
+    it('em hide, esconde o trailing que desceu de linha', () => {
+      trailingDesceDeLinha();
+      render(
+        <Card>
+          <Card.Header title="Valor Total de Compras" trailing={<button type="button">+14,6%</button>} trailingWhenNarrow="hide" />
+        </Card>,
+      );
+
+      expect(screen.getByRole('button', { hidden: true }).parentElement?.className).toMatch(/trailingHidden/);
+    });
+
+    it('em keep, o padrao, o trailing continua visivel', () => {
+      trailingDesceDeLinha();
+      render(
+        <Card>
+          <Card.Header title="Valor Total de Compras" trailing={<button type="button">+14,6%</button>} />
+        </Card>,
+      );
+
+      expect(screen.getByRole('button', { name: '+14,6%' }).parentElement?.className).not.toMatch(/trailingHidden/);
+    });
+  });
 });

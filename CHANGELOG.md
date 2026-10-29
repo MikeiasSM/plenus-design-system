@@ -6,6 +6,20 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- `CardMetric`, o cartão de um indicador. O produto o monta com o `Card.Header` e as partes `CardMetric.Body`, `CardMetric.Value`, `CardMetric.Trend`, `CardMetric.Bar` e `CardMetric.Chart`, e põe no cabeçalho as ações que quiser.
+  - `onActivate` cobre o cartão com um botão nomeado "Abrir detalhes de" e o título, abaixo dos controles de dentro: o clique num controle não abre o detalhe.
+  - `loading`, `updating` e `error` chegam às partes: esqueleto em cada uma, a linha de atualização no topo, ou a mensagem no lugar do valor.
+  - `Value` desce na escala tipográfica oficial até o valor caber inteiro, sem breakpoint próprio. Com `formatTooltipValue`, o valor que aparece pode sair compacto, e o exato vai para o balão e para a impressão.
+  - `Trend` mostra a primeira comparação no selo e todas no balão, com a cor pelo sinal e pela `polarity`. `change` é fração, a unidade do `formatPercent`.
+  - `Bar` mostra a composição de um total, horizontal ou vertical, com `palette`, `paletteOrder` e o agrupamento dos positivos pequenos no balão. O negativo ocupa a magnitude, tracejado.
+  - `Chart` desenha área ou linha sem eixos no espaço que sobra no cartão, com `showTooltip` e `onPointClick` do gráfico.
+  - `Body` com `orientation="horizontal"` põe as partes lado a lado.
+- `Card`: `size="sm"`, com menos respiro, a descrição em largura inteira e o título até a terceira linha.
+- `Card.Header`: `trailingWhenNarrow`, para o `trailing` que não cabe ao lado do título numa linha. `keep`, o padrão, mantém a disposição de sempre; `wrap` o desce para baixo do título; `hide` o esconde.
+- As partes do `Card` aceitam as propriedades nativas, o `ref` e a `className`, como pede a convenção de API.
+
 ## [0.4.0] — 2026-10-28
 
 ### Adicionado
