@@ -878,10 +878,10 @@ describe('DataGrid', () => {
       const onExpandedIdsChange = vi.fn();
       renderWithMenu({ renderDetail: () => <p>Itens</p>, onExpandedIdsChange });
 
-      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Expandir os da tela, até 10' }));
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Expandir as 10 primeiras linhas visíveis' }));
       expect(onExpandedIdsChange).toHaveBeenLastCalledWith(['P-1', 'P-2', 'P-3']);
 
-      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Recolher todos' }));
+      fireEvent.click(within(openTableMenu()).getByRole('menuitem', { name: 'Recolher todas as linhas' }));
       expect(onExpandedIdsChange).toHaveBeenLastCalledWith([]);
     });
 
