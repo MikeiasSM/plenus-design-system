@@ -483,6 +483,22 @@ describe('DataGrid', () => {
       expect(within(panel).getByRole('checkbox', { name: 'Selecionar os 1 encontrados' })).not.toBeChecked();
     });
 
+    it('moves between the set values with the arrows, without scrolling the page', () => {
+      renderGrid({ columns: [columns[0], { ...columns[1], filter: 'set' }, columns[2]] });
+
+      const boxes = within(openFilter('Cliente')).getAllByRole('checkbox');
+      boxes[0].focus();
+
+      expect(fireEvent.keyDown(boxes[0], { key: 'ArrowDown' })).toBe(false);
+      expect(boxes[1]).toHaveFocus();
+      fireEvent.keyDown(boxes[1], { key: 'End' });
+      expect(boxes[3]).toHaveFocus();
+      fireEvent.keyDown(boxes[3], { key: 'ArrowDown' });
+      expect(boxes[3]).toHaveFocus();
+      fireEvent.keyDown(boxes[3], { key: 'Home' });
+      expect(boxes[0]).toHaveFocus();
+    });
+
     it('waits for the apply button when asked to', () => {
       renderGrid({ filterApplyMode: 'button' });
 

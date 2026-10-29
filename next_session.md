@@ -17,8 +17,7 @@ Passagem de contexto entre máquinas, em 28/10/2026. Não normativo; o acompanha
 
 ## Próximos passos do DataGrid
 
-1. **Teste no NVDA**, com o mantenedor, para fixar a marcação do detalhe. Roteiro no Showcase, exemplo "Master-detail em três níveis": Tab até a grade ("Pedidos com itens, grade em árvore"); setas pelas células; `Ctrl+Enter` num pedido ("expandido"); seta para baixo até o detalhe ("Detalhe de P-00001") e Enter ("Itens de P-00001"); `Esc` volta ao detalhe. Conferir se a linha de detalhe sem `aria-rowindex` atrapalha a contagem lida.
-2. **Lançamento**, numa versão de correção, depois do teste no NVDA. Ficam para decisão: o adaptador opcional de XLSX e PDF, que traz dependência, e o que o plano deixou sob demanda (virtualização de colunas, edição de célula, agrupar por coluna, linhas fixas no topo, copiar, construtor de filtros).
+1. **Lançamento**, numa versão de correção. O teste no NVDA está feito; o resultado está no `PROGRESS.md`, seção "DataGrid: teste no NVDA". Ficam para decisão: o adaptador opcional de XLSX e PDF, que traz dependência, e o que o plano deixou sob demanda (virtualização de colunas, edição de célula, agrupar por coluna, linhas fixas no topo, copiar, construtor de filtros).
 
 A fase 6, exportação, está feita: modelo de exportação, CSV no núcleo e outros formatos por `exporters`. Decisões no `PROGRESS.md`, seção "DataGrid: fase 6, exportacao".
 

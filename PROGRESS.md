@@ -1040,6 +1040,15 @@ Na branch `datagrid`, em 28/10/2026.
 
 **Proximo:** teste no NVDA, que fixa a marcacao do detalhe, do cabecalho em grupos, do filtro e da arvore; depois o lancamento, numa versao de correcao.
 
+### DataGrid: teste no NVDA
+
+Feito pelo mantenedor, em 28/10/2026, no Showcase: grade basica, filtro, linha de totais, master-detail, grupos de cabecalho, arvore e exportacao. A marcacao se manteve como estava.
+
+- **Unico defeito:** no filtro de conjunto, as setas sobre os valores rolavam a pagina. Agora andam entre os valores, com Home e End nas pontas.
+- **Esc no filtro:** fecha o painel e devolve o foco ao titulo. Com o NVDA em modo de foco automatico, o primeiro Esc e do proprio leitor, que volta ao modo de navegacao; o segundo chega a pagina.
+
+**Proximo:** lancamento, numa versao de correcao.
+
 
 ### Contador de caracteres
 

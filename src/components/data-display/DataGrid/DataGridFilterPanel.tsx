@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Button } from '../../actions/Button';
 import { Checkbox } from '../../forms/Checkbox';
 import { DatePicker } from '../../forms/DatePicker';
@@ -341,6 +341,21 @@ function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: S
     commit(allFound ? current.filter((item) => !found.includes(item)) : [...new Set([...current, ...found])]);
   }
 
+  /* As setas andam entre os valores, como numa lista; sem isso, rolam a página. */
+  function moveAmongOptions(event: KeyboardEvent<HTMLDivElement>) {
+    const boxes = [...event.currentTarget.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+    const index = boxes.indexOf(event.target as HTMLInputElement);
+    const targets: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: boxes.length - 1 };
+    const next = targets[event.key];
+
+    if (index < 0 || next === undefined) {
+      return;
+    }
+
+    event.preventDefault();
+    boxes[Math.min(Math.max(next, 0), boxes.length - 1)].focus();
+  }
+
   return (
     <>
       <InputText
@@ -353,7 +368,7 @@ function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: S
         value={term}
         onValueChange={setTerm}
       />
-      <div className={styles.filterOptions} id={listId}>
+      <div className={styles.filterOptions} id={listId} onKeyDown={moveAmongOptions}>
         <Checkbox
           checked={allFound && found.length > 0}
           indeterminate={someFound && !allFound}
