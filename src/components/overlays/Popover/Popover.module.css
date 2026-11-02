@@ -2,6 +2,7 @@
   z-index: 90;
   min-width: 180px;
   max-width: min(360px, calc(100vw - var(--pl-space-5)));
+  overflow-y: auto;
   padding: var(--pl-space-3);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);

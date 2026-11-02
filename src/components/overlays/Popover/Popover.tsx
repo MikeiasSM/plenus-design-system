@@ -82,6 +82,7 @@ function PopoverContent({
     placement,
     offset,
     isOpen: true,
+    onClose,
   });
 
   // Sem `contain`: o Popover nao bloqueia a pagina. O `restoreFocus` leva o Tab da borda ao elemento seguinte

@@ -94,7 +94,7 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
     setOpen(false);
 
     if (devolverFoco) {
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
     }
   }
 
@@ -211,6 +211,7 @@ function MenuList({
     crossOffset: isSubmenu ? -5 : 0,
     containerPadding: 8,
     isOpen: true,
+    onClose: isSubmenu ? onBack : () => onClose(true),
   });
 
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 360, 360);

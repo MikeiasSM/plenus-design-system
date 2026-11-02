@@ -27,6 +27,17 @@ const SECOES = [
   { label: 'Admissão', value: 'admissao', description: 'Pessoas / Admissão' },
 ];
 
+const AREAS = [
+  { label: 'Todos', value: 'todos' },
+  { label: 'Compras', value: 'compras' },
+  { label: 'Financeiro', value: 'financeiro' },
+  { label: 'Orçamentos', value: 'orcamentos' },
+  { label: 'Ordem de Serviço', value: 'ordem-de-servico' },
+  { label: 'PDV', value: 'pdv' },
+  { label: 'Recorrências', value: 'recorrencias' },
+  { label: 'Vendas', value: 'vendas' },
+];
+
 const LISTAS = { periodicidade: PERIODICIDADES, regioes: REGIOES, estados: ESTADOS, secoes: SECOES };
 
 const playground = definirPlayground({
@@ -215,6 +226,17 @@ export const pagina: Pagina = {
       ),
       codigo:
         "const secoes = [\n  { label: 'Títulos', value: 'titulos', description: 'Financeiro / Títulos' },\n  { label: 'Contratos', value: 'contratos', description: 'Jurídico / Contratos' },\n];\n\n<Select label=\"Dentro de\" options={secoes} />",
+    },
+    {
+      titulo: 'Campo estreito',
+      descricao: 'O painel tem no mínimo 180px: num campo estreito, as opções mais longas cabem inteiras. Em campo mais largo, ele acompanha o campo.',
+      Previa: () => (
+        <div style={{ width: 96 }}>
+          <Select aria-label="Área" defaultValue="todos" options={AREAS} />
+        </div>
+      ),
+      codigo:
+        "const areas = [\n  { label: 'Todos', value: 'todos' },\n  { label: 'Financeiro', value: 'financeiro' },\n  { label: 'Ordem de Serviço', value: 'ordem-de-servico' },\n  { label: 'PDV', value: 'pdv' },\n];\n\n<div style={{ width: 96 }}>\n  <Select aria-label=\"Área\" defaultValue=\"todos\" options={areas} />\n</div>",
     },
     {
       titulo: 'No formulário',

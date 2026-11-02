@@ -97,7 +97,7 @@ export function Select({
 
   function fechar() {
     setOpen(false);
-    triggerRef.current?.focus();
+    triggerRef.current?.focus({ preventScroll: true });
   }
 
   function abrir() {
@@ -209,6 +209,7 @@ function SelectListbox({
     offset: 6,
     containerPadding: 8,
     isOpen: true,
+    onClose,
   });
   const [largura, setLargura] = useState<number>();
   // useOverlayPosition entrega toda a altura disponivel; limitamos para que

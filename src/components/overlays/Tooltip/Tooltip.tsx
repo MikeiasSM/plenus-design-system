@@ -127,6 +127,7 @@ function TooltipOnChild({
           <TooltipBubble
             content={content}
             id={id}
+            onClose={hide}
             onMouseEnter={() => clearTimeout(timer.current)}
             onMouseLeave={hide}
             placement={placement}
@@ -159,12 +160,22 @@ function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement
     return null;
   }
 
-  return createPortal(<TooltipBubble content={content} id={id} placement={placement} triggerRef={anchorRef} />, document.body);
+  return createPortal(
+    <TooltipBubble
+      content={content}
+      id={id}
+      onClose={() => onOpenChange?.(false)}
+      placement={placement}
+      triggerRef={anchorRef}
+    />,
+    document.body,
+  );
 }
 
 function TooltipBubble({
   content,
   id,
+  onClose,
   onMouseEnter,
   onMouseLeave,
   placement,
@@ -172,6 +183,7 @@ function TooltipBubble({
 }: {
   content: ReactNode;
   id: string;
+  onClose: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   placement: TooltipPlacement;
@@ -184,6 +196,7 @@ function TooltipBubble({
     placement,
     offset: 6,
     isOpen: true,
+    onClose,
   });
 
   return (

@@ -6,6 +6,18 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.3] — 2026-11-02
+
+### Alterado
+
+- O painel de `Select`, `ComboBox`, `DatePicker`, `DateTimePicker`, `TimePicker`, `Menu` e `Popover`, e a dica do `Tooltip`, passam a fechar também quando a página rola. Antes acompanhavam a página abertos. Ao fechar pela rolagem, o foco volta ao gatilho sem rolar até ele, como no Esc. No `Menu`, rolar o menu pai fecha só o submenu.
+- O `Popover` rola por dentro quando o conteúdo é mais alto que o espaço na tela, em vez de passar dela.
+
+### Corrigido
+
+- O painel de `Select`, `ComboBox`, `DatePicker`, `DateTimePicker`, `TimePicker`, `Menu` e `Popover`, e a dica do `Tooltip`, ficavam parados onde abriram, soltos do campo, quando rolava um contêiner que o envolve: a área rolável do `DataGrid`, o corpo de um `Dialog` ou `Drawer`, ou o leiaute da aplicação. Agora fecham.
+- O painel do `Select` e do `ComboBox` passa a ter largura mínima de 180px, como o do `Menu` e o do `Popover`. Antes ele tinha a largura do campo, e num campo estreito as opções quebravam ou eram cortadas.
+
 ## [0.5.2] — 2026-11-02
 
 ### Adicionado

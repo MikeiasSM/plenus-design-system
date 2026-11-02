@@ -154,6 +154,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     offset: 6,
     containerPadding: 8,
     isOpen: open,
+    onClose: fechar,
   });
   const [largura, setLargura] = useState<number>();
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 280, 280);

@@ -157,7 +157,7 @@ export function DateTimePicker({
     setOpen(false);
 
     if (devolverFoco) {
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
     }
   }
 
@@ -206,6 +206,7 @@ export function DateTimePicker({
     offset: 6,
     containerPadding: 8,
     isOpen: open,
+    onClose: fechar,
   });
 
   return (
