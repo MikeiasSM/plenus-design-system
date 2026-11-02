@@ -31,6 +31,23 @@
   flex: 1;
 }
 
+.fill {
+  height: 100%;
+}
+
+.fill > .viewport {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Sem altura imposta, a área rolável mantém a base de 480px, o `DEFAULT_HEIGHT` do componente. */
+.fill > .viewport > .scroller {
+  flex: 1 1 480px;
+  min-height: 0;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;

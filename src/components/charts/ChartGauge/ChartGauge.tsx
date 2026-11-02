@@ -493,7 +493,10 @@ export function ChartGauge({
     />
   );
   const tip = tooltip();
-  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: chartStyles.title });
+  const { figureProps, titleClassName } = chartRoot(root, {
+    figure: fillHeight ? `${styles.figure} ${chartStyles.figure} ${chartStyles.figureFill}` : `${styles.figure} ${chartStyles.figure}`,
+    title: chartStyles.title,
+  });
 
   return (
     <figure {...figureProps}>

@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { DataGrid, type DataGridColumn, type DataGridColumnDefinition, type DataGridDetailContext } from '.';
+import styles from './DataGrid.module.css';
 
 interface Order {
   id: string;
@@ -230,6 +231,16 @@ describe('DataGrid', () => {
     renderGrid({ rows: manyOrders(10_000), height: 400 });
 
     expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '10001');
+    expect(bodyRows().length).toBeLessThan(30);
+  });
+
+  it('leaves the height to the container with fill and still draws a window of the rows', () => {
+    renderGrid({ rows: manyOrders(10_000), height: 'fill' });
+
+    const scroller = screen.getByRole('grid').parentElement as HTMLElement;
+    expect(scroller.closest(`.${styles.fill}`)).not.toBeNull();
+    expect(scroller.getAttribute('style') ?? '').not.toMatch(/height/);
+    expect(bodyRows().length).toBeGreaterThan(0);
     expect(bodyRows().length).toBeLessThan(30);
   });
 

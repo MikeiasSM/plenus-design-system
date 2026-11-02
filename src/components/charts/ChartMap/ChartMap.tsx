@@ -455,12 +455,12 @@ export function ChartMap({
   const legendPosition = legend === 'right' && !sideLegend ? 'bottom' : legend;
   const width = plot.width;
   const fillHeight = height === 'fill';
-  const maxHeight = fillHeight ? Math.max(plot.height, MIN_HEIGHT) : height;
+  const maxHeight = fillHeight ? plot.height : height;
 
   const labelsOn = regionLabels !== 'hidden';
   const valuesOn = showDataLabels !== 'hidden' && scale.numeric;
   const layout = useMemo(() => {
-    if (width === 0 || empty) {
+    if (width === 0 || empty || maxHeight === 0) {
       return undefined;
     }
 
@@ -898,7 +898,10 @@ export function ChartMap({
           .filter((point) => validPoints.has(point))
           .map((point) => ({ key: `${series.id}:${point.id}`, name: point.label, series: series.label, value: formatValue(point.value) })),
   );
-  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: chartStyles.title });
+  const { figureProps, titleClassName } = chartRoot(root, {
+    figure: fillHeight ? `${styles.figure} ${chartStyles.figure} ${styles.figureFill}` : `${styles.figure} ${chartStyles.figure}`,
+    title: chartStyles.title,
+  });
 
   return (
     <figure {...figureProps}>

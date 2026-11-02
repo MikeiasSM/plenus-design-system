@@ -908,6 +908,6 @@ export const pagina: Pagina = {
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },
     { nome: 'error', tipo: 'ReactNode', descricao: 'Falha mostrada no lugar das linhas.' },
     { nome: 'emptyMessage', tipo: 'ReactNode', descricao: 'Texto da grade vazia.' },
-    { nome: 'height', tipo: 'number', padrao: '480', descricao: 'Altura da área rolável, em pixels. Não vale na grade aninhada.' },
+    { nome: 'height', tipo: "number | 'fill'", padrao: '480', descricao: 'Altura da área rolável, em pixels. Com fill, ocupa a altura imposta pelo contêiner e mantém 480 sem altura imposta. Não vale na grade aninhada.' },
   ],
 };

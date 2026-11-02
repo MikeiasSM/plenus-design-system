@@ -6,6 +6,16 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.2] — 2026-11-02
+
+### Adicionado
+
+- `DataGrid`: `height="fill"` ocupa a altura imposta pelo contêiner, como a célula de uma grade CSS com `grid-row: span`. Sem altura imposta, a área rolável mantém os 480px. `height` continua aceitando número, e o padrão não muda.
+
+### Corrigido
+
+- Gráficos com `height="fill"` (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartScatter`, `ChartWaterfall`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartSankey`, `ChartSunburst`, `ChartTreemap`, `ChartGauge` e `ChartMap`) paravam em 160px, qualquer que fosse a altura disponível. Passam a ocupar a altura que o contêiner impõe, inclusive abaixo de 160px, e, com a legenda ao lado, a altura dela, quando é maior. O piso de 160px vale só quando nada dá altura ao gráfico. A legenda nunca é cortada: numa altura menor que ela, é ela que manda. Dentro de um `Card`, o corpo do cartão ainda não repassa altura, e o gráfico continua com o piso.
+
 ## [0.5.1] — 2026-11-01
 
 ### Adicionado

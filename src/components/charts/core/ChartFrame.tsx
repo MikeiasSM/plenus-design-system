@@ -98,7 +98,10 @@ export function ChartFrame({
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
   const alternavel = table !== undefined && !empty;
-  const { figureProps, titleClassName } = chartRoot(root, { figure: styles.figure, title: styles.title });
+  const { figureProps, titleClassName } = chartRoot(root, {
+    figure: fillHeight ? `${styles.figure} ${styles.figureFill}` : styles.figure,
+    title: styles.title,
+  });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend

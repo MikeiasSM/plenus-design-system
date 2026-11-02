@@ -46,9 +46,31 @@
   position: relative;
 }
 
-.plotFill {
+/* Em `fill` a figura ocupa a altura imposta; a base de 160px so vale sem altura imposta. */
+.figureFill {
   height: 100%;
-  min-height: 160px;
+  min-height: 0;
+}
+
+.figureFill > .body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Ao lado, o corpo nunca fica menor que a legenda. */
+.figureFill > .bodyRow {
+  flex: 1 1 160px;
+  min-height: auto;
+}
+
+.body > .plotFill {
+  flex: 1 1 160px;
+  min-height: 0;
+}
+
+.bodyRow > .plotFill {
+  flex: 1 1 0;
+  align-self: stretch;
 }
 
 /* O contexto do recorte segue alem da area; o corte o mantem dentro do grafico. */

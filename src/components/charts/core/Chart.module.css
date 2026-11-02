@@ -48,11 +48,28 @@
   position: relative;
 }
 
-/* O piso garante uma altura mensuravel mesmo quando quem envolve nao impoe
-   nenhuma, o que evita o grafico desaparecer por medir zero. */
-.plotFill {
+/* Em `fill` a figura ocupa a altura disponivel; a base de 160px so vale quando nada da altura. */
+.figureFill {
   height: 100%;
-  min-height: 160px;
+  min-height: 0;
+}
+
+.figureFill > .bodyColumn {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.figureFill > .bodyRow {
+  flex: 1 1 160px;
+}
+
+.bodyColumn > .plotFill {
+  flex: 1 1 160px;
+  min-height: 0;
+}
+
+.bodyRow > .plotFill {
+  align-self: stretch;
 }
 
 .bodyColumn {

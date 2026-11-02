@@ -173,8 +173,8 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   /** Árvore: os filhos de cada linha, na mesma grade; `undefined` enquanto não carregaram. Memorizada, como `columns`. */
   getChildren?: (row: Row) => readonly Row[] | undefined;
   getRowId: (row: Row) => string;
-  /** Altura da área rolável, em pixels. Na grade aninhada não vale: ela rola com a de fora. */
-  height?: number;
+  /** Altura da área rolável, em pixels, ou `fill` para ocupar a altura imposta pelo contêiner (480 sem altura imposta). Na grade aninhada não vale: ela rola com a de fora. */
+  height?: number | 'fill';
   /** Retrato salvo por `onStateChange`, aplicado de uma vez na montagem. Vence os valores `default*`. */
   initialState?: unknown;
   label: string;
@@ -1035,7 +1035,8 @@ export function DataGrid<Row>({
   );
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
-  const [rowWindow, setRowWindow] = useState(() => visibleWindow(layout, 0, height, OVERSCAN));
+  const pixelHeight = height === 'fill' ? DEFAULT_HEIGHT : height;
+  const [rowWindow, setRowWindow] = useState(() => visibleWindow(layout, 0, pixelHeight, OVERSCAN));
 
   useLayoutEffect(() => {
     if (!nested) {
@@ -1056,11 +1057,11 @@ export function DataGrid<Row>({
 
     const headHeight = root.headHeight();
     const viewTop = scroller.scrollTop + headHeight - root.contentTop(body);
-    const viewHeight = scroller.clientHeight > 0 ? scroller.clientHeight - headHeight - root.footHeight() : height;
+    const viewHeight = scroller.clientHeight > 0 ? scroller.clientHeight - headHeight - root.footHeight() : pixelHeight;
     const next = visibleWindow(layoutRef.current, viewTop, viewHeight, OVERSCAN);
 
     setRowWindow((current) => (current.start === next.start && current.end === next.end ? current : next));
-  }, [root, height]);
+  }, [root, pixelHeight]);
 
   /* Linhas que mudam de lugar sem mudar de altura soltam a âncora; uma lista nova com as mesmas chaves, não. */
   const drawnKeys = useRef(itemKeys);
@@ -1790,13 +1791,14 @@ export function DataGrid<Row>({
   );
   const bodyRowCount = showsMessage ? 1 : nodes ? nodes.length : totalRows;
   const summaryRowIndex = groupRows + bodyRowCount + 2;
+  const fillsContainer = height === 'fill' && !nested && !fullScreen;
 
   return (
     <DataGridScrollContext.Provider value={nested ? outerScroll : ownScroll}>
       <DataGridContext.Provider value={contextValue}>
         <div
           {...props}
-          className={[styles.dataGrid, nested && styles.nested, fullScreen && styles.fullScreen, className]
+          className={[styles.dataGrid, nested && styles.nested, fullScreen && styles.fullScreen, fillsContainer && styles.fill, className]
             .filter(Boolean)
             .join(' ')}
           onKeyDown={(event) => {
@@ -1815,7 +1817,7 @@ export function DataGrid<Row>({
               data-scrolled-start={edges.start || undefined}
               ref={scrollerRef}
               style={{
-                height: nested || fullScreen ? undefined : height,
+                height: nested || fullScreen || height === 'fill' ? undefined : height,
                 ...(withDetail && viewWidth > 0 && { '--data-grid-view-width': `${viewWidth}px` }),
               }}
               onScroll={() => {
