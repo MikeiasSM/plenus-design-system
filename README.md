@@ -62,7 +62,7 @@ Exemplo:
 npm install @plenustech/design-system
 ```
 
-O nome e o mecanismo de publicação podem variar de acordo com a infraestrutura de distribuição adotada pela empresa.
+O pacote é publicado no npm a cada tag `vX.Y.Z` na `main`. As mudanças de cada versão estão em [CHANGELOG.md](docs/CHANGELOG.md).
 
 Requer React 19 e React DOM 19. Os componentes recebem `ref` como propriedade comum, o que o React 18 não entrega sem `forwardRef`.
 
@@ -94,6 +94,40 @@ import '@plenustech/design-system/reset.css';
 
 Uma aplicação nova ganha a aparência completa do sistema importando as duas. Uma aplicação existente, que já tem a própria base, importa apenas a primeira: os componentes não dependem do reset.
 
+Não é recomendado importar arquivos internos diretamente:
+
+```tsx
+// Evitar
+import Button from '@plenustech/design-system/src/components/actions/Button';
+```
+
+A API pública do Design System é definida pelas exportações do ponto de entrada:
+
+- `src/index.ts`
+
+Isso permite alterar a organização interna do projeto sem transformar a estrutura de arquivos em uma API pública.
+
+### Tema e paleta
+
+O tema claro é o padrão. O escuro é ligado na raiz do documento:
+
+```html
+<html data-theme="dark">
+```
+
+A identidade de marca vem de uma paleta. O laranja é o padrão; `data-palette="blue"` e `data-palette="purple"` trocam a paleta em qualquer elemento, inclusive numa parte da página. Uma paleta própria é gerada e medida a partir de uma cor:
+
+```tsx
+import { createPalette, nearestPaletteColor } from '@plenustech/design-system';
+
+<div {...createPalette('#67BD50')}>...</div>
+
+// Cor que vem de fora do código, como a escolhida pelo usuário
+<div {...createPalette(nearestPaletteColor(cor))}>...</div>
+```
+
+As regras da paleta própria estão em [TOKENS-REFERENCE-COLORS.md](docs/TOKENS-REFERENCE-COLORS.md).
+
 ### Ícones
 
 Os ícones de interface vêm do ponto de entrada principal. A suíte completa do Bootstrap Icons, com os 2.050 desenhos pelo nome de cada um, tem entrada própria, e o bundle leva só os importados:
@@ -118,19 +152,6 @@ Exemplo com o Google Fonts, no `<head>` da aplicação:
 
 Qualquer outra estratégia, como servir os arquivos da própria aplicação, deve carregar exatamente essas famílias e esses pesos.
 
-Não é recomendado importar arquivos internos diretamente:
-
-```tsx
-// Evitar
-import Button from '@plenustech/design-system/src/components/actions/Button';
-```
-
-A API pública do Design System é definida pelas exportações do ponto de entrada:
-
-- `src/index.ts`
-
-Isso permite alterar a organização interna do projeto sem transformar a estrutura de arquivos em uma API pública.
-
 ## Showcase
 
 O `showcase/` é a aplicação oficial de demonstração do Design System.
@@ -147,6 +168,19 @@ Ele é utilizado para:
 - Servir como ambiente de desenvolvimento visual.
 
 O Showcase consome o Design System como consumidor externo e não deve ser utilizado como fonte de componentes ou estilos.
+
+## Desenvolvimento
+
+```bash
+npm install
+npm run dev:showcase      # Showcase com a biblioteca em desenvolvimento
+npm test                  # suíte do Vitest
+npm run build:pacote      # pacote em dist/
+npm run check:pacote      # confere o pacote construído
+npm run check:contraste   # mede o contraste dos tokens nos dois temas
+```
+
+A publicação repete essas conferências antes de enviar o pacote ao npm. O processo de contribuição está em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Estrutura
 
@@ -165,7 +199,9 @@ plenus-design-system/
 │   ├── hooks/
 │   │
 │   ├── utils/
-│   │   └── formatters/
+│   │   ├── formatters/
+│   │   ├── palette/
+│   │   └── textSearch/
 │   │
 │   ├── components/
 │   │   ├── actions/
@@ -180,13 +216,22 @@ plenus-design-system/
 │   └── index.ts
 │
 ├── showcase/
-├── .editorconfig
-├── .gitignore
-├── ARCHITECTURE.md
-├── COMPONENTS.md
-├── COMPONENTS-CATALOG.md
-├── CONTRIBUTING.md
-├── TOKENS.md
+├── scripts/                  conferências do pacote e do contraste, geração dos ícones
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── TOKENS.md
+│   ├── TOKENS-REFERENCE-COLORS.md
+│   ├── TOKENS-REFERENCE-TYPOGRAPHY.md
+│   ├── COMPONENTS.md
+│   ├── COMPONENTS-CATALOG.md
+│   ├── CONTRIBUTING.md
+│   ├── CHANGELOG.md
+│   ├── acompanhamento/
+│   │   └── PROGRESS.md
+│   └── roadmap/
+│       └── X.Y.0.md
+├── .claude/CLAUDE.md         diretrizes operacionais de código
+├── LICENSE
 └── README.md
 ```
 
@@ -228,8 +273,10 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 - [COMPONENTS.md](docs/COMPONENTS.md) — padrões para criação e organização de componentes.
 - [COMPONENTS-CATALOG.md](docs/COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
 - [TOKENS.md](docs/TOKENS.md) — padrões para criação e gerencia de tokens visuais.
+- [TOKENS-REFERENCE-COLORS.md](docs/TOKENS-REFERENCE-COLORS.md) e [TOKENS-REFERENCE-TYPOGRAPHY.md](docs/TOKENS-REFERENCE-TYPOGRAPHY.md) — referência de cores, paletas e tipografia.
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
 - [CHANGELOG.md](docs/CHANGELOG.md) — mudanças de cada versão publicada.
+- [PROGRESS.md](docs/acompanhamento/PROGRESS.md) — estado da implementação e decisões tomadas.
 - [roadmap/](docs/roadmap/) — o que cada versão menor planeja levar.
 
 Os documentos normativos ficam na raiz de `docs/`; o acompanhamento, em `docs/acompanhamento/`; o roadmap de cada versão menor, em `docs/roadmap/`.
