@@ -218,6 +218,10 @@ Toda alteração percebida pelo consumidor entra no `CHANGELOG.md`, em `## [Não
 
 As mudanças incompatíveis ficam no grupo **Incompatível**, cada uma com o que o consumidor precisa fazer. A publicação recusa a tag cuja versão não tem seção no `CHANGELOG.md` e a versão de correção que traz o grupo **Incompatível**.
 
+### Roadmap
+
+Cada versão menor tem um roadmap em `docs/roadmap/X.Y.0.md`, aberto quando a anterior é publicada. Ele enumera o que a versão pode levar, com a origem de cada item e se ele é incompatível, adição compatível ou decisão pendente. O que não é incompatível pode sair antes, numa versão de correção, e sai do roadmap ao ser publicado. O roadmap não é normativo: um item só entra com aprovação, e o que muda uma norma é sinalizado antes.
+
 ## 12. Checklist
 
 Antes de abrir uma alteração:

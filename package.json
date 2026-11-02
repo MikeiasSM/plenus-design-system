@@ -40,7 +40,7 @@
   ],
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "docs/CHANGELOG.md"
   ],
   "scripts": {
     "dev": "vite",

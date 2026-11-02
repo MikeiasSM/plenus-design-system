@@ -50,7 +50,7 @@ O `showcase/` é uma aplicação consumidora utilizada para demonstração, docu
 
 O Showcase não define componentes oficiais, não contém regras de negócio do Design System e não fornece código que seja importado pela biblioteca.
 
-Para conhecer as decisões arquiteturais em detalhes, consulte [ARCHITECTURE.md](ARCHITECTURE.md).
+Para conhecer as decisões arquiteturais em detalhes, consulte [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Instalação
 
@@ -104,7 +104,7 @@ import { IconFolder, IconTruck } from '@plenustech/design-system/icons';
 
 ### Fontes
 
-Os componentes usam três famílias, nos pesos definidos em [TOKENS-REFERENCE-TYPOGRAPHY.md](TOKENS-REFERENCE-TYPOGRAPHY.md): Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500.
+Os componentes usam três famílias, nos pesos definidos em [TOKENS-REFERENCE-TYPOGRAPHY.md](docs/TOKENS-REFERENCE-TYPOGRAPHY.md): Poppins 600, Montserrat 400 e 600 e JetBrains Mono 500.
 
 O pacote declara as famílias, mas **não carrega os arquivos de fonte**: o carregamento é da aplicação, conforme a infraestrutura dela. Sem ele, o texto cai nas famílias de reserva do navegador, `sans-serif` e `monospace`.
 
@@ -224,12 +224,15 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 
 ## Documentação
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — princípios e decisões arquiteturais.
-- [COMPONENTS.md](COMPONENTS.md) — padrões para criação e organização de componentes.
-- [COMPONENTS-CATALOG.md](COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
-- [TOKENS.md](TOKENS.md) — padrões para criação e gerencia de tokens visuais.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
-- [CHANGELOG.md](CHANGELOG.md) — mudanças de cada versão publicada.
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — princípios e decisões arquiteturais.
+- [COMPONENTS.md](docs/COMPONENTS.md) — padrões para criação e organização de componentes.
+- [COMPONENTS-CATALOG.md](docs/COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
+- [TOKENS.md](docs/TOKENS.md) — padrões para criação e gerencia de tokens visuais.
+- [CONTRIBUTING.md](docs/CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
+- [CHANGELOG.md](docs/CHANGELOG.md) — mudanças de cada versão publicada.
+- [roadmap/](docs/roadmap/) — o que cada versão menor planeja levar.
+
+Os documentos normativos ficam na raiz de `docs/`; o acompanhamento, em `docs/acompanhamento/`; o roadmap de cada versão menor, em `docs/roadmap/`.
 
 ## Licença
 

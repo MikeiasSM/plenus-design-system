@@ -229,11 +229,11 @@ O React Aria entra **por trás da API do componente, nunca através dela**: nenh
 
 ## Corpus normativo e precedência
 
-Este documento é operacional e **subordinado** ao corpus normativo do projeto.
+Este documento é operacional e **subordinado** ao corpus normativo do projeto. Os documentos ficam em `docs/`, exceto o `README.md`, na raiz.
 
 Ordem de precedência: `README.md` → `ARCHITECTURE.md` → `TOKENS.md` (+ `TOKENS-REFERENCE-COLORS.md`, `TOKENS-REFERENCE-TYPOGRAPHY.md`) → `COMPONENTS.md` (+ `COMPONENTS-CATALOG.md`) → `CONTRIBUTING.md`.
 
-Não normativos: `PROGRESS.md` (acompanhamento), `CHANGELOG.md` (registro de versões) e `showcase/` (demonstração).
+Não normativos: `docs/acompanhamento/` (`PROGRESS.md` e a passagem de sessão), `docs/CHANGELOG.md` (registro de versões), `docs/roadmap/` (planejamento de cada versão menor) e `showcase/` (demonstração).
 
 Se um mandamento divergir de um documento normativo, o documento prevalece e a divergência deve ser sinalizada antes da implementação. Alterar um documento normativo exige decisão arquitetural aprovada.
 

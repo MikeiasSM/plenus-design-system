@@ -64,9 +64,9 @@ jobs:
       - name: Conferir o CHANGELOG da versao
         run: |
           versao=$(node -p "require('./package.json').version")
-          secao=$(awk -v cab="## [$versao]" 'index($0, cab) == 1 { dentro = 1; next } /^## \[/ { dentro = 0 } dentro' CHANGELOG.md)
-          if ! grep -qF "## [$versao]" CHANGELOG.md; then
-            echo "::error::O CHANGELOG.md nao tem a secao ## [$versao]."
+          secao=$(awk -v cab="## [$versao]" 'index($0, cab) == 1 { dentro = 1; next } /^## \[/ { dentro = 0 } dentro' docs/CHANGELOG.md)
+          if ! grep -qF "## [$versao]" docs/CHANGELOG.md; then
+            echo "::error::O docs/CHANGELOG.md nao tem a secao ## [$versao]."
             exit 1
           fi
           IFS=. read -r maior menor correcao <<< "${versao%%-*}"
