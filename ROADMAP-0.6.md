@@ -10,7 +10,7 @@ Legenda: **I** é incompatível e entra no grupo **Incompatível** do `CHANGELOG
 
 ## 1. Vindos do relatório de 01/11/2026
 
-A análise completa está em `relatorio-painel-0.5.0.md`.
+A análise completa fica fora do repositório, com os relatórios dos produtos.
 
 1. **`Card.Header` nos modos de fluxo** (I). Em `size="sm"`, `trailingWhenNarrow="wrap"` e `"hide"`, a descrição fica logo abaixo do título enquanto o `trailing` estiver ao lado dele. Hoje ela desce para baixo do `trailing` alto: 42px de vão, medidos. Muda a posição e a largura da descrição, por isso é incompatível.
    - Antes: decidir a frase do `sm`. O tipo `CardSize` diz "abaixo do título"; o `CHANGELOG.md` da 0.5.0 diz "abaixo do `trailing`". Recomendação: "abaixo do título".
