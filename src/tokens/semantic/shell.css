@@ -1,0 +1,4 @@
+/* Respiro entre as folhas do `AppShell` e entre elas e a borda da janela. Fica fora da escala de 4px por decisão do mantenedor. */
+:root {
+  --pl-shell-gap: 6px;
+}

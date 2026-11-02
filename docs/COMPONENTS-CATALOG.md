@@ -56,6 +56,8 @@ A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação
 | `DateTimePicker` | Entrada de data e hora combinadas. | Disponível |
 | `ColorPicker` | Escolha de cor entre amostras definidas pelo produto. | Disponível |
 | `FileUpload` | Seleção de arquivos, por clique ou arrasto, com a lista dos envios. | Disponível |
+| `FieldRow` | Linha de ajuste: rótulo e explicação de um lado, o controle do outro. | Previsto |
+| `SaveBar` | Barra de alterações não salvas, com descartar e salvar. | Previsto |
 
 `Field` é a moldura que os campos deste catálogo já usam por dentro, exposta para quem precisa montar um campo que o Design System não entrega — uma máscara de documento, um seletor de arquivo, um autocompletar de endereço. Ele recebe uma função e devolve o `id`, a descrição acessível já montada, o estado de inválido e a classe com o visual dos campos do sistema, no tamanho pedido; o controle continua sendo de quem o escreve, e a classe própria dele, somada à entregue, vence.
 
@@ -208,6 +210,8 @@ A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica jun
 | `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
 | `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
+| `AppShell` | Moldura de tela em camadas: trilho de módulos, submenu do módulo e página. | Previsto |
+| `PageHeader` | Cabeçalho de página: título, descrição, selos de situação e ações. | Previsto |
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
 
@@ -215,17 +219,20 @@ A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens po
 
 `Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido como no `Breadcrumb`.
 
+O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura. O terceiro nível do submenu tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido como no `Breadcrumb`.
+
 ## 9. Sobreposições
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Dialog` | Interação modal que interrompe o fluxo. | Disponível |
 | `Drawer` | Painel modal preso à lateral da tela. | Disponível |
+| `SidePanel` | Painel não modal ao lado do conteúdo, de qualquer lado, que empurra a página. | Previsto |
 | `Popover` | Conteúdo ancorado a um gatilho, sem bloquear a página. | Disponível |
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
 | `Menu` | Lista de ações disparada por um gatilho. | Disponível |
 
-`Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é composição de layout da aplicação.
+`Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é o `SidePanel`. Ele abre de qualquer lado e empurra o conteúdo, que continua usável, sem foco preso nem fundo inerte. Em largura estreita, onde não há espaço para empurrar, passa a se comportar como o `Drawer`.
 
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 

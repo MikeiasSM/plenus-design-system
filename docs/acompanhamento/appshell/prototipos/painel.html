@@ -1,0 +1,897 @@
+<title>Painel · Base de Clientes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<style>
+/* AppShell em camadas aplicado ao Painel: base, trilho e página como folhas, submenu e filtros na base. Paleta azul. */
+:root {
+  --bg: #EEF0F3;
+  --surface: #FFFFFF;
+  --surface-2: #F7F8FA;
+  --surface-3: #E8EBEF;
+  --border: #E3E5E9;
+  --border-strong: #D3D7DD;
+  --text: #2F3237;
+  --text-2: #5F646B;
+  --text-3: #90959C;
+  --acc: #49619C;
+  --acc-strong: #3C5184;
+  --acc-hover: #F2F5FC;
+  --acc-sel: #E1E7F5;
+  --acc-line: #C1CDE9;
+  --acc-on: #263353;
+  --on-acc: #FFFFFF;
+  --s1: #49619C;
+  --s2: #8EA2D0;
+  --s3: #C1CDE9;
+  --danger: #C0392B;
+  --danger-soft: #FBECEA;
+  --warn: #B4761A;
+  --warn-soft: #FDF3E3;
+  --warn-line: #F3DDB5;
+  --sh-1: 0 1px 2px rgba(24, 26, 28, .06);
+  --sh-drawer: 0 20px 46px rgba(24, 26, 28, .22);
+  --scrim: rgba(16, 17, 19, .38);
+
+  --font-title: 'Poppins', system-ui, 'Segoe UI', sans-serif;
+  --font-body: 'Montserrat', system-ui, 'Segoe UI', sans-serif;
+  --gap: 6px;
+  --radius: 8px;
+  --rail: 56px;
+  --panel: 232px;
+  --aside: 272px;
+  --speed: 220ms;
+  --ease: cubic-bezier(.2, .6, .3, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141517; --surface: #1B1D20; --surface-2: #202226; --surface-3: #282B2F;
+    --border: #2C2F33; --border-strong: #3A3E43;
+    --text: #E9EAEB; --text-2: #A5A8AC; --text-3: #7C8085;
+    --acc: #8EA2D0; --acc-strong: #A9B9DD;
+    --acc-hover: color-mix(in oklab, #8EA2D0 9%, #1B1D20);
+    --acc-sel: color-mix(in oklab, #8EA2D0 18%, #1B1D20);
+    --acc-line: color-mix(in oklab, #8EA2D0 34%, #1B1D20);
+    --acc-on: #C1CDE9; --on-acc: #101624;
+    --s1: #8EA2D0; --s2: #5F77B0; --s3: #3C5184;
+    --danger: #E8776B; --danger-soft: #2A1917;
+    --warn: #DDA24A; --warn-soft: #2A2116; --warn-line: #4A3A22;
+    --sh-1: 0 1px 2px rgba(0, 0, 0, .45); --sh-drawer: 0 20px 46px rgba(0, 0, 0, .6); --scrim: rgba(0, 0, 0, .62);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"], :root[data-tema="escuro"] {
+  --bg: #141517; --surface: #1B1D20; --surface-2: #202226; --surface-3: #282B2F;
+  --border: #2C2F33; --border-strong: #3A3E43;
+  --text: #E9EAEB; --text-2: #A5A8AC; --text-3: #7C8085;
+  --acc: #8EA2D0; --acc-strong: #A9B9DD;
+  --acc-hover: color-mix(in oklab, #8EA2D0 9%, #1B1D20);
+  --acc-sel: color-mix(in oklab, #8EA2D0 18%, #1B1D20);
+  --acc-line: color-mix(in oklab, #8EA2D0 34%, #1B1D20);
+  --acc-on: #C1CDE9; --on-acc: #101624;
+  --s1: #8EA2D0; --s2: #5F77B0; --s3: #3C5184;
+  --danger: #E8776B; --danger-soft: #2A1917;
+  --warn: #DDA24A; --warn-soft: #2A2116; --warn-line: #4A3A22;
+  --sh-1: 0 1px 2px rgba(0, 0, 0, .45); --sh-drawer: 0 20px 46px rgba(0, 0, 0, .6); --scrim: rgba(0, 0, 0, .62);
+  color-scheme: dark;
+}
+:root[data-tema="claro"] {
+  --bg: #EEF0F3; --surface: #FFFFFF; --surface-2: #F7F8FA; --surface-3: #E8EBEF;
+  --border: #E3E5E9; --border-strong: #D3D7DD;
+  --text: #2F3237; --text-2: #5F646B; --text-3: #90959C;
+  --acc: #49619C; --acc-strong: #3C5184;
+  --acc-hover: #F2F5FC; --acc-sel: #E1E7F5; --acc-line: #C1CDE9; --acc-on: #263353; --on-acc: #FFFFFF;
+  --s1: #49619C; --s2: #8EA2D0; --s3: #C1CDE9;
+  --danger: #C0392B; --danger-soft: #FBECEA;
+  --warn: #B4761A; --warn-soft: #FDF3E3; --warn-line: #F3DDB5;
+  --sh-1: 0 1px 2px rgba(24, 26, 28, .06); --sh-drawer: 0 20px 46px rgba(24, 26, 28, .22); --scrim: rgba(16, 17, 19, .38);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+
+/* Rolagem quase invisível: fina, sem trilho e sem setas; o polegar aparece só com o ponteiro sobre a área */
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-button { background: transparent; display: none; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; }
+*:hover::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text) 18%, transparent); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/20px var(--font-body);
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
+h1, h2, h3, p { margin: 0; }
+ul { list-style: none; margin: 0; padding: 0; }
+
+/* Aplicação: a moldura ocupa a janela inteira */
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  padding: var(--gap) max(var(--gap), env(safe-area-inset-right, 0px)) var(--gap) max(var(--gap), env(safe-area-inset-left, 0px));
+}
+
+/* A instalação de demonstração é contexto da conta: fica junto da empresa, no rodapé do submenu */
+.demo {
+  flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; align-items: center;
+  margin-top: 6px; padding: 8px 10px;
+  border: 1px solid var(--warn-line); border-radius: var(--radius); background: var(--warn-soft);
+  font-size: 12px; line-height: 16px; color: var(--text-2);
+}
+.demo svg { grid-row: span 2; color: var(--warn); }
+.demo strong { color: var(--text); font-weight: 600; }
+.avatar.demo-dot { position: relative; }
+.avatar.demo-dot::after {
+  content: ""; position: absolute; top: -2px; right: -2px; width: 9px; height: 9px;
+  border: 2px solid var(--surface); border-radius: 50%; background: var(--warn);
+}
+
+.shell { position: relative; display: flex; min-height: 0; gap: 0; }
+.nav { display: flex; flex: none; min-height: 0; }
+
+.sheet {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--sh-1);
+}
+
+/* Trilho de módulos */
+.rail {
+  flex: none; width: var(--rail);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 0 8px;
+  z-index: 2;
+}
+.brand {
+  display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 8px;
+  border-radius: var(--radius); background: var(--acc); color: var(--on-acc);
+}
+.rail .grupo { display: grid; gap: 2px; }
+.rail .spacer { flex: 1; }
+.rail-btn {
+  position: relative;
+  display: grid; place-items: center; width: 38px; height: 38px;
+  border: 0; border-radius: var(--radius); background: none; color: var(--text-2);
+  transition: background 120ms, color 120ms;
+}
+.rail-btn:hover { background: var(--acc-hover); color: var(--acc); }
+.rail-btn[aria-current="page"] { background: var(--acc-sel); color: var(--acc-on); }
+.rail-btn[aria-pressed="true"] { color: var(--acc); }
+.dica {
+  position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+  padding: 4px 8px; border-radius: var(--radius); background: #26282A; color: #E9EAEB;
+  font-size: 12px; line-height: 16px; white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity 120ms; z-index: 20;
+}
+.rail-btn:hover .dica, .rail-btn:focus-visible .dica { opacity: 1; }
+.avatar {
+  display: grid; place-items: center; width: 34px; height: 34px; margin-top: 6px; flex: none;
+  border-radius: var(--radius); background: var(--acc-sel); color: var(--acc-on);
+  font: 600 12px/1 var(--font-title);
+}
+
+/* Submenu do módulo, na base */
+.panel {
+  flex: none; width: var(--panel); min-height: 0; overflow: hidden;
+  transition: width var(--speed) var(--ease), opacity var(--speed) var(--ease);
+  z-index: 1;
+}
+.panel[data-aberto="false"] { width: 0; opacity: 0; }
+.panel-inner { width: var(--panel); height: 100%; display: flex; flex-direction: column; padding: 4px 8px 4px 12px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; height: 46px; flex: none; }
+.panel-title { display: grid; line-height: 1.2; }
+.panel-title strong { font: 600 15px/1.2 var(--font-title); color: var(--text); }
+.panel-title span { color: var(--text-3); font-size: 11.5px; }
+.panel-list { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -4px; padding: 2px 4px; display: grid; align-content: start; gap: 2px; }
+.icon-btn {
+  display: grid; place-items: center; width: 32px; height: 32px; flex: none;
+  border: 0; border-radius: var(--radius); background: none; color: var(--text-3);
+}
+.icon-btn:hover { background: var(--acc-hover); color: var(--acc); }
+.icon-btn[aria-pressed="true"] { background: var(--acc-sel); color: var(--acc-on); }
+.item {
+  display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; padding: 0 8px;
+  border: 1px solid transparent; border-radius: var(--radius); background: none;
+  color: var(--text-2); font-weight: 600; font-size: 13px; text-align: left; text-decoration: none;
+  transition: background 120ms, color 120ms;
+}
+.item:hover { background: var(--acc-hover); color: var(--acc-on); }
+.item:hover svg { color: var(--acc); }
+.item .chev { margin-left: auto; display: inline-flex; color: var(--text-3); transition: transform var(--speed) var(--ease); }
+.item[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.item[aria-current="page"] { background: var(--acc-sel); border-color: var(--acc-line); box-shadow: var(--sh-1); color: var(--acc-on); }
+.item[aria-current="page"] svg { color: var(--acc); }
+.item.trilha { color: var(--acc-on); }
+.item.trilha > svg { color: var(--acc); }
+.sub { margin: 2px 0 4px 16px; padding-left: 9px; border-left: 1px solid var(--border-strong); display: grid; gap: 2px; }
+.sub .item { height: 30px; font-weight: 400; }
+.sub .item[aria-current="page"] { font-weight: 600; }
+.panel-main { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+.panel-foot { flex: none; padding: 6px 0 2px; border-top: 1px solid var(--border); margin-top: 6px; }
+.panel-foot .avatar { margin: 0; }
+.conta-trigger {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px;
+  border: 0; border-radius: var(--radius); background: none; text-align: left;
+}
+.conta-trigger:hover, .conta-trigger[aria-expanded="true"] { background: var(--acc-hover); }
+.conta-trigger .chev { margin-left: auto; display: inline-flex; color: var(--text-3); transition: transform var(--speed) var(--ease); }
+.conta-trigger[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+/* Conta do usuário: cresce de baixo para cima acima do rodapé, na altura das opções, e encolhe a lista do módulo */
+.conta {
+  flex: none; display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows var(--speed) var(--ease);
+}
+.conta[data-aberto="true"] { grid-template-rows: 1fr; }
+.conta > nav {
+  min-height: 0; overflow: hidden;
+  transform: translateY(24px); opacity: 0;
+  transition: transform var(--speed) var(--ease), opacity var(--speed) var(--ease);
+}
+.conta[data-aberto="true"] > nav { transform: none; opacity: 1; }
+.conta ul { padding-top: 6px; margin-top: 6px; border-top: 1px solid var(--border); }
+.conta-head { display: flex; align-items: center; gap: 10px; padding: 4px 4px 12px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+.conta-head .logo { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--radius); background: var(--acc); color: var(--on-acc); }
+.conta-head div:last-child { display: grid; min-width: 0; line-height: 1.3; }
+.conta-head strong { font-size: 13px; }
+.conta-head span { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conta ul { display: grid; gap: 2px; }
+.conta .count {
+  margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: var(--radius);
+  background: var(--surface-3); color: var(--text-3); font-size: 11.5px; font-weight: 600; text-align: center;
+}
+.conta .count + .chev { margin-left: 4px; }
+.conta hr { width: 100%; margin: 6px 0; border: 0; border-top: 1px solid var(--border); }
+.rail .avatar { border: 0; padding: 0; }
+.rail .avatar:hover { background: var(--acc-line); }
+.who { display: grid; min-width: 0; line-height: 1.3; }
+.who strong { font-size: 12.5px; font-weight: 600; }
+.who span { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.panel-foot .icon-btn { margin-left: auto; }
+
+/* Folha da página */
+.page {
+  flex: 1; min-width: 0; min-height: 0;
+  margin-left: var(--gap);
+  display: flex; flex-direction: column; overflow: hidden;
+  z-index: 2;
+}
+.page-bar {
+  flex: none; display: flex; align-items: center; gap: 6px;
+  height: 46px; padding: 0 8px 0 12px; border-bottom: 1px solid var(--border);
+}
+.crumbs { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12.5px; color: var(--text-3); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.crumbs .now { color: var(--text); background: var(--surface-3); padding: 2px 8px; border-radius: var(--radius); }
+.updated { margin-left: auto; color: var(--text-3); font-size: 12px; white-space: nowrap; padding: 0 6px; }
+.page-body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 18px 22px; container-type: inline-size; }
+/* O cabeçalho da página se separa do conteúdo por uma linha de borda a borda da folha */
+.page-head { display: grid; gap: 4px; margin: -18px -18px 16px; padding: 18px 18px 16px; border-bottom: 1px solid var(--border); }
+.page-head h1 { font: 600 24px/32px var(--font-title); text-wrap: balance; }
+.page-head p { color: var(--text-2); }
+.chip {
+  justify-self: start; margin-top: 4px; padding: 2px 10px;
+  border: 1px solid var(--acc-line); border-radius: var(--radius); background: var(--acc-hover);
+  color: var(--acc-on); font-size: 12px; font-weight: 600;
+}
+
+/* Grade do dashboard, medida pela largura da folha */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.s3 { grid-column: span 3; }
+.s4 { grid-column: span 4; }
+.s6 { grid-column: span 6; }
+@container (max-width: 1060px) {
+  .s3, .s4 { grid-column: span 6; }
+  .s4.fecha { grid-column: span 12; }
+}
+@container (max-width: 680px) {
+  .s3, .s4, .s6, .s4.fecha { grid-column: span 12; }
+}
+
+.card { display: flex; flex-direction: column; min-width: 0; padding: 16px; }
+.card-head { display: grid; gap: 2px; }
+.card-title { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.card-title h3 { font: 600 16px/24px var(--font-body); color: var(--text); }
+.ai { width: 26px; height: 26px; color: var(--text-3); }
+.trend {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 4px; flex: none;
+  padding: 1px 8px; border-radius: var(--radius);
+  background: var(--danger-soft); color: var(--danger); font-size: 12px; font-weight: 600;
+}
+.card-head p { color: var(--text-2); }
+.metric { min-height: 150px; }
+.metric .value { margin-top: auto; padding-top: 16px; font: 600 36px/44px var(--font-title); color: var(--text); font-variant-numeric: tabular-nums; }
+.metric .value small { font: 400 14px/20px var(--font-body); color: var(--text-3); margin-left: 6px; }
+
+/* Barras horizontais */
+.bars { margin-top: 14px; display: grid; gap: 4px; }
+.bar-row { display: grid; grid-template-columns: var(--label, 32px) minmax(0, 1fr); align-items: center; gap: 10px; }
+.bar-label { color: var(--text-2); font-size: 12px; line-height: 16px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track {
+  position: relative; display: flex; align-items: center; gap: 6px; height: var(--row, 16px);
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px);
+  background-size: calc((100% - 44px) / 4) 100%;
+  background-repeat: repeat-y;
+}
+.bar { height: var(--thick, 10px); min-width: 2px; border-radius: 2px; background: var(--s1); }
+.bar-val { color: var(--text-2); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar-row.clicavel { cursor: pointer; border-radius: 4px; }
+.bar-row.clicavel:hover .bar { background: var(--acc-strong); }
+.bar-row.clicavel:hover .bar-label { color: var(--acc-on); }
+
+/* Rosca com a legenda encostada na forma */
+.donut-body { flex: 1; display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+.donut { flex: none; width: 168px; height: 168px; }
+.donut .total { font: 600 22px/1 var(--font-title); fill: var(--text); }
+.donut .total-label { font: 400 12px/1 var(--font-body); fill: var(--text-3); }
+.legend { display: grid; gap: 8px; min-width: 0; }
+.legend li { display: grid; grid-template-columns: 10px minmax(0, auto) auto; align-items: center; gap: 8px 10px; font-size: 13px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+.legend .nome { color: var(--text-2); }
+.legend .pct { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+
+.empty { display: grid; place-items: center; text-align: center; gap: 6px; padding: 64px 16px; color: var(--text-2); }
+.empty strong { color: var(--text); font: 600 16px/24px var(--font-body); }
+
+/* Filtros: na base, à direita, empurrando a página como o submenu */
+.aside {
+  flex: none; width: var(--aside); min-height: 0; overflow: hidden;
+  transition: width var(--speed) var(--ease), opacity var(--speed) var(--ease);
+}
+.aside[data-aberto="false"] { width: 0; opacity: 0; }
+.aside-inner { width: var(--aside); height: 100%; display: flex; flex-direction: column; padding: 4px 6px 0 14px; }
+.aside-head { display: flex; align-items: center; justify-content: space-between; height: 46px; flex: none; }
+.aside-head strong { font: 600 15px/1.2 var(--font-title); }
+.aside-body { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 14px; padding: 4px 2px 12px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.field label i { font-style: normal; color: var(--danger); }
+.select {
+  width: 100%; height: 38px; padding: 0 30px 0 10px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface);
+  appearance: none; font-size: 13px; text-overflow: ellipsis;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-3) 50%), linear-gradient(135deg, var(--text-3) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px; background-repeat: no-repeat;
+}
+.aside-foot { flex: none; display: grid; gap: 10px; padding: 12px 2px 4px; border-top: 1px solid var(--border); }
+.switch-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
+.switch-row span { display: grid; line-height: 1.3; }
+.switch-row small { color: var(--text-3); font-size: 11.5px; }
+.switch {
+  appearance: none; margin: 0 0 0 auto; flex: none; width: 34px; height: 20px; border-radius: 999px;
+  background: var(--border-strong); position: relative; cursor: pointer; transition: background 120ms;
+}
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform 120ms; }
+.switch:checked { background: var(--acc); }
+.switch:checked::after { transform: translateX(14px); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface);
+  color: var(--text); font-size: 13px; font-weight: 600;
+}
+.btn:hover { background: var(--acc-hover); border-color: var(--acc-line); color: var(--acc-on); }
+.btn.primary { background: var(--acc); border-color: var(--acc); color: var(--on-acc); }
+.btn.primary:hover { background: var(--acc-strong); border-color: var(--acc-strong); }
+.btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.scrim { position: absolute; inset: 0; z-index: 5; border-radius: var(--radius); background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity var(--speed); }
+#menu { display: none; }
+
+/* Estreito: trilho e submenu numa gaveta à esquerda, filtros numa gaveta à direita */
+@media (max-width: 900px) {
+  #menu { display: grid; }
+  #expandir { display: none !important; }
+  .updated { display: none; }
+  .nav {
+    position: absolute; inset: 0 auto 0 0; z-index: 6;
+    padding: var(--gap); border-radius: var(--radius);
+    background: var(--bg); box-shadow: var(--sh-drawer);
+    transform: translateX(calc(-100% - 40px)); transition: transform var(--speed) var(--ease);
+  }
+  .shell[data-menu="aberto"] .nav { transform: none; }
+  .nav .panel[data-aberto] { width: var(--panel); opacity: 1; }
+  .page { margin-left: 0; }
+  .aside, .aside[data-aberto] {
+    position: absolute; inset: 0 0 0 auto; z-index: 6; width: min(var(--aside), calc(100% - 48px)); opacity: 1;
+    border-radius: var(--radius); background: var(--bg); box-shadow: var(--sh-drawer);
+    transform: translateX(calc(100% + 40px)); transition: transform var(--speed) var(--ease);
+  }
+  .aside[data-aberto="true"] { transform: none; }
+  .aside-inner { width: 100%; }
+  .shell[data-menu="aberto"] .scrim, .shell[data-filtros="aberto"] .scrim { opacity: 1; pointer-events: auto; }
+  .page-body { padding: 14px 12px 18px; }
+  .page-head h1 { font-size: 20px; line-height: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel, .aside, .nav, .scrim, .item .chev, .rail-btn, .item { transition: none; }
+}
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>
+
+<div class="app">
+  <div class="shell" id="shell" data-menu="fechado" data-filtros="fechado">
+    <div class="nav" id="nav">
+      <aside class="rail sheet" aria-label="Módulos">
+        <div class="brand" title="Painel by Plenustech">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="12" width="3.2" height="7" rx="1"/><rect x="10.4" y="8" width="3.2" height="11" rx="1"/><rect x="15.8" y="4.5" width="3.2" height="14.5" rx="1"/></svg>
+          <span class="vh">Painel by Plenustech</span>
+        </div>
+        <nav aria-label="Módulos" style="display:contents">
+          <ul class="grupo" id="modulos"></ul>
+        </nav>
+        <div class="spacer"></div>
+        <div class="grupo">
+          <button type="button" class="rail-btn" aria-label="Acesse pelo celular" data-sem-acao>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="7" y="3.5" width="10" height="17" rx="2"/><path d="M11 17.5h2"/></svg>
+            <span class="dica" aria-hidden="true">Acesse pelo celular</span>
+          </button>
+          <button type="button" class="rail-btn" id="tema" aria-label="Modo escuro" aria-pressed="false">
+            <span id="tema-icone"></span>
+            <span class="dica" aria-hidden="true">Modo escuro</span>
+          </button>
+        </div>
+        <button type="button" class="avatar demo-dot" id="rail-conta" aria-controls="conta" aria-label="Conta: Suporte, Roman Mecânica de Caminhões. Instalação de demonstração, chave válida até 19/11/2026" title="Instalação de demonstração · chave válida até 19/11/2026">RM</button>
+      </aside>
+
+      <aside class="panel" id="panel" data-aberto="true" aria-label="Submenu do módulo">
+        <div class="panel-inner">
+          <div class="panel-main">
+          <div class="panel-head">
+            <div class="panel-title"><strong id="panel-title">Vendas</strong><span>Painel by Plenustech</span></div>
+            <button type="button" class="icon-btn" id="recolher" aria-label="Recolher submenu" aria-controls="panel" aria-expanded="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9 4.5v15"/></svg>
+            </button>
+          </div>
+          <nav aria-labelledby="panel-title" class="panel-list"><ul id="itens" style="display:grid;gap:2px"></ul></nav>
+          <div class="demo" role="status">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h10M17.5 12v3M20.5 12v2"/></svg>
+            <strong>Instalação de demonstração</strong>
+            <span>Chave válida até 19/11/2026</span>
+          </div>
+
+          <div class="conta" id="conta" data-aberto="false" aria-label="Conta">
+            <nav aria-label="Conta">
+              <ul id="conta-itens"></ul>
+            </nav>
+          </div>
+          </div>
+          <div class="panel-foot">
+            <button type="button" class="conta-trigger" id="conta-trigger" aria-controls="conta" aria-expanded="false">
+              <span class="avatar" aria-hidden="true">RM</span>
+              <span class="who"><strong>Suporte</strong><span>Roman Mecânica de Caminhões Ltda</span></span>
+              <span class="chev"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14.5 6-6 6 6"/></svg></span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <main class="page sheet" id="page">
+      <div class="page-bar">
+        <button type="button" class="icon-btn" id="menu" aria-label="Abrir menu" aria-controls="nav" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="expandir" aria-label="Abrir submenu" aria-controls="panel" aria-expanded="true" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9 4.5v15"/></svg>
+        </button>
+        <nav class="crumbs" aria-label="Caminho" id="crumbs"></nav>
+        <button type="button" class="icon-btn" id="favorito" aria-label="Favoritar página" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8Z"/></svg>
+        </button>
+        <span class="updated">Atualizado agora</span>
+        <button type="button" class="icon-btn" aria-label="Notificações">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5Z"/><path d="M10 20.5h4"/></svg>
+        </button>
+        <button type="button" class="icon-btn" aria-label="Histórico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="abrir-filtros" aria-label="Filtros" aria-controls="filtros" aria-pressed="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4-2v-4.5Z"/></svg>
+        </button>
+      </div>
+      <div class="page-body" id="page-body"></div>
+    </main>
+
+    <aside class="aside" id="filtros" data-aberto="false" aria-label="Filtros">
+      <div class="aside-inner">
+        <div class="aside-head">
+          <strong>Filtros</strong>
+          <button type="button" class="icon-btn" id="fechar-filtros" aria-label="Fechar filtros">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <form class="aside-body" id="form-filtros">
+          <div class="field">
+            <label for="f-empresa">Empresa <i aria-hidden="true">*</i></label>
+            <select class="select" id="f-empresa" required>
+              <option>01 · Roman Mecânica de Caminhões Ltda</option>
+              <option>02 · Roman Peças e Serviços</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-periodo">Período <i aria-hidden="true">*</i></label>
+            <select class="select" id="f-periodo" required>
+              <option>Últimos 7 dias</option>
+              <option selected>Último mês</option>
+              <option>Últimos 3 meses</option>
+              <option>Ano atual</option>
+            </select>
+          </div>
+        </form>
+        <div class="aside-foot">
+          <label class="switch-row" for="f-lembrar">
+            <span>Lembrar filtros<small>Salve seus filtros para reutilizar depois</small></span>
+            <input class="switch" type="checkbox" role="switch" id="f-lembrar">
+          </label>
+          <button type="submit" form="form-filtros" class="btn primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2.5 5 13.5h6l-1 8 8.5-11h-6Z"/></svg>
+            Aplicar filtros
+          </button>
+          <label class="switch-row" for="f-cache">
+            <span>Ignorar cache</span>
+            <input class="switch" type="checkbox" role="switch" id="f-cache">
+          </label>
+          <div class="btn-pair">
+            <button type="button" class="btn" id="limpar">Limpar</button>
+            <button type="button" class="btn" id="redefinir">Redefinir</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim"></div>
+  </div>
+</div>
+
+<script>
+const P = {
+  home: '<path d="M4 11.5 12 5l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19Z"/><path d="M9.5 20.5v-5h5v5"/>',
+  compras: '<path d="M3.5 4.5h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h7.9a1.5 1.5 0 0 0 1.5-1.1L20.5 8H6.6"/><circle cx="10" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/>',
+  vendas: '<path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5 12v7.5h14V12M9.5 19.5v-4h5v4"/>',
+  financeiro: '<path d="M12 3.5v17M16.5 7.5c-.6-1.4-2.2-2.2-4.5-2.2-2.6 0-4.2 1.3-4.2 3s1.4 2.5 4.2 3 4.5 1.4 4.5 3.3-1.8 3.1-4.5 3.1c-2.4 0-4.1-.9-4.8-2.4"/>',
+  pdv: '<path d="M3.5 10h17l-1.6 9a1.5 1.5 0 0 1-1.5 1.2H6.6A1.5 1.5 0 0 1 5.1 19Z"/><path d="m8 10 3-5.5M16 10l-3-5.5M9 14v3M12 14v3M15 14v3"/>',
+  orcamentos: '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3.5h6v1M9 12.5l2 2 4-4.5"/>',
+  os: '<path d="m14.5 6.5 3-3 3 3-3 3M17.5 3.5 7 14M4 20l3-.8L18.5 7.7 16.3 5.5 4.8 17Z"/><path d="m4 4 5 5M15 15l5 5"/>',
+  grafico: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8.5 16v-4M12 16V8M15.5 16v-6"/>',
+  pessoas: '<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.7c1.6.6 2.6 2 3 4.3"/>',
+  caixa: '<path d="m12 3.5 8 4v9l-8 4-8-4v-9Z"/><path d="m4 7.5 8 4 8-4M12 11.5v9"/>',
+  lista: '<path d="M8.5 7h11M8.5 12h11M8.5 17h11M4.5 7h.1M4.5 12h.1M4.5 17h.1"/>',
+  chevron: '<path d="m9.5 6 6 6-6 6"/>',
+  lua: '<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10Z"/>',
+  sol: '<circle cx="12" cy="12" r="3.5"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+  brilho: '<path d="M10 4.5 11.4 9l4.6 1.5-4.6 1.4L10 16.5l-1.4-4.6L4 10.5 8.6 9Z"/><path d="M17.5 3.5v4M15.5 5.5h4M17 15v3M15.5 16.5h3"/>',
+  queda: '<path d="m4 7 6 6 4-4 6 6M20 10.5V15h-4.5"/>',
+  estrela: '<path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8Z"/>',
+  recente: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v3.2h3.2"/><path d="M12 8v4.2l2.8 1.8"/>',
+  escudo: '<path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6Z"/>',
+  perfil: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5"/>',
+  chave: '<circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h10M17.5 12v3M20.5 12v2"/>',
+  info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/>',
+  sair: '<path d="M14 4.5H6.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5H14M10 12h10M16.5 8.5 20 12l-3.5 3.5"/>',
+  vazio: '<rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M8 10h8M8 14h5"/>',
+};
+const ic = (n, t = 20, w = 1.7) =>
+  `<svg width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const nf = new Intl.NumberFormat('pt-BR');
+
+const MODULOS = [
+  { id: 'home', label: 'Início', icone: 'home', itens: [] },
+  { id: 'compras', label: 'Compras', icone: 'compras', itens: [
+    { label: 'Pedidos de Compra', icone: 'lista' }, { label: 'Fornecedores', icone: 'pessoas' }, { label: 'Cotações', icone: 'grafico' } ] },
+  { id: 'vendas', label: 'Vendas', icone: 'vendas', itens: [
+    { label: 'Vendas', icone: 'grafico', filhos: ['Resumo de Vendas', 'Vendedores', 'Metas'] },
+    { label: 'Clientes', icone: 'pessoas', filhos: ['Base de Clientes', 'Atividade de Clientes', 'Retenção de Clientes'] },
+    { label: 'Produtos', icone: 'caixa', filhos: ['Curva ABC', 'Giro de Estoque', 'Margem'] } ] },
+  { id: 'financeiro', label: 'Financeiro', icone: 'financeiro', itens: [
+    { label: 'Contas a Receber', icone: 'lista' }, { label: 'Contas a Pagar', icone: 'lista' }, { label: 'Fluxo de Caixa', icone: 'grafico' }, { label: 'Inadimplência', icone: 'pessoas' } ] },
+  { id: 'pdv', label: 'PDV', icone: 'pdv', itens: [
+    { label: 'Movimento do Caixa', icone: 'grafico' }, { label: 'Formas de Pagamento', icone: 'lista' } ] },
+  { id: 'orcamentos', label: 'Orçamentos', icone: 'orcamentos', itens: [
+    { label: 'Em Aberto', icone: 'lista' }, { label: 'Convertidos', icone: 'grafico' }, { label: 'Perdidos', icone: 'lista' } ] },
+  { id: 'os', label: 'Ordem de Serviço', icone: 'os', itens: [
+    { label: 'Em Andamento', icone: 'lista' }, { label: 'Concluídas', icone: 'lista' }, { label: 'Produtividade', icone: 'grafico' } ] },
+];
+
+const estado = {
+  modulo: 'vendas', item: 'Clientes', sub: 'Base de Clientes',
+  expandidos: new Set(['Clientes']), aberto: true, menu: false, filtros: false, conta: false, periodo: 'Último mês',
+};
+
+const CONTA = [
+  { label: 'Favoritos', icone: 'estrela', conta: 0, seta: true },
+  { label: 'Atividade Recente', icone: 'recente', conta: 5, seta: true },
+  null,
+  { label: 'Administração', icone: 'escudo' },
+  { label: 'Meu Perfil', icone: 'perfil' },
+  { label: 'Trocar chave de acesso', icone: 'chave' },
+  { label: 'Sobre', icone: 'info' },
+  null,
+  { label: 'Sair', icone: 'sair' },
+];
+document.querySelector('#conta-itens').innerHTML = CONTA.map((c) => !c ? '<li><hr></li>'
+  : `<li><a href="#" class="item" data-conta="${c.label}">${ic(c.icone, 18)}<span>${c.label}</span>
+    ${c.conta !== undefined ? `<span class="count" aria-label="${c.conta} itens">${c.conta}</span>` : ''}
+    ${c.seta ? `<span class="chev">${ic('chevron', 15)}</span>` : ''}</a></li>`).join('');
+const $ = (s) => document.querySelector(s);
+const shell = $('#shell');
+const estreitoMq = matchMedia('(max-width: 900px)');
+const estreito = () => estreitoMq.matches;
+const modulo = () => MODULOS.find((m) => m.id === estado.modulo);
+const temItens = () => modulo().itens.length > 0;
+const atual = (sim) => (sim ? 'aria-current="page"' : '');
+
+function desenharTrilho() {
+  $('#modulos').innerHTML = MODULOS.map((m) => `<li><button type="button" class="rail-btn" data-modulo="${m.id}" aria-label="${m.label}" ${atual(m.id === estado.modulo)}>
+    ${ic(m.icone)}<span class="dica" aria-hidden="true">${m.label}</span></button></li>`).join('');
+}
+
+function itemDoPainel(i) {
+  const noCaminho = estado.item === i.label;
+  if (!i.filhos) {
+    return `<li><a href="#" class="item" data-item="${i.label}" ${atual(noCaminho && !estado.sub)}>${ic(i.icone, 18)}<span>${i.label}</span></a></li>`;
+  }
+  const aberto = estado.expandidos.has(i.label);
+  return `<li><button type="button" class="item ${noCaminho && !aberto ? 'trilha' : ''}" data-alternar="${i.label}" aria-expanded="${aberto}">
+      ${ic(i.icone, 18)}<span>${i.label}</span><span class="chev">${ic('chevron', 15)}</span></button>
+    ${aberto ? `<ul class="sub">${i.filhos.map((f) => `<li><a href="#" class="item" data-item="${i.label}" data-sub="${f}" ${atual(noCaminho && estado.sub === f)}><span>${f}</span></a></li>`).join('')}</ul>` : ''}</li>`;
+}
+
+function desenharPainel() {
+  $('#panel-title').textContent = modulo().label;
+  $('#itens').innerHTML = modulo().itens.map(itemDoPainel).join('');
+}
+
+function desenharCaminho() {
+  const m = modulo();
+  const partes = [m.label, temItens() ? estado.item : null, estado.sub].filter(Boolean);
+  const unicas = partes.filter((p, i) => p !== partes[i - 1]);
+  $('#crumbs').innerHTML = unicas.map((c, i) => i === unicas.length - 1
+    ? `<span class="now" aria-current="page">${c}</span>`
+    : `<span>${c}</span><span aria-hidden="true">/</span>`).join('');
+}
+
+/* ---------- Conteúdo ---------- */
+const ESTADOS = [['BA', 1640], ['PR', 172], ['GO', 144], ['SP', 102], ['TO', 73], ['PI', 72], ['RS', 68], ['MG', 54], ['MT', 47], ['SC', 42], ['PE', 37], ['CE', 28], ['DF', 26], ['PB', 25], ['MA', 19], ['MS', 16], ['SE', 11], ['AL', 9], ['ES', 7], ['PA', 4], ['RN', 4], ['RO', 4], ['RJ', 3]];
+const BAIRROS = [['Centro', 169], ['Jardim Paraíso', 92], ['Zona Rural', 77], ['Santa Cruz', 69], ['Jardim das Acácias', 59], ['Mimoso I', 40], ['Jardim Imperial', 31], ['Jd Paraíso', 28], ['Vereda Tropical', 21], ['Mimoso do Oeste', 20], ['Alto da Lagoa', 18], ['Cidade Universitária', 17], ['Lot. Mimoso do Oeste', 17], ['Bairro', 12], ['Boa Vista', 12]];
+const CONCEITOS = [['Verifica limite e atraso', 1630], ['Verifica somente atraso', 921], ['Bloquear venda', 19], ['Consumidor (à vista)', 15], ['Liberar venda incondicional', 14]];
+const ROTAS = [['Colaboradores', 22], ['Rota Norte', 9], ['Rota Sul', 6], ['Centro', 3]];
+const ATIVIDADES = [['Oficina mecânica', 2], ['Transportadora', 1], ['Comércio de peças', 1]];
+
+function cabecalho(titulo, descricao, extra = '') {
+  return `<header class="card-head">
+    <div class="card-title"><h3>${titulo}</h3>
+      <button type="button" class="icon-btn ai" aria-label="Explicar ${titulo} com IA">${ic('brilho', 16)}</button>${extra}</div>
+    <p>${descricao}</p></header>`;
+}
+
+function metrica(titulo, descricao, valor, extra, sufixo = '') {
+  return `<section class="card sheet metric s3">${cabecalho(titulo, descricao, extra)}
+    <div class="value">${valor}${sufixo ? `<small>${sufixo}</small>` : ''}</div></section>`;
+}
+
+function barras(dados, { label = '32px', row = '16px', thick = '10px', clicavel = false, nome } = {}) {
+  const max = Math.max(...dados.map((d) => d[1]));
+  const linhas = dados.map(([r, v]) => `<li class="bar-row ${clicavel ? 'clicavel' : ''}">
+      <span class="bar-label" title="${r}">${r}</span>
+      <span class="bar-track"><span class="bar" style="width:calc((100% - 44px) * ${v / max})"></span><span class="bar-val">${nf.format(v)}</span></span></li>`).join('');
+  return `<ul class="bars" style="--label:${label};--row:${row};--thick:${thick}" aria-label="${nome}">${linhas}</ul>`;
+}
+
+function rosca(dados, total, cores) {
+  const r = 62, c = 2 * Math.PI * r, folga = 3;
+  let acc = 0;
+  const arcos = dados.map(([, v], i) => {
+    const len = (v / total) * c;
+    const arco = `<circle cx="84" cy="84" r="${r}" fill="none" stroke="${cores[i]}" stroke-width="24"
+      stroke-dasharray="${Math.max(len - folga, 0)} ${c}" stroke-dashoffset="${-acc}" transform="rotate(-90 84 84)"/>`;
+    acc += len;
+    return arco;
+  }).join('');
+  const legenda = dados.map(([n, v], i) => `<li><span class="dot" style="background:${cores[i]}"></span><span class="nome">${n}</span><span class="pct">${Math.round((v / total) * 100)}%</span></li>`).join('');
+  return `<div class="donut-body">
+    <svg class="donut" viewBox="0 0 168 168" role="img" aria-label="${dados.map(([n, v]) => `${n}: ${nf.format(v)}`).join(', ')}">
+      ${arcos}<text class="total" x="84" y="86" text-anchor="middle">${nf.format(total)}</text>
+      <text class="total-label" x="84" y="106" text-anchor="middle">Total</text></svg>
+    <ul class="legend">${legenda}</ul></div>`;
+}
+
+const CORES = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+
+function baseDeClientes() {
+  return `<div class="page-head">
+      <h1>Base de Clientes</h1>
+      <p>Acompanhe a base de clientes, a qualidade dos cadastros e a distribuição por território e perfil.</p>
+      <span class="chip">Período: ${estado.periodo}</span>
+    </div>
+    <div class="grid">
+      ${metrica('Clientes Ativos', 'Cadastros de cliente ativos hoje.', '2.602')}
+      ${metrica('Novos Clientes', 'Cadastros criados no período, inclusive os importados em lote.', '18',
+        `<span class="trend" aria-label="Queda de 25,0% sobre o período anterior">${ic('queda', 14, 2)}25,0%</span>`)}
+      ${metrica('Cadastros Incompletos', 'Clientes sem documento, endereço completo ou telefone: 12,3% dos ativos.', '319')}
+      ${metrica('Idade média da última atualização', 'Tempo médio desde o último recadastramento.', '4,85', '', 'anos')}
+
+      <section class="card sheet s6">${cabecalho('Clientes por Estado', 'Clientes ativos por estado. Clique em um estado para ver as cidades.')}
+        ${barras(ESTADOS, { label: '24px', row: '15px', thick: '9px', clicavel: true, nome: 'Clientes por estado' })}</section>
+      <section class="card sheet s6">${cabecalho('Clientes por Bairro', 'Em Luís Eduardo Magalhães. Outros 136 bairros somam 379 clientes.')}
+        ${barras(BAIRROS, { label: '150px', row: '19px', thick: '10px', nome: 'Clientes por bairro' })}</section>
+
+      <section class="card sheet s4">${cabecalho('Clientes por Tipo de Pessoa', 'Clientes ativos por tipo de pessoa. Produtor rural tem precedência sobre o tipo.')}
+        ${rosca([['Jurídica', 1379], ['Física', 677], ['Produtor Rural', 546]], 2602, CORES)}</section>
+      <section class="card sheet s4">${cabecalho('Empresas por Regime Tributário', 'Clientes ativos que são empresas, pelo regime federal do cadastro.')}
+        ${rosca([['A classificar', 1233], ['Outros', 137]], 1370, CORES)}</section>
+      <section class="card sheet s4 fecha">${cabecalho('Clientes por Conceito', 'Clientes ativos pelo conceito do cadastro.')}
+        ${barras(CONCEITOS, { label: '160px', row: '30px', thick: '18px', nome: 'Clientes por conceito' })}</section>
+
+      <section class="card sheet s6">${cabecalho('Clientes por Rota', 'Clientes ativos por rota. 2.562 de 2.602 clientes (98,5%) sem rota definida.')}
+        ${barras(ROTAS, { label: '110px', row: '26px', thick: '14px', nome: 'Clientes por rota' })}</section>
+      <section class="card sheet s6">${cabecalho('Clientes por Atividade', 'Clientes ativos pelas dez atividades mais frequentes. 2.598 clientes sem atividade definida.')}
+        ${barras(ATIVIDADES, { label: '130px', row: '26px', thick: '14px', nome: 'Clientes por atividade' })}</section>
+    </div>`;
+}
+
+function paginaDeExemplo(titulo) {
+  return `<div class="page-head"><h1>${titulo}</h1><p>${modulo().label}</p></div>
+    <div class="sheet empty">${ic('vazio', 28)}<strong>Página fora do estudo</strong>
+    <span>Só a Base de Clientes está montada. Volte em Vendas › Clientes.</span></div>`;
+}
+
+function desenharPagina() {
+  const titulo = estado.sub ?? estado.item ?? modulo().label;
+  $('#page-body').innerHTML = estado.sub === 'Base de Clientes' ? baseDeClientes() : paginaDeExemplo(titulo);
+}
+
+/* ---------- Estado da moldura ---------- */
+function aplicar({ conteudo = true } = {}) {
+  const visivel = (temItens() || estado.conta) && (estreito() || estado.aberto);
+  $('#panel').dataset.aberto = String(visivel);
+  $('#panel').inert = !visivel;
+  $('#recolher').setAttribute('aria-expanded', String(visivel));
+  $('#expandir').hidden = estreito() || visivel || !temItens();
+  $('#menu').setAttribute('aria-expanded', String(estado.menu));
+  $('#nav').inert = estreito() && !estado.menu;
+  shell.dataset.menu = estado.menu ? 'aberto' : 'fechado';
+  shell.dataset.filtros = estado.filtros ? 'aberto' : 'fechado';
+  $('#filtros').dataset.aberto = String(estado.filtros);
+  $('#filtros').inert = !estado.filtros;
+  $('#abrir-filtros').setAttribute('aria-pressed', String(estado.filtros));
+  $('#conta').dataset.aberto = String(estado.conta);
+  $('#conta').inert = !estado.conta;
+  $('#conta-trigger').setAttribute('aria-expanded', String(estado.conta));
+  $('#rail-conta').setAttribute('aria-expanded', String(estado.conta && visivel));
+  desenharTrilho();
+  desenharPainel();
+  desenharCaminho();
+  if (conteudo) desenharPagina();
+}
+
+function fecharGavetas(foco) {
+  const voltar = estado.menu ? '#menu' : estado.filtros ? '#abrir-filtros' : null;
+  estado.menu = false;
+  if (estreito()) estado.filtros = false;
+  aplicar({ conteudo: false });
+  if (foco !== false && voltar) $(voltar).focus();
+}
+
+function abrirConta(abrir) {
+  estado.conta = abrir;
+  aplicar({ conteudo: false });
+  if (abrir) setTimeout(() => $('#conta .item')?.focus(), 60);
+  else $('#conta-trigger').focus();
+}
+
+shell.addEventListener('click', (e) => {
+  if (e.target.closest('#conta-trigger')) { abrirConta(!estado.conta); return; }
+  if (e.target.closest('#rail-conta')) {
+    estado.aberto = true;
+    if (estreito()) estado.menu = true;
+    abrirConta(true);
+    return;
+  }
+  const contaItem = e.target.closest('[data-conta]');
+  if (contaItem) { e.preventDefault(); abrirConta(false); return; }
+  const rail = e.target.closest('[data-modulo]');
+  if (rail) {
+    estado.conta = false;
+    const id = rail.dataset.modulo;
+    if (id === estado.modulo) {
+      if (!estreito()) estado.aberto = !estado.aberto;
+      aplicar({ conteudo: false });
+      return;
+    }
+    estado.modulo = id;
+    const primeiro = modulo().itens[0];
+    estado.item = primeiro?.label ?? null;
+    estado.sub = primeiro?.filhos?.[0] ?? null;
+    if (primeiro?.filhos) estado.expandidos.add(primeiro.label);
+    estado.aberto = true;
+    if (estreito() && !temItens()) { fecharGavetas(); aplicar(); return; }
+    aplicar();
+    return;
+  }
+  const alternar = e.target.closest('[data-alternar]');
+  if (alternar) {
+    const nome = alternar.dataset.alternar;
+    if (estado.expandidos.has(nome)) estado.expandidos.delete(nome); else estado.expandidos.add(nome);
+    aplicar({ conteudo: false });
+    $(`[data-alternar="${nome}"]`).focus();
+    return;
+  }
+  const item = e.target.closest('a.item');
+  if (item) {
+    e.preventDefault();
+    estado.item = item.dataset.item;
+    estado.sub = item.dataset.sub ?? null;
+    if (estreito()) estado.menu = false;
+    aplicar();
+    $('#page-body').scrollTop = 0;
+    return;
+  }
+  if (e.target.closest('#recolher')) {
+    if (estreito()) { fecharGavetas(); return; }
+    estado.aberto = false; aplicar({ conteudo: false }); $('#expandir').focus(); return;
+  }
+  if (e.target.closest('#expandir')) { estado.aberto = true; aplicar({ conteudo: false }); $('#recolher').focus(); return; }
+  if (e.target.closest('#menu')) { estado.menu = true; estado.filtros = false; aplicar({ conteudo: false }); $('#nav .rail-btn[aria-current]')?.focus(); return; }
+  if (e.target.closest('#scrim')) { fecharGavetas(); return; }
+  if (e.target.closest('#abrir-filtros')) {
+    estado.filtros = !estado.filtros;
+    if (estado.filtros) estado.menu = false;
+    aplicar({ conteudo: false });
+    if (estado.filtros) $('#f-empresa').focus();
+    return;
+  }
+  if (e.target.closest('#fechar-filtros')) { estado.filtros = false; aplicar({ conteudo: false }); $('#abrir-filtros').focus(); return; }
+  if (e.target.closest('#favorito')) {
+    const b = $('#favorito');
+    b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+    b.querySelector('path').setAttribute('fill', b.getAttribute('aria-pressed') === 'true' ? 'currentColor' : 'none');
+  }
+  if (e.target.closest('#redefinir')) { $('#f-periodo').value = 'Último mês'; }
+  if (e.target.closest('#limpar')) { $('#f-periodo').selectedIndex = 0; }
+});
+
+$('#form-filtros').addEventListener('submit', (e) => {
+  e.preventDefault();
+  estado.periodo = $('#f-periodo').value;
+  if (estreito()) estado.filtros = false;
+  aplicar();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (estado.conta) { abrirConta(false); return; }
+  if (estado.menu || (estreito() && estado.filtros)) fecharGavetas();
+});
+
+estreitoMq.addEventListener('change', () => { estado.menu = false; estado.filtros = false; aplicar({ conteudo: false }); });
+
+/* Tema: segue o do navegador até a pessoa escolher no trilho */
+function temaEscuro() {
+  const t = document.documentElement.dataset.tema;
+  if (t) return t === 'escuro';
+  const v = document.documentElement.dataset.theme;
+  if (v) return v === 'dark';
+  return matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function desenharTema() {
+  const escuro = temaEscuro();
+  $('#tema').setAttribute('aria-pressed', String(escuro));
+  $('#tema-icone').innerHTML = ic(escuro ? 'sol' : 'lua');
+}
+$('#tema').addEventListener('click', () => {
+  document.documentElement.dataset.tema = temaEscuro() ? 'claro' : 'escuro';
+  desenharTema();
+});
+
+desenharTema();
+aplicar();
+</script>

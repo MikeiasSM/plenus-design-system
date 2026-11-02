@@ -346,6 +346,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
+- `AppShell`, `SidePanel`, `PageHeader`, `FieldRow` e `SaveBar`, previstos no catalogo desde 02/11/2026, e a secao de composicao no Showcase. Modelo decidido e pendente, ainda fora do roadmap: entra na 0.6.0 se a integracao com o Painel nao exigir nada de imediato dessa versao; senao, provavelmente na 0.7.0. O contexto completo, com os prototipos, esta em [`appshell/APPSHELL.md`](appshell/APPSHELL.md). O token `--pl-shell-gap` ja existe e ainda nao tem consumidor.
 
 ## Pendencias de correcao identificadas no review
 
@@ -708,7 +709,7 @@ Entrou no catalogo em 18/10/2026.
 
 ### Drawer
 
-Entrou no catalogo em 18/10/2026, para o `PainelLateral` do PlenusLAB. O `PainelAoLado`, que fica ao lado do conteudo sem bloquear a pagina, e layout da aplicacao.
+Entrou no catalogo em 18/10/2026, para o `PainelLateral` do PlenusLAB. O `PainelAoLado`, que fica ao lado do conteudo sem bloquear a pagina, era layout da aplicacao; desde 02/11/2026 e o `SidePanel`, previsto no catalogo (ver [`appshell/APPSHELL.md`](appshell/APPSHELL.md)).
 
 - **A mecanica e a do `Dialog`.** Portal, `FocusScope`, `useOverlay`, `usePreventScroll`, `ariaHideOutside`, cabecalho, corpo e rodape sairam do `Dialog` para o `DialogFrame`, interno, que os dois usam. Cada um so define a superficie e o fundo.
 - Altura toda da tela, sem raio, entrando pelo lado. `side` escolhe direita ou esquerda; `size` tem tres larguras, e no celular a gaveta ocupa a largura.
