@@ -297,7 +297,7 @@ export type {
   OpcoesDePercentual,
   OpcoesDeTamanhoDeArquivo,
 } from './utils/formatters';
-export { createPalette } from './utils/palette';
+export { createPalette, nearestPaletteColor } from './utils/palette';
 export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';

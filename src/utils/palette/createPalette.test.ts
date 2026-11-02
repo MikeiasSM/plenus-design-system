@@ -1,5 +1,5 @@
 import { contrast, toOklch } from './color';
-import { createPalette } from './createPalette';
+import { createPalette, nearestPaletteColor } from './createPalette';
 
 const tokens = (color: string, options?: Parameters<typeof createPalette>[1]) =>
   createPalette(color, options).style as Record<string, string>;
@@ -64,5 +64,24 @@ describe('createPalette', () => {
   it('rejects values that are not hexadecimal colors', () => {
     expect(() => createPalette('verde')).toThrow(TypeError);
     expect(() => createPalette('#67BD50', { onSolid: 'white' })).toThrow(TypeError);
+  });
+});
+
+describe('nearestPaletteColor', () => {
+  it('returns an accepted color as it is, normalized', () => {
+    expect(nearestPaletteColor('#67bd50')).toBe('#67BD50');
+  });
+
+  it('darkens a refused color until createPalette accepts it, keeping the hue', () => {
+    const nearest = nearestPaletteColor('#F3E9D2');
+
+    expect(contrast(nearest, '#FFFFFF')).toBeGreaterThanOrEqual(1.5);
+    expect(Math.abs(toOklch(nearest).h - toOklch('#F3E9D2').h)).toBeLessThan(2);
+    expect(() => createPalette(nearest)).not.toThrow();
+    expect(() => createPalette('#F3E9D2')).toThrow(nearest);
+  });
+
+  it('rejects values that are not hexadecimal colors', () => {
+    expect(() => nearestPaletteColor('creme')).toThrow(TypeError);
   });
 });

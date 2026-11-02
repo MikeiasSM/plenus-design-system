@@ -231,6 +231,8 @@ A regra de `createPalette`:
 - O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
 - A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
 
+A cor que vem de fora do codigo, como a escolhida pelo usuario, passa antes por `nearestPaletteColor(cor)`: a propria cor quando aceita, ou o tom aceito mais proximo, na mesma matiz. A recusa continua em `createPalette`, e o ajuste fica explicito em quem chama: `createPalette(nearestPaletteColor(cor))`.
+
 O texto sobre o preenchimento pode ser imposto pelo produto, com `createPalette(cor, { onSolid })`. A biblioteca aceita e, em desenvolvimento, avisa no console com a medida. A decisao fica registrada no codigo do produto, e o padrao da biblioteca continua acessivel.
 
 ## Cores de dados

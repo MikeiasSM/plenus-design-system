@@ -10,12 +10,14 @@ import {
   InputText,
   type ButtonSize,
   type ButtonVariant,
+  type TooltipPlacement,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
+const POSICOES = ['top', 'bottom', 'left', 'right'] as const;
 const ALTURAS: Record<ButtonSize, number> = { sm: 28, md: 42, lg: 48 };
 const ICONES: Record<string, ReactNode> = {
   IconSearch: <IconSearch />,
@@ -26,12 +28,13 @@ const ICONES: Record<string, ReactNode> = {
 };
 
 const playground = definirPlayground({
-  inicial: { icon: 'IconSearch', label: 'Buscar', variant: 'secondary', size: 'md', disabled: false },
+  inicial: { icon: 'IconSearch', label: 'Buscar', variant: 'secondary', size: 'md', tooltipPlacement: 'top', disabled: false },
   controles: [
     { tipo: 'opcoes', nome: 'icon', opcoes: Object.keys(ICONES) },
     { tipo: 'texto', nome: 'label' },
     { tipo: 'opcoes', nome: 'variant', opcoes: VARIANTES },
     { tipo: 'opcoes', nome: 'size', opcoes: TAMANHOS },
+    { tipo: 'opcoes', nome: 'tooltipPlacement', opcoes: POSICOES },
     { tipo: 'booleano', nome: 'disabled' },
   ],
   renderizar: (valores, registrar) => (
@@ -43,6 +46,7 @@ const playground = definirPlayground({
       onClick={() => registrar('onClick')}
       onFocus={() => registrar('onFocus')}
       size={valores.size as ButtonSize}
+      tooltipPlacement={valores.tooltipPlacement as TooltipPlacement}
       variant={valores.variant as ButtonVariant}
     />
   ),
@@ -52,6 +56,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['variant', valores.variant, 'secondary'],
       ['size', valores.size, 'md'],
+      ['tooltipPlacement', valores.tooltipPlacement, 'top'],
       ['disabled', valores.disabled, false],
       ['onClick', expr('buscar')],
     ]),
@@ -139,6 +144,11 @@ function Modos() {
       <dd>
         <code>secondary</code> por padrão, e não <code>primary</code> como o Button: um quadrado na cor principal chama mais
         atenção do que uma ação de ícone pede.
+      </dd>
+      <dt><code>tooltipPlacement</code></dt>
+      <dd>
+        Lado da dica, <code>top</code> por padrão. Numa coluna de ações de tabela, <code>left</code> ou <code>right</code>{' '}
+        não cobre a linha de cima nem o cabeçalho.
       </dd>
       <dt>Sem <code>loading</code></dt>
       <dd>No quadrado, o indicador disputaria o lugar do ícone. Nasce quando houver consumidor pedindo.</dd>
@@ -237,6 +247,12 @@ export const pagina: Pagina = {
       descricao: 'Peso visual, como no Button.',
     },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Quadrado de 32, 36 ou 40px, a altura do Button.' },
+    {
+      nome: 'tooltipPlacement',
+      tipo: "'top' | 'bottom' | 'left' | 'right'",
+      padrao: "'top'",
+      descricao: 'Lado do botão em que a dica aparece.',
+    },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Herdado do Button: envio só quando pedido.' },
   ],

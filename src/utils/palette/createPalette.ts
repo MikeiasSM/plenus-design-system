@@ -48,9 +48,21 @@ function strongFrom(ramp: readonly string[], start: number, direction: 1 | -1, s
   return ramp[direction === 1 ? ramp.length - 1 : 0];
 }
 
-function nearestAccepted(color: string) {
-  const oklch = toOklch(color);
+/**
+ * A cor que `createPalette` aceita mais proxima da pedida, na mesma matiz e croma, ou a propria cor quando
+ * ja e aceita. Serve a cor que vem de fora do codigo, como a escolhida pelo usuario.
+ */
+export function nearestPaletteColor(color: string) {
+  if (!isHexColor(color)) {
+    throw new TypeError(`nearestPaletteColor: "${color}" nao e uma cor hexadecimal.`);
+  }
 
+  const solid = normalizeHex(color);
+  if (contrast(solid, LIGHT_SURFACE) >= FILL_MINIMUM) {
+    return solid;
+  }
+
+  const oklch = toOklch(solid);
   for (let L = oklch.L; L > 0; L -= 0.01) {
     const candidate = oklchToHex({ ...oklch, L });
     if (contrast(candidate, LIGHT_SURFACE) >= FILL_MINIMUM) {
@@ -58,7 +70,7 @@ function nearestAccepted(color: string) {
     }
   }
 
-  return color;
+  return solid;
 }
 
 /**
@@ -81,7 +93,7 @@ export function createPalette(color: string, { onSolid }: CreatePaletteOptions =
   if (fill < FILL_MINIMUM) {
     throw new RangeError(
       `createPalette: ${solid} mede ${fill.toFixed(2)}:1 contra a superficie clara, abaixo de ${FILL_MINIMUM}:1. ` +
-        `Tom mais proximo aceito: ${nearestAccepted(solid)}.`,
+        `Tom mais proximo aceito: ${nearestPaletteColor(solid)}.`,
     );
   }
 

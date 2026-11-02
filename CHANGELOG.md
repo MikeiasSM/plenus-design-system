@@ -6,6 +6,13 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.1] — 2026-11-01
+
+### Adicionado
+
+- `ButtonIcon`: `tooltipPlacement`, o lado da dica, com `top` por padrão. Numa coluna de ações de tabela, `left` ou `right` não cobre a linha de cima.
+- `nearestPaletteColor(cor)`: a cor que `createPalette` aceita mais próxima da pedida, na mesma matiz, ou a própria cor quando já é aceita. Serve a cor que vem de fora do código, como a escolhida pelo usuário: `createPalette(nearestPaletteColor(cor))`. A recusa de `createPalette` continua.
+
 ## [0.5.0] — 2026-10-28
 
 ### Incompatível

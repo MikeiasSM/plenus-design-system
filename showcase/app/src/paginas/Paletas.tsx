@@ -158,5 +158,10 @@ export const pagina: Pagina = {
       tipo: 'string',
       descricao: 'Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais.',
     },
+    {
+      nome: 'nearestPaletteColor(cor)',
+      tipo: 'string',
+      descricao: 'A cor aceita mais próxima da pedida, na mesma matiz, ou a própria cor quando já é aceita. Para a cor escolhida pelo usuário.',
+    },
   ],
 };

@@ -1,0 +1,82 @@
+# Roadmap da 0.6.0
+
+Levantamento do que a próxima versão menor pode levar. Documento não normativo, de acompanhamento, como o `PROGRESS.md`. Cada item entra só com aprovação do mantenedor, e o que contrariar uma norma é sinalizado antes.
+
+A 0.6.0 é a primeira versão menor depois da 0.5.0. Por isso concentra o que o `CONTRIBUTING.md` §11 só admite numa menor: mudança de leiaute, de medida visual, de nome acessível e a saída dos nomes obsoletos.
+
+As correções compatíveis seguem em versões de correção, fora deste documento. A 0.5.1 leva `tooltipPlacement` no `ButtonIcon` e `nearestPaletteColor`.
+
+Legenda: **I** é incompatível e entra no grupo **Incompatível** do `CHANGELOG.md`; **A** é adição compatível; **D** depende de decisão do mantenedor.
+
+## 1. Vindos do relatório de 01/11/2026
+
+A análise completa está em `relatorio-painel-0.5.0.md`.
+
+1. **`Card.Header` nos modos de fluxo** (I). Em `size="sm"`, `trailingWhenNarrow="wrap"` e `"hide"`, a descrição fica logo abaixo do título enquanto o `trailing` estiver ao lado dele. Hoje ela desce para baixo do `trailing` alto: 42px de vão, medidos. Muda a posição e a largura da descrição, por isso é incompatível.
+   - Antes: decidir a frase do `sm`. O tipo `CardSize` diz "abaixo do título"; o `CHANGELOG.md` da 0.5.0 diz "abaixo do `trailing`". Recomendação: "abaixo do título".
+   - Caminho: título e descrição numa só coluna do fluxo; a quebra continua decidida pela largura do título numa linha.
+2. **Ordem da `Pagination`** (I, D). Seletor de itens por página antes do intervalo, separado dos passos. Antes: conferir o código das referências (AG Grid, referência do `DataGrid`; Untitled UI, base visual). Se a ordem não mudar, a decisão vai para o `PROGRESS.md`.
+3. **Ajuda do título de coluna da `Table`** (A, D). O `help` abre o `Tooltip` sempre em cima e cobre o que estiver sobre a tabela. Encontrado no código durante a análise, fora do relatório. Avaliar o lado da dica no título, sem repetir a solução do `ButtonIcon` por reflexo.
+
+## 2. Saída dos nomes obsoletos
+
+A 0.4.0 marcou os nomes antigos como aceitos "até a versão menor seguinte". A 0.5.0 os manteve; a 0.6.0 é a versão em que saem. Hoje há 24 marcas `@deprecated` em `src/`.
+
+4. **Convenção de API da 0.4.0** (I): `onExpandedChange` do `Accordion`, `onSelectionChange` de `List`, `SortableList`, `Tabs` e `Table`, `onStepChange` de `Steps`, `onClose` de `Dialog`, `Drawer` e `Popover`, os tons `ok` e `warn` e o `tone="primary"` do `Badge`.
+5. **Formatadores em português** (I): `formatarMoeda` e os outros seis, em `src/utils/formatters/deprecated.ts`. O `CLAUDE.md`, seção Idioma, os aceita "até a versão menor seguinte"; a frase sai junto.
+6. **`ChartMapColorScale` e `ChartMapCategory`** (I). O comentário promete a saída na 0.4.0, e os dois ainda são exportados na 0.5.0. Atrasado: sai sem mais prazo.
+
+Cada saída leva no `CHANGELOG.md` o nome novo que substitui o antigo.
+
+## 3. Fila aprovada do relatório de 27/10/2026
+
+Do `PROGRESS.md`, "Relatorio de compatibilidade com o Painel". Itens aprovados que ainda não foram feitos.
+
+7. **`ToastProvider`** com estado por árvore, mantendo `showToast` (A).
+8. **`portalContainer`** nos overlays (A).
+9. **Teste do pacote construído num app real**: Vite, Next com Server Components e CommonJS, com axe e navegador real.
+10. **Visão em tabela** nos gráficos que ainda não a têm (A). `ChartMap`, `ChartTimeline` e `ChartHeatmap` já a têm.
+11. **Ícones em um módulo por ícone**, num subcaminho `icons/*`, sem tirar o `icons` atual (A).
+12. **Tema por subárvore e por `prefers-color-scheme`** (I). Substitui o seletor `:root[data-theme]`. O `data-palette` já vale por subárvore; o `data-theme` ainda não.
+13. **Recursos genéricos pedidos**, cada um desenhado e posto no catálogo antes (A):
+    - intervalo de datas com atalhos;
+    - alinhamento no `Menu`;
+    - `Dialog` `xl` com `onBeforeClose`;
+    - `Toast` com várias ações;
+    - `ComboBox` com aplicar, limpar e selecionar todos.
+14. **CSS por componente**, só se o consumidor medir que o CSS pesa no primeiro carregamento. A folha agregada tem 19 KB comprimida.
+
+## 4. Decisões pendentes do mantenedor
+
+Não entram sem decisão. Algumas mudam contrato e só cabem numa menor, o que faz da 0.6.0 o momento natural.
+
+15. **Valor numérico de `InputNumber` e `InputCurrency`** (I, D). Hoje emitem texto em pt-BR, `'1234,56'`. Recomendação registrada: `value?: number | null` e `onValueChange(number | null)`.
+16. **Toque nos gráficos** (D). O hover só ouve o mouse. Tocar para fixar o realce e o balão é um modelo de interação a desenhar.
+17. **API comum entre os `Chart*`** (I, D). `series`, `slices`, `tracks`, `nodes` e `flows`, e os `onHover*` de cada gráfico. Pede o desenho da API antes.
+18. **`d3-sankey`** (D). Puxa cerca de 18 KB duplicados de `d3-array` 2 e `d3-shape` 1. Aceitar, pedir `overrides` ao consumidor ou reescrever o leiaute aqui.
+19. **Ícones de interface geral e a base `Icon` exportada** (D). O catálogo, seção 10, e `ARCHITECTURE.md` §12 precisam ser conciliados antes de o conjunto crescer.
+20. **Exportação XLSX e PDF no `DataGrid`** (D). Traz dependência (mandamento 13). O CSV já está no núcleo.
+21. **Anel de foco** (D). Em avaliação: o mantenedor compara as propostas num artefato.
+
+## 5. `DataGrid` sob demanda
+
+Deixados pelo plano para quando houver consumidor pedindo (A): virtualização de colunas, edição de célula, agrupar por coluna, linhas fixas no topo, copiar e construtor de filtros.
+
+## 6. Pendências internas
+
+Não mudam a API. Entram quando couber, na 0.6.0 ou antes.
+
+22. **Consolidação de `tokens.css`**: o bloco legado com as camadas primitiva e semântica, e o idioma dos tokens de raio, espaçamento e motion, que nenhum documento de referência cobre.
+23. **Promover as decisões do cabeçalho de `tokens.css`** ao documento normativo adequado, antes de enxugar o comentário.
+24. **Máscaras de entrada na API pública**, quando fizerem parte do contrato de consumo.
+25. **Verificação em navegador real**: foco inicial e contenção de foco dos overlays, e o que a reverificação da 0.1.1 só cobriu no jsdom.
+26. **Testes** de tema escuro e de importação do pacote construído.
+
+## Ordem sugerida
+
+1. Itens 4 a 6, a saída dos obsoletos: é mecânica e libera a menor.
+2. Item 1, `Card.Header`, já analisado e medido.
+3. Item 2, `Pagination`, depois de conferir as referências.
+4. Itens 7, 8 e 12, que mudam como os overlays e o tema se montam e se beneficiam de sair juntos.
+5. Decisões de contrato (15 e 17), se aprovadas: são as que mais pesam no consumidor e só cabem numa menor.
+6. O resto conforme a demanda.

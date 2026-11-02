@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { Button, type ButtonSize, type ButtonVariant } from '../Button';
-import { Tooltip } from '../../overlays/Tooltip';
+import { Tooltip, type TooltipPlacement } from '../../overlays/Tooltip';
 import styles from './ButtonIcon.module.css';
 
 export interface ButtonIconProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'children'> {
@@ -9,13 +9,23 @@ export interface ButtonIconProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
   label: string;
   ref?: Ref<HTMLButtonElement>;
   size?: ButtonSize;
+  /** Lado da dica. Numa coluna de acoes, `left` ou `right` nao cobre a linha de cima. */
+  tooltipPlacement?: TooltipPlacement;
   /** `secondary` por padrao: um quadrado na cor principal chamaria mais atencao do que uma acao de icone pede. */
   variant?: ButtonVariant;
 }
 
-export function ButtonIcon({ className, icon, label, size = 'md', variant = 'secondary', ...props }: ButtonIconProps) {
+export function ButtonIcon({
+  className,
+  icon,
+  label,
+  size = 'md',
+  tooltipPlacement,
+  variant = 'secondary',
+  ...props
+}: ButtonIconProps) {
   return (
-    <Tooltip content={label}>
+    <Tooltip content={label} placement={tooltipPlacement}>
       <Button
         {...props}
         aria-label={label}
