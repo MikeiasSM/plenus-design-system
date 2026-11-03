@@ -105,14 +105,6 @@ describe('Accordion', () => {
     expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('ainda chama o obsoleto onExpandedChange', () => {
-    const onExpandedChange = vi.fn();
-    render(<Accordion items={secoes} onExpandedChange={onExpandedChange} />);
-    fireEvent.click(screen.getByRole('button', { name: /Envio/ }));
-
-    expect(onExpandedChange).toHaveBeenCalledWith(['envio']);
-  });
-
   it('fecha a secao aberta quando ela e clicada de novo, em modo unico', () => {
     render(<Accordion items={secoes} />);
 

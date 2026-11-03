@@ -130,8 +130,7 @@ describe('Popover', () => {
     expect(screen.getByRole('dialog', { name: 'Filtros' })).toHaveAttribute('data-origem', 'grade');
   });
 
-  it('sem controle, abre pelo defaultOpen e fecha sozinho, ainda avisando o obsoleto onClose', () => {
-    const onClose = vi.fn();
+  it('sem controle, abre pelo defaultOpen e fecha sozinho', () => {
     const onOpenChange = vi.fn();
 
     function Solto() {
@@ -140,7 +139,7 @@ describe('Popover', () => {
       return (
         <>
           <Button ref={gatilho}>Filtros</Button>
-          <Popover aria-label="Filtros" defaultOpen onClose={onClose} onOpenChange={onOpenChange} triggerRef={gatilho}>
+          <Popover aria-label="Filtros" defaultOpen onOpenChange={onOpenChange} triggerRef={gatilho}>
             <Button>Aplicar</Button>
           </Popover>
         </>
@@ -151,7 +150,6 @@ describe('Popover', () => {
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(onClose).toHaveBeenCalledOnce();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

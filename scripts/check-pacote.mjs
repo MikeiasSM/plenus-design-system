@@ -50,17 +50,19 @@ const PALAVRAS_DE_ANIMACAO = new Set([
 ]);
 
 /**
- * Seletores sem classe que o CSS dos componentes pode ter: tokens no documento, tokens no escopo de
- * `data-palette`, que so valem onde o produto pos o atributo, e o `box-sizing`.
+ * Seletores sem classe que o CSS dos componentes pode ter: tokens no documento, tokens nos escopos de
+ * `data-theme` e `data-palette`, que so valem onde o produto pos o atributo, e o `box-sizing`.
  */
 const SELETORES_GLOBAIS = new Set([
   ':root',
-  ':root[data-theme=dark]',
+  ':root:not([data-theme])',
+  '[data-theme]',
+  '[data-theme=light]',
+  '[data-theme=dark]',
   '[data-palette]',
   '[data-palette=orange]',
   '[data-palette=blue]',
   '[data-palette=purple]',
-  ':root[data-theme=dark] [data-palette]',
   '*',
   '*:before',
   '*:after',

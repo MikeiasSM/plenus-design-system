@@ -81,15 +81,6 @@ describe('SortableList', () => {
     expect(screen.getAllByRole('row').every((row) => row.getAttribute('aria-selected') === 'false')).toBe(true);
   });
 
-  it('ainda chama o obsoleto onSelectionChange', () => {
-    const onSelectionChange = vi.fn();
-    render(<SortableList items={blocos} label="Estrutura" onReorder={vi.fn()} onSelectionChange={onSelectionChange} />);
-
-    fireEvent.click(screen.getByText('Imagem'));
-
-    expect(onSelectionChange).toHaveBeenCalledWith('imagem');
-  });
-
   it('o clique numa acao da linha nao escolhe a linha', () => {
     const onSelectedKeyChange = vi.fn();
     const comAcao = blocos.map((bloco) => ({ ...bloco, actions: <button type="button">Excluir {bloco.title}</button> }));

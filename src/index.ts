@@ -280,25 +280,6 @@ export type {
   FormatPercentOptions,
   FormatTimeOptions,
 } from './utils/formatters';
-/** Nomes em portugues, obsoletos desde a 0.4. */
-export {
-  formatarData,
-  formatarDuracao,
-  formatarHora,
-  formatarMoeda,
-  formatarNumero,
-  formatarPercentual,
-  formatarTamanhoDeArquivo,
-} from './utils/formatters';
-export type {
-  Compacto,
-  OpcoesDeData,
-  OpcoesDeHora,
-  OpcoesDeMoeda,
-  OpcoesDeNumero,
-  OpcoesDePercentual,
-  OpcoesDeTamanhoDeArquivo,
-} from './utils/formatters';
 export { createPalette, nearestPaletteColor } from './utils/palette';
 export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
 export { ChartBar } from './components/charts/ChartBar';
@@ -329,8 +310,6 @@ export type {
 } from './components/charts/ChartHeatmap';
 export { ChartMap } from './components/charts/ChartMap';
 export type {
-  ChartMapCategory,
-  ChartMapColorScale,
   ChartMapFeature,
   ChartMapFeatureCollection,
   ChartMapLegendPosition,

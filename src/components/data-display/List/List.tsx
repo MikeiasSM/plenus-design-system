@@ -25,8 +25,6 @@ export interface ListProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultVa
   loading?: boolean;
   loadingMessage?: string;
   onSearch?: (term: string) => void;
-  /** @deprecated Use `onValueChange`. */
-  onSelectionChange?: (items: readonly ListItem[]) => void;
   onValueChange?: (items: readonly ListItem[]) => void;
   selectionMode?: ListSelectionMode;
   value?: readonly ListItem[];
@@ -63,7 +61,6 @@ export function List({
   loading = false,
   loadingMessage = 'Carregando',
   onSearch,
-  onSelectionChange,
   onValueChange,
   selectionMode = 'none',
   value,
@@ -77,7 +74,6 @@ export function List({
     onSearch,
     onSelectionChange: (selectedItems) => {
       onValueChange?.(selectedItems);
-      onSelectionChange?.(selectedItems);
     },
     selectionMode,
     value,

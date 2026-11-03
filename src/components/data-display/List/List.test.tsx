@@ -292,15 +292,6 @@ describe('List', () => {
     expect(screen.getByRole('option', { name: /Goiânia/ })).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('ainda chama o obsoleto onSelectionChange', () => {
-    const escolhido = vi.fn();
-    montar({ onSelectionChange: escolhido, selectionMode: 'single' });
-
-    fireEvent.click(screen.getByRole('option', { name: /Goiânia/ }));
-
-    expect(escolhido).toHaveBeenCalledWith([cidades[2]]);
-  });
-
   it('deixa o clique levar o foco a lista sem busca, que e quem o detem', () => {
     render(
       <List items={cidades} label="Cidades" selectionMode="single">

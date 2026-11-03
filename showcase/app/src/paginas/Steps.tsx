@@ -216,6 +216,5 @@ export const pagina: Pagina = {
     { nome: 'defaultCurrent', tipo: 'string', descricao: 'Etapa inicial, no modo não controlado. Sem ela, a primeira.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome da navegação.' },
     { nome: 'onCurrentChange', tipo: '(key: string) => void', descricao: 'Com ela, cada etapa vira botão.' },
-    { nome: 'onStepChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onCurrentChange</code>.</> },
   ],
 };

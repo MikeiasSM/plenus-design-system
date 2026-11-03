@@ -207,7 +207,7 @@ export const pagina: Pagina = {
       nome: 'Card size',
       tipo: "'md' | 'sm'",
       padrao: "'md'",
-      descricao: 'sm: menos respiro, título até a terceira linha, descrição até a segunda e em largura inteira, abaixo do trailing.',
+      descricao: 'sm: menos respiro, título até a terceira linha, descrição até a segunda, abaixo do título.',
     },
     { nome: 'Card.Header title', tipo: 'string', descricao: 'Obrigatório. Título e nome da região.' },
     { nome: 'Card.Header description', tipo: 'ReactNode', descricao: 'Texto de apoio abaixo do título.' },
@@ -223,6 +223,6 @@ export const pagina: Pagina = {
     },
     { nome: 'Card.Body children', tipo: 'ReactNode', descricao: 'Obrigatório. O conteúdo.' },
     { nome: 'Card.Body flush', tipo: 'boolean', padrao: 'false', descricao: 'Encosta o conteúdo nas bordas.' },
-    { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Obrigatório. Rodapé, com os itens nas pontas.' },
+    { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Obrigatório. Rodapé, com os itens nas pontas; um filho só vai ao fim.' },
   ],
 };

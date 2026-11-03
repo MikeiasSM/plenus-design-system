@@ -7,7 +7,7 @@
    • Escala tipográfica normalizada, sem tamanhos fracionados
    • Espaçamento em base 4px
    • Breakpoints do mock: 900 / 1180 / 1280 · container máx. 1600px
-   • Tema dark via <html data-theme="dark">
+   • Tema por subárvore: data-theme="light" | "dark"; sem ele, prefers-color-scheme
 
    Regra arquitetural: componentes NUNCA definem cor, fonte, espaço ou raio
    próprios — sempre consomem um token daqui.
@@ -27,45 +27,9 @@
 
 :root {
 
-  /* ---- Cor · primária ------------------------------------------------ */
-  --pl-primary:        #F87500;
-  --pl-primary-dark:   #F56600;   /* hover de elementos sólidos */
-  --pl-primary-soft:   #FFF3E8;   /* fundos de destaque suave   */
-  --pl-primary-line:   #FFD9B8;   /* bordas de destaque suave   */
-
-  /* ---- Cor · superfícies ---------------------------------------------- */
-  --pl-bg:             #F6F7F8;   /* fundo da aplicação         */
-  --pl-surface:        #FFFFFF;   /* cards, painéis, modais     */
-  --pl-surface-2:      #FAFAFB;   /* inputs, barras internas    */
-  --pl-surface-3:      #F1F2F4;   /* áreas de apoio, hover      */
-
-  /* ---- Cor · bordas ---------------------------------------------------- */
-  --pl-border:         #E9E9E9;   /* divisórias leves           */
-  --pl-border-strong:  #DEDFE1;   /* contorno de inputs         */
-
-  /* ---- Cor · texto ----------------------------------------------------- */
-  --pl-text:           #3F4143;   /* texto principal            */
-  --pl-text-2:         #66686A;   /* texto secundário           */
-  --pl-text-3:         #95989B;   /* texto terciário/metadados  */
-  --pl-ink:            #26282A;   /* superfície escura (tooltip, toast) */
-
-  /* ---- Cor · sobre superfícies fixas ---------------------------------- */
-  --pl-on-primary:     #FFFFFF;   /* texto sobre --pl-primary   */
-  --pl-on-solid:       #FFFFFF;   /* texto sobre sólidos coloridos */
-  --pl-on-ink:         #E9EAEB;   /* texto sobre --pl-ink       */
-  --pl-on-ink-2:       #A5A8AC;
-  --pl-on-ink-3:       #7C8085;
-  /* ---- Cor · semânticas (cada uma com par sólido/soft) ----------------- */
-  --pl-ok:             #22885B;  --pl-ok-soft:     #E8F6EF;
-  --pl-warn:           #B4761A;  --pl-warn-soft:   #FDF3E3;
-  --pl-info:           #2C6DB5;  --pl-info-soft:   #EAF2FB;
-  --pl-danger:         #C0392B;  --pl-danger-soft: #FBECEA;
-
-  /* ---- Efeitos ---------------------------------------------------------- */
-  --pl-scrim:          rgba(16, 17, 19, .38);   /* véu atrás de modais  */
-  --pl-sh-1: 0 1px 2px  rgba(24, 26, 28, .06);  /* elevação sutil       */
-  --pl-sh-2: 0 8px 20px rgba(24, 26, 28, .10);  /* dropdowns, toasts    */
-  --pl-sh-3: 0 20px 46px rgba(24, 26, 28, .20); /* modais               */
+  /* ---- Cor · texto sobre a superfície escura, igual nos dois temas ------- */
+  --pl-on-ink-2: #A5A8AC;
+  --pl-on-ink-3: #7C8085;
 
   /* ---- Tipografia -------------------------------------------------------- */
   --pl-font-ui:   'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -112,47 +76,55 @@
 }
 
 /* ==========================================================================
-   Tema dark — extraído da v8. alterna 100% dos tokens de cor automaticamente.
+   Tema — alterna 100% dos tokens de cor. `data-theme="light"` ou `"dark"` vale
+   no elemento e em toda a sua subárvore; sem `data-theme` no `:root`, o sistema
+   decide por `prefers-color-scheme`. O mesmo vale para as camadas em
+   `tokens/semantic`.
    ========================================================================== */
-:root[data-theme="dark"] {
-  --pl-primary:        #FF8A1F;
-  --pl-primary-dark:   #F87500;
-  --pl-primary-soft:   #2C2015;
-  --pl-primary-line:   #4A3218;
+:root,
+[data-theme="light"] {
+  --pl-ok-soft:      #E8F6EF;
+  --pl-warn-soft:    #FDF3E3;
+  --pl-info-soft:    #EAF2FB;
+  --pl-danger-soft:  #FBECEA;
 
-  --pl-bg:             #141517;
-  --pl-surface:        #1B1D20;
-  --pl-surface-2:      #202226;
-  --pl-surface-3:      #282B2F;
+  --pl-scrim:        rgba(16, 17, 19, .38);   /* véu atrás de modais  */
+  --pl-sh-1: 0 1px 2px  rgba(24, 26, 28, .06);  /* elevação sutil       */
+  --pl-sh-2: 0 8px 20px rgba(24, 26, 28, .10);  /* dropdowns, toasts    */
+  --pl-sh-3: 0 20px 46px rgba(24, 26, 28, .20); /* modais               */
+}
 
-  --pl-border:         #2C2F33;
-  --pl-border-strong:  #3A3E43;
+[data-theme="dark"] {
+  --pl-ok-soft:      #16281F;
+  --pl-warn-soft:    #2A2116;
+  --pl-info-soft:    #16202C;
+  --pl-danger-soft:  #2A1917;
 
-  --pl-text:           #E9EAEB;
-  --pl-text-2:         #A5A8AC;
-  --pl-text-3:         #7C8085;
-  --pl-ink:            #101113;
-
-  --pl-on-primary:     #FFFFFF;
-  --pl-on-solid:       #FFFFFF;
-  --pl-on-ink:         #E9EAEB;
-  --pl-on-ink-2:       #A5A8AC;
-  --pl-on-ink-3:       #7C8085;
-
-  --pl-ok:             #4FBE8B;  --pl-ok-soft:     #16281F;
-  --pl-warn:           #DDA24A;  --pl-warn-soft:   #2A2116;
-  --pl-info:           #6BA6E8;  --pl-info-soft:   #16202C;
-  --pl-danger:         #E8776B;  --pl-danger-soft: #2A1917;
-
-  --pl-scrim:          rgba(0, 0, 0, .62);
+  --pl-scrim:        rgba(0, 0, 0, .62);
   --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
   --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
   --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
 }
 
-/* Aliases temporarios para consumidores existentes durante a migracao. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pl-ok-soft:      #16281F;
+    --pl-warn-soft:    #2A2116;
+    --pl-info-soft:    #16202C;
+    --pl-danger-soft:  #2A1917;
+
+    --pl-scrim:        rgba(0, 0, 0, .62);
+    --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
+    --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
+    --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
+  }
+}
+
+/* Aliases dos nomes antigos. Declarados em cada escopo de tema e de paleta: uma variável
+   derivada é calculada onde é declarada e não se recalcula nos descendentes. */
 :root,
-:root[data-theme="dark"] {
+[data-theme],
+[data-palette] {
   --pl-primary: var(--pl-color-primary);
   --pl-primary-dark: var(--pl-color-primary-hover);
   --pl-primary-soft: var(--pl-color-primary-container);

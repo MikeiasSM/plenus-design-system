@@ -583,7 +583,6 @@ export const pagina: Pagina = {
     { nome: 'selectedIds', tipo: 'readonly string[]', descricao: 'Seleção controlada.' },
     { nome: 'defaultSelectedIds', tipo: 'readonly string[]', descricao: 'Seleção inicial, no modo não controlado.' },
     { nome: 'onSelectedIdsChange', tipo: '(ids: readonly string[]) => void', descricao: 'Recebe os ids marcados.' },
-    { nome: 'onSelectionChange', tipo: '(ids: readonly string[]) => void', descricao: <>Obsoleto: use <code>onSelectedIdsChange</code>.</> },
     { nome: 'highlightSelectedRow', tipo: 'boolean', padrao: 'true', descricao: 'Fundo na linha marcada.' },
     { nome: 'sort', tipo: 'TableSort', descricao: <>Ordenação controlada: <code>{'{ column, direction }'}</code>.</> },
     { nome: 'defaultSort', tipo: 'TableSort', descricao: 'Ordenação inicial, no modo não controlado.' },

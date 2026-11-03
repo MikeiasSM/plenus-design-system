@@ -8,8 +8,8 @@ describe('reinicio do formulario', () => {
     render(
       <form data-testid="formulario">
         <InputText defaultValue="Ana" label="Nome" />
-        <InputNumber defaultValue="10" label="Quantidade" />
-        <InputCurrency defaultValue="1000" label="Valor" />
+        <InputNumber defaultValue={10} label="Quantidade" />
+        <InputCurrency defaultValue={1000} label="Valor" />
       </form>,
     );
 

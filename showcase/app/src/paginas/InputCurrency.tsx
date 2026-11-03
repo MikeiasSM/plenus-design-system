@@ -30,7 +30,7 @@ const playground = definirPlayground({
         label={valores.label || undefined}
         onBlur={() => registrar('onBlur: aplica a máscara')}
         onFocus={() => registrar('onFocus: tira a máscara')}
-        onValueChange={(valor) => registrar(`onValueChange: "${valor}"`)}
+        onValueChange={(valor) => registrar(`onValueChange: ${valor}`)}
         required={valores.required}
         size={valores.size as InputTextSize}
       />
@@ -55,9 +55,9 @@ const playground = definirPlayground({
         : { nivel: 'falha', titulo: 'Sem nome acessível', detalhe: 'Sem label, nomeie o campo por aria-label ou aria-labelledby.' },
       { nivel: 'ok', titulo: 'Teclado decimal', detalhe: 'inputmode="decimal" no celular.' },
       {
-        nivel: 'atencao',
-        titulo: 'Valor em texto pt-BR',
-        detalhe: 'onValueChange entrega "1234,5", sem símbolo nem milhar. Converta antes de calcular.',
+        nivel: 'ok',
+        titulo: 'Valor numérico',
+        detalhe: 'onValueChange entrega number, ou null quando vazio; símbolo e milhar ficam só na tela.',
       },
     ];
 
@@ -74,14 +74,13 @@ const playground = definirPlayground({
 });
 
 function ValorParaOProduto() {
-  const [valor, setValor] = useState('1500');
-  const numero = valor === '' ? null : Number(valor.replace(',', '.'));
+  const [valor, setValor] = useState<number | null>(1500);
 
   return (
     <div className="stack" style={{ width: '100%' }}>
       <InputCurrency label="Limite de crédito" onValueChange={setValor} value={valor} />
       <p className="note">
-        onValueChange: <code>&quot;{valor}&quot;</code> · convertido: <code>{String(numero)}</code>
+        onValueChange: <code>{String(valor)}</code> · tipo: <code>{typeof valor}</code>
       </p>
     </div>
   );
@@ -104,19 +103,28 @@ function Modos() {
         </dd>
         <dt>Valor de fora</dt>
         <dd>
-          Texto ou número. Número é lido na convenção brasileira e arredondado nas casas pedidas: <code>1234.5</code> aparece
-          como <code>R$ 1.234,50</code>. Uma mudança externa aparece mesmo com o campo em foco.
+          Número ou <code>null</code> (vazio), arredondado nas casas pedidas: <code>1234.5</code> aparece como{' '}
+          <code>R$ 1.234,50</code>. Uma mudança externa aparece mesmo com o campo em foco.
         </dd>
         <dt>Sem <code>onChange</code></dt>
-        <dd>O valor sai só por <code>onValueChange</code>, já normalizado: o evento cru divergia do valor exibido.</dd>
+        <dd>O valor sai só por <code>onValueChange</code>, já número: o evento cru divergia do valor exibido.</dd>
+        <dt>Texto sem número</dt>
+        <dd>
+          <code>-</code> ou <code>,</code> ainda não formam número: <code>onValueChange</code> recebe <code>null</code>.
+        </dd>
+        <dt>Em formulário</dt>
+        <dd>
+          Com <code>name</code>, o formulário recebe o número com ponto decimal, <code>1234.56</code>, e não o texto com
+          máscara; o <code>reset</code> volta ao <code>defaultValue</code>.
+        </dd>
       </dl>
       <div className="subsection">
         <h3>Estados</h3>
         <div className="demo-grid">
-          <InputCurrency defaultValue="165789" label="Valor inteiro" />
+          <InputCurrency defaultValue={165789} label="Valor inteiro" />
           <InputCurrency hint="A vírgula determina os centavos." label="Com ajuda" placeholder="0,00" />
           <InputCurrency error="Informe o valor do pedido." label="Com erro" />
-          <InputCurrency defaultValue="2500,00" disabled label="Desabilitado" />
+          <InputCurrency defaultValue={2500} disabled label="Desabilitado" />
         </div>
       </div>
     </div>
@@ -131,17 +139,17 @@ export const pagina: Pagina = {
       descricao: 'Clique no campo: a máscara sai para a edição e volta ao sair.',
       Previa: () => (
         <div style={{ width: '100%' }}>
-          <InputCurrency defaultValue="165789,50" label="Valor do contrato" />
+          <InputCurrency defaultValue={165789.5} label="Valor do contrato" />
         </div>
       ),
-      codigo: '<InputCurrency label="Valor do contrato" defaultValue="165789,50" />',
+      codigo: '<InputCurrency label="Valor do contrato" defaultValue={165789.5} />',
     },
     {
       titulo: 'Do texto ao número',
-      descricao: 'O campo emite texto pt-BR; o produto converte antes de usar.',
+      descricao: 'A máscara fica no campo; o produto recebe número, ou null quando vazio.',
       Previa: ValorParaOProduto,
       codigo:
-        "const [limite, setLimite] = useState('1500');\nconst numero = limite === '' ? null : Number(limite.replace(',', '.'));\n\n<InputCurrency\n  label=\"Limite de crédito\"\n  value={limite}\n  onValueChange={setLimite}\n/>",
+        "const [limite, setLimite] = useState<number | null>(1500);\n\n<InputCurrency\n  label=\"Limite de crédito\"\n  value={limite}\n  onValueChange={setLimite}\n/>",
     },
     {
       titulo: 'Outra moeda',
@@ -165,13 +173,14 @@ export const pagina: Pagina = {
   api: [
     { nome: 'currency', tipo: 'string', padrao: "'BRL'", descricao: 'Código ISO da moeda, que dá o símbolo da máscara.' },
     { nome: 'decimalScale', tipo: 'number', padrao: '2', descricao: 'Casas decimais, completadas ao sair.' },
-    { nome: 'value', tipo: 'string | number', descricao: 'Valor controlado; número é lido na convenção brasileira.' },
-    { nome: 'defaultValue', tipo: 'string | number', padrao: "''", descricao: 'Valor inicial, não controlado.' },
+    { nome: 'value', tipo: 'number | null', descricao: 'Valor controlado; null é vazio.' },
+    { nome: 'defaultValue', tipo: 'number | null', padrao: 'null', descricao: 'Valor inicial, não controlado; o reset do formulário volta a ele.' },
     {
       nome: 'onValueChange',
-      tipo: '(value: string) => void',
-      descricao: <>O valor normalizado, em texto pt-BR: <code>&quot;1234,5&quot;</code>.</>,
+      tipo: '(value: number | null) => void',
+      descricao: <>O valor como número, <code>1234.5</code>; <code>null</code> para vazio ou texto sem número.</>,
     },
+    { nome: 'name', tipo: 'string', descricao: 'Envia o número com ponto decimal no formulário, não o texto com máscara.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro.' },

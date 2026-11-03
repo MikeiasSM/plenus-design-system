@@ -234,6 +234,5 @@ export const pagina: Pagina = {
     { nome: 'selectedKey', tipo: 'string | null', descricao: 'Linha escolhida, no modo controlado. null para nenhuma.' },
     { nome: 'defaultSelectedKey', tipo: 'string', descricao: 'Linha escolhida no início, no modo não controlado.' },
     { nome: 'onSelectedKeyChange', tipo: '(key: string) => void', descricao: 'Avisa a linha escolhida.' },
-    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onSelectedKeyChange</code>.</> },
   ],
 };

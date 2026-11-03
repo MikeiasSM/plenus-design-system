@@ -12,8 +12,6 @@ export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'div'>, 'ari
   defaultOpen?: boolean;
   dismissable?: boolean;
   footer?: ReactNode;
-  /** @deprecated Use `onOpenChange`. */
-  onClose?: () => void;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
 }

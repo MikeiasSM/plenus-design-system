@@ -32,7 +32,7 @@ Outros modulos:
 - `src/hooks/useCalendar` — State Motor de calendario, com `calendar.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `DatePicker` e, por ele, `DateTimePicker`.
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
-- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal` e `formatarEdicaoDecimal`, `formatarEntradaMonetaria`, `formatarEntradaData` com `lerEntradaData`, `formatarEntradaHora` com `lerEntradaHora` e `formatarEntradaDataHora` com `lerEntradaDataHora`, as tres ultimas sobre `mascararPartes`, **nao exportadas**, e os formatadores de apresentacao `formatarData`, `formatarHora`, `formatarMoeda`, `formatarNumero` e `formatarPercentual`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
+- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal` e `formatarEdicaoDecimal`, `formatarEntradaMonetaria`, `formatarEntradaData` com `lerEntradaData`, `formatarEntradaHora` com `lerEntradaHora` e `formatarEntradaDataHora` com `lerEntradaDataHora`, as tres ultimas sobre `mascararPartes`, **nao exportadas**, e os formatadores de apresentacao `formatDate`, `formatTime`, `formatCurrency`, `formatNumber` e `formatPercent`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
 - `src/components/charts/core` — o que os onze graficos compartilham. `ChartFrame` e a moldura de todos: titulo,
   area de desenho, estado vazio e legenda. `CartesianFrame` e uma camada sobre ela, com grade e eixos. Ao lado,
   `ChartLegend`, o calculo de layout de `cartesianLayout.ts`, as medidas de `spacing.ts`, a medida e o corte de
@@ -355,7 +355,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - A escala tipografica paralela foi **removida**: `--pl-size-*` e os pesos `--pl-weight-bold` e `--pl-weight-medium` nao existem mais, e nada os referencia.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
-- Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
+- Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatDate` e `formatTime` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
 - Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
@@ -364,7 +364,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 
 O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que segue muda contrato ou pede desenho, e depende do mantenedor.
 
-- **Valor de `InputNumber` e `InputCurrency`.** Eles emitem texto em pt-BR, `'1234,56'`, e o consumidor converte antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
+- **Valor de `InputNumber` e `InputCurrency`.** Decidido na 0.6.0: numero (`number | null`). Ate a 0.5 eles emitiam texto em pt-BR, `'1234,56'`, e o consumidor convertia antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
 - **Teclado e toque nos graficos.** O hover so ouve o mouse, e no toque nao ha passar por cima. Tocar para fixar o realce e o balao e tocar fora para soltar e um modelo de interacao a desenhar. O teclado segue o catalogo: o grafico e uma imagem so, e a leitura medida a medida vem pela visao em tabela.
 - **API comum entre os `Chart*`.** `series`, `slices`, `tracks`, `nodes` e `flows`, e `onHoverCategory`, `onHoverStep` e `onHoverSlice`, seguem a forma do dado de cada grafico; a unificacao feita cobre so os cartesianos. Unificar o resto quebra quase todos os graficos, e pede o desenho da API antes.
 - **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter.
@@ -461,7 +461,7 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 
 ### Formatadores e localidade
 
-`formatCurrency`, `formatNumber` e `formatPercent` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `locale` em pt-BR por padrao. Ate a 0.3 eram `formatarMoeda`, `formatarNumero` e `formatarPercentual`, que seguem como obsoletos. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
+`formatCurrency`, `formatNumber` e `formatPercent` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `locale` em pt-BR por padrao. Ate a 0.3 eram `formatarMoeda`, `formatarNumero` e `formatarPercentual`, que sairam na 0.6.0. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
 
 - `formatPercent` recebe a **fracao**, nao o numero ja multiplicado: `0.42` vira `42%`. E a fracao que sai de uma divisao de duas medidas, e receber o valor pronto obrigaria cada consumidor a dividir antes de exibir.
 - A forma compacta sai da **localidade**, e nao de um sufixo proprio: em pt-BR um milhao e `1 mi`, nao `1M`. Inventar o sufixo quebraria em qualquer outra localidade.
@@ -480,7 +480,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - O modo decimal usa virgula como separador e respeita `decimalScale`.
 - `InputCurrency` deve manter a edicao bruta durante o foco e aplicar a formatacao monetaria no blur.
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
-- `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
+- `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja como numero (`number | null`; `null` e vazio ou texto sem numero, como `-`). Com `name`, o formulario recebe o numero com ponto decimal (`1234.56`), por um `input` oculto; o campo visivel nao envia a mascara. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
 
 ### Graficos
 
@@ -737,7 +737,7 @@ Entrou no catalogo em 18/10/2026, para as `Etapas` do PlenusLAB.
 
 - **E o indicador, nao o processo.** O conteudo da etapa e os botoes de anterior e proxima ficam no produto: no PlenusLAB, cada uso monta um formulario diferente.
 - As anteriores a atual sao concluidas, com o visto e ", concluída" para o leitor de tela; a atual leva `aria-current="step"`.
-- Com `onStepChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
+- Com `onCurrentChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
 - No celular as etapas empilham, com a linha na vertical.
 
 ### ButtonTile
@@ -779,7 +779,7 @@ Entrou no catalogo em 18/10/2026, para os anexos do PlenusLAB.
 - **Nao envia.** `onFilesSelected` entrega os aceitos; o produto envia e devolve a lista em `items`, com `status` e `progress`. Cancelar, remover e tentar de novo sao chamadas para o produto.
 - **Tipo e tamanho conferidos na escolha**, por `accept` e `maxSize`; os recusados saem em `onFilesRejected`, com o motivo, e a mensagem aparece no campo.
 - **O controle acessivel e o `input type="file"` nativo**, que recebe o foco; o botao visivel fica fora da arvore para nao duplicar o nome.
-- O tamanho do arquivo sai por `formatarTamanhoDeArquivo`, novo formatador publico.
+- O tamanho do arquivo sai por `formatFileSize`, novo formatador publico.
 
 ### Timeline
 

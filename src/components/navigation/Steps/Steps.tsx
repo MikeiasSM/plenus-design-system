@@ -18,22 +18,19 @@ export interface StepsProps extends Omit<ComponentPropsWithRef<'nav'>, 'children
   label: string;
   /** Com ela, cada etapa vira um botao, para quem pode ir e voltar livremente. */
   onCurrentChange?: (key: string) => void;
-  /** @deprecated Use `onCurrentChange`. */
-  onStepChange?: (key: string) => void;
 }
 
-export function Steps({ className, current, defaultCurrent, items, label, onCurrentChange, onStepChange, ...props }: StepsProps) {
+export function Steps({ className, current, defaultCurrent, items, label, onCurrentChange, ...props }: StepsProps) {
   const [internalCurrent, setInternalCurrent] = useState(defaultCurrent ?? items[0]?.key);
   const currentKey = current ?? internalCurrent;
   const currentIndex = items.findIndex((item) => item.key === currentKey);
-  const navigable = onCurrentChange !== undefined || onStepChange !== undefined;
+  const navigable = onCurrentChange !== undefined;
 
   function goTo(key: string) {
     if (current === undefined) {
       setInternalCurrent(key);
     }
     onCurrentChange?.(key);
-    onStepChange?.(key);
   }
 
   return (

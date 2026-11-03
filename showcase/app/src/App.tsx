@@ -7,8 +7,10 @@ import { VisaoGeral } from './estrutura/VisaoGeral';
 
 const CHAVE_DO_TEMA = 'plenus-showcase-tema';
 
-/** A escolha guardada vence; sem ela, a preferencia do sistema. */
-function lerTema() {
+type Tema = 'light' | 'dark' | 'system';
+
+/** A escolha guardada vence; sem ela, o sistema decide e o documento fica sem `data-theme`. */
+function lerTema(): Tema {
   try {
     const guardado = localStorage.getItem(CHAVE_DO_TEMA);
 
@@ -19,7 +21,7 @@ function lerTema() {
     // Sem acesso ao armazenamento, quem decide e o sistema.
   }
 
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'system';
 }
 
 /** Ignora caixa e acento, para "formularios" achar "Formulários". */
@@ -87,10 +89,18 @@ export function App() {
     .filter((familia) => familia.componentes.length > 0);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = tema;
+    if (tema === 'system') {
+      delete document.documentElement.dataset.theme;
+    } else {
+      document.documentElement.dataset.theme = tema;
+    }
 
     try {
-      localStorage.setItem(CHAVE_DO_TEMA, tema);
+      if (tema === 'system') {
+        localStorage.removeItem(CHAVE_DO_TEMA);
+      } else {
+        localStorage.setItem(CHAVE_DO_TEMA, tema);
+      }
     } catch {
       // Guardar a escolha e conveniencia, nao requisito.
     }
@@ -150,11 +160,12 @@ export function App() {
           <span className="version">v{version}</span>
           <SegmentedControl
             items={[
+              { label: 'Sistema', value: 'system' },
               { label: 'Claro', value: 'light' },
               { label: 'Escuro', value: 'dark' },
             ]}
             label="Tema"
-            onValueChange={(valor) => setTema(valor as 'light' | 'dark')}
+            onValueChange={(valor) => setTema(valor as Tema)}
             size="sm"
             value={tema}
           />

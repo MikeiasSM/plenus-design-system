@@ -14,7 +14,7 @@ import styles from './Card.module.css';
 
 export type CardHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-/** `sm` encolhe o respiro e poe a descricao em largura inteira abaixo do titulo, que para na terceira linha. */
+/** `sm` encolhe o respiro e poe a descricao abaixo do titulo, que para na terceira linha. */
 export type CardSize = 'sm' | 'md';
 
 /** O que o `trailing` faz quando o titulo, numa linha so, nao cabe ao lado dele. */
@@ -115,7 +115,7 @@ function useTrailingWrapped(enabled: boolean) {
     }
 
     const observer = new ResizeObserver(measure);
-    observer.observe(row.parentElement ?? row);
+    observer.observe(end.parentElement ?? end);
 
     return () => observer.disconnect();
   }, [enabled]);
@@ -140,12 +140,20 @@ function CardHeader({
 
   useEffect(registerTitle, [registerTitle]);
 
-  /* Em fluxo, o trailing vem antes da descrição também no DOM, na ordem em que aparece. */
   const trailingBox = trailing && (
     <div className={join(styles.trailing, narrow.wrapped && styles.trailingHidden)} ref={narrow.trailing}>
       {trailing}
     </div>
   );
+  const titleRow = (
+    <div className={styles.titleRow} ref={narrow.titleRow}>
+      <Heading className={styles.title} id={titleId}>
+        {title}
+      </Heading>
+      {badge}
+    </div>
+  );
+  const descriptionBox = description && <p className={styles.description}>{description}</p>;
 
   return (
     <header
@@ -158,15 +166,21 @@ function CardHeader({
         className,
       )}
     >
-      <div className={styles.titleRow} ref={narrow.titleRow}>
-        <Heading className={styles.title} id={titleId}>
-          {title}
-        </Heading>
-        {badge}
-      </div>
-      {flowing && trailingBox}
-      {description && <p className={styles.description}>{description}</p>}
-      {!flowing && trailingBox}
+      {flowing ? (
+        <>
+          <div className={styles.text}>
+            {titleRow}
+            {descriptionBox}
+          </div>
+          {trailingBox}
+        </>
+      ) : (
+        <>
+          {titleRow}
+          {descriptionBox}
+          {trailingBox}
+        </>
+      )}
     </header>
   );
 }

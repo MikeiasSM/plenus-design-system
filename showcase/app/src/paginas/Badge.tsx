@@ -156,7 +156,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, todas as propriedades nativas de <span>.',
   api: [
-    { nome: 'tone', tipo: "'neutral' | 'info' | 'success' | 'warning' | 'danger'", padrao: "'neutral'", descricao: <>Tom do estado. Obsoletos: <code>ok</code>, <code>warn</code> e <code>primary</code>; use <code>success</code>, <code>warning</code> e <code>variant="brand"</code>.</> },
+    { nome: 'tone', tipo: "'neutral' | 'info' | 'success' | 'warning' | 'danger'", padrao: "'neutral'", descricao: 'Tom do estado.' },
     { nome: 'variant', tipo: "'status' | 'brand'", padrao: "'status'", descricao: 'brand pinta na cor da marca e ignora o tone: destaque, não estado.' },
     { nome: 'dot', tipo: 'boolean', padrao: 'false', descricao: 'Ponto decorativo antes do texto.' },
     { nome: 'outline', tipo: 'boolean', padrao: 'false', descricao: 'Contorno em vez de fundo preenchido.' },

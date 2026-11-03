@@ -299,12 +299,18 @@ interface OperandEditorProps {
   value: unknown;
 }
 
+function operandNumber(value: unknown) {
+  const number = value === undefined || value === '' ? NaN : numberOf(value);
+
+  return Number.isNaN(number) ? null : number;
+}
+
 function OperandEditor({ kind, label, onChange, value }: OperandEditorProps) {
   if (kind === 'date') {
     return <DatePicker aria-label={label} size="sm" value={typeof value === 'string' && value ? value : null} onValueChange={(next) => onChange(next ?? '')} />;
   }
   if (kind === 'number') {
-    return <InputNumber aria-label={label} decimalScale={4} placeholder="Valor" size="sm" value={value === undefined ? '' : (value as string | number)} onValueChange={onChange} />;
+    return <InputNumber aria-label={label} decimalScale={4} placeholder="Valor" size="sm" value={operandNumber(value)} onValueChange={(next) => onChange(next ?? '')} />;
   }
 
   return <InputText aria-label={label} placeholder="Valor" size="sm" value={typeof value === 'string' ? value : ''} onValueChange={onChange} />;

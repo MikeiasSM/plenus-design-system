@@ -3,18 +3,19 @@ import { useDecimalInput } from '../../../hooks/useDecimalInput';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { InputText, type InputTextProps } from '../InputText';
 
-export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
+export interface InputNumberProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'onValueChange' | 'showCharacterCount' | 'type' | 'value'> {
   decimalScale?: number;
-  defaultValue?: string | number;
-  onValueChange?: (value: string) => void;
-  value?: string | number;
+  defaultValue?: number | null;
+  onValueChange?: (value: number | null) => void;
+  value?: number | null;
 }
 
 export function InputNumber({
   decimalScale = 0,
-  defaultValue = '',
+  defaultValue = null,
   onBlur,
   onKeyDown,
+  name,
   onValueChange,
   value,
   ...props
@@ -35,16 +36,19 @@ export function InputNumber({
   }
 
   return (
-    <InputText
-      {...props}
-      ref={mergedRef}
-      inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
-      onBlur={handleBlur}
-      onChange={decimalInput.handleChange}
-      onKeyDown={handleKeyDown}
-      pattern={decimalScale > 0 ? undefined : '-?[0-9]*'}
-      type="text"
-      value={decimalInput.text}
-    />
+    <>
+      <InputText
+        {...props}
+        ref={mergedRef}
+        inputMode={decimalScale > 0 ? 'decimal' : 'numeric'}
+        onBlur={handleBlur}
+        onChange={decimalInput.handleChange}
+        onKeyDown={handleKeyDown}
+        pattern={decimalScale > 0 ? undefined : '-?[0-9]*'}
+        type="text"
+        value={decimalInput.text}
+      />
+      {name && <input disabled={props.disabled} form={props.form} name={name} type="hidden" value={decimalInput.formValue} />}
+    </>
   );
 }

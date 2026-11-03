@@ -4,35 +4,50 @@ import { useFormReset } from './useFormReset';
 
 interface DecimalInputOptions {
   decimalScale: number;
-  defaultValue: string | number;
-  onValueChange?: (value: string) => void;
-  value?: string | number;
+  defaultValue: number | null;
+  onValueChange?: (value: number | null) => void;
+  value?: number | null;
+}
+
+/** Texto sem numero valido, como `-` ou `,`, vale como vazio. */
+function numberOf(text: string, decimalScale: number) {
+  const normalized = formatDecimalInput(text, decimalScale);
+  const number = Number(normalized.replace(',', '.'));
+
+  return normalized === '' || Number.isNaN(number) ? null : number + 0;
+}
+
+function textOf(value: number | null, decimalScale: number) {
+  return value === null ? '' : formatDecimalInput(value, decimalScale);
 }
 
 /**
- * Estado dos campos decimais: o valor, controlado ou nao, e o texto que a
- * pessoa esta digitando, que pode ainda guardar um ponto sem papel decidido.
+ * Estado dos campos decimais: o valor numerico, controlado ou nao, e o texto que
+ * a pessoa esta digitando, que pode ainda guardar um ponto sem papel decidido.
  */
 export function useDecimalInput({ decimalScale, defaultValue, onValueChange, value }: DecimalInputOptions) {
-  const [uncontrolledValue, setUncontrolledValue] = useState(() => formatDecimalInput(defaultValue, decimalScale));
+  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const [editingText, setEditingText] = useState<string | null>(null);
   const ref = useFormReset<HTMLInputElement>(() => {
-    setUncontrolledValue(formatDecimalInput(defaultValue, decimalScale));
+    setUncontrolledValue(defaultValue);
     setEditingText(null);
   });
-  const currentValue = value === undefined ? uncontrolledValue : formatDecimalInput(value, decimalScale);
+  const currentValue = value === undefined ? uncontrolledValue : value;
   // O texto digitado so vale enquanto diz o mesmo que o valor; uma mudanca
   // externa, ou recusada pelo consumidor, volta a exibir o valor.
   const text =
-    editingText !== null && formatDecimalInput(editingText, decimalScale) === currentValue ? editingText : currentValue;
+    editingText !== null && numberOf(editingText, decimalScale) === currentValue
+      ? editingText
+      : textOf(currentValue, decimalScale);
+  const formValue = textOf(currentValue, decimalScale).replace(',', '.');
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextValue = formatDecimalInput(event.target.value, decimalScale);
+    const nextValue = numberOf(event.target.value, decimalScale);
 
     setEditingText(formatDecimalDraft(event.target.value, decimalScale));
     setUncontrolledValue(nextValue);
     onValueChange?.(nextValue);
   }
 
-  return { ref, value: currentValue, text, handleChange, endEditing: () => setEditingText(null) };
+  return { ref, value: currentValue, text, formValue, handleChange, endEditing: () => setEditingText(null) };
 }

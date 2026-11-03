@@ -4,19 +4,20 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatCurrencyInput } from '../../../utils/formatters';
 
-export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'showCharacterCount' | 'type' | 'value'> {
+export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'onValueChange' | 'showCharacterCount' | 'type' | 'value'> {
   currency?: string;
-  defaultValue?: string | number;
+  defaultValue?: number | null;
   decimalScale?: number;
-  onValueChange?: (value: string) => void;
-  value?: string | number;
+  onValueChange?: (value: number | null) => void;
+  value?: number | null;
 }
 
 export function InputCurrency({
   currency = 'BRL',
-  defaultValue = '',
+  defaultValue = null,
   decimalScale = 2,
   onBlur,
+  name,
   onFocus,
   onValueChange,
   value,
@@ -26,7 +27,7 @@ export function InputCurrency({
   const mergedRef = useMergedRefs(decimalInput.ref, props.ref as Ref<HTMLInputElement>);
   const [focused, setFocused] = useState(false);
   const displayValue =
-    focused || !decimalInput.value ? decimalInput.text : formatCurrencyInput(decimalInput.value, currency, decimalScale);
+    focused || decimalInput.value === null ? decimalInput.text : formatCurrencyInput(decimalInput.value, currency, decimalScale);
 
   function handleFocus(event: FocusEvent<HTMLInputElement>) {
     setFocused(true);
@@ -40,15 +41,18 @@ export function InputCurrency({
   }
 
   return (
-    <InputText
-      {...props}
-      ref={mergedRef}
-      inputMode="decimal"
-      onBlur={handleBlur}
-      onChange={decimalInput.handleChange}
-      onFocus={handleFocus}
-      type="text"
-      value={displayValue}
-    />
+    <>
+      <InputText
+        {...props}
+        ref={mergedRef}
+        inputMode="decimal"
+        onBlur={handleBlur}
+        onChange={decimalInput.handleChange}
+        onFocus={handleFocus}
+        type="text"
+        value={displayValue}
+      />
+      {name && <input disabled={props.disabled} form={props.form} name={name} type="hidden" value={decimalInput.formValue} />}
+    </>
   );
 }

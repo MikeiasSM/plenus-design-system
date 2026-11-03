@@ -145,15 +145,6 @@ describe('Dialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('ainda chama o obsoleto onClose ao fechar', () => {
-    const onClose = vi.fn();
-    render(<Dialog onClose={onClose} open title="Publicar" />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
-
-    expect(onClose).toHaveBeenCalledOnce();
-  });
-
   describe('sem titulo', () => {
     it('toma o nome do aria-label e nao desenha cabecalho nem o botao de fechar', () => {
       render(

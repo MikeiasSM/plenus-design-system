@@ -18,7 +18,7 @@ export interface DialogFrameProps extends DialogBaseProps {
 }
 
 /** Mecanica modal do `Dialog` e do `Drawer`: portal, foco preso, rolagem travada, cabecalho, corpo e rodape. Interna. */
-export function DialogFrame({ defaultOpen = false, onClose, onOpenChange, open, ...props }: DialogFrameProps) {
+export function DialogFrame({ defaultOpen = false, onOpenChange, open, ...props }: DialogFrameProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
 
   function close() {
@@ -26,7 +26,6 @@ export function DialogFrame({ defaultOpen = false, onClose, onOpenChange, open, 
       setInternalOpen(false);
     }
     onOpenChange?.(false);
-    onClose?.();
   }
 
   // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
@@ -37,7 +36,7 @@ export function DialogFrame({ defaultOpen = false, onClose, onOpenChange, open, 
   return createPortal(<DialogFrameContent {...props} onClose={close} />, document.body);
 }
 
-type DialogFrameContentProps = Omit<DialogFrameProps, 'defaultOpen' | 'onClose' | 'onOpenChange' | 'open'> & {
+type DialogFrameContentProps = Omit<DialogFrameProps, 'defaultOpen' | 'onOpenChange' | 'open'> & {
   onClose: () => void;
 };
 

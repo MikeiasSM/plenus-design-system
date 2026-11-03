@@ -109,11 +109,15 @@ Isso permite alterar a organização interna do projeto sem transformar a estrut
 
 ### Tema e paleta
 
-O tema claro é o padrão. O escuro é ligado na raiz do documento:
+O tema segue `prefers-color-scheme` do sistema. `data-theme="dark"` e `data-theme="light"` fixam o tema em qualquer elemento, valem para toda a subárvore e podem se aninhar, como um painel escuro numa página clara:
 
 ```html
-<html data-theme="dark">
+<html data-theme="dark">...</html>
+
+<aside data-theme="dark">...</aside>
 ```
+
+`data-theme="light"` força o claro mesmo com o sistema escuro. Os overlays em portal (`Dialog`, `Popover`, `Tooltip` e os painéis dos campos) vão para o `body` e seguem o tema do documento, não o da subárvore do gatilho.
 
 A identidade de marca vem de uma paleta. O laranja é o padrão; `data-palette="blue"` e `data-palette="purple"` trocam a paleta em qualquer elemento, inclusive numa parte da página. Uma paleta própria é gerada e medida a partir de uma cor:
 

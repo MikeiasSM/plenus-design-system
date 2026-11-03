@@ -21,15 +21,13 @@ export interface PopoverProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   /** Aberto no inicio, no modo nao controlado. */
   defaultOpen?: boolean;
   offset?: number;
-  /** @deprecated Use `onOpenChange`. */
-  onClose?: () => void;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   placement?: PopoverPlacement;
   triggerRef: RefObject<HTMLElement | null>;
 }
 
-export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...props }: PopoverProps) {
+export function Popover({ defaultOpen = false, onOpenChange, open, ...props }: PopoverProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
 
   function close() {
@@ -37,7 +35,6 @@ export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...p
       setInternalOpen(false);
     }
     onOpenChange?.(false);
-    onClose?.();
   }
 
   // No servidor nao ha `document` para o portal; o Popover nasce na hidratacao.
@@ -48,7 +45,7 @@ export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...p
   return createPortal(<PopoverContent {...props} onClose={close} />, document.body);
 }
 
-type PopoverContentProps = Omit<PopoverProps, 'defaultOpen' | 'onClose' | 'onOpenChange' | 'open'> & { onClose: () => void };
+type PopoverContentProps = Omit<PopoverProps, 'defaultOpen' | 'onOpenChange' | 'open'> & { onClose: () => void };
 
 function PopoverContent({
   children,

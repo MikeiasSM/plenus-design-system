@@ -303,15 +303,6 @@ describe('Table', () => {
     expect(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' })).not.toBeChecked();
   });
 
-  it('ainda chama o obsoleto onSelectionChange', () => {
-    const escolheu = vi.fn();
-    montar({ onSelectionChange: escolheu, selectionMode: 'multiple' });
-
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar Ana Prado' }));
-
-    expect(escolheu).toHaveBeenCalledWith(['1']);
-  });
-
   it('chaveia a linha pelo identificador, sem pedir a chave a quem a escreve', () => {
     const aviso = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const tabela = (itens: Membro[]) => (

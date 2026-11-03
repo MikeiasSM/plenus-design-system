@@ -120,6 +120,20 @@ background: var(--cor-superficie-principal);
 
 e não precisa conhecer a implementação do tema.
 
+### Escopo do tema
+
+O tema vale por subárvore, como a paleta:
+
+- `data-theme="dark"` e `data-theme="light"` em qualquer elemento aplicam o tema àquele elemento e a tudo o que ele contém: um painel escuro numa página clara, ou o inverso.
+- Sem `data-theme` em lugar nenhum, o tema segue `prefers-color-scheme` do sistema. `data-theme="light"` força o claro mesmo com o sistema escuro.
+- `color-scheme` acompanha o tema no mesmo escopo, e os controles nativos e as barras de rolagem o seguem.
+- Uma variável CSS derivada de outra, seja por `var()` ou por `color-mix`, é calculada onde é declarada e não se recalcula nos descendentes. Por isso o token derivado de cor é declarado também no seletor de cada escopo de tema (`:root, [data-theme]`) e de paleta (`[data-palette]`). Onde a escolha depende do tema e da paleta ao mesmo tempo, como a cor primária, o valor usa `light-dark()`, que se resolve pelo `color-scheme` de quem usa o token.
+- Os seletores são `[data-theme="light"]` e `[data-theme="dark"]`, mais `:root:not([data-theme])` dentro de `@media (prefers-color-scheme: dark)`. O seletor `:root[data-theme="dark"]` das versões anteriores à 0.6.0 deixou de existir.
+
+### Camadas em portal
+
+Os overlays em portal (`Dialog`, `Drawer`, `Popover`, `Tooltip`, `Menu`, `Toolbar`, `ChartTooltip` e os painéis dos campos) são renderizados no `body`, fora da subárvore do gatilho. Herdam, portanto, o tema do documento e não o do gatilho: o CSS herda pela árvore de elementos, e o destino do portal decide. A regra é a mesma que já vale para o `data-palette`. Para um overlay seguir o tema ou a paleta de uma subárvore, o destino do portal deve estar dentro dela, o que o `portalContainer` da 0.6.0 permitirá.
+
 ## 5. Espaçamento
 
 Componentes devem utilizar a escala oficial de espaçamento.

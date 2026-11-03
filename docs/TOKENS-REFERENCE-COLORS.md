@@ -212,6 +212,8 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 | `color.on-primary` | `palette.on-solid` | `palette.on-40` |
 | `color.on-primary-container` | `palette.80` | `palette.30` |
 
+O tema vale por subárvore (`TOKENS.md` §4): a coluna do tema escuro vale onde `data-theme="dark"` esteja no elemento ou num ancestral, ou, sem `data-theme` em lugar nenhum, quando o sistema pede o escuro. Nestes tokens a escolha entre as colunas é feita por `light-dark()`, e por isso acompanha o tema mais próximo mesmo com a paleta declarada fora ou dentro dele.
+
 No escuro o preenchimento desce ao passo 40: o 50 do azul mede 2,79:1 e o do roxo 1,94:1 contra a superficie escura.
 
 `color.primary` e o preenchimento: fundo do botao primario, do interruptor ligado, da selecao. `color.primary-strong` e o traco: texto, borda de selecao, anel de foco e aba ativa. Nas paletas em que a cor da marca ja se le contra a superficie, os dois coincidem; no laranja, o traco claro e o `brand.orange.70`, a 5,38:1.

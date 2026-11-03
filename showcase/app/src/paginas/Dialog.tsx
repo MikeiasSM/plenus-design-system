@@ -365,7 +365,6 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },
-    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível. Sem ele, não há cabeçalho.' },
     { nome: 'aria-label', tipo: 'string', descricao: 'Obrigatória sem title, e recusada com ele: o nome do diálogo sem cabeçalho.' },
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },

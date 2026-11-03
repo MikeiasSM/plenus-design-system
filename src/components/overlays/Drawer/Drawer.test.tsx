@@ -26,13 +26,13 @@ describe('Drawer', () => {
     expect(onOpenChange.mock.calls).toEqual([[false], [false]]);
   });
 
-  it('sem controle, abre pelo defaultOpen e fecha sozinho, ainda avisando o obsoleto onClose', () => {
-    const onClose = vi.fn();
-    render(<Drawer defaultOpen onClose={onClose} title="Acesso" />);
+  it('sem controle, abre pelo defaultOpen e fecha sozinho', () => {
+    const onOpenChange = vi.fn();
+    render(<Drawer defaultOpen onOpenChange={onOpenChange} title="Acesso" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
 
-    expect(onClose).toHaveBeenCalledOnce();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 

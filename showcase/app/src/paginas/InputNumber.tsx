@@ -26,7 +26,7 @@ const playground = definirPlayground({
         key={valores.decimalScale}
         label={valores.label || undefined}
         onBlur={() => registrar('onBlur')}
-        onValueChange={(valor) => registrar(`onValueChange: "${valor}"`)}
+        onValueChange={(valor) => registrar(`onValueChange: ${valor}`)}
         required={valores.required}
         size={valores.size as InputTextSize}
       />
@@ -60,9 +60,9 @@ const playground = definirPlayground({
             detalhe: 'inputmode="numeric" e pattern "-?[0-9]*"; vírgula e ponto são ignorados.',
           },
       {
-        nivel: 'atencao',
-        titulo: 'Valor em texto pt-BR',
-        detalhe: 'onValueChange entrega "1234,5", sem milhar. Converta antes de calcular.',
+        nivel: 'ok',
+        titulo: 'Valor numérico',
+        detalhe: 'onValueChange entrega number, ou null quando vazio; o texto pt-BR fica só na tela.',
       },
     ];
 
@@ -71,14 +71,13 @@ const playground = definirPlayground({
 });
 
 function ValorParaOProduto() {
-  const [valor, setValor] = useState('1234,5');
-  const numero = valor === '' ? null : Number(valor.replace(',', '.'));
+  const [valor, setValor] = useState<number | null>(1234.5);
 
   return (
     <div className="stack" style={{ width: '100%' }}>
       <InputNumber decimalScale={2} label="Peso líquido (kg)" onValueChange={setValor} value={valor} />
       <p className="note">
-        onValueChange: <code>&quot;{valor}&quot;</code> · convertido: <code>{String(numero)}</code>
+        onValueChange: <code>{String(valor)}</code> · tipo: <code>{typeof valor}</code>
       </p>
     </div>
   );
@@ -100,11 +99,21 @@ function Modos() {
       <dd>O sinal de menos à frente é aceito, nos dois modos.</dd>
       <dt>Valor de fora</dt>
       <dd>
-        <code>value</code> e <code>defaultValue</code> aceitam texto ou número. Número é lido na convenção brasileira e
-        arredondado nas casas pedidas: <code>12.34</code> aparece como <code>12,34</code>.
+        <code>value</code> e <code>defaultValue</code> são número ou <code>null</code> (vazio), arredondado nas casas
+        pedidas: <code>12.34</code> aparece como <code>12,34</code>.
       </dd>
       <dt>Sem <code>onChange</code></dt>
-      <dd>O valor sai só por <code>onValueChange</code>, já normalizado: o evento cru divergia do valor exibido.</dd>
+      <dd>O valor sai só por <code>onValueChange</code>, já número: o evento cru divergia do valor exibido.</dd>
+      <dt>Texto sem número</dt>
+      <dd>
+        <code>-</code> ou <code>,</code> ainda não formam número: <code>onValueChange</code> recebe <code>null</code>, para
+        o valor nunca ficar atrás do que o campo enviaria.
+      </dd>
+      <dt>Em formulário</dt>
+      <dd>
+        Com <code>name</code>, o formulário recebe o número com ponto decimal, <code>1234.5</code>, ou texto vazio; o{' '}
+        <code>reset</code> volta ao <code>defaultValue</code>.
+      </dd>
     </dl>
   );
 }
@@ -117,10 +126,10 @@ export const pagina: Pagina = {
       descricao: 'O padrão: vírgula e ponto não entram.',
       Previa: () => (
         <div style={{ width: '100%' }}>
-          <InputNumber defaultValue="12" label="Quantidade" />
+          <InputNumber defaultValue={12} label="Quantidade" />
         </div>
       ),
-      codigo: '<InputNumber label="Quantidade" defaultValue="12" />',
+      codigo: '<InputNumber label="Quantidade" defaultValue={12} />',
     },
     {
       titulo: 'Percentual com duas casas',
@@ -134,10 +143,10 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Do texto ao número',
-      descricao: 'O campo emite texto pt-BR, sem separador de milhar; o produto converte antes de usar.',
+      descricao: 'O texto pt-BR fica no campo; o produto recebe número, ou null quando vazio.',
       Previa: ValorParaOProduto,
       codigo:
-        "const [peso, setPeso] = useState('1234,5');\nconst numero = peso === '' ? null : Number(peso.replace(',', '.'));\n\n<InputNumber\n  label=\"Peso líquido (kg)\"\n  decimalScale={2}\n  value={peso}\n  onValueChange={setPeso}\n/>",
+        "const [peso, setPeso] = useState<number | null>(1234.5);\n\n<InputNumber\n  label=\"Peso líquido (kg)\"\n  decimalScale={2}\n  value={peso}\n  onValueChange={setPeso}\n/>",
     },
   ],
   Modos,
@@ -157,13 +166,14 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, as do InputText, exceto type, onChange e showCharacterCount, e as nativas de <input> e o ref.',
   api: [
     { nome: 'decimalScale', tipo: 'number', padrao: '0', descricao: 'Casas decimais. Zero é o modo inteiro.' },
-    { nome: 'value', tipo: 'string | number', descricao: 'Valor controlado; número é lido na convenção brasileira.' },
-    { nome: 'defaultValue', tipo: 'string | number', padrao: "''", descricao: 'Valor inicial, não controlado.' },
+    { nome: 'value', tipo: 'number | null', descricao: 'Valor controlado; null é vazio.' },
+    { nome: 'defaultValue', tipo: 'number | null', padrao: 'null', descricao: 'Valor inicial, não controlado; o reset do formulário volta a ele.' },
     {
       nome: 'onValueChange',
-      tipo: '(value: string) => void',
-      descricao: <>O valor normalizado, em texto pt-BR: <code>&quot;1234,5&quot;</code>.</>,
+      tipo: '(value: number | null) => void',
+      descricao: <>O valor como número, <code>1234.5</code>; <code>null</code> para vazio ou texto sem número.</>,
     },
+    { nome: 'name', tipo: 'string', descricao: 'Envia o número com ponto decimal no formulário, ou texto vazio.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro.' },

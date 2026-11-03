@@ -6,6 +6,26 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Incompatível
+
+- Saem os nomes marcados como obsoletos na 0.4.0. Troque o nome antigo pelo novo; o comportamento é o mesmo:
+  - `Accordion`: `onExpandedChange` → `onExpandedKeysChange`.
+  - `List`: `onSelectionChange` → `onValueChange`.
+  - `SortableList` e `Tabs`: `onSelectionChange` → `onSelectedKeyChange`.
+  - `Table`: `onSelectionChange` → `onSelectedIdsChange`.
+  - `Steps`: `onStepChange` → `onCurrentChange`. As etapas viram botões só com `onCurrentChange`.
+  - `Dialog`, `Drawer` e `Popover`: `onClose` → `onOpenChange`, que recebe `false` ao fechar.
+  - `Badge`: `tone="ok"` → `tone="success"`, `tone="warn"` → `tone="warning"` e `tone="primary"` → `variant="brand"`.
+- Saem os formatadores em português. Troque pelo nome em inglês e as opções pelas novas:
+  - `formatarNumero` → `formatNumber`, `formatarMoeda` → `formatCurrency`, `formatarPercentual` → `formatPercent`, `formatarData` → `formatDate`, `formatarHora` → `formatTime`, `formatarDuracao` → `formatDuration`, `formatarTamanhoDeArquivo` → `formatFileSize`.
+  - Opções: `casasDecimais` → `decimals`, `localidade` → `locale`, `moeda` → `currency`, `segundos` → `seconds`, `formato` → `format` (`'curto'`, `'longo'` e `'numerico'` → `'short'`, `'long'` e `'numeric'`) e `compacto` → `compact` (`'sigla'` → `'symbol'`).
+  - Tipos: `OpcoesDeNumero`, `OpcoesDeMoeda`, `OpcoesDePercentual`, `OpcoesDeData`, `OpcoesDeHora` e `OpcoesDeTamanhoDeArquivo` → `FormatNumberOptions`, `FormatCurrencyOptions`, `FormatPercentOptions`, `FormatDateOptions`, `FormatTimeOptions` e `FormatFileSizeOptions`; `Compacto` → `CompactNotation`.
+- Saem os tipos `ChartMapColorScale` e `ChartMapCategory`: use `ChartColorScale` e `ChartColorCategory`.
+- `Card.Header` em `size="sm"`, `trailingWhenNarrow="wrap"` e `"hide"`: a descrição fica logo abaixo do título, na mesma coluna, enquanto o `trailing` estiver ao lado dele. Antes ela descia para baixo do `trailing` alto, com um vão de cerca de 44px, e tinha a largura do cabeçalho inteiro; agora tem a largura da coluna do título. Quando o `trailing` desce de linha, ele fica abaixo da descrição. A frase "abaixo do `trailing`" da 0.5.0 passa a valer o contrário. Em `size="md"` com `trailingWhenNarrow="keep"`, nada muda; em `size="sm"`, a mudança vale também com `keep`. Quem ajustava o leiaute pela posição da descrição deve revê-lo.
+- O tema vale por subárvore e segue `prefers-color-scheme`. `:root[data-theme="dark"]` dá lugar a `[data-theme="dark"]` e `[data-theme="light"]`, que valem em qualquer elemento; sem `data-theme`, o sistema decide. Quem tinha o claro como padrão fixo passa a ver o escuro com o sistema em modo escuro: para manter o claro, ponha `data-theme="light"` no `<html>`. Quem sobrescrevia tokens com `:root[data-theme="dark"]` deve usar `[data-theme="dark"]` e repetir a regra em `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }`. Uma variável derivada de token de cor deve ser declarada também em `[data-theme]` e `[data-palette]`, para se recalcular na subárvore. `color-scheme` acompanha o tema: no escuro, o fundo padrão da página, o texto sem cor declarada, os controles nativos e as barras de rolagem do produto também ficam escuros. Não sobrescreva `color-scheme` dentro de um tema: a cor primária se resolve por ele. Os overlays em portal seguem o tema do documento, e não o do gatilho. A cor primária usa `light-dark()`: Chrome 123, Firefox 120 e Safari 17.5 ou mais novos.
+- `InputNumber` e `InputCurrency` trabalham com número: `value?: number | null`, `defaultValue?: number | null` e `onValueChange(value: number | null)`, no lugar do texto pt-BR (`'1234,56'`). `null` é o campo vazio; enquanto o texto digitado não forma número (`-`, `,`), o valor é `null`. O texto em edição continua em pt-BR. Com `name`, o formulário recebe o número com ponto decimal (`'1234.56'`), e não mais o texto do campo: no `InputCurrency`, antes ia a máscara `R$ 1.234,56`. O `name` vai para um `<input type="hidden">`, e o campo visível fica sem ele: quem lia o campo por `input[name=...]` ou `form.elements` passa a ler o oculto. O que fazer: guarde o estado como número, tire a conversão manual, troque `value=""` por `null` e ajuste o servidor ao formato com ponto. Por exemplo, `<InputCurrency defaultValue="165789,50" />` passa a `<InputCurrency defaultValue={165789.5} />`.
+- `Card.Footer` com um filho só: o filho vai ao fim da linha, coerente com as ações do `Dialog` à direita; vale também para um texto sozinho. Com dois ou mais filhos, nada muda. Para manter o filho único no começo, dê a ele `margin-inline-start: 0`; a regra do rodapé não tem especificidade, e qualquer classe do consumidor a vence.
+
 ## [0.5.7] — 2026-11-03
 
 ### Adicionado

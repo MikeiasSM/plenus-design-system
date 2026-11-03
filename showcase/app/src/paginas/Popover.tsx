@@ -240,7 +240,6 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape ou clique fora.' },
-    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
     { nome: 'triggerRef', tipo: 'RefObject<HTMLElement | null>', descricao: 'Obrigatória. O elemento em que o painel se ancora.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Obrigatória. Conteúdo do painel.' },
     {

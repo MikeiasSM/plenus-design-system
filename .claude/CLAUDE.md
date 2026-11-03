@@ -185,7 +185,7 @@ Terminologia em português, no alcance que o corpus normativo já define:
 
 `TOKENS.md` §3 e `ARCHITECTURE.md` §3 e §5 ilustram tokens com exemplos conceituais em português. Para cor e tipografia prevalecem os documentos de referência especializados, aos quais `TOKENS.md` delega o detalhamento.
 
-Identificadores internos seguem a língua do módulo: os módulos de formatadores e de componente em inglês, o Showcase em português. Os nomes em português da 0.3 (`formatarMoeda` e os demais) continuam aceitos como obsoletos até a versão menor seguinte. Cada arquivo de teste segue a língua do módulo que testa.
+Identificadores internos seguem a língua do módulo: os módulos de formatadores e de componente em inglês, o Showcase em português. Cada arquivo de teste segue a língua do módulo que testa.
 
 Comunicação, comentários, mensagens de commit, documentação e Showcase: português.
 

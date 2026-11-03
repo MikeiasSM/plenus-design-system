@@ -1,7 +1,8 @@
 /* Cores de sintaxe do `CodeBlock`, a partir dos temas da JetBrains: IntelliJ Light no
    claro e Darcula no escuro. Os tons que reprovavam contra o fundo do bloco mudaram
    so na luminosidade, e a matiz continua a do tema de origem. */
-:root {
+:root,
+[data-theme="light"] {
   --pl-code-keyword: #0033B3;
   --pl-code-string: #067D17;
   --pl-code-number: #1750EB;
@@ -13,7 +14,7 @@
   --pl-code-attribute: #174AD4;
 }
 
-:root[data-theme='dark'] {
+[data-theme="dark"] {
   --pl-code-keyword: #CC7832;
   --pl-code-string: #7DA06B;
   --pl-code-number: #6897BB;
@@ -23,4 +24,18 @@
   --pl-code-property: #A98BBB;
   --pl-code-tag: #E8BF6A;
   --pl-code-attribute: #BABABA;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pl-code-keyword: #CC7832;
+    --pl-code-string: #7DA06B;
+    --pl-code-number: #6897BB;
+    --pl-code-comment: #8F8F8F;
+    --pl-code-annotation: #BBB529;
+    --pl-code-function: #FFC66D;
+    --pl-code-property: #A98BBB;
+    --pl-code-tag: #E8BF6A;
+    --pl-code-attribute: #BABABA;
+  }
 }
