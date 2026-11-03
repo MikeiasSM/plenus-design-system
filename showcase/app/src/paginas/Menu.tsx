@@ -291,6 +291,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória. O gatilho: um único elemento focável.' },
     { nome: 'items', tipo: 'readonly MenuItem[]', descricao: 'Obrigatória. As ações, na ordem em que aparecem.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome acessível da lista.' },

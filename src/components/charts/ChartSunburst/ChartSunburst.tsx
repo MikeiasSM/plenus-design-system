@@ -35,8 +35,11 @@ export interface ChartSunburstNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartSunburstProps extends ChartRootProps {
+export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
+  /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
@@ -44,19 +47,29 @@ export interface ChartSunburstProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Rotulos dos grupos desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenGroups?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
-  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
   /**
    * Caminho ate o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o maior entre o valor
    * proprio e a soma dos filhos, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem o segundo argumento: a cor desenhada
    * do grupo e o ponto onde ancorar o `ChartTooltip`.
    */
+  onHover?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
+  /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
+  onMarkClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Folga entre dois aneis vizinhos. */
@@ -115,18 +128,23 @@ function tomDoNivel(cor: string, profundidade: number) {
 
 export function ChartSunburst({
   accent,
+  defaultHidden,
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 320,
+  hidden,
   hiddenGroups,
   legend = 'bottom',
   legendAlign,
   nodes,
+  onHiddenChange,
   onHiddenGroupsChange,
+  onHover,
   onHoverNode,
+  onMarkClick,
   onNodeClick,
   palette,
   ringGap = 2,
@@ -138,10 +156,27 @@ export function ChartSunburst({
 }: ChartSunburstProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const avisarHover: ChartSunburstProps['onHover'] =
+    onHover || onHoverNode
+      ? (...aviso) => {
+          onHover?.(...aviso);
+          onHoverNode?.(...aviso);
+        }
+      : undefined;
+  const aoClicarNoNo =
+    onMarkClick || onNodeClick
+      ? (caminho: readonly ChartHoveredNode[]) => {
+          onMarkClick?.(caminho);
+          onNodeClick?.(caminho);
+        }
+      : undefined;
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenGroups,
-    hiddenSeries: hiddenGroups,
-    onHiddenSeriesChange: onHiddenGroupsChange,
+    defaultHidden: defaultHidden ?? defaultHiddenGroups,
+    hidden: hidden ?? hiddenGroups,
+    onHiddenChange: (ocultos) => {
+      onHiddenChange?.(ocultos);
+      onHiddenGroupsChange?.(ocultos);
+    },
   });
   const [emFoco, setEmFoco] = useState<Arco | null>(null);
 
@@ -216,9 +251,9 @@ export function ChartSunburst({
     setEmFoco(arco);
 
     if (arco && detalhe) {
-      onHoverNode?.(hoverPath(arco), detalhe);
+      avisarHover?.(hoverPath(arco), detalhe);
     } else {
-      onHoverNode?.(arco && hoverPath(arco));
+      avisarHover?.(arco && hoverPath(arco));
     }
   }
 
@@ -229,7 +264,7 @@ export function ChartSunburst({
   }
 
   const marcas = useMarkNavigation({
-    onActivate: onNodeClick && (({ column }) => onNodeClick(hoverPath(arcos[column]))),
+    onActivate: aoClicarNoNo && (({ column }) => aoClicarNoNo(hoverPath(arcos[column]))),
     onFocusMark: (posicao) => focar(posicao && arcos[posicao.column]),
     present: arcos.map((_, column) => ({ column, row: 0 })),
   });
@@ -326,7 +361,7 @@ export function ChartSunburst({
             onMouseEnter={() => focar(arco)}
             onMouseLeave={() => soltar(arco)}
           >
-            {!showTooltip && !onHoverNode && <title>{descreverArco(arco)}</title>}
+            {!showTooltip && !avisarHover && <title>{descreverArco(arco)}</title>}
           </path>
         ))}
       </g>

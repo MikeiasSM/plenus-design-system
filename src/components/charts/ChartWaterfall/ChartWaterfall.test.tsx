@@ -135,7 +135,7 @@ describe('ChartWaterfall', () => {
 
   it('com clique no passo, as barras sao botoes e o foco abre o balao do passo', () => {
     const aoClicar = vi.fn();
-    render(<ChartWaterfall onStepClick={aoClicar} steps={dre} title="DRE" />);
+    render(<ChartWaterfall onMarkClick={aoClicar} steps={dre} title="DRE" />);
     const receita = screen.getByRole('button', { name: /^Receita:/ });
 
     expect(screen.getByRole('group', { name: 'DRE' })).toBeInTheDocument();
@@ -146,11 +146,11 @@ describe('ChartWaterfall', () => {
     expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Resultado');
 
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
-    expect(aoClicar).toHaveBeenCalledWith(dre[3], 3);
+    expect(aoClicar).toHaveBeenCalledWith({ index: 3, step: dre[3] });
   });
 
   it('chama o passo de total pelo proprio rotulo no balao, e nao por Total', () => {
-    render(<ChartWaterfall onStepClick={vi.fn()} steps={dre} title="DRE" />);
+    render(<ChartWaterfall onMarkClick={vi.fn()} steps={dre} title="DRE" />);
 
     act(() => screen.getByRole('button', { name: /^Resultado:/ }).focus());
 

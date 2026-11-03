@@ -127,14 +127,14 @@ describe('ChartTreemap', () => {
   });
 
   it('com a costura, avisa o caminho ate o retangulo sob o ponteiro e tira o <title>', () => {
-    const onHoverNode = vi.fn();
-    render(<ChartTreemap nodes={produtos} onHoverNode={onHoverNode} title="Produtos" />);
+    const onHover = vi.fn();
+    render(<ChartTreemap nodes={produtos} onHover={onHover} title="Produtos" />);
 
     const servicoB = retangulos().find((rect) => rect.getAttribute('aria-label')?.startsWith('Serviço B'))!;
     fireEvent.mouseEnter(servicoB);
     fireEvent.mouseLeave(servicoB);
 
-    expect(onHoverNode.mock.calls).toEqual([
+    expect(onHover.mock.calls).toEqual([
       [
         [
           { label: 'Margem alta', value: 660 },
@@ -148,7 +148,7 @@ describe('ChartTreemap', () => {
 
   it('com clique no no, os retangulos sao botoes e o clique entrega o caminho ate o no', () => {
     const aoClicar = vi.fn();
-    render(<ChartTreemap nodes={produtos} onNodeClick={aoClicar} title="Produtos" />);
+    render(<ChartTreemap nodes={produtos} onMarkClick={aoClicar} title="Produtos" />);
     const servicoA = screen.getByRole('button', { name: /^Serviço A:/ });
 
     expect(screen.getByRole('group', { name: 'Produtos' })).toBeInTheDocument();
@@ -172,12 +172,12 @@ describe('ChartTreemap: valor do no intermediario', () => {
   });
 
   function medir(valorDoPai: number | undefined) {
-    const onHoverNode = vi.fn();
+    const onHover = vi.fn();
     const nodes: ChartTreemapNode[] = [
       { label: 'Pai', value: valorDoPai, children: [{ label: 'A', value: 30 }, { label: 'B', value: 30 }] },
       { label: 'Outro', value: 60 },
     ];
-    render(<ChartTreemap gap={0} nodes={nodes} onHoverNode={onHoverNode} title="Teste" />);
+    render(<ChartTreemap gap={0} nodes={nodes} onHover={onHover} title="Teste" />);
     const area = (rotulo: string) => {
       const rect = retangulos().find((no) => no.getAttribute('aria-label')?.startsWith(rotulo))!;
 
@@ -186,7 +186,7 @@ describe('ChartTreemap: valor do no intermediario', () => {
 
     fireEvent.mouseEnter(retangulos().find((no) => no.getAttribute('aria-label')?.startsWith('A:'))!);
 
-    return { area, valorDoPai: onHoverNode.mock.calls[0][0][0].value as number };
+    return { area, valorDoPai: onHover.mock.calls[0][0][0].value as number };
   }
 
   it('sem valor proprio, o pai vale a soma dos filhos', () => {

@@ -132,7 +132,7 @@ O tema vale por subárvore, como a paleta:
 
 ### Camadas em portal
 
-Os overlays em portal (`Dialog`, `Drawer`, `Popover`, `Tooltip`, `Menu`, `Toolbar`, `ChartTooltip` e os painéis dos campos) são renderizados no `body`, fora da subárvore do gatilho. Herdam, portanto, o tema do documento e não o do gatilho: o CSS herda pela árvore de elementos, e o destino do portal decide. A regra é a mesma que já vale para o `data-palette`. Para um overlay seguir o tema ou a paleta de uma subárvore, o destino do portal deve estar dentro dela, o que o `portalContainer` da 0.6.0 permitirá.
+Os overlays em portal (`Dialog`, `Drawer`, `Popover`, `Tooltip`, `Menu`, `Toolbar`, `ChartTooltip` e os painéis dos campos) são renderizados no `body`, fora da subárvore do gatilho. Herdam, portanto, o tema do documento e não o do gatilho: o CSS herda pela árvore de elementos, e o destino do portal decide. A regra é a mesma que já vale para o `data-palette`. Para um overlay seguir o tema ou a paleta de uma subárvore, o destino do portal deve estar dentro dela. Pelo `PortalProvider`, o produto indica o elemento da subárvore uma vez, e todos os overlays abaixo dele vão para lá; a propriedade `portalContainer` de um overlay vale sobre o provider. Sem nenhum dos dois, o destino é o `document.body`.
 
 ## 5. Espaçamento
 

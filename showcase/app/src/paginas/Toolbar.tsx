@@ -382,6 +382,7 @@ export const pagina: Pagina = {
   notaDaApi:
     'Além destas, as propriedades nativas de <div> e o ref, exceto role e aria-label. Toolbar.Group recebe label?, que nomeia o grupo, e as propriedades nativas de <div>.',
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da barra, no aria-label.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Obrigatória. Toolbar.Group, Button, ButtonIcon ou qualquer elemento focável.' },
     { nome: 'orientation', tipo: "'horizontal' | 'vertical'", padrao: "'horizontal'", descricao: 'Direção da barra e das setas que a percorrem.' },

@@ -1,0 +1,91 @@
+/* Na base, como o submenu do AppShell: sem folha. A largura é a do painel mais o respiro do lado da página. */
+.sidePanel {
+  --side-panel-width: 272px;
+  flex: none;
+  width: 0;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width var(--pl-speed-2) var(--pl-ease), opacity var(--pl-speed-2) var(--pl-ease);
+}
+
+.sm {
+  --side-panel-width: 240px;
+}
+
+.lg {
+  --side-panel-width: 360px;
+}
+
+.sidePanel[data-open='true'] {
+  width: calc(var(--side-panel-width) + var(--pl-shell-gap) + var(--pl-space-2));
+  opacity: 1;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: calc(var(--side-panel-width) + var(--pl-shell-gap) + var(--pl-space-2));
+  height: 100%;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.inner:focus-visible {
+  outline: none;
+}
+
+.right .inner {
+  padding: var(--pl-space-1) var(--pl-shell-gap) 0 calc(var(--pl-shell-gap) + var(--pl-space-2));
+}
+
+.left .inner {
+  padding: var(--pl-space-1) calc(var(--pl-shell-gap) + var(--pl-space-2)) 0 var(--pl-shell-gap);
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+  height: 46px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-title-size);
+  font-weight: var(--pl-type-title-weight);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--pl-space-1) 2px var(--pl-space-3);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.body:hover {
+  scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+}
+
+.footer {
+  display: grid;
+  flex: none;
+  gap: var(--pl-space-2);
+  padding: var(--pl-space-3) 2px var(--pl-space-1);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidePanel {
+    transition: none;
+  }
+}

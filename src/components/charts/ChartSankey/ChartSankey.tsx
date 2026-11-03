@@ -46,6 +46,11 @@ export interface ChartSankeyNodeClick {
   value: number;
 }
 
+/** Marca do Sankey, discriminada por `kind`: a ligacao ou o no. */
+export type ChartSankeyMark =
+  | ({ kind: 'flow' } & ChartSankeyFlow)
+  | ({ kind: 'node' } & ChartSankeyNodeClick);
+
 export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
   /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
@@ -64,9 +69,16 @@ export interface ChartSankeyProps extends ChartRootProps {
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
-  /** Clique na ligacao. Com ele, as ligacoes viram botoes percorridos pelas setas. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'flow'`. Aceito ate a 0.7.0. */
   onFlowClick?: (flow: ChartSankeyFlow) => void;
-  /** Clique no no, com o total que passa por ele. Com ele, os nos viram botoes, numa linha abaixo das ligacoes. */
+  /** Ligacao ou no sob o ponteiro ou em foco pelo teclado, ou `null` ao sair. */
+  onHover?: (mark: ChartSankeyMark | null) => void;
+  /**
+   * Clique na ligacao ou no no, que se distinguem por `mark.kind`. Com ele, as ligacoes e os nos viram botoes,
+   * os nos numa linha abaixo das ligacoes.
+   */
+  onMarkClick?: (mark: ChartSankeyMark) => void;
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'node'`. Aceito ate a 0.7.0. */
   onNodeClick?: (node: ChartSankeyNodeClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -177,6 +189,8 @@ export function ChartSankey({
   nodePadding = 12,
   nodeWidth = 12,
   onFlowClick,
+  onHover,
+  onMarkClick,
   onNodeClick,
   palette,
   showFlowValues = false,
@@ -263,22 +277,49 @@ export function ChartSankey({
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
   // As ligacoes ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
+  const marcaDaLigacao = (column: number): ChartSankeyMark => ({ kind: 'flow', ...flows[grafo.links[column].index] });
+  const marcaDoNo = (column: number): ChartSankeyMark => ({
+    kind: 'node',
+    label: grafo.nodes[column].label,
+    value: grafo.nodes[column].value,
+  });
+
+  function focarLigacao(indice: number | null) {
+    setEmFoco(indice);
+    onHover?.(indice === null ? null : marcaDaLigacao(indice));
+  }
+
+  const aoClicarNaLigacao =
+    onMarkClick || onFlowClick
+      ? (column: number) => {
+          onMarkClick?.(marcaDaLigacao(column));
+          onFlowClick?.(flows[grafo.links[column].index]);
+        }
+      : undefined;
+  const aoClicarNoNo =
+    onMarkClick || onNodeClick
+      ? (column: number) => {
+          onMarkClick?.(marcaDoNo(column));
+          onNodeClick?.({ label: grafo.nodes[column].label, value: grafo.nodes[column].value });
+        }
+      : undefined;
+
   const marcas = useMarkNavigation({
     onActivate:
-      onFlowClick || onNodeClick
-        ? ({ column, row }) => {
-            if (row === 0) {
-              onFlowClick?.(flows[grafo.links[column].index]);
-            } else {
-              const no = grafo.nodes[column];
-              onNodeClick?.({ label: no.label, value: no.value });
-            }
-          }
+      aoClicarNaLigacao || aoClicarNoNo
+        ? ({ column, row }) => (row === 0 ? aoClicarNaLigacao : aoClicarNoNo)?.(column)
         : undefined,
-    onFocusMark: (posicao) => setEmFoco(posicao?.row === 0 ? posicao.column : null),
+    onFocusMark: (posicao) => {
+      if (posicao?.row === 1) {
+        setEmFoco(null);
+        onHover?.(marcaDoNo(posicao.column));
+      } else {
+        focarLigacao(posicao?.column ?? null);
+      }
+    },
     present: [
-      ...(onFlowClick ? grafo.links.map((_, column) => ({ column, row: 0 })) : []),
-      ...(onNodeClick ? grafo.nodes.map((_, column) => ({ column, row: 1 })) : []),
+      ...(aoClicarNaLigacao ? grafo.links.map((_, column) => ({ column, row: 0 })) : []),
+      ...(aoClicarNoNo ? grafo.nodes.map((_, column) => ({ column, row: 1 })) : []),
     ],
   });
 
@@ -428,11 +469,11 @@ export function ChartSankey({
           {grafo.links.map((ligacao, indice) => (
             <path
               aria-label={descreverLigacao(ligacao)}
-              {...(onFlowClick ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice) })}
+              {...(aoClicarNaLigacao ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice) })}
               d={caminhoDa(ligacao)}
               key={indice}
-              onMouseEnter={() => setEmFoco(indice)}
-              onMouseLeave={() => setEmFoco(null)}
+              onMouseEnter={() => focarLigacao(indice)}
+              onMouseLeave={() => focarLigacao(null)}
               stroke={corDa(ligacao)}
               // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
               style={{ strokeWidth: Math.max(ligacao.width, 1) }}
@@ -445,10 +486,12 @@ export function ChartSankey({
         {grafo.nodes.map((no, indice) => (
           <rect
             aria-label={no.label}
-            {...(onNodeClick ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node })}
+            {...(aoClicarNoNo ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node })}
             fill={corDoNo(no.index)}
             height={Math.max(no.y1 - no.y0, 1)}
             key={no.label}
+            onMouseEnter={() => onHover?.(marcaDoNo(indice))}
+            onMouseLeave={() => onHover?.(null)}
             width={no.x1 - no.x0}
             x={no.x0}
             y={no.y0}

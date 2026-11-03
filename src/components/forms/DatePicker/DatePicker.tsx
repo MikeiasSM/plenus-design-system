@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateInput, parseDateInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
@@ -58,6 +60,8 @@ export interface DatePickerProps
   onOpenChange?: (open: boolean) => void;
   /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
   open?: boolean;
+  /** Elemento que recebe o painel. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 export function DatePicker({
@@ -80,6 +84,7 @@ export function DatePicker({
   onOpenChange,
   onKeyDown,
   open: controlledOpen,
+  portalContainer,
   placeholder = 'dd/mm/aaaa',
   required = false,
   size = 'md',
@@ -87,6 +92,7 @@ export function DatePicker({
   value,
   ...props
 }: DatePickerProps) {
+  const container = usePortalContainer(portalContainer);
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -241,59 +247,62 @@ export function DatePicker({
             </button>
           </div>
           {open &&
+            container &&
             createPortal(
-              <div
-                {...overlayProps}
-                aria-label={label ? 'Calendário de ' + label : 'Calendário'}
-                className={styles.panel}
-                // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
-                data-react-aria-top-layer="true"
-                ref={panelRef}
-                role="dialog"
-                style={positionProps.style}
-              >
-                <Calendar
-                  autoFocus
-                  key={versaoDoCalendario}
-                  isDateUnavailable={limites.isDateUnavailable}
-                  locale={locale}
-                  max={limites.max}
-                  min={limites.min}
-                  onSelect={setRascunho}
-                  value={rascunho}
-                />
-                <div className={styles.footer}>
-                  <Button
-                    onClick={() => {
-                      // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
-                      setRascunho(today(getLocalTimeZone()));
-                      setVersaoDoCalendario((versao) => versao + 1);
-                    }}
-                    size="sm"
-                    variant="ghost"
-                    type="button"
-                  >
-                    Hoje
-                  </Button>
-                  <div className={styles.actions}>
-                    <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
-                      Cancelar
-                    </Button>
+              <FocusScope restoreFocus>
+                <div
+                  {...overlayProps}
+                  aria-label={label ? 'Calendário de ' + label : 'Calendário'}
+                  className={styles.panel}
+                  // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+                  data-react-aria-top-layer="true"
+                  ref={panelRef}
+                  role="dialog"
+                  style={positionProps.style}
+                >
+                  <Calendar
+                    autoFocus
+                    key={versaoDoCalendario}
+                    isDateUnavailable={limites.isDateUnavailable}
+                    locale={locale}
+                    max={limites.max}
+                    min={limites.min}
+                    onSelect={setRascunho}
+                    value={rascunho}
+                  />
+                  <div className={styles.footer}>
                     <Button
                       onClick={() => {
-                        definir(rascunho ?? null);
-                        setDigitando(false);
-                        fechar();
+                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
+                        setRascunho(today(getLocalTimeZone()));
+                        setVersaoDoCalendario((versao) => versao + 1);
                       }}
                       size="sm"
+                      variant="ghost"
                       type="button"
                     >
-                      Aplicar
+                      Hoje
                     </Button>
+                    <div className={styles.actions}>
+                      <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          definir(rascunho ?? null);
+                          setDigitando(false);
+                          fechar();
+                        }}
+                        size="sm"
+                        type="button"
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>,
-              document.body,
+              </FocusScope>,
+              container,
             )}
         </>
       )}

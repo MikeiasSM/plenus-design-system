@@ -110,6 +110,10 @@
     var(--pl-palette-10),
     color-mix(in oklab, var(--pl-palette-40) 16%, var(--pl-color-surface))
   );
+  --pl-color-primary-selected: light-dark(
+    var(--pl-palette-20),
+    color-mix(in oklab, var(--pl-palette-40) 26%, var(--pl-color-surface))
+  );
   --pl-color-primary-line: light-dark(
     var(--pl-palette-30),
     color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface))

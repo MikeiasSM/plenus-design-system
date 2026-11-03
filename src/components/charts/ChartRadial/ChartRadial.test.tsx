@@ -119,7 +119,7 @@ describe('ChartRadial', () => {
 
   it('com clique no anel, os aneis sao botoes e o clique no arco preenchido conta como do anel', () => {
     const aoClicar = vi.fn();
-    render(<ChartRadial onTrackClick={aoClicar} title="Metas" tracks={metas} />);
+    render(<ChartRadial onMarkClick={aoClicar} title="Metas" tracks={metas} />);
     const vendas = screen.getByRole('button', { name: 'Vendas: 72' });
 
     expect(screen.getByRole('group', { name: 'Metas' })).toBeInTheDocument();
@@ -137,6 +137,7 @@ describe('ChartRadial', () => {
 describe('ChartRadial: legenda', () => {
   beforeEach(() => fixarTamanho());
   afterEach(() => {
+    vi.restoreAllMocks();
     Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
     Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
   });
@@ -155,8 +156,41 @@ describe('ChartRadial: legenda', () => {
     expect(document.querySelector('[class*="tooltip"]')).toBeNull();
   });
 
+  it('pela legenda avisa o anel com a cor desenhada e a ancora; no teclado, so o anel', () => {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      bottom: 70, height: 20, left: 100, right: 160, top: 50, width: 60, x: 100, y: 50, toJSON: () => ({}),
+    });
+    const aoPassar = vi.fn();
+    render(<ChartRadial onHover={aoPassar} onMarkClick={vi.fn()} title="Metas" tracks={metas} />);
+    const entrada = document.querySelectorAll('li')[1];
+
+    fireEvent.pointerEnter(entrada);
+    expect(aoPassar).toHaveBeenLastCalledWith(metas[1], {
+      anchor: { height: 20, width: 60, x: 160, y: 60 },
+      color: arcos()[1].getAttribute('fill'),
+    });
+
+    fireEvent.pointerLeave(entrada);
+    expect(aoPassar).toHaveBeenLastCalledWith(null);
+
+    act(() => screen.getByRole('button', { name: 'Vendas: 72' }).focus());
+    expect(aoPassar).toHaveBeenLastCalledWith(metas[0]);
+  });
+
+  it('o salto do anel para a legenda, que entra antes de sair, mantem o realce da legenda', () => {
+    const aoPassar = vi.fn();
+    render(<ChartRadial onHover={aoPassar} title="Metas" tracks={metas} />);
+    const anel = pistas()[0].parentElement!;
+
+    fireEvent.mouseEnter(anel);
+    fireEvent.pointerEnter(document.querySelectorAll('li')[1]);
+    fireEvent.mouseLeave(anel);
+
+    expect(aoPassar.mock.calls.map(([anelAvisado]) => anelAvisado?.label ?? null)).toEqual(['Vendas', 'Serviços']);
+  });
+
   it('anel desligado nao e realcado pela legenda', () => {
-    render(<ChartRadial defaultHiddenTracks={['Serviços']} title="Metas" tracks={metas} />);
+    render(<ChartRadial defaultHidden={['Serviços']} title="Metas" tracks={metas} />);
 
     fireEvent.pointerEnter(screen.getByRole('button', { name: /Serviços/ }).closest('li')!);
 
@@ -190,7 +224,7 @@ describe('ChartRadial: centro acompanha o anel em foco', () => {
   });
 
   it('o foco de teclado troca o centro, e sair do foco o devolve', () => {
-    render(<ChartRadial onTrackClick={vi.fn()} title="Metas" tracks={metas} />);
+    render(<ChartRadial onMarkClick={vi.fn()} title="Metas" tracks={metas} />);
     const vendas = screen.getByRole('button', { name: 'Vendas: 72' });
 
     act(() => vendas.focus());

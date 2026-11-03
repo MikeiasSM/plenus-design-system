@@ -74,8 +74,8 @@ const playground = definirPlayground({
         formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
-        onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+        onHover={(categoria) => registrar(`onHover: ${categoria ? `${categoria.category} (${categoria.index})` : null}`)}
         orientation={valores.orientation as ChartBarOrientation}
         series={COMPOSICAO.slice(0, valores.series)}
         showDataLabels={valores.showDataLabels as MarkVisibility}
@@ -103,7 +103,7 @@ const playground = definirPlayground({
       ['accent', accentDa(valores.accent)],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverCategory', expr('setFaixa')],
+      ['onHover', expr('(categoria) => setFaixa(categoria?.index ?? null)')],
     ]),
   verificar: (valores) => {
     const vertical = valores.orientation === 'vertical';
@@ -176,7 +176,7 @@ function LeituraNoPonteiro() {
           showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
-          onHoverCategory={setFaixa}
+          onHover={(categoria) => setFaixa(categoria?.index ?? null)}
           series={FORMAS_DE_PAGAMENTO.map((forma) => ({ label: forma.label, values: forma.valores }))}
           stacked
           title="Faturamento por forma de pagamento"
@@ -194,8 +194,8 @@ function SeriesControladas() {
       <ChartBar
         categories={MESES}
         formatValue={formatarCompacto}
-        hiddenSeries={ocultas}
-        onHiddenSeriesChange={setOcultas}
+        hidden={ocultas}
+        onHiddenChange={setOcultas}
         series={COMPOSICAO}
         title="Composição do faturamento"
       />
@@ -261,8 +261,8 @@ function Modos() {
         <h3>Séries controladas</h3>
         <SeriesControladas />
         <p className="note">
-          Sem <code>hiddenSeries</code> o componente guarda o que está oculto; com ele, obedece ao produto. Nos dois casos
-          avisa a mudança por <code>onHiddenSeriesChange</code>. A série recolhe em movimento e as demais repartem a faixa.
+          Sem <code>hidden</code> o componente guarda o que está oculto; com ele, obedece ao produto. Nos dois casos
+          avisa a mudança por <code>onHiddenChange</code>. A série recolhe em movimento e as demais repartem a faixa.
         </p>
       </div>
       <div className="subsection">
@@ -427,7 +427,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Leitura no ponteiro',
-      descricao: 'onHoverCategory avisa a faixa, e o ChartTooltip monta quantidade, valor, percentual e total.',
+      descricao: 'onHover avisa a categoria, e o ChartTooltip monta quantidade, valor, percentual e total.',
       Previa: LeituraNoPonteiro,
       codigo: `const [faixa, setFaixa] = useState<number | null>(null);
 const cores = resolveSeriesColors(formas.map(() => ({})));
@@ -448,7 +448,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     categories={meses}
     series={formas.map((forma) => ({ label: forma.label, values: forma.valores }))}
     stacked
-    onHoverCategory={setFaixa}
+    onHover={(categoria) => setFaixa(categoria?.index ?? null)}
   />
 </ChartTooltip>`,
     },
@@ -507,15 +507,20 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'yAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(category: ChartCategoryHover | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'xAxisTitle', tipo: "string", descricao: <>Título do eixo de baixo, como o <code>xAxis</code>: as categorias na vertical, o valor na horizontal. O espaço sai da área de desenho.</> },
     { nome: 'yAxisTitle', tipo: "string", descricao: <>Título do eixo da esquerda, como o <code>yAxis</code>: o valor na vertical, as categorias na horizontal. O texto é decorativo para leitor de tela; o nome do gráfico continua sendo o <code>title</code>.</> },
     { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onBarClick', tipo: '(bar: ChartMarkClick) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartMarkClick) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onBarClick', tipo: '(bar: ChartMarkClick) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

@@ -14,6 +14,8 @@ export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'div'>, 'ari
   footer?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 export interface DialogTitledProps {

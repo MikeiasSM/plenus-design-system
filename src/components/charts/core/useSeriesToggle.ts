@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 
 export interface UseSeriesToggleOptions {
-  defaultHiddenSeries?: readonly string[];
-  hiddenSeries?: readonly string[];
+  defaultHidden?: readonly string[];
+  hidden?: readonly string[];
   /** Todos os rotulos; com eles, desligar a ultima serie mantem a escala de antes. */
   labels?: readonly string[];
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  onHiddenChange?: (hidden: readonly string[]) => void;
 }
 
 export interface SeriesToggle {
@@ -20,19 +20,19 @@ export interface SeriesToggle {
 
 /**
  * Quais series estao ocultas. Controlado quando o produto informa
- * `hiddenSeries`, nao controlado em caso contrario, conforme `COMPONENTS.md`
+ * `hidden`, nao controlado em caso contrario, conforme `COMPONENTS.md`
  * secao 6. Trabalha com rotulos porque e o rotulo que a legenda exibe e o que
  * o produto reconhece; indices mudariam de significado ao reordenar as series.
  */
 export function useSeriesToggle({
-  defaultHiddenSeries = [],
-  hiddenSeries,
+  defaultHidden = [],
+  hidden,
   labels,
-  onHiddenSeriesChange,
+  onHiddenChange,
 }: UseSeriesToggleOptions): SeriesToggle {
-  const [internas, setInternas] = useState<readonly string[]>(defaultHiddenSeries);
+  const [internas, setInternas] = useState<readonly string[]>(defaultHidden);
   const [ocultasAntesDaUltima, setOcultasAntesDaUltima] = useState<readonly string[] | null>(null);
-  const ocultas = hiddenSeries ?? internas;
+  const ocultas = hidden ?? internas;
   const todasOcultas = labels !== undefined && labels.length > 0 && labels.every((label) => ocultas.includes(label));
   const ocultasDaEscala = todasOcultas && ocultasAntesDaUltima ? ocultasAntesDaUltima : ocultas;
 
@@ -42,15 +42,15 @@ export function useSeriesToggle({
         ? ocultas.filter((oculta) => oculta !== label)
         : [...ocultas, label];
 
-      if (hiddenSeries === undefined) {
+      if (hidden === undefined) {
         setInternas(proximas);
       }
 
       setOcultasAntesDaUltima(labels?.every((rotulo) => proximas.includes(rotulo)) ? ocultas : null);
 
-      onHiddenSeriesChange?.(proximas);
+      onHiddenChange?.(proximas);
     },
-    [hiddenSeries, labels, ocultas, onHiddenSeriesChange],
+    [hidden, labels, ocultas, onHiddenChange],
   );
 
   return {

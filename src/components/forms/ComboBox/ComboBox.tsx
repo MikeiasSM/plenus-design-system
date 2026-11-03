@@ -17,6 +17,7 @@ import { useListing, type ListingItem } from '../../data-display/List/useListing
 import { Badge } from '../../data-display/Badge';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -56,6 +57,8 @@ interface ComboBoxBaseProps
   onSearch?: (term: string) => void;
   /** Com ele a lista é controlada: só muda quando o produto atualiza a propriedade. */
   open?: boolean;
+  /** Elemento que recebe o painel. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   options: readonly ComboBoxOption[];
   size?: ComboBoxSize;
 }
@@ -120,6 +123,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     onValueChange,
     open: controlledOpen,
     options,
+    portalContainer,
     placeholder,
     ref,
     required = false,
@@ -128,6 +132,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     value,
     ...props
   } = allProps;
+  const container = usePortalContainer(portalContainer);
   const multiple = selectionMode === 'multiple';
   const inputRef = useRef<HTMLInputElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
@@ -347,6 +352,7 @@ export function ComboBox(allProps: ComboBoxProps) {
               campo
             )}
             {open &&
+              container &&
               createPortal(
                 <div
                   ref={panelRef}
@@ -367,7 +373,7 @@ export function ComboBox(allProps: ComboBoxProps) {
                     onSelect={multiple ? undefined : fechar}
                   />
                 </div>,
-                document.body,
+                container,
               )}
           </>
         );

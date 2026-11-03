@@ -107,8 +107,8 @@ describe('ChartLine', () => {
   });
 
   it('com a costura, avisa a categoria do ponto mais proximo e tira o <title> dos pontos', () => {
-    const onHoverCategory = vi.fn();
-    render(<ChartLine categories={meses} onHoverCategory={onHoverCategory} series={series} title="Faturamento" />);
+    const onHover = vi.fn();
+    render(<ChartLine categories={meses} onHover={onHover} series={series} title="Faturamento" />);
 
     const faixas = [...document.querySelectorAll<SVGRectElement>(`.${chartStyles.hoverBand}`)];
     const larguras = faixas.map((faixa) => Number(faixa.getAttribute('width')));
@@ -120,7 +120,7 @@ describe('ChartLine', () => {
     fireEvent.mouseEnter(faixas[2]);
     fireEvent.mouseLeave(faixas[2]);
 
-    expect(onHoverCategory.mock.calls).toEqual([[2], [null]]);
+    expect(onHover.mock.calls).toEqual([[{ category: '06/26', index: 2 }], [null]]);
     expect(document.querySelector('circle title')).toBeNull();
   });
 
@@ -142,7 +142,7 @@ describe('ChartLine', () => {
 
   it('com clique no ponto, os pontos sao botoes e as setas andam entre categorias e series', () => {
     const aoClicar = vi.fn();
-    render(<ChartLine categories={meses} onPointClick={aoClicar} series={series} title="Receita" />);
+    render(<ChartLine categories={meses} onMarkClick={aoClicar} series={series} title="Receita" />);
     const primeiro = screen.getByRole('button', { name: /^Serviços, 04\/26/ });
 
     expect(screen.getByRole('group', { name: 'Receita' })).toBeInTheDocument();

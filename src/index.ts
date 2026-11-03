@@ -105,6 +105,10 @@ export type {
 } from './components/forms/SegmentedControl';
 export { Switch } from './components/forms/Switch';
 export type { SwitchProps } from './components/forms/Switch';
+export { FieldRow } from './components/forms/FieldRow';
+export type { FieldRowProps, FieldRowWiring } from './components/forms/FieldRow';
+export { SaveBar } from './components/forms/SaveBar';
+export type { SaveBarProps } from './components/forms/SaveBar';
 export { Alert } from './components/feedback/Alert';
 export type { AlertProps, AlertTone } from './components/feedback/Alert';
 export { Progress } from './components/feedback/Progress';
@@ -115,8 +119,17 @@ export { EmptyState } from './components/feedback/EmptyState';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateTone } from './components/feedback/EmptyState';
 export { Skeleton } from './components/feedback/Skeleton';
 export type { SkeletonProps, SkeletonShape } from './components/feedback/Skeleton';
-export { ToastRegion, dismissToast, showToast } from './components/feedback/Toast';
-export type { ToastAction, ToastOptions, ToastRegionProps, ToastTone } from './components/feedback/Toast';
+export { ToastProvider, ToastRegion, dismissToast, showToast, useToast } from './components/feedback/Toast';
+export type {
+  ToastAction,
+  ToastOptions,
+  ToastProviderProps,
+  ToastRegionProps,
+  ToastTone,
+  UseToastResult,
+} from './components/feedback/Toast';
+export { PortalProvider } from './components/overlays/Portal';
+export type { PortalProviderProps } from './components/overlays/Portal';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';
@@ -125,8 +138,34 @@ export { TabsNav } from './components/navigation/TabsNav';
 export type { TabsNavItem, TabsNavProps } from './components/navigation/TabsNav';
 export { Breadcrumb } from './components/navigation/Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/navigation/Breadcrumb';
+export { PageHeader } from './components/navigation/PageHeader';
+export type {
+  PageHeaderActionsProps,
+  PageHeaderBackProps,
+  PageHeaderBadgesProps,
+  PageHeaderContextProps,
+  PageHeaderDescriptionProps,
+  PageHeaderProps,
+  PageHeaderSearchProps,
+  PageHeaderTitleProps,
+} from './components/navigation/PageHeader';
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
+export { AppShell } from './components/navigation/AppShell';
+export type {
+  AppShellAccountMode,
+  AppShellAccountProps,
+  AppShellNavigationProps,
+  AppShellNestedMode,
+  AppShellPageProps,
+  AppShellPanelGroupProps,
+  AppShellPanelItemProps,
+  AppShellPanelProps,
+  AppShellProps,
+  AppShellRailAccountProps,
+  AppShellRailItemProps,
+  AppShellRailProps,
+} from './components/navigation/AppShell';
 export { SkipLink } from './components/navigation/SkipLink';
 export type { SkipLinkProps } from './components/navigation/SkipLink';
 export { Steps } from './components/navigation/Steps';
@@ -151,6 +190,8 @@ export { Dialog } from './components/overlays/Dialog';
 export type { DialogProps, DialogRole, DialogSize } from './components/overlays/Dialog';
 export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
+export { SidePanel } from './components/overlays/SidePanel';
+export type { SidePanelProps, SidePanelSide, SidePanelSize } from './components/overlays/SidePanel';
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';
@@ -313,6 +354,7 @@ export type {
   ChartMapFeature,
   ChartMapFeatureCollection,
   ChartMapLegendPosition,
+  ChartMapMark,
   ChartMapMarker,
   ChartMapMarkerEvent,
   ChartMapMarkerSeries,
@@ -326,6 +368,7 @@ export type {
   ChartTimelineDensity,
   ChartTimelineGroup,
   ChartTimelineLabelAlign,
+  ChartTimelineMark,
   ChartTimelineMarker,
   ChartTimelineMarkerShape,
   ChartTimelineOverlap,
@@ -373,7 +416,7 @@ export type { ChartDonutProps, ChartDonutSlice } from './components/charts/Chart
 export { ChartRadial } from './components/charts/ChartRadial';
 export type { ChartRadialProps, ChartRadialTrack } from './components/charts/ChartRadial';
 export { ChartWaterfall } from './components/charts/ChartWaterfall';
-export type { ChartWaterfallProps, ChartWaterfallStep } from './components/charts/ChartWaterfall';
+export type { ChartWaterfallMark, ChartWaterfallProps, ChartWaterfallStep } from './components/charts/ChartWaterfall';
 export { ChartTreemap } from './components/charts/ChartTreemap';
 export type { ChartTreemapNode, ChartTreemapProps } from './components/charts/ChartTreemap';
 export { ChartSunburst } from './components/charts/ChartSunburst';
@@ -384,6 +427,7 @@ export type {
   ChartSankeyFlow,
   ChartSankeyFlowColor,
   ChartSankeyFlowValuePosition,
+  ChartSankeyMark,
   ChartSankeyNode,
   ChartSankeyNodeClick,
   ChartSankeyProps,
@@ -394,6 +438,7 @@ export type {
   AxisPosition,
   AxisVisibility,
   ChartAnchorPoint,
+  ChartCategoryHover,
   ChartCurve,
   ChartHeight,
   ChartHoverDetails,

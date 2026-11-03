@@ -4,6 +4,7 @@ import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { IconClose } from '../../icons';
+import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
 import styles from './Dialog.module.css';
 
@@ -18,7 +19,8 @@ export interface DialogFrameProps extends DialogBaseProps {
 }
 
 /** Mecanica modal do `Dialog` e do `Drawer`: portal, foco preso, rolagem travada, cabecalho, corpo e rodape. Interna. */
-export function DialogFrame({ defaultOpen = false, onOpenChange, open, ...props }: DialogFrameProps) {
+export function DialogFrame({ defaultOpen = false, onOpenChange, open, portalContainer, ...props }: DialogFrameProps) {
+  const container = usePortalContainer(portalContainer);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
 
   function close() {
@@ -29,11 +31,11 @@ export function DialogFrame({ defaultOpen = false, onOpenChange, open, ...props 
   }
 
   // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
-  if (!(open ?? internalOpen) || typeof document === 'undefined') {
+  if (!(open ?? internalOpen) || !container) {
     return null;
   }
 
-  return createPortal(<DialogFrameContent {...props} onClose={close} />, document.body);
+  return createPortal(<DialogFrameContent {...props} onClose={close} />, container);
 }
 
 type DialogFrameContentProps = Omit<DialogFrameProps, 'defaultOpen' | 'onOpenChange' | 'open'> & {

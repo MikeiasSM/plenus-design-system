@@ -1,2 +1,2 @@
 export { ChartWaterfall } from './ChartWaterfall';
-export type { ChartWaterfallProps, ChartWaterfallStep } from './ChartWaterfall';
+export type { ChartWaterfallMark, ChartWaterfallProps, ChartWaterfallStep } from './ChartWaterfall';

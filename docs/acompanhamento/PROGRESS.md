@@ -358,7 +358,13 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatDate` e `formatTime` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
-- Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
+- Foco inicial e contencao de foco dos overlays, **verificados em Chrome real em 03/11/2026**, com eventos de teclado pelo DevTools (Tab, Shift+Tab, Enter, Escape) sobre uma pagina com todos os overlays; o jsdom nao os observa por tratar o portal como invisivel.
+  - `Dialog` e `Drawer`: o foco inicial vai ao primeiro focavel, que e o botao Fechar do cabecalho (sem titulo, o primeiro campo). Tab e Shift+Tab ficam contidos, e dao a volta. Escape fecha e o foco volta ao gatilho. Passa.
+  - `Popover`: o foco entra no primeiro controle. Sem `contain`, por desenho: o Tab do ultimo controle segue para o elemento depois do gatilho, e o Shift+Tab do primeiro, para o elemento antes dele. Escape fecha e o foco volta ao gatilho (a devolucao espera um quadro de animacao: com a janela sem foco ela pode levar quase um segundo). Passa.
+  - `Select`: o foco vai a lista; Tab e Shift+Tab fecham e seguem para os vizinhos do gatilho; Escape devolve o foco. `ComboBox`: o foco fica no campo, e as setas percorrem as opcoes. `Menu`: o foco vai ao primeiro item; Tab fecha e segue; Escape devolve ao gatilho. Passam.
+  - `DatePicker`, `DateTimePicker` e `TimePicker`: o foco inicial e correto (o dia do rascunho, ou a lista de horas), e Escape devolve o foco ao gatilho. **Falhava**: o painel nao tinha escopo de foco, entao o Tab no ultimo controle saia para o fim do documento e o Shift+Tab no primeiro ia ao ultimo elemento da pagina. Corrigido com `FocusScope restoreFocus` no painel, o mesmo do `Popover`: o foco segue para o vizinho do gatilho.
+  - Efeito do mesmo escopo, igual ao do `Popover`: o clique fora numa area sem foco devolve o foco ao controle de onde o painel abriu; antes ele ficava no `body`. Reconferido em 03/11/2026, no Showcase.
+  - Fica como observacao, sem mudanca: o painel dos tres seletores nao fecha quando o Tab o deixa, e o foco o reencontra ao percorrer a pagina ate o fim.
 
 ## Decisoes pendentes da reverificacao da 0.1.1
 
@@ -730,6 +736,10 @@ Entrou no catalogo em 18/10/2026. O esqueleto ja existia dentro da `Table`, que 
 
 - Tres formas, `line`, `circle` e `block`, com `width` e `height` para a medida do que vai chegar.
 - **Decorativo**, sempre com `aria-hidden`. Quem envolve anuncia o carregamento, como a `Table` faz com a mensagem de status.
+
+### Pagination
+
+- **A ordem fica: intervalo, seletor de itens por pagina e passos.** Decidido em 03/11/2026, para a 0.6.0. O pedido do Painel era o seletor antes do intervalo. As referencias nao concordam: o AG Grid poe o seletor primeiro (`DEFAULT_PANELS = ['pageSize', 'rowSummary', 'pageSummary']`); o Untitled UI nao tem intervalo de itens, so "Page x of y", e a ordem dele com o seletor muda entre variantes e com o alinhamento. Sem acordo entre as referencias, a ordem atual se mantem.
 
 ### Steps
 

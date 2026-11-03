@@ -15,6 +15,7 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../Portal/PortalContext';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck, IconChevronRight } from '../../icons';
 import { toAriaKeyShortcuts } from './keyShortcuts';
@@ -56,6 +57,8 @@ export interface MenuProps {
   onOpenChange?: (open: boolean) => void;
   /** Controla a abertura; sem ele, o menu guarda o proprio estado. */
   open?: boolean;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /** Encadeia o manipulador do gatilho ao do menu, em vez de substitui-lo. */
@@ -71,7 +74,16 @@ const HOVER_DELAY = 150;
 
 type InitialFocus = 'first' | 'last' | null;
 
-export function Menu({ children, defaultOpen = false, items, label, onOpenChange, open: controlledOpen }: MenuProps) {
+export function Menu({
+  children,
+  defaultOpen = false,
+  items,
+  label,
+  onOpenChange,
+  open: controlledOpen,
+  portalContainer,
+}: MenuProps) {
+  const container = usePortalContainer(portalContainer);
   const triggerRef = useRef<HTMLElement>(null);
   const ownerId = useId();
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -119,13 +131,14 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
     <>
       {trigger}
       {open &&
-        typeof document !== 'undefined' &&
+        container &&
         createPortal(
           // O escopo proprio poe o menu na arvore de escopos do Dialog, cujo `contain` puxaria o foco de volta.
           // Sem `contain` aqui: ele disputaria o foco com o gatilho quando o menu fecha.
           <FocusScope>
             <MenuList
               anchorRef={triggerRef}
+              container={container}
               initialFocus={openedWith}
               items={items}
               label={label}
@@ -133,7 +146,7 @@ export function Menu({ children, defaultOpen = false, items, label, onOpenChange
               onClose={fechar}
             />
           </FocusScope>,
-          document.body,
+          container,
         )}
     </>
   );
@@ -146,6 +159,8 @@ function ehSecao(entrada: MenuItem | MenuSection): entrada is MenuSection {
 interface MenuListProps {
   /** O gatilho, no menu; o item pai, no submenu. */
   anchorRef: RefObject<HTMLElement | null>;
+  /** Destino do portal dos submenus. */
+  container: HTMLElement;
   initialFocus: InitialFocus;
   items: readonly (MenuItem | MenuSection)[];
   label: string;
@@ -160,6 +175,7 @@ interface MenuListProps {
 
 function MenuList({
   anchorRef,
+  container,
   initialFocus,
   items: entradas,
   label,
@@ -390,6 +406,7 @@ function MenuList({
           <FocusScope key={openItem.key}>
             <MenuList
               anchorRef={submenuAnchor}
+              container={container}
               initialFocus={submenu?.focus ?? null}
               items={openItem.items}
               label={openItem.label}
@@ -400,7 +417,7 @@ function MenuList({
               onPointerEnter={() => clearTimeout(hoverTimer.current)}
             />
           </FocusScope>,
-          document.body,
+          container,
         )}
     </div>
   );

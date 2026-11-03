@@ -289,6 +289,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'value', tipo: 'string | null', descricao: 'Data em ISO, no modo controlado. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Data inicial em ISO, no modo não controlado.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o calendário, no modo controlado.' },

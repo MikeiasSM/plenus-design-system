@@ -69,8 +69,8 @@ const playground = definirPlayground({
         includeZero={valores.includeZero}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
-        onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+        onHover={(categoria) => registrar(`onHover: ${categoria ? `${categoria.category} (${categoria.index})` : null}`)}
         series={COMPOSICAO.slice(0, valores.series).map((serie) => ({
           label: serie.label,
           values: valores.lacuna ? comLacuna(serie.values) : serie.values,
@@ -99,7 +99,7 @@ const playground = definirPlayground({
       ['accent', accentDa(valores.accent)],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverCategory', expr('setPonto')],
+      ['onHover', expr('(categoria) => setPonto(categoria?.index ?? null)')],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -156,7 +156,7 @@ function PontoMaisProximo() {
           showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
-          onHoverCategory={setPonto}
+          onHover={(categoria) => setPonto(categoria?.index ?? null)}
           series={COMPOSICAO.slice(0, 2)}
           title="Evolução do faturamento"
         />
@@ -208,7 +208,7 @@ function Modos() {
           Ligado por padrão, porque marca que não parte do zero exagera a diferença. Um ano em eixo de valor pede também
           um formato sem separador de milhar em <code>formatValue</code>.
         </dd>
-        <dt><code>onHoverCategory</code></dt>
+        <dt><code>onHover</code></dt>
         <dd>
           Com ele, a área de desenho se divide em faixas invisíveis, cada uma do ponto até o meio do caminho para o
           vizinho, e uma guia vertical marca o ponto mais próximo. O <code>&lt;title&gt;</code> dos pontos sai, para não
@@ -348,7 +348,7 @@ const cores = resolveSeriesColors([{}, {}]);
     title="Evolução do faturamento"
     categories={meses}
     series={series}
-    onHoverCategory={setPonto}
+    onHover={(categoria) => setPonto(categoria?.index ?? null)}
   />
 </ChartTooltip>`,
     },
@@ -390,16 +390,21 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'showGrid', tipo: 'boolean', padrao: 'true', descricao: 'Linhas horizontais de referência e a linha do zero.' },
     { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria do ponto mais próximo; costura para o ChartTooltip.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(category: ChartCategoryHover | null) => void', descricao: 'Categoria do ponto mais próximo; costura para o ChartTooltip.' },
+    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
     { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
     { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },
     { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onPointClick', tipo: '(point: ChartMarkClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas; o clique na faixa vale pelo ponto mais próximo.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartMarkClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas; o clique na faixa vale pelo ponto mais próximo.' },
+    { nome: 'onPointClick', tipo: '(point: ChartMarkClick) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

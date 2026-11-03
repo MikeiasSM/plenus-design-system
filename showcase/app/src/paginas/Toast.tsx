@@ -1,4 +1,4 @@
-import { Alert, Button, showToast, type ToastOptions, type ToastTone } from '@plenustech/design-system';
+import { Alert, Button, ToastProvider, ToastRegion, showToast, useToast, type ToastOptions, type ToastTone } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
 
 const TONS = ['info', 'success', 'warning', 'danger'] as const;
@@ -113,6 +113,36 @@ function Variantes() {
   );
 }
 
+function DisparadorDaArvore({ nome }: { nome: string }) {
+  const { showToast: mostrar } = useToast();
+
+  return (
+    <Button onClick={() => mostrar({ title: `Aviso do ${nome}` })} size="sm" variant="secondary">
+      {`Avisar no ${nome}`}
+    </Button>
+  );
+}
+
+function AppIsolado({ nome }: { nome: string }) {
+  return (
+    <ToastProvider>
+      <div className="stack" style={{ flex: 1, minWidth: 220 }}>
+        <DisparadorDaArvore nome={nome} />
+        <ToastRegion aria-label={`Avisos do ${nome}`} style={{ position: 'static', pointerEvents: 'auto', width: '100%' }} />
+      </div>
+    </ToastProvider>
+  );
+}
+
+function DuasArvores() {
+  return (
+    <div className="demo-row" style={{ alignItems: 'flex-start', width: '100%' }}>
+      <AppIsolado nome="app A" />
+      <AppIsolado nome="app B" />
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
@@ -178,6 +208,14 @@ export const pagina: Pagina = {
       ),
       codigo: "showToast({ title: 'Link copiado', duration: 3000 });",
     },
+    {
+      titulo: 'Estado por árvore',
+      descricao: 'Cada ToastProvider guarda os próprios avisos. Disparar no app A não acende o canto do app B, e o showToast solto continua indo ao canto global.',
+      largo: true,
+      Previa: DuasArvores,
+      codigo:
+        "function Disparador() {\n  const { showToast } = useToast();\n  return <Button onClick={() => showToast({ title: 'Salvo' })}>Salvar</Button>;\n}\n\n<ToastProvider>\n  <Disparador />\n  <ToastRegion />\n</ToastProvider>",
+    },
   ],
   faca: {
     Previa: () => (
@@ -213,8 +251,9 @@ export const pagina: Pagina = {
   ],
   notaDaApi: (
     <>
-      Não há um componente <code>Toast</code>: <code>ToastRegion</code> é montado uma vez na raiz, sem propriedades, e{' '}
-      <code>showToast(options)</code> dispara o aviso de qualquer lugar. Estas são as opções.
+      Não há um componente <code>Toast</code>: <code>ToastRegion</code> é montado uma vez na raiz, sem propriedades além de <code>portalContainer</code>, e{' '}
+      <code>showToast(options)</code> dispara o aviso de qualquer lugar. Para dar a uma árvore o próprio estado, envolva-a em{' '}
+      <code>ToastProvider</code> e dispare com <code>useToast()</code>, que devolve <code>showToast</code> e <code>dismissToast</code>. Estas são as opções.
     </>
   ),
   api: [

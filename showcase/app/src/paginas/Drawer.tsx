@@ -345,6 +345,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao elemento da gaveta; o className soma ao do sistema.',
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },

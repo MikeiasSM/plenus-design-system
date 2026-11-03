@@ -82,9 +82,9 @@ describe('ChartHeatmap', () => {
     expect(aviso).toHaveBeenCalledWith(expect.stringMatching(/1 célula\(s\) repetida\(s\), valendo a última: Qua × Tarde/));
   });
 
-  it('com onCellClick, as celulas viram botoes de uma parada so, e as setas saltam o que esta em branco', () => {
+  it('com onMarkClick, as celulas viram botoes de uma parada so, e as setas saltam o que esta em branco', () => {
     const clicou = vi.fn();
-    render(heatmap({ onCellClick: clicou }));
+    render(heatmap({ onMarkClick: clicou }));
 
     expect(screen.getByRole('group', { name: 'Atendimentos por turno' })).toBeInTheDocument();
     expect(celulasDaGrade().filter((botao) => botao.getAttribute('tabindex') === '0')).toHaveLength(1);
@@ -110,7 +110,7 @@ describe('ChartHeatmap', () => {
     expect(clicou).toHaveBeenLastCalledWith({ value: 100, x: 'Qua', y: 'Tarde' });
   });
 
-  it('sem onCellClick, nenhuma celula entra na ordem do Tab', () => {
+  it('sem onMarkClick, nenhuma celula entra na ordem do Tab', () => {
     render(heatmap());
 
     expect(document.querySelector('rect[tabindex]')).toBeNull();
@@ -119,7 +119,7 @@ describe('ChartHeatmap', () => {
 
   it('avisa a celula sob o ponteiro, e nao larga a celula entre uma seta e outra', () => {
     const passou = vi.fn();
-    render(heatmap({ onCellClick: () => {}, onHoverCell: passou }));
+    render(heatmap({ onMarkClick: () => {}, onHover: passou }));
 
     apontar('Ter, Tarde');
     expect(passou).toHaveBeenLastCalledWith({ value: null, x: 'Ter', y: 'Tarde' });
@@ -135,7 +135,7 @@ describe('ChartHeatmap', () => {
   });
 
   it('abre o balao no foco do teclado, tambem na celula sem dado', () => {
-    render(heatmap({ onCellClick: () => {} }));
+    render(heatmap({ onMarkClick: () => {} }));
 
     act(() => celula('Ter, Tarde')!.focus());
 

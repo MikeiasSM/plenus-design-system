@@ -215,14 +215,17 @@ function MapaDoPlayground({ props, registrar }: { props: ChartMapProps; registra
   return (
     <ChartMap
       {...props}
-      onRegionClick={
-        props.onRegionClick &&
-        ((regiao) => {
-          registrar(`onRegionClick: ${regiao.id} · ${regiao.value ?? regiao.category ?? 'sem dado'}`);
-          setSelecionada((atual) => (atual === regiao.id ? null : regiao.id));
+      onMarkClick={
+        props.onMarkClick &&
+        ((marca) => {
+          registrar(`onMarkClick: ${marca.kind} · ${marca.id} · ${marca.value ?? ('category' in marca ? marca.category : null) ?? 'sem dado'}`);
+
+          if (marca.kind === 'region') {
+            setSelecionada((atual) => (atual === marca.id ? null : marca.id));
+          }
         })
       }
-      selectedRegion={props.onRegionClick ? selecionada : undefined}
+      selectedRegion={props.onMarkClick ? selecionada : undefined}
     />
   );
 }
@@ -240,7 +243,7 @@ const playground = definirPlayground({
     markers: false,
     showShare: true,
     showTooltip: true,
-    onRegionClick: true,
+    onMarkClick: true,
     focus: 'Brasil',
     legend: 'bottom',
     legendAlign: 'center',
@@ -260,7 +263,7 @@ const playground = definirPlayground({
     { tipo: 'booleano', nome: 'markers' },
     { tipo: 'booleano', nome: 'showShare' },
     { tipo: 'booleano', nome: 'showTooltip' },
-    { tipo: 'booleano', nome: 'onRegionClick' },
+    { tipo: 'booleano', nome: 'onMarkClick' },
     { tipo: 'opcoes', nome: 'focus', opcoes: ['Brasil', ...REGIOES] },
     { tipo: 'opcoes', nome: 'legend', opcoes: ['bottom', 'right', 'top', 'none'] },
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
@@ -290,9 +293,8 @@ const playground = definirPlayground({
             markerValueLabel: 'Clientes',
             noDataStyle: valores.noDataStyle as 'hatch' | 'neutral',
             onHiddenClassesChange: (ocultas) => registrar(`onHiddenClassesChange: [${ocultas.join(', ')}]`),
-            onHiddenSeriesChange: (ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`),
-            onMarkerClick: (marcador) => registrar(`onMarkerClick: ${marcador.id} · ${marcador.value}`),
-            onRegionClick: valores.onRegionClick ? () => undefined : undefined,
+            onHiddenChange: (ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`),
+            onMarkClick: valores.onMarkClick ? () => undefined : undefined,
             regionLabels: valores.regionLabels as ChartMapProps['regionLabels'],
             showDataLabels: valores.showDataLabels as ChartMapProps['showDataLabels'],
             showShare: valores.showShare,
@@ -331,8 +333,8 @@ const playground = definirPlayground({
       ['markers', comMarcadores ? expr('clientesPorCidade') : undefined],
       ['markerValueLabel', comMarcadores ? 'Clientes' : undefined],
       ['focus', valores.focus === 'Brasil' ? undefined : expr(`ufsDo${valores.focus.replace('-', '')}`)],
-      ['selectedRegion', valores.onRegionClick ? expr('selecionada') : undefined],
-      ['onRegionClick', valores.onRegionClick ? expr('(regiao) => setSelecionada(regiao.id)') : undefined],
+      ['selectedRegion', valores.onMarkClick ? expr('selecionada') : undefined],
+      ['onMarkClick', valores.onMarkClick ? expr("(marca) => marca.kind === 'region' && setSelecionada(marca.id)") : undefined],
       ['showTooltip', valores.showTooltip, true],
       ['showTableToggle', valores.showTableToggle, true],
       ['legend', valores.legend, 'bottom'],
@@ -344,7 +346,7 @@ const playground = definirPlayground({
   },
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
-      valores.onRegionClick
+      valores.onMarkClick
         ? { nivel: 'ok', titulo: 'Grupo nomeado', detalhe: 'O desenho é role="group"; cada UF é um botão, com um único ponto de tabulação e setas entre elas.' }
         : { nivel: 'ok', titulo: 'Nome acessível', detalhe: 'O desenho é role="img" nomeado pelo título, com o resumo como descrição.' },
       valores.showTableToggle
@@ -472,7 +474,7 @@ function MunicipiosDoNordeste() {
         formatValue={(valor) => formatCurrency(valor)}
         geometry={{ features: [...contexto, ...municipios] }}
         key={uf ?? 'nordeste'}
-        onRegionClick={uf ? undefined : (municipio) => setUf(ufDa(municipio.feature))}
+        onMarkClick={uf ? undefined : (marca) => marca.kind === 'region' && setUf(ufDa(marca.feature))}
         regionLabels="hidden"
         subtitle={`${formatNumber(municipios.length)} municípios · ${formatCurrency(noConjunto)} por habitante no conjunto`}
         title={uf ? `Vendas por habitante, municípios de ${uf}` : 'Vendas por habitante, municípios do Nordeste'}
@@ -781,7 +783,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
   valueLabel="Vendas por habitante"
   formatValue={(valor) => formatCurrency(valor)}
   regionLabels="hidden"
-  onRegionClick={uf ? undefined : (municipio) => setUf(municipio.feature.properties.uf)}
+  onMarkClick={uf ? undefined : (marca) => marca.kind === 'region' && setUf(marca.feature.properties.uf)}
 />`,
     },
     {
@@ -882,9 +884,9 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
   },
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Com onRegionClick, a seleção de região ou onMarkerClick, entra no mapa por uma marca só: a selecionada, a última focada ou a primeira. Sem eles, o desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Com onMarkClick ou a seleção de região, entra no mapa por uma marca só: a selecionada, a última focada ou a primeira. Sem eles, o desenho não recebe foco.' },
     { teclas: ['←', '→', '↑', '↓'], acao: 'Marca vizinha naquela direção, pelo centro de cada uma.' },
-    { teclas: ['Enter', 'Espaço'], acao: 'Dispara onRegionClick ou onMarkerClick e alterna a região escolhida; na legenda, liga e desliga a faixa ou a série.' },
+    { teclas: ['Enter', 'Espaço'], acao: 'Dispara onMarkClick e alterna a região escolhida; na legenda, liga e desliga a faixa ou a série.' },
   ],
   garantias: [
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code> nomeado pelo <code>title</code>, com o resumo de maior, menor e sem dado como descrição; com clique, <code>role=&quot;group&quot;</code>.</>, teste: 'ChartMap.test.tsx' },
@@ -920,9 +922,12 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'markerValueLabel', tipo: 'string', padrao: "'Valor'", descricao: 'Nome da medida dos marcadores.' },
     { nome: 'markerMaxSize', tipo: 'number', padrao: '20', descricao: 'Raio máximo em px; o raio cresce pela raiz do valor.' },
     { nome: 'markerMinSize', tipo: 'number', padrao: '3', descricao: 'Raio mínimo em px, para o marcador pequeno continuar alcançável.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Categorias e séries de marcadores desligadas, pelo id, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'As desligadas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Clique na legenda de categoria ou de série.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Categorias e séries de marcadores desligadas, pelo id, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'As desligadas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Clique na legenda de categoria ou de série.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'hiddenClasses', tipo: 'readonly number[]', descricao: 'Faixas desligadas, pelo índice, no modo controlado.' },
     { nome: 'defaultHiddenClasses', tipo: 'readonly number[]', descricao: 'As desligadas de início, no modo não controlado.' },
     { nome: 'onHiddenClassesChange', tipo: '(hidden: readonly number[]) => void', descricao: 'Clique numa faixa da legenda.' },
@@ -932,9 +937,12 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'selectedRegion', tipo: 'string | null', descricao: 'Região com contorno de seleção, no modo controlado.' },
     { nome: 'defaultSelectedRegion', tipo: 'string | null', descricao: 'Região escolhida de início, no modo não controlado. Com ela, as regiões viram botões.' },
     { nome: 'onSelectedRegionChange', tipo: '(id: string | null) => void', descricao: 'O clique escolhe a região, ou desfaz a escolha na já escolhida. Com ela, as regiões viram botões.' },
-    { nome: 'onRegionClick', tipo: '(region: ChartMapRegion) => void', descricao: <>Clique, Enter ou Espaço: <code>{'{ id, name, value, category, feature }'}</code>. Com ele, as regiões viram botões.</> },
-    { nome: 'onMarkerClick', tipo: '(marker: ChartMapMarkerEvent) => void', descricao: <><code>{'{ id, series, value }'}</code>. Com ele, os marcadores viram botões.</> },
-    { nome: 'onHoverRegion', tipo: '(id: string | null) => void', descricao: 'Região sob o ponteiro ou o foco, para painéis vizinhos.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartMapMark) => void', descricao: <>Clique, Enter ou Espaço na região ou no marcador; <code>mark.kind</code> os distingue: <code>{"{ kind: 'region', id, name, value, category, feature }"}</code> ou <code>{"{ kind: 'marker', id, series, value }"}</code>. Com ele, as regiões e os marcadores viram botões.</> },
+    { nome: 'onRegionClick', tipo: '(region: ChartMapRegion) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onMarkClick', tipo: '(mark: ChartMapMark) => void', descricao: <><code>{'{ id, series, value }'}</code>. Com ele, os marcadores viram botões.</> },
+    { nome: 'onMarkerClick', tipo: '(marker: ChartMapMarkerEvent) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(mark: ChartMapMark | null) => void', descricao: 'Região ou marcador sob o ponteiro ou o foco, ou null ao sair, para painéis vizinhos. Quem só quer o id da região lê mark.id.' },
+    { nome: 'onHoverRegion', tipo: '(id: string | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão: valor, faixa, parte do total e posição; no marcador, cidade, série e valor.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'right' | 'none'", padrao: "'bottom'", descricao: "Abaixo de 640px, 'right' cai para 'bottom'." },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },

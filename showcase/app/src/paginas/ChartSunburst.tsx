@@ -41,8 +41,8 @@ const playground = definirPlayground({
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
         nodes={DESPESAS}
-        onHiddenGroupsChange={(ocultos) => registrar(`onHiddenGroupsChange: [${ocultos.join(', ')}]`)}
-        onHoverNode={(caminho) => registrar(`onHoverNode: ${caminho ? caminho.map((nivel) => nivel.label).join(' › ') : null}`)}
+        onHiddenChange={(ocultos) => registrar(`onHiddenChange: [${ocultos.join(', ')}]`)}
+        onHover={(caminho) => registrar(`onHover: ${caminho ? caminho.map((nivel) => nivel.label).join(' › ') : null}`)}
         ringGap={valores.ringGap}
         showLabels={valores.showLabels}
         title={valores.title}
@@ -60,7 +60,7 @@ const playground = definirPlayground({
       ['accent', accentDa(valores.accent)],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverNode', expr('setCaminho')],
+      ['onHover', expr('setCaminho')],
     ]),
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
@@ -102,7 +102,7 @@ function CaminhoNoPonteiro() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={320} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={320} nodes={DESPESAS} onHover={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -134,7 +134,7 @@ function Modos() {
           O rótulo do anel externo é projetado para fora, com um conector de dois segmentos. A banda dele é reservada antes
           do anel, para o texto não ser cortado; sem rótulos, o anel cresce.
         </dd>
-        <dt><code>onHoverNode</code></dt>
+        <dt><code>onHover</code></dt>
         <dd>Entrega o caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, cada nível com o maior entre o valor próprio e a soma dos filhos. Com ele, o <code>&lt;title&gt;</code> sai.</dd>
       </dl>
       <div className="subsection">
@@ -250,7 +250,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHover={setCaminho} />
 </ChartTooltip>`,
     },
   ],
@@ -288,16 +288,21 @@ export const pagina: Pagina = {
     { nome: 'height', tipo: "number | 'fill'", padrao: '320', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, com os grupos do nível zero.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
-    { nome: 'hiddenGroups', tipo: 'readonly string[]', descricao: 'Grupos ocultos, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenGroups', tipo: 'readonly string[]', descricao: 'Grupos ocultos de início, no modo não controlado.' },
-    { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos de início, no modo não controlado.' },
+    { nome: 'defaultHiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     {
-      nome: 'onHoverNode',
+      nome: 'onHover',
       tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void',
       descricao: <>Caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, com o maior entre o valor próprio e a soma dos filhos em cada nível; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada do grupo, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</>,
     },
+    { nome: 'onHoverNode', tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os arcos botões; o clique entrega o caminho do grupo até o nó.' },
+    { nome: 'onMarkClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os arcos botões; o clique entrega o caminho do grupo até o nó.' },
+    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

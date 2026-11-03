@@ -25,6 +25,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCategoryHover,
   type ChartMarkClick,
   type MarkVisibility,
   type ChartPoint,
@@ -63,10 +64,13 @@ export interface ChartComboSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartComboProps extends ChartRootProps {
+export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatRightValue?: (value: number) => string;
@@ -77,6 +81,9 @@ export interface ChartComboProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
@@ -85,11 +92,16 @@ export interface ChartComboProps extends ChartRootProps {
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** Categoria sob o ponteiro, ou `null` ao sair dela. */
+  onHover?: (category: ChartCategoryHover | null) => void;
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
+  onHoverCategory?: (index: number | null) => void;
   /** Clique na barra ou no ponto da linha. Com ele, as marcas viram botoes percorridos pelas setas. */
   onMarkClick?: (mark: ChartMarkClick) => void;
-  /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
-  onHoverCategory?: (index: number | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartComboSeries[];
@@ -153,19 +165,23 @@ export function ChartCombo({
   accent,
   categories,
   curve = 'smooth',
+  defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatRightValue,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
+  hidden,
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
   minRightTickStep,
   minTickStep,
+  onHiddenChange,
   onHiddenSeriesChange,
+  onHover,
   onHoverCategory,
   onMarkClick,
   palette,
@@ -185,12 +201,22 @@ export function ChartCombo({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHiddenSeries,
-    hiddenSeries,
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
     labels: series.map((serie) => serie.label),
-    onHiddenSeriesChange,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
   });
-  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
+  const hoverDaCategoria =
+    onHover || onHoverCategory
+      ? (index: number | null) => {
+          onHover?.(index === null ? null : { category: categories[index], index });
+          onHoverCategory?.(index);
+        }
+      : undefined;
+  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(hoverDaCategoria);
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
   const marcas = useMarkNavigation({
     onActivate: onMarkClick && (({ column, row }) =>

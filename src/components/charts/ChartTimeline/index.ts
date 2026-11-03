@@ -4,6 +4,7 @@ export type {
   ChartTimelineDensity,
   ChartTimelineGroup,
   ChartTimelineLabelAlign,
+  ChartTimelineMark,
   ChartTimelineMarker,
   ChartTimelineMarkerShape,
   ChartTimelineOverlap,

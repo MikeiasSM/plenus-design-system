@@ -110,7 +110,7 @@ const playground = definirPlayground({
           legend={valores.legend as ChartHeatmapLegendPosition}
           legendAlign={valores.legendAlign as ChartLegendAlign}
           noDataStyle={valores.noDataStyle as NoDataStyle}
-          onCellClick={valores.clicavel ? (celula) => registrar(`onCellClick: ${celula.x}, ${celula.y}`) : undefined}
+          onMarkClick={valores.clicavel ? (celula) => registrar(`onMarkClick: ${celula.x}, ${celula.y}`) : undefined}
           showValues={valores.showValues as MarkVisibility}
           squareCells={valores.squareCells}
           title={valores.title}
@@ -141,7 +141,7 @@ const playground = definirPlayground({
       ['highlight', valores.highlight, 'cell'],
       ['noDataStyle', valores.noDataStyle, 'hatch'],
       ['squareCells', valores.squareCells || undefined],
-      ['onCellClick', valores.clicavel ? expr('(celula) => abrirDetalhe(celula)') : undefined],
+      ['onMarkClick', valores.clicavel ? expr('(celula) => abrirDetalhe(celula)') : undefined],
     ]);
   },
   verificar: (valores) => {
@@ -155,7 +155,7 @@ const playground = definirPlayground({
       verificacoes.push({
         nivel: 'ok',
         titulo: 'Células navegáveis',
-        detalhe: 'Com onCellClick, as células são botões numa parada só de Tab, percorridos pelas setas, e o balão abre no foco.',
+        detalhe: 'Com onMarkClick, as células são botões numa parada só de Tab, percorridos pelas setas, e o balão abre no foco.',
       });
     }
 
@@ -330,7 +330,7 @@ export const pagina: Pagina = {
   ],
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Com onCellClick, entra na grade numa parada só, na última célula visitada. Sem ele, o desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Com onMarkClick, entra na grade numa parada só, na última célula visitada. Sem ele, o desenho não recebe foco.' },
     { teclas: ['Setas'], acao: 'Move entre as células, saltando os cruzamentos em branco e presas às bordas da grade.' },
     { teclas: ['Home', 'End'], acao: 'Vai à primeira ou à última célula da linha.' },
     { teclas: ['Ctrl+Home', 'Ctrl+End'], acao: 'Vai à primeira ou à última célula da grade.' },
@@ -339,9 +339,9 @@ export const pagina: Pagina = {
   garantias: [
     { garantia: 'Nome acessível', como: <>O desenho é nomeado pelo <code>title</code>: <code>img</code>, ou <code>group</code> com células clicáveis.</>, teste: 'ChartHeatmap.test.tsx' },
     { garantia: 'Descrição da célula', como: <><code>aria-label</code> com as duas categorias e o valor, ou o texto de sem dado.</>, teste: 'ChartHeatmap.test.tsx' },
-    { garantia: 'Uma parada de Tab', como: 'Com onCellClick, só uma célula tem tabindex 0; as setas levam o foco.', teste: 'ChartHeatmap.test.tsx' },
+    { garantia: 'Uma parada de Tab', como: 'Com onMarkClick, só uma célula tem tabindex 0; as setas levam o foco.', teste: 'ChartHeatmap.test.tsx' },
     { garantia: 'Texto legível', como: 'Nas faixas, o token medido contra cada tom nos dois temas; na escala contínua e na cor própria, a cor do tema com halo.', teste: 'colorScale.test.ts' },
-    { garantia: 'Leitura sem o ponteiro', como: 'Ver como tabela troca o desenho por uma tabela de linhas por colunas; com onCellClick, o balão abre no foco.', teste: 'ChartHeatmap.test.tsx' },
+    { garantia: 'Leitura sem o ponteiro', como: 'Ver como tabela troca o desenho por uma tabela de linhas por colunas; com onMarkClick, o balão abre no foco.', teste: 'ChartHeatmap.test.tsx' },
     { garantia: 'Ausência anunciada', como: 'Sem células, um EmptyState no lugar do desenho.', teste: 'ChartHeatmap.test.tsx' },
   ],
   api: [
@@ -354,8 +354,10 @@ export const pagina: Pagina = {
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato da célula, da legenda e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', descricao: 'Formato do balão. Sem ele, vale o formatValue.' },
     { nome: 'showValues', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'visible'", descricao: 'Valor escrito na célula, quando cabe nela.' },
-    { nome: 'onCellClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: 'Torna as células botões, percorridos pelas setas.' },
-    { nome: 'onHoverCell', tipo: '(cell: ChartHeatmapCell | null) => void', descricao: 'Célula sob o ponteiro ou o foco, ou null ao sair.' },
+    { nome: 'onMarkClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: 'Torna as células botões, percorridos pelas setas.' },
+    { nome: 'onCellClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(cell: ChartHeatmapCell | null) => void', descricao: 'Célula sob o ponteiro ou o foco, ou null ao sair.' },
+    { nome: 'onHoverCell', tipo: '(cell: ChartHeatmapCell | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão com as duas categorias e o valor.' },
     { nome: 'noDataLabel', tipo: 'string', padrao: "'Sem dado'", descricao: 'Texto da célula sem valor, na legenda e na descrição.' },
     { nome: 'noDataStyle', tipo: "'hatch' | 'neutral'", padrao: "'hatch'", descricao: 'Hachura ou cinza liso na célula sem valor, como no ChartMap.' },

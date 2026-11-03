@@ -512,7 +512,7 @@ const playground = definirPlayground({
     legendAlign: 'left',
     showTooltip: true,
     highlightOnHover: false,
-    onSegmentClick: true,
+    onMarkClick: true,
     accent: 'nenhuma',
   },
   controles: [
@@ -536,7 +536,7 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'legendAlign', opcoes: ['left', 'center', 'right'] },
     { tipo: 'booleano', nome: 'showTooltip' },
     { tipo: 'booleano', nome: 'highlightOnHover' },
-    { tipo: 'booleano', nome: 'onSegmentClick' },
+    { tipo: 'booleano', nome: 'onMarkClick' },
     { tipo: 'opcoes', nome: 'accent', opcoes: OPCOES_DE_ACCENT },
   ],
   renderizar: (valores, registrar) => {
@@ -557,10 +557,10 @@ const playground = definirPlayground({
           legendAlign={valores.legendAlign as ChartLegendAlign}
           mergeConsecutive={valores.mergeConsecutive}
           onCollapsedGroupsChange={(grupos) => registrar(`onCollapsedGroupsChange: [${grupos.join(', ')}]`)}
-          onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
-          onSegmentClick={
-            valores.onSegmentClick
-              ? (intervalo, linha) => registrar(`onSegmentClick: ${linha.label} · ${intervalo.series}`)
+          onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+          onMarkClick={
+            valores.onMarkClick
+              ? ({ row, segment }) => registrar(`onMarkClick: ${row.label} · ${segment.series}`)
               : undefined
           }
           overlap={valores.overlap as ChartTimelineOverlap}
@@ -607,25 +607,25 @@ const playground = definirPlayground({
       ['legendAlign', valores.legendAlign, 'left'],
       ['showTooltip', valores.showTooltip, true],
       ['highlightOnHover', valores.highlightOnHover, false],
-      ['onSegmentClick', valores.onSegmentClick ? expr('abrirDetalhe') : undefined],
+      ['onMarkClick', valores.onMarkClick ? expr('abrirDetalhe') : undefined],
     ]);
   },
   verificar: (valores) => {
     const titulo = valores.title.trim();
     const verificacoes: Verificacao[] = [
       titulo
-        ? valores.onSegmentClick
+        ? valores.onMarkClick
           ? { nivel: 'ok', titulo: 'Grupo nomeado', detalhe: `O desenho é role="group" nomeado por "${titulo}", e cada intervalo é um botão.` }
           : { nivel: 'ok', titulo: 'Nome acessível', detalhe: `O desenho é role="img" nomeado por "${titulo}".` }
         : { nivel: 'falha', titulo: 'Sem título', detalhe: 'O title nomeia o gráfico para o leitor de tela. Sem ele, o desenho fica sem nome.' },
       { nivel: 'ok', titulo: 'Leitura medida a medida', detalhe: '"Ver como tabela" troca o desenho por uma tabela com uma seção por linha.' },
     ];
 
-    if (valores.onSegmentClick) {
+    if (valores.onMarkClick) {
       verificacoes.push({
         nivel: 'ok',
         titulo: 'Teclado',
-        detalhe: 'Tab entra por um único intervalo; as setas, Home e End percorrem; Enter e Espaço disparam onSegmentClick.',
+        detalhe: 'Tab entra por um único intervalo; as setas, Home e End percorrem; Enter e Espaço disparam onMarkClick.',
       });
     }
 
@@ -717,7 +717,7 @@ function Modos() {
           Abaixo da largura mínima, o desenho rola de lado e rótulos e resumo ficam fixos. Em largura estreita, o resumo
           desce para baixo do rótulo, ou sai.
         </dd>
-        <dt><code>onSegmentClick</code></dt>
+        <dt><code>onMarkClick</code></dt>
         <dd>
           Sem ele, o desenho é <code>role=&quot;img&quot;</code>. Com ele, <code>role=&quot;group&quot;</code>, e cada
           intervalo é um botão de tabulação móvel.
@@ -966,11 +966,11 @@ const dias = jornadaDoMes(mes);
   Variantes,
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Com onSegmentClick, entra no gráfico por um único intervalo: o último focado. Sem ele, o desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Com onMarkClick, entra no gráfico por um único intervalo: o último focado. Sem ele, o desenho não recebe foco.' },
     { teclas: ['←', '→'], acao: 'Intervalo anterior e seguinte na mesma linha.' },
     { teclas: ['↑', '↓'], acao: 'Linha anterior e seguinte, no intervalo mais próximo no tempo.' },
     { teclas: ['Home', 'End'], acao: 'Primeiro e último intervalo da linha.' },
-    { teclas: ['Enter', 'Espaço'], acao: 'Dispara onSegmentClick; na legenda, liga e desliga a série; no grupo, recolhe e expande.' },
+    { teclas: ['Enter', 'Espaço'], acao: 'Dispara onMarkClick; na legenda, liga e desliga a série; no grupo, recolhe e expande.' },
   ],
   garantias: [
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code> nomeado pelo <code>title</code>; com clique, <code>role=&quot;group&quot;</code>.</>, teste: 'ChartTimeline.test.tsx' },
@@ -1021,16 +1021,20 @@ const dias = jornadaDoMes(mes);
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Estado vazio do gráfico inteiro.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'none'", padrao: "'top'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'left'", descricao: 'Apoio da legenda.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão: no intervalo, série, período e duração; na linha, os totais por série.' },
     { nome: 'highlightOnHover', tipo: 'boolean', padrao: 'false', descricao: 'Esmaece as outras séries sob o ponteiro ou o foco.' },
     { nome: 'formatValue', tipo: '(durationMs: number) => string', padrao: 'formatDuration', descricao: 'Formato das durações no rótulo, na descrição e na tabela.' },
     { nome: 'formatTooltipValue', tipo: '(durationMs: number) => string', padrao: 'formatValue', descricao: 'Formato das durações só no balão.' },
     { nome: 'formatTime', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Instantes no balão, na descrição e na tabela: 07:12 ou 05/10 14:00.' },
     { nome: 'formatTick', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Marcas do eixo: 6h, 05/10 ou Seg 05/10.' },
-    { nome: 'onSegmentClick', tipo: '(segment, row) => void', descricao: 'Clique, Enter ou Espaço num intervalo. Com ele, os intervalos viram botões.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartTimelineMark) => void', descricao: <>Clique, Enter ou Espaço num intervalo: <code>{'{ segment, row }'}</code>. Com ele, os intervalos viram botões.</> },
+    { nome: 'onSegmentClick', tipo: '(segment, row) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
   ],
 };

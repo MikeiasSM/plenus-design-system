@@ -34,8 +34,11 @@ export interface ChartTreemapNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartTreemapProps extends ChartRootProps {
+export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
+  /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
@@ -44,6 +47,9 @@ export interface ChartTreemapProps extends ChartRootProps {
   /** Folga entre dois retangulos vizinhos. */
   gap?: number;
   height?: ChartHeight;
+  /** Rotulos dos grupos desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenGroups?: readonly string[];
   /**
    * Nome de cada intencao na legenda. Informado, a legenda deixa de listar os
@@ -54,11 +60,18 @@ export interface ChartTreemapProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
-  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o maior entre o valor proprio e a soma dos filhos, ou `null` ao sair. */
+  onHover?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
+  onMarkClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showDataLabels?: boolean;
@@ -78,19 +91,24 @@ function ocupacao(no: ChartTreemapNode) {
 
 export function ChartTreemap({
   accent,
+  defaultHidden,
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
   formatValue = formatNumber,
   gap = 5,
   height = 280,
+  hidden,
   hiddenGroups,
   intentLabels,
   legend = 'bottom',
   legendAlign,
   nodes,
+  onHiddenChange,
   onHiddenGroupsChange,
+  onHover,
   onHoverNode,
+  onMarkClick,
   onNodeClick,
   palette,
   showDataLabels = true,
@@ -100,10 +118,27 @@ export function ChartTreemap({
 }: ChartTreemapProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const avisarHover: ChartTreemapProps['onHover'] =
+    onHover || onHoverNode
+      ? (...aviso) => {
+          onHover?.(...aviso);
+          onHoverNode?.(...aviso);
+        }
+      : undefined;
+  const aoClicarNoNo =
+    onMarkClick || onNodeClick
+      ? (caminho: readonly ChartHoveredNode[]) => {
+          onMarkClick?.(caminho);
+          onNodeClick?.(caminho);
+        }
+      : undefined;
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenGroups,
-    hiddenSeries: hiddenGroups,
-    onHiddenSeriesChange: onHiddenGroupsChange,
+    defaultHidden: defaultHidden ?? defaultHiddenGroups,
+    hidden: hidden ?? hiddenGroups,
+    onHiddenChange: (ocultos) => {
+      onHiddenChange?.(ocultos);
+      onHiddenGroupsChange?.(ocultos);
+    },
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
@@ -139,11 +174,11 @@ export function ChartTreemap({
 
   function focar(folha: (typeof retangulos)[number] | null) {
     setEmFoco(folha);
-    onHoverNode?.(folha && hoverPath(folha));
+    avisarHover?.(folha && hoverPath(folha));
   }
 
   const marcas = useMarkNavigation({
-    onActivate: onNodeClick && (({ column }) => onNodeClick(hoverPath(retangulos[column]))),
+    onActivate: aoClicarNoNo && (({ column }) => aoClicarNoNo(hoverPath(retangulos[column]))),
     onFocusMark: (posicao) => focar(posicao && retangulos[posicao.column]),
     present: retangulos.map((_, column) => ({ column, row: 0 })),
   });
@@ -221,7 +256,7 @@ export function ChartTreemap({
                 x={folha.x0}
                 y={folha.y0}
               >
-                {!showTooltip && !onHoverNode && <title>{descricao}</title>}
+                {!showTooltip && !avisarHover && <title>{descricao}</title>}
               </rect>
 
               {cabeORotulo && (

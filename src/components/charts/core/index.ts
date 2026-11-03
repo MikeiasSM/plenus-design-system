@@ -71,7 +71,7 @@ export type { AxisReveal } from './useCartesianLayout';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useHoveredBand } from './useHoveredBand';
-export type { HoveredBand } from './useHoveredBand';
+export type { ChartCategoryHover, HoveredBand } from './useHoveredBand';
 export { seriesInScale, useSeriesToggle } from './useSeriesToggle';
 export type { SeriesToggle, UseSeriesToggleOptions } from './useSeriesToggle';
 export { useSliceRing } from './useSliceRing';

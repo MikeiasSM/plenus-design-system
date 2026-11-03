@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { ToastProvider, useToast } from './ToastProvider';
 import { ToastRegion } from './ToastRegion';
 import { dismissToast, showToast, type ToastOptions } from './toastStore';
 
@@ -73,5 +74,73 @@ describe('Toast', () => {
 
     const titles = screen.getAllByRole('status').map((toast) => toast.querySelector('strong')?.textContent);
     expect(titles).toEqual(['Dois', 'Tres', 'Quatro']);
+  });
+});
+
+function Disparador({ title }: { title: string }) {
+  const { showToast: show } = useToast();
+
+  return <button onClick={() => show({ title })} type="button">{`Avisar ${title}`}</button>;
+}
+
+describe('ToastProvider', () => {
+  afterEach(() => {
+    act(() => shown.splice(0).forEach(dismissToast));
+  });
+
+  it('cada provider mostra so os avisos da propria arvore', () => {
+    render(
+      <>
+        <ToastProvider>
+          <Disparador title="Primeiro" />
+          <ToastRegion aria-label="primeira" />
+        </ToastProvider>
+        <ToastProvider>
+          <Disparador title="Segundo" />
+          <ToastRegion aria-label="segunda" />
+        </ToastProvider>
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Avisar Primeiro' }));
+
+    expect(screen.getByLabelText('primeira')).toHaveTextContent('Primeiro');
+    expect(screen.getByLabelText('segunda')).toBeEmptyDOMElement();
+  });
+
+  it('o estado global do showToast nao chega ao provider', () => {
+    render(
+      <ToastProvider>
+        <ToastRegion aria-label="regiao" />
+      </ToastProvider>,
+    );
+
+    show({ duration: null, title: 'Global' });
+
+    expect(screen.getByLabelText('regiao')).toBeEmptyDOMElement();
+  });
+
+  it('fora de um provider o hook age no estado global', () => {
+    render(
+      <>
+        <Disparador title="Solto" />
+        <ToastRegion aria-label="regiao" />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Avisar Solto' }));
+
+    expect(screen.getByLabelText('regiao')).toHaveTextContent('Solto');
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar aviso' }));
+    expect(screen.getByLabelText('regiao')).toBeEmptyDOMElement();
+  });
+
+  it('o canto vai ao destino do portal quando ele e escolhido', () => {
+    const destino = document.createElement('div');
+    document.body.append(destino);
+    render(<ToastRegion aria-label="regiao" portalContainer={destino} />);
+
+    expect(destino).toContainElement(screen.getByLabelText('regiao'));
+    destino.remove();
   });
 });

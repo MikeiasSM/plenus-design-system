@@ -1,9 +1,11 @@
 import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import type { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
 import { Field } from '../Field';
@@ -56,6 +58,8 @@ export interface TimePickerProps
   onOpenChange?: (open: boolean) => void;
   /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
   open?: boolean;
+  /** Elemento que recebe o painel. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 export function TimePicker({
@@ -77,6 +81,7 @@ export function TimePicker({
   onOpenChange,
   onKeyDown,
   open: controlledOpen,
+  portalContainer,
   placeholder = 'hh:mm',
   required = false,
   size = 'md',
@@ -84,6 +89,7 @@ export function TimePicker({
   value,
   ...props
 }: TimePickerProps) {
+  const container = usePortalContainer(portalContainer);
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   // Sem isto, dois seletores de hora na mesma pagina dividiam os ids das opcoes.
@@ -222,32 +228,35 @@ export function TimePicker({
             </button>
           </div>
           {open &&
+            container &&
             createPortal(
-              <div
-                {...overlayProps}
-                aria-label={label ? 'Horas de ' + label : 'Horas'}
-                className={styles.panel}
-                // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
-                data-react-aria-top-layer="true"
-                ref={panelRef}
-                role="dialog"
-                style={positionProps.style}
-              >
-                <TimeSlots
-                  autoFocus
-                  baseId={providedId ?? idDaLista}
-                  max={horaMaxima}
-                  min={horaMinima}
-                  onChange={(hora) => {
-                    definir(hora);
-                    setDigitando(false);
-                    fechar();
-                  }}
-                  step={step}
-                  value={escolhido}
-                />
-              </div>,
-              document.body,
+              <FocusScope restoreFocus>
+                <div
+                  {...overlayProps}
+                  aria-label={label ? 'Horas de ' + label : 'Horas'}
+                  className={styles.panel}
+                  // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+                  data-react-aria-top-layer="true"
+                  ref={panelRef}
+                  role="dialog"
+                  style={positionProps.style}
+                >
+                  <TimeSlots
+                    autoFocus
+                    baseId={providedId ?? idDaLista}
+                    max={horaMaxima}
+                    min={horaMinima}
+                    onChange={(hora) => {
+                      definir(hora);
+                      setDigitando(false);
+                      fechar();
+                    }}
+                    step={step}
+                    value={escolhido}
+                  />
+                </div>
+              </FocusScope>,
+              container,
             )}
         </>
       )}

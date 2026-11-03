@@ -69,7 +69,7 @@ const playground = definirPlayground({
       <ChartWaterfall
         formatTooltipValue={FORMATOS[valores.formatTooltipValue]?.formatar}
         formatValue={FORMATOS[valores.formatValue].formatar}
-        onHoverStep={(indice) => registrar(`onHoverStep: ${indice}`)}
+        onHover={(marca) => registrar(`onHover: ${marca ? marca.step.label : null}`)}
         showDataLabels={valores.showDataLabels as MarkVisibility}
         steps={resultadoDoExercicio(valores.resultado, valores.deducoesComoAlerta)}
         title={valores.title}
@@ -99,7 +99,7 @@ const playground = definirPlayground({
       ['yAxisRight', valores.yAxisRight, 'hidden'],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverStep', expr('setPasso')],
+      ['onHover', expr('(marca) => setPasso(marca?.index ?? null)')],
     ]),
   verificar: (valores) => {
     const passos = resultadoDoExercicio(valores.resultado, valores.deducoesComoAlerta);
@@ -149,7 +149,7 @@ function PassoNoPonteiro() {
         }
         title={passo === null ? '' : passos[passo].label}
       >
-        <ChartWaterfall showTooltip={false} formatValue={formatarCompacto} onHoverStep={setPasso} steps={passos} title="Formação do resultado" />
+        <ChartWaterfall showTooltip={false} formatValue={formatarCompacto} onHover={(marca) => setPasso(marca?.index ?? null)} steps={passos} title="Formação do resultado" />
       </ChartTooltip>
     </div>
   );
@@ -259,7 +259,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Passo no ponteiro',
-      descricao: 'onHoverStep avisa o passo, e o ChartTooltip mostra a variação e o acumulado até ali.',
+      descricao: 'onHover avisa o passo, e o ChartTooltip mostra a variação e o acumulado até ali.',
       Previa: PassoNoPonteiro,
       codigo: `const [passo, setPasso] = useState<number | null>(null);
 
@@ -272,7 +272,7 @@ export const pagina: Pagina = {
     { label: 'Acumulado', values: [acumulado[passo]], emphasis: true },
   ]}
 >
-  <ChartWaterfall showTooltip={false} title="Formação do resultado" steps={passos} onHoverStep={setPasso} />
+  <ChartWaterfall showTooltip={false} title="Formação do resultado" steps={passos} onHover={(marca) => setPasso(marca?.index ?? null)} />
 </ChartTooltip>`,
     },
   ],
@@ -300,12 +300,14 @@ export const pagina: Pagina = {
     { nome: 'yAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'yAxisRight', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
-    { nome: 'onHoverStep', tipo: '(index: number | null) => void', descricao: 'Passo sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'onHover', tipo: '(mark: ChartWaterfallMark | null) => void', descricao: 'Passo sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'onHoverStep', tipo: '(index: number | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
     { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
     { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },
     { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
-    { nome: 'onStepClick', tipo: '(step: ChartWaterfallStep, index: number) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartWaterfallMark) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onStepClick', tipo: '(step: ChartWaterfallStep, index: number) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import {
   CalendarDate,
@@ -13,6 +14,7 @@ import {
 } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
@@ -71,6 +73,8 @@ export interface DateTimePickerProps
   onOpenChange?: (open: boolean) => void;
   /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
   open?: boolean;
+  /** Elemento que recebe o painel. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
@@ -106,6 +110,7 @@ export function DateTimePicker({
   onOpenChange,
   onKeyDown,
   open: controlledOpen,
+  portalContainer,
   placeholder = 'dd/mm/aaaa hh:mm',
   required = false,
   size = 'md',
@@ -113,6 +118,7 @@ export function DateTimePicker({
   value,
   ...props
 }: DateTimePickerProps) {
+  const container = usePortalContainer(portalContainer);
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -277,67 +283,70 @@ export function DateTimePicker({
             </button>
           </div>
           {open &&
+            container &&
             createPortal(
-              <div
-                {...overlayProps}
-                aria-label={label ? 'Calendário de ' + label : 'Calendário'}
-                className={styles.panel}
-                // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
-                data-react-aria-top-layer="true"
-                ref={panelRef}
-                role="dialog"
-                style={positionProps.style}
-              >
-                <div className={styles.columns}>
-                  <Calendar
-                    autoFocus
-                    key={versaoDoCalendario}
-                    isDateUnavailable={limites.isDateUnavailable}
-                    locale={locale}
-                    max={limites.max}
-                    min={limites.min}
-                    onSelect={rascunharData}
-                    value={rascunho && new CalendarDate(rascunho.year, rascunho.month, rascunho.day)}
-                  />
-                  <TimeSlots
-                    baseId={idDaLista}
-                    onChange={rascunharHora}
-                    step={step}
-                    value={rascunho && new Time(rascunho.hour, rascunho.minute)}
-                  />
-                </div>
-                <div className={styles.footer}>
-                  <Button
-                    onClick={() => {
-                      // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
-                      setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }));
-                      setVersaoDoCalendario((versao) => versao + 1);
-                    }}
-                    size="sm"
-                    variant="ghost"
-                    type="button"
-                  >
-                    Agora
-                  </Button>
-                  <div className={styles.actions}>
-                    <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
-                      Cancelar
-                    </Button>
+              <FocusScope restoreFocus>
+                <div
+                  {...overlayProps}
+                  aria-label={label ? 'Calendário de ' + label : 'Calendário'}
+                  className={styles.panel}
+                  // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
+                  data-react-aria-top-layer="true"
+                  ref={panelRef}
+                  role="dialog"
+                  style={positionProps.style}
+                >
+                  <div className={styles.columns}>
+                    <Calendar
+                      autoFocus
+                      key={versaoDoCalendario}
+                      isDateUnavailable={limites.isDateUnavailable}
+                      locale={locale}
+                      max={limites.max}
+                      min={limites.min}
+                      onSelect={rascunharData}
+                      value={rascunho && new CalendarDate(rascunho.year, rascunho.month, rascunho.day)}
+                    />
+                    <TimeSlots
+                      baseId={idDaLista}
+                      onChange={rascunharHora}
+                      step={step}
+                      value={rascunho && new Time(rascunho.hour, rascunho.minute)}
+                    />
+                  </div>
+                  <div className={styles.footer}>
                     <Button
                       onClick={() => {
-                        definir(rascunho ?? null);
-                        setDigitando(false);
-                        fechar();
+                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
+                        setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }));
+                        setVersaoDoCalendario((versao) => versao + 1);
                       }}
                       size="sm"
+                      variant="ghost"
                       type="button"
                     >
-                      Aplicar
+                      Agora
                     </Button>
+                    <div className={styles.actions}>
+                      <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          definir(rascunho ?? null);
+                          setDigitando(false);
+                          fechar();
+                        }}
+                        size="sm"
+                        type="button"
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>,
-              document.body,
+              </FocusScope>,
+              container,
             )}
         </>
       )}

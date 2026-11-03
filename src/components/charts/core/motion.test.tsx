@@ -7,13 +7,13 @@ function Animado({ alvo }: { alvo: readonly number[] }) {
 }
 
 function Alternavel({
-  hiddenSeries,
-  onHiddenSeriesChange,
+  hidden,
+  onHiddenChange,
 }: {
-  hiddenSeries?: readonly string[];
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
+  hidden?: readonly string[];
+  onHiddenChange?: (hidden: readonly string[]) => void;
 }) {
-  const { isHidden, toggle } = useSeriesToggle({ hiddenSeries, onHiddenSeriesChange });
+  const { isHidden, toggle } = useSeriesToggle({ hidden, onHiddenChange });
 
   return (
     <button onClick={() => toggle('Receita')} type="button">
@@ -102,7 +102,7 @@ describe('useSeriesToggle', () => {
 
   it('obedece ao produto quando ele informa, e avisa a mudanca', () => {
     const avisos: string[][] = [];
-    render(<Alternavel hiddenSeries={['Receita']} onHiddenSeriesChange={(o) => avisos.push([...o])} />);
+    render(<Alternavel hidden={['Receita']} onHiddenChange={(o) => avisos.push([...o])} />);
     const botao = screen.getByRole('button');
 
     expect(botao).toHaveTextContent('oculta');

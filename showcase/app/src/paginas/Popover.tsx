@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, Checkbox, InputText, Popover, type PopoverPlacement } from '@plenustech/design-system';
+import { Button, Checkbox, InputText, Popover, PortalProvider, type PopoverPlacement } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
 
@@ -36,6 +36,36 @@ function PopoverDoPlayground({ valores, registrar }: { valores: Valores; registr
         <PainelDeFiltros fechar={() => setAberto(false)} />
       </Popover>
     </>
+  );
+}
+
+function PainelNaSubarvore() {
+  const gatilho = useRef<HTMLButtonElement>(null);
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setAberto(!aberto)} ref={gatilho} variant="secondary">Filtros</Button>
+      <Popover aria-label="Filtros" onOpenChange={setAberto} open={aberto} triggerRef={gatilho}>
+        <PainelDeFiltros fechar={() => setAberto(false)} />
+      </Popover>
+    </>
+  );
+}
+
+function SubarvoreEscura() {
+  const [destino, setDestino] = useState<HTMLDivElement | null>(null);
+
+  return (
+    <div
+      data-theme="dark"
+      ref={setDestino}
+      style={{ background: 'var(--pl-color-background)', borderRadius: 8, minHeight: 200, padding: 16, position: 'relative', width: '100%' }}
+    >
+      <PortalProvider container={destino}>
+        <PainelNaSubarvore />
+      </PortalProvider>
+    </div>
   );
 }
 
@@ -219,6 +249,14 @@ export const pagina: Pagina = {
       codigo:
         '<Popover open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="Renomear">\n  <form onSubmit={salvar}>\n    <InputText defaultValue={nome} label="Nome" name="nome" size="sm" />\n    <Button size="sm" type="submit">Salvar</Button>\n  </form>\n</Popover>',
     },
+    {
+      titulo: 'Destino do portal',
+      descricao: 'Os overlays vão ao body e herdam o tema do documento. O PortalProvider leva o painel para dentro da subárvore escura, e ele herda o tema dela.',
+      largo: true,
+      Previa: SubarvoreEscura,
+      codigo:
+        "<div data-theme=\"dark\" ref={setDestino} style={{ position: 'relative' }}>\n  <PortalProvider container={destino}>\n    <Popover open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label=\"Filtros\">…</Popover>\n  </PortalProvider>\n</div>\n\n// Ou, num overlay só: <Popover portalContainer={destino} … />",
+    },
   ],
   Variantes,
   Modos,
@@ -237,6 +275,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao painel, como aria-label e id; o className soma ao do sistema.',
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape ou clique fora.' },

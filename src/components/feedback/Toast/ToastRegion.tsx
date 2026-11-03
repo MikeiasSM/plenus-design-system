@@ -1,7 +1,10 @@
 import { useEffect, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '../../actions/Button';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTriangle, IconInfoCircle } from '../../icons';
-import { dismissToast, getServerToasts, getToasts, subscribeToasts, type ToastEntry } from './toastStore';
+import { useChosenPortalContainer } from '../../overlays/Portal/PortalContext';
+import { useToastStore } from './ToastProvider';
+import type { ToastEntry, ToastStore } from './toastStore';
 import styles from './Toast.module.css';
 
 const VISIBLE_LIMIT = 3;
@@ -14,22 +17,28 @@ const TONE_ICONS = {
   warning: IconExclamationTriangle,
 };
 
-export type ToastRegionProps = ComponentPropsWithRef<'div'>;
+export interface ToastRegionProps extends ComponentPropsWithRef<'div'> {
+  /** Elemento que recebe o canto de avisos. Sem ele vale o `PortalProvider` mais proximo; sem este, o canto fica onde foi montado. */
+  portalContainer?: HTMLElement | null;
+}
 
-/** Canto onde os avisos de `showToast` aparecem. Montado uma vez, na raiz da aplicacao. */
-export function ToastRegion({ className, ...props }: ToastRegionProps) {
-  const toasts = useSyncExternalStore(subscribeToasts, getToasts, getServerToasts);
-
-  return (
+/** Canto onde os avisos aparecem: os de `showToast`, ou os do `ToastProvider` mais proximo. Montado uma vez na arvore. */
+export function ToastRegion({ className, portalContainer, ...props }: ToastRegionProps) {
+  const store = useToastStore();
+  const container = useChosenPortalContainer(portalContainer);
+  const toasts = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  const region = (
     <div {...props} className={[styles.region, className].filter(Boolean).join(' ')}>
       {toasts.slice(-VISIBLE_LIMIT).map((toast) => (
-        <Toast key={toast.id} toast={toast} />
+        <Toast key={toast.id} store={store} toast={toast} />
       ))}
     </div>
   );
+
+  return container ? createPortal(region, container) : region;
 }
 
-function Toast({ toast }: { toast: ToastEntry }) {
+function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
   const { action, description, id, title, tone = 'info' } = toast;
   const duration = toast.duration === undefined ? (tone === 'danger' ? null : DEFAULT_DURATION) : toast.duration;
   const [hovered, setHovered] = useState(false);
@@ -42,9 +51,9 @@ function Toast({ toast }: { toast: ToastEntry }) {
       return;
     }
 
-    const timer = setTimeout(() => dismissToast(id), duration);
+    const timer = setTimeout(() => store.dismiss(id), duration);
     return () => clearTimeout(timer);
-  }, [duration, focused, hovered, id]);
+  }, [duration, focused, hovered, id, store]);
 
   function handleBlur(event: FocusEvent<HTMLDivElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -70,7 +79,7 @@ function Toast({ toast }: { toast: ToastEntry }) {
             <Button
               onClick={() => {
                 action.onClick();
-                dismissToast(id);
+                store.dismiss(id);
               }}
               size="sm"
               variant="secondary"
@@ -80,7 +89,7 @@ function Toast({ toast }: { toast: ToastEntry }) {
           </div>
         )}
       </div>
-      <button aria-label="Fechar aviso" className={styles.close} onClick={() => dismissToast(id)} type="button">
+      <button aria-label="Fechar aviso" className={styles.close} onClick={() => store.dismiss(id)} type="button">
         <IconClose />
       </button>
     </div>

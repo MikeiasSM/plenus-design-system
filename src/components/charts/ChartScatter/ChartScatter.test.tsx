@@ -112,7 +112,7 @@ describe('ChartScatter', () => {
 
   it('com clique no ponto, os pontos sao botoes e o foco pelo teclado abre a guia', () => {
     const aoClicar = vi.fn();
-    render(<ChartScatter onPointClick={aoClicar} series={carteira} title="Carteira" />);
+    render(<ChartScatter onMarkClick={aoClicar} series={carteira} title="Carteira" />);
     const aurora = screen.getByRole('button', { name: /^Clientes, Aurora/ });
 
     expect(screen.getByRole('group', { name: 'Carteira' })).toBeInTheDocument();

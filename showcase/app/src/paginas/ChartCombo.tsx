@@ -60,8 +60,8 @@ const playground = definirPlayground({
         formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
-        onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+        onHover={(categoria) => registrar(`onHover: ${categoria ? `${categoria.category} (${categoria.index})` : null}`)}
         series={[
           { kind: 'bar', label: 'Faturamento', values: FATURAMENTO },
           { axis: valores.eixoDaLinha as ChartComboAxis, kind: 'line', label: 'Conversão', values: CONVERSAO },
@@ -95,7 +95,7 @@ const playground = definirPlayground({
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['formatRightValue', expr('formatarConversao')],
-      ['onHoverCategory', expr('setFaixa')],
+      ['onHover', expr('(categoria) => setFaixa(categoria?.index ?? null)')],
     ]),
   verificar: (valores) => {
     const direita = valores.eixoDaLinha === 'right';
@@ -149,7 +149,7 @@ function LeituraPorSerie() {
           categories={MESES}
           formatRightValue={formatarConversao}
           formatValue={formatarCompacto}
-          onHoverCategory={setFaixa}
+          onHover={(categoria) => setFaixa(categoria?.index ?? null)}
           series={[
             { kind: 'bar', label: 'Faturamento', values: FATURAMENTO },
             { axis: 'right', kind: 'line', label: 'Conversão', values: CONVERSAO },
@@ -302,7 +302,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { color: cores[1], label: 'Conversão', values: [conversao[faixa]] },
   ]}
 >
-  <ChartCombo showTooltip={false} ... onHoverCategory={setFaixa} />
+  <ChartCombo showTooltip={false} ... onHover={(categoria) => setFaixa(categoria?.index ?? null)} />
 </ChartTooltip>`,
     },
   ],
@@ -376,10 +376,14 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'yAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'yAxisRight', tipo: VISIBILIDADE, descricao: 'Eixo da direita. Sem valor, visível quando uma série pertence a ele.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(category: ChartCategoryHover | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
     { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
     { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },

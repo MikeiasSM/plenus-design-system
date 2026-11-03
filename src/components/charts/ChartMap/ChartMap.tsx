@@ -70,7 +70,7 @@ export interface ChartMapMarkerSeries extends SeriesAppearance {
   points: readonly ChartMapMarker[];
 }
 
-/** Argumento de `onRegionClick`. */
+/** Regiao sob o ponteiro ou clicada. */
 export interface ChartMapRegion {
   category: string | null;
   feature: ChartMapFeature;
@@ -79,7 +79,7 @@ export interface ChartMapRegion {
   value: number | null;
 }
 
-/** Argumento de `onMarkerClick`. */
+/** Marcador sob o ponteiro ou clicado. */
 export interface ChartMapMarkerEvent {
   id: string;
   /** `id` da serie. */
@@ -87,16 +87,21 @@ export interface ChartMapMarkerEvent {
   value: number;
 }
 
+/** Marca do mapa, discriminada por `kind`: a regiao ou o marcador. */
+export type ChartMapMark = ({ kind: 'region' } & ChartMapRegion) | ({ kind: 'marker' } & ChartMapMarkerEvent);
+
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
-export interface ChartMapProps extends ChartRootProps {
+export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
   accent?: string;
   colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
   /** Faixas ocultas de inicio, no modo nao controlado, pelo indice. */
   defaultHiddenClasses?: readonly number[];
-  /** Series ocultas de inicio, no modo nao controlado: categorias e series de marcadores, pelo `id`. */
+  /** Categorias e series de marcadores ocultas de inicio, pelo `id`, no modo nao controlado. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   /** Regiao escolhida de inicio, no modo nao controlado. Com ele, as regioes viram botoes. */
   defaultSelectedRegion?: string | null;
@@ -123,7 +128,9 @@ export interface ChartMapProps extends ChartRootProps {
   height?: ChartHeight;
   /** Faixas ocultas pelo indice, na escala por classes (controlado). */
   hiddenClasses?: readonly number[];
-  /** Categorias e series de marcadores desligadas, pelo `id` (controlado). */
+  /** Categorias e series de marcadores desligadas, pelo `id` (controlado). As faixas da escala ficam em `hiddenClasses`. Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   /** Abaixo de 640 px de largura, `right` cai para `bottom`. */
   legend?: ChartMapLegendPosition;
@@ -136,12 +143,19 @@ export interface ChartMapProps extends ChartRootProps {
   noDataLabel?: string;
   noDataStyle?: NoDataStyle;
   onHiddenClassesChange?: (hidden: readonly number[]) => void;
+  /** Ids das categorias e das series de marcadores ocultas, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Regiao sob o ponteiro ou o foco, para paineis vizinhos. */
+  /** Regiao ou marcador sob o ponteiro ou o foco, para paineis vizinhos, ou `null` ao sair. */
+  onHover?: (mark: ChartMapMark | null) => void;
+  /** @deprecated Use `onHover`, que traz a regiao inteira. Aceito ate a 0.7.0. */
   onHoverRegion?: (id: string | null) => void;
-  /** Com ele, os marcadores viram botoes e entram no teclado. */
+  /** Com ele, as regioes e os marcadores viram botoes e entram no teclado; `mark.kind` os distingue. */
+  onMarkClick?: (mark: ChartMapMark) => void;
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'marker'`. Aceito ate a 0.7.0. */
   onMarkerClick?: (marker: ChartMapMarkerEvent) => void;
-  /** Com ele, as regioes viram botoes e entram no teclado. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'region'`. Aceito ate a 0.7.0. */
   onRegionClick?: (region: ChartMapRegion) => void;
   /** Com ele, as regioes viram botoes, e o clique escolhe a regiao ou, na escolhida, a desfaz. */
   onSelectedRegionChange?: (id: string | null) => void;
@@ -311,13 +325,14 @@ function isDimmed(key: string | undefined, highlightedKey: string | null) {
 
 /**
  * Regioes pintadas pelo valor e marcadores por coordenada, sobre a geometria GeoJSON que o produto fornece. O desenho
- * e imagem nomeada pelo titulo; com `onRegionClick`, a selecao de regiao ou `onMarkerClick`, um grupo cujas marcas sao botoes de tabulacao
+ * e imagem nomeada pelo titulo; com `onMarkClick`, ou a selecao de regiao, um grupo cujas marcas sao botoes de tabulacao
  * movel. A leitura completa, com busca, esta na visao em tabela.
  */
 export function ChartMap({
   accent,
   colorScale = DEFAULT_SCALE,
   data = [],
+  defaultHidden,
   defaultHiddenClasses,
   defaultHiddenSeries,
   defaultSelectedRegion,
@@ -332,6 +347,7 @@ export function ChartMap({
   formatValue = formatNumber,
   geometry,
   height = 440,
+  hidden,
   hiddenClasses,
   hiddenSeries,
   legend = 'bottom',
@@ -342,9 +358,12 @@ export function ChartMap({
   markerValueLabel = 'Valor',
   noDataLabel = 'Sem dado',
   noDataStyle = 'hatch',
+  onHiddenChange,
   onHiddenClassesChange,
   onHiddenSeriesChange,
+  onHover,
   onHoverRegion,
+  onMarkClick,
   onMarkerClick,
   onRegionClick,
   onSelectedRegionChange,
@@ -368,13 +387,20 @@ export function ChartMap({
   const outer = useChartMetrics();
   const plot = useChartMetrics();
   const svgRef = useRef<SVGSVGElement>(null);
-  const seriesToggle = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const seriesToggle = useSeriesToggle({
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
+  });
   // As faixas sao indices; a legenda liga e desliga por texto.
   const hiddenClassKeys = useMemo(() => hiddenClasses?.map(String), [hiddenClasses]);
   const classToggle = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenClasses?.map(String),
-    hiddenSeries: hiddenClassKeys,
-    onHiddenSeriesChange: onHiddenClassesChange && ((hidden) => onHiddenClassesChange(hidden.map(Number))),
+    defaultHidden: defaultHiddenClasses?.map(String),
+    hidden: hiddenClassKeys,
+    onHiddenChange: onHiddenClassesChange && ((hidden) => onHiddenClassesChange(hidden.map(Number))),
   });
   const [target, setTarget] = useState<Target | null>(null);
   const [focusedMark, setFocusedMark] = useState<string | null>(null);
@@ -594,9 +620,23 @@ export function ChartMap({
         .sort((a, b) => b.radius - a.radius)
     : [];
 
+  const clickRegion =
+    onMarkClick || onRegionClick
+      ? (region: ChartMapRegion) => {
+          onMarkClick?.({ kind: 'region', ...region });
+          onRegionClick?.(region);
+        }
+      : undefined;
+  const clickMarker =
+    onMarkClick || onMarkerClick
+      ? (marker: ChartMapMarkerEvent) => {
+          onMarkClick?.({ kind: 'marker', ...marker });
+          onMarkerClick?.(marker);
+        }
+      : undefined;
   const regionsInteractive =
-    onRegionClick !== undefined || onSelectedRegionChange !== undefined || defaultSelectedRegion !== undefined;
-  const markersInteractive = onMarkerClick !== undefined;
+    clickRegion !== undefined || onSelectedRegionChange !== undefined || defaultSelectedRegion !== undefined;
+  const markersInteractive = clickMarker !== undefined;
   const interactive = regionsInteractive || markersInteractive;
   const regionMark = (index: number) => `region:${index}`;
   const marks = [
@@ -643,6 +683,14 @@ export function ChartMap({
     const marker = markerOfMark(mark);
 
     setTarget(entry ? { entry, kind: 'region' } : marker ? { kind: 'marker', marker } : null);
+    announceHover(mark);
+  }
+
+  function announceHover(mark: string | null) {
+    const entry = entryOfMark(mark);
+    const marker = markerOfMark(mark);
+
+    onHover?.(entry ? { kind: 'region', ...regionEvent(entry) } : marker ? { kind: 'marker', ...markerEvent(marker) } : null);
     onHoverRegion?.(entry?.region.id ?? null);
   }
 
@@ -652,13 +700,13 @@ export function ChartMap({
 
     if (entry && regionsInteractive) {
       setTabStopMark(mark);
-      onRegionClick?.(regionEvent(entry));
+      clickRegion?.(regionEvent(entry));
       if (regionSelectable) {
         selectRegion(entry.region.id === currentSelectedRegion ? null : entry.region.id);
       }
-    } else if (marker && onMarkerClick) {
+    } else if (marker && clickMarker) {
       setTabStopMark(mark);
-      onMarkerClick(markerEvent(marker));
+      clickMarker(markerEvent(marker));
     }
   }
 
@@ -736,14 +784,14 @@ export function ChartMap({
   const markHandlers = {
     onBlur: () => {
       setFocusedMark(null);
-      onHoverRegion?.(null);
+      announceHover(null);
     },
     onClick: (event: SyntheticEvent) => activate(markFrom(event)),
     onFocus: (event: SyntheticEvent) => {
       const mark = markFrom(event);
       setFocusedMark(mark);
       setTabStopMark(mark);
-      onHoverRegion?.(entryOfMark(mark)?.region.id ?? null);
+      announceHover(mark);
     },
     onKeyDown: handleKeyDown,
     onMouseOut: () => hover(null),

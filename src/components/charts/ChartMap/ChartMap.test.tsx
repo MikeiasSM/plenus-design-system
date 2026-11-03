@@ -98,9 +98,9 @@ describe('ChartMap', () => {
     expect(regionPaths().some((path) => path.hasAttribute('tabindex'))).toBe(false);
   });
 
-  it('com onRegionClick vira grupo, com as regioes como botoes e um ponto de tabulacao so', () => {
-    const onRegionClick = vi.fn();
-    render(map({ onRegionClick, selectedRegion: 'BB' }));
+  it('com onMarkClick vira grupo, com as regioes como botoes e um ponto de tabulacao so', () => {
+    const onMarkClick = vi.fn();
+    render(map({ onMarkClick, selectedRegion: 'BB' }));
 
     const group = screen.getByRole('group', { name: 'Vendas por região' });
     const buttons = within(group).getAllByRole('button');
@@ -115,11 +115,12 @@ describe('ChartMap', () => {
     fireEvent.keyDown(regionNamed('Alfa'), { key: 'Enter' });
     fireEvent.keyDown(regionNamed('Alfa'), { key: ' ' });
 
-    expect(onRegionClick).toHaveBeenCalledTimes(3);
-    expect(onRegionClick).toHaveBeenLastCalledWith({
+    expect(onMarkClick).toHaveBeenCalledTimes(3);
+    expect(onMarkClick).toHaveBeenLastCalledWith({
       category: null,
       feature: geometry.features[0],
       id: 'AA',
+      kind: 'region',
       name: 'Alfa',
       value: 100,
     });
@@ -152,7 +153,7 @@ describe('ChartMap', () => {
   });
 
   it('percorre as regioes pelas setas, na direcao de cada uma, e marca o foco', () => {
-    render(map({ onRegionClick: () => undefined }));
+    render(map({ onMarkClick: () => undefined }));
     const alfa = regionNamed('Alfa');
 
     act(() => alfa.focus());
@@ -256,7 +257,7 @@ describe('ChartMap', () => {
   });
 
   it('na categorica, a cor nomeia a categoria e a legenda desliga pelo id', () => {
-    const onHiddenSeriesChange = vi.fn();
+    const onHiddenChange = vi.fn();
     render(
       map({
         colorScale: {
@@ -270,7 +271,7 @@ describe('ChartMap', () => {
           { category: 'norte', id: 'AA' },
           { category: 'sul', id: 'BB' },
         ],
-        onHiddenSeriesChange,
+        onHiddenChange,
       }),
     );
 
@@ -278,7 +279,7 @@ describe('ChartMap', () => {
     expect(regionNamed('Alfa')).toHaveAttribute('fill', 'var(--pl-chart-series-1)');
 
     fireEvent.click(screen.getByRole('button', { name: /Regional Sul/ }));
-    expect(onHiddenSeriesChange).toHaveBeenLastCalledWith(['sul']);
+    expect(onHiddenChange).toHaveBeenLastCalledWith(['sul']);
   });
 
   it('rotula dentro quando cabe, so a sigla quando o valor nao cabe e leva a regiao minuscula para a coluna', () => {
@@ -298,7 +299,7 @@ describe('ChartMap', () => {
   });
 
   it('enquadra o recorte com teto de aproximacao e deixa o resto como contexto, sem interacao', () => {
-    const { rerender } = render(map({ focus: ['AA', 'BB'], onRegionClick: () => undefined }));
+    const { rerender } = render(map({ focus: ['AA', 'BB'], onMarkClick: () => undefined }));
 
     expect(within(screen.getByRole('group')).getAllByRole('button').map((button) => button.getAttribute('aria-label'))).toEqual([
       'Alfa, 100, 1º de 2',
@@ -329,7 +330,7 @@ describe('ChartMap', () => {
       return Math.max(...xs) - Math.min(...xs);
     };
     const framed = (props: Partial<ChartMapProps> = {}) =>
-      map({ markers: bairros, onRegionClick: () => undefined, ...props });
+      map({ markers: bairros, onMarkClick: () => undefined, ...props });
 
     it('aproxima o desenho dos marcadores indicados, sem apagar as regioes nem a interacao', () => {
       const { rerender } = render(framed());
@@ -382,7 +383,7 @@ describe('ChartMap', () => {
     const outline = () => document.querySelector<SVGPathElement>(`path.${styles.subdivision}`);
 
     it('desenha a malha como linha, sem interacao, fora da arvore de acessibilidade, da tabela e da legenda', () => {
-      render(map({ onRegionClick: () => undefined, subdivisions: divisas }));
+      render(map({ onMarkClick: () => undefined, subdivisions: divisas }));
 
       expect(outline()?.getAttribute('d')).toMatch(/^M/);
       expect(outline()?.closest('[aria-hidden="true"]')).not.toBeNull();
@@ -464,8 +465,8 @@ describe('ChartMap', () => {
     expect(tooltip()).toBeNull();
   });
 
-  it('posiciona os marcadores, que viram botoes com onMarkerClick e saem pela legenda', () => {
-    const onMarkerClick = vi.fn();
+  it('posiciona os marcadores, que viram botoes com onMarkClick e saem pela legenda', () => {
+    const onMarkClick = vi.fn();
     const markers = [
       {
         id: 'capitais',
@@ -477,7 +478,7 @@ describe('ChartMap', () => {
         ],
       },
     ];
-    render(map({ markers, markerValueLabel: 'Clientes', onMarkerClick }));
+    render(map({ markers, markerValueLabel: 'Clientes', onMarkClick }));
 
     const cityA = screen.getByRole('button', { name: 'Cidade A, Capitais, 100' });
     const cityB = screen.getByRole('button', { name: 'Cidade B, Capitais, 25' });
@@ -486,7 +487,7 @@ describe('ChartMap', () => {
     expect(screen.queryByRole('button', { name: /Invalida/ })).toBeNull();
 
     fireEvent.keyDown(cityA, { key: 'Enter' });
-    expect(onMarkerClick).toHaveBeenCalledWith({ id: 'a', series: 'capitais', value: 100 });
+    expect(onMarkClick).toHaveBeenCalledWith({ id: 'a', kind: 'marker', series: 'capitais', value: 100 });
 
     fireEvent.click(screen.getByRole('button', { name: 'Capitais' }));
     expect(screen.queryByRole('button', { name: /Cidade A/ })).toBeNull();

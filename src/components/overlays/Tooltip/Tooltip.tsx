@@ -15,6 +15,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Tooltip.module.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -24,6 +25,8 @@ interface TooltipCommonProps {
   /** Avisa cada pedido de abrir ou fechar: ponteiro, foco, blur e Escape. */
   onOpenChange?: (open: boolean) => void;
   placement?: TooltipPlacement;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 interface TooltipOnChildProps extends TooltipCommonProps {
@@ -74,7 +77,9 @@ function TooltipOnChild({
   onOpenChange,
   open: controlledOpen,
   placement = 'top',
+  portalContainer,
 }: TooltipOnChildProps) {
+  const container = usePortalContainer(portalContainer);
   const triggerRef = useRef<HTMLElement>(null);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = controlledOpen ?? internalOpen;
@@ -122,7 +127,7 @@ function TooltipOnChild({
     <>
       {trigger}
       {open &&
-        typeof document !== 'undefined' &&
+        container &&
         createPortal(
           <TooltipBubble
             content={content}
@@ -133,13 +138,23 @@ function TooltipOnChild({
             placement={placement}
             triggerRef={triggerRef}
           />,
-          document.body,
+          container,
         )}
     </>
   );
 }
 
-function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement = 'top' }: TooltipOnAnchorProps) {
+function TooltipOnAnchor({
+  anchorRef,
+  content,
+  id,
+  onOpenChange,
+  open,
+  placement = 'top',
+  portalContainer,
+}: TooltipOnAnchorProps) {
+  const container = usePortalContainer(portalContainer);
+
   // O foco pode estar fora da âncora, como no editor que a contém; o Escape vale em qualquer ponto da página.
   useEffect(() => {
     if (!open) {
@@ -156,7 +171,7 @@ function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement
     return () => document.removeEventListener('keydown', requestCloseOnEscape);
   }, [onOpenChange, open]);
 
-  if (!open || typeof document === 'undefined') {
+  if (!open || !container) {
     return null;
   }
 
@@ -168,7 +183,7 @@ function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement
       placement={placement}
       triggerRef={anchorRef}
     />,
-    document.body,
+    container,
   );
 }
 

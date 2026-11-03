@@ -250,6 +250,7 @@ export const pagina: Pagina = {
   notaDaApi:
     'O balão não recebe data-*, por decisão: a raiz é o gatilho, que é do consumidor. Recebe id só com anchorRef, para o produto ligar o aria-describedby.',
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória sem anchorRef. O gatilho: um único elemento focável.' },
     { nome: 'content', tipo: 'ReactNode', descricao: 'Obrigatória. Texto do balão, que descreve o gatilho.' },
     { nome: 'placement', tipo: "'top' | 'bottom' | 'left' | 'right'", padrao: "'top'", descricao: 'Lado do gatilho em que o balão aparece.' },

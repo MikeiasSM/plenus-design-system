@@ -36,7 +36,7 @@ const quadrado = {
   type: 'FeatureCollection' as const,
 };
 
-const graficos: [string, (raiz: ChartRootProps) => ReactElement][] = [
+const graficos: [string, (raiz: Omit<ChartRootProps, 'hidden'>) => ReactElement][] = [
   ['ChartArea', (raiz) => <ChartArea categories={categorias} series={serie} title="Gráfico" {...raiz} />],
   ['ChartBar', (raiz) => <ChartBar categories={categorias} series={serie} title="Gráfico" {...raiz} />],
   [

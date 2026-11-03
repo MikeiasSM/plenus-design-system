@@ -330,6 +330,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     {
       nome: 'options',
       tipo: '{ label: string; value: string; description?: string; icon?: ReactNode; disabled?: boolean }[]',

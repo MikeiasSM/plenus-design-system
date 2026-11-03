@@ -44,6 +44,7 @@ const PARES = [
   ['--pl-color-text-tertiary', '--pl-color-surface', TEXTO_MINIMO, 'texto terciario'],
   ['--pl-color-on-primary', '--pl-color-primary', TEXTO_MINIMO, 'texto sobre primary'],
   ['--pl-color-on-primary-container', '--pl-color-primary-container', TEXTO_MINIMO, 'texto no container'],
+  ['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'texto no item selecionado'],
   ['--pl-color-on-ink', '--pl-color-ink', TEXTO_MINIMO, 'texto sobre tinta'],
   ['--pl-color-on-success-container', '--pl-color-success-container', TEXTO_MINIMO, 'mensagem de sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-warning-container', TEXTO_MINIMO, 'mensagem de atencao'],

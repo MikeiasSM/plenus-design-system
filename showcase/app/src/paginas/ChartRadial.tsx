@@ -56,7 +56,7 @@ const playground = definirPlayground({
         formatValue={formatarMeta}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenTracksChange={(ocultos) => registrar(`onHiddenTracksChange: [${ocultos.join(', ')}]`)}
+        onHiddenChange={(ocultos) => registrar(`onHiddenChange: [${ocultos.join(', ')}]`)}
         showCenter={valores.showCenter}
         startAngle={valores.startAngle}
         thickness={valores.thickness}
@@ -233,11 +233,16 @@ export const pagina: Pagina = {
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de dois anéis.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
-    { nome: 'hiddenTracks', tipo: 'readonly string[]', descricao: 'Anéis ocultos, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenTracks', tipo: 'readonly string[]', descricao: 'Anéis ocultos de início, no modo não controlado.' },
-    { nome: 'onHiddenTracksChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Anéis ocultos, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenTracks', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Anéis ocultos de início, no modo não controlado.' },
+    { nome: 'defaultHiddenTracks', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenTracksChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onTrackClick', tipo: '(track: ChartRadialTrack) => void', descricao: 'Torna os anéis botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onHover', tipo: '(track: ChartRadialTrack | null, details?: ChartHoverDetails) => void', descricao: <>Anel sob o ponteiro, o foco ou a entrada da legenda; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
+    { nome: 'onMarkClick', tipo: '(track: ChartRadialTrack) => void', descricao: 'Torna os anéis botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onTrackClick', tipo: '(track: ChartRadialTrack) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

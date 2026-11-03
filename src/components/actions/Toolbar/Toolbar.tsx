@@ -11,6 +11,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import type { PopoverPlacement } from '../../overlays/Popover';
 import styles from './Toolbar.module.css';
 
@@ -26,6 +27,8 @@ export interface ToolbarProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-l
   label: string;
   orientation?: ToolbarOrientation;
   placement?: ToolbarPlacement;
+  /** Elemento que recebe a barra ancorada. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   /** Gruda a barra no topo da área que rola. Vale para a barra no fluxo, sem `anchorRef`. */
   sticky?: boolean;
 }
@@ -65,17 +68,19 @@ function destinoDaTecla(tecla: string, atual: number, total: number, orientation
   return tecla === 'End' ? total - 1 : undefined;
 }
 
-export function Toolbar({ anchorRef, placement = 'top start', ...props }: ToolbarProps) {
+export function Toolbar({ anchorRef, placement = 'top start', portalContainer, ...props }: ToolbarProps) {
+  const container = usePortalContainer(portalContainer);
+
   if (!anchorRef) {
     return <ToolbarBar {...props} />;
   }
 
   // No servidor não há `document` para o portal; a barra ancorada nasce na hidratação.
-  if (typeof document === 'undefined') {
+  if (!container) {
     return null;
   }
 
-  return createPortal(<AnchoredToolbar {...props} anchorRef={anchorRef} placement={placement} />, document.body);
+  return createPortal(<AnchoredToolbar {...props} anchorRef={anchorRef} placement={placement} />, container);
 }
 
 function AnchoredToolbar({

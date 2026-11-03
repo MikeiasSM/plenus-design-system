@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import type { ChartAnchorPoint } from '../core/useMarkNavigation';
 import styles from './ChartTooltip.module.css';
 
@@ -47,6 +48,8 @@ export interface ChartTooltipProps {
   columns?: readonly ChartTooltipColumn[];
   /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
   computed?: ChartTooltipComputed | 'none';
+  /** Elemento que recebe o balão. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   rows: readonly ChartTooltipRow[];
   showTotal?: boolean;
   subtitle?: string;
@@ -149,12 +152,14 @@ export function ChartTooltip({
   children,
   columns,
   computed,
+  portalContainer,
   rows,
   showTotal = false,
   subtitle,
   title,
   totalLabel = 'Total',
 }: ChartTooltipProps) {
+  const container = usePortalContainer(portalContainer);
   const areaRef = useRef<HTMLDivElement>(null);
   const [ponteiro, setPonteiro] = useState<Ponto | null>(null);
   const [ancoraDispensada, setAncoraDispensada] = useState<ChartAnchorPoint | null>(null);
@@ -212,6 +217,7 @@ export function ChartTooltip({
       {children}
 
       {visivel &&
+        container &&
         createPortal(
           <Balao
             columns={columns}
@@ -223,7 +229,7 @@ export function ChartTooltip({
             title={title}
             totalLabel={totalLabel}
           />,
-          document.body,
+          container,
         )}
     </div>
   );

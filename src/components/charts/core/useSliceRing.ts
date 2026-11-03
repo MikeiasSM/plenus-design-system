@@ -9,13 +9,13 @@ import { useTweenedNumbers } from './useTweenedNumbers';
 export interface UseSliceRingOptions {
   accent?: string;
   palette?: ChartPalette;
-  defaultHiddenSlices?: readonly string[];
-  hiddenSlices?: readonly string[];
-  onHiddenSlicesChange?: (hidden: readonly string[]) => void;
-  /** Torna as fatias botoes. Recebe a fatia ja agrupada, como `onHoverSlice`. */
-  onSliceClick?: (slice: ChartSlice) => void;
+  defaultHidden?: readonly string[];
+  hidden?: readonly string[];
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** Torna as fatias botoes. Recebe a fatia ja agrupada, como `onHover`. */
+  onMarkClick?: (slice: ChartSlice) => void;
   /** Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda vem o detalhe. */
-  onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
+  onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
   otherLabel: string;
   slices: readonly ChartSlice[];
   smallSliceThreshold: number;
@@ -47,19 +47,19 @@ export interface SliceRing {
 export function useSliceRing({
   accent,
   palette,
-  defaultHiddenSlices,
-  hiddenSlices,
-  onHiddenSlicesChange,
-  onHoverSlice,
-  onSliceClick,
+  defaultHidden,
+  hidden,
+  onHiddenChange,
+  onHover,
+  onMarkClick,
   otherLabel,
   slices,
   smallSliceThreshold,
 }: UseSliceRingOptions): SliceRing {
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenSlices,
-    hiddenSeries: hiddenSlices,
-    onHiddenSeriesChange: onHiddenSlicesChange,
+    defaultHidden,
+    hidden,
+    onHiddenChange,
   });
   const [focused, setFocused] = useState<number | null>(null);
 
@@ -104,9 +104,9 @@ export function useSliceRing({
     setFocused(indice);
 
     if (fatia && details) {
-      onHoverSlice?.(fatia, details);
+      onHover?.(fatia, details);
     } else {
-      onHoverSlice?.(fatia);
+      onHover?.(fatia);
     }
   };
 
@@ -117,7 +117,7 @@ export function useSliceRing({
   };
 
   const marks = useMarkNavigation({
-    onActivate: onSliceClick && (({ column }) => onSliceClick(reunidas[column])),
+    onActivate: onMarkClick && (({ column }) => onMarkClick(reunidas[column])),
     onFocusMark: (posicao) => focus(posicao?.column ?? null),
     present: values.flatMap((valor, column) => (valor > 0 ? [{ column, row: 0 }] : [])),
   });

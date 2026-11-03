@@ -19,18 +19,22 @@ import {
   type ChartHeight,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesIntent } from '../palette';
+import { resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartWaterfall.module.css';
 
-export interface ChartWaterfallStep {
-  color?: string;
-  intent?: SeriesIntent;
+export interface ChartWaterfallStep extends SeriesAppearance {
   label: string;
   total?: boolean;
   value: number;
+}
+
+/** Passo sob o ponteiro ou clicado: a posicao dele em `steps` e o proprio passo. */
+export interface ChartWaterfallMark {
+  index: number;
+  step: ChartWaterfallStep;
 }
 
 export interface ChartWaterfallProps extends ChartRootProps {
@@ -42,10 +46,14 @@ export interface ChartWaterfallProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
-  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
-  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
-  /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
+  /** Passo sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
+  onHover?: (mark: ChartWaterfallMark | null) => void;
+  /** @deprecated Use `onHover`, que traz o passo e o indice. Aceito ate a 0.7.0. */
   onHoverStep?: (index: number | null) => void;
+  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
+  onMarkClick?: (mark: ChartWaterfallMark) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
   /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
@@ -120,7 +128,9 @@ export function ChartWaterfall({
   height = 280,
   labelAngle = 'auto',
   minTickStep,
+  onHover,
   onHoverStep,
+  onMarkClick,
   onStepClick,
   showDataLabels = 'visible',
   showTooltip = true,
@@ -136,11 +146,24 @@ export function ChartWaterfall({
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(onHoverStep);
+  const hoverDoPasso =
+    onHover || onHoverStep
+      ? (index: number | null) => {
+          onHover?.(index === null ? null : { index, step: steps[index] });
+          onHoverStep?.(index);
+        }
+      : undefined;
+  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(hoverDoPasso);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
   const marcas = useMarkNavigation({
-    onActivate: onStepClick && (({ column }) => onStepClick(steps[column], column)),
+    onActivate:
+      onMarkClick || onStepClick
+        ? ({ column }) => {
+            onMarkClick?.({ index: column, step: steps[column] });
+            onStepClick?.(steps[column], column);
+          }
+        : undefined,
     onFocusMark: (posicao) => focarPasso(posicao?.column ?? null),
     present: trechos.flatMap((trecho, column) => (trecho ? [{ column, row: 0 }] : [])),
   });

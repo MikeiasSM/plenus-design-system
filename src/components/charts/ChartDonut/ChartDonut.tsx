@@ -20,10 +20,13 @@ import styles from './ChartDonut.module.css';
 
 export type { ChartSlice as ChartDonutSlice };
 
-export interface ChartDonutProps extends ChartRootProps {
+export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   /** Texto sob o valor do centro, trocado pelo rotulo da fatia sob o ponteiro. */
   centerLabel?: string;
+  /** Fatias ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
@@ -31,17 +34,27 @@ export interface ChartDonutProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Rotulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
-  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
-  onSliceClick?: (slice: ChartSlice) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
   /**
    * Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda, que nao
    * tem ponteiro, vem o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
    */
+  onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
+  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
+  onMarkClick?: (slice: ChartSlice) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onSliceClick?: (slice: ChartSlice) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -63,17 +76,22 @@ export interface ChartDonutProps extends ChartRootProps {
 export function ChartDonut({
   accent,
   centerLabel = 'Total',
+  defaultHidden,
   defaultHiddenSlices,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
+  hidden,
   hiddenSlices,
   legend = 'right',
   legendAlign,
+  onHiddenChange,
   onHiddenSlicesChange,
+  onHover,
   onHoverSlice,
+  onMarkClick,
   onSliceClick,
   otherLabel = 'Outros',
   palette,
@@ -93,11 +111,26 @@ export function ChartDonut({
   const anel = useSliceRing({
     accent,
     palette,
-    defaultHiddenSlices,
-    hiddenSlices,
-    onHiddenSlicesChange,
-    onHoverSlice,
-    onSliceClick,
+    defaultHidden: defaultHidden ?? defaultHiddenSlices,
+    hidden: hidden ?? hiddenSlices,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSlicesChange?.(ocultas);
+    },
+    onHover:
+      onHover || onHoverSlice
+        ? (...aviso) => {
+            onHover?.(...aviso);
+            onHoverSlice?.(...aviso);
+          }
+        : undefined,
+    onMarkClick:
+      onMarkClick || onSliceClick
+        ? (fatia) => {
+            onMarkClick?.(fatia);
+            onSliceClick?.(fatia);
+          }
+        : undefined,
     otherLabel,
     slices,
     smallSliceThreshold,
