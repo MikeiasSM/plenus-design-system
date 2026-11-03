@@ -2,7 +2,7 @@
   position: fixed;
   top: var(--pl-space-3);
   left: var(--pl-space-3);
-  z-index: 120;
+  z-index: var(--pl-z-skip-link);
   padding: var(--pl-space-2) var(--pl-space-4);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-primary);

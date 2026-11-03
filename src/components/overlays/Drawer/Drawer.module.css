@@ -1,7 +1,7 @@
 .underlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--pl-z-modal);
   display: flex;
   align-items: stretch;
   background: var(--pl-color-scrim);

@@ -1,5 +1,4 @@
 .popover {
-  z-index: 90;
   min-width: 180px;
   max-width: min(360px, calc(100vw - var(--pl-space-5)));
   overflow-y: auto;

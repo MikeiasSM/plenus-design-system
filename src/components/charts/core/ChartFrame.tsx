@@ -103,6 +103,7 @@ export function ChartFrame({
     title: styles.title,
   });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
+  const plotDaForma = centerOrigin && lateral;
   const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
       align={legendAlign}
@@ -147,11 +148,11 @@ export function ChartFrame({
         {(legendPosition === 'top' || legendPosition === 'left') && legenda}
 
         <div
-          className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`}
+          className={[styles.plot, fillHeight && styles.plotFill, plotDaForma && styles.plotShape].filter(Boolean).join(' ')}
           onPointerEnter={onPointerEnter}
           onPointerLeave={onPointerLeave}
           ref={containerRef}
-          style={fillHeight ? undefined : { minHeight: height }}
+          style={fillHeight ? undefined : { minHeight: height, flexBasis: plotDaForma ? height : undefined }}
         >
           {/* Sem medida ainda — SSR, aba escondida, contêiner recolhido — o
               desenho espera. Anunciar ausencia de dados ali seria mentira: eles

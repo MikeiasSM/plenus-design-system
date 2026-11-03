@@ -3,7 +3,7 @@ import { Button, IconPlusCircle, type ButtonSize, type ButtonVariant } from '@pl
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
+const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerSoft', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const ALTURAS: Record<ButtonSize, number> = { sm: 32, md: 36, lg: 40 };
 // Texto sobre o fundo de cada variante, medido nos tokens do tema claro.
@@ -13,6 +13,7 @@ const CONTRASTES: Record<ButtonVariant, string> = {
   soft: '7,27:1',
   ghost: '6,27:1',
   danger: '6,95:1',
+  dangerSoft: '6,85:1',
   dangerGhost: '7,86:1',
 };
 

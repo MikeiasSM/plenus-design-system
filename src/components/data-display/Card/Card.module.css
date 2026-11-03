@@ -103,6 +103,12 @@
   gap: var(--pl-space-2);
 }
 
+.body,
+.bodyFlush {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .body {
   padding: var(--card-gap);
 }

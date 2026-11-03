@@ -16,10 +16,15 @@ describe('texto do centro do anel', () => {
   });
 
   it('desce de degrau quando o valor cresce, e nao so quando o anel encolhe', () => {
-    const curto = fitCenterText('9', 'Total', fonte, 120).size;
-    const longo = fitCenterText('1.284.930,55', 'Total', fonte, 120).size;
+    const curto = fitCenterText('9', 'Total', fonte, 200).size;
+    const longo = fitCenterText('1.284.930,55', 'Total', fonte, 200).size;
 
     expect(longo).toBeLessThan(curto);
+  });
+
+  it('desce de degrau num furo pequeno mesmo quando o valor curto caberia na largura', () => {
+    expect(fitCenterText('1M', 'Total', fonte, 114).size).toBeLessThan(36);
+    expect(fitCenterText('1M', 'Total', fonte, 200).size).toBe(36);
   });
 
   it('corta no ultimo degrau, porque o SVG nao quebra linha nem esconde o que transborda', () => {

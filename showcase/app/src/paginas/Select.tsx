@@ -140,6 +140,20 @@ function Controlado() {
   );
 }
 
+function AberturaControlada() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Button onClick={() => setAberto(!aberto)} variant="secondary">
+        {aberto ? 'Fechar a lista' : 'Abrir a lista'}
+      </Button>
+      <Select label="Periodicidade" onOpenChange={setAberto} open={aberto} options={PERIODICIDADES} />
+      <p className="note">open: {String(aberto)}</p>
+    </div>
+  );
+}
+
 function Envio() {
   const [enviado, setEnviado] = useState('');
 
@@ -204,6 +218,13 @@ export const pagina: Pagina = {
       Previa: Controlado,
       codigo:
         "const [periodicidade, setPeriodicidade] = useState('mensal');\n\n<Select\n  label=\"Periodicidade\"\n  options={periodicidades}\n  value={periodicidade}\n  onValueChange={setPeriodicidade}\n/>",
+    },
+    {
+      titulo: 'Abertura controlada',
+      descricao: 'O produto abre e fecha a lista por open. Clique, teclado, Escape, clique fora e escolha pedem a mudança por onOpenChange.',
+      Previa: AberturaControlada,
+      codigo:
+        "const [aberto, setAberto] = useState(false);\n\n<Select\n  label=\"Periodicidade\"\n  options={periodicidades}\n  open={aberto}\n  onOpenChange={setAberto}\n/>",
     },
     {
       titulo: 'Busca por digitação',
@@ -317,6 +338,9 @@ export const pagina: Pagina = {
     { nome: 'value', tipo: 'string', descricao: 'Chave escolhida, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Chave inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa a chave escolhida.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Lista aberta, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Lista aberta de início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'placeholder', tipo: 'string', padrao: "'Selecione'", descricao: 'Texto do gatilho sem escolha.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },

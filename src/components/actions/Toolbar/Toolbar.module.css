@@ -31,10 +31,6 @@
   background: var(--pl-color-surface);
 }
 
-.anchored {
-  z-index: 80;
-}
-
 .group {
   display: inline-flex;
   align-items: center;

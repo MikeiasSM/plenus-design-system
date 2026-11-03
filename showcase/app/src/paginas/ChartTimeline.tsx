@@ -910,6 +910,40 @@ const dias = jornadaDoMes(mes);
   showSegmentLabels="visible"
 />`,
     },
+    {
+      titulo: 'Altura do contêiner',
+      largo: true,
+      descricao: 'O mês inteiro numa caixa de 320px: as linhas rolam na vertical e o eixo fica fixo. Arraste o canto inferior da caixa.',
+      Previa: () => (
+        <div className="demo-box" style={{ height: 320, overflow: 'auto', resize: 'vertical', width: '100%' }}>
+          <ChartTimeline
+            {...OUTUBRO}
+            bands={ADICIONAL_NOTURNO}
+            density="sm"
+            domain={[0, 24]}
+            height="fill"
+            rowGap={2}
+            rowSummary={resumoDoDia}
+            series={SERIES_DA_JORNADA}
+            showSegmentLabels="hidden"
+            timeScale="dayHours"
+            title="Jornada diária"
+          />
+        </div>
+      ),
+      codigo: `<div style={{ height: 320 }}>
+  <ChartTimeline
+    title="Jornada diária"
+    timeScale="dayHours"
+    domain={[0, 24]}
+    rows={dias}
+    series={series}
+    segments={intervalos}
+    rowSummary={resumoDoDia}
+    height="fill"
+  />
+</div>`,
+    },
   ],
   faca: {
     Previa: () => (
@@ -959,6 +993,7 @@ const dias = jornadaDoMes(mes);
     { nome: 'statesEnd', tipo: 'Date | number', padrao: 'fim do eixo', descricao: 'Onde termina o último estado de cada linha.' },
     { nome: 'timeScale', tipo: "'calendar' | 'dayHours'", padrao: "'calendar'", descricao: 'Datas contínuas, ou horas do dia com cada linha sendo um dia.' },
     { nome: 'domain', tipo: 'readonly [Date | number, Date | number]', padrao: 'automático', descricao: 'Faixa fixa do eixo. Automática: do primeiro ao último instante, arredondada à hora ou ao dia.' },
+    { nome: 'height', tipo: "number | 'fill'", descricao: 'Altura da área das linhas, com o eixo: elas rolam na vertical e o eixo fica fixo. fill a toma do contêiner. Sem ela, a altura vem das linhas.' },
     { nome: 'xAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Visibilidade do eixo de tempo.' },
     { nome: 'axisPosition', tipo: "'top' | 'bottom'", padrao: "'top'", descricao: 'No topo, o eixo fica à vista em listas longas.' },
     { nome: 'showGrid', tipo: 'boolean', padrao: 'true', descricao: 'Linhas verticais nas marcas do eixo.' },

@@ -72,6 +72,20 @@
   align-self: stretch;
 }
 
+/* Forma radial com legenda lateral: a area tem a medida da forma e encolhe so quando falta largura.
+   O conjunto fica centralizado, com a legenda encostada. */
+.bodyRow > .plotShape {
+  flex: 0 1 auto;
+}
+
+.bodyRow > .plotShape.plotFill {
+  aspect-ratio: 1;
+}
+
+.bodyRow:has(> .plotShape) {
+  justify-content: center;
+}
+
 .bodyColumn {
   flex-direction: column;
 }
@@ -228,6 +242,7 @@
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: stretch;
+  flex: none;
   max-width: 45%;
 }
 

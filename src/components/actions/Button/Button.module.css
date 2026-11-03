@@ -88,6 +88,17 @@
   filter: brightness(0.9);
 }
 
+.dangerSoft {
+  --button-hover-shadow: var(--pl-color-danger-solid);
+  background: var(--pl-color-danger-container);
+  border-color: color-mix(in oklab, var(--pl-color-danger) 34%, var(--pl-color-surface));
+  color: var(--pl-color-on-danger-container);
+}
+
+.dangerSoft:not(:disabled):not([aria-disabled='true']):hover {
+  background: color-mix(in srgb, var(--pl-color-danger-container) 72%, var(--pl-color-surface));
+}
+
 .dangerGhost {
   --button-hover-shadow: var(--pl-color-danger-solid);
   background: transparent;

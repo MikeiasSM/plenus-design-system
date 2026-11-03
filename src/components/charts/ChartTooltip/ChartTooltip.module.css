@@ -7,7 +7,7 @@
 
 .tooltip {
   position: fixed;
-  z-index: 120;
+  z-index: var(--pl-z-tooltip);
   max-width: min(360px, calc(100vw - 16px));
   padding: var(--pl-space-3);
   border: 1px solid var(--pl-color-border);

@@ -16,7 +16,7 @@
 .fullScreen {
   position: fixed;
   inset: var(--pl-space-3);
-  z-index: 90;
+  z-index: var(--pl-z-fullscreen);
   box-shadow: var(--pl-sh-2);
 }
 

@@ -1,7 +1,6 @@
 /* Campo e gatilho sao os do `DatePicker`: os tres seletores tem a mesma caixa. */
 
 .panel {
-  z-index: 95;
   display: flex;
   padding: var(--pl-space-2);
   border: 1px solid var(--pl-color-border);

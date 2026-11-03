@@ -81,7 +81,6 @@
 }
 
 .panel {
-  z-index: 95;
   min-width: 180px;
   max-width: calc(100vw - 16px);
   display: flex;

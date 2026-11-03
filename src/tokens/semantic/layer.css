@@ -1,0 +1,8 @@
+/* Ordem das camadas fixas da biblioteca. O produto redefine estes tokens no `:root` para encaixá-las na própria escala. */
+:root {
+  --pl-z-fullscreen: 90;
+  --pl-z-modal: 100;
+  --pl-z-toast: 110;
+  --pl-z-tooltip: 120;
+  --pl-z-skip-link: 120;
+}

@@ -209,7 +209,6 @@ function ToolbarBar({
         styles[orientation],
         styles[appearance],
         sticky && !anchored && styles.sticky,
-        anchored && styles.anchored,
         className,
       ]
         .filter(Boolean)

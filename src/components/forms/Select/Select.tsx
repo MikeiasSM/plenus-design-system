@@ -35,6 +35,7 @@ export interface SelectOption {
 /** As propriedades nativas vao ao gatilho, que e o controle; o `className` soma ao do sistema. */
 export interface SelectProps
   extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'defaultValue' | 'name' | 'onChange' | 'type' | 'value'> {
+  defaultOpen?: boolean;
   defaultValue?: string;
   error?: string;
   hint?: string;
@@ -44,7 +45,9 @@ export interface SelectProps
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
+  onOpenChange?: (open: boolean) => void;
   onValueChange?: (value: string) => void;
+  open?: boolean;
   options: readonly SelectOption[];
   placeholder?: string;
   required?: boolean;
@@ -55,6 +58,7 @@ export interface SelectProps
 export function Select({
   'aria-describedby': ariaDescribedBy,
   className,
+  defaultOpen = false,
   defaultValue,
   name,
   disabled = false,
@@ -64,7 +68,9 @@ export function Select({
   label,
   onClick,
   onKeyDown,
+  onOpenChange,
   onValueChange,
+  open: controlledOpen,
   options,
   placeholder = 'Selecione',
   ref,
@@ -74,7 +80,9 @@ export function Select({
   ...props
 }: SelectProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const open = controlledOpen ?? internalOpen;
+  const wasOpenRef = useRef(open);
   const resetRef = useFormReset<HTMLButtonElement>(() => listing.reset());
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
 
@@ -95,17 +103,38 @@ export function Select({
 
   const [chosen] = listing.selected;
 
+  function setOpen(next: boolean) {
+    if (controlledOpen === undefined) {
+      setInternalOpen(next);
+    }
+    onOpenChange?.(next);
+  }
+
   function fechar() {
     setOpen(false);
-    triggerRef.current?.focus({ preventScroll: true });
   }
+
+  // Cobre todo fechamento, inclusive o feito pelo produto ao mudar `open`.
+  useEffect(() => {
+    if (wasOpenRef.current && !open) {
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+    wasOpenRef.current = open;
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      listing.focus(chosen?.value ?? options.find((option) => !option.disabled)?.value);
+    }
+    // Só ao abrir: a escolha e as opções mudam com o painel já aberto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   function abrir() {
     if (disabled) {
       return;
     }
 
-    listing.focus(chosen?.value ?? options.find((option) => !option.disabled)?.value);
     setOpen(true);
   }
 
@@ -225,7 +254,8 @@ function SelectListbox({
   }, []);
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (event.key === 'Escape' || event.key === 'Tab') {
+    // O Escape fecha pelo `useOverlay`: tratá-lo aqui avisaria duas vezes.
+    if (event.key === 'Tab') {
       onClose();
       return;
     }

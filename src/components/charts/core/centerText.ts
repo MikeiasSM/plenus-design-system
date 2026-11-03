@@ -1,6 +1,9 @@
 import { measureLabel, truncateToWidth, type LabelFont } from './measureText';
 import { CHART_LABEL_OFFSET } from './spacing';
 
+/** Fracao do diametro interno que a altura de linha do valor pode ocupar: abaixo disso o numero nao domina o anel. */
+const ALTURA_MAXIMA_DO_VALOR = 0.25;
+
 export interface CenterText {
   family: string;
   label: string;
@@ -23,7 +26,7 @@ export function centerTextRadius(value: string, font: LabelFont) {
 
 /**
  * Valor e rotulo do centro, no maior degrau da escala oficial em que o texto ainda cabe dentro do anel: o valor e um
- * KPI, e anel pequeno desce na escala em vez de sair dela. O SVG nao corta o que transborda; no ultimo degrau, corta-se.
+ * KPI, e anel pequeno desce na escala em vez de sair dela. O degrau tambem precisa caber em altura, na proporcao do furo. O SVG nao corta o que transborda; no ultimo degrau, corta-se.
  */
 export function fitCenterText(
   value: string,
@@ -38,12 +41,14 @@ export function fitCenterText(
 
   const degraus = font.centerSteps;
   const degrau =
-    degraus.find((candidato) =>
-      measureLabel(value, {
-        ...font,
-        family: candidato.display ? font.headingFamily : font.family,
-        size: candidato.size,
-      }) <= disponivel,
+    degraus.find(
+      (candidato) =>
+        candidato.lineHeight <= innerDiameter * ALTURA_MAXIMA_DO_VALOR &&
+        measureLabel(value, {
+          ...font,
+          family: candidato.display ? font.headingFamily : font.family,
+          size: candidato.size,
+        }) <= disponivel,
     ) ?? degraus[degraus.length - 1];
 
   const family = degrau.display ? font.headingFamily : font.family;

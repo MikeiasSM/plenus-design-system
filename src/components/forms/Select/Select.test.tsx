@@ -70,6 +70,69 @@ describe('Select', () => {
     expect(gatilho).toHaveFocus();
   });
 
+  it('abre de início com defaultOpen', () => {
+    montar({ defaultOpen: true });
+
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
+
+  it('avisa a abertura e o fechamento em cada via, sem controle', () => {
+    const onOpenChange = vi.fn();
+    const gatilho = montar({ onOpenChange });
+
+    fireEvent.click(gatilho);
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+
+    fireEvent.keyDown(gatilho, { key: 'ArrowDown' });
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    fireEvent.click(screen.getByRole('option', { name: 'Cartao' }));
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+
+    fireEvent.click(gatilho);
+    fireEvent.pointerDown(document.body);
+    fireEvent.mouseDown(document.body);
+    fireEvent.pointerUp(document.body);
+    fireEvent.mouseUp(document.body);
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    expect(onOpenChange.mock.calls).toEqual([[true], [false], [true], [false], [true], [false]]);
+  });
+
+  it('abre e fecha por open e devolve o foco ao gatilho', () => {
+    const { rerender } = render(<Select label="Forma" options={opcoes} open={false} />);
+    const gatilho = screen.getByRole('combobox', { name: 'Forma' });
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    rerender(<Select label="Forma" options={opcoes} open />);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    expect(gatilho).toHaveAttribute('aria-expanded', 'true');
+
+    rerender(<Select label="Forma" options={opcoes} open={false} />);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(gatilho).toHaveFocus();
+  });
+
+  it('controlado, so muda quando o produto atualiza open', () => {
+    const onOpenChange = vi.fn();
+    render(<Select label="Forma" onOpenChange={onOpenChange} open={false} options={opcoes} />);
+    const gatilho = screen.getByRole('combobox', { name: 'Forma' });
+
+    fireEvent.click(gatilho);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('controlado aberto, Escape pede o fechamento e a lista permanece', () => {
+    const onOpenChange = vi.fn();
+    render(<Select label="Forma" onOpenChange={onOpenChange} open options={opcoes} />);
+
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
+
   it('respeita o valor controlado e o estado desabilitado', () => {
     const { rerender } = render(
       <Select label="Forma" options={opcoes} value="pix" onValueChange={() => undefined} />,

@@ -1,5 +1,5 @@
 import { group as groupBy, least, max, min, sum } from 'd3-array';
-import { useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type Ref, type UIEvent } from 'react';
 import { Button } from '../../actions/Button';
 import { EmptyState } from '../../feedback/EmptyState';
 import { IconChartBar, IconChevronDown } from '../../icons';
@@ -15,6 +15,7 @@ import {
   useChartMetrics,
   useSeriesToggle,
   type AxisVisibility,
+  type ChartHeight,
   type ChartLegendAlign,
   type ChartRootProps,
   type CornerRadii,
@@ -22,6 +23,7 @@ import {
 } from '../core';
 import { INTENT_TOKENS, resolveSeriesColors, textColorOn, type ChartPalette, type SeriesAppearance, type SeriesIntent } from '../palette';
 import { linearScale } from '../scales';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatPercent } from '../../../utils/formatters';
 import { formatDuration } from '../../../utils/formatters/formatDuration';
 import { ChartTimelineTable, type TimelineTableEntry, type TimelineTableRow } from './ChartTimelineTable';
@@ -144,6 +146,8 @@ export interface ChartTimelineProps extends ChartRootProps {
   /** Formato das duracoes no rotulo da barra, na descricao e na tabela. */
   formatValue?: (durationMs: number) => string;
   groups?: readonly ChartTimelineGroup[];
+  /** Altura da area das linhas, com o eixo: as linhas rolam na vertical e o eixo fica fixo. `fill` ocupa a altura imposta pelo conteiner. Sem ela, a altura vem das linhas. */
+  height?: ChartHeight;
   hiddenSeries?: readonly string[];
   highlightOnHover?: boolean;
   legend?: 'top' | 'bottom' | 'none';
@@ -290,6 +294,7 @@ export function ChartTimeline({
   formatTooltipValue,
   formatValue = formatDuration,
   groups = [],
+  height,
   hiddenSeries,
   highlightOnHover = false,
   legend = 'top',
@@ -340,6 +345,11 @@ export function ChartTimeline({
   const [tabStopId, setTabStopId] = useState<number | null>(null);
   const [tableView, setTableView] = useState(false);
   const segmentNodes = useRef(new Map<number, SVGGElement>());
+  const labelsNode = useRef<HTMLDivElement>(null);
+  const summaryNode = useRef<HTMLDivElement>(null);
+  const scrollNode = useRef<HTMLDivElement>(null);
+  const scrollRef = useMergedRefs(plot.ref, scrollNode);
+  const [horizontalBarHeight, setHorizontalBarHeight] = useState(0);
   const interactive = onSegmentClick !== undefined;
 
   const colors = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
@@ -443,6 +453,13 @@ export function ChartTimeline({
   const rowsTop = plotTop + (labeledTop ? LABELED_TOP_ROOM : TOP_ROOM);
   const rowsBottom = rowsTop + rowsHeight;
   const svgHeight = rowsBottom + BOTTOM_ROOM + (axisOnTop ? 0 : axisHeight);
+  const sized = height !== undefined;
+  const fillHeight = height === 'fill';
+  // Com altura, o eixo sai do desenho das linhas e fica fixo enquanto elas rolam na vertical.
+  const fixedAxis = sized && xAxis !== 'hidden';
+  const rowsViewTop = fixedAxis && axisOnTop ? axisHeight : 0;
+  const rowsViewHeight = fixedAxis ? svgHeight - axisHeight : svgHeight;
+  const axisViewTop = axisOnTop ? 0 : rowsBottom + BOTTOM_ROOM;
   const svgWidth = Math.max(plot.width, minPlotWidth);
   const x = linearScale({
     domain: { max: timeRange[1], min: timeRange[0] },
@@ -821,14 +838,32 @@ export function ChartTimeline({
   };
   const axisLineY = axisOnTop ? axisHeight - 0.5 : rowsBottom + BOTTOM_ROOM + 0.5;
 
+  const axis = (
+    <g aria-hidden="true" className={`${styles.passThrough} ${xAxis === 'onHover' ? styles.axisOnHover : ''}`}>
+      <line className={chartStyles.axisLine} x1={xStart} x2={xEnd} y1={axisLineY} y2={axisLineY} />
+      {ticks.map((tick) => (
+        <text
+          className={chartStyles.axisLabel}
+          dominantBaseline={axisOnTop ? 'auto' : 'hanging'}
+          key={tick.position}
+          textAnchor={tickAnchor(x(tick.position), tick.label)}
+          x={x(tick.position)}
+          y={axisOnTop ? axisLineY - CHART_LABEL_OFFSET : axisLineY + CHART_LABEL_OFFSET}
+        >
+          {tick.label}
+        </text>
+      ))}
+    </g>
+  );
+
   const svg = (
     <svg
       aria-describedby={interactive ? hintId : undefined}
       aria-labelledby={titleId}
       className={styles.canvas}
-      height={svgHeight}
+      height={rowsViewHeight}
       role={interactive ? 'group' : 'img'}
-      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      viewBox={`0 ${rowsViewTop} ${svgWidth} ${rowsViewHeight}`}
       width={svgWidth}
     >
       <defs>
@@ -933,23 +968,7 @@ export function ChartTimeline({
         })}
       </g>
 
-      {xAxis !== 'hidden' && (
-        <g aria-hidden="true" className={`${styles.passThrough} ${xAxis === 'onHover' ? styles.axisOnHover : ''}`}>
-          <line className={chartStyles.axisLine} x1={xStart} x2={xEnd} y1={axisLineY} y2={axisLineY} />
-          {ticks.map((tick) => (
-            <text
-              className={chartStyles.axisLabel}
-              dominantBaseline={axisOnTop ? 'auto' : 'hanging'}
-              key={tick.position}
-              textAnchor={tickAnchor(x(tick.position), tick.label)}
-              x={x(tick.position)}
-              y={axisOnTop ? axisLineY - CHART_LABEL_OFFSET : axisLineY + CHART_LABEL_OFFSET}
-            >
-              {tick.label}
-            </text>
-          ))}
-        </g>
-      )}
+      {xAxis !== 'hidden' && !fixedAxis && axis}
 
       {focusedShape && (
         <rect
@@ -975,7 +994,33 @@ export function ChartTimeline({
     showProgress,
   });
 
-  const scrolls = svgWidth > plot.width + 1;
+  const scrollsAside = svgWidth > plot.width + 1;
+  const scrollsDown = sized && svgHeight > plot.height + 1;
+  const scrolls = scrollsAside || scrollsDown;
+
+  // Rotulos e resumo param onde o desenho para: acima do eixo de baixo e da barra de rolagem horizontal.
+  useLayoutEffect(() => {
+    const node = scrollNode.current;
+    setHorizontalBarHeight(sized && node ? node.offsetHeight - node.clientHeight : 0);
+  }, [plot.height, plot.width, sized, svgWidth]);
+  const axisSvg = fixedAxis && (
+    <svg
+      aria-hidden="true"
+      className={`${styles.canvas} ${axisOnTop ? styles.axisTop : styles.axisBottom}`}
+      height={axisHeight}
+      viewBox={`0 ${axisViewTop} ${svgWidth} ${axisHeight}`}
+      width={svgWidth}
+    >
+      {axis}
+    </svg>
+  );
+  const plotContent = (
+    <>
+      {axisOnTop && axisSvg}
+      {svg}
+      {!axisOnTop && axisSvg}
+    </>
+  );
   const labelsClass =
     rowLabelWidth !== 'auto'
       ? styles.labelsFixed
@@ -984,12 +1029,33 @@ export function ChartTimeline({
           ? styles.labelsCompactWithSummary
           : styles.labelsCompact
         : '';
-  const columnStyle = { gap: rowGap, paddingTop: rowsTop };
+  const columnStyle: CSSProperties = {
+    gap: rowGap,
+    marginBottom: sized ? (fixedAxis && !axisOnTop ? axisHeight : 0) + horizontalBarHeight : undefined,
+    marginTop: fixedAxis && axisOnTop ? axisHeight : undefined,
+    paddingBottom: scrollsDown ? BOTTOM_ROOM : undefined,
+    paddingTop: fixedAxis ? rowsTop - plotTop : rowsTop,
+  };
+  const scrollAlongside = (event: UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = event.currentTarget;
+
+    if (labelsNode.current) {
+      labelsNode.current.scrollTop = scrollTop;
+    }
+
+    if (summaryNode.current) {
+      summaryNode.current.scrollTop = scrollTop;
+    }
+  };
 
   const body = (
-    <div className={styles.body}>
+    <div
+      className={`${styles.body} ${sized ? styles.bodySized : ''}`}
+      style={typeof height === 'number' ? { height } : undefined}
+    >
       <TimelineLabels
         className={labelsClass}
+        columnRef={labelsNode}
         collapsibleGroups={collapsibleGroups}
         items={items}
         onToggleGroup={groupToggle.toggle}
@@ -998,18 +1064,20 @@ export function ChartTimeline({
       />
 
       <div
-        aria-label={scrolls && !interactive ? `${title}, área rolável de lado` : undefined}
-        className={styles.scroll}
-        ref={plot.ref}
+        aria-label={scrolls && !interactive ? `${title}, ${scrollsDown ? 'área rolável' : 'área rolável de lado'}` : undefined}
+        className={`${styles.scroll} ${sized ? styles.scrollSized : ''}`}
+        onScroll={sized ? scrollAlongside : undefined}
+        ref={scrollRef}
         role={scrolls && !interactive ? 'region' : undefined}
         tabIndex={scrolls && !interactive ? 0 : undefined}
       >
-        {plot.width > 0 && (showTooltip ? <ChartTooltip {...tooltip}>{svg}</ChartTooltip> : svg)}
+        {plot.width > 0 && (showTooltip ? <ChartTooltip {...tooltip}>{plotContent}</ChartTooltip> : plotContent)}
       </div>
 
       {summaryMode === 'right' && (
         <TimelineSummaries
           inline={rowHeight < STACKED_SUMMARY_ROW}
+          columnRef={summaryNode}
           items={items}
           style={columnStyle}
           summaries={summaries}
@@ -1072,7 +1140,7 @@ export function ChartTimeline({
       position={legend}
     />
   );
-  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure}`, title: `${styles.title} ${chartStyles.title}` });
+  const { figureProps, titleClassName } = chartRoot(root, { figure: `${styles.figure} ${chartStyles.figure} ${fillHeight ? chartStyles.figureFill : ''}`, title: `${styles.title} ${chartStyles.title}` });
 
   return (
     <figure {...figureProps}>
@@ -1100,7 +1168,7 @@ export function ChartTimeline({
 
       {legend === 'top' && legendView}
 
-      <div className={styles.plot} ref={outer.ref}>
+      <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={outer.ref}>
         {empty ? (
           <div className={styles.empty}>
             <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
@@ -1124,6 +1192,7 @@ export function ChartTimeline({
 
 interface TimelineLabelsProps {
   className: string;
+  columnRef: Ref<HTMLDivElement>;
   collapsibleGroups: boolean;
   items: readonly TimelineItem[];
   onToggleGroup: (groupKey: string) => void;
@@ -1133,9 +1202,9 @@ interface TimelineLabelsProps {
 }
 
 /** Coluna dos rotulos, em texto, cada item na altura da sua linha no desenho. O cabecalho do grupo recolhe o grupo. */
-function TimelineLabels({ className, collapsibleGroups, items, onToggleGroup, style, summaries }: TimelineLabelsProps) {
+function TimelineLabels({ className, collapsibleGroups, columnRef, items, onToggleGroup, style, summaries }: TimelineLabelsProps) {
   return (
-    <div className={`${styles.labels} ${className}`} style={style}>
+    <div className={`${styles.labels} ${className}`} ref={columnRef} style={style}>
       {items.map((item) => {
         if (item.kind === 'group') {
           const content = (
@@ -1193,6 +1262,7 @@ function TimelineLabels({ className, collapsibleGroups, items, onToggleGroup, st
 }
 
 interface TimelineSummariesProps {
+  columnRef: Ref<HTMLDivElement>;
   /** Titulo e subtitulo na mesma linha, quando ela e baixa demais para empilhar os dois. */
   inline: boolean;
   items: readonly TimelineItem[];
@@ -1200,9 +1270,9 @@ interface TimelineSummariesProps {
   summaries: ReadonlyMap<string, ChartTimelineSummary | undefined>;
 }
 
-function TimelineSummaries({ inline, items, style, summaries }: TimelineSummariesProps) {
+function TimelineSummaries({ columnRef, inline, items, style, summaries }: TimelineSummariesProps) {
   return (
-    <div className={styles.summary} style={style}>
+    <div className={styles.summary} ref={columnRef} style={style}>
       {items.map((item) => {
         const summary = item.kind === 'row' ? summaries.get(item.row.key) : undefined;
 

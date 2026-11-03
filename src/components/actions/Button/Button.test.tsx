@@ -20,6 +20,12 @@ describe('Button', () => {
     expect(button.className).toContain('lg');
   });
 
+  it('applies the dangerSoft variant', () => {
+    render(<Button variant="dangerSoft">Excluir</Button>);
+
+    expect(screen.getByRole('button', { name: 'Excluir' }).className).toContain('dangerSoft');
+  });
+
   it('defaults to a non-submitting button type', () => {
     render(<Button>Cancelar</Button>);
 

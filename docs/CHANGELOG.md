@@ -6,6 +6,24 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.4] — 2026-11-02
+
+### Adicionado
+
+- `Select`: abertura controlável, com `open`, `defaultOpen` e `onOpenChange`. Toda via de abrir ou fechar (clique, teclado, Esc, Tab, clique fora, rolagem e escolha) avisa por `onOpenChange`; controlado, o painel só muda quando o produto atualiza `open`. Ao fechar, o foco volta ao gatilho também quando quem fecha é o produto.
+- `ChartTimeline`: `height`, número ou `fill`. As linhas rolam na vertical dentro da altura, com o eixo de tempo fixo, e em `fill` ocupam a altura imposta pelo contêiner. Sem `height`, a altura continua vindo das linhas.
+- `Button` e `ButtonIcon`: variante `dangerSoft`, o `soft` no tom de perigo, para a ação destrutiva que não deve competir com a primária.
+- `IconStar` e `IconStarFill` entre os ícones do ponto de entrada principal, para favorito e padrão.
+- Tokens de camada, em `src/tokens/semantic/layer.css`: `--pl-z-modal` (fundo do `Dialog` e do `Drawer`), `--pl-z-toast`, `--pl-z-tooltip` (balão dos gráficos), `--pl-z-skip-link` e `--pl-z-fullscreen` (`DataGrid` em tela cheia), com os valores de antes. O produto os redefine para encaixar a lib na própria escala de camadas; os painéis ancorados a um gatilho continuam acima de tudo, pelo posicionamento.
+- Token `--pl-shell-gap`, de 6px, em `src/tokens/semantic/shell.css`: o respiro entre as folhas do `AppShell`, previsto no catálogo e ainda não implementado.
+
+### Corrigido
+
+- Gráficos radiais com legenda ao lado (`ChartPie`, `ChartDonut`, `ChartRadial` e `ChartSunburst`): a área de desenho ocupava toda a largura que a legenda deixava, e a legenda ficava longe da forma, na ponta do gráfico. A área passa a ter a medida da forma, a legenda encosta nela, e o conjunto fica centralizado. A medida da forma não muda.
+- `ChartDonut` e `ChartRadial`: o valor do centro saía no maior degrau que coubesse na largura, e um valor curto, como "1M", dominava o anel. O degrau passa a respeitar também a altura do furo: num anel de 200px o valor sai em 16px, e num de 340px ainda chega a 36px.
+- `Card.Body` passa a ocupar a sobra do cartão. Num cartão esticado por uma grade, o `Card.Footer` ficava no meio, e o conteúdo com `height="fill"` (gráficos, `DataGrid`) não recebia altura; agora o rodapé vai ao fundo, e o conteúdo com `fill` ocupa o corpo, com e sem `flush`. Num cartão sem altura imposta, nada muda. Num cartão de altura fixa com conteúdo mais alto que ele, o rodapé passa a aparecer no fundo, sobre o conteúdo que transborda, em vez de ser cortado.
+- `Select`: o Esc avisava o fechamento duas vezes.
+
 ## [0.5.3] — 2026-11-02
 
 ### Alterado

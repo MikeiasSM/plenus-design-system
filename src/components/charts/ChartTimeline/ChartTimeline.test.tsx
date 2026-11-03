@@ -423,4 +423,85 @@ describe('ChartTimeline', () => {
 
     expect(labels()).toEqual(['Ana Lima, Diurno, 12/10 07:00 a 12/10 19:00, 12h']);
   });
+  describe('com altura', () => {
+    const regionName = 'Jornada de trabalho, área rolável';
+    const setHeight = (height: number) =>
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: height });
+    afterEach(() => Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight'));
+
+    it('sem altura, o eixo fica no desenho das linhas e nada rola na vertical', () => {
+      render(journey());
+
+      expect(document.querySelector(`.${styles.axisTop}`)).toBeNull();
+      expect(document.querySelector(`.${styles.bodySized}`)).toBeNull();
+      expect(document.querySelectorAll('svg')).toHaveLength(1);
+    });
+
+    it('com altura numerica, fixa o corpo, separa o eixo e torna a area rolavel alcancavel pelo teclado', () => {
+      setHeight(60);
+      render(journey({ height: 200 }));
+
+      const region = screen.getByRole('region', { name: regionName });
+
+      expect(document.querySelector(`.${styles.bodySized}`)).toHaveStyle({ height: '200px' });
+      expect(region).toHaveAttribute('tabindex', '0');
+      expect(region.querySelector(`.${styles.axisTop}`)?.querySelectorAll(`.${chartStyles.axisLabel}`)).toHaveLength(9);
+      expect(region.querySelector('svg[role="img"]')?.querySelectorAll(`.${chartStyles.axisLabel}`)).toHaveLength(0);
+    });
+
+    it('com o eixo embaixo, o eixo fixo vem depois das linhas', () => {
+      setHeight(60);
+      render(journey({ axisPosition: 'bottom', height: 200 }));
+
+      const region = screen.getByRole('region', { name: regionName });
+
+      expect(region.querySelector('svg[role="img"]')?.nextElementSibling).toHaveClass(styles.axisBottom);
+    });
+
+    it('nao rola quando as linhas cabem na altura', () => {
+      setHeight(1000);
+      render(journey({ height: 400 }));
+
+      expect(screen.queryByRole('region')).toBeNull();
+    });
+
+    it('rola, e fica alcancavel pelo teclado, quando so o eixo fixo passa da altura', () => {
+      setHeight(1000);
+      const { unmount } = render(journey({ height: 400 }));
+      const total = [...document.querySelectorAll(`svg[role="img"], .${styles.axisTop}`)].reduce((soma, svg) => soma + Number(svg.getAttribute('height')), 0);
+      unmount();
+
+      setHeight(total - 10);
+      render(journey({ height: 400 }));
+
+      expect(screen.getByRole('region', { name: regionName })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('leva a rolagem vertical aos rotulos e ao resumo', () => {
+      setHeight(60);
+      render(journey({ height: 200, rowSummary: () => ({ title: '9h10m' }) }));
+
+      fireEvent.scroll(screen.getByRole('region', { name: regionName }), { target: { scrollTop: 40 } });
+
+      expect(document.querySelector(`.${styles.labels}`)).toHaveProperty('scrollTop', 40);
+      expect(document.querySelector(`.${styles.summary}`)).toHaveProperty('scrollTop', 40);
+    });
+
+    it('em fill, ocupa a altura imposta pelo conteiner sem fixar medida', () => {
+      render(journey({ height: 'fill' }));
+
+      expect(document.querySelector('figure')).toHaveClass(chartStyles.figureFill);
+      expect(document.querySelector(`.${styles.plotFill}`)).toBeInTheDocument();
+      expect(document.querySelector(`.${styles.bodySized}`)).not.toHaveAttribute('style');
+    });
+
+    it('mantem a visao em tabela', () => {
+      setHeight(60);
+      render(journey({ height: 200 }));
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ver como tabela' }));
+
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+  });
 });

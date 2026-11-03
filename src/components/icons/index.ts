@@ -42,6 +42,8 @@ export {
   IconSearch,
   IconSidebar,
   IconSliders,
+  IconStar,
+  IconStarFill,
   IconStructure,
   IconTablet,
   IconTrash,

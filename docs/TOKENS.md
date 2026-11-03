@@ -170,6 +170,8 @@ Exemplo:
 - `elevacao-md`
 - `elevacao-lg`
 
+A ordem das camadas fixas também é token, em `src/tokens/semantic/layer.css`: `--pl-z-fullscreen` (90, o `DataGrid` em tela cheia), `--pl-z-modal` (100, o fundo do `Dialog` e do `Drawer`), `--pl-z-toast` (110), `--pl-z-tooltip` (120, a dica dos gráficos) e `--pl-z-skip-link` (120). Um produto com escala própria redefine esses tokens no `:root` para encaixar a biblioteca, sem sobrescrever classes. Os painéis posicionados pelo React Aria (`Popover`, `Select`, `ComboBox`, os seletores de data e hora, `Menu`, `Tooltip` e a `Toolbar` ancorada) recebem `z-index: 100000` inline e não dependem de token: ficam acima de qualquer escala do produto abaixo desse valor. O `z-index` interno da pilha de um componente, como o da `Toolbar` fixa e o das células do `DataGrid`, continua local.
+
 ## 8. Motion
 
 Motion deve possuir tokens para:

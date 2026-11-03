@@ -19,6 +19,14 @@
   width: 100%;
 }
 
+/* Em fill a area ocupa a altura imposta; sem altura imposta, vale a das linhas. */
+.plotFill {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .empty {
   display: flex;
   align-items: center;
@@ -32,6 +40,18 @@
   display: flex;
   align-items: flex-start;
   min-width: 0;
+}
+
+/* Com altura, a area das linhas rola na vertical e rotulos e resumo acompanham pela rolagem do desenho. */
+.bodySized {
+  flex: 1 1 auto;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.bodySized > .labels,
+.bodySized > .summary {
+  overflow: hidden;
 }
 
 .labels,
@@ -175,6 +195,29 @@
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
+}
+
+/* A calha fixa evita que a barra vertical, ao surgir, estreite a area sem que a medida perceba. */
+.scrollSized {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: contain;
+}
+
+/* O eixo fica fixo no alto ou no pe da area rolavel, e rola de lado com ela. */
+.axisTop,
+.axisBottom {
+  position: sticky;
+  z-index: 1;
+  background: var(--pl-color-surface);
+}
+
+.axisTop {
+  top: 0;
+}
+
+.axisBottom {
+  bottom: 0;
 }
 
 /* A largura e a do eixo: encolher o desenho ao conteiner, como o reset faz com todo svg, achataria as linhas. */

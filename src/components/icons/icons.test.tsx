@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react';
-import { IconCalendar, IconChevronDown, IconClose } from './icons';
+import { IconCalendar, IconChevronDown, IconClose, IconStar, IconStarFill } from './icons';
 import { IconCircleFill, IconFolder } from './suite';
 
 describe('icones', () => {
+  it('traz a estrela de contorno e a preenchida com desenhos diferentes', () => {
+    const contorno = render(<IconStar />).container.querySelector('path')?.getAttribute('d');
+    const preenchida = render(<IconStarFill />).container.querySelector('path')?.getAttribute('d');
+
+    expect(contorno).toBeTruthy();
+    expect(preenchida).toBeTruthy();
+    expect(contorno).not.toBe(preenchida);
+  });
+
   it('fica fora da arvore de acessibilidade quando e decorativo', () => {
     const { container } = render(<IconChevronDown />);
     const svg = container.querySelector('svg');

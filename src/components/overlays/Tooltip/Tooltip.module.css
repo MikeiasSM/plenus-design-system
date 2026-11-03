@@ -1,5 +1,4 @@
 .tooltip {
-  z-index: 110;
   max-width: 260px;
   padding: var(--pl-space-1) var(--pl-space-2);
   border-radius: var(--pl-radius-sm);
