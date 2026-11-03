@@ -15,6 +15,7 @@ import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type Listing } from '../../data-display/List/useListing';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOpenState } from '../../../hooks/useOpenState';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './Select.module.css';
@@ -80,8 +81,7 @@ export function Select({
   ...props
 }: SelectProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [internalOpen, setInternalOpen] = useState(defaultOpen);
-  const open = controlledOpen ?? internalOpen;
+  const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const wasOpenRef = useRef(open);
   const resetRef = useFormReset<HTMLButtonElement>(() => listing.reset());
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
@@ -102,13 +102,6 @@ export function Select({
   });
 
   const [chosen] = listing.selected;
-
-  function setOpen(next: boolean) {
-    if (controlledOpen === undefined) {
-      setInternalOpen(next);
-    }
-    onOpenChange?.(next);
-  }
 
   function fechar() {
     setOpen(false);

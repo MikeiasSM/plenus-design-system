@@ -263,4 +263,75 @@ describe('ComboBox', () => {
       expect(screen.queryByRole('group', { name: 'Coleções' })).not.toBeInTheDocument();
     });
   });
+
+  describe('abertura controlável', () => {
+    it('abre de início com defaultOpen', () => {
+      montar({ defaultOpen: true });
+
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('avisa a abertura e o fechamento em cada via, uma vez', () => {
+      const onOpenChange = vi.fn();
+      const campo = montar({ onOpenChange });
+
+      fireEvent.click(campo);
+      fireEvent.change(campo, { target: { value: 'r' } });
+      expect(onOpenChange.mock.calls).toEqual([[true]]);
+
+      fireEvent.keyDown(campo, { key: 'Escape' });
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      fireEvent.blur(campo);
+      fireEvent.change(campo, { target: { value: 'g' } });
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+      fireEvent.click(campo);
+      fireEvent.click(screen.getByRole('option', { name: 'Goiânia' }));
+
+      expect(onOpenChange.mock.calls).toEqual([
+        [true], [false], [true], [false], [true], [false], [true], [false],
+      ]);
+    });
+
+    it('abre e fecha por open, com o foco no campo', () => {
+      const { rerender } = render(<ComboBox label="Cidade" open={false} options={opcoes} />);
+      const campo = screen.getByRole('combobox', { name: 'Cidade' });
+      campo.focus();
+
+      rerender(<ComboBox label="Cidade" open options={opcoes} />);
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+      expect(campo).toHaveAttribute('aria-expanded', 'true');
+
+      rerender(<ComboBox label="Cidade" open={false} options={opcoes} />);
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      expect(campo).toHaveFocus();
+    });
+
+    it('fechado pelo produto, desfaz a busca', () => {
+      const onSearch = vi.fn();
+      const { rerender } = render(<ComboBox label="Cidade" onSearch={onSearch} open options={opcoes} />);
+      const campo = screen.getByRole('combobox', { name: 'Cidade' });
+
+      fireEvent.change(campo, { target: { value: 'rio' } });
+      rerender(<ComboBox label="Cidade" onSearch={onSearch} open={false} options={opcoes} />);
+
+      expect(campo).toHaveValue('');
+      expect(onSearch.mock.calls).toEqual([['rio'], ['']]);
+    });
+
+    it('controlado, digitar e fechar só pedem; a lista muda quando o produto atualiza open', () => {
+      const onOpenChange = vi.fn();
+      const { rerender } = render(<ComboBox label="Cidade" onOpenChange={onOpenChange} open={false} options={opcoes} />);
+      const campo = screen.getByRole('combobox', { name: 'Cidade' });
+
+      fireEvent.change(campo, { target: { value: 'rio' } });
+      expect(onOpenChange).toHaveBeenLastCalledWith(true);
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+      rerender(<ComboBox label="Cidade" onOpenChange={onOpenChange} open options={opcoes} />);
+      fireEvent.keyDown(campo, { key: 'Escape' });
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+  });
 });

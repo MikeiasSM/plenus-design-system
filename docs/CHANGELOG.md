@@ -6,6 +6,19 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.7] — 2026-11-03
+
+### Adicionado
+
+- `ChartMap`: `subdivisions`, uma segunda geometria só de contorno, traçada por dentro das regiões, como as divisas dos estados numa visão por macrorregião. O traço é mais fino e esmaecido que a borda da região, sem preenchimento, rótulo nem interação, fora da tabela e da legenda; valor, balão, clique e rótulo continuam sendo das regiões. Sem a propriedade, o desenho não muda.
+- `ChartScatter`: `xAxisTitle`, `yAxisTitle` e `yAxisRightTitle`, que seguem o lado da tela como nos demais cartesianos, e `minXTickStep` e `minYTickStep`, o passo mínimo entre as marcas de cada eixo. Ficam separados de `xLabel` e `yLabel`, que seguem nomeando as medidas no balão.
+- `ComboBox`, `DatePicker`, `DateTimePicker` e `TimePicker`: abertura controlável por `open`, `defaultOpen` e `onOpenChange`, como no `Select`. Todo caminho que abre ou fecha avisa por `onOpenChange` uma vez; controlado, o painel só muda quando o produto atualiza `open`. Sem as propriedades, o comportamento é o mesmo.
+
+### Corrigido
+
+- Balão dos gráficos: o Esc fecha o balão aberto pelo teclado ou pela legenda, sem tirar o foco, quando o foco está dentro do gráfico. Dentro de um `Dialog`, o primeiro Esc fecha só o balão. Com o foco fora do gráfico, o Esc segue para quem estiver aberto, como um `Select`.
+- Balão dos gráficos: rótulos e títulos longos quebram em até duas linhas, com reticências na última, em vez de cortar numa só; palavra sem espaço quebra em vez de vazar; o valor segue numa linha. Perto da borda direita, com barra de rolagem clássica, o balão vira de lado em vez de encolher.
+
 ## [0.5.6] — 2026-11-03
 
 ### Adicionado

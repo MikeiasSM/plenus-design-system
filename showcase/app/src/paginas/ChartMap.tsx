@@ -399,17 +399,18 @@ const UFS_DO_NORDESTE = ['MA', 'PI', 'CE', 'RN', 'PB', 'PE', 'AL', 'SE', 'BA'];
 let malhasDoNordeste: Promise<MalhasDoNordeste> | undefined;
 
 /** Como um produto faria: o arquivo chega por fetch, uma vez, e nao entra no bundle. */
+function lerMalha(arquivo: string) {
+  return fetch(`${import.meta.env.BASE_URL}dados-mapa/${arquivo}`).then((resposta) => {
+    if (!resposta.ok) {
+      throw new Error(`Não carregou ${arquivo}`);
+    }
+
+    return resposta.json() as Promise<ChartMapFeatureCollection>;
+  });
+}
+
 function carregarMalhasDoNordeste() {
-  const ler = (arquivo: string) =>
-    fetch(`${import.meta.env.BASE_URL}dados-mapa/${arquivo}`).then((resposta) => {
-      if (!resposta.ok) {
-        throw new Error(`Não carregou ${arquivo}`);
-      }
-
-      return resposta.json() as Promise<ChartMapFeatureCollection>;
-    });
-
-  malhasDoNordeste ??= Promise.all([ler('estados.json'), ler('municipios-nordeste.json')]).then(([estados, municipios]) => ({
+  malhasDoNordeste ??= Promise.all([lerMalha('estados.json'), lerMalha('municipios-nordeste.json')]).then(([estados, municipios]) => ({
     estados,
     municipios,
   }));
@@ -420,21 +421,30 @@ function carregarMalhasDoNordeste() {
 const ufDa = (feicao: ChartMapFeature) => String(feicao.properties?.uf ?? '');
 const numeroDe = (feicao: ChartMapFeature, campo: string) => Number(feicao.properties?.[campo] ?? 0);
 
-function MunicipiosDoNordeste() {
-  const [malhas, setMalhas] = useState<MalhasDoNordeste | null>(null);
-  const [falhou, setFalhou] = useState(false);
-  const [uf, setUf] = useState<string | null>(null);
+function useMalhasDoNordeste() {
+  const [malhas, setMalhas] = useState<MalhasDoNordeste | 'falhou' | null>(null);
 
   useEffect(() => {
-    carregarMalhasDoNordeste().then(setMalhas, () => setFalhou(true));
+    carregarMalhasDoNordeste().then(setMalhas, () => setMalhas('falhou'));
   }, []);
 
-  if (falhou) {
-    return <p className="note">Não foi possível carregar a malha dos municípios.</p>;
-  }
+  return malhas;
+}
 
-  if (!malhas) {
-    return <Skeleton height={440} shape="block" width="100%" />;
+function MalhaPendente({ falhou }: { falhou: boolean }) {
+  return falhou ? (
+    <p className="note">Não foi possível carregar a malha dos municípios.</p>
+  ) : (
+    <Skeleton height={440} shape="block" width="100%" />
+  );
+}
+
+function MunicipiosDoNordeste() {
+  const malhas = useMalhasDoNordeste();
+  const [uf, setUf] = useState<string | null>(null);
+
+  if (!malhas || malhas === 'falhou') {
+    return <MalhaPendente falhou={malhas === 'falhou'} />;
   }
 
   // Descer e composicao: a pagina troca a geometria para os municipios da UF e deixa as demais como contexto.
@@ -469,6 +479,68 @@ function MunicipiosDoNordeste() {
         valueLabel="Vendas por habitante"
       />
     </div>
+  );
+}
+
+function EstadosComMunicipios() {
+  const malhas = useMalhasDoNordeste();
+
+  if (!malhas || malhas === 'falhou') {
+    return <MalhaPendente falhou={malhas === 'falhou'} />;
+  }
+
+  const estados = malhas.estados.features.filter((feicao) => UFS_DO_NORDESTE.includes(ufDa(feicao)));
+
+  return (
+    <ChartMap
+      data={estados.map((feicao) => ({ id: String(feicao.id), value: numeroDe(feicao, 'vendas_brl') }))}
+      featureLabelKey="properties.uf"
+      featureNameKey="properties.nome"
+      formatValue={moedaCompacta}
+      geometry={{ features: estados }}
+      height={440}
+      showShare
+      subdivisions={malhas.municipios}
+      title="Vendas por UF do Nordeste"
+      valueLabel="Vendas"
+    />
+  );
+}
+
+/* Malha das macrorregioes com os estados fundidos, gerada da MALHA_DAS_UFS: cada feicao e a regiao inteira. */
+let malhaDasRegioes: Promise<ChartMapFeatureCollection> | undefined;
+
+const VENDAS_POR_REGIAO = [
+  { id: 'Norte', value: 4_200_000 },
+  { id: 'Nordeste', value: 9_800_000 },
+  { id: 'Centro-Oeste', value: 6_100_000 },
+  { id: 'Sudeste', value: 21_400_000 },
+  { id: 'Sul', value: 11_300_000 },
+];
+
+function RegioesComEstados() {
+  const [regioes, setRegioes] = useState<ChartMapFeatureCollection | 'falhou' | null>(null);
+
+  useEffect(() => {
+    malhaDasRegioes ??= lerMalha('regioes.json');
+    malhaDasRegioes.then(setRegioes, () => setRegioes('falhou'));
+  }, []);
+
+  if (!regioes || regioes === 'falhou') {
+    return <MalhaPendente falhou={regioes === 'falhou'} />;
+  }
+
+  return (
+    <ChartMap
+      data={VENDAS_POR_REGIAO}
+      featureNameKey="properties.nome"
+      formatValue={moedaCompacta}
+      geometry={regioes}
+      height={440}
+      subdivisions={MALHA_DAS_UFS}
+      title="Vendas por região"
+      valueLabel="Vendas"
+    />
   );
 }
 
@@ -739,6 +811,48 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
   showShare
 />`,
     },
+    {
+      largo: true,
+      titulo: 'Regiões com as divisas dos estados',
+      descricao:
+        'A geometria traz cada macrorregião com os estados fundidos, e o valor, o balão, o clique e o rótulo são da região. subdivisions traça os estados por dentro, mais fino e esmaecido que a borda da região, sem sigla nem interação. Vendas simuladas.',
+      Previa: RegioesComEstados,
+      codigo: `<ChartMap
+  title="Vendas por região"
+  geometry={malhaDasRegioes}
+  subdivisions={malhaDasUfs}
+  featureNameKey="properties.nome"
+  data={[
+    { id: 'Norte', value: 4200000 },
+    { id: 'Nordeste', value: 9800000 },
+    { id: 'Centro-Oeste', value: 6100000 },
+    { id: 'Sudeste', value: 21400000 },
+    { id: 'Sul', value: 11300000 },
+  ]}
+  valueLabel="Vendas"
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
+/>`,
+    },
+    {
+      largo: true,
+      titulo: 'UFs com as divisas dos municípios',
+      descricao:
+        'Cada feição é a UF inteira, e o valor é dela. subdivisions traça os 1.794 municípios por dentro, mais fino e esmaecido que a borda da UF, sem interação nem entrada na tabela. Malhas carregadas sob demanda; vendas simuladas.',
+      Previa: EstadosComMunicipios,
+      codigo: `const estados = malhaDasUfs.features.filter((feicao) => ufsDoNordeste.includes(feicao.properties.uf));
+
+<ChartMap
+  title="Vendas por UF do Nordeste"
+  geometry={{ features: estados }}
+  subdivisions={malhaDosMunicipios}
+  featureNameKey="properties.nome"
+  featureLabelKey="properties.uf"
+  data={estados.map((feicao) => ({ id: String(feicao.id), value: feicao.properties.vendas_brl }))}
+  valueLabel="Vendas"
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
+  showShare
+/>`,
+    },
   ],
   faca: {
     Previa: () => (
@@ -812,6 +926,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'hiddenClasses', tipo: 'readonly number[]', descricao: 'Faixas desligadas, pelo índice, no modo controlado.' },
     { nome: 'defaultHiddenClasses', tipo: 'readonly number[]', descricao: 'As desligadas de início, no modo não controlado.' },
     { nome: 'onHiddenClassesChange', tipo: '(hidden: readonly number[]) => void', descricao: 'Clique numa faixa da legenda.' },
+    { nome: 'subdivisions', tipo: 'ChartMapFeatureCollection', descricao: 'Contorno por dentro das regiões, como as divisas das UFs numa visão por macrorregião. Mesma projeção da geometria; traço fino, sem preenchimento, rótulo nem interação, fora da tabela e da legenda. A borda da região segue por cima.' },
     { nome: 'focus', tipo: 'readonly string[]', descricao: 'Ids que o enquadramento abraça, com teto de aproximação; o resto fica como contexto.' },
     { nome: 'focusMarkers', tipo: 'readonly string[]', descricao: 'Ids de marcador que o enquadramento abraça, com margem do maior raio e teto de 100 vezes a aproximação do mapa inteiro. As regiões seguem desenhadas e interativas; com focus, o enquadramento abraça as regiões e esses marcadores.' },
     { nome: 'selectedRegion', tipo: 'string | null', descricao: 'Região com contorno de seleção, no modo controlado.' },

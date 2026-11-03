@@ -149,4 +149,63 @@ describe('DatePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
     expect(mudou).toHaveBeenLastCalledWith(hoje.toString());
   });
+
+  describe('abertura controlável', () => {
+    const gatilho = () => screen.getByRole('button', { name: 'Abrir calendário' });
+
+    it('abre de início com defaultOpen', () => {
+      render(<DatePicker label="Vencimento" defaultOpen />);
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(gatilho()).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('avisa a abertura e o fechamento em cada via, sem controle', () => {
+      const onOpenChange = vi.fn();
+      render(<DatePicker label="Vencimento" onOpenChange={onOpenChange} />);
+      const campo = screen.getByLabelText('Vencimento');
+
+      fireEvent.click(gatilho());
+      fireEvent.click(gatilho());
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      fireEvent.keyDown(campo, { key: 'Escape' });
+      fireEvent.click(gatilho());
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      fireEvent.click(gatilho());
+      fireEvent.pointerDown(document.body);
+      fireEvent.mouseDown(document.body);
+      fireEvent.pointerUp(document.body);
+      fireEvent.mouseUp(document.body);
+      fireEvent.click(gatilho());
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+      expect(onOpenChange.mock.calls).toEqual([[true], [false], [true], [false], [true], [false], [true], [false], [true], [false]]);
+    });
+
+    it('abre e fecha por open e devolve o foco ao botão', () => {
+      const { rerender } = render(<DatePicker label="Vencimento" open={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      rerender(<DatePicker label="Vencimento" open />);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      rerender(<DatePicker label="Vencimento" open={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(gatilho()).toHaveFocus();
+    });
+
+    it('controlado, só muda quando o produto atualiza open', () => {
+      const onOpenChange = vi.fn();
+      const { rerender } = render(<DatePicker label="Vencimento" onOpenChange={onOpenChange} open={false} />);
+
+      fireEvent.click(gatilho());
+      expect(onOpenChange).toHaveBeenCalledWith(true);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      rerender(<DatePicker label="Vencimento" onOpenChange={onOpenChange} open />);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+  });
 });

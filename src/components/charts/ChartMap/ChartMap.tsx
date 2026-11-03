@@ -33,6 +33,7 @@ import {
   cornersOf,
   fitProjection,
   naturalHeight,
+  outlinesOf,
   projectedBounds,
   projectedParts,
   regionsOf,
@@ -157,6 +158,11 @@ export interface ChartMapProps extends ChartRootProps {
   smallRegionLabels?: 'callout' | 'hidden';
   /** Linha sob o titulo, como o total do nivel. */
   subtitle?: string;
+  /**
+   * Contorno por dentro das regioes, como as divisas dos estados numa visao por macrorregiao. Mesma projecao da `geometry`;
+   * desenhado em traco fino, sem preenchimento, rotulo nem interacao, fora da tabela e da legenda.
+   */
+  subdivisions?: ChartMapFeatureCollection;
   title: string;
   valueLabel?: string;
 }
@@ -192,6 +198,8 @@ const DEFAULT_SCALE: ChartColorScale = { type: 'sequential' };
 const NARROW = 640;
 const MIN_HEIGHT = 160;
 const SIDE_LEGEND_MAX = 240;
+/** Espessura da divisa em relacao a borda da regiao. */
+const SUBDIVISION_RATIO = 0.6;
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
 
 const defaultPercent = (ratio: number) => formatPercent(ratio, { decimals: 1 });
@@ -297,6 +305,10 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
   return pass(Math.max(width - gutter, width / 2));
 }
 
+function isDimmed(key: string | undefined, highlightedKey: string | null) {
+  return highlightedKey !== null && key !== highlightedKey;
+}
+
 /**
  * Regioes pintadas pelo valor e marcadores por coordenada, sobre a geometria GeoJSON que o produto fornece. O desenho
  * e imagem nomeada pelo titulo; com `onRegionClick`, a selecao de regiao ou `onMarkerClick`, um grupo cujas marcas sao botoes de tabulacao
@@ -345,6 +357,7 @@ export function ChartMap({
   showTooltip = true,
   smallRegionLabels = 'callout',
   subtitle,
+  subdivisions,
   title,
   valueLabel = 'Valor',
   ...root
@@ -545,6 +558,16 @@ export function ChartMap({
     return new Map(regions.map((region) => [region.id, path(region.shape) ?? '']));
   }, [projection, regions]);
 
+  // Um caminho so para a malha toda: com milhares de feicoes, um elemento por feicao pesaria.
+  const subdivisionOutlines = useMemo(() => (subdivisions ? outlinesOf(subdivisions) : []), [subdivisions]);
+  const subdivisionPath = useMemo(
+    () =>
+      projection && subdivisionOutlines.length > 0
+        ? geoPath(projection)({ type: 'FeatureCollection', features: subdivisionOutlines })
+        : null,
+    [projection, subdivisionOutlines],
+  );
+
   const placedMarkers: PlacedMarker[] = projection
     ? markerSeries
         .flatMap((series, seriesIndex) =>
@@ -737,7 +760,7 @@ export function ChartMap({
     () =>
       entries.map((entry, index) => {
         const mark = regionMark(index);
-        const dimmed = highlightedKey !== null && entry.key !== highlightedKey;
+        const dimmed = isDimmed(entry.key, highlightedKey);
 
         return (
           <path
@@ -755,6 +778,23 @@ export function ChartMap({
         );
       }),
     [currentSelectedRegion, entries, highlightedKey, noDataFill, paths, regionSelectable, regionsInteractive, strokeWidth, tabStop],
+  );
+  // A divisa passa por cima do preenchimento e da borda da regiao; a borda volta por cima para continuar mandando.
+  const regionBorders = useMemo(
+    () =>
+      subdivisionPath &&
+      [
+        ...context.map((region, index) => <path className={styles.border} d={paths.get(region.id)} key={`c${index}`} strokeWidth={strokeWidth} />),
+        ...entries.map((entry, index) => (
+          <path
+            className={`${styles.border} ${isDimmed(entry.key, highlightedKey) ? styles.dimmed : ''}`}
+            d={paths.get(entry.region.id)}
+            key={index}
+            strokeWidth={strokeWidth}
+          />
+        )),
+      ],
+    [context, entries, highlightedKey, paths, strokeWidth, subdivisionPath],
   );
   const contextShapes = useMemo(
     () =>
@@ -803,6 +843,13 @@ export function ChartMap({
       </g>
 
       <g {...markHandlers}>{regionShapes}</g>
+
+      {subdivisionPath && (
+        <g aria-hidden="true" className={styles.passThrough}>
+          <path className={styles.subdivision} d={subdivisionPath} strokeWidth={Math.min(strokeWidth, strokeWidthFor(subdivisionOutlines.length)) * SUBDIVISION_RATIO} />
+          {regionBorders}
+        </g>
+      )}
 
       <g aria-hidden="true" className={styles.passThrough}>
         {selectedIndex >= 0 && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TimePicker, type TimePickerSize } from '@plenustech/design-system';
+import { Button, TimePicker, type TimePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -100,6 +100,20 @@ function Controlado() {
   );
 }
 
+function AberturaControlada() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Button onClick={() => setAberto(!aberto)} variant="secondary">
+        {aberto ? 'Fechar a lista de horas' : 'Abrir a lista de horas'}
+      </Button>
+      <TimePicker label="Início" onOpenChange={setAberto} open={aberto} />
+      <p className="note">open: {String(aberto)}</p>
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -150,6 +164,13 @@ export const pagina: Pagina = {
       descricao: 'Digite ou escolha na lista: o valor é texto HH:mm, ou null enquanto a hora está incompleta.',
       Previa: Controlado,
       codigo: "const [inicio, setInicio] = useState<string | null>('09:30');\n\n<TimePicker label=\"Início\" value={inicio} onValueChange={setInicio} />",
+    },
+    {
+      titulo: 'Abertura controlada',
+      descricao: 'O produto abre e fecha a lista de horas por open. Botão, teclado, Escape, clique fora e escolha pedem a mudança por onOpenChange.',
+      Previa: AberturaControlada,
+      codigo:
+        "const [aberto, setAberto] = useState(false);\n\n<TimePicker label=\"Início\" open={aberto} onOpenChange={setAberto} />",
     },
     {
       titulo: 'Horário comercial',
@@ -208,6 +229,9 @@ export const pagina: Pagina = {
   api: [
     { nome: 'value', tipo: 'string | null', descricao: 'Hora em HH:mm, no modo controlado. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Hora inicial em HH:mm, no modo não controlado.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha a lista de horas, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Hora em HH:mm, ou null sem hora inteira e permitida.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeiro horário permitido, em HH:mm.' },
     { nome: 'max', tipo: 'string', descricao: 'Último horário permitido, em HH:mm.' },

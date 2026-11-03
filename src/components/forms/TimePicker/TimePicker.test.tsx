@@ -68,4 +68,63 @@ describe('TimePicker', () => {
 
     expect(mudou).toHaveBeenLastCalledWith('21:47');
   });
+
+  describe('abertura controlável', () => {
+    const gatilho = () => screen.getByRole('button', { name: 'Abrir seletor de hora' });
+
+    it('abre de início com defaultOpen', () => {
+      render(<TimePicker label="Inicio" defaultOpen />);
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(gatilho()).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('avisa a abertura e o fechamento em cada via, sem controle', () => {
+      const onOpenChange = vi.fn();
+      render(<TimePicker label="Inicio" onOpenChange={onOpenChange} />);
+      const campo = screen.getByLabelText('Inicio');
+
+      fireEvent.click(gatilho());
+      fireEvent.click(gatilho());
+      fireEvent.keyDown(campo, { key: 'ArrowDown' });
+      fireEvent.keyDown(campo, { key: 'Escape' });
+      fireEvent.click(gatilho());
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      fireEvent.click(gatilho());
+      fireEvent.pointerDown(document.body);
+      fireEvent.mouseDown(document.body);
+      fireEvent.pointerUp(document.body);
+      fireEvent.mouseUp(document.body);
+      fireEvent.click(gatilho());
+      fireEvent.click(screen.getAllByRole('option')[0]!);
+
+      expect(onOpenChange.mock.calls).toEqual([[true], [false], [true], [false], [true], [false], [true], [false], [true], [false]]);
+    });
+
+    it('abre e fecha por open e devolve o foco ao botão', () => {
+      const { rerender } = render(<TimePicker label="Inicio" open={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      rerender(<TimePicker label="Inicio" open />);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      rerender(<TimePicker label="Inicio" open={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(gatilho()).toHaveFocus();
+    });
+
+    it('controlado, só muda quando o produto atualiza open', () => {
+      const onOpenChange = vi.fn();
+      const { rerender } = render(<TimePicker label="Inicio" onOpenChange={onOpenChange} open={false} />);
+
+      fireEvent.click(gatilho());
+      expect(onOpenChange).toHaveBeenCalledWith(true);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      rerender(<TimePicker label="Inicio" onOpenChange={onOpenChange} open />);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+  });
 });

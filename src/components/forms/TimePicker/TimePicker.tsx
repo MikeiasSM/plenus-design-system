@@ -1,9 +1,10 @@
-import { useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import type { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOpenState } from '../../../hooks/useOpenState';
 import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -49,11 +50,18 @@ export interface TimePickerProps
    * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
+  /** Abertura do painel de início, sem controle. */
+  defaultOpen?: boolean;
+  /** Avisa cada abertura e fechamento, por qualquer via. */
+  onOpenChange?: (open: boolean) => void;
+  /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
+  open?: boolean;
 }
 
 export function TimePicker({
   'aria-describedby': ariaDescribedBy,
   className,
+  defaultOpen,
   defaultValue,
   name,
   disabled = false,
@@ -66,7 +74,9 @@ export function TimePicker({
   step = 30,
   onValueChange,
   onBlur,
+  onOpenChange,
   onKeyDown,
+  open: controlledOpen,
   placeholder = 'hh:mm',
   required = false,
   size = 'md',
@@ -79,7 +89,9 @@ export function TimePicker({
   // Sem isto, dois seletores de hora na mesma pagina dividiam os ids das opcoes.
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const wasOpenRef = useRef(open);
+  const devolverFocoRef = useRef(true);
   const horaMinima = readIsoTime(min);
   const horaMaxima = readIsoTime(max);
   const [internalValue, setInternalValue] = useState<Time | null>(() => readIsoTime(defaultValue) ?? null);
@@ -95,6 +107,15 @@ export function TimePicker({
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
+  // Cobre todo fechamento, inclusive o feito pelo produto ao mudar `open`.
+  useEffect(() => {
+    if (wasOpenRef.current && !open && devolverFocoRef.current) {
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+    wasOpenRef.current = open;
+    devolverFocoRef.current = true;
+  }, [open]);
+
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: Time | null) {
     setInternalValue(proximo);
@@ -102,11 +123,8 @@ export function TimePicker({
   }
 
   function fechar(devolverFoco = true) {
+    devolverFocoRef.current = devolverFoco;
     setOpen(false);
-
-    if (devolverFoco) {
-      triggerRef.current?.focus({ preventScroll: true });
-    }
   }
 
   function handleChange(entrada: string) {
@@ -135,7 +153,7 @@ export function TimePicker({
   const { overlayProps } = useOverlay(
     {
       isOpen: open,
-      onClose: () => fechar(false),
+      onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
       // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
@@ -211,12 +229,6 @@ export function TimePicker({
                 className={styles.panel}
                 // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
                 data-react-aria-top-layer="true"
-                onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
-                    fechar();
-                  }
-                  overlayProps.onKeyDown?.(event);
-                }}
                 ref={panelRef}
                 role="dialog"
                 style={positionProps.style}

@@ -68,6 +68,11 @@ const MARGEM = 8;
 /** Distancia entre o balao e a caixa do elemento a que ele se encosta. */
 const ESPACO_DA_CAIXA = 8;
 
+/** Largura util do documento, sem a barra de rolagem que ocupa espaco: e nela que o balao cabe ou nao. */
+function larguraDaJanela() {
+  return document.documentElement.clientWidth || window.innerWidth;
+}
+
 function somar(valores: readonly number[]) {
   return valores.reduce((total, valor) => total + valor, 0);
 }
@@ -89,7 +94,7 @@ function totalizar(operador: ChartTooltipTotal, valores: readonly number[]) {
  * enquanto couber, e vira para o lado oposto ao encostar na borda.
  */
 function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
-  const cabeADireita = x + TOOLTIP_OFFSET + largura <= window.innerWidth - MARGEM;
+  const cabeADireita = x + TOOLTIP_OFFSET + largura <= larguraDaJanela() - MARGEM;
   const cabeAbaixo = y + TOOLTIP_OFFSET + altura <= window.innerHeight - MARGEM;
 
   return {
@@ -113,7 +118,7 @@ function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: 
   const aEsquerda = x - width - ESPACO_DA_CAIXA - largura;
   const alinhadoAoTopo = dentroDaJanela(topo, altura, window.innerHeight);
 
-  if (aDireita + largura <= window.innerWidth - MARGEM) {
+  if (aDireita + largura <= larguraDaJanela() - MARGEM) {
     return { x: aDireita, y: alinhadoAoTopo };
   }
 
@@ -126,7 +131,7 @@ function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: 
   const cabeAbaixo = abaixo + altura <= window.innerHeight - MARGEM;
 
   return {
-    x: dentroDaJanela(x - width, largura, window.innerWidth),
+    x: dentroDaJanela(x - width, largura, larguraDaJanela()),
     y: cabeAbaixo ? abaixo : acima >= MARGEM ? acima : dentroDaJanela(abaixo, altura, window.innerHeight),
   };
 }
@@ -150,6 +155,7 @@ export function ChartTooltip({
   title,
   totalLabel = 'Total',
 }: ChartTooltipProps) {
+  const areaRef = useRef<HTMLDivElement>(null);
   const [ponteiro, setPonteiro] = useState<Ponto | null>(null);
   const [ancoraDispensada, setAncoraDispensada] = useState<ChartAnchorPoint | null>(null);
   const ancora = anchor !== undefined && anchor !== ancoraDispensada ? anchor : null;
@@ -169,14 +175,26 @@ export function ChartTooltip({
       setAncoraDispensada(ancora);
     };
     const soltarPonteiro = () => setPonteiro(null);
+    // Com o foco no grafico, na marca ou na legenda, o Escape fecha o balao ancorado e nao segue adiante.
+    // Fora dele, o Escape e de quem tem o foco, como um menu aberto ou um atalho do produto.
+    const fecharAncora = (evento: KeyboardEvent) => {
+      const grafico = areaRef.current?.closest('figure') ?? areaRef.current;
+
+      if (evento.key === 'Escape' && ancora !== null && grafico?.contains(evento.target as Node)) {
+        evento.stopPropagation();
+        esconder();
+      }
+    };
 
     window.addEventListener('scroll', esconder, true);
     window.addEventListener('resize', esconder);
+    window.addEventListener('keydown', fecharAncora, true);
     window.addEventListener('keydown', soltarPonteiro);
 
     return () => {
       window.removeEventListener('scroll', esconder, true);
       window.removeEventListener('resize', esconder);
+      window.removeEventListener('keydown', fecharAncora, true);
       window.removeEventListener('keydown', soltarPonteiro);
     };
   }, [ancora, visivel]);
@@ -189,6 +207,7 @@ export function ChartTooltip({
       className={styles.area}
       onPointerLeave={() => setPonteiro(null)}
       onPointerMove={acompanhar}
+      ref={areaRef}
     >
       {children}
 
@@ -271,7 +290,7 @@ function Balao({
               {linha.color !== undefined && (
                 <span className={styles.swatch} style={{ background: linha.color }} />
               )}
-              {linha.label}
+              <span className={styles.labelText}>{linha.label}</span>
             </span>
 
             {colunas.map((coluna, indice) => (

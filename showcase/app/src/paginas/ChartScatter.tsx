@@ -219,6 +219,32 @@ export const pagina: Pagina = {
   formatY={formatarCompacto}
 />`,
     },
+    {
+      titulo: 'Títulos e passo dos eixos',
+      descricao: 'xAxisTitle e yAxisTitle nomeiam os eixos; minXTickStep e minYTickStep impedem marcas fracionárias em contagens.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartScatter
+            formatX={formatarDias}
+            formatY={String}
+            minYTickStep={1}
+            series={[{ label: 'Clientes', points: [{ x: 12, y: 1 }, { x: 25, y: 2 }, { x: 40, y: 3 }] }]}
+            title="Pedidos por prazo"
+            xAxisTitle="Prazo médio"
+            yAxisTitle="Pedidos"
+          />
+        </div>
+      ),
+      codigo: `<ChartScatter
+  title="Pedidos por prazo"
+  series={[{ label: 'Clientes', points: [{ x: 12, y: 1 }, ...] }]}
+  formatX={formatarDias}
+  formatY={String}
+  minYTickStep={1}
+  xAxisTitle="Prazo médio"
+  yAxisTitle="Pedidos"
+/>`,
+    },
   ],
   Modos,
   teclado: [
@@ -248,6 +274,11 @@ export const pagina: Pagina = {
     { nome: 'formatY', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo Y e das descrições.' },
     { nome: 'formatZ', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do tamanho nas descrições.' },
     { nome: 'includeZero', tipo: "boolean | 'x' | 'y'", padrao: 'true', descricao: 'Eixos cujo domínio inclui o zero.' },
+    { nome: 'xAxisTitle', tipo: 'string', descricao: 'Título do eixo X, embaixo do desenho. Separado de xLabel, que nomeia a medida no balão. O espaço sai da área de desenho.' },
+    { nome: 'yAxisTitle', tipo: 'string', descricao: 'Título do eixo Y, à esquerda do desenho. Separado de yLabel.' },
+    { nome: 'yAxisRightTitle', tipo: 'string', descricao: 'Título do eixo Y da direita.' },
+    { nome: 'minXTickStep', tipo: 'number', descricao: 'Passo mínimo entre as marcas do eixo X, na unidade do dado.' },
+    { nome: 'minYTickStep', tipo: 'number', descricao: 'Passo mínimo entre as marcas do eixo Y, na unidade do dado. Com 1, uma contagem não ganha marcas fracionárias.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },

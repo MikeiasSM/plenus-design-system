@@ -8,7 +8,8 @@
 .tooltip {
   position: fixed;
   z-index: var(--pl-z-tooltip);
-  max-width: min(360px, calc(100vw - 16px));
+  width: max-content;
+  max-width: min(360px, calc(100% - 16px));
   padding: var(--pl-space-3);
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
@@ -24,6 +25,11 @@
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-label-line-height);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .subtitle {
@@ -33,6 +39,7 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   line-height: var(--pl-type-caption-line-height);
+  overflow-wrap: anywhere;
 }
 
 .grid {
@@ -51,13 +58,21 @@
   align-items: center;
   gap: var(--pl-space-2);
   min-width: 0;
-  overflow: hidden;
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+/* O rotulo quebra em ate duas linhas; palavra sem espaco quebra onde precisar e o excedente vira
+   reticencias. O texto inteiro segue no DOM: o corte e so de desenho. */
+.labelText {
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .swatch {

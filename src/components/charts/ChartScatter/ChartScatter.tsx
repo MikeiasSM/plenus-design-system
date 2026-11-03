@@ -58,6 +58,10 @@ export interface ChartScatterProps extends ChartRootProps {
   hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Passo minimo entre as marcas do eixo horizontal, na unidade do dado. */
+  minXTickStep?: number;
+  /** Passo minimo entre as marcas dos eixos verticais, na unidade do dado. */
+  minYTickStep?: number;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Clique no ponto. Com ele, os pontos viram botoes percorridos pelas setas, na ordem da lista. */
   onPointClick?: (point: ChartScatterPointClick) => void;
@@ -74,6 +78,12 @@ export interface ChartScatterProps extends ChartRootProps {
   xAxis?: AxisVisibility;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo horizontal, embaixo do desenho. Separado do `xLabel`, que nomeia a medida no balao. */
+  xAxisTitle?: string;
+  /** Titulo do eixo vertical da direita. */
+  yAxisRightTitle?: string;
+  /** Titulo do eixo vertical, a esquerda do desenho. Separado do `yLabel`. */
+  yAxisTitle?: string;
 }
 
 const RAIO_SEM_Z = 5;
@@ -101,6 +111,8 @@ export function ChartScatter({
   hiddenSeries,
   legend = 'bottom',
   legendAlign,
+  minXTickStep,
+  minYTickStep,
   onHiddenSeriesChange,
   onPointClick,
   palette,
@@ -113,6 +125,9 @@ export function ChartScatter({
   xAxis = 'visible',
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  xAxisTitle,
+  yAxisRightTitle,
+  yAxisTitle,
   ...root
 }: ChartScatterProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
@@ -156,10 +171,11 @@ export function ChartScatter({
     [series],
   );
 
-  const rotulosY = valueLabelsFor(dominioY, alturaDoDesenho, formatY);
-  const rotulosX = valueLabelsFor(dominioX, width, formatX);
+  const rotulosY = valueLabelsFor(dominioY, alturaDoDesenho, formatY, minYTickStep);
+  const rotulosX = valueLabelsFor(dominioX, width, formatX, minXTickStep);
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: rotulosX,
     font,
     height: alturaDoDesenho,
@@ -206,8 +222,8 @@ export function ChartScatter({
   });
   const escalaRaio = useMemo(() => radiusScale(maiorZ, FAIXA_DE_RAIO), [maiorZ]);
 
-  const marcasX = ticksFor(alvoX, plot.width);
-  const marcasY = ticksFor(alvoY, plot.height);
+  const marcasX = ticksFor(alvoX, plot.width, undefined, minXTickStep);
+  const marcasY = ticksFor(alvoY, plot.height, undefined, minYTickStep);
 
   const ticksX: AxisTick[] = marcasX.map((valor) => ({ label: formatX(valor), position: escalaX(valor) }));
   const ticksY: AxisTick[] = marcasY.map((valor) => ({ label: formatY(valor), position: escalaY(valor) }));
@@ -249,6 +265,7 @@ export function ChartScatter({
         { lines: marcasX.map((valor) => escalaX(valor)), orientation: 'vertical' },
       ]}
       fillHeight={fillHeight}
+      font={font}
       height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({
         color: cores[indice],
@@ -275,9 +292,9 @@ export function ChartScatter({
       }
       tooltipAnchor={marcas.tooltipAnchor}
       width={width}
-      xAxis={{ hideLine: true, labelRotation: rotation, ticks: ticksX, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: ticksY, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: ticksY, visibility: yAxisRight }}
+      xAxis={{ hideLine: true, labelRotation: rotation, ticks: ticksX, title: xAxisTitle, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: ticksY, title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: ticksY, title: yAxisRightTitle, visibility: yAxisRight }}
     >
       {guia && (
         <g aria-hidden="true">

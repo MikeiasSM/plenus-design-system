@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ComboBox, IconFile, IconStructure, Select, type ComboBoxSize } from '@plenustech/design-system';
+import { Button, ComboBox, IconFile, IconStructure, Select, type ComboBoxSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { ESTADOS, RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
@@ -158,6 +158,20 @@ function BuscaNoServidor() {
   );
 }
 
+function AberturaControlada() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Button onClick={() => setAberto(!aberto)} variant="secondary">
+        {aberto ? 'Fechar a lista' : 'Abrir a lista'}
+      </Button>
+      <ComboBox label="Estado" onOpenChange={setAberto} open={aberto} options={ESTADOS} />
+      <p className="note">open: {String(aberto)}</p>
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -215,6 +229,13 @@ export const pagina: Pagina = {
         </div>
       ),
       codigo: '<ComboBox\n  label="Estado"\n  placeholder="Digite para filtrar"\n  options={estados}\n  onValueChange={setEstado}\n/>',
+    },
+    {
+      titulo: 'Abertura controlada',
+      descricao: 'O produto abre e fecha a lista por open. Digitar, setas, clique, Escape, Tab, clique fora, rolagem e escolha pedem a mudança por onOpenChange; o foco fica no campo.',
+      Previa: AberturaControlada,
+      codigo:
+        "const [aberto, setAberto] = useState(false);\n\n<ComboBox label=\"Estado\" options={estados} open={aberto} onOpenChange={setAberto} />",
     },
     {
       titulo: 'Escolha múltipla',
@@ -342,6 +363,9 @@ export const pagina: Pagina = {
     { nome: 'value', tipo: 'string | string[]', descricao: 'Chave ou chaves escolhidas, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string | string[]', descricao: 'Escolha inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void | (values: string[]) => void', descricao: 'Avisa a escolha, conforme o modo.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha a lista, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Lista aberta de início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada abertura e fechamento, por qualquer via; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onSearch', tipo: '(term: string) => void', descricao: 'Busca externa: avisa o termo e desliga o filtro local.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Espera da busca externa.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Nenhum resultado'", descricao: 'Mensagem da lista sem correspondência.' },

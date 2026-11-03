@@ -120,6 +120,20 @@ function Envio() {
   );
 }
 
+function AberturaControlada() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Button onClick={() => setAberto(!aberto)} variant="secondary">
+        {aberto ? 'Fechar o painel' : 'Abrir o painel'}
+      </Button>
+      <DateTimePicker label="Agendamento" onOpenChange={setAberto} open={aberto} />
+      <p className="note">open: {String(aberto)}</p>
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -172,6 +186,13 @@ export const pagina: Pagina = {
         "const [agendamento, setAgendamento] = useState<string | null>('2026-03-09T18:40');\n\n<DateTimePicker\n  label=\"Agendamento\"\n  value={agendamento}\n  onValueChange={setAgendamento}\n/>",
     },
     {
+      titulo: 'Abertura controlada',
+      descricao: 'O produto abre e fecha o painel por open. Botão, teclado, Escape, clique fora e escolha pedem a mudança por onOpenChange.',
+      Previa: AberturaControlada,
+      codigo:
+        "const [aberto, setAberto] = useState(false);\n\n<DateTimePicker label=\"Agendamento\" open={aberto} onOpenChange={setAberto} />",
+    },
+    {
       titulo: 'No formulário',
       descricao: 'De 15 em 15 minutos. Com name, data e hora vão juntas no envio.',
       Previa: Envio,
@@ -216,6 +237,9 @@ export const pagina: Pagina = {
   api: [
     { nome: 'value', tipo: 'string | null', descricao: 'Data e hora em ISO, no modo controlado. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Data e hora iniciais em ISO, no modo não controlado.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o painel, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data e hora em ISO, ou null sem as duas inteiras e permitidas.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },

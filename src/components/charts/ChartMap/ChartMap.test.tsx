@@ -377,6 +377,48 @@ describe('ChartMap', () => {
     });
   });
 
+  describe('subdivisions', () => {
+    const divisas = { features: [polygon('a', 'Alfa Norte', box(0, 0, 5, 10)), polygon('b', 'Alfa Sul', box(5, 0, 5, 10))] };
+    const outline = () => document.querySelector<SVGPathElement>(`path.${styles.subdivision}`);
+
+    it('desenha a malha como linha, sem interacao, fora da arvore de acessibilidade, da tabela e da legenda', () => {
+      render(map({ onRegionClick: () => undefined, subdivisions: divisas }));
+
+      expect(outline()?.getAttribute('d')).toMatch(/^M/);
+      expect(outline()?.closest('[aria-hidden="true"]')).not.toBeNull();
+      expect(outline()?.closest(`.${styles.passThrough}`)).not.toBeNull();
+      expect(within(screen.getByRole('group')).getAllByRole('button')).toHaveLength(5);
+      expect(screen.queryByText('Alfa Norte')).toBeNull();
+      expect(screen.getByRole('group').getAttribute('aria-describedby')).not.toBeNull();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ver como tabela' }));
+      expect(within(screen.getAllByRole('table')[0]).getAllByRole('rowheader')).toHaveLength(5);
+    });
+
+    it('repete a borda das regioes por cima da malha', () => {
+      render(map({ subdivisions: divisas }));
+
+      expect(document.querySelectorAll(`path.${styles.border}`)).toHaveLength(5);
+    });
+
+    it('nao muda o desenho sem a propriedade', () => {
+      render(map());
+
+      expect(outline()).toBeNull();
+      expect(document.querySelectorAll(`path.${styles.border}`)).toHaveLength(0);
+    });
+
+    it('acompanha o enquadramento do focus, com o contexto tambem contornado', () => {
+      const { rerender } = render(map({ subdivisions: divisas }));
+      const whole = outline()?.getAttribute('d');
+
+      rerender(map({ focus: ['AA'], subdivisions: divisas }));
+
+      expect(outline()?.getAttribute('d')).not.toEqual(whole);
+      expect(document.querySelectorAll(`path.${styles.border}`)).toHaveLength(5);
+    });
+  });
+
   it('troca o desenho pela tabela, ordenada pelo valor, com busca sem acento e cabecalhos que ordenam', () => {
     render(map({ showShare: true }));
     const toggle = screen.getByRole('button', { name: 'Ver como tabela' });

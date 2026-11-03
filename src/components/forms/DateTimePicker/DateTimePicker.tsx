@@ -13,6 +13,7 @@ import {
 } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
@@ -64,6 +65,12 @@ export interface DateTimePickerProps
    * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
+  /** Abertura do painel de início, sem controle. */
+  defaultOpen?: boolean;
+  /** Avisa cada abertura e fechamento, por qualquer via. */
+  onOpenChange?: (open: boolean) => void;
+  /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
+  open?: boolean;
 }
 
 const doisDigitos = (valor: number) => String(valor).padStart(2, '0');
@@ -81,6 +88,7 @@ function paraTexto(valor?: CalendarDateTime) {
 export function DateTimePicker({
   'aria-describedby': ariaDescribedBy,
   className,
+  defaultOpen,
   defaultValue,
   name,
   disabled = false,
@@ -95,7 +103,9 @@ export function DateTimePicker({
   step = 30,
   onValueChange,
   onBlur,
+  onOpenChange,
   onKeyDown,
+  open: controlledOpen,
   placeholder = 'dd/mm/aaaa hh:mm',
   required = false,
   size = 'md',
@@ -108,7 +118,9 @@ export function DateTimePicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   // Fixo, o id fazia dois seletores dividirem os ids das opcoes de hora.
   const idDaLista = `datetime-hora-${useId()}`;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const wasOpenRef = useRef(open);
+  const devolverFocoRef = useRef(true);
   const limites: CalendarLimits = {
     isDateUnavailable: isDateUnavailable && ((data) => isDateUnavailable(data.toString())),
     max: readIsoDate(max),
@@ -127,6 +139,15 @@ export function DateTimePicker({
     setDigitando(false);
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
+
+  // Cobre todo fechamento, inclusive o feito pelo produto ao mudar `open`.
+  useEffect(() => {
+    if (wasOpenRef.current && !open && devolverFocoRef.current) {
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+    wasOpenRef.current = open;
+    devolverFocoRef.current = true;
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -154,11 +175,8 @@ export function DateTimePicker({
   }
 
   function fechar(devolverFoco = true) {
+    devolverFocoRef.current = devolverFoco;
     setOpen(false);
-
-    if (devolverFoco) {
-      triggerRef.current?.focus({ preventScroll: true });
-    }
   }
 
   function handleChange(entrada: string) {
@@ -190,7 +208,7 @@ export function DateTimePicker({
   const { overlayProps } = useOverlay(
     {
       isOpen: open,
-      onClose: () => fechar(false),
+      onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
       // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
@@ -266,12 +284,6 @@ export function DateTimePicker({
                 className={styles.panel}
                 // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
                 data-react-aria-top-layer="true"
-                onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
-                    fechar();
-                  }
-                  overlayProps.onKeyDown?.(event);
-                }}
                 ref={panelRef}
                 role="dialog"
                 style={positionProps.style}

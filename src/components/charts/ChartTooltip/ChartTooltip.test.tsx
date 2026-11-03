@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Dialog } from '../../overlays/Dialog';
 import { ChartTooltip, type ChartTooltipRow } from './ChartTooltip';
 
 const distribuicao: ChartTooltipRow[] = [
@@ -202,5 +203,96 @@ describe('ChartTooltip', () => {
     abrir();
 
     expect(screen.queryByText('Distribuição', { ignore: '[aria-hidden="true"], [aria-hidden="true"] *' })).toBeNull();
+  });
+
+  it('fecha o balao ancorado no Escape, sem tirar o foco da marca', () => {
+    render(
+      <ChartTooltip anchor={{ x: 120, y: 90 }} rows={distribuicao} title="Distribuição">
+        <button type="button">marca</button>
+      </ChartTooltip>,
+    );
+    screen.getByRole('button').focus();
+    expect(balao()).not.toBeNull();
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'Escape' });
+
+    expect(balao()).toBeNull();
+    expect(screen.getByRole('button')).toHaveFocus();
+  });
+
+  it('reabre o balao quando a ancora muda para outra marca', () => {
+    const { rerender } = montar({ anchor: { x: 120, y: 90 } });
+    fireEvent.keyDown(screen.getByTestId('desenho'), { key: 'Escape' });
+    expect(balao()).toBeNull();
+
+    rerender(
+      <ChartTooltip anchor={{ x: 300, y: 90 }} rows={distribuicao} title="Distribuição">
+        <div data-testid="desenho">gráfico</div>
+      </ChartTooltip>,
+    );
+
+    expect(balao()).not.toBeNull();
+  });
+
+  it('no dialogo, o primeiro Escape fecha so o balao e o segundo segue para o dialogo', () => {
+    const aoMudar = vi.fn();
+    render(
+      <Dialog defaultOpen onOpenChange={aoMudar} title="Grafico">
+        <ChartTooltip anchor={{ x: 120, y: 90 }} rows={distribuicao} title="Distribuição">
+          <button type="button">marca</button>
+        </ChartTooltip>
+      </Dialog>,
+    );
+    const marca = screen.getByRole('button', { name: 'marca' });
+    marca.focus();
+
+    expect(screen.getByText('Distribuição')).toBeInTheDocument();
+    fireEvent.keyDown(marca, { key: 'Escape' });
+    expect(screen.queryByText('Distribuição')).toBeNull();
+    expect(aoMudar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(marca, { key: 'Escape' });
+    expect(aoMudar).toHaveBeenCalledWith(false);
+  });
+
+  it('com o foco fora do grafico, o Escape e de quem tem o foco e o balao ancorado fica', () => {
+    const aoTeclar = vi.fn();
+    document.addEventListener('keydown', aoTeclar);
+    render(
+      <>
+        <ChartTooltip anchor={{ x: 120, y: 90 }} rows={distribuicao} title="Distribuição">
+          <div>gráfico</div>
+        </ChartTooltip>
+        <button type="button">menu</button>
+      </>,
+    );
+
+    fireEvent.keyDown(screen.getByRole('button', { name: 'menu' }), { key: 'Escape' });
+
+    expect(aoTeclar).toHaveBeenCalledTimes(1);
+    expect(balao()).not.toBeNull();
+    document.removeEventListener('keydown', aoTeclar);
+  });
+
+  it('sem balao ancorado, o Escape segue normalmente', () => {
+    const aoTeclar = vi.fn();
+    document.addEventListener('keydown', aoTeclar);
+    montar();
+
+    fireEvent.keyDown(screen.getByTestId('desenho'), { key: 'Escape' });
+
+    expect(aoTeclar).toHaveBeenCalledTimes(1);
+    document.removeEventListener('keydown', aoTeclar);
+  });
+
+  it('decide o lado pela largura util do documento, sem a barra de rolagem', () => {
+    fixarMedidaDoBalao(200, 100);
+    Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1007 });
+    montar();
+    mover(800, 50);
+
+    // 800 + 16 + 200 = 1016 cabe em 1024 (innerWidth), mas nao em 1007 - 8.
+    expect(balao()).toHaveStyle({ left: '584px' });
+    Reflect.deleteProperty(document.documentElement, 'clientWidth');
   });
 });

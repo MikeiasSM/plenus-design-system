@@ -135,6 +135,20 @@ function Envio() {
   );
 }
 
+function AberturaControlada() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Button onClick={() => setAberto(!aberto)} variant="secondary">
+        {aberto ? 'Fechar o calendário' : 'Abrir o calendário'}
+      </Button>
+      <DatePicker label="Vencimento" onOpenChange={setAberto} open={aberto} />
+      <p className="note">open: {String(aberto)}</p>
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -193,6 +207,13 @@ export const pagina: Pagina = {
       Previa: Vencimento,
       codigo:
         "const [vencimento, setVencimento] = useState<string | null>('2026-03-09');\n\n<DatePicker label=\"Vencimento\" value={vencimento} onValueChange={setVencimento} />",
+    },
+    {
+      titulo: 'Abertura controlada',
+      descricao: 'O produto abre e fecha o calendário por open. Botão, teclado, Escape, clique fora e escolha pedem a mudança por onOpenChange.',
+      Previa: AberturaControlada,
+      codigo:
+        "const [aberto, setAberto] = useState(false);\n\n<DatePicker label=\"Vencimento\" open={aberto} onOpenChange={setAberto} />",
     },
     {
       titulo: 'A partir de hoje',
@@ -270,6 +291,9 @@ export const pagina: Pagina = {
   api: [
     { nome: 'value', tipo: 'string | null', descricao: 'Data em ISO, no modo controlado. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Data inicial em ISO, no modo não controlado.' },
+    { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o calendário, no modo controlado.' },
+    { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
+    { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null sem data inteira e permitida.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },

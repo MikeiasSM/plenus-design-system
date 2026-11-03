@@ -122,6 +122,23 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* A divisa e a borda da regiao mais fina e esmaecida: sobre qualquer preenchimento, contrasta menos que ela, que a cobre logo acima. */
+.subdivision {
+  fill: none;
+  stroke: var(--pl-color-border-strong);
+  stroke-opacity: 0.55;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.border {
+  fill: none;
+  stroke: var(--pl-color-border-strong);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--pl-speed-2) var(--pl-ease);
+}
+
 .selectedOutline,
 .hoverOutline,
 .focusOutline {

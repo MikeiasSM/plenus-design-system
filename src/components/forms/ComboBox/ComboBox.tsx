@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -16,6 +17,7 @@ import { useListing, type ListingItem } from '../../data-display/List/useListing
 import { Badge } from '../../data-display/Badge';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOpenState } from '../../../hooks/useOpenState';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './ComboBox.module.css';
@@ -37,6 +39,8 @@ export interface ComboBoxOption {
 /** As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma ao do sistema. */
 interface ComboBoxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'defaultValue' | 'name' | 'onChange' | 'size' | 'type' | 'value'> {
+  /** Abertura da lista de início, sem controle. */
+  defaultOpen?: boolean;
   emptyMessage?: string;
   error?: string;
   hint?: string;
@@ -47,7 +51,11 @@ interface ComboBoxBaseProps
    */
   name?: string;
   loading?: boolean;
+  /** Avisa cada abertura e fechamento, por qualquer via: digitar, setas, clique, Escape, Tab, rolagem ou escolha. */
+  onOpenChange?: (open: boolean) => void;
   onSearch?: (term: string) => void;
+  /** Com ele a lista é controlada: só muda quando o produto atualiza a propriedade. */
+  open?: boolean;
   options: readonly ComboBoxOption[];
   size?: ComboBoxSize;
 }
@@ -93,6 +101,7 @@ export function ComboBox(allProps: ComboBoxProps) {
   const {
     'aria-describedby': ariaDescribedBy,
     className,
+    defaultOpen,
     defaultValue,
     name,
     disabled = false,
@@ -105,9 +114,11 @@ export function ComboBox(allProps: ComboBoxProps) {
     onBlur,
     onClick,
     onKeyDown,
+    onOpenChange,
     onSearch,
     // Fora do resto, que vai ao campo: quem o chama e `relatarEscolha`, que conhece o modo.
     onValueChange,
+    open: controlledOpen,
     options,
     placeholder,
     ref,
@@ -122,7 +133,8 @@ export function ComboBox(allProps: ComboBoxProps) {
   const controlRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const baseId = `combobox-${useId()}`;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const wasOpenRef = useRef(open);
   const [filtering, setFiltering] = useState(false);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     listing.reset();
@@ -196,6 +208,16 @@ export function ComboBox(allProps: ComboBoxProps) {
     setOpen(false);
     encerrarFiltro();
   }
+
+  // O fechamento feito pelo produto ao mudar `open` tambem desfaz a busca.
+  useEffect(() => {
+    if (wasOpenRef.current && !open && filtering) {
+      encerrarFiltro();
+    }
+    wasOpenRef.current = open;
+    // Só na transição de `open`: `encerrarFiltro` muda a cada renderização.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);

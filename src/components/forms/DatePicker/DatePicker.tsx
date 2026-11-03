@@ -4,6 +4,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateInput, parseDateInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
@@ -51,11 +52,18 @@ export interface DatePickerProps
    * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
+  /** Abertura do painel de início, sem controle. */
+  defaultOpen?: boolean;
+  /** Avisa cada abertura e fechamento, por qualquer via. */
+  onOpenChange?: (open: boolean) => void;
+  /** Com ele o painel é controlado: só muda quando o produto atualiza a propriedade. */
+  open?: boolean;
 }
 
 export function DatePicker({
   'aria-describedby': ariaDescribedBy,
   className,
+  defaultOpen,
   defaultValue,
   name,
   disabled = false,
@@ -69,7 +77,9 @@ export function DatePicker({
   min,
   onValueChange,
   onBlur,
+  onOpenChange,
   onKeyDown,
+  open: controlledOpen,
   placeholder = 'dd/mm/aaaa',
   required = false,
   size = 'md',
@@ -80,7 +90,9 @@ export function DatePicker({
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const wasOpenRef = useRef(open);
+  const devolverFocoRef = useRef(true);
   const limites: CalendarLimits = {
     isDateUnavailable: isDateUnavailable && ((data) => isDateUnavailable(data.toString())),
     max: readIsoDate(max),
@@ -97,6 +109,15 @@ export function DatePicker({
     setDigitando(false);
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
+
+  // Cobre todo fechamento, inclusive o feito pelo produto ao mudar `open`.
+  useEffect(() => {
+    if (wasOpenRef.current && !open && devolverFocoRef.current) {
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+    wasOpenRef.current = open;
+    devolverFocoRef.current = true;
+  }, [open]);
   const [rascunho, setRascunho] = useState(escolhido);
   const [versaoDoCalendario, setVersaoDoCalendario] = useState(0);
 
@@ -119,11 +140,8 @@ export function DatePicker({
   }
 
   function fechar(devolverFoco = true) {
+    devolverFocoRef.current = devolverFoco;
     setOpen(false);
-
-    if (devolverFoco) {
-      triggerRef.current?.focus({ preventScroll: true });
-    }
   }
 
   function handleChange(entrada: string) {
@@ -154,7 +172,7 @@ export function DatePicker({
   const { overlayProps } = useOverlay(
     {
       isOpen: open,
-      onClose: () => fechar(false),
+      onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
       // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
@@ -230,12 +248,6 @@ export function DatePicker({
                 className={styles.panel}
                 // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
                 data-react-aria-top-layer="true"
-                onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
-                    fechar();
-                  }
-                  overlayProps.onKeyDown?.(event);
-                }}
                 ref={panelRef}
                 role="dialog"
                 style={positionProps.style}

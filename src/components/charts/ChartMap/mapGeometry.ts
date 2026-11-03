@@ -129,6 +129,17 @@ export function regionsOf(collection: ChartMapFeatureCollection, { idKey, labelK
   });
 }
 
+/** As feicoes desenhaveis da colecao, so para contornar: sem identificador, nome nem rotulo. */
+export function outlinesOf(collection: ChartMapFeatureCollection): MapShape[] {
+  return collection.features.flatMap((feature) => {
+    const coordinates = validPolygons(feature.geometry);
+
+    return coordinates.length > 0
+      ? [{ geometry: { coordinates, type: 'MultiPolygon' as const }, properties: null, type: 'Feature' as const }]
+      : [];
+  });
+}
+
 /** Cantos opostos de uma caixa em longitude e latitude: oeste-sul e leste-norte. */
 export type MapCorners = ReturnType<typeof cornersOf>;
 

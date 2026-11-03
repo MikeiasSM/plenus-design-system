@@ -126,4 +126,32 @@ describe('ChartScatter', () => {
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicar).toHaveBeenCalledWith({ index: 1, point: carteira[0].points[1], series: 'Clientes' });
   });
+
+  it('desenha os titulos dos eixos fora da arvore de acessibilidade e respeita o passo minimo', () => {
+    const contagem = [{ label: 'Clientes', points: [{ x: 1, y: 0 }, { x: 2, y: 2 }] }];
+    const { container } = render(
+      <ChartScatter
+        minXTickStep={1}
+        minYTickStep={1}
+        series={contagem}
+        title="Contagem"
+        xAxisTitle="Prazo"
+        yAxisRight="visible"
+        yAxisRightTitle="Total"
+        yAxisTitle="Pedidos"
+      />,
+    );
+    const textos = [...container.querySelectorAll('text')].map((no) => no.textContent);
+
+    expect(textos).toEqual(expect.arrayContaining(['Prazo', 'Pedidos', 'Total']));
+    expect(textos.some((texto) => texto === '0,5')).toBe(false);
+    expect(textos.some((texto) => texto === '1,5')).toBe(false);
+    expect(screen.getByText('Pedidos')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('sem as props novas, nao reserva espaco nem desenha titulo', () => {
+    const { container } = render(<ChartScatter series={carteira} title="Carteira" />);
+
+    expect(container.querySelector('[class*="axisTitle"]')).toBeNull();
+  });
 });

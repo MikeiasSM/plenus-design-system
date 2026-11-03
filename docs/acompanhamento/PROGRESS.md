@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-1408 testes em 129 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+1437 testes em 129 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -350,7 +350,6 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 
 ## Pendencias de correcao identificadas no review
 
-- **O `npm publish --ignore-scripts` ainda roda o `prepare`** com o npm do Actions, visto no log da 0.2.6. O pacote publicado e reconstruido depois de `check:pacote` aprovar o anterior; o build e deterministico, mas a comporta nao confere o que sai. O caminho e publicar o tarball conferido, `npm pack` seguido de `npm publish <arquivo>.tgz`.
 - **`npm run check:contraste` passa.** A serie 4 era a unica reprovacao, com 2.55:1 contra a superficie clara. A escolha saiu da propria paleta: ela ja aceita 1.77:1 entre a serie 2 e a serie 5, que sao o laranja claro e o escuro. `brand.blue.70` da 1.66:1 contra a serie 1 — o mesmo padrao — e 10.05:1 contra a superficie. `brand.blue.60`, cogitado antes, daria 1.29:1 e ficaria abaixo do que a casa aceita.
 - **No tema claro, o segundo tom de cada matiz desce.** Um azul claro sobre superficie clara nao alcanca o piso de 3:1 da WCAG 1.4.11. E o que o laranja ja fazia; o azul passou a fazer igual.
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
