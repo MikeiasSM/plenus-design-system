@@ -40,6 +40,8 @@ export interface ChartWaterfallProps extends ChartRootProps {
   formatValue?: (value: number) => string;
   height?: ChartHeight;
   labelAngle?: AxisLabelAngle;
+  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  minTickStep?: number;
   /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
   onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
@@ -51,8 +53,14 @@ export interface ChartWaterfallProps extends ChartRootProps {
   steps: readonly ChartWaterfallStep[];
   title: string;
   xAxis?: AxisVisibility;
+  /** Titulo do eixo das categorias, embaixo do desenho. */
+  xAxisTitle?: string;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo de valor da direita. */
+  yAxisRightTitle?: string;
+  /** Titulo do eixo de valor, a esquerda do desenho. */
+  yAxisTitle?: string;
 }
 
 interface Trecho {
@@ -111,6 +119,7 @@ export function ChartWaterfall({
   formatValue = formatNumber,
   height = 280,
   labelAngle = 'auto',
+  minTickStep,
   onHoverStep,
   onStepClick,
   showDataLabels = 'visible',
@@ -118,8 +127,11 @@ export function ChartWaterfall({
   steps,
   title,
   xAxis = 'visible',
+  xAxisTitle,
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  yAxisRightTitle,
+  yAxisTitle,
   ...root
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
@@ -143,9 +155,10 @@ export function ChartWaterfall({
     [trechos],
   );
 
-  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
+  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: steps.map((passo) => passo.label),
     font,
     height: alturaDoDesenho,
@@ -182,7 +195,7 @@ export function ChartWaterfall({
     [maximo, minimo, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height, undefined, minTickStep);
 
   const marcasPassos: AxisTick[] = steps.map((passo, indice) => ({
     label: passo.label,
@@ -207,7 +220,7 @@ export function ChartWaterfall({
     const passo = steps[indice];
 
     if (passo.total) {
-      return [{ color: cores[indice], label: 'Total', values: [passo.value] }];
+      return [{ color: cores[indice], label: passo.label, values: [passo.value] }];
     }
 
     return [
@@ -231,6 +244,7 @@ export function ChartWaterfall({
         },
       ]}
       fillHeight={fillHeight}
+      font={font}
       height={alturaDoDesenho}
       legendPosition="none"
       margins={margins}
@@ -249,9 +263,9 @@ export function ChartWaterfall({
       }
       tooltipAnchor={marcas.tooltipAnchor}
       width={width}
-      xAxis={{ labelRotation: rotation, ticks: marcasPassos, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
+      xAxis={{ labelRotation: rotation, ticks: marcasPassos, title: xAxisTitle, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: marcasValor, title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: marcasValor, title: yAxisRightTitle, visibility: yAxisRight }}
     >
       {passoEmFoco !== null && (
         <BandCursor offset={faixaDe(passoEmFoco)} plot={plot} size={escalaPassos.bandwidth()} />

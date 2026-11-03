@@ -149,6 +149,54 @@ describe('ChartTooltip', () => {
     expect(balao()).toHaveStyle({ left: '784px', top: '384px' });
   });
 
+  it('com a caixa, que termina no ponto, encosta a direita dela a 8px, alinhado ao topo', () => {
+    fixarMedidaDoBalao(200, 300);
+    montar({ anchor: { height: 24, width: 100, x: 200, y: 62 } });
+
+    expect(balao()).toHaveStyle({ left: '208px', top: '50px' });
+  });
+
+  it('com a caixa, vai para a esquerda dela quando nao cabe a direita, sem cobri-la', () => {
+    fixarMedidaDoBalao(200, 300);
+    montar({ anchor: { height: 24, width: 100, x: 900, y: 62 } });
+
+    expect(balao()).toHaveStyle({ left: '592px', top: '50px' });
+  });
+
+  it('com a caixa, desce abaixo dela, alinhado a esquerda, quando nao cabe dos lados', () => {
+    fixarMedidaDoBalao(400, 100);
+    montar({ anchor: { height: 24, width: 700, x: 850, y: 62 } });
+
+    expect(balao()).toHaveStyle({ left: '150px', top: '82px' });
+  });
+
+  it('com a caixa, sobe acima dela quando nao cabe nem abaixo', () => {
+    fixarMedidaDoBalao(400, 100);
+    montar({ anchor: { height: 24, width: 700, x: 850, y: 692 } });
+
+    expect(balao()).toHaveStyle({ left: '150px', top: '572px' });
+  });
+
+  it('com a caixa, nao deixa o balao passar da borda de cima', () => {
+    fixarMedidaDoBalao(200, 300);
+    montar({ anchor: { height: 24, width: 100, x: 200, y: 14 } });
+
+    expect(balao()).toHaveStyle({ top: '8px' });
+  });
+
+  it('com a caixa maior que a janela, o balao fica dentro dela', () => {
+    fixarMedidaDoBalao(200, 300);
+    montar({ anchor: { height: 768, width: 1024, x: 1024, y: 384 } });
+
+    expect(balao()).toHaveStyle({ left: '8px', top: '460px' });
+  });
+
+  it('so com o ponto, mantem o afastamento do ponteiro', () => {
+    montar({ anchor: { x: 120, y: 90 } });
+
+    expect(balao()).toHaveStyle({ left: '136px', top: '106px' });
+  });
+
   it('sai da arvore de acessibilidade, porque a leitura acessivel e o titulo da marca', () => {
     montar();
     abrir();

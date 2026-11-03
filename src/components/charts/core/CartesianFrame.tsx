@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
+import { AxisTitle } from './AxisTitle';
 import { Axis, type AxisOrientation, type AxisTick } from './Axis';
 import { ChartFrame } from './ChartFrame';
 import type { ChartLegendAlign, ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import type { ChartFrameProps } from './ChartFrame';
 import { Grid, type GridOrientation } from './Grid';
+import type { LabelFont } from './measureText';
 import type { AxisLabelRotation, AxisPosition, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
 import type { AxisReveal } from './useCartesianLayout';
 import styles from './Chart.module.css';
@@ -13,6 +15,8 @@ export interface CartesianAxis {
   labelRotation?: AxisLabelRotation;
   position?: AxisPosition;
   ticks: readonly AxisTick[];
+  /** Titulo do eixo, fora da area de desenho. Exige `font` na moldura. */
+  title?: string;
   visibility?: AxisVisibility;
 }
 
@@ -31,6 +35,8 @@ export interface CartesianFrameProps {
   empty: boolean;
   emptyMessage: string;
   fillHeight: boolean;
+  /** Fonte dos rotulos, para medir e cortar os titulos dos eixos. */
+  font?: LabelFont;
   grid?: readonly CartesianGrid[];
   height: number;
   legend?: readonly ChartLegendEntry[];
@@ -96,6 +102,7 @@ export function CartesianFrame({
   empty,
   emptyMessage,
   fillHeight,
+  font,
   grid,
   height,
   legend,
@@ -163,6 +170,32 @@ export function CartesianFrame({
           <g transform={`translate(${plot.width} 0)`}>
             <EixoDinamico axis={yAxisRight} length={plot.height} orientation="right" revealed={revealed} />
           </g>
+        )}
+
+        {font && xAxis.title && (
+          <AxisTitle
+            font={font}
+            length={plot.width}
+            rotation={0}
+            text={xAxis.title}
+            x={plot.width / 2}
+            y={xAxis.position === 'top' ? font.lineHeight / 2 - margins.top : plot.height + margins.bottom - font.lineHeight / 2}
+          />
+        )}
+
+        {font && yAxis.title && (
+          <AxisTitle font={font} length={plot.height} rotation={-90} text={yAxis.title} x={font.lineHeight / 2 - margins.left} y={plot.height / 2} />
+        )}
+
+        {font && yAxisRight?.title && (
+          <AxisTitle
+            font={font}
+            length={plot.height}
+            rotation={90}
+            text={yAxisRight.title}
+            x={plot.width + margins.right - font.lineHeight / 2}
+            y={plot.height / 2}
+          />
         )}
       </g>
     </ChartFrame>

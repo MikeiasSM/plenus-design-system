@@ -1,9 +1,10 @@
-import { Badge, Card, type BadgeTone, type BadgeVariant } from '@plenustech/design-system';
+import { Badge, Card, type BadgeSize, type BadgeTone, type BadgeVariant } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const TONS = ['neutral', 'info', 'success', 'warning', 'danger'] as const;
 const VARIANTES = ['status', 'brand'] as const;
+const TAMANHOS = ['sm', 'md'] as const;
 
 /** As linhas da matriz: cada tom, e a variante da marca, que ignora o tom. */
 const LINHAS = [
@@ -12,18 +13,20 @@ const LINHAS = [
 ];
 
 const playground = definirPlayground({
-  inicial: { tone: 'success', variant: 'status', children: 'Ativo', dot: true, outline: false },
+  inicial: { tone: 'success', variant: 'status', children: 'Ativo', dot: true, outline: false, size: 'md' },
   controles: [
     { tipo: 'opcoes', nome: 'tone', opcoes: TONS },
     { tipo: 'opcoes', nome: 'variant', opcoes: VARIANTES },
     { tipo: 'texto', nome: 'children' },
     { tipo: 'booleano', nome: 'dot' },
     { tipo: 'booleano', nome: 'outline' },
+    { tipo: 'opcoes', nome: 'size', opcoes: TAMANHOS },
   ],
   renderizar: (valores) => (
     <Badge
       dot={valores.dot}
       outline={valores.outline}
+      size={valores.size as BadgeSize}
       tone={valores.tone as BadgeTone}
       variant={valores.variant as BadgeVariant}
     >
@@ -38,6 +41,7 @@ const playground = definirPlayground({
         ['variant', valores.variant, 'status'],
         ['dot', valores.dot, false],
         ['outline', valores.outline, false],
+        ['size', valores.size, 'md'],
       ],
       valores.children,
     ),
@@ -156,6 +160,7 @@ export const pagina: Pagina = {
     { nome: 'variant', tipo: "'status' | 'brand'", padrao: "'status'", descricao: 'brand pinta na cor da marca e ignora o tone: destaque, não estado.' },
     { nome: 'dot', tipo: 'boolean', padrao: 'false', descricao: 'Ponto decorativo antes do texto.' },
     { nome: 'outline', tipo: 'boolean', padrao: 'false', descricao: 'Contorno em vez de fundo preenchido.' },
+    { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: <>Tamanho. <code>sm</code> usa o papel <code>type.micro</code> (10px), para uma etiqueta como BETA ao lado do título.</> },
     { nome: 'children', tipo: 'ReactNode', descricao: 'O texto do estado ou da categoria.' },
   ],
 };

@@ -166,4 +166,17 @@ describe('marcas do eixo', () => {
   it('em escala categorica as marcas sao o proprio dominio', () => {
     expect(bandScale({ domain: ['a', 'b'], range: [0, 10] }).domain()).toEqual(['a', 'b']);
   });
+
+  it('com passo minimo, nao devolve marcas mais proximas que ele', () => {
+    const escala = linearScale({ domain: { min: 0, max: 2 }, range: [0, 640] });
+
+    expect(ticksFor(escala, 640)).toContain(0.2);
+    expect(ticksFor(escala, 640, undefined, 1)).toEqual([0, 1, 2]);
+  });
+
+  it('sem passo minimo, as marcas ficam como sempre', () => {
+    const escala = linearScale({ domain: { min: 0, max: 100 }, range: [0, 640] });
+
+    expect(ticksFor(escala, 640, undefined, undefined)).toEqual(ticksFor(escala, 640));
+  });
 });

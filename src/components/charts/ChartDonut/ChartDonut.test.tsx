@@ -204,7 +204,7 @@ describe('ChartDonut: legenda e costura', () => {
     render(<ChartDonut onHoverSlice={aoPassar} palette={{ base: '#00A3A3' }} slices={custos} title="Custos" />);
 
     fireEvent.pointerEnter(entradaDe(/CMV/));
-    expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { x: 160, y: 60 }, color: fatias()[1].getAttribute('fill') });
+    expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { height: 20, width: 60, x: 160, y: 60 }, color: fatias()[1].getAttribute('fill') });
 
     fireEvent.pointerLeave(entradaDe(/CMV/));
     fireEvent.pointerEnter(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
@@ -246,8 +246,8 @@ describe('ChartDonut: legenda e costura', () => {
 
     const balao = document.querySelector<HTMLElement>('[class*="tooltip"]')!;
     expect(balao).toHaveTextContent('CMV');
-    expect(balao.style.left).toBe('176px');
-    expect(balao.style.top).toBe('76px');
+    expect(balao.style.left).toBe('168px');
+    expect(balao.style.top).toBe('50px');
 
     fireEvent.pointerLeave(entradaDe(/CMV/));
     expect(document.querySelector('[class*="tooltip"]')).toBeNull();

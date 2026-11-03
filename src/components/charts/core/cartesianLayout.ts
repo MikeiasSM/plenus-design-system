@@ -1,5 +1,5 @@
 import { widestLabel, type LabelFont } from './measureText';
-import { CHART_EDGE_GAP, CHART_LABEL_OFFSET } from './spacing';
+import { axisTitleRoom, CHART_EDGE_GAP, CHART_LABEL_OFFSET } from './spacing';
 import { linearScale, ticksFor, type NumericRange } from '../scales';
 
 export type AxisLabelRotation = 0 | 45 | 90;
@@ -51,7 +51,15 @@ export interface ChartPlot {
   width: number;
 }
 
+/** Titulos dos eixos, pelo lugar na tela: `x` no eixo das categorias de baixo, `y` no da esquerda. So a presenca importa aqui. */
+export interface AxisTitles {
+  x?: string;
+  y?: string;
+  yRight?: string;
+}
+
 export interface CartesianLayoutOptions {
+  axisTitles?: AxisTitles;
   bottomLabels: readonly string[];
   font: LabelFont;
   height: number;
@@ -60,6 +68,8 @@ export interface CartesianLayoutOptions {
   /** Os eixos `onHover` estao a vista e ocupam a calha. */
   revealed?: boolean;
   rightLabels: readonly string[];
+  /** Espaco minimo a direita do desenho, para o que passa da ponta dele, como o rotulo de dado de uma barra horizontal. */
+  rightRoom?: number;
   topRoom: number;
   width: number;
   xAxis: AxisVisibility;
@@ -132,6 +142,7 @@ function alturaDosRotulos(
  * angulo define a altura que eles ocupam embaixo.
  */
 export function cartesianLayout({
+  axisTitles = {},
   bottomLabels,
   font,
   height,
@@ -139,6 +150,7 @@ export function cartesianLayout({
   leftLabels,
   revealed = false,
   rightLabels,
+  rightRoom = 0,
   topRoom,
   width,
   xAxis,
@@ -150,8 +162,11 @@ export function cartesianLayout({
   const meioRotulo = embaixo ? widestLabel(bottomLabels, font) / 2 : 0;
 
   const left = Math.max(calha(ocupa(yAxis, revealed), leftLabels, font), CHART_EDGE_GAP);
-  const right = Math.max(calha(ocupa(yAxisRight, revealed), rightLabels, font), CHART_EDGE_GAP);
-  const plotWidth = Math.max(width - left - right, 0);
+  const right = Math.max(calha(ocupa(yAxisRight, revealed), rightLabels, font), CHART_EDGE_GAP, rightRoom);
+  const salaX = axisTitles.x ? axisTitleRoom(font) : 0;
+  const salaY = axisTitles.y ? axisTitleRoom(font) : 0;
+  const salaYDireita = axisTitles.yRight ? axisTitleRoom(font) : 0;
+  const plotWidth = Math.max(width - left - right - salaY - salaYDireita, 0);
 
   const rotation =
     labelAngle === 'auto'
@@ -166,10 +181,10 @@ export function cartesianLayout({
   const girados = emCima && embaixo && rotation !== 0;
   const bordaDosGirados = girados ? widestLabel(bottomLabels, font) * Math.cos((rotation * Math.PI) / 180) : 0;
   const margins: ChartMargins = {
-    bottom: emCima ? 0 : rotulos,
-    left: Math.max(left, bordaLateral),
-    right: Math.max(right, bordaLateral, bordaDosGirados),
-    top: Math.max(topRoom, emCima ? rotulos : 0, CHART_EDGE_GAP),
+    bottom: emCima ? 0 : rotulos + salaX,
+    left: Math.max(left, bordaLateral) + salaY,
+    right: Math.max(right, bordaLateral, bordaDosGirados) + salaYDireita,
+    top: Math.max(topRoom, emCima ? rotulos : 0, CHART_EDGE_GAP) + (emCima ? salaX : 0),
   };
 
   return {
@@ -192,8 +207,9 @@ export function valueLabelsFor(
   domain: NumericRange,
   length: number,
   format: (value: number) => string,
+  minTickStep?: number,
 ) {
   const escala = linearScale({ domain, range: [length, 0] });
 
-  return ticksFor(escala, length).map(format);
+  return ticksFor(escala, length, undefined, minTickStep).map(format);
 }

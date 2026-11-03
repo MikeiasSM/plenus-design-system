@@ -157,7 +157,7 @@ describe('ChartPie: legenda e costura', () => {
 
     expect(fatias()[0].getAttribute('class')).toMatch(/sliceDim/);
     expect(fatias()[1].getAttribute('class')).not.toMatch(/sliceDim/);
-    expect(aoPassar).toHaveBeenLastCalledWith(composicao[1], { anchor: { x: 0, y: 0 }, color: fatias()[1].getAttribute('fill') });
+    expect(aoPassar).toHaveBeenLastCalledWith(composicao[1], { anchor: { height: 0, width: 0, x: 0, y: 0 }, color: fatias()[1].getAttribute('fill') });
     expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Produtos');
 
     fireEvent.pointerLeave(entrada);

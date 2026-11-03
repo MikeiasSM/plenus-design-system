@@ -70,6 +70,8 @@ export interface ChartLineProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  minTickStep?: number;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
   onPointClick?: (point: ChartMarkClick) => void;
@@ -89,10 +91,16 @@ export interface ChartLineProps extends ChartRootProps {
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
+  /** Titulo do eixo das categorias, embaixo do desenho. */
+  xAxisTitle?: string;
   /** Linhas horizontais de referência e a linha do zero. */
   showGrid?: boolean;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo de valor da direita. */
+  yAxisRightTitle?: string;
+  /** Titulo do eixo de valor, a esquerda do desenho. */
+  yAxisTitle?: string;
 }
 
 export function ChartLine({
@@ -107,6 +115,7 @@ export function ChartLine({
   includeZero = true,
   hiddenSeries,
   labelAngle = 'auto',
+  minTickStep,
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
@@ -119,9 +128,12 @@ export function ChartLine({
   showTooltip = true,
   title,
   xAxis = 'visible',
+  xAxisTitle,
   showGrid = true,
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  yAxisRightTitle,
+  yAxisTitle,
   ...root
 }: ChartLineProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
@@ -150,9 +162,10 @@ export function ChartLine({
     [includeZero, isOutOfScale, series],
   );
 
-  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
+  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
     height: alturaDoDesenho,
@@ -194,7 +207,7 @@ export function ChartLine({
     [maximo, minimo, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height, undefined, minTickStep);
 
   const pontosPorSerie = series.map((serie) =>
     categories.map<ChartPoint | null>((categoria, indice) => {
@@ -246,6 +259,7 @@ export function ChartLine({
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
+      font={font}
       grid={
         showGrid
           ? [
@@ -284,9 +298,9 @@ export function ChartLine({
       }
       tooltipAnchor={pontos.tooltipAnchor}
       width={width}
-      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
+      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, title: xAxisTitle, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: marcasValor, title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: marcasValor, title: yAxisRightTitle, visibility: yAxisRight }}
     >
       {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />

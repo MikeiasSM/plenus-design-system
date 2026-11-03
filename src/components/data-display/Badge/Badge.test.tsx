@@ -30,6 +30,32 @@ describe('Badge', () => {
     expect(screen.getByText('Concluido').className).toContain('outline');
   });
 
+  it('uses the medium size by default and the small one on request', () => {
+    render(
+      <>
+        <Badge>Padrao</Badge>
+        <Badge size="sm">Pequeno</Badge>
+      </>,
+    );
+
+    expect(screen.getByText('Padrao').className).toContain('md');
+    expect(screen.getByText('Pequeno').className).toContain('sm');
+    expect(screen.getByText('Pequeno').className).not.toContain('md');
+  });
+
+  it('keeps the dot and the outline in the small size', () => {
+    render(
+      <Badge dot outline size="sm">
+        Beta
+      </Badge>,
+    );
+
+    const badge = screen.getByText('Beta');
+
+    expect(badge.className).toContain('outline');
+    expect(badge.querySelector('[aria-hidden="true"]')).toBeInTheDocument();
+  });
+
   it('forwards native span attributes', () => {
     render(<Badge data-testid="badge">Status</Badge>);
 

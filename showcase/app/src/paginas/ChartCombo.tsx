@@ -193,6 +193,43 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Rótulo e curva por série, com títulos',
+      descricao: 'Barra e linha de valores próximos disputam o mesmo lugar: só a linha mostra o rótulo, em traço reto. Cada eixo tem o seu título e o seu passo mínimo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartCombo
+            categories={MESES}
+            formatRightValue={formatarConversao}
+            formatValue={formatarCompacto}
+            height={240}
+            minRightTickStep={1}
+            series={[
+              { kind: 'bar', label: 'Realizado', values: FATURAMENTO, showDataLabels: 'hidden' },
+              { curve: 'straight', kind: 'line', label: 'Meta', showDataLabels: 'visible', values: META },
+              { axis: 'right', kind: 'line', label: 'Conversão', values: CONVERSAO },
+            ]}
+            title="Realizado, meta e conversão"
+            xAxisTitle="Mês"
+            yAxisRightTitle="Conversão (%)"
+            yAxisTitle="Faturamento (R$)"
+          />
+        </div>
+      ),
+      codigo: `<ChartCombo
+  title="Realizado, meta e conversão"
+  categories={meses}
+  series={[
+    { kind: 'bar', label: 'Realizado', values: realizado, showDataLabels: 'hidden' },
+    { kind: 'line', label: 'Meta', values: meta, curve: 'straight', showDataLabels: 'visible' },
+    { kind: 'line', label: 'Conversão', values: conversao, axis: 'right' },
+  ]}
+  xAxisTitle="Mês"
+  yAxisTitle="Faturamento (R$)"
+  yAxisRightTitle="Conversão (%)"
+  minRightTickStep={1}
+/>`,
+    },
+    {
       titulo: 'Eixo próprio para a segunda grandeza',
       descricao: 'O volume em barra, a taxa em linha, cada um na sua escala.',
       Previa: () => (
@@ -323,7 +360,7 @@ const cores = resolveSeriesColors([{}, {}]);
     {
       nome: 'series',
       tipo: 'readonly ChartComboSeries[]',
-      descricao: <><code>{"{ kind: 'bar' | 'line', label, values, axis?, color?, intent? }"}</code>; <code>axis</code> padrão <code>'left'</code>.</>,
+      descricao: <><code>{"{ kind: 'bar' | 'line', label, values, axis?, curve?, showDataLabels?, color?, intent? }"}</code>; <code>axis</code> padrão <code>'left'</code>. <code>curve</code> e <code>showDataLabels</code> da série vencem os do gráfico.</>,
     },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo esquerdo e das séries dele.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
@@ -343,6 +380,11 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
+    { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
+    { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },
+    { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8. Vale para o eixo da esquerda.' },
+    { nome: 'minRightTickStep', tipo: "number", descricao: 'O mesmo passo mínimo, para o eixo da direita.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onMarkClick', tipo: '(mark: ChartMarkClick) => void', descricao: 'Torna barras e pontos botões de uma grade só: setas laterais entre categorias, verticais entre séries.' },

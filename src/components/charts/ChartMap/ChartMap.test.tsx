@@ -311,6 +311,72 @@ describe('ChartMap', () => {
     expect(drawnWidth(regionPaths()[0])).toBeLessThan(120);
   });
 
+  describe('focusMarkers', () => {
+    const bairros = [
+      {
+        id: 'bairros',
+        label: 'Bairros',
+        points: [
+          { id: 'a', label: 'Bairro A', latitude: 4, longitude: 4, value: 100 },
+          { id: 'b', label: 'Bairro B', latitude: 5, longitude: 6, value: 25 },
+          { id: 'AA', label: 'Mesmo id da regiao', latitude: 15, longitude: 25, value: 25 },
+        ],
+      },
+    ];
+    const markerCircles = () => [...document.querySelectorAll<SVGCircleElement>(`circle.${styles.marker}`)];
+    const spread = () => {
+      const xs = markerCircles().map((circle) => Number(circle.getAttribute('cx')));
+      return Math.max(...xs) - Math.min(...xs);
+    };
+    const framed = (props: Partial<ChartMapProps> = {}) =>
+      map({ markers: bairros, onRegionClick: () => undefined, ...props });
+
+    it('aproxima o desenho dos marcadores indicados, sem apagar as regioes nem a interacao', () => {
+      const { rerender } = render(framed());
+      const whole = spread();
+
+      rerender(framed({ focusMarkers: ['a', 'b'] }));
+
+      expect(spread()).toBeGreaterThan(whole * 3);
+      expect(document.querySelectorAll(`.${styles.context}`)).toHaveLength(0);
+      expect(regionPaths().filter((path) => path.getAttribute('role') === 'button')).toHaveLength(5);
+    });
+
+    it('guarda os marcadores dentro da area com a margem do maior raio', () => {
+      render(framed({ focusMarkers: ['a', 'b'] }));
+      const [bairroA] = markerCircles();
+
+      expect(Number(bairroA.getAttribute('cx')) - Number(bairroA.getAttribute('r'))).toBeGreaterThanOrEqual(12);
+      expect(Number(bairroA.getAttribute('cy')) - Number(bairroA.getAttribute('r'))).toBeGreaterThanOrEqual(12);
+    });
+
+    it('para de aproximar num ponto so, sem passar do teto', () => {
+      const { rerender } = render(framed());
+      const wholeWidth = drawnWidth(regionPaths()[0]);
+
+      rerender(framed({ focusMarkers: ['a'] }));
+
+      expect(drawnWidth(regionPaths()[0])).toBeGreaterThan(wholeWidth * 90);
+      expect(drawnWidth(regionPaths()[0])).toBeLessThanOrEqual(wholeWidth * 100 + 1);
+    });
+
+    it('com focus, abraca as regioes e os marcadores, e o resto segue como contexto', () => {
+      render(framed({ focus: ['BB'], focusMarkers: ['a'] }));
+
+      expect(document.querySelectorAll(`.${styles.context}`)).toHaveLength(4);
+      expect(drawnWidth(regionNamed('Beta'))).toBeGreaterThan(0);
+    });
+
+    it('ignora ids que nao sao de marcador, mesmo se forem de regiao', () => {
+      const { rerender } = render(framed());
+      const before = regionPaths().map((path) => path.getAttribute('d'));
+
+      rerender(framed({ focusMarkers: ['BB', 'inexistente'] }));
+
+      expect(regionPaths().map((path) => path.getAttribute('d'))).toEqual(before);
+    });
+  });
+
   it('troca o desenho pela tabela, ordenada pelo valor, com busca sem acento e cabecalhos que ordenam', () => {
     render(map({ showShare: true }));
     const toggle = screen.getByRole('button', { name: 'Ver como tabela' });

@@ -124,13 +124,18 @@ function Modos() {
         </dd>
         <dt>Legenda</dt>
         <dd>Lista apenas o nível zero, e desliga o ramo inteiro.</dd>
+        <dt>Valor do nó</dt>
+        <dd>
+          O nó sem <code>value</code> vale a soma dos filhos. Com <code>value</code>, vale o maior entre o próprio e a soma:
+          o valor maior deixa um vão no anel dos filhos, a parte não detalhada; o menor cede à soma.
+        </dd>
         <dt><code>showLabels</code></dt>
         <dd>
           O rótulo do anel externo é projetado para fora, com um conector de dois segmentos. A banda dele é reservada antes
           do anel, para o texto não ser cortado; sem rótulos, o anel cresce.
         </dd>
         <dt><code>onHoverNode</code></dt>
-        <dd>Entrega o caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, cada nível com o valor somado. Com ele, o <code>&lt;title&gt;</code> sai.</dd>
+        <dd>Entrega o caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, cada nível com o maior entre o valor próprio e a soma dos filhos. Com ele, o <code>&lt;title&gt;</code> sai.</dd>
       </dl>
       <div className="subsection">
         <h3>Sem dados</h3>
@@ -167,6 +172,48 @@ export const pagina: Pagina = {
     { label: 'Financeiras', children: [{ label: 'Juros', value: 120000 }] },
   ]}
   height={340}
+  formatValue={formatarCompacto}
+/>`,
+    },
+    {
+      titulo: 'Parte não detalhada',
+      descricao: 'Operacionais vale 900 mil, mas os filhos somam 790 mil: o vão no anel de fora é o que não foi detalhado.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartSunburst
+            formatValue={formatarCompacto}
+            height={300}
+            nodes={[
+              {
+                label: 'Operacionais',
+                value: 900000,
+                children: [
+                  { label: 'Pessoal', value: 520000 },
+                  { label: 'Aluguel', value: 180000 },
+                  { label: 'Energia', value: 90000 },
+                ],
+              },
+              { label: 'Administrativas', children: [{ label: 'Sistemas', value: 160000 }, { label: 'Contabilidade', value: 80000 }] },
+            ]}
+            title="Despesas com parte não detalhada"
+          />
+        </div>
+      ),
+      codigo: `<ChartSunburst
+  title="Despesas com parte não detalhada"
+  nodes={[
+    {
+      label: 'Operacionais',
+      value: 900000, // os filhos somam 790000
+      children: [
+        { label: 'Pessoal', value: 520000 },
+        { label: 'Aluguel', value: 180000 },
+        { label: 'Energia', value: 90000 },
+      ],
+    },
+    { label: 'Administrativas', children: [...] },
+  ]}
+  height={300}
   formatValue={formatarCompacto}
 />`,
     },
@@ -229,7 +276,7 @@ export const pagina: Pagina = {
     {
       nome: 'nodes',
       tipo: 'readonly ChartSunburstNode[]',
-      descricao: <><code>{'{ label, value?, children?, color?, intent? }'}</code>; o nó sem value vale a soma dos filhos.</>,
+      descricao: <><code>{'{ label, value?, children?, color?, intent? }'}</code>; o nó sem value vale a soma dos filhos; com value, o maior entre os dois.</>,
     },
     { nome: 'showLabels', tipo: 'boolean', padrao: 'true', descricao: 'Rótulo projetado no anel externo.' },
     { nome: 'ringGap', tipo: 'number', padrao: '2', descricao: 'Folga entre dois anéis vizinhos.' },
@@ -247,7 +294,7 @@ export const pagina: Pagina = {
     {
       nome: 'onHoverNode',
       tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void',
-      descricao: <>Caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, com os valores somados; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada do grupo, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</>,
+      descricao: <>Caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, com o maior entre o valor próprio e a soma dos filhos em cada nível; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada do grupo, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</>,
     },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },

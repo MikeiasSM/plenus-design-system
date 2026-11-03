@@ -168,6 +168,11 @@ function Modos() {
           Quando a cor carrega status, a legenda passa a nomear as cores, e não os grupos. Sem ele, lista os grupos e
           desliga cada um, redistribuindo a área.
         </dd>
+        <dt>Valor do nó</dt>
+        <dd>
+          O nó sem <code>value</code> vale a soma dos filhos. Com <code>value</code>, vale o maior entre o próprio e a soma:
+          o valor maior reserva a área do grupo e deixa vazia a parte que os filhos não ocupam; o menor cede à soma.
+        </dd>
         <dt><code>showDataLabels</code></dt>
         <dd>
           Rótulo e valor são cortados conforme a área: onde não cabe o valor, fica só o rótulo; onde não cabe nem o rótulo,
@@ -175,7 +180,7 @@ function Modos() {
         </dd>
         <dt><code>onHoverNode</code></dt>
         <dd>
-          Entrega o caminho do grupo até o retângulo sob o ponteiro, cada nível com o valor somado. Com ele, o{' '}
+          Entrega o caminho do grupo até o retângulo sob o ponteiro, cada nível com o maior entre o valor próprio e a soma dos filhos. Com ele, o{' '}
           <code>&lt;title&gt;</code> sai.
         </dd>
       </dl>
@@ -241,7 +246,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Caminho no ponteiro',
-      descricao: 'onHoverNode entrega grupo e folha com os valores somados; a última linha, a do retângulo, sobe de tom.',
+      descricao: 'onHoverNode entrega grupo e folha com o maior entre o valor próprio e a soma dos filhos; a última linha, a do retângulo, sobe de tom.',
       Previa: CaminhoNoPonteiro,
       codigo: `const [caminho, setCaminho] = useState<readonly ChartHoveredNode[] | null>(null);
 
@@ -282,7 +287,7 @@ export const pagina: Pagina = {
     {
       nome: 'nodes',
       tipo: 'readonly ChartTreemapNode[]',
-      descricao: <><code>{'{ label, value?, children?, color?, intent? }'}</code>; o nó sem value vale a soma dos filhos.</>,
+      descricao: <><code>{'{ label, value?, children?, color?, intent? }'}</code>; o nó sem value vale a soma dos filhos; com value, o maior entre os dois.</>,
     },
     { nome: 'intentLabels', tipo: 'Partial<Record<SeriesIntent, string>>', descricao: 'Nome de cada intenção; troca a legenda de grupos pela de cores.' },
     { nome: 'gap', tipo: 'number', padrao: '5', descricao: 'Folga entre dois retângulos vizinhos.' },

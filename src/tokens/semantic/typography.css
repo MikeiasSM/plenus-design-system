@@ -31,6 +31,10 @@
   --pl-type-caption-line-height: 16px;
   --pl-type-caption-weight: 400;
 
+  --pl-type-micro-size: 10px;
+  --pl-type-micro-line-height: 12px;
+  --pl-type-micro-weight: 600;
+
   --pl-type-data-value-size: 14px;
   --pl-type-data-value-line-height: 20px;
   --pl-type-data-value-weight: 500;

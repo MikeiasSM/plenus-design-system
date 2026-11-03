@@ -1,6 +1,6 @@
 import { bottomLabelRotation, cartesianLayout, chartHeight, valueLabelsFor } from './cartesianLayout';
 import { labelFontOf } from './measureText';
-import { valueLabelRoom } from './spacing';
+import { CHART_LABEL_OFFSET, valueLabelRoom } from './spacing';
 
 const fonte = labelFontOf(null);
 
@@ -20,6 +20,37 @@ function layout(parcial: Partial<Parameters<typeof cartesianLayout>[0]> = {}) {
     ...parcial,
   });
 }
+
+describe('titulos e reserva dos eixos', () => {
+  it('sem titulo nem reserva, o leiaute e o de sempre', () => {
+    expect(layout({ axisTitles: {}, rightRoom: 0 })).toEqual(layout());
+  });
+
+  it('cada titulo tira do desenho uma linha de texto, do lado do eixo', () => {
+    const base = layout({ yAxisRight: 'visible' });
+    const comTitulos = layout({ axisTitles: { x: 'Mês', y: 'R$', yRight: '%' }, yAxisRight: 'visible' });
+    const linha = fonte.lineHeight + CHART_LABEL_OFFSET;
+
+    expect(comTitulos.margins.bottom - base.margins.bottom).toBeCloseTo(linha);
+    expect(comTitulos.margins.left - base.margins.left).toBeCloseTo(linha);
+    expect(comTitulos.margins.right - base.margins.right).toBeCloseTo(linha);
+  });
+
+  it('com o eixo de baixo em cima, o titulo dele tambem sobe', () => {
+    const base = layout({ xAxisPosition: 'top' });
+    const comTitulo = layout({ axisTitles: { x: 'Mês' }, xAxisPosition: 'top' });
+
+    expect(comTitulo.margins.top - base.margins.top).toBeCloseTo(fonte.lineHeight + CHART_LABEL_OFFSET);
+    expect(comTitulo.margins.bottom).toBe(0);
+  });
+
+  it('a reserva a direita vale como piso da margem, nunca a diminui', () => {
+    expect(layout({ rightRoom: 80 }).margins.right).toBe(80);
+    expect(layout({ rightLabels: ['R$ 1.480.900,00'], rightRoom: 1, yAxisRight: 'visible' }).margins.right).toBe(
+      layout({ rightLabels: ['R$ 1.480.900,00'], yAxisRight: 'visible' }).margins.right,
+    );
+  });
+});
 
 describe('calhas do eixo', () => {
   it('reserva a esquerda conforme o rotulo mais largo, e nao uma constante', () => {

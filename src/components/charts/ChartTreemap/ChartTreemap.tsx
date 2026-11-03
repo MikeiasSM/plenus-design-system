@@ -3,6 +3,7 @@ import { hierarchy, treemap } from 'd3-hierarchy';
 import {
   CHART_LABEL_OFFSET,
   ChartFrame,
+  assignNodeValues,
   chartHeight,
   hoverPath,
   pathTooltip,
@@ -56,7 +57,7 @@ export interface ChartTreemapProps extends ChartRootProps {
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
   onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
-  /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
+  /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o maior entre o valor proprio e a soma dos filhos, ou `null` ao sair. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -111,7 +112,7 @@ export function ChartTreemap({
 
   // Sem valor positivo nao ha area a repartir: anuncia vazio. Desligar todos os grupos, nao: a legenda e a volta.
   const semValor = useMemo(
-    () => !((hierarchy<ChartTreemapNode>({ children: nodes, label: '' }).sum(ocupacao).value ?? 0) > 0),
+    () => !((assignNodeValues(hierarchy<ChartTreemapNode>({ children: nodes, label: '' }), ocupacao).value ?? 0) > 0),
     [nodes],
   );
 
@@ -122,9 +123,7 @@ export function ChartTreemap({
       return [];
     }
 
-    const arvore = hierarchy<ChartTreemapNode>({ children: visiveis, label: '' })
-      .sum(ocupacao)
-      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    const arvore = assignNodeValues(hierarchy<ChartTreemapNode>({ children: visiveis, label: '' }), ocupacao).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const posicionar = treemap<ChartTreemapNode>()
       .size([width, alturaDoDesenho])

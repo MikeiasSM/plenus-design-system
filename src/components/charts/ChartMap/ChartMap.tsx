@@ -27,6 +27,10 @@ import { formatNumber, formatPercent } from '../../../utils/formatters';
 import { ChartMapLegend } from './ChartMapLegend';
 import { ChartMapTable, type MapTableMarkerRow, type MapTableRegionRow } from './ChartMapTable';
 import {
+  MAP_PADDING,
+  MAX_FOCUS_ZOOM,
+  MAX_MARKER_ZOOM,
+  cornersOf,
   fitProjection,
   naturalHeight,
   projectedBounds,
@@ -34,6 +38,7 @@ import {
   regionsOf,
   type ChartMapFeature,
   type ChartMapFeatureCollection,
+  type MapCorners,
   type MapRegion,
 } from './mapGeometry';
 import { CALLOUT_GAP, calloutWidth, planLabels, type LabelCandidate, type LabelPlan } from './mapLabels';
@@ -103,6 +108,11 @@ export interface ChartMapProps extends ChartRootProps {
   featureNameKey?: string;
   /** Ids que o enquadramento abraca. As demais regioes ficam em cinza, como contexto, sem interacao. */
   focus?: readonly string[];
+  /**
+   * Ids de marcador que o enquadramento abraca, de qualquer serie, com margem do raio do maior e teto de 100 vezes a aproximacao do mapa inteiro.
+   * As regioes seguem desenhadas e interativas, sem cinza. Com `focus`, o enquadramento abraca as regioes e esses marcadores.
+   */
+  focusMarkers?: readonly string[];
   formatPercent?: (ratio: number) => string;
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
@@ -198,6 +208,11 @@ interface MapLayout {
   projection: GeoProjection;
 }
 
+interface MapFrame {
+  corners: MapCorners;
+  padding: number;
+}
+
 interface LayoutInput {
   all: readonly MapRegion[];
   callouts: boolean;
@@ -205,6 +220,8 @@ interface LayoutInput {
   fixedHeight: boolean;
   font: LabelFont;
   labels: boolean;
+  /** Enquadramento pelos marcadores: o retangulo e a margem, e as regioes de `target` seguem desenhadas. */
+  frame?: MapFrame;
   maxHeight: number;
   target: readonly MapRegion[];
   valueOf: (region: MapRegion) => string | undefined;
@@ -215,21 +232,32 @@ interface LayoutInput {
  * Enquadra e rotula. A altura e a que a geometria pede na largura, ate a maxima, sem faixa vazia. Quando algum rotulo
  * vai para a coluna, o desenho cede a largura dela e e enquadrado e rotulado de novo.
  */
-function layoutMap({ all, callouts, fixedHeight, font, labels, maxHeight, target, valueOf, width }: LayoutInput): MapLayout {
+function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight, target, valueOf, width }: LayoutInput): MapLayout {
   const measure = (text: string) => measureLabel(text, font);
   const lineHeight = font.size + 1;
+
+  const corners = frame?.corners ?? cornersOf(target);
+  const padding = frame?.padding ?? MAP_PADDING;
+  const maxZoom = frame ? MAX_MARKER_ZOOM : target.length === all.length ? undefined : MAX_FOCUS_ZOOM;
 
   const pass = (drawingWidth: number): MapLayout => {
     const height = fixedHeight
       ? maxHeight
-      : Math.round(Math.min(maxHeight, Math.max(MIN_HEIGHT, naturalHeight(target, drawingWidth))));
-    const projection = fitProjection(target, all, drawingWidth, height);
+      : Math.round(Math.min(maxHeight, Math.max(MIN_HEIGHT, naturalHeight(corners, drawingWidth, padding))));
+    const projection = fitProjection(corners, all, drawingWidth, height, { maxZoom, padding });
 
     if (!labels) {
       return { height, plan: { callouts: [], inside: [] }, projection };
     }
 
-    const candidates = target.map((region): LabelCandidate => {
+    // Enquadrado pelos marcadores, a regiao que passa da area nao tem onde pousar o rotulo.
+    const visible = frame
+      ? target.filter((region) => {
+          const [[left, top], [right, bottom]] = projectedBounds(region, projection);
+          return left >= 0 && top >= 0 && right <= drawingWidth && bottom <= height;
+        })
+      : target;
+    const candidates = visible.map((region): LabelCandidate => {
       let parts: Ring[][] | undefined;
 
       return {
@@ -286,6 +314,7 @@ export function ChartMap({
   featureLabelKey,
   featureNameKey = 'properties.name',
   focus,
+  focusMarkers,
   formatPercent = defaultPercent,
   formatTooltipValue,
   formatValue = formatNumber,
@@ -350,13 +379,13 @@ export function ChartMap({
   );
   // A chave textual mantem o recorte memorizado enquanto os ids nao mudam, mesmo com outra lista a cada desenho.
   const focusKey = (focus ?? []).join('\u0000');
-  const { context, inPlay } = useMemo(() => {
+  const { context, focusedByRegion, inPlay } = useMemo(() => {
     const ids = new Set(focusKey ? focusKey.split('\u0000') : []);
     const focused = regions.filter((region) => ids.has(region.id));
 
     return focused.length > 0
-      ? { context: regions.filter((region) => !ids.has(region.id)), inPlay: focused }
-      : { context: [], inPlay: regions };
+      ? { context: regions.filter((region) => !ids.has(region.id)), focusedByRegion: true, inPlay: focused }
+      : { context: [], focusedByRegion: false, inPlay: regions };
   }, [focusKey, regions]);
 
   const legendToggle = colorScale.type === 'categorical' ? seriesToggle : classToggle;
@@ -436,13 +465,39 @@ export function ChartMap({
 
   const markerSeries = markers ?? [];
   const markerColors = useMemo(() => resolveSeriesColors(markerSeries, { accent, palette }), [accent, palette, markerSeries]);
-  const validPoints = new Set(
-    markerSeries.flatMap((series) =>
-      series.points.filter(
-        (point) => [point.latitude, point.longitude, point.value].every(Number.isFinite) && point.value >= 0,
+  const validPoints = useMemo(
+    () =>
+      new Set(
+        (markers ?? []).flatMap((series) =>
+          series.points.filter((point) => [point.latitude, point.longitude, point.value].every(Number.isFinite) && point.value >= 0),
+        ),
       ),
-    ),
+    [markers],
   );
+  const radius = useMemo(
+    () =>
+      scaleSqrt()
+        .domain([0, Math.max(...[...validPoints].map((point) => point.value), 1)])
+        .range([0, markerMaxSize]),
+    [markerMaxSize, validPoints],
+  );
+  const markerFocusKey = (focusMarkers ?? []).join('\u0000');
+  const markerFrame = useMemo((): MapFrame | undefined => {
+    const ids = new Set(markerFocusKey ? markerFocusKey.split('\u0000') : []);
+    const framed = [...validPoints].filter((point) => ids.has(point.id));
+
+    if (framed.length === 0) {
+      return undefined;
+    }
+
+    return {
+      corners: cornersOf(
+        focusedByRegion ? inPlay : [],
+        framed.map((point): Point => [point.longitude, point.latitude]),
+      ),
+      padding: MAP_PADDING + Math.max(...framed.map((point) => Math.max(markerMinSize, radius(point.value)))),
+    };
+  }, [focusedByRegion, inPlay, markerFocusKey, markerMinSize, radius, validPoints]);
   const hasMarkers = validPoints.size > 0;
   const empty =
     regions.length === 0 ||
@@ -472,12 +527,13 @@ export function ChartMap({
       fixedHeight: fillHeight,
       font: plot.font,
       labels: labelsOn,
+      frame: markerFrame,
       maxHeight,
       target: inPlay,
       valueOf: (region) => (valuesOn ? valueTexts.get(region.id) : undefined),
       width,
     });
-  }, [empty, entries, fillHeight, inPlay, labelsOn, maxHeight, plot.font, regions, smallRegionLabels, valuesOn, width]);
+  }, [empty, entries, fillHeight, inPlay, labelsOn, markerFrame, maxHeight, plot.font, regions, smallRegionLabels, valuesOn, width]);
   const projection = layout?.projection;
   const plotHeight = layout?.height ?? 0;
   const paths = useMemo(() => {
@@ -489,9 +545,6 @@ export function ChartMap({
     return new Map(regions.map((region) => [region.id, path(region.shape) ?? '']));
   }, [projection, regions]);
 
-  const radius = scaleSqrt()
-    .domain([0, Math.max(...[...validPoints].map((point) => point.value), 1)])
-    .range([0, markerMaxSize]);
   const placedMarkers: PlacedMarker[] = projection
     ? markerSeries
         .flatMap((series, seriesIndex) =>

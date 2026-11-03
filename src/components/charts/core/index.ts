@@ -8,6 +8,7 @@ export type { PointLabelPlacement } from './pointLabels';
 export type { PointBandsProps } from './PointBands';
 export { categoryTooltip, pathTooltip, sliceTooltip } from './tooltips';
 export type { CategoryTooltipOptions, CategoryTooltipSeries, ChartFrameTooltip, PathTooltipOptions, SliceTooltipOptions } from './tooltips';
+export { assignNodeValues } from './nodeValues';
 export { hoverPath } from './hoverPath';
 export type { ChartHoveredNode } from './hoverPath';
 export { Grid } from './Grid';
@@ -23,6 +24,7 @@ export type {
   AxisLabelAngle,
   AxisLabelRotation,
   AxisPosition,
+  AxisTitles,
   AxisVisibility,
   CartesianLayout,
   CartesianLayoutOptions,

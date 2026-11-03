@@ -80,6 +80,8 @@ export interface ChartAreaProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  minTickStep?: number;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
   onPointClick?: (point: ChartMarkClick) => void;
@@ -100,10 +102,16 @@ export interface ChartAreaProps extends ChartRootProps {
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
+  /** Titulo do eixo das categorias, embaixo do desenho. */
+  xAxisTitle?: string;
   /** Linhas horizontais de referência e a linha do zero. */
   showGrid?: boolean;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo de valor da direita. */
+  yAxisRightTitle?: string;
+  /** Titulo do eixo de valor, a esquerda do desenho. */
+  yAxisTitle?: string;
 }
 
 
@@ -119,6 +127,7 @@ export function ChartArea({
   includeZero = true,
   hiddenSeries,
   labelAngle = 'auto',
+  minTickStep,
   legend = 'bottom',
   legendAlign,
   onHiddenSeriesChange,
@@ -132,9 +141,12 @@ export function ChartArea({
   stacked = false,
   title,
   xAxis = 'visible',
+  xAxisTitle,
   showGrid = true,
   yAxis = 'visible',
   yAxisRight = 'hidden',
+  yAxisRightTitle,
+  yAxisTitle,
   ...root
 }: ChartAreaProps) {
   const gradienteId = useId();
@@ -173,9 +185,10 @@ export function ChartArea({
     );
   }, [categories, includeZero, isOutOfScale, series, stacked]);
 
-  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue);
+  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
     height: alturaDoDesenho,
@@ -217,7 +230,7 @@ export function ChartArea({
     [maximo, minimo, plot.height],
   );
 
-  const marcasDeValor = ticksFor(escalaAlvo, plot.height);
+  const marcasDeValor = ticksFor(escalaAlvo, plot.height, undefined, minTickStep);
   // Sem o zero no dominio, a area desce ate o limite do eixo, e nao ate um zero fora do desenho.
   const base = escalaValores(Math.min(Math.max(0, minimo), maximo));
   const pilhas = categories.map((_, indice) =>
@@ -295,6 +308,7 @@ export function ChartArea({
           : undefined
       }
       fillHeight={fillHeight}
+      font={font}
       height={alturaDoDesenho}
       legend={series.map((serie, indice) => ({
         color: cores[indice],
@@ -323,9 +337,9 @@ export function ChartArea({
       }
       tooltipAnchor={pontos.tooltipAnchor}
       width={width}
-      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: marcasValor, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: marcasValor, visibility: yAxisRight }}
+      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, title: xAxisTitle, visibility: xAxis }}
+      yAxis={{ hideLine: true, ticks: marcasValor, title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{ hideLine: true, ticks: marcasValor, title: yAxisRightTitle, visibility: yAxisRight }}
     >
       {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />

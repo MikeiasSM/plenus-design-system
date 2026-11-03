@@ -118,7 +118,9 @@ function Modos() {
         <dd>A meta do anel. Sem ela, a meta é o maior valor entre os anéis.</dd>
         <dt>Centro</dt>
         <dd>
-          Traz o valor do primeiro anel visível e some quando todos estão desligados. Ele reserva o próprio espaço, até
+          Traz o valor do primeiro anel visível e some quando todos estão desligados. Com um anel em foco, pelo ponteiro,
+          pelo teclado ou pela legenda, mostra o valor e o rótulo dele, no lugar do <code>centerLabel</code>, e volta ao
+          primeiro ao sair. Ele reserva o próprio espaço, até
           metade do raio: com muitos anéis, quem cede é a espessura deles, e a folga junto.
         </dd>
         <dt>Legenda</dt>
@@ -223,8 +225,8 @@ export const pagina: Pagina = {
     { nome: 'startAngle', tipo: 'number', padrao: '0', descricao: 'Início da volta, em graus a partir do topo.' },
     { nome: 'endAngle', tipo: 'number', padrao: '360', descricao: 'Fim da volta, em graus a partir do topo.' },
     { nome: 'thickness', tipo: 'number', padrao: '16', descricao: 'Espessura de cada anel, em pixels; cede quando os anéis não cabem.' },
-    { nome: 'showCenter', tipo: 'boolean', padrao: 'true', descricao: 'Valor do primeiro anel visível no centro.' },
-    { nome: 'centerLabel', tipo: 'string', descricao: 'Texto sob o valor do centro. Sem ele, o rótulo do primeiro anel.' },
+    { nome: 'showCenter', tipo: 'boolean', padrao: 'true', descricao: 'Valor do primeiro anel visível no centro, ou o do anel em foco.' },
+    { nome: 'centerLabel', tipo: 'string', descricao: 'Texto sob o valor do centro. Sem ele, o rótulo do primeiro anel; o anel em foco mostra o próprio rótulo.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do centro, da legenda e das descrições.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'trackRadius', tipo: 'number', descricao: 'Raio das pontas do arco. Sem valor, o token de raio pequeno.' },

@@ -15,8 +15,14 @@ export interface ChartMarkClick {
   value: number;
 }
 
-/** Ponto da janela onde ancorar o balao, para quem o monta pela costura. */
+/**
+ * Onde ancorar o balao, em coordenadas da janela, para quem o monta pela costura. So com o ponto, ele abre no
+ * afastamento do ponteiro; com `width` e `height`, o ponto e a ponta direita da caixa do elemento, a meia altura,
+ * e o balao encosta nela.
+ */
 export interface ChartAnchorPoint {
+  height?: number;
+  width?: number;
   x: number;
   y: number;
 }

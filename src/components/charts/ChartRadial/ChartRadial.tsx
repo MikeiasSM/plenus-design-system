@@ -30,7 +30,7 @@ export interface ChartRadialTrack extends SeriesAppearance {
 
 export interface ChartRadialProps extends ChartRootProps {
   accent?: string;
-  /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. */
+  /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. O anel em foco troca esse texto pelo proprio rotulo. */
   centerLabel?: string;
   defaultHiddenTracks?: readonly string[];
   emptyMessage?: string;
@@ -163,8 +163,12 @@ export function ChartRadial({
   const volta = Math.min(emRadianos(endAngle) - comeco, VOLTA);
 
   const raioExterno = ringDiameter(width, alturaDoDesenho) / 2;
-  const destaque = tracks.find((anel) => !isHidden(anel.label));
-  const valorDoCentro = showCenter && destaque ? formatValue(destaque.value) : undefined;
+  const primeiroVisivel = tracks.find((anel) => !isHidden(anel.label));
+  const anelEmFoco = emFoco === null ? undefined : tracks[emFoco];
+  const emFocoLegivel = anelEmFoco && !isHidden(anelEmFoco.label) && valido(anelEmFoco) ? anelEmFoco : undefined;
+  const destaque = emFocoLegivel ?? primeiroVisivel;
+  const textoDoCentro = emFocoLegivel ? emFocoLegivel.label : (centerLabel ?? destaque?.label);
+  const valorDoCentro = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
   // O centro reserva o que o valor pede no menor degrau da escala, ate metade do raio; quem cede e a espessura dos aneis.
   const piso =
     valorDoCentro === undefined
@@ -180,8 +184,8 @@ export function ChartRadial({
 
   const canto = trackRadius ?? raioDoCanto;
   const centro =
-    destaque && valorDoCentro !== undefined
-      ? fitCenterText(valorDoCentro, centerLabel ?? destaque.label, font, raioInterno * 2)
+    destaque && textoDoCentro !== undefined && valorDoCentro !== undefined
+      ? fitCenterText(formatValue(destaque.value), textoDoCentro, font, raioInterno * 2)
       : undefined;
 
   return (

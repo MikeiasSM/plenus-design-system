@@ -157,6 +157,43 @@ function DetalheDoOutros() {
   );
 }
 
+const SITUACAO_DO_ESTOQUE: ChartDonutSlice[] = [
+  { label: 'Ruptura', value: 64 },
+  { label: 'Saudável', value: 307 },
+  { label: 'Atenção', value: 84 },
+  { label: 'Descontinuado', value: 4 },
+];
+
+function Distribuicao() {
+  const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
+  const cores = resolveSeriesColors(SITUACAO_DO_ESTOQUE);
+
+  return (
+    <div style={{ width: '100%' }}>
+      <ChartTooltip
+        anchor={alvo?.details?.anchor}
+        rows={alvo ? SITUACAO_DO_ESTOQUE.map((item, indice) => ({
+          color: cores[indice],
+          emphasis: item.label === alvo.slice.label,
+          label: item.label,
+          values: [item.value],
+        })) : []}
+        showTotal
+        title="Distribuição"
+      >
+        <ChartDonut
+          height={240}
+          onHoverSlice={(slice, details) => setAlvo(slice && { details, slice })}
+          showTooltip={false}
+          slices={SITUACAO_DO_ESTOQUE}
+          smallSliceThreshold={0}
+          title="Situação do estoque"
+        />
+      </ChartTooltip>
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -312,6 +349,34 @@ const linhas = fatia?.grouped ?? (fatia ? [fatia] : []);
     showTooltip={false}
     title="Estrutura de despesas"
     slices={despesas}
+    onHoverSlice={(slice, details) => setAlvo(slice && { details, slice })}
+  />
+</ChartTooltip>`,
+    },
+    {
+      titulo: 'Distribuição com a fatia em destaque',
+      descricao:
+        'O balão é do produto: aqui ele lista todas as fatias, destaca a que está sob o ponteiro ou na entrada da legenda e soma o total. Pela legenda, o anchor do segundo argumento prende o balão ao lado da entrada; pela fatia, ele segue o ponteiro.',
+      Previa: Distribuicao,
+      codigo: `const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
+const cores = resolveSeriesColors(situacao);
+
+<ChartTooltip
+  title="Distribuição"
+  anchor={alvo?.details?.anchor}
+  showTotal
+  rows={alvo ? situacao.map((item, indice) => ({
+    color: cores[indice],
+    emphasis: item.label === alvo.slice.label,
+    label: item.label,
+    values: [item.value],
+  })) : []}
+>
+  <ChartDonut
+    showTooltip={false}
+    title="Situação do estoque"
+    slices={situacao}
+    smallSliceThreshold={0}
     onHoverSlice={(slice, details) => setAlvo(slice && { details, slice })}
   />
 </ChartTooltip>`,

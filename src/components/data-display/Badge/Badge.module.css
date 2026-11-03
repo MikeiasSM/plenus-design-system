@@ -4,16 +4,26 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pl-space-1);
-  padding: 2px var(--pl-space-2);
   border: 1px solid transparent;
   border-radius: var(--pl-radius-sm);
   background: var(--badge-surface);
   color: var(--badge-tone);
   font-family: var(--pl-font-body);
-  font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
-  line-height: var(--pl-type-caption-line-height);
   white-space: nowrap;
+}
+
+.md {
+  padding: 2px var(--pl-space-2);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.sm {
+  padding: 1px var(--pl-space-1);
+  font-size: var(--pl-type-micro-size);
+  font-weight: var(--pl-type-micro-weight);
+  line-height: var(--pl-type-micro-line-height);
 }
 
 .dot {
@@ -22,6 +32,11 @@
   flex: none;
   border-radius: var(--pl-radius-full);
   background: currentColor;
+}
+
+.sm .dot {
+  width: 4px;
+  height: 4px;
 }
 
 .success {

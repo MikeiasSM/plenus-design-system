@@ -224,7 +224,7 @@ describe('ChartSunburst: legenda e costura', () => {
     const grupo = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Administrativas'))!;
     expect(aoPassar).toHaveBeenLastCalledWith(
       [{ label: 'Administrativas', value: 200 }],
-      { anchor: { x: 0, y: 0 }, color: grupo.getAttribute('fill') },
+      { anchor: { height: 0, width: 0, x: 0, y: 0 }, color: grupo.getAttribute('fill') },
     );
     expect(grupo.getAttribute('class')).not.toMatch(/arcDim/);
     expect(arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Pessoal'))!.getAttribute('class')).toMatch(/arcDim/);
@@ -252,5 +252,51 @@ describe('ChartSunburst: legenda e costura', () => {
     act(() => screen.getByRole('button', { name: /^Aluguel:/ }).focus());
 
     expect(aoPassar.mock.calls).toEqual([[[{ label: 'Operacionais', value: 800 }, { label: 'Aluguel', value: 300 }]]]);
+  });
+});
+
+describe('ChartSunburst: valor do no intermediario', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  function valoresDoCaminho(valorDoPai: number | undefined) {
+    const onHoverNode = vi.fn();
+    const nodes: ChartSunburstNode[] = [
+      { label: 'Pai', value: valorDoPai, children: [{ label: 'A', value: 30 }, { label: 'B', value: 30 }] },
+      { label: 'Outro', value: 60 },
+    ];
+    render(<ChartSunburst nodes={nodes} onHoverNode={onHoverNode} title="Teste" />);
+    const filho = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('A:'))!;
+
+    fireEvent.mouseEnter(filho);
+
+    return { path: onHoverNode.mock.calls[0][0], rotulos: arcos().map((arco) => arco.getAttribute('aria-label')) };
+  }
+
+  it('sem valor proprio, o pai vale a soma dos filhos', () => {
+    const { path, rotulos } = valoresDoCaminho(undefined);
+
+    expect(path[0]).toEqual({ label: 'Pai', value: 60 });
+    expect(rotulos.some((texto) => texto?.startsWith('Pai: 60 (50%)'))).toBe(true);
+  });
+
+  it('com valor igual a soma, nada muda', () => {
+    expect(valoresDoCaminho(60).path[0].value).toBe(60);
+  });
+
+  it('com valor maior que a soma, vale o proprio valor e os filhos deixam a parte nao detalhada', () => {
+    const { path, rotulos } = valoresDoCaminho(120);
+
+    expect(path[0]).toEqual({ label: 'Pai', value: 120 });
+    expect(path[1]).toEqual({ label: 'A', value: 30 });
+    expect(rotulos.some((texto) => texto?.startsWith('Pai: 120 (67%)'))).toBe(true);
+    expect(rotulos.some((texto) => texto?.startsWith('A: 30 (17%)'))).toBe(true);
+  });
+
+  it('com valor menor que a soma, vale a soma', () => {
+    expect(valoresDoCaminho(20).path[0].value).toBe(60);
   });
 });

@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import type { ChartAnchorPoint } from '../core/useMarkNavigation';
 import styles from './ChartTooltip.module.css';
 
 export interface ChartTooltipRow {
@@ -40,8 +41,8 @@ export interface ChartTooltipComputed {
 }
 
 export interface ChartTooltipProps {
-  /** Ponto fixo do balao, em coordenadas da janela, como a marca em foco pelo teclado. Vale sobre o ponteiro. */
-  anchor?: { x: number; y: number };
+  /** Ancora fixa do balao, em coordenadas da janela, como a marca em foco pelo teclado ou a entrada da legenda. Vale sobre o ponteiro. */
+  anchor?: ChartAnchorPoint;
   children: ReactNode;
   columns?: readonly ChartTooltipColumn[];
   /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
@@ -63,6 +64,9 @@ export const TOOLTIP_OFFSET = 16;
 
 /** Folga minima ate a borda da janela. */
 const MARGEM = 8;
+
+/** Distancia entre o balao e a caixa do elemento a que ele se encosta. */
+const ESPACO_DA_CAIXA = 8;
 
 function somar(valores: readonly number[]) {
   return valores.reduce((total, valor) => total + valor, 0);
@@ -94,6 +98,39 @@ function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
   };
 }
 
+function dentroDaJanela(valor: number, tamanho: number, limite: number) {
+  return Math.max(MARGEM, Math.min(valor, limite - MARGEM - tamanho));
+}
+
+/**
+ * Canto do balao a partir da caixa do elemento, que termina em `x` e tem `y` a meia altura. Ele encosta a
+ * direita da caixa, alinhado ao topo; sem espaco, vai para a esquerda; sem espaco dos dois lados, desce abaixo
+ * da caixa, alinhado a esquerda, ou sobe acima dela.
+ */
+function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: number, altura: number): Ponto {
+  const topo = y - height / 2;
+  const aDireita = x + ESPACO_DA_CAIXA;
+  const aEsquerda = x - width - ESPACO_DA_CAIXA - largura;
+  const alinhadoAoTopo = dentroDaJanela(topo, altura, window.innerHeight);
+
+  if (aDireita + largura <= window.innerWidth - MARGEM) {
+    return { x: aDireita, y: alinhadoAoTopo };
+  }
+
+  if (aEsquerda >= MARGEM) {
+    return { x: aEsquerda, y: alinhadoAoTopo };
+  }
+
+  const abaixo = topo + height + ESPACO_DA_CAIXA;
+  const acima = topo - ESPACO_DA_CAIXA - altura;
+  const cabeAbaixo = abaixo + altura <= window.innerHeight - MARGEM;
+
+  return {
+    x: dentroDaJanela(x - width, largura, window.innerWidth),
+    y: cabeAbaixo ? abaixo : acima >= MARGEM ? acima : dentroDaJanela(abaixo, altura, window.innerHeight),
+  };
+}
+
 /**
  * Leitura das medidas sob o ponteiro, em portal sobre a pagina. Ele acompanha o
  * cursor enquanto este percorre a area e sai a qualquer outra interacao.
@@ -114,7 +151,7 @@ export function ChartTooltip({
   totalLabel = 'Total',
 }: ChartTooltipProps) {
   const [ponteiro, setPonteiro] = useState<Ponto | null>(null);
-  const [ancoraDispensada, setAncoraDispensada] = useState<Ponto | null>(null);
+  const [ancoraDispensada, setAncoraDispensada] = useState<ChartAnchorPoint | null>(null);
   const ancora = anchor !== undefined && anchor !== ancoraDispensada ? anchor : null;
   const ponto = ancora ?? ponteiro;
   const visivel = ponto !== null && rows.length > 0;
@@ -173,7 +210,7 @@ export function ChartTooltip({
   );
 }
 
-type BalaoProps = Omit<ChartTooltipProps, 'children'> & { ponteiro: Ponto };
+type BalaoProps = Omit<ChartTooltipProps, 'children'> & { ponteiro: ChartAnchorPoint };
 
 function Balao({
   columns,
@@ -215,7 +252,11 @@ function Balao({
   const calcular = calculada?.compute ?? ((valor: number, total: number) => (total === 0 ? 0 : valor / total));
   const formatarCalculada = calculada?.format ?? ((valor: number) => formatPercent(valor, { decimals: 2 }));
 
-  const { x, y } = encaixar(ponteiro, medida.largura, medida.altura);
+  const { height, width } = ponteiro;
+  const { x, y } =
+    height !== undefined && width !== undefined
+      ? encostar({ ...ponteiro, height, width }, medida.largura, medida.altura)
+      : encaixar(ponteiro, medida.largura, medida.altura);
   const celulas = `1fr ${'auto '.repeat(colunas.length + (calculada ? 1 : 0))}`.trim();
 
   return (

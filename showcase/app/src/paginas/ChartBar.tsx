@@ -297,6 +297,56 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Eixos com título e contagem inteira',
+      descricao: 'O passo mínimo 1 impede marcas fracionárias em pedidos; os títulos dizem o que cada eixo mede.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartBar
+            categories={['Seg', 'Ter', 'Qua']}
+            height={220}
+            minTickStep={1}
+            series={[{ label: 'Pedidos', values: [1, 2, 2] }]}
+            title="Pedidos por dia"
+            xAxisTitle="Dia da semana"
+            yAxisTitle="Pedidos"
+          />
+        </div>
+      ),
+      codigo: `<ChartBar
+  title="Pedidos por dia"
+  categories={['Seg', 'Ter', 'Qua']}
+  series={[{ label: 'Pedidos', values: [1, 2, 2] }]}
+  minTickStep={1}
+  xAxisTitle="Dia da semana"
+  yAxisTitle="Pedidos"
+  height={220}
+/>`,
+    },
+    {
+      titulo: 'Nomes longos na horizontal',
+      descricao: 'A coluna de nomes tem teto: o excedente vira reticências, e o nome inteiro segue no balão e no rótulo da marca. O rótulo de dado da ponta tem a sua reserva.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartBar
+            categories={['Distribuidora Nacional de Alimentos e Bebidas do Centro-Oeste Ltda.', 'Comercial de Eletrodomésticos e Móveis Planejados Vale do Sul', 'Sul', 'Norte']}
+            formatValue={formatarCompacto}
+            orientation="horizontal"
+            series={[{ label: 'Vendas', values: [215000, 180000, 90000, 40000] }]}
+            showDataLabels="visible"
+            title="Vendas por cliente"
+          />
+        </div>
+      ),
+      codigo: `<ChartBar
+  title="Vendas por cliente"
+  orientation="horizontal"
+  categories={clientes}
+  series={[{ label: 'Vendas', values: [215000, 180000, 90000, 40000] }]}
+  showDataLabels="visible"
+  formatValue={formatarCompacto}
+/>`,
+    },
+    {
       titulo: 'Intenção semântica',
       descricao: 'Com intent, a cor carrega significado e ignora a cor de tema: despesa continua vermelha para qualquer usuário.',
       Previa: () => (
@@ -461,6 +511,9 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'xAxisTitle', tipo: "string", descricao: <>Título do eixo de baixo, como o <code>xAxis</code>: as categorias na vertical, o valor na horizontal. O espaço sai da área de desenho.</> },
+    { nome: 'yAxisTitle', tipo: "string", descricao: <>Título do eixo da esquerda, como o <code>yAxis</code>: o valor na vertical, as categorias na horizontal. O texto é decorativo para leitor de tela; o nome do gráfico continua sendo o <code>title</code>.</> },
+    { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onBarClick', tipo: '(bar: ChartMarkClick) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },

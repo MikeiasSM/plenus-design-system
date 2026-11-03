@@ -54,8 +54,12 @@ export type ChartComboAxis = 'left' | 'right';
 
 export interface ChartComboSeries extends SeriesAppearance {
   axis?: ChartComboAxis;
+  /** Curva desta serie de linha. Vence a `curve` do grafico. */
+  curve?: ChartCurve;
   kind: ChartComboKind;
   label: string;
+  /** Visibilidade do rotulo de valor desta serie. Vence a `showDataLabels` do grafico. */
+  showDataLabels?: MarkVisibility;
   values: readonly (number | null)[];
 }
 
@@ -77,6 +81,10 @@ export interface ChartComboProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Passo minimo entre as marcas do eixo da esquerda, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  minTickStep?: number;
+  /** O mesmo para o eixo da direita. */
+  minRightTickStep?: number;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Clique na barra ou no ponto da linha. Com ele, as marcas viram botoes percorridos pelas setas. */
   onMarkClick?: (mark: ChartMarkClick) => void;
@@ -86,7 +94,7 @@ export interface ChartComboProps extends ChartRootProps {
   palette?: ChartPalette;
   series: readonly ChartComboSeries[];
   /**
-   * Valor de cada barra e de cada ponto. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
+   * Valor de cada barra e de cada ponto; cada serie pode declarar o seu em `showDataLabels`. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
    * linhas, que nao tem alvo proprio, os da categoria sob o ponteiro.
    */
   showDataLabels?: MarkVisibility;
@@ -96,12 +104,23 @@ export interface ChartComboProps extends ChartRootProps {
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
+  /** Titulo do eixo das categorias, embaixo do desenho. */
+  xAxisTitle?: string;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo de valor da direita. */
+  yAxisRightTitle?: string;
+  /** Titulo do eixo de valor da esquerda. */
+  yAxisTitle?: string;
 }
 
 function eixoDa(serie: ChartComboSeries): ChartComboAxis {
   return serie.axis ?? 'left';
+}
+
+/** A serie decide a visibilidade do proprio rotulo; sem ela, vale a do grafico. */
+function rotuloDaSerie(serie: ChartComboSeries, doGrafico: MarkVisibility) {
+  return serie.showDataLabels ?? doGrafico;
 }
 
 /** Dominio de um eixo: as series que pertencem a ele e entram na escala. */
@@ -144,6 +163,8 @@ export function ChartCombo({
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
+  minRightTickStep,
+  minTickStep,
   onHiddenSeriesChange,
   onHoverCategory,
   onMarkClick,
@@ -154,8 +175,11 @@ export function ChartCombo({
   showDots = 'onHover',
   title,
   xAxis = 'visible',
+  xAxisTitle,
   yAxis = 'visible',
   yAxisRight,
+  yAxisRightTitle,
+  yAxisTitle,
   ...root
 }: ChartComboProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
@@ -207,13 +231,14 @@ export function ChartCombo({
   const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: valueLabelsFor(dominioEsquerda, alturaDoDesenho, formatValue),
-    rightLabels: valueLabelsFor(dominioDireita, alturaDoDesenho, formatarDireita),
-    topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
+    leftLabels: valueLabelsFor(dominioEsquerda, alturaDoDesenho, formatValue, minTickStep),
+    rightLabels: valueLabelsFor(dominioDireita, alturaDoDesenho, formatarDireita, minRightTickStep),
+    topRoom: series.every((serie) => rotuloDaSerie(serie, showDataLabels) === 'hidden') ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
@@ -261,8 +286,8 @@ export function ChartCombo({
   const formatoDa = (serie: ChartComboSeries) =>
     eixoDa(serie) === 'right' ? formatarDireita : formatValue;
 
-  const marcasEsquerda = ticksFor(alvoEsquerda, plot.height);
-  const marcasDireita = ticksFor(alvoDireita, plot.height);
+  const marcasEsquerda = ticksFor(alvoEsquerda, plot.height, undefined, minTickStep);
+  const marcasDireita = ticksFor(alvoDireita, plot.height, undefined, minRightTickStep);
 
   const vao = escalaCategorias.bandwidth();
 
@@ -293,6 +318,7 @@ export function ChartCombo({
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
+      font={font}
       grid={[
         {
           baseline: escalaEsquerda(0),
@@ -327,15 +353,17 @@ export function ChartCombo({
       }
       tooltipAnchor={marcas.tooltipAnchor}
       width={width}
-      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, visibility: xAxis }}
+      xAxis={{ labelRotation: rotation, ticks: marcasCategoria, title: xAxisTitle, visibility: xAxis }}
       yAxis={{
         hideLine: true,
         ticks: marcasDeValor(marcasEsquerda, escalaEsquerda, formatValue),
+        title: yAxisTitle,
         visibility: yAxis,
       }}
       yAxisRight={{
         hideLine: true,
         ticks: marcasDeValor(marcasDireita, escalaDireita, formatarDireita),
+        title: yAxisRightTitle,
         visibility: visibilidadeDireita,
       }}
     >
@@ -352,6 +380,7 @@ export function ChartCombo({
           const oculta = isHidden(serie.label);
           const escala = escalaDa(serie);
           const formatar = formatoDa(serie);
+          const rotulos = rotuloDaSerie(serie, showDataLabels);
           const base = escala(0);
 
           return (
@@ -394,7 +423,7 @@ export function ChartCombo({
                 );
               })}
 
-              {showDataLabels !== 'hidden' &&
+              {rotulos !== 'hidden' &&
                 categories.map((categoria, indiceCategoria) => {
                   const valor = serie.values[indiceCategoria];
 
@@ -404,7 +433,7 @@ export function ChartCombo({
 
                   return (
                     <text
-                      className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+                      className={`${chartStyles.valueLabel} ${markShown(rotulos, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                       key={indiceCategoria}
                       textAnchor="middle"
                       x={
@@ -430,6 +459,7 @@ export function ChartCombo({
           const oculta = isHidden(serie.label);
           const escala = escalaDa(serie);
           const formatar = formatoDa(serie);
+          const rotulos = rotuloDaSerie(serie, showDataLabels);
           const pontos = categories.map<ChartPoint | null>((categoria, indice) => {
             const valor = serie.values[indice];
 
@@ -448,7 +478,7 @@ export function ChartCombo({
             >
               <path
                 className={chartStyles.line}
-                d={linePath(pontos, curve)}
+                d={linePath(pontos, serie.curve ?? curve)}
                 fill="none"
                 stroke={cores[indiceSerie]}
               />
@@ -470,11 +500,11 @@ export function ChartCombo({
                 ),
               )}
 
-              {showDataLabels !== 'hidden' &&
+              {rotulos !== 'hidden' &&
                 pontos.map((ponto, indice) =>
                   ponto === null ? null : (
                     <text
-                      className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indice === faixaEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+                      className={`${chartStyles.valueLabel} ${markShown(rotulos, indice === faixaEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                       key={indice}
                       textAnchor="middle"
                       x={ponto.x}

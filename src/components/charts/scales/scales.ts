@@ -139,9 +139,30 @@ export function radiusScale(maxValue: number, range: [number, number]) {
 
 /**
  * Marcas de um eixo continuo. Sem contagem informada, o eixo decide pelo
- * espaco que tem, para nao amontoar rotulos em area estreita. Em escala
- * categorica as marcas sao o proprio dominio.
+ * espaco que tem, para nao amontoar rotulos em area estreita. Com passo minimo,
+ * a contagem cai ate o intervalo entre marcas caber nele: valores inteiros nao
+ * ganham marcas fracionarias. Em escala categorica as marcas sao o proprio dominio.
  */
-export function ticksFor(scale: { ticks: (count?: number) => number[] }, length: number, count?: number) {
-  return scale.ticks(count ?? Math.max(2, Math.min(10, Math.floor(length / 64))));
+export function ticksFor(
+  scale: { ticks: (count?: number) => number[] },
+  length: number,
+  count?: number,
+  minStep?: number,
+) {
+  const alvo = count ?? Math.max(2, Math.min(10, Math.floor(length / 64)));
+
+  if (!minStep || minStep <= 0) {
+    return scale.ticks(alvo);
+  }
+
+  for (let contagem = alvo; contagem > 1; contagem -= 1) {
+    const marcas = scale.ticks(contagem);
+    const [primeira = 0, segunda = Number.POSITIVE_INFINITY] = marcas;
+
+    if (segunda - primeira >= minStep - 1e-9) {
+      return marcas;
+    }
+  }
+
+  return scale.ticks(1);
 }

@@ -156,4 +156,25 @@ describe('ChartLine', () => {
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicar).toHaveBeenCalledWith({ category: '05/26', index: 1, series: 'Produtos', value: series[1].values[1] });
   });
+
+  it('aceita passo minimo das marcas e titulos nos tres eixos de valor e de categoria', () => {
+    const contagem = [{ label: 'Pedidos', values: [1, 2, 2] }];
+    const { container } = render(
+      <ChartLine
+        categories={meses}
+        minTickStep={1}
+        series={contagem}
+        title="Pedidos"
+        xAxisTitle="Mês"
+        yAxisRight="visible"
+        yAxisRightTitle="Total"
+        yAxisTitle="Unidades"
+      />,
+    );
+    const textos = [...container.querySelectorAll('text')].map((no) => no.textContent);
+
+    expect(textos).toEqual(expect.arrayContaining(['Mês', 'Unidades', 'Total']));
+    expect(textos.some((texto) => texto === '0,5')).toBe(false);
+    expect(screen.getByText('Unidades')).toHaveAttribute('aria-hidden', 'true');
+  });
 });

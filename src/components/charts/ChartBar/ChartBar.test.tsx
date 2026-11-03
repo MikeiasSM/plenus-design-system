@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import chartStyles from '../core/Chart.module.css';
+import { CHART_LABEL_BAND, labelFontOf, measureLabel } from '../core';
 import { ChartBar, type ChartBarSeries } from './ChartBar';
 
 const periodos = ['08/2026', '09/2026'];
@@ -456,5 +457,115 @@ describe('ChartBar', () => {
 
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicar).toHaveBeenCalledWith({ category: '08/2026', index: 0, series: 'Deduções', value: 179000 });
+  });
+
+  describe('barras horizontais', () => {
+    const vendas: ChartBarSeries[] = [{ label: 'Vendas', values: [200000, 150000, 90000] }];
+    const regioes = ['Sul', 'Norte', 'Leste'];
+
+    it('reserva a direita a largura do maior rotulo de dado, para a ponta nao ser cortada', () => {
+      render(
+        <ChartBar categories={regioes} orientation="horizontal" series={vendas} showDataLabels="visible" title="Vendas" />,
+      );
+      const maior = [...document.querySelectorAll('text')].find((no) => no.textContent === '200.000');
+      const fimDoRotulo = Number(maior?.getAttribute('x')) + measureLabel('200.000', labelFontOf(null));
+
+      expect(fimDoRotulo).toBeLessThanOrEqual(640);
+    });
+
+    it('sem rotulos de dado visiveis, o desenho vai ate a borda de sempre', () => {
+      const larguraDaBarra = () => caixaDe(barras()[0]).largura;
+      const { rerender } = render(<ChartBar categories={regioes} orientation="horizontal" series={vendas} title="Vendas" />);
+      const semRotulo = larguraDaBarra();
+
+      rerender(
+        <ChartBar categories={regioes} orientation="horizontal" series={vendas} showDataLabels="visible" title="Vendas" />,
+      );
+
+      expect(larguraDaBarra()).toBeLessThan(semRotulo);
+    });
+
+    it('corta com reticencias o nome longo da coluna, que a marca mantem inteiro', () => {
+      const longo = 'Distribuidora Nacional de Alimentos e Bebidas do Centro-Oeste Ltda.';
+      render(
+        <ChartBar categories={[longo, 'Sul']} orientation="horizontal" series={[{ label: 'Vendas', values: [3, 2] }]} title="Vendas" />,
+      );
+      const nomeNoEixo = rotulosDoEixo().find((texto) => texto?.startsWith('Distribuidora'));
+
+      expect(nomeNoEixo).toMatch(/…$/);
+      expect(measureLabel(nomeNoEixo ?? '', labelFontOf(null))).toBeLessThanOrEqual(640 * CHART_LABEL_BAND);
+      expect(screen.getByLabelText(`Vendas, ${longo}: 3`)).toBeInTheDocument();
+    });
+
+    it('nao corta nome que cabe na coluna', () => {
+      render(<ChartBar categories={regioes} orientation="horizontal" series={vendas} title="Vendas" />);
+
+      expect(rotulosDoEixo()).toContain('Norte');
+    });
+
+    it('em grafico estreito, o teto da coluna nao corta nomes curtos', () => {
+      fixarLargura(320);
+      render(<ChartBar categories={['Rio de Janeiro', 'Minas Gerais']} orientation="horizontal" series={vendas} title="Vendas" />);
+
+      expect(rotulosDoEixo()).toEqual(expect.arrayContaining(['Rio de Janeiro', 'Minas Gerais']));
+    });
+
+    it('com rotulos so ao passar, reserva a ponta como com eles visiveis', () => {
+      const larguraDaBarra = () => caixaDe(barras()[0]).largura;
+      const { rerender } = render(
+        <ChartBar categories={regioes} orientation="horizontal" series={vendas} showDataLabels="visible" title="Vendas" />,
+      );
+      const visiveis = larguraDaBarra();
+
+      rerender(<ChartBar categories={regioes} orientation="horizontal" series={vendas} showDataLabels="onHover" title="Vendas" />);
+
+      expect(larguraDaBarra()).toBe(visiveis);
+    });
+  });
+
+  describe('marcas e titulos dos eixos', () => {
+    const contagem: ChartBarSeries[] = [{ label: 'Pedidos', values: [1, 2] }];
+
+    it('com passo minimo 1, uma contagem pequena nao ganha marcas fracionarias', () => {
+      const { rerender } = render(<ChartBar categories={['jan', 'fev']} series={contagem} title="Pedidos" />);
+      expect(rotulosDoEixo().some((texto) => texto?.includes(','))).toBe(true);
+
+      rerender(<ChartBar categories={['jan', 'fev']} minTickStep={1} series={contagem} title="Pedidos" />);
+      expect(rotulosDoEixo().filter((texto) => /^\d+$/.test(texto ?? ''))).toEqual(['0', '1', '2']);
+    });
+
+    it('desenha o titulo de cada eixo no lado da tela do proprio eixo, como o xAxis e o yAxis', () => {
+      const { container, rerender } = render(
+        <ChartBar categories={['jan', 'fev']} series={contagem} title="Pedidos" xAxisTitle="Região" yAxisTitle="Unidades" />,
+      );
+      const gira = (texto: string) =>
+        [...container.querySelectorAll('text')].find((no) => no.textContent === texto)?.getAttribute('transform') ?? '';
+
+      expect(gira('Unidades')).toContain('rotate(-90)');
+      expect(gira('Região')).toContain('rotate(0)');
+
+      rerender(
+        <ChartBar categories={['jan', 'fev']} orientation="horizontal" series={contagem} title="Pedidos" xAxisTitle="Unidades" yAxisTitle="Região" />,
+      );
+      expect(gira('Unidades')).toContain('rotate(0)');
+      expect(gira('Região')).toContain('rotate(-90)');
+    });
+
+    it('mantem o titulo do eixo fora da arvore de acessibilidade e o nome do grafico intacto', () => {
+      render(<ChartBar categories={['jan']} series={contagem} title="Pedidos" yAxisTitle="Unidades" />);
+
+      expect(screen.getByRole('img', { name: 'Pedidos' })).toBeInTheDocument();
+      expect(screen.getByText('Unidades')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('tira o espaco do titulo da area de desenho', () => {
+      const alturaDaBarra = () => caixaDe(barras()[1]).altura;
+      const { rerender } = render(<ChartBar categories={['jan', 'fev']} series={contagem} title="Pedidos" />);
+      const semTitulo = alturaDaBarra();
+
+      rerender(<ChartBar categories={['jan', 'fev']} series={contagem} xAxisTitle="Mês" title="Pedidos" />);
+
+      expect(alturaDaBarra()).toBeLessThan(semTitulo);
+    });
   });
 });

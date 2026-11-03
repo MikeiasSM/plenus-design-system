@@ -230,6 +230,32 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Títulos de eixo e contagem inteira',
+      descricao: 'Passo mínimo 1 para pedidos, e um título em cada eixo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartLine
+            categories={['Seg', 'Ter', 'Qua']}
+            height={220}
+            minTickStep={1}
+            series={[{ label: 'Pedidos', values: [1, 2, 2] }]}
+            title="Pedidos por dia"
+            xAxisTitle="Dia da semana"
+            yAxisTitle="Pedidos"
+          />
+        </div>
+      ),
+      codigo: `<ChartLine
+  title="Pedidos por dia"
+  categories={['Seg', 'Ter', 'Qua']}
+  series={[{ label: 'Pedidos', values: [1, 2, 2] }]}
+  minTickStep={1}
+  xAxisTitle="Dia da semana"
+  yAxisTitle="Pedidos"
+  height={220}
+/>`,
+    },
+    {
       titulo: 'Linha reta, marcadores visíveis',
       descricao: 'Uma série só dispensa a legenda: o título já a nomeia.',
       Previa: () => (
@@ -368,6 +394,10 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria do ponto mais próximo; costura para o ChartTooltip.' },
+    { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
+    { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
+    { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },
+    { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onPointClick', tipo: '(point: ChartMarkClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas; o clique na faixa vale pelo ponto mais próximo.' },

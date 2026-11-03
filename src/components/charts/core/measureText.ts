@@ -11,6 +11,8 @@ export interface LabelFont {
   family: string;
   /** Familia de display, usada onde o valor e um KPI. */
   headingFamily: string;
+  /** Peso de `type.label`, o do titulo de eixo. */
+  labelWeight: number;
   lineHeight: number;
   size: number;
 }
@@ -26,6 +28,7 @@ const PADRAO: LabelFont = {
   centerSteps: DEGRAUS_DO_CENTRO.map(({ display, lineHeight, size }) => ({ display, lineHeight, size })),
   family: 'sans-serif',
   headingFamily: 'sans-serif',
+  labelWeight: 600,
   lineHeight: 16,
   size: 12,
 };
@@ -54,7 +57,9 @@ export function labelFontOf(node: Element | null): LabelFont {
     size: token(`${degrau.papel}-size`) || degrau.size,
   }));
 
-  return { centerSteps, family, headingFamily, lineHeight: lineHeight || size * 1.34, size };
+  const labelWeight = token('label-weight') || PADRAO.labelWeight;
+
+  return { centerSteps, family, headingFamily, labelWeight, lineHeight: lineHeight || size * 1.34, size };
 }
 
 let contexto: CanvasRenderingContext2D | null | undefined;
@@ -76,7 +81,7 @@ function contextoDeMedida() {
  * pagina; onde ele nao existe, a estimativa por caractere mantem o calculo
  * deterministico, em vez de devolver zero e amontoar os rotulos.
  */
-export function measureLabel(text: string, font: LabelFont) {
+export function measureLabel(text: string, font: LabelFont, weight = 400) {
   const estimativa = text.length * font.size * LARGURA_POR_CARACTERE;
   const medida = contextoDeMedida();
 
@@ -84,7 +89,7 @@ export function measureLabel(text: string, font: LabelFont) {
     return estimativa;
   }
 
-  medida.font = `${font.size}px ${font.family}`;
+  medida.font = `${weight} ${font.size}px ${font.family}`;
 
   return medida.measureText(text).width || estimativa;
 }
@@ -98,18 +103,18 @@ export function widestLabel(labels: readonly string[], font: LabelFont) {
  * proprio espaco — o centro de um anel, o retangulo de um mapa de area — nao ha
  * caixa que corte por conta propria.
  */
-export function truncateToWidth(text: string, font: LabelFont, maxWidth: number) {
+export function truncateToWidth(text: string, font: LabelFont, maxWidth: number, weight?: number) {
   if (maxWidth <= 0) {
     return '';
   }
 
-  if (measureLabel(text, font) <= maxWidth) {
+  if (measureLabel(text, font, weight) <= maxWidth) {
     return text;
   }
 
   let corte = text.length;
 
-  while (corte > 0 && measureLabel(`${text.slice(0, corte)}…`, font) > maxWidth) {
+  while (corte > 0 && measureLabel(`${text.slice(0, corte)}…`, font, weight) > maxWidth) {
     corte -= 1;
   }
 

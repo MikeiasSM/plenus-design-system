@@ -6,6 +6,31 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.6] — 2026-11-03
+
+### Adicionado
+
+- Títulos de eixo opcionais nos cartesianos: `xAxisTitle` e `yAxisTitle` em `ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo` e `ChartWaterfall`, e `yAxisRightTitle` onde há eixo à direita. Seguem o lado da tela, como `xAxis` e `yAxis`: no `ChartBar` horizontal, o de baixo é o do valor. O espaço sai da área de desenho, e o texto fica fora da árvore de acessibilidade; o nome do gráfico continua sendo o `title`.
+- `minTickStep`, passo mínimo entre as marcas do eixo de valor, em `ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo` (com `minRightTickStep` para o eixo direito) e `ChartWaterfall`. Com 1, uma contagem de 1 e 2 mostra 0, 1 e 2, sem marcas fracionárias.
+- `ChartCombo`: `showDataLabels` e `curve` por série, que vencem os do gráfico. Barra e linha de valores próximos deixam de sobrepor os rótulos quando só uma delas os mostra.
+- `ChartMap`: `focusMarkers` enquadra o mapa pelos marcadores de ids indicados, com margem do raio do maior marcador e teto de aproximação próprio. As regiões em volta seguem desenhadas e interativas; com `focus` junto, o enquadramento abraça as regiões e os pontos.
+- `Badge`: `size`, `'sm'` ou `'md'` (padrão, sem mudança). O `sm` tem 16px de altura e texto de 10px, para etiquetas ao lado de um título. Novo tipo `BadgeSize`.
+- Papel tipográfico `micro` (`--pl-type-micro-size`, `--pl-type-micro-line-height` e `--pl-type-micro-weight`: 10px, 12px e 600), o único abaixo de 12px, restrito a micro-rótulos.
+- `ChartAnchorPoint` ganha `width` e `height` opcionais. Com a caixa, o `ChartTooltip` encosta nela a 8px, alinhado ao topo; sem espaço à direita, vai para a esquerda sem cobri-la; sem espaço dos lados, desce ou sobe, sempre dentro da janela. A entrada da legenda entrega a caixa em `details.anchor`, com `x` e `y` iguais aos de antes.
+
+### Alterado
+
+- `ChartSunburst` e `ChartTreemap`: o valor de um nó com filhos passa a ser o maior entre o próprio e a soma dos filhos. Antes, o valor do pai era somado ao dos filhos, e o mesmo valor contava duas vezes (pai 100 com filhos 30 e 30 virava 160). Com o valor próprio maior, a parte que os filhos não detalham fica vazia. Dado coerente, só com valor nas folhas ou com o pai igual à soma, sai idêntico. O balão e a costura entregam o valor corrigido.
+- `ChartRadial`: o centro acompanha o anel em foco, pelo ponteiro, pelo teclado ou pela legenda, e volta ao primeiro visível ao sair, como o da `ChartDonut`.
+
+### Corrigido
+
+- `ChartBar` horizontal: o rótulo de dado da barra mais longa saía da área de desenho ("215K" virava "215"). A margem direita reserva a largura do maior rótulo, com `showDataLabels` em `visible` e em `onHover`.
+- `ChartBar` horizontal: nomes de categoria longos ocupavam até 64% da largura. A coluna tem teto de 24% da largura, com piso de 128px, e o nome que passar sai com reticências; o nome inteiro segue no balão e no rótulo acessível da barra.
+- `ChartWaterfall`: o balão do passo de total dizia sempre "Total"; passa a usar o rótulo do passo.
+- `ChartTooltip` sem título reservava 8px a mais no topo.
+- O balão aberto pela legenda dos gráficos radiais abria em diagonal, longe da entrada, e perto da borda cobria as entradas de baixo.
+
 ## [0.5.5] — 2026-11-02
 
 ### Adicionado

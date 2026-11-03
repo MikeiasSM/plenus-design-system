@@ -124,6 +124,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Titulo de eixo: o mesmo corpo dos rotulos, com o peso de rotulo para se distinguir das marcas. */
+.axisTitle {
+  fill: var(--pl-chart-label);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
 /* O eixo dinamico surge enquanto o desenho encolhe para abrir a calha, e some na hora de sair. */
 .dynamicAxis {
   opacity: 0;

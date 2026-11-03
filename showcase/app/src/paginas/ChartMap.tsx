@@ -94,6 +94,22 @@ const CAPITAIS: ChartMapMarkerSeries[] = [
   },
 ];
 
+const BAIRROS_DE_MANAUS: ChartMapMarkerSeries[] = [
+  {
+    id: 'bairros',
+    label: 'Clientes por bairro',
+    points: (
+      [
+        ['centro', 'Centro', -3.131, -60.025, 420], ['ponta-negra', 'Ponta Negra', -3.082, -60.095, 310],
+        ['flores', 'Flores', -3.075, -60.012, 260], ['compensa', 'Compensa', -3.105, -60.065, 230],
+        ['cidade-nova', 'Cidade Nova', -3.03, -59.98, 380], ['alvorada', 'Alvorada', -3.065, -60.055, 150],
+      ] as const
+    ).map(([id, label, latitude, longitude, value]) => ({ id, label, latitude, longitude, value })),
+  },
+];
+const AMAZONAS = { ...MALHA_DAS_UFS, features: MALHA_DAS_UFS.features.filter((feicao) => feicao.id === 'AM') };
+const IDS_DOS_BAIRROS = BAIRROS_DE_MANAUS[0].points.map((bairro) => bairro.id);
+
 const REGIOES = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
 const ufsDa = (regiao: string) =>
   MALHA_DAS_UFS.features.filter((feicao) => feicao.properties?.regiao === regiao).map((feicao) => String(feicao.id));
@@ -473,6 +489,14 @@ function Modos() {
           faixas, as faixas diminuem; com um valor só, uma cor e uma entrada na legenda. Mais escuro é maior, nos dois
           temas.
         </dd>
+        <dt><code>focusMarkers</code></dt>
+        <dd>
+          Enquadra os marcadores de ids pedidos, de qualquer série, com margem do raio do maior e teto de 100 vezes a
+          aproximação do mapa inteiro, maior que o de <code>focus</code> porque o alvo são pontos: um ponto só mostra a
+          vizinhança, não o mapa todo ampliado. Diferente de <code>focus</code>, não cinzeia nada:
+          as regiões seguem coloridas e interativas, e as que saem da área só ficam fora do desenho. Juntos, o
+          enquadramento abraça as regiões de <code>focus</code> e os marcadores.
+        </dd>
         <dt>Sem dado e dado sem região</dt>
         <dd>
           A região sem dado é hachurada e entra na legenda com a contagem. O dado cujo id não está na geometria some do
@@ -633,6 +657,37 @@ export const pagina: Pagina = {
     },
     {
       largo: true,
+      titulo: 'Foco nos marcadores',
+      descricao:
+        'O contorno é grande e os bairros ocupam um canto dele. focusMarkers aproxima o desenho do retângulo dos pontos, com margem do maior raio, e a região segue desenhada e interativa.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartMap
+            colorScale={{ type: 'none' }}
+            featureNameKey="properties.nome"
+            focusMarkers={IDS_DOS_BAIRROS}
+            geometry={AMAZONAS}
+            height={400}
+            markers={BAIRROS_DE_MANAUS}
+            markerValueLabel="Clientes"
+            regionLabels="hidden"
+            title="Clientes por bairro de Manaus"
+          />
+        </div>
+      ),
+      codigo: `<ChartMap
+  title="Clientes por bairro de Manaus"
+  geometry={contornoDoAmazonas}
+  featureNameKey="properties.nome"
+  colorScale={{ type: 'none' }}
+  markers={[{ id: 'bairros', label: 'Clientes por bairro', points: bairros }]}
+  markerValueLabel="Clientes"
+  focusMarkers={bairros.map((bairro) => bairro.id)}
+  regionLabels="hidden"
+/>`,
+    },
+    {
+      largo: true,
       titulo: 'Municípios do Nordeste',
       descricao:
         'Os 1.794 municípios, carregados sob demanda, em sete quantis: a concentração nas capitais apagaria a escala linear. As outras UFs ficam como contexto. Clicar num município desce para a UF dele, e a página troca a geometria. Geografia, área e população: IBGE, referência 2025; vendas simuladas.',
@@ -758,6 +813,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'defaultHiddenClasses', tipo: 'readonly number[]', descricao: 'As desligadas de início, no modo não controlado.' },
     { nome: 'onHiddenClassesChange', tipo: '(hidden: readonly number[]) => void', descricao: 'Clique numa faixa da legenda.' },
     { nome: 'focus', tipo: 'readonly string[]', descricao: 'Ids que o enquadramento abraça, com teto de aproximação; o resto fica como contexto.' },
+    { nome: 'focusMarkers', tipo: 'readonly string[]', descricao: 'Ids de marcador que o enquadramento abraça, com margem do maior raio e teto de 100 vezes a aproximação do mapa inteiro. As regiões seguem desenhadas e interativas; com focus, o enquadramento abraça as regiões e esses marcadores.' },
     { nome: 'selectedRegion', tipo: 'string | null', descricao: 'Região com contorno de seleção, no modo controlado.' },
     { nome: 'defaultSelectedRegion', tipo: 'string | null', descricao: 'Região escolhida de início, no modo não controlado. Com ela, as regiões viram botões.' },
     { nome: 'onSelectedRegionChange', tipo: '(id: string | null) => void', descricao: 'O clique escolhe a região, ou desfaz a escolha na já escolhida. Com ela, as regiões viram botões.' },

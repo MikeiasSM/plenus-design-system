@@ -148,4 +148,22 @@ describe('ChartWaterfall', () => {
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicar).toHaveBeenCalledWith(dre[3], 3);
   });
+
+  it('chama o passo de total pelo proprio rotulo no balao, e nao por Total', () => {
+    render(<ChartWaterfall onStepClick={vi.fn()} steps={dre} title="DRE" />);
+
+    act(() => screen.getByRole('button', { name: /^Resultado:/ }).focus());
+
+    const balao = document.querySelector('[class*="tooltip"]');
+    expect(balao).not.toHaveTextContent('Total');
+    expect(balao?.textContent?.match(/Resultado/g)).toHaveLength(2);
+  });
+
+  it('desenha os titulos dos eixos como texto fora da arvore de acessibilidade', () => {
+    render(<ChartWaterfall steps={dre} title="DRE" xAxisTitle="Etapa" yAxisTitle="Valor em R$" />);
+
+    expect(screen.getByText('Etapa')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByText('Valor em R$')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('img', { name: 'DRE' })).toBeInTheDocument();
+  });
 });

@@ -143,7 +143,7 @@ function PassoNoPonteiro() {
           passo === null
             ? []
             : [
-                { label: passos[passo].total ? 'Total' : 'Variação', values: [passos[passo].value] },
+                { label: passos[passo].total ? passos[passo].label : 'Variação', values: [passos[passo].value] },
                 { emphasis: true, label: 'Acumulado', values: [acumulado[passo]] },
               ]
         }
@@ -184,6 +184,37 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Total nomeado e eixos com título',
+      descricao: 'O balão do passo de total usa o rótulo do próprio passo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartWaterfall
+            height={240}
+            steps={[
+              { label: 'Receita', value: 300000 },
+              { label: 'Custos', value: -120000 },
+              { label: 'Margem bruta', value: 180000, total: true },
+            ]}
+            title="Da receita à margem"
+            xAxisTitle="Etapa"
+            yAxisTitle="Valor (R$)"
+            formatValue={formatarCompacto}
+          />
+        </div>
+      ),
+      codigo: `<ChartWaterfall
+  title="Da receita à margem"
+  steps={[
+    { label: 'Receita', value: 300000 },
+    { label: 'Custos', value: -120000 },
+    { label: 'Margem bruta', value: 180000, total: true },
+  ]}
+  xAxisTitle="Etapa"
+  yAxisTitle="Valor (R$)"
+  formatValue={formatarCompacto}
+/>`,
+    },
     {
       titulo: 'Formação do resultado',
       descricao: 'Da receita bruta ao resultado, com as deduções em alerta e dois totais que fecham a conta.',
@@ -237,7 +268,7 @@ export const pagina: Pagina = {
   columns={[{ format: formatCurrency }]}
   computed="none"
   rows={passo === null ? [] : [
-    { label: passos[passo].total ? 'Total' : 'Variação', values: [passos[passo].value] },
+    { label: passos[passo].total ? passos[passo].label : 'Variação', values: [passos[passo].value] },
     { label: 'Acumulado', values: [acumulado[passo]], emphasis: true },
   ]}
 >
@@ -270,6 +301,10 @@ export const pagina: Pagina = {
     { nome: 'yAxisRight', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
     { nome: 'onHoverStep', tipo: '(index: number | null) => void', descricao: 'Passo sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
+    { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
+    { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },
+    { nome: 'minTickStep', tipo: "number", descricao: 'Passo mínimo entre as marcas do eixo de valor, na unidade do dado. Com 1, uma contagem de 0 a 2 marca 0, 1 e 2, e não 0, 0,2 … 1,8.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'onStepClick', tipo: '(step: ChartWaterfallStep, index: number) => void', descricao: 'Torna as barras botões, percorridos pelas setas; o balão abre no foco.' },
   ],

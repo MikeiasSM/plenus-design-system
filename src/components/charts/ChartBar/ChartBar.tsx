@@ -17,6 +17,10 @@ import {
   useTweenedNumbers,
   valueLabelRoom,
   valueLabelsFor,
+  truncateToWidth,
+  widestLabel,
+  CHART_LABEL_BAND,
+  CHART_LABEL_OFFSET,
   type AxisLabelAngle,
   type AxisTick,
   type AxisVisibility,
@@ -33,6 +37,12 @@ import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFo
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartBar.module.css';
+
+/** Distancia entre a ponta da barra e o rotulo de dado. */
+const AFASTAMENTO_DO_ROTULO = 6;
+
+/** Piso do teto da coluna de nomes na horizontal: em grafico estreito, o teto proporcional cortaria nomes curtos, como os das UFs. */
+const PISO_DA_COLUNA = 128;
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
 
@@ -54,6 +64,8 @@ export interface ChartBarProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  minTickStep?: number;
   /** Torna as barras botoes, percorridos pelas setas. */
   onBarClick?: (bar: ChartMarkClick) => void;
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
@@ -73,7 +85,11 @@ export interface ChartBarProps extends ChartRootProps {
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
+  /** Titulo do eixo de baixo, como o `xAxis`: as categorias na vertical, o valor na horizontal. */
+  xAxisTitle?: string;
   yAxis?: AxisVisibility;
+  /** Titulo do eixo da esquerda, como o `yAxis`: o valor na vertical, as categorias na horizontal. */
+  yAxisTitle?: string;
   yAxisRight?: AxisVisibility;
 }
 
@@ -89,6 +105,7 @@ export function ChartBar({
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
+  minTickStep,
   onBarClick,
   onHiddenSeriesChange,
   onHoverCategory,
@@ -100,7 +117,9 @@ export function ChartBar({
   stacked = false,
   title,
   xAxis = 'visible',
+  xAxisTitle,
   yAxis = 'visible',
+  yAxisTitle,
   yAxisRight = 'hidden',
   ...root
 }: ChartBarProps) {
@@ -126,6 +145,8 @@ export function ChartBar({
     ),
   });
   const vertical = orientation === 'vertical';
+  const categoryAxisTitle = vertical ? xAxisTitle : yAxisTitle;
+  const valueAxisTitle = vertical ? yAxisTitle : xAxisTitle;
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
@@ -151,15 +172,40 @@ export function ChartBar({
   // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.
   const posicaoDaLegenda = !vertical && (legend === 'left' || legend === 'right') ? 'bottom' : legend;
 
-  const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue);
+  const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue, minTickStep);
+
+  // Na horizontal os nomes formam uma coluna a esquerda; sem teto, nomes longos tomariam o desenho.
+  const larguraMaximaDaColuna = Math.max(width * CHART_LABEL_BAND, PISO_DA_COLUNA) - CHART_LABEL_OFFSET;
+  const nomesDaColuna =
+    vertical || width === 0 ? categories : categories.map((nome) => truncateToWidth(nome, font, larguraMaximaDaColuna));
+
+  /** Valores com rotulo a direita da ponta (o total da pilha, se empilhada); os negativos vao para a esquerda. */
+  function valoresRotuladosAdireita() {
+    const visiveis = series.filter((serie) => !isHidden(serie.label));
+    const porCategoria = categories.map((_, indice) =>
+      visiveis.map((serie) => serie.values[indice]).filter(Number.isFinite),
+    );
+    const rotulados = stacked
+      ? porCategoria.map((valores) => valores.reduce((soma, valor) => soma + valor, 0))
+      : porCategoria.flat();
+
+    return rotulados.filter((valor) => valor >= 0);
+  }
+
+  const reservaDireita =
+    showDataLabels !== 'hidden' && !vertical
+      ? widestLabel(valoresRotuladosAdireita().map(formatValue), font) + AFASTAMENTO_DO_ROTULO
+      : 0;
 
   const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+    axisTitles: { x: xAxisTitle, y: yAxisTitle },
     bottomLabels: vertical ? categories : rotulosDeValor,
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: vertical ? rotulosDeValor : categories,
-    rightLabels: vertical ? rotulosDeValor : categories,
+    leftLabels: vertical ? rotulosDeValor : nomesDaColuna,
+    rightLabels: vertical ? rotulosDeValor : nomesDaColuna,
+    rightRoom: reservaDireita,
     topRoom: showDataLabels !== 'hidden' && vertical ? valueLabelRoom(font) : 0,
     width,
     xAxis,
@@ -196,7 +242,7 @@ export function ChartBar({
     [fimDaFaixa, inicioDaFaixa, maximo, minimo],
   );
 
-  const marcasDeValor = ticksFor(escalaAlvo, comprimentoValores);
+  const marcasDeValor = ticksFor(escalaAlvo, comprimentoValores, undefined, minTickStep);
 
   const vao = escalaCategorias.bandwidth();
   const faixas = barSlots(vao, presencas);
@@ -261,16 +307,16 @@ export function ChartBar({
         dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
         key={chave}
         textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
-        x={vertical ? centro : ponta + (negativo ? -6 : 6)}
-        y={vertical ? ponta + (negativo ? 6 : -6) : centro}
+        x={vertical ? centro : ponta + (negativo ? -AFASTAMENTO_DO_ROTULO : AFASTAMENTO_DO_ROTULO)}
+        y={vertical ? ponta + (negativo ? AFASTAMENTO_DO_ROTULO : -AFASTAMENTO_DO_ROTULO) : centro}
       >
         {formatValue(valor)}
       </text>
     );
   }
 
-  const marcasCategoria: AxisTick[] = categories.map((categoria) => ({
-    label: categoria,
+  const marcasCategoria: AxisTick[] = categories.map((categoria, indice) => ({
+    label: nomesDaColuna[indice],
     position: (escalaCategorias(categoria) ?? 0) + vao / 2,
   }));
 
@@ -279,8 +325,8 @@ export function ChartBar({
     position: escalaValores(valor),
   }));
 
-  const eixoDeCategoria = { labelRotation: rotation, ticks: marcasCategoria };
-  const eixoDeValor = { hideLine: true, ticks: marcasValor };
+  const eixoDeCategoria = { labelRotation: rotation, ticks: marcasCategoria, title: categoryAxisTitle };
+  const eixoDeValor = { hideLine: true, ticks: marcasValor, title: valueAxisTitle };
 
   return (
     <CartesianFrame
@@ -290,6 +336,7 @@ export function ChartBar({
       empty={series.length === 0 || categories.length === 0}
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
+      font={font}
       grid={[
         {
           baseline: escalaValores(0),
@@ -327,7 +374,7 @@ export function ChartBar({
       width={width}
       xAxis={{ ...(vertical ? eixoDeCategoria : eixoDeValor), visibility: xAxis }}
       yAxis={{ ...(vertical ? eixoDeValor : eixoDeCategoria), visibility: yAxis }}
-      yAxisRight={{ ...(vertical ? eixoDeValor : eixoDeCategoria), hideLine: true, visibility: yAxisRight }}
+      yAxisRight={{ ...(vertical ? eixoDeValor : eixoDeCategoria), hideLine: true, title: undefined, visibility: yAxisRight }}
     >
       {faixaEmFoco !== null && (
         <BandCursor

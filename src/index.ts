@@ -152,7 +152,7 @@ export type { DialogProps, DialogRole, DialogSize } from './components/overlays/
 export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { Badge } from './components/data-display/Badge';
-export type { BadgeProps, BadgeTone, BadgeVariant } from './components/data-display/Badge';
+export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';
 export type { TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';

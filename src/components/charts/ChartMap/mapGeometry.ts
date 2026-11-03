@@ -42,6 +42,10 @@ export interface MapKeys {
 export const MAP_PADDING = 12;
 /** Teto do enquadramento do recorte, em vezes o do mapa inteiro: sozinho, o DF ocupava o palco. */
 export const MAX_FOCUS_ZOOM = 12;
+/** Teto do enquadramento pelos marcadores, que chega mais perto que o do recorte: os pontos cabem num bairro. */
+export const MAX_MARKER_ZOOM = 100;
+/** Lado minimo, em graus, da caixa dos pontos: uns 11 m. */
+const MIN_POINT_SPAN = 1e-4;
 const HEMISPHERE = 2 * Math.PI;
 
 /** Le um caminho como `properties.sigla` na feicao. */
@@ -125,26 +129,38 @@ export function regionsOf(collection: ChartMapFeatureCollection, { idKey, labelK
   });
 }
 
+/** Cantos opostos de uma caixa em longitude e latitude: oeste-sul e leste-norte. */
+export type MapCorners = ReturnType<typeof cornersOf>;
+
 /**
- * Os cantos da caixa das regioes. Na Mercator, longitude e latitude projetam cada uma num eixo, entao enquadrar os
- * cantos e enquadrar o desenho, sem percorrer de novo milhares de vertices.
+ * Os cantos da caixa das regioes e dos pontos. Na Mercator, longitude e latitude projetam cada uma num eixo, entao
+ * enquadrar os cantos e enquadrar o desenho, sem percorrer de novo milhares de vertices.
  */
-function cornersOf(regions: readonly MapRegion[]) {
+export function cornersOf(regions: readonly MapRegion[], points: readonly Point[] = []) {
   const [[west, south], [east, north]] = regions.reduce<readonly [Point, Point]>(
     ([[w, s], [e, n]], { bounds: [[rw, rs], [re, rn]] }) => [
       [Math.min(w, rw), Math.min(s, rs)],
       [Math.max(e, re), Math.max(n, rn)],
     ],
-    [
-      [Infinity, Infinity],
-      [-Infinity, -Infinity],
-    ],
+    points.reduce<readonly [Point, Point]>(
+      ([[w, s], [e, n]], [longitude, latitude]) => [
+        [Math.min(w, longitude), Math.min(s, latitude)],
+        [Math.max(e, longitude), Math.max(n, latitude)],
+      ],
+      [
+        [Infinity, Infinity],
+        [-Infinity, -Infinity],
+      ],
+    ),
   );
+
+  // Pontos coincidentes dariam caixa sem area, e a projecao nao se ajusta a ela.
+  const span = points.length > 0 ? MIN_POINT_SPAN : 0;
 
   return {
     coordinates: [
       [west, south],
-      [east, north],
+      [Math.max(east, west + span), Math.max(north, south + span)],
     ],
     type: 'MultiPoint' as const,
   };
@@ -158,33 +174,38 @@ export function projectedBounds(region: MapRegion, projection: GeoProjection): r
 }
 
 /** Altura que o desenho pede quando ocupa a largura toda: com ela, nao sobra faixa vazia acima e abaixo. */
-export function naturalHeight(target: readonly MapRegion[], width: number) {
-  const corners = cornersOf(target);
-  const projection = geoMercator().fitWidth(Math.max(width - 2 * MAP_PADDING, 1), corners);
+export function naturalHeight(corners: MapCorners, width: number, padding = MAP_PADDING) {
+  const projection = geoMercator().fitWidth(Math.max(width - 2 * padding, 1), corners);
   const [[, top], [, bottom]] = corners.coordinates.map((corner) => projection(corner as [number, number]) ?? [0, 0]);
 
-  return Math.ceil(Math.abs(bottom - top) + 2 * MAP_PADDING);
+  return Math.ceil(Math.abs(bottom - top) + 2 * padding);
 }
 
-/** Projecao que enquadra o recorte na area, com teto de aproximacao relativo ao mapa inteiro. */
+interface FitOptions {
+  /** Teto da aproximacao, em vezes a do mapa inteiro. Sem ele, a caixa preenche a area. */
+  maxZoom?: number;
+  padding?: number;
+}
+
+/** Projecao que enquadra a caixa na area, com teto de aproximacao relativo ao mapa inteiro quando pedido. */
 export function fitProjection(
-  target: readonly MapRegion[],
+  corners: MapCorners,
   all: readonly MapRegion[],
   width: number,
   height: number,
+  { maxZoom, padding = MAP_PADDING }: FitOptions,
 ): GeoProjection {
   const extent: [[number, number], [number, number]] = [
-    [MAP_PADDING, MAP_PADDING],
-    [Math.max(width - MAP_PADDING, MAP_PADDING + 1), Math.max(height - MAP_PADDING, MAP_PADDING + 1)],
+    [padding, padding],
+    [Math.max(width - padding, padding + 1), Math.max(height - padding, padding + 1)],
   ];
-  const corners = cornersOf(target);
   const projection = geoMercator().fitExtent(extent, corners);
 
-  if (target.length === all.length) {
+  if (maxZoom === undefined) {
     return projection;
   }
 
-  const ceiling = geoMercator().fitExtent(extent, cornersOf(all)).scale() * MAX_FOCUS_ZOOM;
+  const ceiling = geoMercator().fitExtent(extent, cornersOf(all)).scale() * maxZoom;
 
   if (projection.scale() > ceiling) {
     projection.scale(ceiling);

@@ -33,11 +33,11 @@ export interface ChartLegendProps {
   swatch?: ChartLegendSwatch;
 }
 
-/** Ponta direita da entrada, a meia altura: o balao abre ao lado dela, sem cobrir a coluna da legenda. */
+/** Ponta direita da entrada, a meia altura, com a caixa dela: o balao encosta na entrada, sem cobrir a coluna da legenda. */
 function anchorOf(event: SyntheticEvent<HTMLElement>) {
   const box = event.currentTarget.getBoundingClientRect();
 
-  return { x: box.right, y: box.top + box.height / 2 };
+  return { height: box.height, width: box.width, x: box.right, y: box.top + box.height / 2 };
 }
 
 /**

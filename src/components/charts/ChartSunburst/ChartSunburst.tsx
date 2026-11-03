@@ -7,6 +7,7 @@ import {
   VOLTA,
   arcAnchor,
   arcPath,
+  assignNodeValues,
   hoverPath,
   pathTooltip,
   chartHeight,
@@ -51,8 +52,8 @@ export interface ChartSunburstProps extends ChartRootProps {
   /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
   onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /**
-   * Caminho ate o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o valor
-   * somado, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem o segundo argumento: a cor desenhada
+   * Caminho ate o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o maior entre o valor
+   * proprio e a soma dos filhos, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem o segundo argumento: a cor desenhada
    * do grupo e o ponto onde ancorar o `ChartTooltip`.
    */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
@@ -176,9 +177,10 @@ export function ChartSunburst({
       return [];
     }
 
-    const arvore = hierarchy<ChartSunburstNode>({ children: visiveis, label: '' })
-      .sum((no) => Math.max(no.value ?? 0, 0))
-      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    const arvore = assignNodeValues(
+      hierarchy<ChartSunburstNode>({ children: visiveis, label: '' }),
+      (no) => Math.max(no.value ?? 0, 0),
+    ).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const repartir = partition<ChartSunburstNode>().size([VOLTA, raio]);
 

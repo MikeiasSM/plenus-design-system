@@ -164,3 +164,51 @@ describe('ChartRadial: legenda', () => {
     expect(arcos()[0].getAttribute('class')).not.toMatch(/fillDim/);
   });
 });
+
+describe('ChartRadial: centro acompanha o anel em foco', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  function centro() {
+    return [...document.querySelectorAll('g[class*="center"] text')].map((no) => no.textContent);
+  }
+
+  it('o ponteiro no anel troca o centro pelo valor e rotulo dele, e a saida devolve o primeiro', () => {
+    render(<ChartRadial centerLabel="Geral" title="Metas" tracks={metas} />);
+    const servicos = pistas()[1].parentElement!;
+
+    expect(centro()).toEqual(['72', 'Geral']);
+
+    fireEvent.mouseEnter(servicos);
+    expect(centro()).toEqual(['45', 'Serviços']);
+
+    fireEvent.mouseLeave(servicos);
+    expect(centro()).toEqual(['72', 'Geral']);
+  });
+
+  it('o foco de teclado troca o centro, e sair do foco o devolve', () => {
+    render(<ChartRadial onTrackClick={vi.fn()} title="Metas" tracks={metas} />);
+    const vendas = screen.getByRole('button', { name: 'Vendas: 72' });
+
+    act(() => vendas.focus());
+    fireEvent.keyDown(vendas, { key: 'ArrowRight' });
+    expect(centro()).toEqual(['45', 'Serviços']);
+
+    act(() => (document.activeElement as HTMLElement).blur());
+    expect(centro()).toEqual(['72', 'Vendas']);
+  });
+
+  it('a entrada da legenda troca o centro, e sair dela o devolve', () => {
+    render(<ChartRadial title="Metas" tracks={metas} />);
+    const entrada = screen.getByRole('button', { name: /Serviços/ }).closest('li')!;
+
+    fireEvent.pointerEnter(entrada);
+    expect(centro()).toEqual(['45', 'Serviços']);
+
+    fireEvent.pointerLeave(entrada);
+    expect(centro()).toEqual(['72', 'Vendas']);
+  });
+});

@@ -26,6 +26,11 @@ export function valueLabelRoom(font: LabelFont) {
   return font.lineHeight + CHART_LABEL_OFFSET / 2;
 }
 
+/** Faixa que o titulo de um eixo ocupa, rente a borda: uma linha de texto e o afastamento dos rotulos. */
+export function axisTitleRoom(font: LabelFont) {
+  return font.lineHeight + CHART_LABEL_OFFSET;
+}
+
 /** Folga entre duas barras vizinhas dentro da mesma faixa. */
 export const CHART_BAR_GAP = 2;
 

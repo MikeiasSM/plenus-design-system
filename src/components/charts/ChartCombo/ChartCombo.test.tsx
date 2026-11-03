@@ -222,4 +222,67 @@ describe('ChartCombo', () => {
     fireEvent.click(barra);
     expect(aoClicar).toHaveBeenLastCalledWith({ category: '05/26', index: 1, series: 'Faturamento', value: 800 });
   });
+
+  describe('configuracao por serie', () => {
+    const proximas: ChartComboSeries[] = [
+      { kind: 'bar', label: 'Meta', values: [100, 110, 120] },
+      { kind: 'line', label: 'Realizado', values: [101, 108, 121] },
+    ];
+    const rotulosVisiveis = () =>
+      document.querySelectorAll('[class*="valueLabel"]:not([class*="valueLabelHidden"])').length;
+
+    it('deixa a serie declarar o proprio rotulo de dado, que vence o do grafico', () => {
+      const { rerender } = render(<ChartCombo categories={meses} series={proximas} title="Meta" />);
+      expect(rotulosVisiveis()).toBe(0);
+
+      rerender(
+        <ChartCombo
+          categories={meses}
+          series={[proximas[0], { ...proximas[1], showDataLabels: 'visible' }]}
+          title="Meta"
+        />,
+      );
+      expect(rotulosVisiveis()).toBe(3);
+
+      rerender(
+        <ChartCombo
+          categories={meses}
+          series={[proximas[0], { ...proximas[1], showDataLabels: 'hidden' }]}
+          showDataLabels="visible"
+          title="Meta"
+        />,
+      );
+      expect(rotulosVisiveis()).toBe(3);
+    });
+
+    it('deixa a serie de linha declarar a propria curva, que vence a do grafico', () => {
+      const { rerender } = render(<ChartCombo categories={meses} series={proximas} title="Meta" />);
+      expect(curvas()[0].getAttribute('d')).toContain('C');
+
+      rerender(
+        <ChartCombo categories={meses} series={[proximas[0], { ...proximas[1], curve: 'straight' }]} title="Meta" />,
+      );
+      expect(curvas()[0].getAttribute('d')).not.toContain('C');
+    });
+
+    it('aceita passo minimo e titulo em cada eixo de valor', () => {
+      render(
+        <ChartCombo
+          categories={meses}
+          minRightTickStep={1}
+          series={[
+            { kind: 'bar', label: 'Faturamento', values: [600, 800, 1000] },
+            { axis: 'right', kind: 'line', label: 'Conversão', values: [1, 2, 2] },
+          ]}
+          title="Meta"
+          xAxisTitle="Mês"
+          yAxisRightTitle="Conversão (%)"
+          yAxisTitle="Faturamento (R$)"
+        />,
+      );
+
+      expect(rotulos()).toEqual(expect.arrayContaining(['Mês', 'Faturamento (R$)', 'Conversão (%)']));
+      expect(rotulos().some((texto) => texto === '0,5')).toBe(false);
+    });
+  });
 });

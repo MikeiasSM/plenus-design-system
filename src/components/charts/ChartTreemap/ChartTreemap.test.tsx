@@ -163,3 +163,58 @@ describe('ChartTreemap', () => {
     ]);
   });
 });
+
+describe('ChartTreemap: valor do no intermediario', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  function medir(valorDoPai: number | undefined) {
+    const onHoverNode = vi.fn();
+    const nodes: ChartTreemapNode[] = [
+      { label: 'Pai', value: valorDoPai, children: [{ label: 'A', value: 30 }, { label: 'B', value: 30 }] },
+      { label: 'Outro', value: 60 },
+    ];
+    render(<ChartTreemap gap={0} nodes={nodes} onHoverNode={onHoverNode} title="Teste" />);
+    const area = (rotulo: string) => {
+      const rect = retangulos().find((no) => no.getAttribute('aria-label')?.startsWith(rotulo))!;
+
+      return Number(rect.getAttribute('width')) * Number(rect.getAttribute('height'));
+    };
+
+    fireEvent.mouseEnter(retangulos().find((no) => no.getAttribute('aria-label')?.startsWith('A:'))!);
+
+    return { area, valorDoPai: onHoverNode.mock.calls[0][0][0].value as number };
+  }
+
+  it('sem valor proprio, o pai vale a soma dos filhos', () => {
+    const { area, valorDoPai } = medir(undefined);
+
+    expect(valorDoPai).toBe(60);
+    expect(area('Outro')).toBeCloseTo(area('A:') + area('B:'), -2);
+  });
+
+  it('com valor igual a soma, nada muda', () => {
+    const { area, valorDoPai } = medir(60);
+
+    expect(valorDoPai).toBe(60);
+    expect(area('Outro')).toBeCloseTo(area('A:') + area('B:'), -2);
+  });
+
+  it('com valor maior que a soma, a parte nao detalhada fica vazia dentro do grupo', () => {
+    const { area, valorDoPai } = medir(120);
+
+    expect(valorDoPai).toBe(120);
+    expect(area('Outro')).toBeCloseTo(area('A:') + area('B:'), -2);
+    expect(area('A:')).toBeCloseTo((480 * 280 * 30) / 180, -3);
+  });
+
+  it('com valor menor que a soma, vale a soma', () => {
+    const { area, valorDoPai } = medir(20);
+
+    expect(valorDoPai).toBe(60);
+    expect(area('Outro')).toBeCloseTo(area('A:') + area('B:'), -2);
+  });
+});

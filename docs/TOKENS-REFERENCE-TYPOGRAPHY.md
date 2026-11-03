@@ -48,8 +48,11 @@ Montserrat e a familia obrigatoria para a navegacao cotidiana e a leitura densa 
 | `type.body` | `14px` | `20px` | `400` | Textos descritivos e campos de formulario |
 | `type.label` | `14px` | `20px` | `600` | Texto de botoes e abas |
 | `type.caption` | `12px` | `16px` | `400` | Dicas de validacao, legendas de campos e badges |
+| `type.micro` | `10px` | `12px` | `600` | Micro-rotulos como o `Badge` pequeno (`size="sm"`), ao lado de um titulo |
 
 O badge usa o tamanho e a entrelinha de `type.caption` com o peso de `type.label`, `600`. Em `14px` ele passava da linha do titulo que acompanha e pesava mais que o dado ao lado; o tamanho e o do Untitled UI, e o raio continua o do sistema. O `400` sobre o fundo colorido do badge perderia leitura.
+
+`type.micro` e o unico degrau abaixo de `12px`, aprovado pelo mantenedor para etiquetas como "BETA" que nao devem competir com o titulo vizinho. Vale somente para micro-rotulos curtos, em peso `600`; nunca para texto corrido, dicas, legendas ou qualquer conteudo que precise ser lido.
 
 ### Dados tecnicos e codigo: JetBrains Mono
 
@@ -102,6 +105,7 @@ type.title
 type.body
 type.label
 type.caption
+type.micro
 type.data-value
 type.code
 ```

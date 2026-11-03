@@ -9,9 +9,13 @@ export type BadgeVariant = 'status' | 'brand';
 /** Tons da 0.3, aceitos ate a versao menor seguinte: `ok` e `success`, `warn` e `warning`, `primary` e `variant="brand"`. */
 type DeprecatedBadgeTone = 'ok' | 'warn' | 'primary';
 
+export type BadgeSize = 'sm' | 'md';
+
 export interface BadgeProps extends ComponentPropsWithRef<'span'> {
   dot?: boolean;
   outline?: boolean;
+  /** `sm` usa o papel `type.micro` (10px): etiqueta ao lado de um titulo, sem competir com ele. */
+  size?: BadgeSize;
   /** `ok`, `warn` e `primary` sao obsoletos: use `success`, `warning` e `variant="brand"`. */
   tone?: BadgeTone | DeprecatedBadgeTone;
   variant?: BadgeVariant;
@@ -24,13 +28,14 @@ export function Badge({
   className,
   dot = false,
   outline = false,
+  size = 'md',
   tone = 'neutral',
   variant = tone === 'primary' ? 'brand' : 'status',
   ...props
 }: BadgeProps) {
   const currentTone = CURRENT_TONE[tone as DeprecatedBadgeTone] ?? tone;
   const color = variant === 'brand' ? styles.brand : styles[currentTone];
-  const classes = [styles.badge, color, outline && styles.outline, className].filter(Boolean).join(' ');
+  const classes = [styles.badge, styles[size], color, outline && styles.outline, className].filter(Boolean).join(' ');
 
   return (
     <span {...props} className={classes}>
