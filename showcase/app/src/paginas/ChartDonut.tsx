@@ -5,6 +5,7 @@ import {
   formatCurrency,
   resolveSeriesColors,
   type ChartDonutSlice,
+  type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
 } from '@plenustech/design-system';
@@ -123,6 +124,34 @@ function FatiaNoPonteiro() {
         title={fatia?.label}
       >
         <ChartDonut showTooltip={false} formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
+      </ChartTooltip>
+    </div>
+  );
+}
+
+function DetalheDoOutros() {
+  const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
+  const fatia = alvo?.slice;
+  const linhas = fatia?.grouped ?? (fatia ? [fatia] : []);
+
+  return (
+    <div style={{ width: '100%' }}>
+      <ChartTooltip
+        anchor={alvo?.details?.anchor}
+        columns={[{ format: formatCurrency }]}
+        computed="none"
+        rows={linhas.map((item) => ({ color: alvo?.details?.color, label: item.label, values: [item.value] }))}
+        showTotal={fatia?.grouped !== undefined}
+        title={fatia?.label}
+      >
+        <ChartDonut
+          formatValue={formatarCompacto}
+          height={240}
+          onHoverSlice={(slice, details) => setAlvo(slice && { details, slice })}
+          showTooltip={false}
+          slices={DESPESAS_POR_TIPO}
+          title="Estrutura de despesas"
+        />
       </ChartTooltip>
     </div>
   );
@@ -262,6 +291,31 @@ const cores = resolveSeriesColors(receita);
   <ChartDonut showTooltip={false} title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
 </ChartTooltip>`,
     },
+    {
+      titulo: 'Detalhe do Outros',
+      descricao:
+        'A costura avisa também pela entrada da legenda, que não tem ponteiro: o segundo argumento traz color, a cor com que a fatia foi desenhada, e anchor, o ponto onde ancorar o balão. Em Outros, grouped traz as fatias reunidas.',
+      Previa: DetalheDoOutros,
+      codigo: `const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
+const fatia = alvo?.slice;
+const linhas = fatia?.grouped ?? (fatia ? [fatia] : []);
+
+<ChartTooltip
+  anchor={alvo?.details?.anchor}
+  title={fatia?.label}
+  columns={[{ format: formatCurrency }]}
+  computed="none"
+  showTotal={fatia?.grouped !== undefined}
+  rows={linhas.map((item) => ({ color: alvo?.details?.color, label: item.label, values: [item.value] }))}
+>
+  <ChartDonut
+    showTooltip={false}
+    title="Estrutura de despesas"
+    slices={despesas}
+    onHoverSlice={(slice, details) => setAlvo(slice && { details, slice })}
+  />
+</ChartTooltip>`,
+    },
   ],
   faca: {
     Previa: () => (
@@ -282,13 +336,14 @@ const cores = resolveSeriesColors(receita);
   Variantes,
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões. O desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões. O desenho não recebe foco. Ponteiro ou foco numa entrada realça a fatia e abre o balão junto dela.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a fatia da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartDonut.test.tsx' },
     { garantia: 'Descrição da fatia', como: <><code>aria-label</code> com rótulo, valor e percentual.</>, teste: 'ChartDonut.test.tsx' },
     { garantia: 'Legenda como controle', como: <>Botão com <code>aria-pressed</code>; o anel se reparte e o produto é avisado.</>, teste: 'ChartDonut.test.tsx' },
+    { garantia: 'Legenda avisa como a marca', como: 'Ponteiro e foco na entrada realçam a fatia, trocam o centro, disparam onHoverSlice e abrem o balão junto dela; fatia desligada não.', teste: 'ChartDonut.test.tsx' },
     { garantia: 'Fatia agrupada', como: 'onHoverSlice entrega a fatia reunida, e não a que o consumidor informou.', teste: 'ChartDonut.test.tsx' },
     { garantia: 'Número inválido', como: 'Uma fatia inválida não zera o anel.', teste: 'numeros-invalidos.test.tsx' },
     { garantia: 'Ausência anunciada', como: 'Sem fatia positiva, um EmptyState no lugar do desenho.', teste: 'ChartDonut.test.tsx' },
@@ -313,7 +368,7 @@ const cores = resolveSeriesColors(receita);
     { nome: 'hiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas, pelo rótulo, no modo controlado.' },
     { nome: 'defaultHiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSlicesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverSlice', tipo: '(slice: ChartDonutSlice | null) => void', descricao: 'Fatia sob o ponteiro, já agrupada; costura para o ChartTooltip.' },
+    { nome: 'onHoverSlice', tipo: '(slice: ChartDonutSlice | null, details?: ChartHoverDetails) => void', descricao: <>Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onSliceClick', tipo: '(slice: ChartDonutSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco. Em Outros, grouped traz as fatias reunidas.' },

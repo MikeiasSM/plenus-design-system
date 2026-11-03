@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChartDonut, type ChartDonutSlice } from './ChartDonut';
 
 const custos: ChartDonutSlice[] = [
@@ -155,5 +155,124 @@ describe('ChartDonut', () => {
 
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+});
+
+describe('ChartDonut: legenda e costura', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  const entradaDe = (rotulo: RegExp) => screen.getByRole('button', { name: rotulo, pressed: true }).closest('li')!;
+  const classesDasFatias = () => fatias().map((fatia) => fatia.getAttribute('class') ?? '');
+
+  function posicionarLegenda() {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      bottom: 70, height: 20, left: 100, right: 160, top: 50, width: 60, x: 100, y: 50, toJSON: () => ({}),
+    });
+  }
+
+  it('a entrada da legenda realca a fatia, troca o centro e desfaz ao sair', () => {
+    render(<ChartDonut slices={custos} title="Custos" />);
+
+    fireEvent.pointerEnter(entradaDe(/CMV/));
+    expect(textosDoCentro()).toEqual(['6.300', 'CMV']);
+    expect(classesDasFatias()[0]).toMatch(/sliceDim/);
+    expect(classesDasFatias()[1]).not.toMatch(/sliceDim/);
+
+    fireEvent.pointerLeave(entradaDe(/CMV/));
+    expect(textosDoCentro()).toEqual(['6.700', 'Total']);
+    expect(classesDasFatias().join()).not.toMatch(/sliceDim/);
+  });
+
+  it('o foco da legenda faz o mesmo que o ponteiro e o blur desfaz', () => {
+    render(<ChartDonut slices={custos} title="Custos" />);
+
+    fireEvent.focus(screen.getByRole('button', { name: /CMV/ }));
+    expect(textosDoCentro()).toEqual(['6.300', 'CMV']);
+
+    fireEvent.blur(screen.getByRole('button', { name: /CMV/ }));
+    expect(textosDoCentro()).toEqual(['6.700', 'Total']);
+  });
+
+  it('pela legenda avisa a fatia como foi informada, com a cor desenhada e a ancora, e null uma vez ao sair', () => {
+    posicionarLegenda();
+    const aoPassar = vi.fn();
+    render(<ChartDonut onHoverSlice={aoPassar} palette={{ base: '#00A3A3' }} slices={custos} title="Custos" />);
+
+    fireEvent.pointerEnter(entradaDe(/CMV/));
+    expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { x: 160, y: 60 }, color: fatias()[1].getAttribute('fill') });
+
+    fireEvent.pointerLeave(entradaDe(/CMV/));
+    fireEvent.pointerEnter(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
+    fireEvent.pointerLeave(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
+    expect(aoPassar.mock.calls.map(([fatia]) => fatia?.label ?? null)).toEqual(['CMV', null, 'Devoluções de vendas', null]);
+  });
+
+  it('no ponteiro, no teclado e no clique o aviso segue com a fatia informada e um argumento so', () => {
+    const aoPassar = vi.fn();
+    const aoClicar = vi.fn();
+    render(<ChartDonut onHoverSlice={aoPassar} onSliceClick={aoClicar} slices={custos} title="Custos" />);
+    const cmv = screen.getByRole('button', { name: /^CMV:/ });
+
+    fireEvent.mouseEnter(cmv);
+    act(() => cmv.focus());
+    fireEvent.keyDown(cmv, { key: 'Enter' });
+
+    expect(aoPassar.mock.calls).toEqual([[custos[1]], [custos[1]]]);
+    expect(aoClicar.mock.calls).toEqual([[custos[1]]]);
+  });
+
+  it('o salto da fatia para a legenda, que entra antes de sair, mantem o realce da legenda', () => {
+    const aoPassar = vi.fn();
+    render(<ChartDonut onHoverSlice={aoPassar} slices={custos} title="Custos" />);
+
+    fireEvent.mouseEnter(fatias()[0]);
+    fireEvent.pointerEnter(entradaDe(/CMV/));
+    fireEvent.mouseLeave(fatias()[0]);
+
+    expect(textosDoCentro()).toEqual(['6.300', 'CMV']);
+    expect(aoPassar.mock.calls.map(([fatia]) => fatia?.label ?? null)).toEqual(['Devoluções de vendas', 'CMV']);
+  });
+
+  it('abre o balao integrado ao lado da entrada da legenda', () => {
+    posicionarLegenda();
+    render(<ChartDonut slices={custos} title="Custos" />);
+
+    fireEvent.pointerEnter(entradaDe(/CMV/));
+
+    const balao = document.querySelector<HTMLElement>('[class*="tooltip"]')!;
+    expect(balao).toHaveTextContent('CMV');
+    expect(balao.style.left).toBe('176px');
+    expect(balao.style.top).toBe('76px');
+
+    fireEvent.pointerLeave(entradaDe(/CMV/));
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('serie escondida nao realca, nao avisa e nao abre balao', () => {
+    const aoPassar = vi.fn();
+    render(<ChartDonut defaultHiddenSlices={['CMV']} onHoverSlice={aoPassar} slices={custos} title="Custos" />);
+    const entrada = screen.getByRole('button', { name: /CMV/, pressed: false }).closest('li')!;
+
+    fireEvent.pointerEnter(entrada);
+    fireEvent.pointerLeave(entrada);
+
+    expect(aoPassar).not.toHaveBeenCalled();
+    expect(textosDoCentro()).toEqual(['400', 'Total']);
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('o clique na legenda continua ligando e desligando a fatia, soltando o realce', () => {
+    render(<ChartDonut slices={custos} title="Custos" />);
+
+    fireEvent.pointerEnter(entradaDe(/CMV/));
+    fireEvent.click(screen.getByRole('button', { name: /CMV/ }));
+
+    expect(screen.getByRole('button', { name: /CMV/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(textosDoCentro()).toEqual(['400', 'Total']);
   });
 });

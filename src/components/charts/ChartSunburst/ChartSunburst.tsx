@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { hierarchy, partition, type HierarchyRectangularNode } from 'd3-hierarchy';
 import {
   CHART_LABEL_BAND,
@@ -16,8 +16,10 @@ import {
   useMarkNavigation,
   useSeriesToggle,
   widestLabel,
+  type ChartAnchorPoint,
   type ChartHeight,
   type ChartHoveredNode,
+  type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartRootProps,
@@ -48,8 +50,12 @@ export interface ChartSunburstProps extends ChartRootProps {
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
   /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
   onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
-  /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o valor somado, ou `null` ao sair. */
-  onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
+  /**
+   * Caminho ate o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o valor
+   * somado, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem o segundo argumento: a cor desenhada
+   * do grupo e o ponto onde ancorar o `ChartTooltip`.
+   */
+  onHoverNode?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Folga entre dois aneis vizinhos. */
@@ -199,9 +205,25 @@ export function ChartSunburst({
     return foco === null || foco.ancestors().includes(arco);
   }
 
-  function focar(arco: Arco | null) {
+  // O ponteiro que salta do arco para a legenda entra nela antes de sair do arco,
+  // e a saida chega antes do novo render: quem decide e o ultimo no realcado.
+  const realcado = useRef<ChartSunburstNode | null>(null);
+
+  function focar(arco: Arco | null, detalhe?: ChartHoverDetails) {
+    realcado.current = arco && arco.data;
     setEmFoco(arco);
-    onHoverNode?.(arco && hoverPath(arco));
+
+    if (arco && detalhe) {
+      onHoverNode?.(hoverPath(arco), detalhe);
+    } else {
+      onHoverNode?.(arco && hoverPath(arco));
+    }
+  }
+
+  function soltar(arco: Arco) {
+    if (realcado.current === arco.data) {
+      focar(null);
+    }
   }
 
   const marcas = useMarkNavigation({
@@ -209,6 +231,32 @@ export function ChartSunburst({
     onFocusMark: (posicao) => focar(posicao && arcos[posicao.column]),
     present: arcos.map((_, column) => ({ column, row: 0 })),
   });
+
+  // A legenda lista os grupos, e o desligado nao tem arco. So ela traz o detalhe:
+  // no ponteiro e no teclado o aviso segue com um argumento, que o teste do consumidor compara.
+  function realcarGrupo(label: string | null, anchor?: ChartAnchorPoint) {
+    const grupo = label === null ? undefined : arcos.find((arco) => arco.depth === 1 && arco.data.label === label);
+
+    if (!grupo || !anchor) {
+      marcas.anchorTooltip(undefined);
+
+      if (realcado.current !== null) {
+        focar(null);
+      }
+      return;
+    }
+
+    marcas.anchorTooltip(anchor);
+    focar(grupo, { anchor, color: corDe(grupo) });
+  }
+
+  function alternarGrupo(label: string) {
+    if (foco?.depth === 1 && foco.data.label === label) {
+      realcarGrupo(null);
+    }
+
+    toggle(label);
+  }
 
   function corDe(arco: Arco) {
     const raizDoRamo = arco.ancestors().find((ancestral) => ancestral.depth === 1)?.data;
@@ -240,7 +288,8 @@ export function ChartSunburst({
       }))}
       legendAlign={legendAlign}
       legendPosition={legend}
-      onToggleSeries={toggle}
+      onHighlightSeries={realcarGrupo}
+      onToggleSeries={alternarGrupo}
       root={root}
       swatch="dot"
       title={title}
@@ -273,7 +322,7 @@ export function ChartSunburst({
             fill={corDe(arco)}
             key={indice}
             onMouseEnter={() => focar(arco)}
-            onMouseLeave={() => focar(null)}
+            onMouseLeave={() => soltar(arco)}
           >
             {!showTooltip && !onHoverNode && <title>{descreverArco(arco)}</title>}
           </path>

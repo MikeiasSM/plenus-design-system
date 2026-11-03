@@ -15,6 +15,18 @@ export interface ChartMarkClick {
   value: number;
 }
 
+/** Ponto da janela onde ancorar o balao, para quem o monta pela costura. */
+export interface ChartAnchorPoint {
+  x: number;
+  y: number;
+}
+
+/** Segundo argumento do aviso que vem da legenda, sem ponteiro: a cor desenhada e onde ancorar o balao. */
+export interface ChartHoverDetails {
+  anchor: ChartAnchorPoint;
+  color: string;
+}
+
 export interface MarkNavigationOptions {
   /** Ativa a marca, pelo clique, por Enter ou por Espaco. Sem ele, as marcas nao sao botoes. */
   onActivate?: (position: MarkPosition) => void;
@@ -64,7 +76,7 @@ function neighbor(present: readonly MarkPosition[], from: MarkPosition, { column
  */
 export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavigationOptions) {
   const [tabStop, setTabStop] = useState<string | null>(null);
-  const [tooltipAnchor, setTooltipAnchor] = useState<{ x: number; y: number }>();
+  const [tooltipAnchor, setTooltipAnchor] = useState<ChartAnchorPoint>();
   const interactive = onActivate !== undefined;
   const keys = present.map(keyOf);
   const stop = tabStop !== null && keys.includes(tabStop) ? tabStop : keys[0];
@@ -103,6 +115,8 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
   }
 
   return {
+    /** Ancora o balao fora das marcas, como na entrada da legenda; `undefined` o solta. */
+    anchorTooltip: setTooltipAnchor,
     groupProps: interactive
       ? {
           onBlur: () => {

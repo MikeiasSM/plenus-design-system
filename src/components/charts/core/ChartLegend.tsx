@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from 'react';
+import type { ChartAnchorPoint } from './useMarkNavigation';
 import styles from './Chart.module.css';
 
 export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
@@ -21,14 +23,21 @@ const ALINHAMENTO: Record<ChartLegendAlign, string> = {
   right: styles.legendRight,
 };
 
-interface ChartLegendProps {
+export interface ChartLegendProps {
   align?: ChartLegendAlign;
   entries: readonly ChartLegendEntry[];
-  /** Entrada sob o ponteiro ou o foco, para o grafico destacar o que ela representa; `null` ao sair. */
-  onHighlight?: (label: string | null) => void;
+  /** Entrada sob o ponteiro ou o foco, com o ponto da janela onde ancorar o balao, para o grafico destacar o que ela representa; `null` ao sair. */
+  onHighlight?: (label: string | null, anchor?: ChartAnchorPoint) => void;
   onToggle?: (label: string) => void;
   position: ChartLegendPosition;
   swatch?: ChartLegendSwatch;
+}
+
+/** Ponta direita da entrada, a meia altura: o balao abre ao lado dela, sem cobrir a coluna da legenda. */
+function anchorOf(event: SyntheticEvent<HTMLElement>) {
+  const box = event.currentTarget.getBoundingClientRect();
+
+  return { x: box.right, y: box.top + box.height / 2 };
 }
 
 /**
@@ -65,8 +74,8 @@ export function ChartLegend({
             className={styles.legendItem}
             key={indice}
             onBlur={onHighlight && (() => onHighlight(null))}
-            onFocus={onHighlight && (() => onHighlight(entrada.label))}
-            onPointerEnter={onHighlight && (() => onHighlight(entrada.label))}
+            onFocus={onHighlight && ((evento) => onHighlight(entrada.label, anchorOf(evento)))}
+            onPointerEnter={onHighlight && ((evento) => onHighlight(entrada.label, anchorOf(evento)))}
             onPointerLeave={onHighlight && (() => onHighlight(null))}
           >
             {onToggle ? (

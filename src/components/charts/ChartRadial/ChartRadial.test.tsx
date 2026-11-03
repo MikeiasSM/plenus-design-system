@@ -133,3 +133,34 @@ describe('ChartRadial', () => {
     expect(aoClicar).toHaveBeenLastCalledWith(metas[1]);
   });
 });
+
+describe('ChartRadial: legenda', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  it('a entrada da legenda realca o anel e esmaece os demais, e desfaz ao sair', () => {
+    render(<ChartRadial title="Metas" tracks={metas} />);
+    const entrada = screen.getByRole('button', { name: /Serviços/ }).closest('li')!;
+
+    fireEvent.pointerEnter(entrada);
+    expect(arcos()[0].getAttribute('class')).toMatch(/fillDim/);
+    expect(arcos()[1].getAttribute('class')).not.toMatch(/fillDim/);
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Serviços');
+
+    fireEvent.pointerLeave(entrada);
+    expect(arcos()[0].getAttribute('class')).not.toMatch(/fillDim/);
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('anel desligado nao e realcado pela legenda', () => {
+    render(<ChartRadial defaultHiddenTracks={['Serviços']} title="Metas" tracks={metas} />);
+
+    fireEvent.pointerEnter(screen.getByRole('button', { name: /Serviços/ }).closest('li')!);
+
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+    expect(arcos()[0].getAttribute('class')).not.toMatch(/fillDim/);
+  });
+});

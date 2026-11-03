@@ -11,6 +11,7 @@ import {
   useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
+  type ChartAnchorPoint,
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
@@ -126,6 +127,23 @@ export function ChartRadial({
     present: tracks.flatMap((anel, column) => (isHidden(anel.label) || !valido(anel) ? [] : [{ column, row: 0 }])),
   });
 
+  // Anel desligado nao tem arco: a legenda nao o realca.
+  function realcarAnel(label: string | null, anchor?: ChartAnchorPoint) {
+    const indice = label === null ? -1 : tracks.findIndex((anel) => anel.label === label);
+    const alvo = indice >= 0 && !isHidden(label!) && valido(tracks[indice]) ? indice : null;
+
+    marcas.anchorTooltip(alvo === null ? undefined : anchor);
+    setEmFoco(alvo);
+  }
+
+  function alternarAnel(label: string) {
+    if (emFoco !== null && tracks[emFoco]?.label === label && !isHidden(label)) {
+      realcarAnel(null);
+    }
+
+    toggle(label);
+  }
+
   function linhasDoBalao() {
     const anel = emFoco === null ? undefined : tracks[emFoco];
 
@@ -183,7 +201,8 @@ export function ChartRadial({
       }))}
       legendAlign={legendAlign}
       legendPosition={tracks.length > 1 ? legend : 'none'}
-      onToggleSeries={toggle}
+      onHighlightSeries={realcarAnel}
+      onToggleSeries={alternarAnel}
       root={root}
       swatch="dot"
       title={title}
@@ -213,7 +232,7 @@ export function ChartRadial({
               aria-label={marcas.interactive ? descricao : undefined}
               key={indice}
               onMouseEnter={() => setEmFoco(indice)}
-              onMouseLeave={() => setEmFoco(null)}
+              onMouseLeave={() => setEmFoco((atual) => (atual === indice ? null : atual))}
               {...marcas.markProps({ column: indice, row: 0 })}
             >
               <path
@@ -231,7 +250,7 @@ export function ChartRadial({
               </path>
               {fracao > 0 && (
                 <path
-                  className={styles.fill}
+                  className={emFoco === null || emFoco === indice ? styles.fill : `${styles.fill} ${styles.fillDim}`}
                   d={arcPath({
                     cornerRadius: canto,
                     endAngle: preenchido,

@@ -140,3 +140,28 @@ describe('ChartPie', () => {
     expect(balao).toHaveTextContent('40%');
   });
 });
+
+describe('ChartPie: legenda e costura', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  it('a entrada da legenda realca a fatia, avisa com o detalhe e desfaz ao sair', () => {
+    const aoPassar = vi.fn();
+    render(<ChartPie onHoverSlice={aoPassar} slices={composicao} title="Receita" />);
+    const entrada = screen.getByRole('button', { name: /Produtos/ }).closest('li')!;
+
+    fireEvent.pointerEnter(entrada);
+
+    expect(fatias()[0].getAttribute('class')).toMatch(/sliceDim/);
+    expect(fatias()[1].getAttribute('class')).not.toMatch(/sliceDim/);
+    expect(aoPassar).toHaveBeenLastCalledWith(composicao[1], { anchor: { x: 0, y: 0 }, color: fatias()[1].getAttribute('fill') });
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Produtos');
+
+    fireEvent.pointerLeave(entrada);
+    expect(aoPassar).toHaveBeenLastCalledWith(null);
+    expect(fatias()[0].getAttribute('class')).not.toMatch(/sliceDim/);
+  });
+});

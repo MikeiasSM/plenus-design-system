@@ -9,6 +9,7 @@ import {
   useChartMetrics,
   useSliceRing,
   type ChartHeight,
+  type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartRootProps,
@@ -35,8 +36,11 @@ export interface ChartPieProps extends ChartRootProps {
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
-  onHoverSlice?: (slice: ChartSlice | null) => void;
+  /**
+   * Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda, que nao
+   * tem ponteiro, vem o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
+   */
+  onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
   /** Rotulo da fatia que reune as pequenas. */
   otherLabel?: string;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -97,6 +101,9 @@ export function ChartPie({
   const raio = ringDiameter(width, alturaDoDesenho) / 2;
   const canto = sliceRadius ?? raioDoCanto;
 
+  const destaqueDe = (indice: number) =>
+    anel.focused === null || anel.focused === indice ? styles.slice : `${styles.slice} ${styles.sliceDim}`;
+
   return (
     <ChartFrame
       canvasRole={anel.marks.interactive ? 'group' : 'img'}
@@ -114,6 +121,7 @@ export function ChartPie({
       }))}
       legendAlign={legendAlign}
       legendPosition={legend}
+      onHighlightSeries={anel.highlight}
       onToggleSeries={anel.toggle}
       root={root}
       swatch="dot"
@@ -136,13 +144,13 @@ export function ChartPie({
       <g {...anel.marks.groupProps}>
       {anel.slices.map((fatia, indice) => (
         <path
-          {...anel.marks.markProps({ column: indice, row: 0 }, styles.slice)}
+          {...anel.marks.markProps({ column: indice, row: 0 }, destaqueDe(indice))}
           aria-label={`${fatia.label}: ${formatValue(Math.max(fatia.value, 0))} (${formatPercent(anel.ratioOf(indice))})`}
           d={arcPath({ ...anel.angles[indice], cornerRadius: canto, innerRadius: 0, outerRadius: raio })}
           fill={anel.colors[indice]}
           key={indice}
           onMouseEnter={() => anel.focus(indice)}
-          onMouseLeave={() => anel.focus(null)}
+          onMouseLeave={() => anel.release(indice)}
         />
       ))}
       </g>

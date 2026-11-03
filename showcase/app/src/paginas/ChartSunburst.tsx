@@ -130,7 +130,7 @@ function Modos() {
           do anel, para o texto não ser cortado; sem rótulos, o anel cresce.
         </dd>
         <dt><code>onHoverNode</code></dt>
-        <dd>Entrega o caminho do grupo ao arco sob o ponteiro, cada nível com o valor somado. Com ele, o <code>&lt;title&gt;</code> sai.</dd>
+        <dd>Entrega o caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, cada nível com o valor somado. Com ele, o <code>&lt;title&gt;</code> sai.</dd>
       </dl>
       <div className="subsection">
         <h3>Sem dados</h3>
@@ -209,7 +209,7 @@ export const pagina: Pagina = {
   ],
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, uma por grupo do nível zero. O desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, uma por grupo do nível zero. O desenho não recebe foco. Ponteiro ou foco numa entrada realça o grupo e abre o balão junto dela.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o ramo da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
@@ -246,8 +246,8 @@ export const pagina: Pagina = {
     { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
     {
       nome: 'onHoverNode',
-      tipo: '(path: readonly ChartHoveredNode[] | null) => void',
-      descricao: 'Caminho do grupo ao arco sob o ponteiro, com os valores somados; costura para o ChartTooltip.',
+      tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void',
+      descricao: <>Caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, com os valores somados; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada do grupo, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</>,
     },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },

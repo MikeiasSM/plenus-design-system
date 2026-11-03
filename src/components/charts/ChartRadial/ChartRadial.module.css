@@ -8,7 +8,8 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-svg:hover .fill:not(:hover) {
+/* Realcar um anel, pelo ponteiro, pelo foco ou pela legenda, esmaece os demais. */
+.fillDim {
   opacity: 0.82;
 }
 

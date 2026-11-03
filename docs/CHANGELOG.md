@@ -6,6 +6,18 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.5.5] — 2026-11-02
+
+### Adicionado
+
+- `ChartPie`, `ChartDonut` e `ChartSunburst`: ponteiro e foco numa entrada da legenda fazem o mesmo que o ponteiro na fatia ou no grupo. Realçam a marca, trocam o valor do centro da rosca, disparam `onHoverSlice` ou `onHoverNode` e abrem o balão integrado ao lado da entrada. Uma série desligada não realça.
+- Por esse caminho da legenda, que não tem ponteiro para o balão seguir, `onHoverSlice` e `onHoverNode` recebem um segundo argumento, `ChartHoverDetails`, com `anchor` (o ponto da janela onde ancorar o `ChartTooltip` montado pelo produto) e `color` (a cor com que a marca foi desenhada). Pelo ponteiro, pelo teclado e pelo clique, o aviso continua com um argumento só e com a fatia ou o caminho de antes. Novos tipos `ChartHoverDetails` e `ChartAnchorPoint`.
+- `ChartRadial` com mais de um anel: a entrada da legenda realça o anel e abre o balão.
+
+### Alterado
+
+- O esmaecimento das demais fatias e anéis passa a acompanhar também o foco do teclado e a legenda, e não só o ponteiro. Pelo ponteiro, o visual é o mesmo.
+
 ## [0.5.4] — 2026-11-02
 
 ### Adicionado

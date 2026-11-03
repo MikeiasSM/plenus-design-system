@@ -5,6 +5,7 @@ import {
   type ChartLegendAlign,
   type ChartLegendEntry,
   type ChartLegendPosition,
+  type ChartLegendProps,
   type ChartLegendSwatch,
 } from './ChartLegend';
 import { EmptyState } from '../../feedback/EmptyState';
@@ -49,6 +50,8 @@ export interface ChartFrameProps {
   legendPosition: ChartLegendPosition;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
+  /** Entrada da legenda sob o ponteiro ou o foco, com onde ancorar o balao; `null` ao sair. */
+  onHighlightSeries?: ChartLegendProps['onHighlight'];
   /** Ponteiro entrando e saindo da area de desenho, para quem revela os eixos `onHover`. */
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
@@ -84,6 +87,7 @@ export function ChartFrame({
   legendContent,
   legendPosition,
   minLegendEntries = 1,
+  onHighlightSeries,
   onPointerEnter,
   onPointerLeave,
   onToggleSeries,
@@ -108,6 +112,7 @@ export function ChartFrame({
     <ChartLegend
       align={legendAlign}
       entries={legend}
+      onHighlight={onHighlightSeries}
       onToggle={onToggleSeries}
       position={legendPosition}
       swatch={swatch}

@@ -202,7 +202,7 @@ export const pagina: Pagina = {
   ],
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões a partir de dois anéis. O desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões a partir de dois anéis. O desenho não recebe foco. Ponteiro ou foco numa entrada realça o anel e abre o balão junto dela.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o anel da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [

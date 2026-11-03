@@ -205,3 +205,52 @@ describe('ChartSunburst', () => {
     expect(aoClicar).toHaveBeenLastCalledWith([{ label: 'Operacionais', value: 800 }]);
   });
 });
+
+describe('ChartSunburst: legenda e costura', () => {
+  beforeEach(() => fixarTamanho());
+  afterEach(() => {
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+  });
+
+  const entrada = (rotulo: RegExp, pressed = true) => screen.getByRole('button', { name: rotulo, pressed }).closest('li')!;
+
+  it('a entrada da legenda avisa o caminho ate o grupo, com o detalhe, e apaga o resto', () => {
+    const aoPassar = vi.fn();
+    render(<ChartSunburst nodes={despesas} onHoverNode={aoPassar} palette={{ base: '#00A3A3' }} title="Despesas" />);
+
+    fireEvent.pointerEnter(entrada(/Administrativas/));
+
+    const grupo = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Administrativas'))!;
+    expect(aoPassar).toHaveBeenLastCalledWith(
+      [{ label: 'Administrativas', value: 200 }],
+      { anchor: { x: 0, y: 0 }, color: grupo.getAttribute('fill') },
+    );
+    expect(grupo.getAttribute('class')).not.toMatch(/arcDim/);
+    expect(arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Pessoal'))!.getAttribute('class')).toMatch(/arcDim/);
+    expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Administrativas');
+
+    fireEvent.pointerLeave(entrada(/Administrativas/));
+    expect(aoPassar).toHaveBeenLastCalledWith(null);
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('grupo desligado nao e realcado pela legenda', () => {
+    const aoPassar = vi.fn();
+    render(<ChartSunburst defaultHiddenGroups={['Administrativas']} nodes={despesas} onHoverNode={aoPassar} title="Despesas" />);
+
+    fireEvent.pointerEnter(entrada(/Administrativas/, false));
+
+    expect(aoPassar).not.toHaveBeenCalled();
+    expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('no teclado o aviso segue com o caminho e um argumento so', () => {
+    const aoPassar = vi.fn();
+    render(<ChartSunburst nodes={despesas} onHoverNode={aoPassar} onNodeClick={() => undefined} title="Despesas" />);
+
+    act(() => screen.getByRole('button', { name: /^Aluguel:/ }).focus());
+
+    expect(aoPassar.mock.calls).toEqual([[[{ label: 'Operacionais', value: 800 }, { label: 'Aluguel', value: 300 }]]]);
+  });
+});

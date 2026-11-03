@@ -6,7 +6,8 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-svg:hover .slice:not(:hover) {
+/* Realcar uma fatia, pelo ponteiro, pelo foco ou pela legenda, esmaece as demais. */
+.sliceDim {
   opacity: 0.82;
 }
 

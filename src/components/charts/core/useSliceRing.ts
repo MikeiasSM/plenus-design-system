@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { resolveSeriesColors, type ChartPalette } from '../palette';
 import { sliceAngles, type ArcAngles } from './arcs';
 import { groupSmallSlices, type ChartSlice } from './slices';
-import { useMarkNavigation } from './useMarkNavigation';
+import { useMarkNavigation, type ChartAnchorPoint, type ChartHoverDetails } from './useMarkNavigation';
 import { useSeriesToggle } from './useSeriesToggle';
 import { useTweenedNumbers } from './useTweenedNumbers';
 
@@ -14,8 +14,8 @@ export interface UseSliceRingOptions {
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Torna as fatias botoes. Recebe a fatia ja agrupada, como `onHoverSlice`. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Fatia sob o ponteiro, ja agrupada, ou `null` ao sair dela. */
-  onHoverSlice?: (slice: ChartSlice | null) => void;
+  /** Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda vem o detalhe. */
+  onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
   otherLabel: string;
   slices: readonly ChartSlice[];
   smallSliceThreshold: number;
@@ -26,9 +26,13 @@ export interface SliceRing {
   colors: readonly string[];
   focus: (index: number | null) => void;
   focused: number | null;
+  /** Entrada da legenda sob o ponteiro ou o foco: faz o que o ponteiro na fatia faz. */
+  highlight: (label: string | null, anchor?: ChartAnchorPoint) => void;
   isHidden: (label: string) => boolean;
   marks: ReturnType<typeof useMarkNavigation>;
   ratioOf: (index: number) => number;
+  /** Ponteiro saindo da fatia: solta o realce se ainda for dela. */
+  release: (index: number) => void;
   slices: readonly ChartSlice[];
   toggle: (label: string) => void;
   total: number;
@@ -88,11 +92,28 @@ export function useSliceRing({
     endAngle: animados[indice * 2 + 1] ?? 0,
   }));
 
+  // O ponteiro que salta da fatia para a legenda entra nela antes de sair da
+  // fatia, e a saida chega antes do novo render: quem decide e a ultima realcada.
+  const realcada = useRef<number | null>(null);
+
   // A fatia entregue e a **agrupada**: as pequenas ja viraram uma so, entao o
   // indice do anel nao corresponde ao que o consumidor informou.
-  const focus = (indice: number | null) => {
+  const focus = (indice: number | null, details?: ChartHoverDetails) => {
+    const fatia = indice === null ? null : reunidas[indice] ?? null;
+    realcada.current = indice;
     setFocused(indice);
-    onHoverSlice?.(indice === null ? null : reunidas[indice] ?? null);
+
+    if (fatia && details) {
+      onHoverSlice?.(fatia, details);
+    } else {
+      onHoverSlice?.(fatia);
+    }
+  };
+
+  const release = (indice: number) => {
+    if (realcada.current === indice) {
+      focus(null);
+    }
   };
 
   const marks = useMarkNavigation({
@@ -101,16 +122,45 @@ export function useSliceRing({
     present: values.flatMap((valor, column) => (valor > 0 ? [{ column, row: 0 }] : [])),
   });
 
+  // So a legenda traz o detalhe: no ponteiro e no teclado o aviso segue com um
+  // argumento, que o teste do consumidor compara. Serie desligada nao se realca.
+  const highlight = (label: string | null, anchor?: ChartAnchorPoint) => {
+    const indice = label === null ? -1 : reunidas.findIndex((fatia) => fatia.label === label);
+
+    if (indice < 0 || !(values[indice] > 0) || !anchor) {
+      marks.anchorTooltip(undefined);
+
+      if (realcada.current !== null) {
+        focus(null);
+      }
+      return;
+    }
+
+    marks.anchorTooltip(anchor);
+    focus(indice, { anchor, color: colors[indice] });
+  };
+
+  // Desligar a fatia realcada pela legenda a solta: ela deixa de existir no anel.
+  const toggleSlice = (label: string) => {
+    if (focused !== null && reunidas[focused]?.label === label && !isHidden(label)) {
+      highlight(null);
+    }
+
+    toggle(label);
+  };
+
   return {
     angles,
     colors,
     focus,
     focused,
+    highlight,
     isHidden,
     marks,
     ratioOf: (indice) => (total > 0 ? (values[indice] ?? 0) / total : 0),
+    release,
     slices: reunidas,
-    toggle,
+    toggle: toggleSlice,
     total,
     values,
   };

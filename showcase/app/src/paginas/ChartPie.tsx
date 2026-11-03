@@ -248,7 +248,7 @@ const cores = resolveSeriesColors(receita);
   ],
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões. O desenho não recebe foco.' },
+    { teclas: ['Tab'], acao: 'Percorre as entradas da legenda, que são botões. O desenho não recebe foco. Ponteiro ou foco numa entrada realça a fatia e abre o balão junto dela.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a fatia da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
@@ -278,7 +278,7 @@ const cores = resolveSeriesColors(receita);
     { nome: 'hiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas, pelo rótulo, no modo controlado.' },
     { nome: 'defaultHiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas de início, no modo não controlado.' },
     { nome: 'onHiddenSlicesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverSlice', tipo: '(slice: ChartPieSlice | null) => void', descricao: 'Fatia sob o ponteiro, já agrupada; costura para o ChartTooltip.' },
+    { nome: 'onHoverSlice', tipo: '(slice: ChartPieSlice | null, details?: ChartHoverDetails) => void', descricao: <>Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'onSliceClick', tipo: '(slice: ChartPieSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco. Em Outros, grouped traz as fatias reunidas.' },
   ],
