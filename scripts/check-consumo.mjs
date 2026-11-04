@@ -233,6 +233,68 @@ async function consumoVite() {
   }
 }
 
+const mainViteComponentes = `
+import { createRoot } from 'react-dom/client';
+import { Button, Select } from '${pacote}';
+import '${pacote}/styles/base.css';
+import '${pacote}/styles/Button.css';
+import '${pacote}/styles/Select.css';
+
+createRoot(document.getElementById('raiz')).render(
+  <>
+    <Button>Salvar</Button>
+    <Select label="Forma de pagamento" options={[{ value: 'pix', label: 'Pix' }]} />
+  </>,
+);
+`;
+
+/** Base e folhas por componente num app Vite: so o que a tela usa vai para o CSS, e o botao e o select saem estilizados. */
+async function consumoViteComponentes() {
+  const pasta = criarApp(
+    'vite-componentes',
+    {
+      'index.html':
+        '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="icon" href="data:,"><title>Consumo</title></head><body><div id="raiz"></div><script type="module" src="/main.jsx"></script></body></html>',
+      'main.jsx': mainViteComponentes,
+      'vite.config.js': "import react from '@vitejs/plugin-react';\nexport default { plugins: [react()] };\n",
+    },
+    ['react@19', 'react-dom@19', 'vite@6', '@vitejs/plugin-react@4', 'puppeteer-core'],
+  );
+
+  executar('npx', ['vite', 'build'], pasta);
+
+  const css = readdirSync(join(pasta, 'dist/assets')).filter((f) => f.endsWith('.css')).map((f) => readFileSync(join(pasta, 'dist/assets', f), 'utf8')).join('');
+  const inteira = readFileSync(join(pasta, 'node_modules', pacote, 'dist/design-system.css'), 'utf8');
+  const problemas = [];
+
+  if (css.length >= inteira.length / 2) problemas.push(`o CSS da tela (${css.length} bytes) nao ficou bem menor que a folha inteira (${inteira.length})`);
+  if (!css.includes('--pl-color-primary')) problemas.push('os tokens da base nao chegaram ao CSS');
+  if (css.includes('_bar_')) problemas.push('CSS de um componente que a tela nao usa foi junto');
+
+  const requireDoApp = createRequire(join(pasta, 'package.json'));
+  const servidor = await servirPasta(join(pasta, 'dist'));
+  const navegador = await requireDoApp('puppeteer-core').launch({ executablePath: caminhoDoChrome(), headless: true, args: ['--no-sandbox'] });
+
+  try {
+    const pagina = await navegador.newPage();
+
+    await pagina.goto(`http://127.0.0.1:${servidor.address().port}/`, { waitUntil: 'networkidle0' });
+
+    const estilos = await pagina.evaluate(() => ({
+      botao: getComputedStyle(document.querySelector('button')).backgroundColor,
+      select: getComputedStyle(document.querySelector('[role=combobox]')).display,
+    }));
+
+    if (estilos.botao === 'rgba(0, 0, 0, 0)') problemas.push('o Button ficou sem o fundo da folha dele');
+    if (estilos.select !== 'flex') problemas.push(`o Select ficou sem a folha dele (display ${estilos.select})`);
+  } finally {
+    await navegador.close();
+    servidor.close();
+  }
+
+  return { problemas, detalhe: `base e folhas por componente: ${css.length} bytes de CSS contra ${inteira.length} da folha inteira; Button e Select estilizados` };
+}
+
 function consumoNext() {
   const pasta = criarApp(
     'next',
@@ -307,6 +369,7 @@ const nomeDoTarball = executar('npm', ['pack', '--ignore-scripts', '--pack-desti
 tarball = join(base, nomeDoTarball.trim());
 
 await rodar('Vite com React (Chrome)', consumoVite);
+await rodar('Vite com folhas por componente (Chrome)', consumoViteComponentes);
 await rodar('Next com Server Components', consumoNext);
 await rodar('CommonJS', consumoCommonJs);
 

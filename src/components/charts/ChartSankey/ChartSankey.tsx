@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3-sankey';
 import {
   ChartTable,
   CHART_LABEL_BAND,
@@ -18,6 +17,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import { posicionarSankey, type LigacaoDoSankey, type NoDoSankey } from './leiauteDoSankey';
 import styles from './ChartSankey.module.css';
 
 export interface ChartSankeyNode extends SeriesAppearance {
@@ -94,16 +94,6 @@ export interface ChartSankeyProps extends ChartRootProps {
   title: string;
 }
 
-interface NoPosicionado {
-  index: number;
-  label: string;
-  value: number;
-  x0: number;
-  x1: number;
-  y0: number;
-  y1: number;
-}
-
 interface Caixa {
   x0: number;
   x1: number;
@@ -115,29 +105,12 @@ function seCruzam(uma: Caixa, outra: Caixa) {
   return uma.x0 < outra.x1 && outra.x0 < uma.x1 && uma.y0 < outra.y1 && outra.y0 < uma.y1;
 }
 
-interface LigacaoPosicionada {
-  index: number;
-  source: NoPosicionado;
-  target: NoPosicionado;
-  value: number;
-  width: number;
-  y0: number;
-  y1: number;
-}
-
-const ALINHAMENTO = {
-  center: sankeyCenter,
-  justify: sankeyJustify,
-  left: sankeyLeft,
-  right: sankeyRight,
-};
-
 /**
  * Bezier cubica entre a borda de saida e a borda de entrada, com os pontos de
  * controle no meio do vao. E o que da a ligacao a curva que sai e chega na
  * horizontal, sem torcer perto dos nos.
  */
-function caminhoDa(ligacao: LigacaoPosicionada) {
+function caminhoDa(ligacao: LigacaoDoSankey) {
   const saida = ligacao.source.x1;
   const chegada = ligacao.target.x0;
   const meio = (saida + chegada) / 2;
@@ -250,7 +223,7 @@ export function ChartSankey({
   const comRotulos = showLabels && !removed.has('labels');
   const bandaDireita = comRotulos ? bandaDosRotulos : 0;
 
-  // Um diagrama de fluxo e aciclico por definicao, e o `d3-sankey` lanca ao
+  // Um diagrama de fluxo e aciclico por definicao, e o leiaute lanca ao
   // encontrar um ciclo. Detectar antes troca a queda da arvore inteira por uma
   // mensagem, sem descartar ligacao nenhuma pelas costas.
   const ciclico = useMemo(() => temCiclo(flows), [flows]);
@@ -263,28 +236,23 @@ export function ChartSankey({
     const util = width - bandaDireita;
 
     if (util <= 0 || alturaDoDesenho <= 0 || flows.length === 0 || ciclico || totalDoFluxo <= 0) {
-      return { links: [] as LigacaoPosicionada[], nodes: [] as NoPosicionado[] };
+      return { links: [] as LigacaoDoSankey[], nodes: [] as NoDoSankey[] };
     }
 
-    const posicionar = sankey<{ label: string }, { value: number }>()
-      .nodeId((no) => no.label)
-      .nodeAlign(ALINHAMENTO[nodeAlign])
-      .nodeWidth(nodeWidth)
-      .nodePadding(nodePadding)
-      .extent([
-        [0, 2],
-        [util, alturaDoDesenho - 2],
-      ]);
-
-    const resultado = posicionar({
-      links: flows.map((fluxo) => ({
+    return posicionarSankey({
+      align: nodeAlign,
+      flows: flows.map((fluxo) => ({
         ...fluxo,
         value: Number.isFinite(fluxo.value) ? Math.max(fluxo.value, 0) : 0,
       })),
-      nodes: declarados.map((no) => ({ label: no.label })),
+      labels: declarados.map((no) => no.label),
+      nodePadding,
+      nodeWidth,
+      x0: 0,
+      x1: util,
+      y0: 2,
+      y1: alturaDoDesenho - 2,
     });
-
-    return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
   // As ligacoes ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
@@ -336,7 +304,7 @@ export function ChartSankey({
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
-  function corDa(ligacao: LigacaoPosicionada) {
+  function corDa(ligacao: LigacaoDoSankey) {
     if (flowColor === 'neutral') {
       return 'var(--pl-chart-neutral)';
     }
@@ -344,11 +312,11 @@ export function ChartSankey({
     return corDoNo(flowColor === 'target' ? ligacao.target.index : ligacao.source.index);
   }
 
-  function descreverLigacao(ligacao: LigacaoPosicionada) {
+  function descreverLigacao(ligacao: LigacaoDoSankey) {
     return `${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`;
   }
 
-  function saidaDaOrigem(ligacao: LigacaoPosicionada) {
+  function saidaDaOrigem(ligacao: LigacaoDoSankey) {
     return grafo.links
       .filter((outra) => outra.source.index === ligacao.source.index)
       .reduce((soma, outra) => soma + outra.value, 0);
@@ -395,7 +363,7 @@ export function ChartSankey({
     return Math.max(passo - nodeWidth - CHART_LABEL_OFFSET, 0);
   })();
 
-  function rotuloDoNo(no: NoPosicionado) {
+  function rotuloDoNo(no: NoDoSankey) {
     const saida = saidas.includes(no.label);
     const texto = truncateToWidth(
       no.label,
@@ -425,7 +393,7 @@ export function ChartSankey({
    * de algum no: dois textos sobrepostos nao informam nada, e o valor continua
    * no `title` da propria ligacao.
    */
-  function valorDa(ligacao: LigacaoPosicionada) {
+  function valorDa(ligacao: LigacaoDoSankey) {
     const texto = formatValue(ligacao.value);
     const largura = measureLabel(texto, font);
     const saida = ligacao.source.x1;

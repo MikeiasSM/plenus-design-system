@@ -5,3 +5,4 @@
  */
 declare module '@plenustech/design-system/styles.css';
 declare module '@plenustech/design-system/reset.css';
+declare module '@plenustech/design-system/styles/*.css';

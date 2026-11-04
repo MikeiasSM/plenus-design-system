@@ -86,6 +86,24 @@ import '@plenustech/design-system/styles.css';
 
 Sem essa importação os componentes são renderizados sem estilo.
 
+#### CSS só dos componentes que a tela usa
+
+`styles.css` continua sendo a folha inteira (cerca de 25 KB comprimida com gzip). Quem quer carregar só o CSS dos componentes que usa importa a base e uma folha por componente:
+
+```ts
+import '@plenustech/design-system/styles/base.css';
+import '@plenustech/design-system/styles/Button.css';
+import '@plenustech/design-system/styles/Select.css';
+```
+
+- `styles/base.css` traz os tokens, os temas e a base de página que os componentes pressupõem. Vem sempre, e uma vez.
+- `styles/<Componente>.css` traz o CSS de um componente, com o nome do módulo: `Button`, `InputText`, `Table`, `ChartBar`, `CardMetricBar`.
+- Cada folha já importa, com `@import`, as folhas de que o componente depende: `styles/Select.css` traz as de `List`, `Field` e `Label`, sem que o consumidor as liste. O empacotador junta as repetidas.
+- Um componente que recebe outros como filhos, como o `Dialog` com um `Button` dentro, não traz o CSS dos filhos: importe a folha de cada um que a tela usa.
+- Não misture com `styles.css`, que já contém tudo.
+
+Para uma tela com `Button`, `InputText`, `Select`, `Dialog` e `Table`, a base e as folhas somam cerca de 8 KB comprimidos com gzip. A base sozinha tem 3 KB e a folha do `Button`, menos de 1 KB.
+
 Há uma segunda folha, **opcional**, com a base de página do sistema — tipografia do corpo, títulos, links, controles nativos e barra de rolagem:
 
 ```ts

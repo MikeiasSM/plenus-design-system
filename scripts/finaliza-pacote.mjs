@@ -1,5 +1,5 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 
 /**
  * Acertos que o `vite build` e o `tsc` nao fazem sozinhos. Roda depois dos dois.
@@ -99,6 +99,92 @@ for (const nome of nomesDosIcones) {
   );
 }
 
+/**
+ * O build deixa um `.css` por modulo (`cssCodeSplit`), na pasta do componente. Aqui eles viram as folhas do pacote:
+ * `styles/base.css` (tokens e base de pagina), uma `styles/<Nome>.css` por modulo e a `design-system.css` inteira,
+ * que e a base seguida dos modulos na ordem de execucao do ponto de entrada, a mesma que o empacotador usaria.
+ * Cada folha de componente importa antes as folhas de que ele depende, para que `Select.css` traga o `Popover.css`.
+ */
+const saida = resolve(raiz, 'dist');
+const pastaDasFolhas = resolve(saida, 'styles');
+
+function arquivosJs(pasta) {
+  return readdirSync(pasta, { withFileTypes: true }).flatMap((entrada) => {
+    const caminho = join(pasta, entrada.name);
+
+    if (entrada.isDirectory()) {
+      return arquivosJs(caminho);
+    }
+
+    return entrada.name.endsWith('.js') ? [caminho] : [];
+  });
+}
+
+function importsRelativos(arquivo) {
+  return [...readFileSync(arquivo, 'utf8').matchAll(/^import[^'"]*['"](\.[^'"]+\.js)['"]/gm)].map(([, destino]) =>
+    resolve(dirname(arquivo), destino),
+  );
+}
+
+/** Modulos de CSS alcancados a partir de um modulo JS, dependencias primeiro. */
+function modulosDeCssAlcancados(inicio, visitados = new Set(), ordem = []) {
+  if (visitados.has(inicio)) {
+    return ordem;
+  }
+
+  visitados.add(inicio);
+
+  for (const destino of importsRelativos(inicio)) {
+    if (destino.endsWith('.module.css.js')) {
+      if (!ordem.includes(destino)) {
+        ordem.push(destino);
+      }
+    } else {
+      modulosDeCssAlcancados(destino, visitados, ordem);
+    }
+  }
+
+  return ordem;
+}
+
+const nomeDaFolha = (moduloCss) => basename(moduloCss, '.module.css.js');
+const lerCss = (moduloCss) => readFileSync(moduloCss.replace(/\.js$/, ''), 'utf8').trim();
+
+const modulosJs = arquivosJs(resolve(saida, 'components'));
+
+// Um componente pode usar o CSS de outro (o DatePicker usa o do Select): as dependencias de uma folha sao as do
+// modulo que leva o nome dela, e so na falta dele as de quem a importa.
+function donosDe(moduloCss) {
+  const proprio = moduloCss.replace(/\.module\.css\.js$/, '.js');
+
+  if (existsSync(proprio)) {
+    return [proprio];
+  }
+
+  return modulosJs.filter((modulo) => importsRelativos(modulo).includes(moduloCss));
+}
+
+const modulosEmOrdem = modulosDeCssAlcancados(resolve(saida, 'index.js'));
+const base = ['tokens', 'base'].map((nome) => readFileSync(resolve(pastaDasFolhas, `${nome}.css`), 'utf8').trim()).join('');
+
+mkdirSync(pastaDasFolhas, { recursive: true });
+writeFileSync(resolve(pastaDasFolhas, 'base.css'), base);
+rmSync(resolve(pastaDasFolhas, 'tokens.css'));
+
+for (const modulo of modulosEmOrdem) {
+  const donos = donosDe(modulo);
+  const dependencias = new Set(donos.flatMap((dono) => modulosDeCssAlcancados(dono)));
+  const imports = [...dependencias].filter((outro) => outro !== modulo).map((outro) => `@import './${nomeDaFolha(outro)}.css';\n`);
+
+  writeFileSync(resolve(pastaDasFolhas, `${nomeDaFolha(modulo)}.css`), imports.join('') + lerCss(modulo));
+}
+
+writeFileSync(resolve(saida, 'design-system.css'), base + modulosEmOrdem.map(lerCss).join(''));
+
+for (const modulo of modulosEmOrdem) {
+  rmSync(modulo.replace(/\.js$/, ''));
+}
+
 console.log(
-  `Pacote finalizado: reset copiado, folhas declaradas, ${ajustados} declaracoes com extensao explicita, suite de icones sem mapa, ${nomesDosIcones.length} modulos por icone.`,
+  `Pacote finalizado: reset copiado, folhas declaradas, ${modulosEmOrdem.length} folhas de componente, ${ajustados} declaracoes com extensao explicita, suite de icones sem mapa, ${nomesDosIcones.length} modulos por icone.`,
 );

@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 
 /**
  * Confere o pacote construido, e nao o codigo-fonte. A suite do Vitest nunca
@@ -140,6 +140,60 @@ if (arquivoComConteudo('dist/design-system.css', 1)) {
   }
 }
 
+/** Cada `.module.css` do fonte, se nao vazio, vira `dist/styles/<Nome>.css`, e a base mais as folhas, sem os `@import`, somam a folha inteira. */
+function folhasPorComponente() {
+  const pasta = resolve(raiz, 'dist/styles');
+
+  if (!existsSync(pasta)) {
+    falhas.push('dist/styles ausente');
+
+    return;
+  }
+
+  exigir(arquivoComConteudo('dist/styles/base.css', 1000), 'dist/styles/base.css ausente ou pequeno demais');
+
+  const doFonte = [];
+  const procurar = (dir) => {
+    for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+      const caminho = resolve(dir, entrada.name);
+
+      if (entrada.isDirectory()) {
+        procurar(caminho);
+      } else if (entrada.name.endsWith('.module.css') && statSync(caminho).size > 0) {
+        doFonte.push(basename(entrada.name, '.module.css'));
+      }
+    }
+  };
+
+  procurar(resolve(raiz, 'src'));
+
+  const soma = [readFileSync(resolve(pasta, 'base.css'), 'utf8')];
+
+  for (const nome of doFonte) {
+    const caminho = resolve(pasta, `${nome}.css`);
+
+    if (!existsSync(caminho)) {
+      falhas.push(`dist/styles/${nome}.css ausente`);
+      continue;
+    }
+
+    const css = readFileSync(caminho, 'utf8');
+
+    for (const [, dependencia] of css.matchAll(/^@import '\.\/([\w-]+\.css)';/gm)) {
+      exigir(existsSync(resolve(pasta, dependencia)), `dist/styles/${nome}.css importa ${dependencia}, que nao existe`);
+    }
+
+    soma.push(css.replace(/^@import [^\n]*\n/gm, ''));
+  }
+
+  const inteira = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8');
+
+  exigir(soma.join('').length === inteira.length, 'a base mais as folhas por componente nao somam a folha inteira (design-system.css)');
+  exigir(readdirSync(pasta).length === doFonte.length + 1, 'dist/styles tem arquivo alem da base e de um por modulo de CSS do fonte');
+}
+
+folhasPorComponente();
+
 const esm = await import('../dist/index.js').catch((erro) => {
   falhas.push(`a entrada ESM nao carregou: ${erro.message}`);
 
@@ -226,5 +280,5 @@ if (falhas.length > 0) {
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
     `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons e cada um em ./icons/<Nome>; ` +
-    'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina.',
+    'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina; folhas por componente somam a folha inteira.',
 );

@@ -15,6 +15,8 @@ export default defineConfig({
   build: {
     // Depurar a biblioteca dentro do consumidor, em vez de ler o minificado.
     sourcemap: true,
+    // Um .css por modulo: `finaliza-pacote` monta deles as folhas por componente e a folha inteira.
+    cssCodeSplit: true,
     lib: {
       // A suite de icones e uma entrada propria, publicada em `@plenustech/design-system/icons`, e cada icone dela
       // tem ainda o proprio modulo, em `@plenustech/design-system/icons/<Nome>`.
