@@ -38,6 +38,18 @@
   min-width: 0;
 }
 
+/* A navegação do módulo leva a marca e o recolher, para nada do submenu ficar fora de uma região. */
+.navigation {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.navigation[data-covered='true'] {
+  flex: none;
+}
+
 .list {
   flex: 1;
   min-height: 0;
@@ -52,7 +64,7 @@
   scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
 }
 
-.list[data-covered='true'] {
+.navigation[data-covered='true'] .list {
   display: none;
 }
 

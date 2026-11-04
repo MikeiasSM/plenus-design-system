@@ -88,7 +88,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .palco {
+  .palco:not(.palco-janela) {
     height: 680px;
   }
 }
@@ -158,18 +158,6 @@
 }
 
 /* ---- Linhas, tabelas e totais ------------------------------------------------ */
-
-.ligacao-da-linha {
-  display: block;
-  color: var(--pl-color-text);
-  font-weight: var(--pl-type-label-weight);
-  text-decoration: none;
-}
-
-.ligacao-da-linha:hover {
-  color: var(--pl-color-primary-strong);
-  text-decoration: underline;
-}
 
 .detalhe-da-linha {
   display: block;
@@ -314,30 +302,6 @@
   gap: var(--pl-space-1);
 }
 
-.nesta-pagina span {
-  margin-bottom: var(--pl-space-1);
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-caption-size);
-  font-weight: var(--pl-type-label-weight);
-}
-
-.nesta-pagina a {
-  padding: var(--pl-space-1) var(--pl-space-3);
-  border-left: 2px solid var(--pl-color-border);
-  color: var(--pl-color-text-secondary);
-  text-decoration: none;
-}
-
-.nesta-pagina a[aria-current='true'] {
-  border-left-color: var(--pl-color-primary-strong);
-  color: var(--pl-color-text);
-  font-weight: var(--pl-type-label-weight);
-}
-
-.cartao-de-perigo {
-  border-color: var(--pl-color-danger);
-}
-
 /* Larguras medidas pela folha da página, não pela janela. Ficam por último para vencer as regras de base. */
 @container (min-width: 820px) {
   .grade-duas {
@@ -363,9 +327,7 @@
   .com-indice {
     grid-template-columns: minmax(0, 1fr) 168px;
   }
-}
 
-@container (min-width: 820px) {
   .nesta-pagina {
     display: grid;
   }

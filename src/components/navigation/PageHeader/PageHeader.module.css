@@ -1,4 +1,4 @@
-/* O cabeçalho é o contêiner da própria medida: abaixo de 640px de largura, ações e busca descem para sob o texto. */
+/* O cabeçalho é o contêiner da própria medida: abaixo de 640px de largura, selos, ações e busca descem para sob o título. */
 .header {
   container-type: inline-size;
   padding: var(--pl-space-4) var(--pl-space-5);
@@ -9,10 +9,11 @@
   line-height: var(--pl-type-body-line-height);
 }
 
-/* Linha 1: voltar, título, selos e ações. Linhas 2 e 3: descrição e contexto; a busca ocupa as duas, à direita. */
+/* Linha 1: voltar, título, selos e ações. Linhas 2 e 3: descrição e contexto; a busca ocupa as duas, à direita.
+   Os selos guardam a largura do maior deles: quem cede ao título longo é o título, que quebra. */
 .grid {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(min-content, 1fr) auto;
   align-items: center;
   margin-inline: auto;
 }
@@ -107,6 +108,17 @@
 }
 
 @container (max-width: 640px) {
+  .grid {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .badges {
+    grid-area: 2 / 2;
+    min-height: 0;
+    margin-block-start: var(--pl-space-2);
+    margin-inline-start: 0;
+  }
+
   .description,
   .context,
   .actions,
@@ -115,24 +127,32 @@
     margin-inline-start: 0;
   }
 
+  .description {
+    grid-row: 3;
+  }
+
+  .context {
+    grid-row: 4;
+  }
+
   .actions,
   .search {
     margin-block-start: var(--pl-space-3);
   }
 
   .actions {
-    grid-row: 4;
+    grid-row: 5;
     justify-content: flex-start;
   }
 
   .search {
-    grid-row: 5;
+    grid-row: 6;
     justify-self: stretch;
     inline-size: auto;
   }
 
   .grid:not(:has(> .actions)) > .search {
-    grid-row: 4;
+    grid-row: 5;
   }
 }
 

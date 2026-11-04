@@ -128,7 +128,7 @@ function AppIsolado({ nome }: { nome: string }) {
     <ToastProvider>
       <div className="stack" style={{ flex: 1, minWidth: 220 }}>
         <DisparadorDaArvore nome={nome} />
-        <ToastRegion aria-label={`Avisos do ${nome}`} style={{ position: 'static', pointerEvents: 'auto', width: '100%' }} />
+        <ToastRegion aria-label={`Avisos do ${nome}`} role="region" style={{ position: 'static', pointerEvents: 'auto', width: '100%' }} />
       </div>
     </ToastProvider>
   );

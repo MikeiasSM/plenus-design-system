@@ -2,13 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@plenustech/design-system';
 import { paraHexadecimal, useTemaResolvido, type Token } from './tokens';
 
-/** O que a 0.6.0 acrescentou aos tokens. */
-export const ehNovoNaVersao060 = (nome: string) =>
-  ['--pl-shell-gap', '--pl-color-primary-selected'].includes(nome) || /^--pl-(type-micro|z)-/.test(nome);
-
-export function SeloDeNovo({ nome }: { nome: string }) {
-  return ehNovoNaVersao060(nome) ? <Badge tone="info">0.6.0</Badge> : null;
-}
+/** O único token novo da 0.6.0; os demais já saíram em versões de correção da 0.5. */
+const NOVO_NA_VERSAO_060 = '--pl-color-primary-selected';
 
 /** O quadrado de uma cor, com o valor que o tema atual resolve para ela. */
 function AmostraDeCor({ nome }: { nome: string }) {
@@ -29,7 +24,7 @@ function AmostraDeCor({ nome }: { nome: string }) {
       </span>
       <code>{nome}</code>
       <span className="amostra-valor">{valor}</span>
-      <SeloDeNovo nome={nome} />
+      {nome === NOVO_NA_VERSAO_060 && <Badge tone="info">0.6.0</Badge>}
     </li>
   );
 }

@@ -36,7 +36,7 @@ export interface DataGridColumnModel<Row> {
   /** Valores do filtro por conjunto no modo servidor; no cliente, saem das linhas. */
   filterOptions?: readonly string[];
   format?: (value: unknown, row: Row) => string;
-  /** Põe "Agrupar por esta coluna" no menu da coluna. O agrupamento por `groupBy` vale para qualquer coluna. */
+  /** Põe "Agrupar linhas por esta coluna" no menu da coluna. O agrupamento por `groupBy` vale para qualquer coluna. */
   groupable?: boolean;
   header: string;
   id: string;

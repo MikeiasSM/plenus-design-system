@@ -21,6 +21,7 @@ import {
   type AppShellNestedMode,
 } from './AppShellPanel.context';
 import { ShellAction, type ShellActionProps } from './ShellAction';
+import shellStyles from './AppShell.module.css';
 import styles from './AppShellPanel.module.css';
 
 export interface AppShellPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
@@ -78,27 +79,35 @@ export function AppShellPanel({
       >
         <div className={styles.inner}>
           {hasItems && (
-            <div className={styles.head}>
-              <div className={styles.brand}>{brand}</div>
-              {narrow ? (
-                <ButtonIcon icon={<IconClose />} label="Fechar menu" onClick={() => setMenuOpen(false)} size="sm" variant="ghost" />
-              ) : (
-                <ButtonIcon
-                  aria-controls={panelId}
-                  aria-expanded={submenuOpen}
-                  icon={<IconSidebar />}
-                  label="Recolher submenu"
-                  onClick={collapsePanel}
-                  ref={collapseRef}
-                  size="sm"
-                  variant="ghost"
-                />
-              )}
-            </div>
-          )}
-          {hasItems && (
-            <nav aria-label={label} className={styles.list} data-covered={accountMode === 'cover' && accountOpen}>
-              <ul className={styles.items}>{children}</ul>
+            <nav aria-label={label} className={styles.navigation} data-covered={accountMode === 'cover' && accountOpen}>
+              <div className={styles.head}>
+                <div className={styles.brand}>{brand}</div>
+                {narrow ? (
+                  <ButtonIcon
+                    className={shellStyles.frameButton}
+                    icon={<IconClose />}
+                    label="Fechar menu"
+                    onClick={() => setMenuOpen(false)}
+                    size="sm"
+                    variant="ghost"
+                  />
+                ) : (
+                  <ButtonIcon
+                    aria-controls={panelId}
+                    aria-expanded={submenuOpen}
+                    className={shellStyles.frameButton}
+                    icon={<IconSidebar />}
+                    label="Recolher submenu"
+                    onClick={collapsePanel}
+                    ref={collapseRef}
+                    size="sm"
+                    variant="ghost"
+                  />
+                )}
+              </div>
+              <div className={styles.list}>
+                <ul className={styles.items}>{children}</ul>
+              </div>
             </nav>
           )}
           {account}

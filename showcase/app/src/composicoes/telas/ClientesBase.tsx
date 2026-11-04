@@ -34,7 +34,7 @@ interface MetricaProps {
 function Metrica({ descricao, titulo, valor }: MetricaProps) {
   return (
     <CardMetric>
-      <Card.Header description={descricao} title={titulo} />
+      <Card.Header description={descricao} headingLevel={2} title={titulo} />
       <CardMetric.Body>
         <CardMetric.Value formatValue={formatarInteiro} value={valor} />
       </CardMetric.Body>
@@ -52,7 +52,7 @@ interface BarrasProps {
 function Barras({ altura, dados, descricao, titulo }: BarrasProps) {
   return (
     <Card>
-      <Card.Header description={descricao} title={titulo} />
+      <Card.Header description={descricao} headingLevel={2} title={titulo} />
       <Card.Body>
         <ChartBar
           categories={dados.map(([nome]) => nome)}
@@ -106,7 +106,7 @@ export function ClientesBase() {
           </div>
           <div className="painel-metade">
             <Card>
-              <Card.Header description="Produtor rural tem precedência sobre o tipo." title="Clientes por Tipo de Pessoa" />
+              <Card.Header description="Produtor rural tem precedência sobre o tipo." headingLevel={2} title="Clientes por Tipo de Pessoa" />
               <Card.Body>
                 <ChartDonut
                   centerLabel="Total"

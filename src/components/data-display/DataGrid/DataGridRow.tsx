@@ -5,8 +5,8 @@ import { IconChevronRight } from '../../icons';
 import { cellText, cellValue, columnAlign, type DataGridColumnModel } from './gridState';
 import styles from './DataGrid.module.css';
 
-/** Recuo de cada nível da árvore, antes da seta. */
-const INDENT = 20;
+/** Recuo de cada nível da árvore e dos grupos, antes da seta. */
+export const INDENT = 20;
 
 export interface DataGridCellContext<Row> {
   row: Row;

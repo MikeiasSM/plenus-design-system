@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Avatar,
   Badge,
@@ -6,12 +6,13 @@ import {
   ButtonIcon,
   Card,
   FieldRow,
+  IconClose,
+  IconPlus,
   InputNumber,
   PageHeader,
   Switch,
   Table,
 } from '@plenustech/design-system';
-import { IconClose, IconPlus } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
 import { Anotacao, Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
 
@@ -166,7 +167,6 @@ interface Secao {
   corpo: ReactNode;
   explicacao: string;
   id: string;
-  perigo?: boolean;
   titulo: string;
 }
 
@@ -174,10 +174,8 @@ const SECOES: readonly Secao[] = [
   { id: 'limites', titulo: 'Limites', explicacao: 'Até onde o vendedor concede sozinho, e o teto com aprovação.', corpo: <Limites /> },
   { id: 'aprovadores', titulo: 'Quem aprova', explicacao: 'Os aprovadores e até quanto cada um libera.', acao: 'Adicionar aprovador', corpo: <QuemAprova /> },
   { id: 'avisos', titulo: 'Avisos', explicacao: 'Quem fica sabendo de cada pedido em aprovação.', corpo: <Avisos /> },
-  { id: 'perigo', titulo: 'Desligar a aprovação', explicacao: 'Para todas as carteiras, até ser ligada de novo.', perigo: true, corpo: <DesligarAprovacao /> },
+  { id: 'perigo', titulo: 'Desligar a aprovação', explicacao: 'Para todas as carteiras, até ser ligada de novo.', corpo: <DesligarAprovacao /> },
 ];
-
-const classeDe = (secao: Secao) => (secao.perigo ? 'cartao-de-perigo' : undefined);
 
 function BotaoDaAcao({ rotulo }: { rotulo: string }) {
   return (
@@ -190,7 +188,7 @@ function BotaoDaAcao({ rotulo }: { rotulo: string }) {
 
 function CartaoComTitulo({ secao }: { secao: Secao }) {
   return (
-    <Card className={classeDe(secao)} id={`secao-${secao.id}`}>
+    <Card id={`secao-${secao.id}`}>
       <Card.Header
         description={secao.explicacao}
         headingLevel={2}
@@ -202,44 +200,13 @@ function CartaoComTitulo({ secao }: { secao: Secao }) {
   );
 }
 
-function areaDeRolagem(elemento: HTMLElement | null) {
-  for (let pai = elemento?.parentElement; pai; pai = pai.parentElement) {
-    if (getComputedStyle(pai).overflowY === 'auto') {
-      return pai;
-    }
-  }
-
-  return null;
-}
-
-/** A lista "Nesta página": acompanha a rolagem da folha e leva o foco da leitura à seção escolhida. */
+/** A lista "Nesta página", presa ao lado das seções enquanto a folha rola. */
 function NestaPagina() {
-  const lista = useRef<HTMLElement>(null);
-  const [atual, setAtual] = useState(SECOES[0].id);
-
-  useEffect(() => {
-    const area = areaDeRolagem(lista.current);
-
-    if (!area) {
-      return;
-    }
-
-    function acompanhar() {
-      const topo = area!.getBoundingClientRect().top + 80;
-      const visivel = SECOES.filter(({ id }) => (document.getElementById(`secao-${id}`)?.getBoundingClientRect().top ?? Infinity) <= topo);
-      setAtual((visivel.at(-1) ?? SECOES[0]).id);
-    }
-
-    area.addEventListener('scroll', acompanhar, { passive: true });
-    return () => area.removeEventListener('scroll', acompanhar);
-  }, []);
-
   return (
-    <nav aria-label="Nesta página" className="nesta-pagina" ref={lista}>
-      <span>Nesta página</span>
+    <nav aria-label="Nesta página" className="nesta-pagina">
+      <span className="detalhe-da-linha">Nesta página</span>
       {SECOES.map(({ id, titulo }) => (
         <a
-          aria-current={atual === id ? 'true' : undefined}
           href={`#secao-${id}`}
           key={id}
           onClick={(evento) => {
@@ -259,7 +226,7 @@ function Secoes({ arranjo }: { arranjo: Arranjo }) {
     return (
       <div className="anotado">
         {SECOES.map((secao) => (
-          <Anotacao acao={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined} className={classeDe(secao)} explicacao={secao.explicacao} key={secao.id} titulo={secao.titulo}>
+          <Anotacao acao={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined} explicacao={secao.explicacao} key={secao.id} titulo={secao.titulo}>
             {secao.corpo}
           </Anotacao>
         ))}

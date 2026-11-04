@@ -150,7 +150,7 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
       : {},
     interactive,
     tooltipAnchor,
-    /** Atributos da marca, somando a classe propria dela a de botao. */
+    /** Atributos da marca: botao, somando a classe propria dela a de botao, ou simbolo grafico, que admite o `aria-label`. */
     markProps: (position: MarkPosition, className?: string) =>
       interactive
         ? {
@@ -159,6 +159,6 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
             role: 'button' as const,
             tabIndex: keyOf(position) === stop ? 0 : -1,
           }
-        : { className },
+        : { className, role: 'graphics-symbol' as const },
   };
 }

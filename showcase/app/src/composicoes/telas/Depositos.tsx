@@ -16,8 +16,8 @@ function Cartoes() {
           <Card.Header
             badge={<Badge tone={tomDoTipo(deposito.tipo)}>{deposito.tipo}</Badge>}
             description={deposito.local}
+            headingLevel={2}
             title={deposito.nome}
-            headingLevel={3}
           />
           <Card.Body>
             <Progress label="Ocupação" showValue value={deposito.ocupacao} />

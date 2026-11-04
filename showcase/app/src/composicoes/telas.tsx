@@ -365,14 +365,14 @@ export const telas: readonly Tela[] = [
     componentes: [...SECAO_DE_CONFIGURACAO, 'nav "Nesta página"'],
     nota: (
       <>
-        Vale para a seção longa. O índice lateral some abaixo de 820px de folha e a lista vira coluna única. A seção atual é a última cujo topo já
-        passou da borda da área que rola.
+        Vale para a seção longa. O índice lateral some abaixo de 820px de folha e a lista vira coluna única. A biblioteca ainda não tem o índice:
+        aqui ele é uma lista de links presa ao lado, sem marcar a seção atual.
       </>
     ),
     codigo: `<div className="com-indice">
   <div className="coluna-de-cartoes">{secoes}</div>
   <nav aria-label="Nesta página">
-    <a aria-current="true" href="#secao-limites">Limites</a>
+    <a href="#secao-limites">Limites</a>
   </nav>
 </div>`,
   },

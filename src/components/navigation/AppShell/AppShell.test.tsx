@@ -69,6 +69,14 @@ describe('AppShell', () => {
     expect(within(submenu).getByText('Operação')).toBeInTheDocument();
   });
 
+  it('deixa a marca e o recolher do submenu dentro da navegação do módulo', () => {
+    render(<Example />);
+
+    const submenu = screen.getByRole('navigation', { name: 'Vendas' });
+    expect(within(submenu).getByText('Painel')).toBeInTheDocument();
+    expect(within(submenu).getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
   it('abre o link externo em outra aba, sem entregar a janela de origem', () => {
     render(<Example />);
 

@@ -464,7 +464,7 @@ export function ChartSankey({
           {grafo.links.map((ligacao, indice) => (
             <path
               aria-label={descreverLigacao(ligacao)}
-              {...(aoClicarNaLigacao ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice) })}
+              {...(aoClicarNaLigacao ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice), role: 'graphics-symbol' })}
               d={caminhoDa(ligacao)}
               key={indice}
               onMouseEnter={() => focarLigacao(indice)}
@@ -481,7 +481,7 @@ export function ChartSankey({
         {grafo.nodes.map((no, indice) => (
           <rect
             aria-label={no.label}
-            {...(aoClicarNoNo ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node })}
+            {...(aoClicarNoNo ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node, role: 'graphics-symbol' })}
             fill={corDoNo(no.index)}
             height={Math.max(no.y1 - no.y0, 1)}
             key={no.label}

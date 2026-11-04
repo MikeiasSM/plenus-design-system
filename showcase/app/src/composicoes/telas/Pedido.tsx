@@ -58,7 +58,7 @@ export function Pedido() {
       <Coluna className="grade grade-duas" largura={1120}>
         <div className="grade-coluna">
           <Card>
-            <Card.Header description="Pagamento por boleto em 28 dias." title="Itens do pedido" />
+            <Card.Header description="Pagamento por boleto em 28 dias." headingLevel={2} title="Itens do pedido" />
             <Card.Body flush>
               <Table label="Itens do pedido" size="sm">
                 <Table.Header>
@@ -91,7 +91,7 @@ export function Pedido() {
             </Card.Footer>
           </Card>
           <Card>
-            <Card.Header title="Andamento" />
+            <Card.Header headingLevel={2} title="Andamento" />
             <Card.Body>
               <Timeline current="aprovacao" items={ANDAMENTO} label="Andamento do pedido" />
             </Card.Body>
@@ -103,7 +103,7 @@ export function Pedido() {
         </div>
         <div className="grade-coluna">
           <Card>
-            <Card.Header title="Cliente" trailing={<Button size="sm" variant="ghost">Ver base</Button>} />
+            <Card.Header headingLevel={2} title="Cliente" trailing={<Button size="sm" variant="ghost">Ver base</Button>} />
             <Card.Body>
               <Definicoes
                 itens={[
@@ -116,7 +116,7 @@ export function Pedido() {
             </Card.Body>
           </Card>
           <Card>
-            <Card.Header title="Entrega" />
+            <Card.Header headingLevel={2} title="Entrega" />
             <Card.Body>
               <Definicoes
                 itens={[

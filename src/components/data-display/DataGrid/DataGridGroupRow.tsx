@@ -3,12 +3,9 @@ import { formatNumber } from '../../../utils/formatters';
 import { IconChevronRight } from '../../icons';
 import { columnAlign, summaryText } from './gridState';
 import type { DataGridGroup } from './groupModel';
-import type { DataGridRowColumn } from './DataGridRow';
+import { INDENT, type DataGridRowColumn } from './DataGridRow';
 import { aggregatorOf } from './summaries';
 import styles from './DataGrid.module.css';
-
-/** Recuo de cada nível, antes da seta: o mesmo da árvore. */
-const INDENT = 20;
 
 interface DataGridGroupRowProps<Row> {
   ariaRowIndex: number;

@@ -49,7 +49,7 @@ export function Inicio() {
       <Coluna className="grade grade-duas" largura={1120}>
         <div className="grade-coluna">
           <Card>
-            <Card.Header description="Cada linha leva à tela onde a pendência se resolve." title="O que pede ação hoje" />
+            <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
             <Card.Body flush>
               <Table label="Pendências" size="sm">
                 <Table.Header>
@@ -60,7 +60,7 @@ export function Inicio() {
                   {(pendencia) => (
                     <Table.Row id={pendencia.id}>
                       <Table.Cell>
-                        <a className="ligacao-da-linha" href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}>
+                        <a href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}>
                           {pendencia.titulo}
                         </a>
                         <span className="detalhe-da-linha">{pendencia.detalhe}</span>
@@ -75,7 +75,7 @@ export function Inicio() {
             </Card.Body>
           </Card>
           <Card>
-            <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." title="Pedidos por dia" />
+            <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." headingLevel={2} title="Pedidos por dia" />
             <Card.Body>
               <ChartBar
                 categories={DIAS_DO_GRAFICO}
@@ -90,7 +90,7 @@ export function Inicio() {
         </div>
         <div className="grade-coluna">
           <CardMetric>
-            <Card.Header description="Novembro, até hoje." title="Vendas do mês" />
+            <Card.Header description="Novembro, até hoje." headingLevel={2} title="Vendas do mês" />
             <CardMetric.Body>
               <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} value={412380} />
               <CardMetric.Trend
@@ -100,7 +100,7 @@ export function Inicio() {
             </CardMetric.Body>
           </CardMetric>
           <Card>
-            <Card.Header title="Atividade recente" />
+            <Card.Header headingLevel={2} title="Atividade recente" />
             <Card.Body flush>
               <Table label="Atividade recente" size="sm">
                 <Table.Header>

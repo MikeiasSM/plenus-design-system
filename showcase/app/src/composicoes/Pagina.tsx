@@ -50,13 +50,12 @@ export function SeloDaSituacao({ situacao }: { situacao: SituacaoDoPedido }) {
 interface AnotacaoProps {
   acao?: ReactNode;
   children: ReactNode;
-  className?: string;
   explicacao: string;
   titulo: string;
 }
 
 /** O arranjo anotado: título e explicação num trilho à esquerda, o cartão à direita. */
-export function Anotacao({ acao, children, className, explicacao, titulo }: AnotacaoProps) {
+export function Anotacao({ acao, children, explicacao, titulo }: AnotacaoProps) {
   return (
     <div className="anotado-linha">
       <div className="anotado-nota">
@@ -64,7 +63,7 @@ export function Anotacao({ acao, children, className, explicacao, titulo }: Anot
         <p>{explicacao}</p>
         {acao}
       </div>
-      <Card aria-label={titulo} className={className}>
+      <Card aria-label={titulo}>
         {children}
       </Card>
     </div>

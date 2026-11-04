@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Card, Table } from '@plenustech/design-system';
-import { GradeDeCores, SeloDeNovo } from './Amostras';
+import { GradeDeCores } from './Amostras';
 import { tokens, tokensDe, type Token } from './tokens';
 import './fundamentos.css';
 
@@ -86,7 +86,6 @@ function Tipografia() {
               <li key={papel}>
                 <span>
                   <code>--pl-type-{papel}-*</code>
-                  <SeloDeNovo nome={`--pl-type-${papel}-size`} />
                   <small>
                     {valor('size')} / {valor('line-height')} · {valor('weight')}
                   </small>
@@ -120,7 +119,6 @@ function Espacamento() {
           <code>{nome}</code>
           <span className="fundamentos-barra" style={{ width: `var(${nome})` }} />
           <small>{declarado}</small>
-          <SeloDeNovo nome={nome} />
         </li>
       ))}
     </ul>
@@ -151,22 +149,22 @@ function RaiosESombras() {
   );
 }
 
-function Camadas() {
+function TabelaDeTokens({ coluna, label, tokens: linhas }: { coluna: string; label: string; tokens: readonly Token[] }) {
   return (
     <Card>
       <Card.Body flush>
-        <Table label="Camadas fixas da biblioteca">
+        <Table label={label}>
           <Table.Header>
             <Table.Column id="token">Token</Table.Column>
-            <Table.Column id="valor" numeric width="120px">z-index</Table.Column>
+            <Table.Column id="valor" width="240px">{coluna}</Table.Column>
           </Table.Header>
-          <Table.Body items={camadas.map(({ declarado, nome }) => ({ id: nome, nome, declarado }))}>
-            {(camada) => (
-              <Table.Row id={camada.id}>
+          <Table.Body items={linhas.map(({ declarado, nome }) => ({ id: nome, declarado }))}>
+            {(linha) => (
+              <Table.Row id={linha.id}>
                 <Table.Cell>
-                  <code>{camada.nome}</code> <SeloDeNovo nome={camada.nome} />
+                  <code>{linha.id}</code>
                 </Table.Cell>
-                <Table.Cell>{camada.declarado}</Table.Cell>
+                <Table.Cell>{linha.declarado}</Table.Cell>
               </Table.Row>
             )}
           </Table.Body>
@@ -235,6 +233,18 @@ const SECOES: readonly Secao[] = [
     conteudo: <RaiosESombras />,
   },
   {
+    id: 'movimento-e-leiaute',
+    titulo: 'Movimento e leiaute',
+    subtitulo: (
+      <>
+        Durações e curva das transições, os pontos de quebra e a largura máxima do conteúdo. Regras em <code>TOKENS.md</code> §8 e §9.
+      </>
+    ),
+    conteudo: (
+      <TabelaDeTokens coluna="Valor" label="Movimento e leiaute" tokens={tokensDe(/^--pl-(speed-\d|ease|bp-\w+|container)$/)} />
+    ),
+  },
+  {
     id: 'camadas',
     titulo: 'Camadas',
     subtitulo: (
@@ -243,7 +253,7 @@ const SECOES: readonly Secao[] = [
         biblioteca. Os painéis posicionados pelo React Aria não dependem dele. Regra em <code>TOKENS.md</code> §7.
       </>
     ),
-    conteudo: <Camadas />,
+    conteudo: <TabelaDeTokens coluna="z-index" label="Camadas fixas da biblioteca" tokens={camadas} />,
   },
   {
     id: 'estrategia-de-css',

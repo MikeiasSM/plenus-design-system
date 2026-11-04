@@ -103,7 +103,7 @@ function ListaDePedidos({ busca, filtros, limparBuscaEFiltros, visao }: ListaPro
           {(pedido) => (
             <Table.Row id={pedido.id} label={`Selecionar pedido ${pedido.numero}`}>
               <Table.Cell>
-                <a className="ligacao-da-linha" href={`${CAMINHO_DAS_COMPOSICOES}/pedido`}>#{pedido.numero}</a>
+                <a href={`${CAMINHO_DAS_COMPOSICOES}/pedido`}>#{pedido.numero}</a>
               </Table.Cell>
               <Table.Cell>{pedido.cliente}</Table.Cell>
               <Table.Cell>{formatDate(pedido.data)}</Table.Cell>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { InputText, SaveBar } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -58,20 +58,28 @@ function Formulario() {
   const [nome, setNome] = useState('Ana Ribeiro');
   const [salvo, setSalvo] = useState('Ana Ribeiro');
   const [salvando, setSalvando] = useState(false);
+  const campo = useRef<HTMLInputElement>(null);
 
+  // Ao fechar, a barra tira os botões do foco: quem decide para onde ele vai é o produto.
   function salvar() {
     setSalvando(true);
     window.setTimeout(() => {
       setSalvo(nome);
       setSalvando(false);
+      campo.current?.focus();
     }, 1200);
+  }
+
+  function descartar() {
+    setNome(salvo);
+    campo.current?.focus();
   }
 
   return (
     <div className="stack" style={{ maxHeight: 220, overflow: 'auto', width: '100%' }}>
-      <SaveBar onDiscard={() => setNome(salvo)} onSave={salvar} open={nome !== salvo} saving={salvando} />
+      <SaveBar onDiscard={descartar} onSave={salvar} open={nome !== salvo} saving={salvando} />
       <div style={{ padding: 16 }}>
-        <InputText label="Nome" onChange={(evento) => setNome(evento.currentTarget.value)} value={nome} />
+        <InputText label="Nome" ref={campo} onChange={(evento) => setNome(evento.currentTarget.value)} value={nome} />
       </div>
     </div>
   );
@@ -90,6 +98,11 @@ function Modos() {
         Fica presa ao topo da área de rolagem em que for montada (<code>position: sticky</code>). Onde montá-la é do
         produto, em geral antes do conteúdo da página.
       </dd>
+      <dt>Foco ao fechar</dt>
+      <dd>
+        Fechada, a barra tira os botões do foco, e o foco que estava neles cai no <code>body</code>. A barra não sabe de
+        onde a pessoa veio: ao salvar ou descartar, o produto devolve o foco a um ponto do formulário, como o campo editado.
+      </dd>
       <dt><code>saving</code></dt>
       <dd>O salvar fica ocupado e não dispara de novo; o descartar fica desabilitado até terminar.</dd>
     </dl>
@@ -101,11 +114,12 @@ export const pagina: Pagina = {
   exemplos: [
     {
       titulo: 'Formulário com alterações pendentes',
-      descricao: 'Edite o nome: a barra abre. Salvar leva 1,2 s; descartar volta ao valor salvo.',
+      descricao:
+        'Edite o nome: a barra abre. Salvar leva 1,2 s; descartar volta ao valor salvo. Nos dois casos o foco volta ao campo, porque a barra fechada sai do foco.',
       largo: true,
       Previa: Formulario,
       codigo:
-        "<SaveBar\n  open={valor !== salvo}\n  saving={salvando}\n  onDiscard={() => setValor(salvo)}\n  onSave={salvar}\n/>\n<InputText label=\"Nome\" value={valor} onChange={...} />",
+        "const campo = useRef<HTMLInputElement>(null);\n\n<SaveBar\n  open={valor !== salvo}\n  saving={salvando}\n  onDiscard={() => {\n    setValor(salvo);\n    campo.current?.focus();\n  }}\n  onSave={salvar} // ao terminar, campo.current?.focus()\n/>\n<InputText label=\"Nome\" ref={campo} value={valor} onChange={...} />",
     },
   ],
   Modos,

@@ -508,7 +508,7 @@ export function ChartHeatmap({
                   data-cell={`${row}:${column}`}
                   fill={oculta ? HIDDEN_FILL : (escala.fillOf(datum) ?? semDadoFill)}
                   height={alturaDaCelula}
-                  role={interativo ? 'button' : undefined}
+                  role={interativo ? 'button' : 'graphics-symbol'}
                   rx={canto}
                   tabIndex={interativo ? (sameCell(paradaValida ?? null, position) ? 0 : -1) : undefined}
                   width={larguraDaCelula}

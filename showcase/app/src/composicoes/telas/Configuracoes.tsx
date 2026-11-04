@@ -47,7 +47,6 @@ export function Configuracoes() {
                     <Table.Row id={item.id}>
                       <Table.Cell>
                         <a
-                          className="ligacao-da-linha"
                           href={`${CAMINHO_DAS_COMPOSICOES}/${item.nome === 'Descontos e aprovação' ? 'configuracao-anotada' : 'configuracoes'}`}
                         >
                           {item.nome}

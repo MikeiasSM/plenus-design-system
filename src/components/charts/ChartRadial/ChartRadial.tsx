@@ -318,14 +318,13 @@ export function ChartRadial({
 
           return (
             <g
-              aria-label={marcas.interactive ? descricao : undefined}
+              aria-label={descricao}
               key={indice}
               onMouseEnter={() => focarAnel(indice)}
               onMouseLeave={() => realcado.current === indice && focarAnel(null)}
               {...marcas.markProps({ column: indice, row: 0 })}
             >
               <path
-                aria-label={descricao}
                 className={styles.track}
                 d={arcPath({
                   cornerRadius: canto,

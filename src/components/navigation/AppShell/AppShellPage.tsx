@@ -23,6 +23,7 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
         <ButtonIcon
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
+          className={styles.frameButton}
           icon={<IconSidebar />}
           label="Abrir menu"
           onClick={() => setMenuOpen(true)}
@@ -34,6 +35,7 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
         <ButtonIcon
           aria-controls={panelId}
           aria-expanded={false}
+          className={styles.frameButton}
           icon={<IconSidebar />}
           label="Abrir submenu"
           onClick={expandPanel}

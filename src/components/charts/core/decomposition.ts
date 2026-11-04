@@ -3,11 +3,7 @@ import type { ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import { measureLabel, type LabelFont } from './measureText';
 import type { ChartPlot } from './cartesianLayout';
 
-/**
- * Menor area de marcas em que o desenho ainda se le. Abaixo dela o grafico retira partes, na ordem da familia, em vez
- * de encolher tudo. O Metabase decompoe os cartoes pequenos pelo mesmo criterio, medido: a legenda sai quando o plot
- * fica abaixo de 150 px de largura, e os rotulos do eixo, abaixo de 96 px de altura. Nao ha ponto de quebra proprio.
- */
+/** Menor area de marcas em que o desenho ainda se le; abaixo dela, o grafico retira partes na ordem da familia. */
 export const CHART_MIN_PLOT: ChartPlot = { height: 96, width: 120 };
 
 /** Menor diametro da forma radial. */

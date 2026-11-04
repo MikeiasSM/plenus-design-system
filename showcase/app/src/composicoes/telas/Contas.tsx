@@ -67,7 +67,7 @@ export function Contas() {
         </Card>
         {contas.length === 0 && (
           <Card>
-            <Card.Header description="O que acontece depois que a primeira conta existe." title="Como funciona" />
+            <Card.Header description="O que acontece depois que a primeira conta existe." headingLevel={2} title="Como funciona" />
             <Card.Body>
               <Steps items={PASSOS} label="Como funciona" />
             </Card.Body>

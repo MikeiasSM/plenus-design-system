@@ -642,6 +642,7 @@ export function ChartTimeline({
     return (
       <g
         aria-label={describe(shape)}
+        data-mark={interactive ? id : undefined}
         className={`${styles.segment} ${interactive ? styles.clickable : ''} ${
           emphasizedSeries !== undefined && emphasizedSeries !== segment.series ? styles.dimmed : ''
         }`}
@@ -677,7 +678,7 @@ export function ChartTimeline({
               }
             : undefined
         }
-        role={interactive ? 'button' : undefined}
+        role={interactive ? 'button' : 'graphics-symbol'}
         tabIndex={interactive ? (id === tabStop ? 0 : -1) : undefined}
       >
         <path

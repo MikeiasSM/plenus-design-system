@@ -89,7 +89,7 @@ export function NovoPedido() {
       <Coluna className="grade grade-duas" largura={1120}>
         <div className="grade-coluna">
           <Card>
-            <Card.Header description="Quem compra e quem vende." title="Cliente" />
+            <Card.Header description="Quem compra e quem vende." headingLevel={2} title="Cliente" />
             <Card.Body>
               <div className="campos campos-2">
                 <Select
@@ -111,6 +111,7 @@ export function NovoPedido() {
           <Card>
             <Card.Header
               description="Produtos e quantidades do pedido."
+              headingLevel={2}
               title="Itens"
               trailing={<Button onClick={adicionarItem} size="sm" variant="secondary"><IconPlusLg />Adicionar item</Button>}
             />
@@ -159,7 +160,7 @@ export function NovoPedido() {
         </div>
         <div className="grade-coluna">
           <Card>
-            <Card.Header title="Resumo" />
+            <Card.Header headingLevel={2} title="Resumo" />
             <Card.Body>
               <InputNumber
                 decimalScale={1}
@@ -178,7 +179,7 @@ export function NovoPedido() {
             </Card.Footer>
           </Card>
           <Card>
-            <Card.Header title="Observações" />
+            <Card.Header headingLevel={2} title="Observações" />
             <Card.Body>
               <Textarea
                 label="Para a separação e a entrega"

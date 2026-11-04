@@ -174,7 +174,7 @@ function NovaSecao() {
         title="Nova seção"
       >
         <div className="stack">
-          <InputText label="Nome" />
+          <InputText autoFocus label="Nome" />
           <InputText label="Descrição" />
         </div>
       </Dialog>
@@ -353,7 +353,7 @@ export const pagina: Pagina = {
       descricao: 'O foco entra no primeiro campo e volta ao gatilho ao fechar.',
       Previa: NovaSecao,
       codigo:
-        '<Button variant="secondary" onClick={abrir}>Nova seção</Button>\n<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  icon={<IconPlusCircle />}\n  title="Nova seção"\n  description="A seção agrupa documentos dentro da coleção."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={criar}>Criar seção</Button>\n  </>}\n>\n  <InputText label="Nome" />\n  <InputText label="Descrição" />\n</Dialog>',
+        '<Button variant="secondary" onClick={abrir}>Nova seção</Button>\n<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  icon={<IconPlusCircle />}\n  title="Nova seção"\n  description="A seção agrupa documentos dentro da coleção."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={criar}>Criar seção</Button>\n  </>}\n>\n  <InputText autoFocus label="Nome" />\n  <InputText label="Descrição" />\n</Dialog>',
     },
     {
       titulo: 'Alterações não salvas',

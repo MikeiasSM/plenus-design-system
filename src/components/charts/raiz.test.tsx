@@ -96,4 +96,11 @@ describe.each(graficos)('%s', (_, montar) => {
     expect(screen.getByText('Gráfico').className).not.toBe(classeVisivel);
     expect(document.querySelector('figure')).not.toHaveAttribute('hidetitle');
   });
+
+  it('a marca nomeada por aria-label tem papel, que o ARIA proibe o nome num elemento SVG sem ele', () => {
+    render(montar({}));
+
+    const semPapel = [...document.querySelectorAll('svg [aria-label]')].filter((marca) => !marca.hasAttribute('role'));
+    expect(semPapel.map((marca) => marca.getAttribute('aria-label'))).toEqual([]);
+  });
 });

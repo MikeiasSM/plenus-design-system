@@ -43,11 +43,8 @@ export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './Cartes
 export { ChartFrame, chartRoot } from './ChartFrame';
 export type { ChartFrameProps, ChartRootProps } from './ChartFrame';
 export { categoryTable } from './categoryTable';
-export type { CategoryTableSeries } from './categoryTable';
 export { shareTable, treeTable } from './shareTable';
-export type { ShareTableItem } from './shareTable';
 export { ChartTable } from './ChartTable';
-export type { ChartTableProps, ChartTableRow } from './ChartTable';
 export { ChartLegend } from './ChartLegend';
 export type {
   ChartLegendAlign,
@@ -73,8 +70,8 @@ export { groupSmallSlices } from './slices';
 export type { ChartSlice, GroupSmallSlicesOptions } from './slices';
 export type { ChartBand, ChartCurve, ChartPoint, CornerRadii } from './shapes';
 export { useCartesianLayout } from './useCartesianLayout';
-export type { AxisReveal, CartesianAxisSide, CartesianDecomposition, CartesianPart } from './useCartesianLayout';
-export { CHART_MIN_PLOT, CHART_MIN_RING, TABLE_TOGGLE_MIN_WIDTH, colorLegendRoom, legendRoom, plotRoom, removedParts, useFit } from './decomposition';
+export type { AxisReveal } from './useCartesianLayout';
+export { CHART_MIN_PLOT, CHART_MIN_RING, TABLE_TOGGLE_MIN_WIDTH, colorLegendRoom, legendRoom, plotRoom, useFit } from './decomposition';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useHoveredBand } from './useHoveredBand';
@@ -93,5 +90,4 @@ export { isDevelopment } from '../../../utils/isDevelopment';
 export { useMarkNavigation } from './useMarkNavigation';
 export type { ChartAnchorPoint, ChartHoverDetails, ChartMarkClick, MarkNavigationOptions, MarkPosition } from './useMarkNavigation';
 export { useRingFit } from './useRingFit';
-export type { RingFitOptions, RingPart } from './useRingFit';
 export { useTouchPin } from './useTouchPin';

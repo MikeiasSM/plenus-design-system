@@ -835,7 +835,7 @@ export function ChartMap({
             data-mark={mark}
             fill={entry.hidden ? HIDDEN_FILL : (entry.fill ?? noDataFill)}
             key={index}
-            role={regionsInteractive ? 'button' : undefined}
+            role={regionsInteractive ? 'button' : 'graphics-symbol'}
             strokeWidth={strokeWidth}
             tabIndex={regionsInteractive ? (mark === tabStop ? 0 : -1) : undefined}
           />

@@ -25,6 +25,7 @@ describe('editModel', () => {
 
   it('turns numeric text into a number and flags unreadable numbers', () => {
     expect(commitEdit(price, item, '1.250,75', false)).toEqual({ ok: true, value: 1250.75, changed: true });
+    expect(commitEdit(price, item, '1.500', false)).toEqual({ ok: true, value: 1500, changed: true });
     expect(commitEdit(price, item, '', false)).toEqual({ ok: true, value: null, changed: true });
     expect(commitEdit(price, item, 'abc', false)).toEqual({ ok: false, error: 'Informe um número.' });
   });

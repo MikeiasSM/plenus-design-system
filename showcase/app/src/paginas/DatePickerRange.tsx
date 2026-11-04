@@ -163,7 +163,7 @@ export const pagina: Pagina = {
   garantias: [
     {
       garantia: 'Abre um diálogo',
-      como: <>O gatilho anuncia <code>aria-haspopup="dialog"</code> e <code>aria-expanded</code>; o painel é um <code>role="dialog"</code> nomeado.</>,
+      como: <>O gatilho é um <code>role="combobox"</code> com <code>aria-haspopup="dialog"</code>, <code>aria-expanded</code> e, quando obrigatório, <code>aria-required</code>; o painel é um <code>role="dialog"</code> nomeado.</>,
       teste: 'DatePickerRange.test.tsx',
     },
     {

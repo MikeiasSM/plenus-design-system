@@ -6,6 +6,9 @@ const TAP_SLOP = 10;
 /** O navegador repete o toque como eventos de mouse logo depois do ponteiro; passada esta janela, o mouse e o mouse. */
 const COMPAT_MOUSE_WINDOW = 700;
 
+/** O que o clique ativa: a marca (`data-mark`), a celula do `ChartHeatmap` e a faixa do ponto em `ChartLine` e `ChartArea`. */
+const MARK = '[data-mark], [data-cell], [data-band]';
+
 interface Touch {
   moved: boolean;
   x: number;
@@ -13,7 +16,7 @@ interface Touch {
 }
 
 function markOf(target: Element) {
-  return target.closest('[data-mark]') ?? target;
+  return target.closest(MARK) ?? target;
 }
 
 function dispatchMouse(type: 'mousemove' | 'mouseout' | 'mouseover', target: Element, related: Element | null, x: number, y: number) {
@@ -23,16 +26,11 @@ function dispatchMouse(type: 'mousemove' | 'mouseout' | 'mouseover', target: Ele
 }
 
 /**
- * Toque nas marcas. O realce e o balao dos graficos nascem do ponteiro entrando e saindo da marca; o dedo nao paira,
- * entao o toque faz o que o ponteiro faria e o mantem ate outro toque:
- *
- * - tocar numa marca a fixa, com o realce e o balao;
- * - tocar em outra troca a fixada;
- * - tocar fora do desenho, ou rolar, solta;
- * - tocar na marca ja fixada deixa o clique seguir, e e ele que ativa `onMarkClick`. O primeiro toque so fixa.
- *
- * A rolagem fica intacta: nada aqui cancela o gesto nem muda o `touch-action`. Se o navegador toma o gesto para
- * rolar, o toque e cancelado e nada se fixa. Mouse e caneta nao passam por aqui.
+ * Toque nas marcas. O realce e o balao dos graficos nascem de `mouseover`, `mouseout` e `mousemove`; o dedo nao paira,
+ * entao o toque despacha esses eventos na marca tocada e os mantem ate outro toque, no lugar dos que o navegador
+ * gera do toque, que sao descartados. Tocar numa marca a fixa; em outra, troca; fora do desenho, ou rolar, solta. O
+ * primeiro toque so fixa: o clique segue no toque na marca ja fixada. O dedo na marca nao a foca, que o foco avisaria
+ * a marca de novo. A rolagem fica intacta: nada muda o `touch-action`. Mouse e caneta nao passam por aqui.
  */
 export function useTouchPin() {
   const [pinned, setPinned] = useState<Element | null>(null);
@@ -52,7 +50,7 @@ export function useTouchPin() {
         event.stopPropagation();
       }
     };
-    const types = ['mouseover', 'mouseout', 'mousemove'] as const;
+    const types = ['mouseover', 'mouseout'] as const;
 
     types.forEach((type) => document.addEventListener(type, swallowCompatMouse, true));
 
@@ -120,6 +118,11 @@ export function useTouchPin() {
 
         touch.current =
           event.pointerType === 'touch' && event.isPrimary ? { moved: false, x: event.clientX, y: event.clientY } : null;
+
+        // Sem o `mousedown` que o navegador gera do toque, a marca nao recebe o foco; o clique e a rolagem seguem.
+        if (touch.current && (event.target as Element).closest(MARK)) {
+          event.preventDefault();
+        }
       },
       onPointerMove: (event: PointerEvent) => {
         if (touch.current && Math.hypot(event.clientX - touch.current.x, event.clientY - touch.current.y) > TAP_SLOP) {
@@ -138,7 +141,7 @@ export function useTouchPin() {
         const alreadyPinned = pinnedRef.current !== null && markOf(pinnedRef.current) === markOf(target);
 
         lastTap.current = Date.now();
-        holdClick.current = !alreadyPinned && target.closest('[data-mark]') !== null;
+        holdClick.current = !alreadyPinned && target.closest(MARK) !== null;
         pin(alreadyPinned ? pinnedRef.current : target, event.clientX, event.clientY);
       },
     },

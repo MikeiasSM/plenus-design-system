@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ChartBar } from './ChartBar';
+import { ChartHeatmap } from './ChartHeatmap';
+import { ChartLine } from './ChartLine';
 import { ChartPie } from './ChartPie';
+import { ChartTimeline } from './ChartTimeline';
 
 const fatias = [
   { label: 'Alfa', value: 30 },
@@ -145,6 +148,48 @@ describe('toque e onMarkClick', () => {
     expect(onMarkClick).toHaveBeenCalledWith(expect.objectContaining({ category: 'jan', series: 'Receita' }));
 
     tocar(segunda);
+    expect(onMarkClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('o dedo na marca não a foca, e o toque avisa onHover uma vez só', () => {
+    const onHover = vi.fn();
+    render(<ChartBar categories={['jan']} onHover={onHover} onMarkClick={vi.fn()} series={[{ label: 'Receita', values: [1] }]} title="Receita" />);
+    const barra = within(screen.getByRole('group')).getByRole('button');
+
+    expect(fireEvent.pointerDown(barra, dedo)).toBe(false);
+    fireEvent.pointerUp(barra, dedo);
+
+    expect(onHover).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['ChartHeatmap', (aoAtivar: () => void) => <ChartHeatmap cells={[{ value: 1, x: 'Seg', y: 'Manhã' }]} onMarkClick={aoAtivar} title="Turnos" />],
+    ['ChartTimeline', (aoAtivar: () => void) => (
+      <ChartTimeline onMarkClick={aoAtivar} rows={[{ key: 'a', label: 'Ana' }]} segments={[{ end: 4, row: 'a', series: 'T', start: 1 }]} series={[{ label: 'T' }]} title="Escala" />
+    )],
+  ])('no %s, o primeiro toque na marca também só fixa', (_, grafico) => {
+    const onMarkClick = vi.fn();
+    render(grafico(onMarkClick));
+    const marca = within(screen.getByRole('group')).getByRole('button');
+
+    tocar(marca);
+    expect(onMarkClick).not.toHaveBeenCalled();
+
+    tocar(marca);
+    expect(onMarkClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('no ChartLine, o primeiro toque na faixa do ponto só fixa', () => {
+    const onMarkClick = vi.fn();
+    const { container } = render(
+      <ChartLine categories={['jan', 'fev']} onMarkClick={onMarkClick} series={[{ label: 'Receita', values: [1, 2] }]} title="Receita" />,
+    );
+    const faixa = container.querySelector('[data-band="0"]')!;
+
+    tocar(faixa);
+    expect(onMarkClick).not.toHaveBeenCalled();
+
+    tocar(faixa);
     expect(onMarkClick).toHaveBeenCalledTimes(1);
   });
 

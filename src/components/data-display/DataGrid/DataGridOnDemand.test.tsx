@@ -81,7 +81,7 @@ describe('DataGrid, copy', () => {
     expect(copyFrom(cell('Atacado Sul')).prevented).toBe(false);
     unmount();
 
-    renderGrid({ copyable: true });
+    renderGrid({ copyable: true, defaultSelectedIds: ['P-1'], selectionMode: 'multiple' });
     expect(copyFrom(screen.getByRole('columnheader', { name: 'Cliente' })).prevented).toBe(false);
   });
 
@@ -184,7 +184,7 @@ describe('DataGrid, cell editing', () => {
     });
     expect(screen.queryByRole('textbox')).toBeNull();
     expect(target).toHaveFocus();
-    expect(screen.getByRole('status')).toHaveTextContent('Cliente alterada para Atacado Norte');
+    expect(screen.getByRole('status')).toHaveTextContent('Novo valor de Cliente: Atacado Norte');
   });
 
   it('cancels with Escape and calls nothing', () => {
@@ -432,6 +432,31 @@ describe('DataGrid, group by column', () => {
     expect(screen.getByRole('gridcell', { name: 'Casa Norte' })).toBeInTheDocument();
   });
 
+  it('opens the groups on screen from the table menu', () => {
+    const onExpandedIdsChange = vi.fn();
+    renderGrid({
+      groupBy: ['region'],
+      onExpandedIdsChange,
+      children: (
+        <DataGrid.Toolbar>
+          <DataGrid.TableMenu />
+        </DataGrid.Toolbar>
+      ),
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu da tabela Pedidos' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /^Expandir \d+ linhas$/ }));
+
+    expect(onExpandedIdsChange.mock.calls.at(-1)?.[0]).not.toContain('P-1');
+    expect(screen.getByRole('gridcell', { name: 'Óleos Brasil' })).toBeInTheDocument();
+  });
+
+  it('ignores a column it does not know and keeps the rows', () => {
+    renderGrid({ groupBy: ['removida'] });
+
+    expect(cell('Atacado Sul')).toBeInTheDocument();
+  });
+
   it('paginates by the first-level groups and exports the rows of the page', () => {
     const api = createRef<DataGridApi>();
     renderGrid({ apiRef: api, groupBy: ['region'], pagination: true, pageSizeOptions: [1] });
@@ -482,7 +507,7 @@ describe('DataGrid, filter builder', () => {
     renderBuilder({ onFilterChange });
     open();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Condição' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar condição' }));
     settle();
     expect(onFilterChange).not.toHaveBeenCalled();
 
@@ -513,10 +538,11 @@ describe('DataGrid, filter builder', () => {
     expect(lastFilter(onFilterChange).logic).toBe('or');
     expect(screen.getByRole('grid').getAttribute('aria-rowcount')).toBe('6');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Grupo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar grupo' }));
     expect(screen.getByRole('group', { name: 'Grupo 3' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Remover o grupo 3' }));
     expect(screen.queryByRole('group', { name: 'Grupo 3' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Adicionar condição' })).toHaveFocus();
   });
 
   it('removes a condition and clears everything', () => {
@@ -538,7 +564,7 @@ describe('DataGrid, filter builder', () => {
     renderBuilder({ filter: { logic: 'and', conditions: [] }, filterApplyMode: 'button', onFilterChange });
     open();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Condição' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar condição' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Valor de Nº' }), { target: { value: 'P-2' } });
     settle();
     expect(onFilterChange).not.toHaveBeenCalled();

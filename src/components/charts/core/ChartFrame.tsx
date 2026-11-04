@@ -12,6 +12,7 @@ import { EmptyState } from '../../feedback/EmptyState';
 import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
 import { IconChartBar } from '../../icons';
 import { TABLE_TOGGLE_MIN_WIDTH } from './decomposition';
+import { useChartMetrics } from './useChartMetrics';
 import { useTouchPin } from './useTouchPin';
 import styles from './Chart.module.css';
 
@@ -107,7 +108,9 @@ export function ChartFrame({
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
   const toque = useTouchPin();
-  const alternavel = table !== undefined && showTableToggle && !empty && (width === 0 || width >= TABLE_TOGGLE_MIN_WIDTH);
+  // O botao divide a linha com o titulo: vale a largura do corpo, que a legenda ao lado nao estreita como a do desenho.
+  const corpo = useChartMetrics();
+  const alternavel = table !== undefined && showTableToggle && !empty && (corpo.width === 0 || corpo.width >= TABLE_TOGGLE_MIN_WIDTH);
   const { figureProps, titleClassName } = chartRoot(root, {
     figure: fillHeight ? `${styles.figure} ${styles.figureFill}` : styles.figure,
     title: styles.title,
@@ -161,7 +164,7 @@ export function ChartFrame({
         </figcaption>
       )}
 
-      <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`}>
+      <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`} ref={corpo.ref}>
         {(legendPosition === 'top' || legendPosition === 'left') && legenda}
 
         <div

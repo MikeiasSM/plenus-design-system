@@ -951,7 +951,6 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'onSelectedRegionChange', tipo: '(id: string | null) => void', descricao: 'O clique escolhe a região, ou desfaz a escolha na já escolhida. Com ela, as regiões viram botões.' },
     { nome: 'onMarkClick', tipo: '(mark: ChartMapMark) => void', descricao: <>Clique, Enter ou Espaço na região ou no marcador; <code>mark.kind</code> os distingue: <code>{"{ kind: 'region', id, name, value, category, feature }"}</code> ou <code>{"{ kind: 'marker', id, series, value }"}</code>. Com ele, as regiões e os marcadores viram botões.</> },
     { nome: 'onRegionClick', tipo: '(region: ChartMapRegion) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
-    { nome: 'onMarkClick', tipo: '(mark: ChartMapMark) => void', descricao: <><code>{'{ id, series, value }'}</code>. Com ele, os marcadores viram botões.</> },
     { nome: 'onMarkerClick', tipo: '(marker: ChartMapMarkerEvent) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
     { nome: 'onHover', tipo: '(mark: ChartMapMark | null) => void', descricao: 'Região ou marcador sob o ponteiro ou o foco, ou null ao sair, para painéis vizinhos. Quem só quer o id da região lê mark.id.' },
     { nome: 'onHoverRegion', tipo: '(id: string | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },

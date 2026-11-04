@@ -4,7 +4,7 @@ import { DatePickerRange, defaultDateRangeShortcuts, type DatePickerRangeProps }
 
 function montar(props: Partial<DatePickerRangeProps> = {}) {
   render(<DatePickerRange label="Período" {...props} />);
-  const gatilho = screen.getByRole('button', { name: 'Período' });
+  const gatilho = screen.getByRole('combobox', { name: 'Período' });
   gatilho.focus();
   return gatilho;
 }

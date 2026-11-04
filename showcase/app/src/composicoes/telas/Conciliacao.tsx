@@ -89,7 +89,7 @@ export function Conciliacao() {
           <Card.Body>
             <Steps current={etapa} items={ETAPAS} label="Etapas da conciliação" onCurrentChange={(chave) => ETAPAS.findIndex((e) => e.key === chave) < indice && setEtapa(chave)} />
           </Card.Body>
-          <Card.Header description={atual.explicacao} title={atual.titulo} />
+          <Card.Header description={atual.explicacao} headingLevel={2} title={atual.titulo} />
           <Card.Body>
             {etapa === 'conta' && (
               <div className="campos campos-2">

@@ -183,6 +183,13 @@ interface GroupEditorProps {
 function GroupEditor({ columns, group, onAdd, onLogic, onRemove, onReplace, optionsOf, path }: GroupEditorProps) {
   const nested = path.length > 0;
   const where = nested ? ` no grupo ${nameOf(path)}` : '';
+  const addConditionRef = useRef<HTMLButtonElement>(null);
+
+  /* O botão de remover some com o item: o foco fica no grupo, e não cai no body. */
+  function remove(itemPath: DataGridFilterPath) {
+    addConditionRef.current?.focus();
+    onRemove(itemPath);
+  }
 
   return (
     <div
@@ -223,7 +230,7 @@ function GroupEditor({ columns, group, onAdd, onLogic, onRemove, onReplace, opti
               label={`Remover o grupo ${name}`}
               size="sm"
               variant="ghost"
-              onClick={() => onRemove(itemPath)}
+              onClick={() => remove(itemPath)}
             />
           </div>
         ) : (
@@ -233,14 +240,15 @@ function GroupEditor({ columns, group, onAdd, onLogic, onRemove, onReplace, opti
             key={name}
             name={name}
             optionsOf={optionsOf}
-            onRemove={() => onRemove(itemPath)}
+            onRemove={() => remove(itemPath)}
             onReplace={(next) => onReplace(itemPath, next)}
           />
         );
       })}
       <div className={styles.filterActions}>
         <Button
-          aria-label={nested ? `Adicionar condição${where}` : undefined}
+          aria-label={`Adicionar condição${where}`}
+          ref={addConditionRef}
           size="sm"
           variant="ghost"
           onClick={() => onAdd(path, newCondition(columns[0]))}
@@ -249,7 +257,7 @@ function GroupEditor({ columns, group, onAdd, onLogic, onRemove, onReplace, opti
           Condição
         </Button>
         <Button
-          aria-label={nested ? `Adicionar grupo${where}` : undefined}
+          aria-label={`Adicionar grupo${where}`}
           size="sm"
           variant="ghost"
           onClick={() => onAdd(path, { logic: 'and', conditions: [newCondition(columns[0])] })}
@@ -276,7 +284,7 @@ function ConditionRow({ columns, condition, name, onRemove, onReplace, optionsOf
   const selected = Array.isArray(condition.value) ? (condition.value as string[]) : null;
 
   return (
-    <div className={styles.builderItem}>
+    <div aria-label={`Condição ${name}`} className={styles.builderItem} role="group">
       <div className={styles.filterCondition}>
         <Select
           aria-label={`Coluna da condição ${name}`}

@@ -189,6 +189,7 @@ export function DatePickerRange({
             aria-describedby={describedBy}
             aria-expanded={open}
             aria-haspopup="dialog"
+            role="combobox"
             aria-invalid={invalid || undefined}
             aria-required={required || undefined}
             className={[selectStyles.trigger, selectStyles[size], error && selectStyles.error, className]

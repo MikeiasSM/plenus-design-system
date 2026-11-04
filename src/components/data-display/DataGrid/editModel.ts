@@ -1,4 +1,3 @@
-import { numberOf } from './filterModel';
 import { cellValue, type DataGridColumnModel } from './gridState';
 
 /** Modelo da edição de célula do DataGrid: o rascunho, a conversão e a validação. Sem React e sem DOM. */
@@ -44,7 +43,8 @@ function parseDraft<Row>(column: DataGridColumnModel<Row>, row: Row, draft: stri
     return draft;
   }
 
-  return draft.trim() === '' ? null : numberOf(draft.trim());
+  // O rascunho é pt-BR, como o texto de partida: o ponto é sempre de milhar.
+  return draft.trim() === '' ? null : Number(draft.trim().replace(/\./g, '').replace(',', '.'));
 }
 
 function sameValue(a: unknown, b: unknown) {

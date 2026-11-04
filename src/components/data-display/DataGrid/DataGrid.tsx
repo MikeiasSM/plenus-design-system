@@ -561,8 +561,12 @@ export function DataGrid<Row>({
     [server, tree, filtered, columns, sort],
   );
   /* Os grupos saem das linhas já filtradas e ordenadas; no servidor e na árvore, `groupBy` não vale. */
-  const grouped = !server && !tree && groupBy.length > 0;
-  const groupTree = useMemo(() => (grouped ? buildGroups(sorted, columns, groupBy) : null), [grouped, sorted, columns, groupBy]);
+  const knownGroupBy = useMemo(() => groupBy.filter((id) => columns.some((column) => column.id === id)), [groupBy, columns]);
+  const grouped = !server && !tree && knownGroupBy.length > 0;
+  const groupTree = useMemo(
+    () => (grouped ? buildGroups(sorted, columns, knownGroupBy) : null),
+    [grouped, sorted, columns, knownGroupBy],
+  );
   const groupIndex = useMemo(
     () => (groupTree ? indexGroups(groupTree, (row) => rowIdOf.current(row)) : null),
     [groupTree],
@@ -922,11 +926,10 @@ export function DataGrid<Row>({
     const body = bodyRef.current;
     const viewTop = scroller && body ? scroller.scrollTop + root.headHeight() - root.contentTop(body) : 0;
     const first = items[rowAt(layout, Math.max(viewTop, 0))]?.rowIndex ?? 0;
-    const opening = visibleRows
+    const opening = rowKeys
       .slice(first)
-      .filter((row, index) => canExpand(row, rowKeys[first + index]) && !expandedSet.has(rowKeys[first + index]))
-      .slice(0, EXPAND_LIMIT)
-      .map((row) => rowIdOf.current(row));
+      .filter((rowKey, index) => canExpand(visibleRows[first + index], rowKey) && !expandedSet.has(rowKey))
+      .slice(0, EXPAND_LIMIT);
 
     if (opening.length === 0) {
       return;
@@ -1462,6 +1465,9 @@ export function DataGrid<Row>({
     if (!column || row === undefined || groupIndex?.byKey.has(rowKey) || !isEditable(column, row)) {
       return false;
     }
+    if (editingRef.current?.rowKey === rowKey && editingRef.current.columnId === columnId) {
+      return true;
+    }
 
     setEditing({
       columnId,
@@ -1519,7 +1525,7 @@ export function DataGrid<Row>({
       rowId: current.rowKey,
       value: result.value,
     });
-    setAnnouncement(`${column.header} alterada para ${cellText({ ...column, value: () => result.value }, row) || 'vazio'}`);
+    setAnnouncement(`Novo valor de ${column.header}: ${cellText({ ...column, value: () => result.value }, row) || 'vazio'}`);
     return true;
   }
 
@@ -1624,11 +1630,8 @@ export function DataGrid<Row>({
     return column && row !== undefined ? tsvField(cellText(column, row)) : undefined;
   }
 
-  /*
-   * As linhas selecionadas, ou a célula com foco: o que a pessoa copia é o que vê na tela. O navegador dispara o evento
-   * no elemento da seleção, que pode ser o texto da célula; quem decide é a célula com foco. Texto selecionado e campo
-   * ficam com a cópia do navegador.
-   */
+  /* As linhas selecionadas, ou a célula com foco, como a pessoa as vê. Quem decide é a célula com foco; o título,
+     o texto selecionado e o campo ficam com a cópia do navegador. */
   function copyToClipboard(event: ClipboardEvent<HTMLDivElement>) {
     const focused = document.activeElement as HTMLElement | null;
     const clipboard = event.clipboardData;
@@ -1637,7 +1640,7 @@ export function DataGrid<Row>({
     if (!copyable || !clipboard || !focused || inField || !window.getSelection()?.isCollapsed) {
       return;
     }
-    if (ownCellOf(focused, event.currentTarget) !== focused) {
+    if (ownCellOf(focused, event.currentTarget) !== focused || !focused.dataset.row) {
       return;
     }
 
@@ -1835,9 +1838,8 @@ export function DataGrid<Row>({
     () => ({
       applyMode: filterApplyMode,
       columns: columns.flatMap((column) => {
-        const kind = filterKindOf(column);
-        const filters = kind && !(kind === 'set' && server && !column.filterOptions);
-        return filters ? [{ id: column.id, header: column.header, filter: kind, filterOperators: operatorsOf(column) }] : [];
+        const kind = filterKindIn(column);
+        return kind ? [{ id: column.id, header: column.header, filter: kind, filterOperators: operatorsOf(column) }] : [];
       }),
       filter,
       onApply: applyFilterFromPart,
@@ -1916,9 +1918,10 @@ export function DataGrid<Row>({
     applyFilter(setColumnFilter(filter, columnId, next));
   }
 
+  /* No construtor, a condição pode estar em qualquer grupo: os valores saem das linhas da busca, sem filtro. */
   function optionsForColumn(columnId: string) {
     const column = columns.find((candidate) => candidate.id === columnId);
-    return column ? setOptionsOf(column) : [];
+    return column ? (column.filterOptions ?? distinctTexts(searched, column)) : [];
   }
 
   function applyGroupBy(next: readonly string[]) {
