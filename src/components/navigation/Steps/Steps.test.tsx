@@ -45,13 +45,4 @@ describe('Steps', () => {
 
     expect(screen.getByText('Conta').closest('[aria-current]')).toHaveAttribute('aria-current', 'step');
   });
-
-  it('ainda chama o obsoleto onStepChange', () => {
-    const onStepChange = vi.fn();
-    render(<Steps current="conta" items={items} label="Etapas" onStepChange={onStepChange} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /Teste/ }));
-
-    expect(onStepChange).toHaveBeenCalledWith('teste');
-  });
 });

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
+  categoryTable,
   BandCursor,
   categoryTooltip,
   markShown,
@@ -29,6 +31,7 @@ import {
   type ChartLegendPosition,
   type MarkVisibility,
   type CornerRadii,
+  type ChartCategoryHover,
   type ChartMarkClick,
   type ChartRootProps,
 } from '../core';
@@ -51,26 +54,39 @@ export interface ChartBarSeries extends SeriesAppearance {
   values: readonly number[];
 }
 
-export interface ChartBarProps extends ChartRootProps {
+export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
-  /** Torna as barras botoes, percorridos pelas setas. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onBarClick?: (bar: ChartMarkClick) => void;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Indice da categoria sob o ponteiro, ou `null` ao sair dela. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** Categoria sob o ponteiro, ou `null` ao sair dela. */
+  onHover?: (category: ChartCategoryHover | null) => void;
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
   onHoverCategory?: (index: number | null) => void;
+  /** Torna as barras botoes, percorridos pelas setas. */
+  onMarkClick?: (mark: ChartMarkClick) => void;
   orientation?: ChartBarOrientation;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -80,6 +96,8 @@ export interface ChartBarProps extends ChartRootProps {
    * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
    */
   showDataLabels?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
   stacked?: boolean;
@@ -96,23 +114,29 @@ export interface ChartBarProps extends ChartRootProps {
 export function ChartBar({
   accent,
   categories,
+  defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
+  hidden,
   hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
   minTickStep,
   onBarClick,
+  onHiddenChange,
   onHiddenSeriesChange,
+  onHover,
   onHoverCategory,
+  onMarkClick,
   orientation = 'vertical',
   palette,
   series,
   showDataLabels = 'hidden',
+  showTableToggle = true,
   showTooltip = true,
   stacked = false,
   title,
@@ -126,16 +150,33 @@ export function ChartBar({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHiddenSeries,
-    hiddenSeries,
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
     labels: series.map((serie) => serie.label),
-    onHiddenSeriesChange,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
   });
-  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(onHoverCategory);
+  const hoverDaCategoria =
+    onHover || onHoverCategory
+      ? (index: number | null) => {
+          onHover?.(index === null ? null : { category: categories[index], index });
+          onHoverCategory?.(index);
+        }
+      : undefined;
+  const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(hoverDaCategoria);
+  const aoClicarNaBarra =
+    onMarkClick || onBarClick
+      ? (barra: ChartMarkClick) => {
+          onMarkClick?.(barra);
+          onBarClick?.(barra);
+        }
+      : undefined;
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
   const marcas = useMarkNavigation({
-    onActivate: onBarClick && (({ column, row }) =>
-      onBarClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] })),
+    onActivate: aoClicarNaBarra && (({ column, row }) =>
+      aoClicarNaBarra({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] })),
     onFocusMark: (posicao) => {
       focarFaixa(posicao?.column ?? null);
       setSerieEmFoco(posicao?.row ?? null);
@@ -197,8 +238,15 @@ export function ChartBar({
       ? widestLabel(valoresRotuladosAdireita().map(formatValue), font) + AFASTAMENTO_DO_ROTULO
       : 0;
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     axisTitles: { x: xAxisTitle, y: yAxisTitle },
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: posicaoDaLegenda, valueAxes: vertical ? ['yRight', 'y'] : ['x'] },
     bottomLabels: vertical ? categories : rotulosDeValor,
     font,
     height: alturaDoDesenho,
@@ -213,6 +261,7 @@ export function ChartBar({
     yAxisRight,
   });
 
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
   const comprimentoCategorias = vertical ? plot.width : plot.height;
   const comprimentoValores = vertical ? plot.height : plot.width;
   const inicioDaFaixa = vertical ? comprimentoValores : 0;
@@ -303,7 +352,7 @@ export function ChartBar({
 
     return (
       <text
-        className={`${chartStyles.valueLabel} ${markShown(showDataLabels, emFoco) ? '' : chartStyles.valueLabelHidden}`}
+        className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, emFoco) ? '' : chartStyles.valueLabelHidden}`}
         dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
         key={chave}
         textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
@@ -345,17 +394,18 @@ export function ChartBar({
         },
       ]}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={posicaoDaLegenda}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -433,7 +483,7 @@ export function ChartBar({
               );
             })}
 
-            {showDataLabels !== 'hidden' &&
+            {rotulosDeDado !== 'hidden' &&
               !stacked &&
               categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
@@ -452,7 +502,7 @@ export function ChartBar({
       })}
       </g>
 
-      {showDataLabels !== 'hidden' &&
+      {rotulosDeDado !== 'hidden' &&
         stacked &&
         categories.map((categoria, indiceCategoria) => {
           const presentes = series.filter(

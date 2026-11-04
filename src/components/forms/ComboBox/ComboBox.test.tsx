@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ComboBox, type ComboBoxOption, type ComboBoxSingleProps } from './ComboBox';
+import { ComboBox, type ComboBoxMultipleProps, type ComboBoxOption, type ComboBoxSingleProps } from './ComboBox';
 
 const opcoes: ComboBoxOption[] = [
   { value: 'sp', label: 'Sao Paulo' },
@@ -332,6 +332,178 @@ describe('ComboBox', () => {
       fireEvent.keyDown(campo, { key: 'Escape' });
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
       expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+  });
+
+  describe('rodapé da seleção múltipla', () => {
+    function abrirMultiplo(props: Partial<ComboBoxMultipleProps> = {}) {
+      render(<ComboBox label="Cidades" options={opcoes} selectionMode="multiple" {...props} />);
+      const campo = screen.getByRole('combobox', { name: 'Cidades' });
+      campo.focus();
+      fireEvent.click(campo);
+      return campo;
+    }
+
+    const marcada = (nome: string) => screen.getByRole('option', { name: nome }).getAttribute('aria-selected');
+
+    it('sem as propriedades, o painel não tem rodapé', () => {
+      abrirMultiplo();
+
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('seleciona todos os itens do resultado filtrado, sem desmarcar o que já estava', () => {
+      const onValueChange = vi.fn();
+      const campo = abrirMultiplo({ defaultValue: ['mg'], onValueChange, selectAll: true });
+      fireEvent.change(campo, { target: { value: 'rio' } });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Selecionar todos' }));
+
+      expect(onValueChange).toHaveBeenLastCalledWith(['mg', 'rj']);
+      expect(screen.getByRole('button', { name: 'Selecionar todos' })).toBeDisabled();
+
+      fireEvent.change(campo, { target: { value: '' } });
+
+      expect(marcada('Sao Paulo')).toBe('false');
+      expect(marcada('Rio de Janeiro')).toBe('true');
+    });
+
+    it('limpar desmarca tudo e fica desabilitado sem seleção', () => {
+      const onValueChange = vi.fn();
+      abrirMultiplo({ clearable: true, defaultValue: ['rj', 'mg'], onValueChange });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+
+      expect(onValueChange).toHaveBeenLastCalledWith([]);
+      expect(screen.getByRole('button', { name: 'Limpar' })).toBeDisabled();
+    });
+
+    it('usa os textos do produto', () => {
+      abrirMultiplo({
+        clearable: true,
+        confirmSelection: true,
+        labels: { apply: 'Filtrar', cancel: 'Voltar', clear: 'Zerar', selectAll: 'Todas' },
+        selectAll: true,
+      });
+
+      for (const nome of ['Filtrar', 'Voltar', 'Zerar', 'Todas']) {
+        expect(screen.getByRole('button', { name: nome })).toBeInTheDocument();
+      }
+    });
+
+    it('anuncia a contagem a cada mudança', () => {
+      abrirMultiplo({ selectAll: true });
+      expect(screen.getByRole('status')).toHaveTextContent('Nenhum selecionado');
+
+      fireEvent.click(screen.getByRole('option', { name: 'Sao Paulo' }));
+      expect(screen.getByRole('status')).toHaveTextContent('1 selecionado');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Selecionar todos' }));
+      expect(screen.getByRole('status')).toHaveTextContent('4 selecionados');
+    });
+
+    describe('aplicar', () => {
+      it('só reporta e só vale ao aplicar', () => {
+        const onValueChange = vi.fn();
+        const campo = abrirMultiplo({ confirmSelection: true, onValueChange });
+
+        fireEvent.click(screen.getByRole('option', { name: 'Sao Paulo' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Goiânia' }));
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(screen.getByRole('status')).toHaveTextContent('2 selecionados');
+        expect(campo.parentElement).not.toHaveTextContent('Sao Paulo');
+
+        fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+        expect(onValueChange).toHaveBeenCalledOnce();
+        expect(onValueChange).toHaveBeenCalledWith(['sp', 'gyn']);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+        expect(campo.parentElement).toHaveTextContent('2 selecionados: Sao Paulo, Goiânia');
+        expect(campo).toHaveFocus();
+      });
+
+      it.each([
+        ['Cancelar', () => fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))],
+        ['Escape', () => fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Escape' })],
+        ['perder o foco', () => fireEvent.blur(screen.getByRole('combobox'))],
+      ])('%s descarta o rascunho', (_nome, fechar) => {
+        const onValueChange = vi.fn();
+        const campo = abrirMultiplo({ confirmSelection: true, defaultValue: ['rj'], onValueChange });
+
+        fireEvent.click(screen.getByRole('option', { name: 'Sao Paulo' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Rio de Janeiro' }));
+        fechar();
+        fireEvent.click(campo);
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(marcada('Sao Paulo')).toBe('false');
+        expect(marcada('Rio de Janeiro')).toBe('true');
+      });
+
+      it('selecionar todos e limpar também ficam no rascunho', () => {
+        const onValueChange = vi.fn();
+        abrirMultiplo({ clearable: true, confirmSelection: true, onValueChange, selectAll: true });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Selecionar todos' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Selecionar todos' }));
+
+        expect(onValueChange).not.toHaveBeenCalled();
+
+        fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+        expect(onValueChange).toHaveBeenCalledWith(['sp', 'rj', 'mg', 'gyn']);
+      });
+    });
+
+    describe('teclado', () => {
+      it('o Tab do campo leva ao primeiro botão do rodapé, e o Shift+Tab volta ao campo', () => {
+        const campo = abrirMultiplo({ confirmSelection: true, selectAll: true });
+
+        fireEvent.keyDown(campo, { key: 'Tab' });
+        const selecionarTodos = screen.getByRole('button', { name: 'Selecionar todos' });
+        expect(selecionarTodos).toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+        fireEvent.keyDown(selecionarTodos, { key: 'Tab', shiftKey: true });
+        expect(campo).toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
+
+      it('o Tab no último botão devolve o foco ao campo e fecha o painel', () => {
+        const campo = abrirMultiplo({ confirmSelection: true });
+
+        fireEvent.keyDown(campo, { key: 'Tab' });
+        expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus();
+
+        const aplicar = screen.getByRole('button', { name: 'Aplicar' });
+        aplicar.focus();
+        fireEvent.keyDown(aplicar, { key: 'Tab' });
+
+        expect(campo).toHaveFocus();
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      });
+
+      it('o Escape no rodapé fecha e devolve o foco ao campo', () => {
+        const campo = abrirMultiplo({ confirmSelection: true });
+        fireEvent.keyDown(campo, { key: 'Tab' });
+
+        fireEvent.keyDown(screen.getByRole('button', { name: 'Cancelar' }), { key: 'Escape' });
+
+        expect(campo).toHaveFocus();
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      });
+
+      it('o foco no rodapé não fecha o painel', () => {
+        const campo = abrirMultiplo({ confirmSelection: true });
+
+        screen.getByRole('button', { name: 'Aplicar' }).focus();
+
+        expect(campo).not.toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
     });
   });
 });

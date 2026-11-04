@@ -14,6 +14,12 @@ import {
   NO_DATA_HATCH,
   NoDataHatch,
   useChartMetrics,
+  TABLE_TOGGLE_MIN_WIDTH,
+  useFit,
+  CHART_MIN_PLOT,
+  colorLegendRoom,
+  plotRoom,
+  useTouchPin,
   useSeriesToggle,
   type ChartHeight,
   type ChartLegendAlign,
@@ -70,7 +76,7 @@ export interface ChartMapMarkerSeries extends SeriesAppearance {
   points: readonly ChartMapMarker[];
 }
 
-/** Argumento de `onRegionClick`. */
+/** Regiao sob o ponteiro ou clicada. */
 export interface ChartMapRegion {
   category: string | null;
   feature: ChartMapFeature;
@@ -79,7 +85,7 @@ export interface ChartMapRegion {
   value: number | null;
 }
 
-/** Argumento de `onMarkerClick`. */
+/** Marcador sob o ponteiro ou clicado. */
 export interface ChartMapMarkerEvent {
   id: string;
   /** `id` da serie. */
@@ -87,16 +93,21 @@ export interface ChartMapMarkerEvent {
   value: number;
 }
 
+/** Marca do mapa, discriminada por `kind`: a regiao ou o marcador. */
+export type ChartMapMark = ({ kind: 'region' } & ChartMapRegion) | ({ kind: 'marker' } & ChartMapMarkerEvent);
+
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
-export interface ChartMapProps extends ChartRootProps {
+export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
   accent?: string;
   colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
   /** Faixas ocultas de inicio, no modo nao controlado, pelo indice. */
   defaultHiddenClasses?: readonly number[];
-  /** Series ocultas de inicio, no modo nao controlado: categorias e series de marcadores, pelo `id`. */
+  /** Categorias e series de marcadores ocultas de inicio, pelo `id`, no modo nao controlado. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   /** Regiao escolhida de inicio, no modo nao controlado. Com ele, as regioes viram botoes. */
   defaultSelectedRegion?: string | null;
@@ -123,7 +134,9 @@ export interface ChartMapProps extends ChartRootProps {
   height?: ChartHeight;
   /** Faixas ocultas pelo indice, na escala por classes (controlado). */
   hiddenClasses?: readonly number[];
-  /** Categorias e series de marcadores desligadas, pelo `id` (controlado). */
+  /** Categorias e series de marcadores desligadas, pelo `id` (controlado). As faixas da escala ficam em `hiddenClasses`. Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   /** Abaixo de 640 px de largura, `right` cai para `bottom`. */
   legend?: ChartMapLegendPosition;
@@ -136,12 +149,19 @@ export interface ChartMapProps extends ChartRootProps {
   noDataLabel?: string;
   noDataStyle?: NoDataStyle;
   onHiddenClassesChange?: (hidden: readonly number[]) => void;
+  /** Ids das categorias e das series de marcadores ocultas, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Regiao sob o ponteiro ou o foco, para paineis vizinhos. */
+  /** Regiao ou marcador sob o ponteiro ou o foco, para paineis vizinhos, ou `null` ao sair. */
+  onHover?: (mark: ChartMapMark | null) => void;
+  /** @deprecated Use `onHover`, que traz a regiao inteira. Aceito ate a 0.7.0. */
   onHoverRegion?: (id: string | null) => void;
-  /** Com ele, os marcadores viram botoes e entram no teclado. */
+  /** Com ele, as regioes e os marcadores viram botoes e entram no teclado; `mark.kind` os distingue. */
+  onMarkClick?: (mark: ChartMapMark) => void;
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'marker'`. Aceito ate a 0.7.0. */
   onMarkerClick?: (marker: ChartMapMarkerEvent) => void;
-  /** Com ele, as regioes viram botoes e entram no teclado. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'region'`. Aceito ate a 0.7.0. */
   onRegionClick?: (region: ChartMapRegion) => void;
   /** Com ele, as regioes viram botoes, e o clique escolhe a regiao ou, na escolhida, a desfaz. */
   onSelectedRegionChange?: (id: string | null) => void;
@@ -248,7 +268,7 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
   const padding = frame?.padding ?? MAP_PADDING;
   const maxZoom = frame ? MAX_MARKER_ZOOM : target.length === all.length ? undefined : MAX_FOCUS_ZOOM;
 
-  const pass = (drawingWidth: number): MapLayout => {
+  const pass = (drawingWidth: number, withCallouts = callouts): MapLayout => {
     const height = fixedHeight
       ? maxHeight
       : Math.round(Math.min(maxHeight, Math.max(MIN_HEIGHT, naturalHeight(corners, drawingWidth, padding))));
@@ -283,7 +303,7 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
     return {
       height,
       plan: planLabels(candidates, {
-        callouts,
+        callouts: withCallouts,
         calloutStep: font.lineHeight,
         height,
         lineHeight,
@@ -302,7 +322,8 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
 
   const gutter = Math.ceil(Math.max(...first.plan.callouts.map((label) => calloutWidth(label, measure))) + CALLOUT_GAP + 4);
 
-  return pass(Math.max(width - gutter, width / 2));
+  // A coluna so fica enquanto o mapa ainda cabe ao lado dela: sem isso, o mapa fica por conta do rotulo.
+  return width - gutter < CHART_MIN_PLOT.width ? pass(width, false) : pass(Math.max(width - gutter, width / 2));
 }
 
 function isDimmed(key: string | undefined, highlightedKey: string | null) {
@@ -311,13 +332,14 @@ function isDimmed(key: string | undefined, highlightedKey: string | null) {
 
 /**
  * Regioes pintadas pelo valor e marcadores por coordenada, sobre a geometria GeoJSON que o produto fornece. O desenho
- * e imagem nomeada pelo titulo; com `onRegionClick`, a selecao de regiao ou `onMarkerClick`, um grupo cujas marcas sao botoes de tabulacao
+ * e imagem nomeada pelo titulo; com `onMarkClick`, ou a selecao de regiao, um grupo cujas marcas sao botoes de tabulacao
  * movel. A leitura completa, com busca, esta na visao em tabela.
  */
 export function ChartMap({
   accent,
   colorScale = DEFAULT_SCALE,
   data = [],
+  defaultHidden,
   defaultHiddenClasses,
   defaultHiddenSeries,
   defaultSelectedRegion,
@@ -332,6 +354,7 @@ export function ChartMap({
   formatValue = formatNumber,
   geometry,
   height = 440,
+  hidden,
   hiddenClasses,
   hiddenSeries,
   legend = 'bottom',
@@ -342,9 +365,12 @@ export function ChartMap({
   markerValueLabel = 'Valor',
   noDataLabel = 'Sem dado',
   noDataStyle = 'hatch',
+  onHiddenChange,
   onHiddenClassesChange,
   onHiddenSeriesChange,
+  onHover,
   onHoverRegion,
+  onMarkClick,
   onMarkerClick,
   onRegionClick,
   onSelectedRegionChange,
@@ -367,14 +393,22 @@ export function ChartMap({
   const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;
   const outer = useChartMetrics();
   const plot = useChartMetrics();
+  const touch = useTouchPin();
   const svgRef = useRef<SVGSVGElement>(null);
-  const seriesToggle = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const seriesToggle = useSeriesToggle({
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
+  });
   // As faixas sao indices; a legenda liga e desliga por texto.
   const hiddenClassKeys = useMemo(() => hiddenClasses?.map(String), [hiddenClasses]);
   const classToggle = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenClasses?.map(String),
-    hiddenSeries: hiddenClassKeys,
-    onHiddenSeriesChange: onHiddenClassesChange && ((hidden) => onHiddenClassesChange(hidden.map(Number))),
+    defaultHidden: defaultHiddenClasses?.map(String),
+    hidden: hiddenClassKeys,
+    onHiddenChange: onHiddenClassesChange && ((hidden) => onHiddenClassesChange(hidden.map(Number))),
   });
   const [target, setTarget] = useState<Target | null>(null);
   const [focusedMark, setFocusedMark] = useState<string | null>(null);
@@ -525,6 +559,14 @@ export function ChartMap({
   const fillHeight = height === 'fill';
   const maxHeight = fillHeight ? plot.height : height;
 
+  const removed = useFit(
+    width > 0 && maxHeight > 0 ? ['legend'] as const : [],
+    (partes, legendaEstava) =>
+      plotRoom({ height: maxHeight, width }, colorLegendRoom(legendPosition, fillHeight), legendaEstava, !partes.has('legend')),
+    CHART_MIN_PLOT,
+  );
+  const shownLegend = removed.has('legend') ? 'none' : legendPosition;
+
   const labelsOn = regionLabels !== 'hidden';
   const valuesOn = showDataLabels !== 'hidden' && scale.numeric;
   const layout = useMemo(() => {
@@ -594,9 +636,23 @@ export function ChartMap({
         .sort((a, b) => b.radius - a.radius)
     : [];
 
+  const clickRegion =
+    onMarkClick || onRegionClick
+      ? (region: ChartMapRegion) => {
+          onMarkClick?.({ kind: 'region', ...region });
+          onRegionClick?.(region);
+        }
+      : undefined;
+  const clickMarker =
+    onMarkClick || onMarkerClick
+      ? (marker: ChartMapMarkerEvent) => {
+          onMarkClick?.({ kind: 'marker', ...marker });
+          onMarkerClick?.(marker);
+        }
+      : undefined;
   const regionsInteractive =
-    onRegionClick !== undefined || onSelectedRegionChange !== undefined || defaultSelectedRegion !== undefined;
-  const markersInteractive = onMarkerClick !== undefined;
+    clickRegion !== undefined || onSelectedRegionChange !== undefined || defaultSelectedRegion !== undefined;
+  const markersInteractive = clickMarker !== undefined;
   const interactive = regionsInteractive || markersInteractive;
   const regionMark = (index: number) => `region:${index}`;
   const marks = [
@@ -643,6 +699,14 @@ export function ChartMap({
     const marker = markerOfMark(mark);
 
     setTarget(entry ? { entry, kind: 'region' } : marker ? { kind: 'marker', marker } : null);
+    announceHover(mark);
+  }
+
+  function announceHover(mark: string | null) {
+    const entry = entryOfMark(mark);
+    const marker = markerOfMark(mark);
+
+    onHover?.(entry ? { kind: 'region', ...regionEvent(entry) } : marker ? { kind: 'marker', ...markerEvent(marker) } : null);
     onHoverRegion?.(entry?.region.id ?? null);
   }
 
@@ -652,13 +716,13 @@ export function ChartMap({
 
     if (entry && regionsInteractive) {
       setTabStopMark(mark);
-      onRegionClick?.(regionEvent(entry));
+      clickRegion?.(regionEvent(entry));
       if (regionSelectable) {
         selectRegion(entry.region.id === currentSelectedRegion ? null : entry.region.id);
       }
-    } else if (marker && onMarkerClick) {
+    } else if (marker && clickMarker) {
       setTabStopMark(mark);
-      onMarkerClick(markerEvent(marker));
+      clickMarker(markerEvent(marker));
     }
   }
 
@@ -736,14 +800,14 @@ export function ChartMap({
   const markHandlers = {
     onBlur: () => {
       setFocusedMark(null);
-      onHoverRegion?.(null);
+      announceHover(null);
     },
     onClick: (event: SyntheticEvent) => activate(markFrom(event)),
     onFocus: (event: SyntheticEvent) => {
       const mark = markFrom(event);
       setFocusedMark(mark);
       setTabStopMark(mark);
-      onHoverRegion?.(entryOfMark(mark)?.region.id ?? null);
+      announceHover(mark);
     },
     onKeyDown: handleKeyDown,
     onMouseOut: () => hover(null),
@@ -771,7 +835,7 @@ export function ChartMap({
             data-mark={mark}
             fill={entry.hidden ? HIDDEN_FILL : (entry.fill ?? noDataFill)}
             key={index}
-            role={regionsInteractive ? 'button' : undefined}
+            role={regionsInteractive ? 'button' : 'graphics-symbol'}
             strokeWidth={strokeWidth}
             tabIndex={regionsInteractive ? (mark === tabStop ? 0 : -1) : undefined}
           />
@@ -944,7 +1008,7 @@ export function ChartMap({
   const counts = new Map<string, number>();
   entries.forEach((entry) => entry.key !== undefined && counts.set(entry.key, (counts.get(entry.key) ?? 0) + 1));
 
-  const legendView = legendPosition !== 'none' && (
+  const legendView = shownLegend !== 'none' && (
     <ChartMapLegend
       align={legendAlign}
       entries={scale.entries.map((entry) => ({
@@ -973,7 +1037,7 @@ export function ChartMap({
       onHighlight={(key) => setHighlightedKey(key)}
       onToggle={legendToggle.toggle}
       onToggleMarkerSeries={seriesToggle.toggle}
-      position={legendPosition}
+      position={shownLegend}
       style={sideLegend ? { width: Math.min(SIDE_LEGEND_MAX, Math.round(outer.width * 0.3)) } : undefined}
       valueLabel={valueLabel}
     />
@@ -1012,7 +1076,7 @@ export function ChartMap({
           </span>
           {subtitle && <span className={styles.subtitle}>{subtitle}</span>}
         </span>
-        {showTableToggle && !empty && (
+        {showTableToggle && !empty && (outer.width === 0 || outer.width >= TABLE_TOGGLE_MIN_WIDTH) && (
           <Button
             aria-pressed={tableView}
             className={styles.tableToggle}
@@ -1030,7 +1094,7 @@ export function ChartMap({
       </span>
 
       <div className={`${styles.body} ${sideLegend && !tableView ? styles.bodyRow : ''}`} ref={outer.ref}>
-        {legendPosition === 'top' && !tableView && !empty && legendView}
+        {shownLegend === 'top' && !tableView && !empty && legendView}
 
         {empty ? (
           <div className={styles.empty}>
@@ -1052,12 +1116,12 @@ export function ChartMap({
             valueLabel={valueLabel}
           />
         ) : (
-          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={plot.ref}>
+          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={plot.ref} {...touch.props}>
             {svg && (showTooltip ? <ChartTooltip {...tooltip}>{svg}</ChartTooltip> : svg)}
           </div>
         )}
 
-        {(legendPosition === 'bottom' || legendPosition === 'right') && !tableView && !empty && legendView}
+        {(shownLegend === 'bottom' || shownLegend === 'right') && !tableView && !empty && legendView}
       </div>
     </figure>
   );

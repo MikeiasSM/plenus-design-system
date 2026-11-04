@@ -1,4 +1,4 @@
-import { toCsv, type DataGridExportModel } from './exportModel';
+import { toCsv, toExportMatrix, toTsv, type DataGridExportModel } from './exportModel';
 
 const model: DataGridExportModel = {
   title: 'Pedidos',
@@ -58,5 +58,43 @@ describe('csv', () => {
     });
 
     expect(csv.split('\r\n')).toEqual(['﻿Nível;Nº;Cliente;Total', '2;P-1;"Atacado; ""Sul""";1250,5', ';;;1250,5', '']);
+  });
+});
+
+describe('clipboard text and matrices', () => {
+  const copied: DataGridExportModel = {
+    ...model,
+    columns: [model.columns[1], model.columns[2]],
+    rows: [
+      {
+        depth: 0,
+        cells: [
+          { text: 'Café', value: 'Café' },
+          { text: 'R$ 12,50', value: 12.5 },
+        ],
+      },
+      {
+        depth: 0,
+        cells: [
+          { text: 'Linha\ncom "aspas"', value: 'x' },
+          { text: '', value: null },
+        ],
+      },
+    ],
+    summary: [
+      { text: 'Total', value: undefined },
+      { text: 'R$ 12,50', value: 12.5 },
+    ],
+  };
+
+  it('writes tab-separated text, quoting the fields that break the format', () => {
+    expect(toTsv(copied, false)).toBe('Café\tR$ 12,50\r\n"Linha\ncom ""aspas"""\t');
+    expect(toTsv(copied, true).split('\r\n')[0]).toBe('Cliente\tTotal');
+  });
+
+  it('hands the model over as matrices of displayed text or raw values', () => {
+    expect(toExportMatrix(copied, 'text').rows[0]).toEqual(['Café', 'R$ 12,50']);
+    expect(toExportMatrix(copied, 'raw').rows[0]).toEqual(['Café', 12.5]);
+    expect(toExportMatrix(copied, 'raw')).toMatchObject({ header: ['Cliente', 'Total'], summary: [undefined, 12.5] });
   });
 });

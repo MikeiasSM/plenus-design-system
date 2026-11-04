@@ -5,6 +5,9 @@ import {
   Drawer,
   InputText,
   SegmentedControl,
+  Dialog,
+  Table,
+  formatCurrency,
   type DrawerSide,
   type DrawerSize,
 } from '@plenustech/design-system';
@@ -204,6 +207,92 @@ function Historico() {
   );
 }
 
+const PARCELAS = [
+  { id: '1', vencimento: '10/11', valor: 1250 },
+  { id: '2', vencimento: '10/12', valor: 1250 },
+  { id: '3', vencimento: '10/01', valor: 1250 },
+];
+
+function ParcelasSemTitulo() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setAberto(true)} variant="secondary">Ver parcelas</Button>
+      <Drawer
+        aria-label="Parcelas do contrato 2041"
+        flush
+        footer={<Button onClick={() => setAberto(false)} variant="secondary">Fechar</Button>}
+        onOpenChange={setAberto}
+        open={aberto}
+        size="sm"
+      >
+        <Table label="Parcelas do contrato 2041">
+          <Table.Header>
+            <Table.Column id="vencimento">Vencimento</Table.Column>
+            <Table.Column id="valor" numeric>Valor</Table.Column>
+          </Table.Header>
+          <Table.Body items={PARCELAS}>
+            {(parcela) => (
+              <Table.Row id={parcela.id}>
+                <Table.Cell>{parcela.vencimento}</Table.Cell>
+                <Table.Cell>{formatCurrency(parcela.valor)}</Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
+      </Drawer>
+    </>
+  );
+}
+
+function EdicaoComConfirmacao() {
+  const [aberto, setAberto] = useState(false);
+  const [alterado, setAlterado] = useState(false);
+  const [responder, setResponder] = useState<((descartar: boolean) => void) | null>(null);
+
+  function responderPergunta(descartar: boolean) {
+    responder?.(descartar);
+    setResponder(null);
+  }
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setAlterado(false);
+          setAberto(true);
+        }}
+        variant="secondary"
+      >
+        Editar usuário
+      </Button>
+      <Drawer
+        footer={<Button onClick={() => setAberto(false)}>Salvar</Button>}
+        onBeforeClose={() => (alterado ? new Promise<boolean>((resolve) => setResponder(() => resolve)) : true)}
+        onOpenChange={setAberto}
+        open={aberto}
+        title="Editar usuário"
+      >
+        <InputText defaultValue="Ana Prado" label="Nome" onChange={() => setAlterado(true)} />
+      </Drawer>
+      <Dialog
+        footer={
+          <>
+            <Button onClick={() => responderPergunta(false)} variant="secondary">Continuar editando</Button>
+            <Button onClick={() => responderPergunta(true)} variant="danger">Descartar</Button>
+          </>
+        }
+        onOpenChange={() => responderPergunta(false)}
+        open={responder !== null}
+        role="alertdialog"
+        size="sm"
+        title="Descartar alterações?"
+      />
+    </>
+  );
+}
+
 function ConfirmacaoEmDrawer() {
   const [aberto, setAberto] = useState(false);
 
@@ -309,6 +398,20 @@ export const pagina: Pagina = {
       codigo:
         '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  size="lg"\n  title="Histórico de Ana Prado"\n  description="Alterações dos últimos 30 dias."\n>\n  {historico.map((linha) => (\n    <p key={linha.id}>{linha.texto}</p>\n  ))}\n</Drawer>',
     },
+    {
+      titulo: 'Sem título e sem respiro',
+      descricao: 'Sem title, a gaveta não tem cabeçalho nem botão de fechar, e o nome vem do aria-label; o Escape continua fechando. flush tira o respiro do corpo para a tabela, que desenha a própria margem.',
+      Previa: ParcelasSemTitulo,
+      codigo:
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  aria-label="Parcelas do contrato 2041"\n  flush\n  size="sm"\n  footer={<Button variant="secondary" onClick={fechar}>Fechar</Button>}\n>\n  <Table label="Parcelas do contrato 2041">…</Table>\n</Drawer>',
+    },
+    {
+      titulo: 'Alterações não salvas',
+      descricao: 'onBeforeClose é consultado por Escape, clique fora e botão Fechar, como no Dialog. Com o nome alterado, a resposta vem de uma confirmação; sem alteração, fecha direto.',
+      Previa: EdicaoComConfirmacao,
+      codigo:
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  title="Editar usuário"\n  onBeforeClose={() =>\n    alterado ? confirmarDescarte() : true // Promise<boolean>\n  }\n>\n  <InputText defaultValue="Ana Prado" label="Nome" onChange={marcarAlterado} />\n</Drawer>',
+    },
   ],
   faca: {
     Previa: EdicaoDeUsuario,
@@ -319,7 +422,7 @@ export const pagina: Pagina = {
     texto: (
       <>
         Uma decisão curta numa gaveta. Confirmação é Dialog, com <code>role=&quot;alertdialog&quot;</code>. E um painel que
-        fica ao lado sem bloquear a página não é Drawer: é layout da aplicação.
+        fica ao lado sem bloquear a página não é Drawer: é o SidePanel.
       </>
     ),
   },
@@ -345,16 +448,23 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao elemento da gaveta; o className soma ao do sistema.',
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },
-    { nome: 'onClose', tipo: '() => void', descricao: <>Obsoleto: use <code>onOpenChange</code>.</> },
-    { nome: 'title', tipo: 'string', descricao: 'Obrigatória. Título visível e nome acessível.' },
+    {
+      nome: 'onBeforeClose',
+      tipo: '() => boolean | Promise<boolean>',
+      descricao: 'Consultado antes de fechar por Escape, clique fora ou botão de fechar, como no Dialog. false, ou uma promessa que resolve false, mantém aberto.',
+    },
+    { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível. Obrigatório, a menos que haja aria-label.' },
+    { nome: 'aria-label', tipo: 'string', descricao: 'Sem title: a gaveta não desenha cabeçalho nem botão de fechar, e este é o nome acessível. Obrigatório sem title; o Escape continua fechando.' },
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Corpo, que rola quando passa da altura.' },
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },
     { nome: 'side', tipo: "'left' | 'right'", padrao: "'right'", descricao: 'Lado da tela de onde a gaveta sai.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Largura máxima de 360, 480 ou 640px.' },
+    { nome: 'flush', tipo: 'boolean', padrao: 'false', descricao: 'Corpo sem o respiro interno, para o conteúdo que desenha a própria margem.' },
     { nome: 'dismissable', tipo: 'boolean', padrao: 'true', descricao: 'Botão de fechar, Escape e clique fora.' },
   ],
 };

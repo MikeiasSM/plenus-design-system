@@ -13,13 +13,14 @@ Modelo decidido pelo mantenedor em 02/11/2026 e pendente de implementação. Doc
 
 ## Protótipos
 
-Os três estão em [`prototipos/`](prototipos/), em HTML autocontido; abrem no navegador sem build. São referência de comportamento e de visual, não código para copiar: usam cores literais no lugar dos tokens e dados de exemplo.
+Os quatro estão em [`prototipos/`](prototipos/), em HTML autocontido; abrem no navegador sem build. São referência de comportamento e de visual, não código para copiar: usam cores literais no lugar dos tokens e dados de exemplo.
 
 | Arquivo | O que mostra | Publicado |
 | --- | --- | --- |
 | [`appshell.html`](prototipos/appshell.html) | O modelo genérico: tema, recolher, celular, camadas explodidas e as três alternativas de terceiro nível | [link](https://claude.ai/artifact/Pa88d1uK1mGUjWpXaKachk) |
 | [`painel.html`](prototipos/painel.html) | O modelo numa tela real do Painel, a Base de Clientes: cards, gráficos, filtros no painel lateral, conta do usuário e aviso da conta | [link](https://claude.ai/artifact/9ku9qsTpz8SN5KJM9UGWse) |
 | [`configuracoes.html`](prototipos/configuracoes.html) | Página com seções internas: índice de configurações e uma seção nos três arranjos | [link](https://claude.ai/artifact/HPkziNGL6DXwFkZbjej9ab) |
+| [`composicoes.html`](prototipos/composicoes.html) | O aplicativo navegável com todas as composições de tela e as últimas decisões da moldura: marca no submenu, conta em cartão, avatar do trilho só recolhido, dica acima da página | [link](https://claude.ai/artifact/XE4hr38JF5bzaFZQnwvQeX) |
 
 Os links publicados são privados do mantenedor. Também ficam com ele o canvas [Padrões de composição](https://claude.ai/artifact/Nsv3D8NFSmLp75Bm23KF2r), com 11 telas de referência (início, índices, detalhe, formulários, assistente, configurações, vazio), e o documento vivo das decisões, [AppShell e padrões de composição](https://claude.ai/artifact/X7rVMjNrKeC31RUiLC25n2), de onde este saiu.
 

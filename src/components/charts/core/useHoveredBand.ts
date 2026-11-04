@@ -1,5 +1,11 @@
 import { useState } from 'react';
 
+/** Categoria sob o ponteiro: o rotulo e a posicao dele em `categories`. */
+export interface ChartCategoryHover {
+  category: string;
+  index: number;
+}
+
 export interface HoveredBand {
   hover: (index: number | null) => void;
   hovered: number | null;

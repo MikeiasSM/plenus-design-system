@@ -29,6 +29,8 @@ export class DataGridScrollRoot {
   readonly detailStates = new Map<string, DataGridDetailState>();
   scroller: HTMLElement | null = null;
   head: HTMLElement | null = null;
+  /** As linhas fixas sob o título, que também cobrem linhas. */
+  pinned: HTMLElement | null = null;
   /** A sumarização presa ao rodapé, que também cobre linhas. */
   foot: HTMLElement | null = null;
   private anchor: Anchor | null = null;
@@ -100,7 +102,7 @@ export class DataGridScrollRoot {
   }
 
   headHeight() {
-    return this.head?.offsetHeight ?? 0;
+    return (this.head?.offsetHeight ?? 0) + (this.pinned?.offsetHeight ?? 0);
   }
 
   /** Topo de um elemento no conteúdo rolável da grade de fora. */

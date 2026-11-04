@@ -36,7 +36,7 @@ const quadrado = {
   type: 'FeatureCollection' as const,
 };
 
-const graficos: [string, (raiz: ChartRootProps) => ReactElement][] = [
+const graficos: [string, (raiz: Omit<ChartRootProps, 'hidden'>) => ReactElement][] = [
   ['ChartArea', (raiz) => <ChartArea categories={categorias} series={serie} title="Gráfico" {...raiz} />],
   ['ChartBar', (raiz) => <ChartBar categories={categorias} series={serie} title="Gráfico" {...raiz} />],
   [
@@ -95,5 +95,12 @@ describe.each(graficos)('%s', (_, montar) => {
 
     expect(screen.getByText('Gráfico').className).not.toBe(classeVisivel);
     expect(document.querySelector('figure')).not.toHaveAttribute('hidetitle');
+  });
+
+  it('a marca nomeada por aria-label tem papel, que o ARIA proibe o nome num elemento SVG sem ele', () => {
+    render(montar({}));
+
+    const semPapel = [...document.querySelectorAll('svg [aria-label]')].filter((marca) => !marca.hasAttribute('role'));
+    expect(semPapel.map((marca) => marca.getAttribute('aria-label'))).toEqual([]);
   });
 });

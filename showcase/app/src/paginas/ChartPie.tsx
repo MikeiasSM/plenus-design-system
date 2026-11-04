@@ -11,6 +11,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoPie } from '../estrutura/decomposicao';
 
 const TOTAL_DESPESAS_POR_TIPO = DESPESAS_POR_TIPO.reduce((soma, fatia) => soma + fatia.value, 0);
 const TOTAL_DA_RECEITA = RECEITA.reduce((soma, fatia) => soma + fatia.value, 0);
@@ -48,8 +49,8 @@ const playground = definirPlayground({
         formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSlicesChange={(ocultas) => registrar(`onHiddenSlicesChange: [${ocultas.join(', ')}]`)}
-        onHoverSlice={(fatia) => registrar(`onHoverSlice: ${fatia ? fatia.label : null}`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+        onHover={(fatia) => registrar(`onHover: ${fatia ? fatia.label : null}`)}
         otherLabel={valores.otherLabel}
         showDataLabels={valores.showDataLabels}
         showLegendValues={valores.showLegendValues}
@@ -72,7 +73,7 @@ const playground = definirPlayground({
       ['accent', accentDa(valores.accent)],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverSlice', expr('setFatia')],
+      ['onHover', expr('setFatia')],
     ]),
   verificar: (valores) => {
     const pequenas = DESPESAS_POR_TIPO.filter((fatia) => fatia.value / TOTAL_DESPESAS_POR_TIPO < valores.smallSliceThreshold);
@@ -122,7 +123,7 @@ function FatiaNoPonteiro() {
         subtitle="Valor e fatia da receita"
         title={fatia?.label}
       >
-        <ChartPie showTooltip={false} formatValue={formatarCompacto} height={240} onHoverSlice={setFatia} slices={RECEITA} title="Composição da receita" />
+        <ChartPie showTooltip={false} formatValue={formatarCompacto} height={240} onHover={setFatia} slices={RECEITA} title="Composição da receita" />
       </ChartTooltip>
     </div>
   );
@@ -165,6 +166,15 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda e, depois, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoPie,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartPie height="fill" title="..." /* dados */ />
+</div>`,
+    },
     {
       titulo: 'Percentual na fatia',
       descricao: 'O texto sobre a fatia usa o token de texto daquela cor, medido nos dois temas.',
@@ -226,7 +236,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Fatia no ponteiro',
-      descricao: 'onHoverSlice entrega a fatia já agrupada; a coluna calculada mostra a parte do total.',
+      descricao: 'onHover entrega a fatia já agrupada; a coluna calculada mostra a parte do total.',
       Previa: FatiaNoPonteiro,
       codigo: `const [fatia, setFatia] = useState<ChartPieSlice | null>(null);
 const cores = resolveSeriesColors(receita);
@@ -242,7 +252,7 @@ const cores = resolveSeriesColors(receita);
     values: [fatia.value],
   }] : []}
 >
-  <ChartPie showTooltip={false} title="Composição da receita" slices={receita} onHoverSlice={setFatia} />
+  <ChartPie showTooltip={false} title="Composição da receita" slices={receita} onHover={setFatia} />
 </ChartTooltip>`,
     },
   ],
@@ -252,6 +262,9 @@ const cores = resolveSeriesColors(receita);
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a fatia da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartPie.test.tsx' },
     { garantia: 'Descrição da fatia', como: <><code>aria-label</code> com rótulo, valor e percentual.</>, teste: 'ChartPie.test.tsx' },
     { garantia: 'Legenda como controle', como: <>Botão com <code>aria-pressed</code> que desliga a fatia.</>, teste: 'ChartPie.test.tsx' },
@@ -260,6 +273,7 @@ const cores = resolveSeriesColors(receita);
     { garantia: 'Ausência anunciada', como: 'Sem fatia positiva, um EmptyState no lugar do desenho.', teste: 'ChartPie.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'slices', tipo: 'readonly ChartPieSlice[]', descricao: <><code>{'{ label, value, color?, intent? }'}</code>, uma por fatia.</> },
     { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Percentual dentro da fatia, onde couber.' },
@@ -275,11 +289,16 @@ const cores = resolveSeriesColors(receita);
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
-    { nome: 'hiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSlices', tipo: 'readonly string[]', descricao: 'Fatias ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSlicesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverSlice', tipo: '(slice: ChartPieSlice | null, details?: ChartHoverDetails) => void', descricao: <>Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Fatias ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSlices', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Fatias ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSlices', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSlicesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(slice: ChartPieSlice | null, details?: ChartHoverDetails) => void', descricao: <>Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
+    { nome: 'onHoverSlice', tipo: '(slice: ChartPieSlice | null, details?: ChartHoverDetails) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
-    { nome: 'onSliceClick', tipo: '(slice: ChartPieSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco. Em Outros, grouped traz as fatias reunidas.' },
+    { nome: 'onMarkClick', tipo: '(slice: ChartPieSlice) => void', descricao: 'Torna as fatias botões, percorridos pelas setas; o balão abre no foco. Em Outros, grouped traz as fatias reunidas.' },
+    { nome: 'onSliceClick', tipo: '(slice: ChartPieSlice) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

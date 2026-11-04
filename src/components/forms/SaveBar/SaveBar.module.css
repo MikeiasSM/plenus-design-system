@@ -1,0 +1,59 @@
+/* Fechada, a altura vai a zero pela linha da grade, sem medir o conteúdo. Presa ao topo da área de rolagem. */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--pl-speed-2) var(--pl-ease);
+}
+
+.open {
+  grid-template-rows: 1fr;
+}
+
+.clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-2) var(--pl-space-3);
+  padding: var(--pl-space-2) var(--pl-space-4);
+  border-bottom: 1px solid var(--pl-color-warning);
+  background: var(--pl-color-warning-container);
+  color: var(--pl-color-on-warning-container);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.message {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  margin-inline-end: auto;
+  font-weight: var(--pl-type-label-weight);
+}
+
+.icon {
+  flex: none;
+}
+
+.announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

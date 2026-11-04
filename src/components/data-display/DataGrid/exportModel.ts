@@ -73,3 +73,35 @@ export function toCsv(model: DataGridExportModel) {
 
   return `﻿${lines.join('\r\n')}\r\n`;
 }
+
+export function tsvField(text: string) {
+  return /[\t\r\n"]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+/** O que a planilha cola em células: texto como na tela, abas entre as colunas e quebras entre as linhas. Sem totais. */
+export function toTsv(model: DataGridExportModel, withHeaders: boolean) {
+  const line = (cells: readonly string[]) => cells.map(tsvField).join('\t');
+  const lines = model.rows.map((row) => line(row.cells.map((cell) => cell.text)));
+
+  return (withHeaders ? [line(model.columns.map((column) => column.header)), ...lines] : lines).join('\r\n');
+}
+
+export type DataGridExportValues = 'text' | 'raw';
+
+export interface DataGridExportMatrix {
+  header: string[];
+  rows: unknown[][];
+  /** Os totais, na ordem das colunas, quando o modelo os traz. */
+  summary?: unknown[];
+}
+
+/** O modelo em matrizes, que a maioria das bibliotecas de planilha e de PDF recebe: o texto da tela ou o valor cru. */
+export function toExportMatrix(model: DataGridExportModel, values: DataGridExportValues): DataGridExportMatrix {
+  const valueOf = (cell: DataGridExportCell) => (values === 'text' ? cell.text : cell.value);
+
+  return {
+    header: model.columns.map((column) => column.header),
+    rows: model.rows.map((row) => row.cells.map(valueOf)),
+    summary: model.summary?.map(valueOf),
+  };
+}

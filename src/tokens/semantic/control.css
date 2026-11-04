@@ -6,8 +6,9 @@
   --pl-control-height-lg: 56px;
 }
 
-/* Derivados da cor primaria: recalculados em cada escopo de paleta, como ela. */
+/* Derivados da cor primaria e da borda: recalculados em cada escopo de tema e de paleta, como elas. */
 :root,
+[data-theme],
 [data-palette] {
   --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary-strong) 50%, var(--pl-color-border-strong));
   --pl-control-focus-halo:

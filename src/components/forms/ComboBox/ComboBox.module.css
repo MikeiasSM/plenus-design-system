@@ -144,3 +144,29 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
 }
+
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+  margin-top: var(--pl-space-1);
+  padding: var(--pl-space-2) var(--pl-space-1) var(--pl-space-1);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.footerActions {
+  display: flex;
+  gap: var(--pl-space-2);
+}

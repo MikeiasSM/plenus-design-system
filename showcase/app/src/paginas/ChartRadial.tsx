@@ -7,6 +7,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { OPCOES_DE_ACCENT, accentDa } from '../dadosDosGraficos';
+import { DecomposicaoDoRadial } from '../estrutura/decomposicao';
 
 const METAS = [
   { label: 'Vendas', max: 100, value: 72 },
@@ -56,7 +57,7 @@ const playground = definirPlayground({
         formatValue={formatarMeta}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenTracksChange={(ocultos) => registrar(`onHiddenTracksChange: [${ocultos.join(', ')}]`)}
+        onHiddenChange={(ocultos) => registrar(`onHiddenChange: [${ocultos.join(', ')}]`)}
         showCenter={valores.showCenter}
         startAngle={valores.startAngle}
         thickness={valores.thickness}
@@ -139,6 +140,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o texto do centro e, por fim, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoRadial,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartRadial height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Anéis contra a meta',
       descricao: 'Três medidas, cada uma medida contra a própria meta.',
       Previa: () => (
@@ -208,6 +218,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o anel da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartRadial.test.tsx' },
     {
       garantia: 'Descrição do anel',
@@ -220,6 +233,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem anéis, um EmptyState no lugar do desenho.', teste: 'ChartRadial.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'tracks', tipo: 'readonly ChartRadialTrack[]', descricao: <><code>{'{ label, value, max?, color?, intent? }'}</code>, um por anel, de fora para dentro.</> },
     { nome: 'startAngle', tipo: 'number', padrao: '0', descricao: 'Início da volta, em graus a partir do topo.' },
@@ -233,11 +247,16 @@ export const pagina: Pagina = {
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de dois anéis.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
-    { nome: 'hiddenTracks', tipo: 'readonly string[]', descricao: 'Anéis ocultos, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenTracks', tipo: 'readonly string[]', descricao: 'Anéis ocultos de início, no modo não controlado.' },
-    { nome: 'onHiddenTracksChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Anéis ocultos, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenTracks', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Anéis ocultos de início, no modo não controlado.' },
+    { nome: 'defaultHiddenTracks', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenTracksChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onTrackClick', tipo: '(track: ChartRadialTrack) => void', descricao: 'Torna os anéis botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onHover', tipo: '(track: ChartRadialTrack | null, details?: ChartHoverDetails) => void', descricao: <>Anel sob o ponteiro, o foco ou a entrada da legenda; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</> },
+    { nome: 'onMarkClick', tipo: '(track: ChartRadialTrack) => void', descricao: 'Torna os anéis botões, percorridos pelas setas; o balão abre no foco.' },
+    { nome: 'onTrackClick', tipo: '(track: ChartRadialTrack) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

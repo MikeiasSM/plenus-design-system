@@ -97,14 +97,6 @@ describe('Tabs', () => {
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de logs');
   });
 
-  it('ainda chama o obsoleto onSelectionChange', () => {
-    const onSelectionChange = vi.fn();
-    montar({ onSelectionChange });
-
-    fireEvent.click(screen.getByRole('tab', { name: 'Logs' }));
-    expect(onSelectionChange).toHaveBeenCalledWith('logs');
-  });
-
   it('mantem uma aba alcancavel pelo Tab quando a escolhida nao existe ou esta desabilitada', () => {
     const abas = [
       { content: 'Um', disabled: true, key: 'um', label: 'Um' },

@@ -1,6 +1,6 @@
 {
   "name": "@plenustech/design-system",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "Design System centralizado para os produtos web da Plenustech.",
   "license": "SEE LICENSE IN LICENSE",
   "publishConfig": {
@@ -25,9 +25,18 @@
       "import": "./dist/icons.js",
       "require": "./dist/icons.cjs"
     },
+    "./icons/*": {
+      "types": "./dist/types/icons/*.d.ts",
+      "import": "./dist/icons/*.js",
+      "require": "./dist/icons/*.cjs"
+    },
     "./styles.css": {
       "types": "./dist/folha.d.ts",
       "default": "./dist/design-system.css"
+    },
+    "./styles/*.css": {
+      "types": "./dist/folha.d.ts",
+      "default": "./dist/styles/*.css"
     },
     "./reset.css": {
       "types": "./dist/folha.d.ts",
@@ -47,6 +56,7 @@
     "dev:showcase": "vite --config showcase/vite.config.ts",
     "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs",
     "check:pacote": "node scripts/check-pacote.mjs",
+    "check:consumo": "node scripts/check-consumo.mjs",
     "gerar:icones": "node scripts/gerar-icones.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build:pacote",
@@ -68,7 +78,6 @@
     "d3-array": "^3.2.4",
     "d3-geo": "^3.1.1",
     "d3-hierarchy": "^3.1.2",
-    "d3-sankey": "^0.12.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0"
   },
@@ -80,7 +89,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/d3-array": "^3.2.2",
-    "@types/d3-sankey": "^0.12.5",
     "@types/d3-shape": "^3.2.0",
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.2",

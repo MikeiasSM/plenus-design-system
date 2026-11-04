@@ -1,6 +1,7 @@
 export { ChartMap } from './ChartMap';
 export type {
   ChartMapLegendPosition,
+  ChartMapMark,
   ChartMapMarker,
   ChartMapMarkerEvent,
   ChartMapMarkerSeries,
@@ -9,9 +10,3 @@ export type {
   ChartMapRegionDatum,
 } from './ChartMap';
 export type { ChartMapFeature, ChartMapFeatureCollection } from './mapGeometry';
-import type { ChartColorCategory, ChartColorScale } from '../scales';
-
-/** @deprecated Use `ChartColorScale`. Sai na 0.4.0. */
-export type ChartMapColorScale = ChartColorScale;
-/** @deprecated Use `ChartColorCategory`. Sai na 0.4.0. */
-export type ChartMapCategory = ChartColorCategory;

@@ -21,6 +21,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
+import { DecomposicaoDoGauge } from '../estrutura/decomposicao';
 
 const moedaCompacta = (valor: number) => formatCurrency(valor, { compact: true });
 const moedaExata = (valor: number) => formatCurrency(valor, { decimals: 0 });
@@ -620,6 +621,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira as marcas e os rótulos da escala, e fica o arco com o valor, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoGauge,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartGauge height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'SLA de atendimento',
       descricao: 'Meia-lua com régua de faixas, cor pelo valor e meta. A variação contra o mês anterior fica no centro.',
       Previa: () => (
@@ -929,6 +939,8 @@ const comum = {
     </>
   ),
   garantias: [
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     {
       garantia: 'Medidor',
       como: <><code>role=&quot;meter&quot;</code> nomeado pelo <code>title</code>, com <code>aria-valuenow</code>, <code>aria-valuemin</code> e <code>aria-valuemax</code>; sem parada de Tab.</>,

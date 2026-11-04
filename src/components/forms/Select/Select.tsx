@@ -15,6 +15,7 @@ import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type Listing } from '../../data-display/List/useListing';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -50,6 +51,8 @@ export interface SelectProps
   onValueChange?: (value: string) => void;
   open?: boolean;
   options: readonly SelectOption[];
+  /** Elemento que recebe o painel. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   placeholder?: string;
   required?: boolean;
   size?: SelectSize;
@@ -72,6 +75,7 @@ export function Select({
   onOpenChange,
   onValueChange,
   open: controlledOpen,
+  portalContainer,
   options,
   placeholder = 'Selecione',
   ref,
@@ -80,6 +84,7 @@ export function Select({
   value,
   ...props
 }: SelectProps) {
+  const container = usePortalContainer(portalContainer);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const wasOpenRef = useRef(open);
@@ -181,6 +186,7 @@ export function Select({
             <IconChevronDown className={styles.chevron} size={14} />
           </button>
           {open &&
+            container &&
             createPortal(
               <SelectListbox
                 label={label ?? props['aria-label'] ?? placeholder}
@@ -188,7 +194,7 @@ export function Select({
                 onClose={fechar}
                 triggerRef={triggerRef}
               />,
-              document.body,
+              container,
             )}
         </>
       )}

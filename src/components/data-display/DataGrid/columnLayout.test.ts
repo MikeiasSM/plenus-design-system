@@ -10,6 +10,7 @@ import {
   placeColumns,
   resizeColumn,
   setColumnHidden,
+  visibleColumnWindow,
   toggleGroupCollapsed,
   type DataGridColumnGroupSizing,
   type DataGridColumnSizing,
@@ -154,5 +155,24 @@ describe('columnLayout', () => {
       expect(moveColumn(state, 'net', -1, groupKeyOf).order).toEqual(['id', 'net', 'gross', 'items', 'state']);
       expect(moveColumnTo(state, 'id', 'state', groupKeyOf)).toBe(state);
     });
+  });
+});
+
+describe('visibleColumnWindow', () => {
+  const placed = [
+    { pin: 'start' as const, width: 100 },
+    ...Array.from({ length: 10 }, () => ({ pin: undefined, width: 100 })),
+    { pin: 'end' as const, width: 100 },
+  ];
+
+  it('keeps only the scrolling columns that cross the visible strip, plus the overscan', () => {
+    expect(visibleColumnWindow(placed, 0, 300, 0)).toEqual({ start: 1, end: 3 });
+    expect(visibleColumnWindow(placed, 0, 300, 2)).toEqual({ start: 1, end: 5 });
+    expect(visibleColumnWindow(placed, 450, 300, 1)).toEqual({ start: 3, end: 9 });
+  });
+
+  it('never leaves the scrolling zone, so the pinned columns stay out of the window', () => {
+    expect(visibleColumnWindow(placed, 5000, 300, 3)).toEqual({ start: 1, end: 1 });
+    expect(visibleColumnWindow(placed, 800, 600, 5)).toEqual({ start: 3, end: 11 });
   });
 });

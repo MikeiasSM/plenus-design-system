@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { hierarchy, treemap } from 'd3-hierarchy';
 import {
+  ChartTable,
+  treeTable,
   CHART_LABEL_OFFSET,
   ChartFrame,
   assignNodeValues,
@@ -9,6 +11,10 @@ import {
   pathTooltip,
   truncateToWidth,
   useChartMetrics,
+  useFit,
+  CHART_MIN_PLOT,
+  legendRoom,
+  plotRoom,
   useMarkNavigation,
   useSeriesToggle,
   type ChartHeight,
@@ -25,7 +31,7 @@ import {
   type SeriesAppearance,
   type SeriesIntent,
 } from '../palette';
-import { formatNumber } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import styles from './ChartTreemap.module.css';
 
 export interface ChartTreemapNode extends SeriesAppearance {
@@ -34,8 +40,11 @@ export interface ChartTreemapNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartTreemapProps extends ChartRootProps {
+export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
+  /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
@@ -44,6 +53,9 @@ export interface ChartTreemapProps extends ChartRootProps {
   /** Folga entre dois retangulos vizinhos. */
   gap?: number;
   height?: ChartHeight;
+  /** Rotulos dos grupos desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenGroups?: readonly string[];
   /**
    * Nome de cada intencao na legenda. Informado, a legenda deixa de listar os
@@ -54,11 +66,18 @@ export interface ChartTreemapProps extends ChartRootProps {
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartTreemapNode[];
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
-  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
   /** Caminho ate o no sob o ponteiro, do grupo ao no, cada nivel com o maior entre o valor proprio e a soma dos filhos, ou `null` ao sair. */
+  onHover?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null) => void;
+  /** Clique no no, com o caminho do grupo ate ele. Com ele, os retangulos viram botoes percorridos pelas setas. */
+  onMarkClick?: (path: readonly ChartHoveredNode[]) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showDataLabels?: boolean;
@@ -66,6 +85,8 @@ export interface ChartTreemapProps extends ChartRootProps {
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
    * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
 }
@@ -78,32 +99,55 @@ function ocupacao(no: ChartTreemapNode) {
 
 export function ChartTreemap({
   accent,
+  defaultHidden,
   defaultHiddenGroups,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
   formatValue = formatNumber,
   gap = 5,
   height = 280,
+  hidden,
   hiddenGroups,
   intentLabels,
   legend = 'bottom',
   legendAlign,
   nodes,
+  onHiddenChange,
   onHiddenGroupsChange,
+  onHover,
   onHoverNode,
+  onMarkClick,
   onNodeClick,
   palette,
   showDataLabels = true,
+  showTableToggle = true,
   showTooltip = true,
   title,
   ...root
 }: ChartTreemapProps) {
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
+  const avisarHover: ChartTreemapProps['onHover'] =
+    onHover || onHoverNode
+      ? (...aviso) => {
+          onHover?.(...aviso);
+          onHoverNode?.(...aviso);
+        }
+      : undefined;
+  const aoClicarNoNo =
+    onMarkClick || onNodeClick
+      ? (caminho: readonly ChartHoveredNode[]) => {
+          onMarkClick?.(caminho);
+          onNodeClick?.(caminho);
+        }
+      : undefined;
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenGroups,
-    hiddenSeries: hiddenGroups,
-    onHiddenSeriesChange: onHiddenGroupsChange,
+    defaultHidden: defaultHidden ?? defaultHiddenGroups,
+    hidden: hidden ?? hiddenGroups,
+    onHiddenChange: (ocultos) => {
+      onHiddenChange?.(ocultos);
+      onHiddenGroupsChange?.(ocultos);
+    },
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
@@ -111,10 +155,8 @@ export function ChartTreemap({
   const coresDeGrupo = useMemo(() => resolveSeriesColors(nodes, { accent, palette }), [accent, palette, nodes]);
 
   // Sem valor positivo nao ha area a repartir: anuncia vazio. Desligar todos os grupos, nao: a legenda e a volta.
-  const semValor = useMemo(
-    () => !((assignNodeValues(hierarchy<ChartTreemapNode>({ children: nodes, label: '' }), ocupacao).value ?? 0) > 0),
-    [nodes],
-  );
+  const arvoreCompleta = useMemo(() => assignNodeValues(hierarchy<ChartTreemapNode>({ children: nodes, label: '' }), ocupacao), [nodes]);
+  const semValor = !((arvoreCompleta.value ?? 0) > 0);
 
   const retangulos = useMemo(() => {
     const visiveis = nodes.filter((grupo) => !isHidden(grupo.label));
@@ -139,11 +181,11 @@ export function ChartTreemap({
 
   function focar(folha: (typeof retangulos)[number] | null) {
     setEmFoco(folha);
-    onHoverNode?.(folha && hoverPath(folha));
+    avisarHover?.(folha && hoverPath(folha));
   }
 
   const marcas = useMarkNavigation({
-    onActivate: onNodeClick && (({ column }) => onNodeClick(hoverPath(retangulos[column]))),
+    onActivate: aoClicarNoNo && (({ column }) => aoClicarNoNo(hoverPath(retangulos[column]))),
     onFocusMark: (posicao) => focar(posicao && retangulos[posicao.column]),
     present: retangulos.map((_, column) => ({ column, row: 0 })),
   });
@@ -176,6 +218,14 @@ export function ChartTreemap({
         label: grupo.label,
       }));
 
+  const medido = width > 0 && alturaDoDesenho > 0;
+  const espacoDaLegenda = legendRoom(entradasDaLegenda, legend, font, width, fillHeight);
+  const removed = useFit(
+    medido ? ['legend'] as const : [],
+    (partes, legendaEstava) => plotRoom({ height: alturaDoDesenho, width }, espacoDaLegenda, legendaEstava, !partes.has('legend')),
+    CHART_MIN_PLOT,
+  );
+
   return (
     <ChartFrame
       canvasRole={marcas.interactive ? 'group' : 'img'}
@@ -186,9 +236,13 @@ export function ChartTreemap({
       height={alturaDoDesenho}
       legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={legend}
+      legendPosition={removed.has('legend') ? 'none' : legend}
       onToggleSeries={intentLabels ? undefined : toggle}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...treeTable(arvoreCompleta, formatValue, (fracao) => formatPercent(fracao))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -221,7 +275,7 @@ export function ChartTreemap({
                 x={folha.x0}
                 y={folha.y0}
               >
-                {!showTooltip && !onHoverNode && <title>{descricao}</title>}
+                {!showTooltip && !avisarHover && <title>{descricao}</title>}
               </rect>
 
               {cabeORotulo && (

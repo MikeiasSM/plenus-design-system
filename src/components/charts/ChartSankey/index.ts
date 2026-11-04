@@ -4,6 +4,7 @@ export type {
   ChartSankeyFlow,
   ChartSankeyFlowColor,
   ChartSankeyFlowValuePosition,
+  ChartSankeyMark,
   ChartSankeyNode,
   ChartSankeyNodeClick,
   ChartSankeyProps,

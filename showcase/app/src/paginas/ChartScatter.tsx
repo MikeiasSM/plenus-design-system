@@ -9,6 +9,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+import { DecomposicaoDoScatter } from '../estrutura/decomposicao';
 
 const ZEROS = { true: true, false: false, x: 'x', y: 'y' } as const;
 
@@ -84,7 +85,7 @@ const playground = definirPlayground({
         includeZero={ZEROS[valores.includeZero as keyof typeof ZEROS]}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
         series={valores.tamanhoPorZ ? CLIENTES : semZ(CLIENTES)}
         title={valores.title}
         xAxis={valores.xAxis as AxisVisibility}
@@ -166,6 +167,15 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o título dos eixos, os rótulos dos eixos de valor, os eixos e, por fim, a grade, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoScatter,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartScatter height="fill" title="..." /* dados */ />
+</div>`,
+    },
     {
       titulo: 'Bolha dimensionada por z',
       descricao: 'Prazo no eixo X, margem no Y, faturamento no tamanho. Passe o ponteiro numa bolha para ver as guias.',
@@ -252,6 +262,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a série da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartScatter.test.tsx' },
     {
       garantia: 'Descrição do ponto',
@@ -264,6 +277,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem pontos, um EmptyState no lugar do desenho.', teste: 'ChartScatter.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'series',
@@ -286,11 +300,16 @@ export const pagina: Pagina = {
     { nome: 'xAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Eixo de baixo.' },
     { nome: 'yAxis', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'yAxisRight', tipo: "'visible' | 'hidden' | 'onHover'", padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onPointClick', tipo: '(point: ChartScatterPointClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas na ordem da lista; o foco abre a guia e o balão.' },
+    { nome: 'onHover', tipo: '(point: ChartScatterPointClick | null) => void', descricao: 'Ponto sob o ponteiro ou o foco, ou null ao sair; costura para o ChartTooltip.' },
+    { nome: 'onMarkClick', tipo: '(point: ChartScatterPointClick) => void', descricao: 'Torna os pontos botões, percorridos pelas setas na ordem da lista; o foco abre a guia e o balão.' },
+    { nome: 'onPointClick', tipo: '(point: ChartScatterPointClick) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="light"] {
   --pl-color-background: #F6F7F8;
   --pl-color-surface: var(--pl-neutral-white);
   --pl-color-surface-subtle: #FAFAFB;
@@ -29,7 +30,7 @@
   --pl-color-on-info-container: var(--pl-brand-blue-70);
 }
 
-:root[data-theme="dark"] {
+[data-theme="dark"] {
   --pl-color-background: #141517;
   --pl-color-surface: #1B1D20;
   --pl-color-surface-subtle: #202226;
@@ -60,30 +61,82 @@
   --pl-color-on-info-container: var(--pl-color-info);
 }
 
-/* A cor primaria sai da paleta ativa e e recalculada em cada escopo com
-   `data-palette`. O solido e o preenchimento; o forte e o traco, lido contra a
-   superficie: texto, borda e foco. No escuro, o solido desce ao passo 40, que se
-   le contra a superficie escura em todas as paletas. */
-:root,
-[data-palette] {
-  --pl-color-primary: var(--pl-palette-solid, var(--pl-palette-50));
-  --pl-color-primary-hover: var(--pl-palette-60);
-  --pl-color-primary-active: var(--pl-palette-70);
-  --pl-color-primary-strong: var(--pl-palette-strong-light);
-  --pl-color-primary-container: var(--pl-palette-10);
-  --pl-color-primary-line: var(--pl-palette-30);
-  --pl-color-on-primary: var(--pl-palette-on-solid);
-  --pl-color-on-primary-container: var(--pl-palette-80);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pl-color-background: #141517;
+    --pl-color-surface: #1B1D20;
+    --pl-color-surface-subtle: #202226;
+    --pl-color-surface-muted: #282B2F;
+    --pl-color-border: #2C2F33;
+    --pl-color-border-strong: #3A3E43;
+    --pl-color-text: #E9EAEB;
+    --pl-color-text-secondary: #A5A8AC;
+    --pl-color-text-tertiary: #8E9297;
+    --pl-color-ink: #101113;
+    --pl-color-on-ink: #E9EAEB;
+    --pl-color-scrim: rgba(0, 0, 0, 0.62);
+
+    --pl-color-success: #4FBE8B;
+    --pl-color-success-container: #16281F;
+    --pl-color-on-success-container: var(--pl-color-success);
+    --pl-color-warning: #DDA24A;
+    --pl-color-warning-container: #2A2116;
+    --pl-color-on-warning-container: var(--pl-color-warning);
+    --pl-color-danger: #E8776B;
+    --pl-color-danger-solid: #C0392B;
+    --pl-color-on-danger: var(--pl-neutral-white);
+    --pl-color-danger-container: #2A1917;
+    --pl-color-danger-text: var(--pl-color-danger);
+    --pl-color-on-danger-container: var(--pl-color-danger-text);
+    --pl-color-info: #6BA6E8;
+    --pl-color-info-container: #16202C;
+    --pl-color-on-info-container: var(--pl-color-info);
+  }
 }
 
-:root[data-theme="dark"],
-:root[data-theme="dark"] [data-palette] {
-  --pl-color-primary: var(--pl-palette-40);
-  --pl-color-primary-hover: var(--pl-palette-30);
-  --pl-color-primary-active: var(--pl-palette-20);
-  --pl-color-primary-strong: var(--pl-palette-strong-dark);
-  --pl-color-primary-container: color-mix(in oklab, var(--pl-palette-40) 16%, var(--pl-color-surface));
-  --pl-color-primary-line: color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface));
-  --pl-color-on-primary: var(--pl-palette-on-40);
-  --pl-color-on-primary-container: var(--pl-palette-30);
+/* Texto sobre a superficie escura (`ink`), igual nos dois temas. */
+:root {
+  --pl-on-ink-2: #A5A8AC;
+  --pl-on-ink-3: #7C8085;
+}
+
+/* A cor primaria sai da paleta ativa e do tema. O solido e o preenchimento; o forte e o traco, lido contra a
+   superficie: texto, borda e foco. No escuro, o solido desce ao passo 40, que se le contra a superficie escura em todas
+   as paletas. `light-dark()` escolhe pelo `color-scheme` de quem usa o token, entao a escolha acompanha o tema mais
+   proximo mesmo com a paleta declarada num ancestral ou num descendente dele. O seletor repete-se em cada escopo
+   porque o `color-mix` e calculado onde o token e declarado, contra a superficie daquele escopo. */
+:root,
+[data-theme],
+[data-palette] {
+  --pl-color-primary: light-dark(var(--pl-palette-solid, var(--pl-palette-50)), var(--pl-palette-40));
+  --pl-color-primary-hover: light-dark(var(--pl-palette-60), var(--pl-palette-30));
+  --pl-color-primary-active: light-dark(var(--pl-palette-70), var(--pl-palette-20));
+  --pl-color-primary-strong: light-dark(var(--pl-palette-strong-light), var(--pl-palette-strong-dark));
+  --pl-color-primary-container: light-dark(
+    var(--pl-palette-10),
+    color-mix(in oklab, var(--pl-palette-40) 16%, var(--pl-color-surface))
+  );
+  --pl-color-primary-selected: light-dark(
+    var(--pl-palette-20),
+    color-mix(in oklab, var(--pl-palette-40) 26%, var(--pl-color-surface))
+  );
+  --pl-color-primary-line: light-dark(
+    var(--pl-palette-30),
+    color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface))
+  );
+  --pl-color-on-primary: light-dark(var(--pl-palette-on-solid), var(--pl-palette-on-40));
+  --pl-color-on-primary-container: light-dark(var(--pl-palette-80), var(--pl-palette-30));
+}
+
+/* O tema escolhido no elemento vale para a subarvore. Sem `data-theme` em lugar nenhum, o sistema decide. */
+:root {
+  color-scheme: light dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
 }

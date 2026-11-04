@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
+  ChartTable,
   ChartFrame,
   VOLTA,
   arcPath,
@@ -8,11 +9,13 @@ import {
   fitCenterText,
   ringDiameter,
   useChartMetrics,
+  useRingFit,
   useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
   type ChartAnchorPoint,
   type ChartHeight,
+  type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
   type ChartRootProps,
@@ -28,10 +31,13 @@ export interface ChartRadialTrack extends SeriesAppearance {
   value: number;
 }
 
-export interface ChartRadialProps extends ChartRootProps {
+export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. O anel em foco troca esse texto pelo proprio rotulo. */
   centerLabel?: string;
+  /** Aneis ocultos de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenTracks?: readonly string[];
   emptyMessage?: string;
   /** Angulo final da volta, em graus a partir do topo. Meia-lua usa 180. */
@@ -40,16 +46,31 @@ export interface ChartRadialProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
+  /** Rotulos dos aneis desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenTracks?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /**
+   * Anel sob o ponteiro, o foco ou a entrada da legenda, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem
+   * o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
+   */
+  onHover?: (track: ChartRadialTrack | null, details?: ChartHoverDetails) => void;
   /** Clique no anel. Com ele, os aneis viram botoes percorridos pelas setas. */
+  onMarkClick?: (track: ChartRadialTrack) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onTrackClick?: (track: ChartRadialTrack) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   startAngle?: number;
@@ -74,19 +95,25 @@ function emRadianos(graus: number) {
 export function ChartRadial({
   accent,
   centerLabel,
+  defaultHidden,
   defaultHiddenTracks,
   emptyMessage = 'Sem dados no período',
   endAngle = 360,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
+  hidden,
   hiddenTracks,
   legend = 'bottom',
   legendAlign,
+  onHiddenChange,
   onHiddenTracksChange,
+  onHover,
+  onMarkClick,
   onTrackClick,
   palette,
   showCenter = true,
+  showTableToggle = true,
   showTooltip = true,
   startAngle = 0,
   thickness = 16,
@@ -98,9 +125,12 @@ export function ChartRadial({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHiddenSeries: defaultHiddenTracks,
-    hiddenSeries: hiddenTracks,
-    onHiddenSeriesChange: onHiddenTracksChange,
+    defaultHidden: defaultHidden ?? defaultHiddenTracks,
+    hidden: hidden ?? hiddenTracks,
+    onHiddenChange: (ocultos) => {
+      onHiddenChange?.(ocultos);
+      onHiddenTracksChange?.(ocultos);
+    },
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um anel nao pode
@@ -121,9 +151,31 @@ export function ChartRadial({
   const animadas = useTweenedNumbers(fracoes, { from: fracoes.map(() => 0) });
 
   const [emFoco, setEmFoco] = useState<number | null>(null);
+  // O ponteiro que salta do anel para a legenda entra nela antes de sair do anel: a saida so solta o que ainda e dele.
+  const realcado = useRef<number | null>(null);
+
+  function focarAnel(indice: number | null, details?: ChartHoverDetails) {
+    const anel = indice === null ? null : tracks[indice];
+    realcado.current = indice;
+    setEmFoco(indice);
+
+    if (anel && details) {
+      onHover?.(anel, details);
+    } else {
+      onHover?.(anel);
+    }
+  }
+
+  const aoClicarNoAnel =
+    onMarkClick || onTrackClick
+      ? (anel: ChartRadialTrack) => {
+          onMarkClick?.(anel);
+          onTrackClick?.(anel);
+        }
+      : undefined;
   const marcas = useMarkNavigation({
-    onActivate: onTrackClick && (({ column }) => onTrackClick(tracks[column])),
-    onFocusMark: (posicao) => setEmFoco(posicao?.column ?? null),
+    onActivate: aoClicarNoAnel && (({ column }) => aoClicarNoAnel(tracks[column])),
+    onFocusMark: (posicao) => focarAnel(posicao?.column ?? null),
     present: tracks.flatMap((anel, column) => (isHidden(anel.label) || !valido(anel) ? [] : [{ column, row: 0 }])),
   });
 
@@ -133,7 +185,12 @@ export function ChartRadial({
     const alvo = indice >= 0 && !isHidden(label!) && valido(tracks[indice]) ? indice : null;
 
     marcas.anchorTooltip(alvo === null ? undefined : anchor);
-    setEmFoco(alvo);
+
+    if (alvo !== null && anchor) {
+      focarAnel(alvo, { anchor, color: cores[alvo] });
+    } else if (alvo !== null || realcado.current !== null) {
+      focarAnel(alvo);
+    }
   }
 
   function alternarAnel(label: string) {
@@ -168,7 +225,24 @@ export function ChartRadial({
   const emFocoLegivel = anelEmFoco && !isHidden(anelEmFoco.label) && valido(anelEmFoco) ? anelEmFoco : undefined;
   const destaque = emFocoLegivel ?? primeiroVisivel;
   const textoDoCentro = emFocoLegivel ? emFocoLegivel.label : (centerLabel ?? destaque?.label);
-  const valorDoCentro = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
+  const valorDoCentroPedido = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
+  const entradasDaLegenda = tracks.map((anel, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(anel.label),
+    label: anel.label,
+    value: valido(anel) ? formatValue(anel.value) : undefined,
+  }));
+  const posicaoDaLegenda = tracks.length > 1 ? legend : 'none';
+  const removed = useRingFit({
+    center: valorDoCentroPedido === undefined ? undefined : { innerShare: 0.5, value: valorDoCentroPedido },
+    fillHeight,
+    font,
+    height: alturaDoDesenho,
+    legend: entradasDaLegenda,
+    legendPosition: posicaoDaLegenda,
+    width,
+  });
+  const valorDoCentro = removed.has('centerText') ? undefined : valorDoCentroPedido;
   // O centro reserva o que o valor pede no menor degrau da escala, ate metade do raio; quem cede e a espessura dos aneis.
   const piso =
     valorDoCentro === undefined
@@ -197,17 +271,28 @@ export function ChartRadial({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={tracks.map((anel, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(anel.label),
-        label: anel.label,
-        value: valido(anel) ? formatValue(anel.value) : undefined,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={tracks.length > 1 ? legend : 'none'}
+      legendPosition={removed.has('legend') ? 'none' : posicaoDaLegenda}
       onHighlightSeries={realcarAnel}
       onToggleSeries={alternarAnel}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Valor', 'Meta', 'Atingido']}
+          rows={tracks.map((anel, indice) => {
+            const meta = anel.max ?? maiorValor;
+
+            return {
+              cells: valido(anel) ? [formatValue(anel.value), formatValue(meta), meta > 0 ? formatPercent(anel.value / meta) : ''] : ['', '', ''],
+              header: anel.label,
+              key: `${indice}:${anel.label}`,
+            };
+          })}
+          title={title}
+        />
+      }
       swatch="dot"
       title={title}
       tooltip={
@@ -233,14 +318,13 @@ export function ChartRadial({
 
           return (
             <g
-              aria-label={marcas.interactive ? descricao : undefined}
+              aria-label={descricao}
               key={indice}
-              onMouseEnter={() => setEmFoco(indice)}
-              onMouseLeave={() => setEmFoco((atual) => (atual === indice ? null : atual))}
+              onMouseEnter={() => focarAnel(indice)}
+              onMouseLeave={() => realcado.current === indice && focarAnel(null)}
               {...marcas.markProps({ column: indice, row: 0 })}
             >
               <path
-                aria-label={descricao}
                 className={styles.track}
                 d={arcPath({
                   cornerRadius: canto,

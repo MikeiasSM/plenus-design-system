@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { entradasDosIcones, iconesPorModulo } from './scripts/icones-por-modulo';
 
 // So o modulo com hook, contexto ou portal e do cliente; o resto segue utilizavel num Server Component.
 const usaApiDoCliente = /\b(use[A-Z]\w*|createContext|createPortal|flushSync)\b/;
@@ -10,13 +11,16 @@ const marcaModulosDoCliente: Plugin = {
 };
 
 export default defineConfig({
-  plugins: [react(), marcaModulosDoCliente],
+  plugins: [iconesPorModulo, react(), marcaModulosDoCliente],
   build: {
     // Depurar a biblioteca dentro do consumidor, em vez de ler o minificado.
     sourcemap: true,
+    // Um .css por modulo: `finaliza-pacote` monta deles as folhas por componente e a folha inteira.
+    cssCodeSplit: true,
     lib: {
-      // A suite de icones e uma entrada propria, publicada em `@plenustech/design-system/icons`.
-      entry: { index: 'src/index.ts', icons: 'src/icons.ts' },
+      // A suite de icones e uma entrada propria, publicada em `@plenustech/design-system/icons`, e cada icone dela
+      // tem ainda o proprio modulo, em `@plenustech/design-system/icons/<Nome>`.
+      entry: { index: 'src/index.ts', icons: 'src/icons.ts', ...entradasDosIcones },
       formats: ['es', 'cjs'],
       // A extensao decide o formato: com `type: module` no pacote, um `.js`
       // e lido como ESM, e o bundle CommonJS nao exportaria nada.

@@ -61,7 +61,8 @@ describe('SegmentedControl', () => {
     );
 
     act(() => {
-      fireEvent.focus(screen.getByRole('radio', { name: 'Ver em cartoes' }));
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      screen.getByRole('radio', { name: 'Ver em cartoes' }).focus();
     });
 
     expect(screen.getByRole('tooltip')).toHaveTextContent('Ver em cartoes');

@@ -11,6 +11,26 @@ const REGISTROS = Array.from({ length: 10000 }, (_, indice) => ({
 
 const LIMITE_DA_CONSULTA = 50;
 
+function EstadosComAplicar() {
+  const [aplicados, setAplicados] = useState<readonly string[]>(['sp']);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <ComboBox
+        clearable
+        confirmSelection
+        label="Estados do relatório"
+        onValueChange={setAplicados}
+        options={ESTADOS}
+        selectAll
+        selectionMode="multiple"
+        value={aplicados}
+      />
+      <p className="note">Aplicados: {aplicados.length ? aplicados.join(', ') : 'nenhum'}</p>
+    </div>
+  );
+}
+
 const playground = definirPlayground({
   inicial: {
     label: 'Estado',
@@ -255,6 +275,13 @@ export const pagina: Pagina = {
         "<ComboBox\n  label=\"Estados atendidos\"\n  placeholder=\"Digite para filtrar\"\n  selectionMode=\"multiple\"\n  options={estados}\n  defaultValue={['sp', 'rj', 'mg']}\n  onValueChange={setEstados}\n/>",
     },
     {
+      titulo: 'Selecionar todos, limpar e aplicar',
+      descricao: 'Na escolha múltipla, o rodapé do painel marca os itens do resultado, limpa e só valida ao aplicar. Cancelar, Escape ou sair do campo descartam o rascunho. Tab leva do campo aos botões.',
+      Previa: EstadosComAplicar,
+      codigo:
+        "<ComboBox\n  label=\"Estados do relatório\"\n  selectionMode=\"multiple\"\n  options={estados}\n  selectAll\n  clearable\n  confirmSelection\n  value={aplicados}\n  onValueChange={setAplicados}\n  labels={{ apply: 'Aplicar', cancel: 'Cancelar' }}\n/>",
+    },
+    {
       titulo: 'Opção composta e grupos',
       descricao: 'Segunda linha, ícone e grupo. O nome da opção é o rótulo; a segunda linha é a descrição dela.',
       Previa: () => (
@@ -355,11 +382,16 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'options', tipo: 'readonly ComboBoxOption[]', descricao: <>Cada opção: <code>label</code>, <code>value</code>, <code>disabled</code>, <code>description</code>, <code>icon</code> e <code>group</code>.</> },
     { nome: 'options[].description', tipo: 'string', descricao: 'Segunda linha, ligada como descrição acessível. A busca local procura só no rótulo.' },
     { nome: 'options[].icon', tipo: 'ReactNode', descricao: 'Decorativo, à frente do rótulo.' },
     { nome: 'options[].group', tipo: 'string', descricao: 'Título do grupo. As opções seguidas de um mesmo grupo aparecem juntas, sob ele.' },
     { nome: 'selectionMode', tipo: "'single' | 'multiple'", padrao: "'single'", descricao: 'Escolha simples ou múltipla.' },
+    { nome: 'selectAll', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que marca os itens habilitados do resultado da busca, sem desmarcar o resto.' },
+    { nome: 'clearable', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que desmarca tudo, inclusive o que a busca esconde.' },
+    { nome: 'confirmSelection', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. A marcação é rascunho: onValueChange é chamado uma vez, em Aplicar. Cancelar, Escape e sair do campo descartam.' },
+    { nome: 'labels', tipo: 'Partial<ComboBoxLabels>', descricao: "ComboBoxLabels é { selectAll, clear, apply, cancel }, todos string. As três propriedades do rodapé e labels formam ComboBoxMultipleActions. Textos do rodapé. Padrões: 'Selecionar todos', 'Limpar', 'Aplicar' e 'Cancelar'." },
     { nome: 'value', tipo: 'string | string[]', descricao: 'Chave ou chaves escolhidas, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string | string[]', descricao: 'Escolha inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void | (values: string[]) => void', descricao: 'Avisa a escolha, conforme o modo.' },

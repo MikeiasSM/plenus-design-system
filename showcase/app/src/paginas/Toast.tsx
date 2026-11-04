@@ -1,4 +1,4 @@
-import { Alert, Button, showToast, type ToastOptions, type ToastTone } from '@plenustech/design-system';
+import { Alert, Button, ToastProvider, ToastRegion, showToast, useToast, type ToastOptions, type ToastTone } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
 
 const TONS = ['info', 'success', 'warning', 'danger'] as const;
@@ -113,6 +113,36 @@ function Variantes() {
   );
 }
 
+function DisparadorDaArvore({ nome }: { nome: string }) {
+  const { showToast: mostrar } = useToast();
+
+  return (
+    <Button onClick={() => mostrar({ title: `Aviso do ${nome}` })} size="sm" variant="secondary">
+      {`Avisar no ${nome}`}
+    </Button>
+  );
+}
+
+function AppIsolado({ nome }: { nome: string }) {
+  return (
+    <ToastProvider>
+      <div className="stack" style={{ flex: 1, minWidth: 220 }}>
+        <DisparadorDaArvore nome={nome} />
+        <ToastRegion aria-label={`Avisos do ${nome}`} role="region" style={{ position: 'static', pointerEvents: 'auto', width: '100%' }} />
+      </div>
+    </ToastProvider>
+  );
+}
+
+function DuasArvores() {
+  return (
+    <div className="demo-row" style={{ alignItems: 'flex-start', width: '100%' }}>
+      <AppIsolado nome="app A" />
+      <AppIsolado nome="app B" />
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
@@ -169,6 +199,28 @@ export const pagina: Pagina = {
         "showToast({\n  tone: 'danger',\n  title: 'Falha ao salvar',\n  description: 'A conexão falhou. O item continua na fila.',\n  action: { label: 'Tentar de novo', onClick: salvar },\n});",
     },
     {
+      titulo: 'Duas ações',
+      descricao: 'actions aceita até duas, na ordem dada; a terceira em diante não aparece. Acionar qualquer uma fecha o aviso.',
+      Previa: () => (
+        <Button
+          onClick={() =>
+            showToast({
+              actions: [
+                { label: 'Desfazer', onClick: () => showToast({ title: 'Registro restaurado', tone: 'success' }) },
+                { label: 'Ver detalhes', onClick: () => showToast({ title: 'Detalhes abertos' }) },
+              ],
+              title: 'Registro removido',
+            })
+          }
+          variant="secondary"
+        >
+          Remover
+        </Button>
+      ),
+      codigo:
+        "showToast({\n  title: 'Registro removido',\n  actions: [\n    { label: 'Desfazer', onClick: desfazer },\n    { label: 'Ver detalhes', onClick: abrirDetalhes },\n  ],\n});",
+    },
+    {
       titulo: 'Copiado',
       descricao: 'Confirmação curta, só com título, em 3s.',
       Previa: () => (
@@ -177,6 +229,14 @@ export const pagina: Pagina = {
         </Button>
       ),
       codigo: "showToast({ title: 'Link copiado', duration: 3000 });",
+    },
+    {
+      titulo: 'Estado por árvore',
+      descricao: 'Cada ToastProvider guarda os próprios avisos. Disparar no app A não acende o canto do app B, e o showToast solto continua indo ao canto global.',
+      largo: true,
+      Previa: DuasArvores,
+      codigo:
+        "function Disparador() {\n  const { showToast } = useToast();\n  return <Button onClick={() => showToast({ title: 'Salvo' })}>Salvar</Button>;\n}\n\n<ToastProvider>\n  <Disparador />\n  <ToastRegion />\n</ToastProvider>",
     },
   ],
   faca: {
@@ -213,8 +273,9 @@ export const pagina: Pagina = {
   ],
   notaDaApi: (
     <>
-      Não há um componente <code>Toast</code>: <code>ToastRegion</code> é montado uma vez na raiz, sem propriedades, e{' '}
-      <code>showToast(options)</code> dispara o aviso de qualquer lugar. Estas são as opções.
+      Não há um componente <code>Toast</code>: <code>ToastRegion</code> é montado uma vez na raiz, sem propriedades além de <code>portalContainer</code>, e{' '}
+      <code>showToast(options)</code> dispara o aviso de qualquer lugar. Para dar a uma árvore o próprio estado, envolva-a em{' '}
+      <code>ToastProvider</code> e dispare com <code>useToast()</code>, que devolve <code>showToast</code> e <code>dismissToast</code>. Estas são as opções.
     </>
   ),
   api: [
@@ -227,6 +288,10 @@ export const pagina: Pagina = {
       padrao: '6000',
       descricao: <>Milissegundos até sumir; <code>null</code> mantém. No erro, o padrão é <code>null</code>.</>,
     },
-    { nome: 'action', tipo: '{ label: string; onClick: () => void }', descricao: 'Ação única; acioná-la fecha o aviso.' },
+    { nome: 'action', tipo: '{ label: string; onClick: () => void }', descricao: 'Ação única; acioná-la fecha o aviso. Ignorada quando actions vem.' },
+    { nome: 'actions', tipo: 'readonly ToastAction[]', descricao: 'Até duas ações { label, onClick }, na ordem dada; a terceira em diante não aparece. Acionar uma fecha o aviso.' },
+    { nome: 'ToastRegion · portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o canto, que passa a herdar o tema dele. Vale sobre o PortalProvider; sem os dois, o canto fica onde foi montado.' },
+    { nome: 'ToastProvider · children', tipo: 'ReactNode', descricao: 'Árvore com o próprio estado de avisos. Não desenha o canto: o ToastRegion continua sendo posto dentro dela.' },
+    { nome: 'useToast()', tipo: 'UseToastResult', descricao: <>Devolve <code>{'{ showToast, dismissToast }'}</code> do estado da árvore; fora de um <code>ToastProvider</code>, age no estado global.</> },
   ],
 };

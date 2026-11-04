@@ -340,7 +340,6 @@ export const pagina: Pagina = {
     { nome: 'value', tipo: 'ListItem[]', descricao: 'Itens escolhidos, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'ListItem[]', descricao: 'Itens escolhidos de início, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(items: ListItem[]) => void', descricao: 'Avisa os itens escolhidos.' },
-    { nome: 'onSelectionChange', tipo: '(items: ListItem[]) => void', descricao: <>Obsoleto: use <code>onValueChange</code>.</> },
     { nome: 'onSearch', tipo: '(term: string) => void', descricao: 'Busca externa: avisa o termo e desliga o filtro local.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Espera da busca externa.' },
     { nome: 'loadingMessage', tipo: 'string', padrao: "'Carregando'", descricao: 'Texto do carregamento.' },

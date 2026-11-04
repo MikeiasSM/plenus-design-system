@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
+  categoryTable,
   CartesianFrame,
   categoryTooltip,
   PointBands,
@@ -28,6 +30,7 @@ import {
   type ChartPoint,
   type MarkVisibility,
   type ChartRootProps,
+  type ChartCategoryHover,
   type ChartMarkClick,
   type MarkPosition,
 } from '../core';
@@ -50,10 +53,13 @@ export interface ChartLineSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartLineProps extends ChartRootProps {
+export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
@@ -66,17 +72,27 @@ export interface ChartLineProps extends ChartRootProps {
    */
   includeZero?: boolean;
   height?: ChartHeight;
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
-  onPointClick?: (point: ChartMarkClick) => void;
-  /** Indice da categoria mais proxima do ponteiro, ou `null` ao sair. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** Categoria mais proxima do ponteiro, ou `null` ao sair. */
+  onHover?: (category: ChartCategoryHover | null) => void;
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
   onHoverCategory?: (index: number | null) => void;
+  /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
+  onMarkClick?: (mark: ChartMarkClick) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onPointClick?: (point: ChartMarkClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartLineSeries[];
@@ -88,6 +104,8 @@ export interface ChartLineProps extends ChartRootProps {
    * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
    * `ChartTooltip` pela costura; sem balao nem costura, o ponto volta a ter o `<title>`.
    */
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -107,24 +125,30 @@ export function ChartLine({
   accent,
   categories,
   curve = 'smooth',
+  defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
   includeZero = true,
+  hidden,
   hiddenSeries,
   labelAngle = 'auto',
   minTickStep,
   legend = 'bottom',
   legendAlign,
+  onHiddenChange,
   onHiddenSeriesChange,
+  onHover,
   onHoverCategory,
+  onMarkClick,
   onPointClick,
   palette,
   series,
   showDataLabels = 'hidden',
   showDots = 'onHover',
+  showTableToggle = true,
   showTooltip = true,
   title,
   xAxis = 'visible',
@@ -139,10 +163,13 @@ export function ChartLine({
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHiddenSeries,
-    hiddenSeries,
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
     labels: series.map((serie) => serie.label),
-    onHiddenSeriesChange,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -164,7 +191,14 @@ export function ChartLine({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
@@ -184,12 +218,28 @@ export function ChartLine({
     [categories, plot.width],
   );
 
-  const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(onHoverCategory);
+  const hoverDaCategoria =
+    onHover || onHoverCategory
+      ? (index: number | null) => {
+          onHover?.(index === null ? null : { category: categories[index], index });
+          onHoverCategory?.(index);
+        }
+      : undefined;
+  const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(hoverDaCategoria);
+  const aoClicarNoPonto =
+    onMarkClick || onPointClick
+      ? (ponto: ChartMarkClick) => {
+          onMarkClick?.(ponto);
+          onPointClick?.(ponto);
+        }
+      : undefined;
+  const visibilidadeDosPontos = removed.has('detail') ? 'hidden' : showDots;
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
   const [alturaDoPonteiro, setAlturaDoPonteiro] = useState<number | null>(null);
   const comFaixas =
     showTooltip ||
-    onHoverCategory !== undefined ||
-    onPointClick !== undefined ||
+    hoverDaCategoria !== undefined ||
+    aoClicarNoPonto !== undefined ||
     showDots === 'onHover' ||
     showDataLabels === 'onHover';
 
@@ -226,9 +276,9 @@ export function ChartLine({
   );
 
   const clicarNoPonto =
-    onPointClick &&
+    aoClicarNoPonto &&
     (({ column, row }: MarkPosition) =>
-      onPointClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 }));
+      aoClicarNoPonto({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 }));
   const pontos = useMarkNavigation({
     onActivate: clicarNoPonto,
     onFocusMark: (posicao) => {
@@ -272,17 +322,18 @@ export function ChartLine({
           : undefined
       }
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -330,7 +381,7 @@ export function ChartLine({
 
               const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
 
-              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
+              const classeDoPonto = markShown(visibilidadeDosPontos, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
 
               return (
                 <circle
@@ -347,7 +398,7 @@ export function ChartLine({
               );
             })}
 
-            {showDataLabels !== 'hidden' &&
+            {rotulosDeDado !== 'hidden' &&
               pontosPorSerie[indiceSerie].map((ponto, indice) => {
                 if (ponto === null) {
                   return null;
@@ -359,7 +410,7 @@ export function ChartLine({
 
                 return (
                   <text
-                    className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+                    className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                     key={indice}
                     textAnchor={textAnchor}
                     x={ponto.x + dx}

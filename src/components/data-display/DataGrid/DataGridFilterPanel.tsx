@@ -247,7 +247,7 @@ interface ConditionEditorProps {
   optionalLabel?: string;
 }
 
-function ConditionEditor({ condition, header, kind, label, onChange, operators, optionalLabel }: ConditionEditorProps) {
+export function ConditionEditor({ condition, header, kind, label, onChange, operators, optionalLabel }: ConditionEditorProps) {
   const operator = operators.find((candidate) => candidate.id === condition.operator);
   const selectOptions = [
     ...(optionalLabel ? [{ label: optionalLabel, value: '' }] : []),
@@ -299,12 +299,18 @@ interface OperandEditorProps {
   value: unknown;
 }
 
+function operandNumber(value: unknown) {
+  const number = value === undefined || value === '' ? NaN : numberOf(value);
+
+  return Number.isNaN(number) ? null : number;
+}
+
 function OperandEditor({ kind, label, onChange, value }: OperandEditorProps) {
   if (kind === 'date') {
     return <DatePicker aria-label={label} size="sm" value={typeof value === 'string' && value ? value : null} onValueChange={(next) => onChange(next ?? '')} />;
   }
   if (kind === 'number') {
-    return <InputNumber aria-label={label} decimalScale={4} placeholder="Valor" size="sm" value={value === undefined ? '' : (value as string | number)} onValueChange={onChange} />;
+    return <InputNumber aria-label={label} decimalScale={4} placeholder="Valor" size="sm" value={operandNumber(value)} onValueChange={(next) => onChange(next ?? '')} />;
   }
 
   return <InputText aria-label={label} placeholder="Valor" size="sm" value={typeof value === 'string' ? value : ''} onValueChange={onChange} />;
@@ -318,7 +324,7 @@ interface SetEditorProps {
   selected: readonly string[] | null;
 }
 
-function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: SetEditorProps) {
+export function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: SetEditorProps) {
   const [term, setTerm] = useState('');
   const [options] = useState(optionsOf);
   const found = useMemo(() => options.filter((option) => containsTerm(option || 'Vazio', term)), [options, term]);

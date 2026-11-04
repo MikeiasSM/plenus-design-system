@@ -28,8 +28,6 @@ export interface TabsProps extends ComponentPropsWithRef<'div'> {
   items: readonly TabItem[];
   label: string;
   onSelectedKeyChange?: (key: string) => void;
-  /** @deprecated Use `onSelectedKeyChange`. */
-  onSelectionChange?: (key: string) => void;
   orientation?: TabsOrientation;
   selectedKey?: string;
 }
@@ -42,7 +40,6 @@ export function Tabs({
   items,
   label,
   onSelectedKeyChange,
-  onSelectionChange,
   orientation = 'horizontal',
   selectedKey,
   ...props
@@ -63,7 +60,6 @@ export function Tabs({
       const [escolhida] = keys;
       if (escolhida !== undefined) {
         onSelectedKeyChange?.(escolhida);
-        onSelectionChange?.(escolhida);
       }
     },
   });

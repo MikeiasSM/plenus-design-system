@@ -27,6 +27,7 @@ export function PointBands({ onActivate, onHover, onPointerY, plot, positions }:
         return (
           <rect
             className={onActivate ? `${styles.hoverBand} ${styles.hoverBandActive}` : styles.hoverBand}
+            data-band={onActivate ? index : undefined}
             height={plot.height}
             key={index}
             onClick={onActivate && (() => onActivate(index))}

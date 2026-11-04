@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "composite": true,
+    "target": "ES2022",
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
     "noEmit": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "scripts/icones-por-modulo.ts"]
 }

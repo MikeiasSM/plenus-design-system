@@ -2,13 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { IconChevronRight, IconSearch, InputText, SegmentedControl, SkipLink, ToastRegion } from '@plenustech/design-system';
 import { version } from '../../../package.json';
 import { familias } from './catalogo';
+import { Composicoes } from './composicoes/Composicoes';
+import { CAMINHO_DAS_COMPOSICOES, ROTA_DAS_COMPOSICOES } from './composicoes/menu';
+import { telas } from './composicoes/telas';
 import { PaginaDoComponente } from './estrutura/PaginaDoComponente';
 import { VisaoGeral } from './estrutura/VisaoGeral';
+import { Fundamentos } from './fundamentos/Fundamentos';
 
 const CHAVE_DO_TEMA = 'plenus-showcase-tema';
 
-/** A escolha guardada vence; sem ela, a preferencia do sistema. */
-function lerTema() {
+type Tema = 'light' | 'dark' | 'system';
+
+/** A escolha guardada vence; sem ela, o sistema decide e o documento fica sem `data-theme`. */
+function lerTema(): Tema {
   try {
     const guardado = localStorage.getItem(CHAVE_DO_TEMA);
 
@@ -19,7 +25,7 @@ function lerTema() {
     // Sem acesso ao armazenamento, quem decide e o sistema.
   }
 
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'system';
 }
 
 /** Ignora caixa e acento, para "formularios" achar "Formulários". */
@@ -75,6 +81,10 @@ export function App() {
     setAbertas(proximas);
   }
 
+  const noComposicoes = rota.componente === ROTA_DAS_COMPOSICOES;
+  const noFundamentos = rota.componente === 'fundamentos';
+  const telasFiltradas = telas.filter((tela) => !termo || [tela.nome, tela.resumo, 'composições'].some((texto) => normalizar(texto).includes(termo)));
+
   const filtradas = familias
     .map((familia) => ({
       ...familia,
@@ -87,10 +97,18 @@ export function App() {
     .filter((familia) => familia.componentes.length > 0);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = tema;
+    if (tema === 'system') {
+      delete document.documentElement.dataset.theme;
+    } else {
+      document.documentElement.dataset.theme = tema;
+    }
 
     try {
-      localStorage.setItem(CHAVE_DO_TEMA, tema);
+      if (tema === 'system') {
+        localStorage.removeItem(CHAVE_DO_TEMA);
+      } else {
+        localStorage.setItem(CHAVE_DO_TEMA, tema);
+      }
     } catch {
       // Guardar a escolha e conveniencia, nao requisito.
     }
@@ -150,11 +168,12 @@ export function App() {
           <span className="version">v{version}</span>
           <SegmentedControl
             items={[
+              { label: 'Sistema', value: 'system' },
               { label: 'Claro', value: 'light' },
               { label: 'Escuro', value: 'dark' },
             ]}
             label="Tema"
-            onValueChange={(valor) => setTema(valor as 'light' | 'dark')}
+            onValueChange={(valor) => setTema(valor as Tema)}
             size="sm"
             value={tema}
           />
@@ -163,9 +182,32 @@ export function App() {
 
       <div className="body">
         <nav aria-label="Componentes" className="sidebar">
-          <a aria-current={atual ? undefined : 'page'} className="sidebar-home" href="#/">
+          <a aria-current={atual || noComposicoes || noFundamentos ? undefined : 'page'} className="sidebar-home" href="#/">
             Visão geral
           </a>
+          <a aria-current={noFundamentos ? 'page' : undefined} className="sidebar-home" href="#/fundamentos">
+            Fundamentos
+          </a>
+          {telasFiltradas.length > 0 && (
+            <div className="sidebar-group">
+              <a aria-current={noComposicoes && !rota.secao ? 'page' : undefined} className="sidebar-title sidebar-title-link" href={CAMINHO_DAS_COMPOSICOES}>
+                <span>Composições</span>
+                <span className="sidebar-count">{telasFiltradas.length}</span>
+              </a>
+              <div className="sidebar-items">
+                {telasFiltradas.map((tela) => (
+                  <a
+                    aria-current={noComposicoes && rota.secao === tela.id ? 'page' : undefined}
+                    className="sidebar-item"
+                    href={`${CAMINHO_DAS_COMPOSICOES}/${tela.id}`}
+                    key={tela.id}
+                  >
+                    {tela.nome}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           {filtradas.map((familia) => {
             // Na busca, todas abertas: o resultado nao pode ficar escondido num modulo recolhido.
             const aberta = Boolean(termo) || abertas.has(familia.nome);
@@ -203,8 +245,12 @@ export function App() {
           {filtradas.length === 0 && <p className="sidebar-empty">Nenhum componente com esse nome.</p>}
         </nav>
 
-        <main className="main" id="conteudo" tabIndex={-1}>
-          {atual ? (
+        <main className={noComposicoes ? 'main main-composicao' : 'main'} id="conteudo" tabIndex={-1}>
+          {noComposicoes ? (
+            <Composicoes tela={rota.secao} />
+          ) : noFundamentos ? (
+            <Fundamentos />
+          ) : atual ? (
             <PaginaDoComponente componente={atual.componente} familia={atual.familia} key={atual.componente.nome} />
           ) : (
             <VisaoGeral familias={familias} />

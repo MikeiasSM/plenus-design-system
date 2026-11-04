@@ -1,8 +1,10 @@
 import { createContext, useContext } from 'react';
 import type { MenuSection } from '../../overlays/Menu';
+import type { DataGridFilterBuilderContext } from './DataGridFilterBuilder';
 import type { DataGridScrollRoot } from './scrollRoot';
 
 export interface DataGridContextValue {
+  filterBuilder: DataGridFilterBuilderContext;
   label: string;
   search: string;
   setSearch: (search: string) => void;

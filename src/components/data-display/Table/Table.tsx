@@ -59,8 +59,6 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   loadingMessage?: string;
   highlightSelectedRow?: boolean;
   onSelectedIdsChange?: (ids: readonly string[]) => void;
-  /** @deprecated Use `onSelectedIdsChange`. */
-  onSelectionChange?: (ids: readonly string[]) => void;
   onSortChange?: (sort: TableSort) => void;
   rows?: readonly TableRowItem[];
   selectedIds?: readonly string[];
@@ -148,7 +146,6 @@ export function Table({
   loading = false,
   loadingMessage = 'Carregando',
   onSelectedIdsChange,
-  onSelectionChange,
   onSortChange,
   rows = [],
   selectedIds,
@@ -239,7 +236,6 @@ export function Table({
     selectedKeys: selectedIds,
     onSelectionChange: (keys) => {
       onSelectedIdsChange?.([...keys]);
-      onSelectionChange?.([...keys]);
     },
   });
 
@@ -370,7 +366,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
 
   // A ajuda e focavel e fica fora do botao de ordenacao: controle dentro de controle nao e HTML valido.
   const ajuda = help && (
-    <Tooltip content={help}>
+    <Tooltip content={help} placement="bottom">
       <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
         <IconQuestionCircle size={14} />
       </span>

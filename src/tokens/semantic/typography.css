@@ -3,6 +3,10 @@
   --pl-font-body: 'Montserrat', sans-serif;
   --pl-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
+  --pl-weight-semibold: 600;
+  --pl-leading-tight: 1.2;
+  --pl-leading: 1.6;
+
   --pl-type-display-large-size: 36px;
   --pl-type-display-large-line-height: 44px;
   --pl-type-display-large-weight: 600;

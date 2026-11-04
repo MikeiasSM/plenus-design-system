@@ -15,6 +15,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoCombo } from '../estrutura/decomposicao';
 
 const META = [50000, 50000, 50000, 70000, 70000, 70000];
 
@@ -60,8 +61,8 @@ const playground = definirPlayground({
         formatValue={FORMATOS[valores.formatValue].formatar}
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
-        onHiddenSeriesChange={(ocultas) => registrar(`onHiddenSeriesChange: [${ocultas.join(', ')}]`)}
-        onHoverCategory={(indice) => registrar(`onHoverCategory: ${indice}`)}
+        onHiddenChange={(ocultas) => registrar(`onHiddenChange: [${ocultas.join(', ')}]`)}
+        onHover={(categoria) => registrar(`onHover: ${categoria ? `${categoria.category} (${categoria.index})` : null}`)}
         series={[
           { kind: 'bar', label: 'Faturamento', values: FATURAMENTO },
           { axis: valores.eixoDaLinha as ChartComboAxis, kind: 'line', label: 'Conversão', values: CONVERSAO },
@@ -95,7 +96,7 @@ const playground = definirPlayground({
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
       ['formatRightValue', expr('formatarConversao')],
-      ['onHoverCategory', expr('setFaixa')],
+      ['onHover', expr('(categoria) => setFaixa(categoria?.index ?? null)')],
     ]),
   verificar: (valores) => {
     const direita = valores.eixoDaLinha === 'right';
@@ -149,7 +150,7 @@ function LeituraPorSerie() {
           categories={MESES}
           formatRightValue={formatarConversao}
           formatValue={formatarCompacto}
-          onHoverCategory={setFaixa}
+          onHover={(categoria) => setFaixa(categoria?.index ?? null)}
           series={[
             { kind: 'bar', label: 'Faturamento', values: FATURAMENTO },
             { axis: 'right', kind: 'line', label: 'Conversão', values: CONVERSAO },
@@ -192,6 +193,15 @@ const VISIBILIDADE = "'visible' | 'hidden' | 'onHover'";
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o título dos eixos, os rótulos do eixo direito, depois os do esquerdo, os eixos e, por fim, a grade e os rótulos de dado, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoCombo,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartCombo height="fill" title="..." /* dados */ />
+</div>`,
+    },
     {
       titulo: 'Rótulo e curva por série, com títulos',
       descricao: 'Barra e linha de valores próximos disputam o mesmo lugar: só a linha mostra o rótulo, em traço reto. Cada eixo tem o seu título e o seu passo mínimo.',
@@ -302,7 +312,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { color: cores[1], label: 'Conversão', values: [conversao[faixa]] },
   ]}
 >
-  <ChartCombo showTooltip={false} ... onHoverCategory={setFaixa} />
+  <ChartCombo showTooltip={false} ... onHover={(categoria) => setFaixa(categoria?.index ?? null)} />
 </ChartTooltip>`,
     },
   ],
@@ -347,6 +357,9 @@ const cores = resolveSeriesColors([{}, {}]);
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a série da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartCombo.test.tsx' },
     { garantia: 'Descrição da marca', como: <><code>aria-label</code> no formato do eixo a que a série pertence.</>, teste: 'ChartCombo.test.tsx' },
     { garantia: 'Eixo declarado', como: 'O eixo direito nasce só quando uma série pertence a ele, com o zero alinhado.', teste: 'ChartCombo.test.tsx' },
@@ -355,6 +368,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { garantia: 'Ausência anunciada', como: 'Sem séries ou categorias, um EmptyState no lugar do desenho.', teste: 'ChartCombo.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo de baixo, comuns a barras e linhas.' },
     {
@@ -376,10 +390,14 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'yAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'yAxisRight', tipo: VISIBILIDADE, descricao: 'Eixo da direita. Sem valor, visível quando uma série pertence a ele.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
+    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
+    { nome: 'onHover', tipo: '(category: ChartCategoryHover | null) => void', descricao: 'Categoria sob o ponteiro; costura para o ChartTooltip.' },
+    { nome: 'onHoverCategory', tipo: '(index: number | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'xAxisTitle', tipo: "string", descricao: 'Título do eixo das categorias, embaixo do desenho. O espaço sai da área de desenho.' },
     { nome: 'yAxisTitle', tipo: "string", descricao: 'Título do eixo de valor, à esquerda do desenho.' },
     { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita; aparece mesmo que o eixo esteja oculto.' },

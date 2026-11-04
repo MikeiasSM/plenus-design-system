@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Popover.module.css';
 
 export type PopoverPlacement =
@@ -21,15 +22,16 @@ export interface PopoverProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   /** Aberto no inicio, no modo nao controlado. */
   defaultOpen?: boolean;
   offset?: number;
-  /** @deprecated Use `onOpenChange`. */
-  onClose?: () => void;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   placement?: PopoverPlacement;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   triggerRef: RefObject<HTMLElement | null>;
 }
 
-export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...props }: PopoverProps) {
+export function Popover({ defaultOpen = false, onOpenChange, open, portalContainer, ...props }: PopoverProps) {
+  const container = usePortalContainer(portalContainer);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
 
   function close() {
@@ -37,18 +39,17 @@ export function Popover({ defaultOpen = false, onClose, onOpenChange, open, ...p
       setInternalOpen(false);
     }
     onOpenChange?.(false);
-    onClose?.();
   }
 
   // No servidor nao ha `document` para o portal; o Popover nasce na hidratacao.
-  if (!(open ?? internalOpen) || typeof document === 'undefined') {
+  if (!(open ?? internalOpen) || !container) {
     return null;
   }
 
-  return createPortal(<PopoverContent {...props} onClose={close} />, document.body);
+  return createPortal(<PopoverContent {...props} onClose={close} />, container);
 }
 
-type PopoverContentProps = Omit<PopoverProps, 'defaultOpen' | 'onClose' | 'onOpenChange' | 'open'> & { onClose: () => void };
+type PopoverContentProps = Omit<PopoverProps, 'defaultOpen' | 'onOpenChange' | 'open'> & { onClose: () => void };
 
 function PopoverContent({
   children,

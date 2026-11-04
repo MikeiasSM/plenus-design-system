@@ -2,7 +2,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { DialogFrame } from './DialogFrame';
 import styles from './Dialog.module.css';
 
-export type DialogSize = 'sm' | 'md' | 'lg';
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl';
 export type DialogRole = 'dialog' | 'alertdialog';
 
 /** O que o `Dialog` e o `Drawer` compartilham. As propriedades nativas vao ao elemento do dialogo. */
@@ -12,10 +12,16 @@ export interface DialogBaseProps extends Omit<ComponentPropsWithRef<'div'>, 'ari
   defaultOpen?: boolean;
   dismissable?: boolean;
   footer?: ReactNode;
-  /** @deprecated Use `onOpenChange`. */
-  onClose?: () => void;
+  /**
+   * Consultado antes de fechar por Esc, pelo clique no véu ou pelo botão Fechar. Devolver `false`, ou uma
+   * promessa que resolve `false`, mantém aberto, como numa confirmação de alterações não salvas. Não vale para
+   * quando o produto muda `open`, que é decisão dele.
+   */
+  onBeforeClose?: () => boolean | Promise<boolean>;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 export interface DialogTitledProps {

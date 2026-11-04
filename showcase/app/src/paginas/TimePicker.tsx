@@ -227,6 +227,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'value', tipo: 'string | null', descricao: 'Hora em HH:mm, no modo controlado. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Hora inicial em HH:mm, no modo não controlado.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha a lista de horas, no modo controlado.' },

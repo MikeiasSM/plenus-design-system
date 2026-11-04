@@ -4,12 +4,14 @@ import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { IconClose } from '../../icons';
+import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
 import styles from './Dialog.module.css';
 
 export interface DialogFrameProps extends DialogBaseProps {
   'aria-label'?: string;
   description?: string;
+  flush?: boolean;
   icon?: ReactNode;
   role?: DialogRole;
   surfaceClassName: string;
@@ -18,26 +20,60 @@ export interface DialogFrameProps extends DialogBaseProps {
 }
 
 /** Mecanica modal do `Dialog` e do `Drawer`: portal, foco preso, rolagem travada, cabecalho, corpo e rodape. Interna. */
-export function DialogFrame({ defaultOpen = false, onClose, onOpenChange, open, ...props }: DialogFrameProps) {
+export function DialogFrame({
+  defaultOpen = false,
+  onBeforeClose,
+  onOpenChange,
+  open,
+  portalContainer,
+  ...props
+}: DialogFrameProps) {
+  const container = usePortalContainer(portalContainer);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const awaitingPermission = useRef(false);
 
   function close() {
     if (open === undefined) {
       setInternalOpen(false);
     }
     onOpenChange?.(false);
-    onClose?.();
+  }
+
+  // Enquanto a promessa de `onBeforeClose` nao resolve, novos pedidos de fechamento nao abrem outra consulta.
+  async function requestClose() {
+    if (awaitingPermission.current) {
+      return;
+    }
+
+    const permission = onBeforeClose?.() ?? true;
+
+    if (typeof permission === 'boolean') {
+      if (permission) {
+        close();
+      }
+      return;
+    }
+
+    awaitingPermission.current = true;
+
+    try {
+      if (await permission) {
+        close();
+      }
+    } finally {
+      awaitingPermission.current = false;
+    }
   }
 
   // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
-  if (!(open ?? internalOpen) || typeof document === 'undefined') {
+  if (!(open ?? internalOpen) || !container) {
     return null;
   }
 
-  return createPortal(<DialogFrameContent {...props} onClose={close} />, document.body);
+  return createPortal(<DialogFrameContent {...props} onClose={requestClose} />, container);
 }
 
-type DialogFrameContentProps = Omit<DialogFrameProps, 'defaultOpen' | 'onClose' | 'onOpenChange' | 'open'> & {
+type DialogFrameContentProps = Omit<DialogFrameProps, 'defaultOpen' | 'onOpenChange' | 'open'> & {
   onClose: () => void;
 };
 
@@ -46,6 +82,7 @@ function DialogFrameContent({
   className,
   description,
   dismissable = true,
+  flush,
   footer,
   icon,
   onClose,
@@ -107,7 +144,7 @@ function DialogFrameContent({
               )}
             </header>
           )}
-          {children && <div className={styles.body}>{children}</div>}
+          {children && <div className={[styles.body, flush && styles.bodyFlush].filter(Boolean).join(' ')}>{children}</div>}
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>
       </FocusScope>

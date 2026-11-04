@@ -1,0 +1,8 @@
+/* Variavel CSS nao entra em `@media`: os breakpoints documentam os literais usados nas media queries.
+   Acima de `--pl-bp-lg`, o conteudo trava em `--pl-container`. */
+:root {
+  --pl-bp-sm: 900px;
+  --pl-bp-md: 1180px;
+  --pl-bp-lg: 1280px;
+  --pl-container: 1600px;
+}

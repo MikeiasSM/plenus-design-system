@@ -84,6 +84,7 @@
 }
 
 .nested .head,
+.nested .pinnedTop,
 .nested .foot {
   position: static;
 }
@@ -139,6 +140,20 @@
   border-bottom-color: var(--pl-color-border);
 }
 
+/* Linhas fixas do produto, coladas sob o título; `top` vem da altura medida dele. */
+.pinnedTop {
+  position: sticky;
+  z-index: 2;
+}
+
+.pinnedTop > .row {
+  position: relative;
+}
+
+.pinnedTop > .row:last-child > .cell {
+  border-bottom-color: var(--pl-color-border-strong);
+}
+
 .body {
   position: relative;
 }
@@ -191,6 +206,63 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* A linha do grupo e a quantidade dele, que não disputa o valor. */
+.groupRow {
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.groupCount {
+  color: var(--pl-color-text-tertiary);
+  font-weight: normal;
+}
+
+/* A linha em edição passa por cima das de baixo, que o aviso de recusa cobriria. */
+.editingRow {
+  z-index: 3;
+}
+
+.editingCell:not(.pinned) {
+  position: relative;
+}
+
+.editor {
+  flex: 1;
+  min-width: 0;
+  height: calc(100% - var(--pl-space-2));
+  padding: 0 var(--pl-space-2);
+  border: 1px solid var(--pl-color-primary-strong);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font: inherit;
+  outline: none;
+}
+
+.end .editor {
+  text-align: right;
+}
+
+.editor[aria-invalid='true'] {
+  border-color: var(--pl-color-danger);
+}
+
+.editError {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 4;
+  max-width: 20rem;
+  padding: var(--pl-space-1) var(--pl-space-2);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-danger-container);
+  box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-on-danger-container);
+  font-size: var(--pl-type-caption-size);
+  white-space: normal;
 }
 
 .start .text {
@@ -333,6 +405,34 @@
 
 .filterPopover {
   width: 18rem;
+}
+
+/* O construtor cabe no máximo do `Popover`; os grupos aninhados se recuam por uma linha à esquerda. */
+.builderPopover {
+  width: 22rem;
+  max-height: 70vh;
+}
+
+.builderGroup,
+.builderNested {
+  display: grid;
+  gap: var(--pl-space-3);
+}
+
+.builderNested {
+  padding-left: var(--pl-space-3);
+  border-left: 2px solid var(--pl-color-border-strong);
+}
+
+.builderItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+}
+
+.builderItem > :first-child {
+  flex: 1;
+  min-width: 0;
 }
 
 .filterPanel,

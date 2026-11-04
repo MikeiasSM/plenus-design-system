@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 
 /**
  * Confere o pacote construido, e nao o codigo-fonte. A suite do Vitest nunca
@@ -50,17 +50,19 @@ const PALAVRAS_DE_ANIMACAO = new Set([
 ]);
 
 /**
- * Seletores sem classe que o CSS dos componentes pode ter: tokens no documento, tokens no escopo de
- * `data-palette`, que so valem onde o produto pos o atributo, e o `box-sizing`.
+ * Seletores sem classe que o CSS dos componentes pode ter: tokens no documento, tokens nos escopos de
+ * `data-theme` e `data-palette`, que so valem onde o produto pos o atributo, e o `box-sizing`.
  */
 const SELETORES_GLOBAIS = new Set([
   ':root',
-  ':root[data-theme=dark]',
+  ':root:not([data-theme])',
+  '[data-theme]',
+  '[data-theme=light]',
+  '[data-theme=dark]',
   '[data-palette]',
   '[data-palette=orange]',
   '[data-palette=blue]',
   '[data-palette=purple]',
-  ':root[data-theme=dark] [data-palette]',
   '*',
   '*:before',
   '*:after',
@@ -138,6 +140,60 @@ if (arquivoComConteudo('dist/design-system.css', 1)) {
   }
 }
 
+/** Cada `.module.css` do fonte, se nao vazio, vira `dist/styles/<Nome>.css`, e a base mais as folhas, sem os `@import`, somam a folha inteira. */
+function folhasPorComponente() {
+  const pasta = resolve(raiz, 'dist/styles');
+
+  if (!existsSync(pasta)) {
+    falhas.push('dist/styles ausente');
+
+    return;
+  }
+
+  exigir(arquivoComConteudo('dist/styles/base.css', 1000), 'dist/styles/base.css ausente ou pequeno demais');
+
+  const doFonte = [];
+  const procurar = (dir) => {
+    for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+      const caminho = resolve(dir, entrada.name);
+
+      if (entrada.isDirectory()) {
+        procurar(caminho);
+      } else if (entrada.name.endsWith('.module.css') && statSync(caminho).size > 0) {
+        doFonte.push(basename(entrada.name, '.module.css'));
+      }
+    }
+  };
+
+  procurar(resolve(raiz, 'src'));
+
+  const soma = [readFileSync(resolve(pasta, 'base.css'), 'utf8')];
+
+  for (const nome of doFonte) {
+    const caminho = resolve(pasta, `${nome}.css`);
+
+    if (!existsSync(caminho)) {
+      falhas.push(`dist/styles/${nome}.css ausente`);
+      continue;
+    }
+
+    const css = readFileSync(caminho, 'utf8');
+
+    for (const [, dependencia] of css.matchAll(/^@import '\.\/([\w-]+\.css)';/gm)) {
+      exigir(existsSync(resolve(pasta, dependencia)), `dist/styles/${nome}.css importa ${dependencia}, que nao existe`);
+    }
+
+    soma.push(css.replace(/^@import [^\n]*\n/gm, ''));
+  }
+
+  const inteira = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8');
+
+  exigir(soma.join('').length === inteira.length, 'a base mais as folhas por componente nao somam a folha inteira (design-system.css)');
+  exigir(readdirSync(pasta).length === doFonte.length + 1, 'dist/styles tem arquivo alem da base e de um por modulo de CSS do fonte');
+}
+
+folhasPorComponente();
+
 const esm = await import('../dist/index.js').catch((erro) => {
   falhas.push(`a entrada ESM nao carregou: ${erro.message}`);
 
@@ -192,6 +248,30 @@ for (const nome of naSuite) {
   exigir(nome in iconesCjs, `${nome} esta na suite e falta na entrada CommonJS dos icones`);
 }
 
+// Cada icone da suite tem tambem o proprio modulo em `./icons/<Nome>`, com tipos, e ele traz o mesmo desenho.
+const modulosEsm = await Promise.all(
+  [...naSuite].map((nome) =>
+    import(`../dist/icons/${nome}.js`).then(
+      (modulo) => modulo[nome],
+      (erro) => falhas.push(`o modulo ESM de ${nome} nao carregou: ${erro.message}`),
+    ),
+  ),
+);
+
+[...naSuite].forEach((nome, posicao) => {
+  exigir(typeof modulosEsm[posicao] === 'function', `${nome} nao e exportado pelo proprio modulo ESM em dist/icons`);
+  exigir(arquivoComConteudo(`dist/icons/${nome}.cjs`, 50), `dist/icons/${nome}.cjs ausente`);
+  exigir(arquivoComConteudo(`dist/types/icons/${nome}.d.ts`, 50), `dist/types/icons/${nome}.d.ts ausente`);
+});
+
+try {
+  const amostra = [...naSuite][0];
+
+  exigir(typeof require(`../dist/icons/${amostra}.cjs`)[amostra] === 'function', `${amostra} nao e exportado pelo modulo CommonJS`);
+} catch (erro) {
+  falhas.push(`o modulo CommonJS de um icone nao carregou: ${erro.message}`);
+}
+
 if (falhas.length > 0) {
   console.error('Pacote reprovado:\n' + falhas.map((falha) => `  - ${falha}`).join('\n'));
   process.exit(1);
@@ -199,6 +279,6 @@ if (falhas.length > 0) {
 
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
-    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons; ` +
-    'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina.',
+    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons e cada um em ./icons/<Nome>; ` +
+    'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina; folhas por componente somam a folha inteira.',
 );

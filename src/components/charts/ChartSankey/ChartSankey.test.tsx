@@ -280,7 +280,7 @@ describe('ChartSankey', () => {
   it('com clique na ligacao, as ligacoes sao botoes e o foco realca a faixa', () => {
     fixarTamanho();
     const aoClicar = vi.fn();
-    render(<ChartSankey flows={caixa} onFlowClick={aoClicar} title="Caixa" />);
+    render(<ChartSankey flows={caixa} onMarkClick={aoClicar} title="Caixa" />);
     const custos = screen.getByRole('button', { name: /^Receita → Custos/ });
 
     expect(screen.getByRole('group', { name: 'Caixa' })).toBeInTheDocument();
@@ -290,7 +290,7 @@ describe('ChartSankey', () => {
 
     fireEvent.keyDown(custos, { key: 'ArrowRight' });
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
-    expect(aoClicar).toHaveBeenCalledWith(caixa[1]);
+    expect(aoClicar).toHaveBeenCalledWith({ kind: 'flow', ...caixa[1] });
   });
 
   it('com clique no no, os nos sao botoes numa linha abaixo das ligacoes, com o total que passa por eles', () => {
@@ -308,6 +308,21 @@ describe('ChartSankey', () => {
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
     expect(aoClicarNoNo).toHaveBeenCalledTimes(2);
     expect(aoClicarNaLigacao).not.toHaveBeenCalled();
+  });
+
+  it('com onMarkClick, ligacoes e nos viram botoes e a marca traz o kind; o no tambem avisa o hover', () => {
+    fixarTamanho();
+    const aoClicar = vi.fn();
+    const aoPassar = vi.fn();
+    render(<ChartSankey flows={caixa} onHover={aoPassar} onMarkClick={aoClicar} title="Caixa" />);
+    const no = screen.getByRole('button', { name: 'Custos' });
+
+    fireEvent.click(no);
+    fireEvent.mouseEnter(no);
+    fireEvent.mouseLeave(no);
+
+    expect(aoClicar).toHaveBeenCalledWith({ kind: 'node', label: 'Custos', value: 600 });
+    expect(aoPassar.mock.calls).toEqual([[{ kind: 'node', label: 'Custos', value: 600 }], [null]]);
   });
 
   it('so com clique no no, as ligacoes continuam so desenhadas', () => {

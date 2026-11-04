@@ -48,23 +48,29 @@
   grid-row: 1 / span 2;
 }
 
-/* Em fluxo, o trailing desce quando o titulo numa linha so nao cabe ao lado dele, e a descricao fica por ultimo. */
+/* Em fluxo, o trailing desce quando o título numa linha só não cabe ao lado dele. O título e a descrição formam uma
+   coluna, e a descrição, de largura zero na medida, não entra na conta da quebra. */
 .flowing {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
 }
 
-.flowing > .titleRow {
+.text {
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
 }
 
-.flowing.keep > .titleRow {
+.flowing.keep > .text {
   flex-basis: 0;
 }
 
-.flowing > .description {
-  flex: 1 0 100%;
+.text > .description {
+  inline-size: 0;
+  min-inline-size: 100%;
 }
 
 /* Some também do leitor de tela e do Tab; a margem devolve o espaço entre linhas que ele ocuparia. */
@@ -126,13 +132,18 @@
   border-top: 1px solid var(--pl-color-border);
 }
 
+/* Um filho só vai ao fim da linha, como as ações do Dialog. Sem especificidade, para a classe do consumidor vencer. */
+:where(.footer > :only-child) {
+  margin-inline-start: auto;
+}
+
 /* O corpo sem respiro encosta o conteudo no cabecalho, e a linha os separa: sem ela, a faixa do cabecalho de uma
    tabela comecava colada ao titulo do cartao. */
 .header:has(+ .bodyFlush) {
   border-bottom: 1px solid var(--pl-color-border);
 }
 
-.headerSm > .titleRow > .title {
+.headerSm .title {
   display: -webkit-box;
   overflow: hidden;
   overflow-wrap: anywhere;
@@ -140,7 +151,7 @@
   -webkit-line-clamp: 3;
 }
 
-.headerSm > .description {
+.headerSm .description {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;

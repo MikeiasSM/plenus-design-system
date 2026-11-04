@@ -1,16 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Badge,
+  Button,
   ButtonIcon,
   ChartBar,
   DataGrid,
+  dataGridExportMatrix,
+  formatCurrency,
   formatDate,
   IconChartBar,
   SegmentedControl,
+  type DataGridApi,
   type DataGridAsidePlacement,
+  type DataGridCellEdit,
   type DataGridColumn,
   type DataGridColumnDefinition,
   type DataGridDetailContext,
+  type DataGridExporter,
+  type DataGridFilter,
   type DataGridQuery,
   type DataGridRowClickAction,
 } from '@plenustech/design-system';
@@ -634,6 +641,244 @@ function EstadoSalvo() {
   );
 }
 
+function Edicao() {
+  const [pedidos, setPedidos] = useState(() => gerarPedidos(40));
+  const [ultima, setUltima] = useState<DataGridCellEdit<Pedido> | null>(null);
+  const colunas = useMemo<DataGridColumn<Pedido>[]>(
+    () => [
+      { id: 'id', header: 'Pedido', width: 110 },
+      {
+        id: 'cliente',
+        header: 'Cliente',
+        flex: 2,
+        minWidth: 180,
+        editable: true,
+        validate: (valor) => (String(valor).trim() === '' ? 'O cliente é obrigatório.' : null),
+      },
+      {
+        id: 'cidade',
+        header: 'Cidade',
+        minWidth: 160,
+        editable: true,
+        renderEditor: ({ commit, error, errorId, onChange, value }) => (
+          <select
+            aria-describedby={error ? errorId : undefined}
+            aria-label="Cidade"
+            value={String(value)}
+            onChange={(evento) => onChange(evento.target.value)}
+            onKeyDown={(evento) => evento.key === 'Enter' && commit()}
+          >
+            {CIDADES.map((cidade) => (
+              <option key={cidade}>{cidade}</option>
+            ))}
+          </select>
+        ),
+      },
+      {
+        id: 'valor',
+        header: 'Valor',
+        type: 'currency',
+        width: 150,
+        editable: (pedido) => !pedido.urgente,
+        validate: (valor) => (typeof valor === 'number' && valor < 0 ? 'O valor não pode ser negativo.' : null),
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div>
+      <DataGrid
+        columns={colunas}
+        getRowId={idDoPedido}
+        height={320}
+        label="Pedidos editáveis"
+        rows={pedidos}
+        onCellEdit={(edicao) => {
+          setUltima(edicao);
+          setPedidos((atuais) =>
+            atuais.map((pedido) => (pedido.id === edicao.rowId ? { ...pedido, [edicao.columnId]: edicao.value } : pedido)),
+          );
+        }}
+      />
+      <pre className="note">
+        {ultima
+          ? `${ultima.rowId} · ${ultima.columnId}: ${JSON.stringify(ultima.previousValue)} → ${JSON.stringify(ultima.value)}`
+          : 'Enter, F2 ou duplo clique abrem a célula. O valor das linhas urgentes não edita.'}
+      </pre>
+    </div>
+  );
+}
+
+function CopiarELinhasFixas() {
+  const pedidos = useMemo(() => gerarPedidos(60), []);
+  const resumo = useMemo<Pedido[]>(
+    () => [
+      {
+        id: 'Total',
+        cliente: `${pedidos.length} pedidos`,
+        cidade: '',
+        emissao: '',
+        valor: pedidos.reduce((soma, pedido) => soma + pedido.valor, 0),
+        itens: pedidos.reduce((soma, pedido) => soma + pedido.itens, 0),
+        urgente: false,
+      },
+    ],
+    [pedidos],
+  );
+
+  return (
+    <div>
+      <DataGrid
+        columns={COLUNAS.map((coluna) => ({ ...coluna, summary: undefined }))}
+        copyable
+        copyHeaders
+        getRowId={idDoPedido}
+        height={320}
+        label="Pedidos para copiar"
+        pinnedRows={resumo}
+        rows={pedidos}
+        selectionMode="multiple"
+      />
+      <pre className="note">Selecione linhas e tecle Ctrl+C: elas vão em TSV, com os títulos. Sem seleção, copia a célula com foco.</pre>
+    </div>
+  );
+}
+
+function Agrupamento() {
+  const [agrupar, setAgrupar] = useState<readonly string[]>(['cidade']);
+  const pedidos = useMemo(() => gerarPedidos(400), []);
+  /* O valor do grupo aparece na primeira coluna: as que agrupam vêm primeiro. */
+  const colunas = useMemo<DataGridColumn<Pedido>[]>(
+    () => [
+      { id: 'cidade', header: 'Cidade', width: 240, groupable: true },
+      { id: 'cliente', header: 'Cliente', width: 240, groupable: true },
+      { id: 'id', header: 'Pedido', width: 110 },
+      { id: 'itens', header: 'Itens', type: 'number', width: 130, summary: 'avg' },
+      { id: 'valor', header: 'Valor', type: 'currency', width: 170, summary: 'sum' },
+    ],
+    [],
+  );
+
+  return (
+    <div>
+      <SegmentedControl
+        items={[
+          { label: 'Cidade', value: 'cidade' },
+          { label: 'Cidade e cliente', value: 'cidade,cliente' },
+          { label: 'Nenhum', value: '' },
+        ]}
+        label="Agrupar por"
+        value={agrupar.join(',')}
+        onValueChange={(valor) => setAgrupar(valor ? valor.split(',') : [])}
+      />
+      <DataGrid
+        columns={colunas}
+        getRowId={idDoPedido}
+        groupBy={agrupar}
+        height={360}
+        label="Pedidos agrupados"
+        rows={pedidos}
+        onGroupByChange={setAgrupar}
+      >
+        <DataGrid.Toolbar>
+          <DataGrid.Search />
+          <DataGrid.TableMenu />
+        </DataGrid.Toolbar>
+      </DataGrid>
+    </div>
+  );
+}
+
+function ConstrutorDeFiltros() {
+  const [filtro, setFiltro] = useState<DataGridFilter>({ logic: 'and', conditions: [] });
+  const pedidos = useMemo(() => gerarPedidos(300), []);
+
+  return (
+    <div>
+      <DataGrid
+        columns={COLUNAS}
+        filter={filtro}
+        getRowId={idDoPedido}
+        height={320}
+        label="Pedidos filtrados"
+        rows={pedidos}
+        onFilterChange={setFiltro}
+      >
+        <DataGrid.Toolbar>
+          <DataGrid.Search />
+          <DataGrid.FilterBuilder />
+          <DataGrid.TableMenu />
+        </DataGrid.Toolbar>
+      </DataGrid>
+      <pre className="note">{JSON.stringify(filtro, null, 2)}</pre>
+    </div>
+  );
+}
+
+function ColunasVirtuais() {
+  const pedidos = useMemo(() => gerarPedidos(2000, 200), []);
+  const colunas = useMemo(() => colunasCom(200), []);
+
+  return (
+    <DataGrid
+      columns={colunas}
+      getRowId={idDoPedido}
+      height={320}
+      label="Pedidos com 200 métricas"
+      rows={pedidos}
+      virtualizeColumns
+    />
+  );
+}
+
+/** O mesmo contrato de um exportador de planilha, sem a biblioteca: mostra a matriz que ela receberia. */
+function ExportacaoPorMecanismo() {
+  const pedidos = useMemo(() => gerarPedidos(120), []);
+  const api = useRef<DataGridApi>(null);
+  const [matriz, setMatriz] = useState('');
+  const exportadores = useMemo<DataGridExporter[]>(
+    () => [
+      {
+        id: 'matriz',
+        label: 'Matriz (demonstração)',
+        export: (modelo) => setMatriz(JSON.stringify(dataGridExportMatrix(modelo, 'raw').rows.slice(0, 3))),
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div>
+      <DataGrid
+        apiRef={api}
+        columns={COLUNAS}
+        exporters={exportadores}
+        getRowId={idDoPedido}
+        height={280}
+        label="Pedidos exportáveis"
+        rows={pedidos}
+      >
+        <DataGrid.Toolbar>
+          <DataGrid.Search />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const modelo = api.current?.getExportModel();
+              setMatriz(modelo ? `${modelo.rows.length} linhas, ${formatCurrency(Number(modelo.summary?.[5].value ?? 0))} em valor` : '');
+            }}
+          >
+            Ler o modelo pela API
+          </Button>
+          <DataGrid.TableMenu />
+        </DataGrid.Toolbar>
+      </DataGrid>
+      <pre className="note">{matriz || 'Busque, ordene e escolha Exportar > Matriz (demonstração) no menu da tabela.'}</pre>
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
@@ -774,6 +1019,57 @@ export const pagina: Pagina = {
       codigo: "{\n  id: 'urgente',\n  header: 'Urgente',\n  type: 'boolean',\n  renderCell: ({ row, text }) => <Badge tone={…}>{text}</Badge>,\n}",
     },
     {
+      titulo: 'Edição de célula',
+      descricao:
+        'Enter, F2 ou duplo clique abrem a célula; Enter ou Tab confirmam; Esc cancela. O produto valida e troca a linha em rows. A cidade usa um editor próprio; o valor edita só nas linhas não urgentes.',
+      Previa: Edicao,
+      largo: true,
+      codigo:
+        "{\n  id: 'valor',\n  type: 'currency',\n  editable: (pedido) => !pedido.urgente,\n  validate: (valor) => (valor < 0 ? 'O valor não pode ser negativo.' : null),\n}\n\n<DataGrid onCellEdit={({ rowId, columnId, value }) => salvar(rowId, columnId, value)} … />",
+    },
+    {
+      titulo: 'Copiar e linhas fixas',
+      descricao:
+        'copyable leva a seleção, ou a célula com foco, à área de transferência em TSV, e copyHeaders junta os títulos. pinnedRows fixa linhas do produto sob o título, fora da ordem, do filtro e da paginação.',
+      Previa: CopiarELinhasFixas,
+      largo: true,
+      codigo: '<DataGrid\n  copyable\n  copyHeaders\n  pinnedRows={[totais]}\n  selectionMode="multiple"\n  …\n/>',
+    },
+    {
+      titulo: 'Agrupar por coluna',
+      descricao:
+        'groupBy agrupa em níveis, no cliente. O grupo mostra o valor, a quantidade e o summary de cada coluna: aqui a soma do valor e a média dos itens. A coluna com groupable oferece o agrupamento no próprio menu.',
+      Previa: Agrupamento,
+      largo: true,
+      codigo:
+        "<DataGrid\n  groupBy={['cidade', 'cliente']}\n  onGroupByChange={setAgrupar}\n  columns={[{ id: 'valor', summary: 'sum' }, { id: 'cidade', groupable: true }, …]}\n  …\n/>",
+    },
+    {
+      titulo: 'Construtor de filtros',
+      descricao:
+        'DataGrid.FilterBuilder monta condições de qualquer coluna, combinadas por E ou OU, em grupos. Escreve na mesma fatia filter do funil, então o estado é o do trio filter, defaultFilter e onFilterChange.',
+      Previa: ConstrutorDeFiltros,
+      largo: true,
+      codigo:
+        '<DataGrid filter={filtro} onFilterChange={setFiltro} …>\n  <DataGrid.Toolbar>\n    <DataGrid.FilterBuilder />\n  </DataGrid.Toolbar>\n</DataGrid>',
+    },
+    {
+      titulo: 'Colunas virtuais',
+      descricao: '200 colunas e 2.000 linhas. Com virtualizeColumns só as colunas que cruzam a tela, as fixas e a com foco estão no DOM.',
+      Previa: ColunasVirtuais,
+      largo: true,
+      codigo: '<DataGrid columns={duzentasColunas} rows={pedidos} virtualizeColumns />',
+    },
+    {
+      titulo: 'Exportação por mecanismo',
+      descricao:
+        'CSV vem no núcleo. XLSX e PDF entram por exporters, sem dependência na biblioteca: o exportador do produto recebe o modelo, e dataGridExportMatrix o entrega em matrizes de texto ou de valor cru. apiRef lê o mesmo modelo fora do menu.',
+      Previa: ExportacaoPorMecanismo,
+      largo: true,
+      codigo:
+        "// No produto: npm install xlsx\nimport * as XLSX from 'xlsx';\nimport { dataGridExportMatrix, type DataGridExporter } from '@plenustech/design-system';\n\nconst exportadorXlsx: DataGridExporter = {\n  id: 'xlsx',\n  label: 'Excel',\n  export: (modelo) => {\n    const { header, rows, summary } = dataGridExportMatrix(modelo, 'raw');\n    const planilha = XLSX.utils.aoa_to_sheet([header, ...rows, ...(summary ? [summary] : [])]);\n    const livro = XLSX.utils.book_new();\n    XLSX.utils.book_append_sheet(livro, planilha, modelo.title.slice(0, 31));\n    XLSX.writeFile(livro, `${modelo.title}.xlsx`);\n  },\n};\n\n<DataGrid exporters={[dataGridCsvExporter, exportadorXlsx]} apiRef={api} … />\n// Fora do menu: api.current.getExportModel('filtered' | 'selected' | 'page')",
+    },
+    {
       titulo: 'Estado salvo',
       descricao: 'Ordene, busque ou mude de página e recarregue: o retrato volta pelo initialState.',
       Previa: EstadoSalvo,
@@ -785,6 +1081,7 @@ export const pagina: Pagina = {
   teclado: [
     { teclas: ['Tab'], acao: 'Entra na grade pela última célula com foco e sai dela; uma parada só.' },
     { teclas: ['↑', '↓', '←', '→'], acao: 'Anda entre as células, do cabeçalho até a última linha.' },
+    { teclas: ['←'], acao: 'Na primeira coluna de uma linha filha ou de um grupo, volta à linha-mãe ou à linha do grupo.' },
     { teclas: ['Home', 'End'], acao: 'Primeira e última célula da linha.' },
     { teclas: ['Ctrl+Home', 'Ctrl+End'], acao: 'Primeira célula do cabeçalho e última da grade.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Uma tela de linhas para cima ou para baixo.' },
@@ -795,7 +1092,10 @@ export const pagina: Pagina = {
     { teclas: ['Ctrl+Enter'], acao: 'No cabeçalho, abre o menu da coluna. Na linha, abre ou recolhe o detalhe ou os filhos.' },
     { teclas: ['Ctrl+Shift+←', 'Ctrl+Shift+→'], acao: 'No cabeçalho, move a coluna, sem passar da divisa das fixas.' },
     { teclas: ['Alt+↓'], acao: 'No cabeçalho, abre o filtro da coluna. Esc fecha e volta ao título.' },
-    { teclas: ['F2'], acao: 'Entra no controle da célula.' },
+    { teclas: ['F2'], acao: 'Entra no controle da célula; na célula editável, abre a edição.' },
+    { teclas: ['Enter', 'Tab'], acao: 'Na célula em edição, confirma o valor. Com recusa do produto, a edição fica aberta.' },
+    { teclas: ['Esc'], acao: 'Na célula em edição, cancela e devolve o foco à célula.' },
+    { teclas: ['Ctrl+C'], acao: 'Com copyable, copia em TSV as linhas selecionadas ou a célula com foco.' },
     { teclas: ['Esc'], acao: 'Sai do controle e volta à célula; numa grade aninhada, volta ao detalhe da linha-mãe.' },
     { teclas: ['Espaço'], acao: 'Seleciona a linha; com Shift, a faixa desde a última. No cabeçalho, todas.' },
   ],
@@ -831,6 +1131,21 @@ export const pagina: Pagina = {
       teste: 'DataGrid.test.tsx',
     },
     {
+      garantia: 'Edição anunciada',
+      como: 'A abertura, a confirmação, o cancelamento e a recusa vão à região viva; o campo leva aria-invalid e aria-describedby apontando a mensagem.',
+      teste: 'DataGridOnDemand.test.tsx',
+    },
+    {
+      garantia: 'Grupos de linhas',
+      como: 'role="treegrid", aria-expanded, aria-level, aria-posinset e aria-setsize na linha do grupo; o grupo abre por Enter, Espaço e clique.',
+      teste: 'DataGridOnDemand.test.tsx',
+    },
+    {
+      garantia: 'Colunas virtuais posicionadas',
+      como: 'aria-colcount com o total e aria-colindex real em cada célula desenhada; a coluna com foco nunca sai do DOM.',
+      teste: 'DataGridOnDemand.test.tsx',
+    },
+    {
       garantia: 'Dois modos de teclado',
       como: 'Enter ou F2 entra no controle da célula; Esc volta; Tab circula dentro dela.',
       teste: 'DataGrid.test.tsx',
@@ -855,7 +1170,7 @@ export const pagina: Pagina = {
     {
       nome: 'filter',
       tipo: 'DataGridFilter',
-      descricao: 'Condições { columnId, operator, value } em grupos { logic, conditions }, E ou OU. O funil edita a da coluna.',
+      descricao: 'Condições { columnId, operator, value } em grupos { logic, conditions }, E ou OU. O funil edita a da coluna. Na coluna numérica, value é número, e na faixa as duas pontas também.',
     },
     {
       nome: 'filterApplyMode',
@@ -882,7 +1197,7 @@ export const pagina: Pagina = {
       descricao: 'Árvore: os filhos de cada linha, na mesma grade; undefined enquanto não carregaram.',
     },
     { nome: 'rowHasChildren', tipo: '(row: Row) => boolean', descricao: 'Na árvore, se a linha tem filhos ainda não carregados.' },
-    { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, pelas chaves.' },
+    { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, ou grupos abertos com groupBy, pelas chaves. A chave do grupo sai de dataGridGroupKey.' },
     { nome: 'expandMode', tipo: "'single' | 'multiple'", padrao: "'multiple'", descricao: 'Na single, abrir um detalhe fecha o outro.' },
     {
       nome: 'rowClickAction',
@@ -905,6 +1220,35 @@ export const pagina: Pagina = {
       padrao: '[dataGridCsvExporter]',
       descricao: 'Formatos do menu da tabela: { id, label, export(model) }.',
     },
+    { nome: 'copyable', tipo: 'boolean', padrao: 'false', descricao: 'Ctrl+C copia em TSV as linhas selecionadas ou, sem seleção, a célula com foco.' },
+    { nome: 'copyHeaders', tipo: 'boolean', padrao: 'false', descricao: 'Com copyable, a primeira linha copiada leva os títulos.' },
+    { nome: 'pinnedRows', tipo: 'readonly Row[]', descricao: 'Linhas fixas sob o título, fora da ordem, do filtro, da paginação e da seleção.' },
+    { nome: 'groupBy', tipo: 'readonly string[]', descricao: 'Ids das colunas que agrupam as linhas, em níveis. Também defaultGroupBy e onGroupByChange. Só no cliente e fora da árvore.' },
+    { nome: 'onCellEdit', tipo: '(edit: DataGridCellEdit<Row>) => void', descricao: 'Valor novo de uma célula editable: { row, rowId, columnId, value, previousValue }.' },
+    { nome: 'virtualizeColumns', tipo: 'boolean', padrao: 'false', descricao: 'Desenha só as colunas que cruzam a tela, as fixas e a com foco.' },
+    { nome: 'apiRef', tipo: 'Ref<DataGridApi>', descricao: 'getExportModel(scope) devolve as colunas e as linhas do escopo, com o texto e o valor cru.' },
+    {
+      nome: 'dataGridExportMatrix',
+      tipo: '(model, values) => DataGridExportMatrix',
+      descricao: "values é DataGridExportValues. Converte o modelo em { header, rows, summary }, com o texto exibido ('text') ou o valor cru ('raw'), o formato das bibliotecas de planilha.",
+    },
+    {
+      nome: 'dataGridGroupKey',
+      tipo: '(values: readonly string[]) => string',
+      descricao: "Chave do grupo em expandedIds: os valores do grupo, do primeiro nível ao dele, como a célula os mostra: com ['Sul'], abre o grupo Sul. O formato da chave não é contrato.",
+    },
+    {
+      nome: 'FilterBuilder · label / className',
+      tipo: 'DataGridFilterBuilderProps',
+      padrao: "'Filtros'",
+      descricao: 'Nome do botão e classe. Botão e painel do construtor de filtros, dentro do DataGrid.Toolbar. Escreve no mesmo filter do funil e mostra quantas condições filtram.',
+    },
+    {
+      nome: 'columns[].editable / parse / validate / renderEditor',
+      tipo: 'boolean | (row) => boolean; (input, row) => unknown; (value, row) => string | null; (context) => ReactNode',
+      descricao: 'Edição da célula: quais células edita, como converte o texto, a recusa do produto e o editor próprio, que recebe o contexto da edição (o tipo DataGridEditorContext). A célula editável é descrita ao leitor de tela.',
+    },
+    { nome: 'columns[].groupable', tipo: 'boolean', descricao: 'Põe "Agrupar linhas por esta coluna" no menu da coluna.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },
     { nome: 'error', tipo: 'ReactNode', descricao: 'Falha mostrada no lugar das linhas.' },
     { nome: 'emptyMessage', tipo: 'ReactNode', descricao: 'Texto da grade vazia.' },

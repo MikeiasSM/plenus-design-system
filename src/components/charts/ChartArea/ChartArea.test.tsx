@@ -118,18 +118,18 @@ describe('ChartArea', () => {
   });
 
   it('com a costura, avisa a categoria sob o ponteiro e tira o <title> dos pontos', () => {
-    const onHoverCategory = vi.fn();
-    render(<ChartArea categories={meses} onHoverCategory={onHoverCategory} series={series} title="Volume" />);
+    const onHover = vi.fn();
+    render(<ChartArea categories={meses} onHover={onHover} series={series} title="Volume" />);
 
     fireEvent.mouseEnter(document.querySelectorAll(`.${chartStyles.hoverBand}`)[1]);
 
-    expect(onHoverCategory).toHaveBeenCalledWith(1);
+    expect(onHover).toHaveBeenCalledWith({ category: '05/26', index: 1 });
     expect(document.querySelector('circle title')).toBeNull();
   });
 
   it('com clique no ponto, os pontos sao botoes e as setas andam entre categorias e series', () => {
     const aoClicar = vi.fn();
-    render(<ChartArea categories={meses} onPointClick={aoClicar} series={series} title="Receita" />);
+    render(<ChartArea categories={meses} onMarkClick={aoClicar} series={series} title="Receita" />);
     const primeiro = screen.getByRole('button', { name: /^Serviços, 04\/26/ });
 
     expect(screen.getByRole('group', { name: 'Receita' })).toBeInTheDocument();

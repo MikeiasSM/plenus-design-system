@@ -84,7 +84,7 @@ describe('ChartPie', () => {
 
   it('com clique na fatia, as fatias sao botoes percorridos pelas setas', () => {
     const aoClicar = vi.fn();
-    render(<ChartPie onSliceClick={aoClicar} slices={composicao} title="Receita" />);
+    render(<ChartPie onMarkClick={aoClicar} slices={composicao} title="Receita" />);
     const servicos = screen.getByRole('button', { name: /^Serviços:/ });
 
     expect(screen.getByRole('group', { name: 'Receita' })).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('ChartPie', () => {
       { label: 'Frete', value: 1 },
       { label: 'Taxas', value: 1 },
     ];
-    render(<ChartPie onSliceClick={aoClicar} slices={[...composicao, ...pequenas]} smallSliceThreshold={0.05} title="Receita" />);
+    render(<ChartPie onMarkClick={aoClicar} slices={[...composicao, ...pequenas]} smallSliceThreshold={0.05} title="Receita" />);
 
     fireEvent.click(screen.getByRole('button', { name: /^Outros:/ }));
 
@@ -150,7 +150,7 @@ describe('ChartPie: legenda e costura', () => {
 
   it('a entrada da legenda realca a fatia, avisa com o detalhe e desfaz ao sair', () => {
     const aoPassar = vi.fn();
-    render(<ChartPie onHoverSlice={aoPassar} slices={composicao} title="Receita" />);
+    render(<ChartPie onHover={aoPassar} slices={composicao} title="Receita" />);
     const entrada = screen.getByRole('button', { name: /Produtos/ }).closest('li')!;
 
     fireEvent.pointerEnter(entrada);

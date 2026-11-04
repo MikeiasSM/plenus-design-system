@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Dialog, Menu, type MenuItem } from '@plenustech/design-system';
+import { Button, Dialog, Menu, type MenuItem, type PopoverPlacement } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -181,6 +181,20 @@ function ExcluirComConfirmacao() {
   );
 }
 
+const POSICOES: readonly PopoverPlacement[] = ['bottom start', 'bottom', 'bottom end', 'top start', 'top', 'top end', 'left', 'right'];
+
+function Posicoes() {
+  return (
+    <div className="demo-row" style={{ justifyContent: 'center', padding: '8rem 0' }}>
+      {POSICOES.map((posicao) => (
+        <Menu items={ITENS} key={posicao} label={'Ações, ' + posicao} placement={posicao}>
+          <Button size="sm" variant="secondary">{posicao}</Button>
+        </Menu>
+      ))}
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
@@ -238,6 +252,12 @@ export const pagina: Pagina = {
         "<Menu\n  label=\"Opções da exibição\"\n  items={[\n    {\n      key: 'densidade',\n      label: 'Densidade',\n      items: densidades.map((d) => ({ key: d, label: d, checked: d === atual, onSelect: () => setAtual(d) })),\n    },\n    { key: 'exportar', label: 'Exportar', items: [{ key: 'csv', label: 'CSV' }, { key: 'pdf', label: 'PDF' }] },\n  ]}\n>\n  <Button variant=\"secondary\">Exibição</Button>\n</Menu>",
     },
     {
+      titulo: 'Posição do painel',
+      descricao: 'placement escolhe o lado e o alinhamento (início, centro ou fim), com os nomes do Popover. O painel vira para o outro lado quando falta espaço.',
+      Previa: Posicoes,
+      codigo: "<Menu label=\"Ações\" items={acoes} placement=\"bottom end\">\n  <Button>Ações</Button>\n</Menu>",
+    },
+    {
       titulo: 'Item que abre uma confirmação',
       descricao: 'O foco volta ao gatilho antes do onSelect; ao fechar o Dialog, ele retorna ao gatilho.',
       Previa: ExcluirComConfirmacao,
@@ -291,9 +311,11 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória. O gatilho: um único elemento focável.' },
     { nome: 'items', tipo: 'readonly MenuItem[]', descricao: 'Obrigatória. As ações, na ordem em que aparecem.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome acessível da lista.' },
+    { nome: 'placement', tipo: 'PopoverPlacement', padrao: "'bottom start'", descricao: 'Lado e alinhamento do painel em relação ao gatilho, como no Popover. O submenu abre sempre à direita do item pai.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Controla a abertura; sem ele, o menu guarda o próprio estado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Abertura inicial no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada abertura e fechamento pedidos.' },

@@ -208,9 +208,12 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 | `color.primary-active` | `palette.70` | `palette.20` |
 | `color.primary-strong` | `palette.strong-light` | `palette.strong-dark` |
 | `color.primary-container` | `palette.10` | `palette.40` a 16% sobre a superficie |
+| `color.primary-selected` | `palette.20` | `palette.40` a 26% sobre a superficie |
 | `color.primary-line` | `palette.30` | `palette.40` a 34% sobre a superficie |
 | `color.on-primary` | `palette.on-solid` | `palette.on-40` |
 | `color.on-primary-container` | `palette.80` | `palette.30` |
+
+O tema vale por subárvore (`TOKENS.md` §4): a coluna do tema escuro vale onde `data-theme="dark"` esteja no elemento ou num ancestral, ou, sem `data-theme` em lugar nenhum, quando o sistema pede o escuro. Nestes tokens a escolha entre as colunas é feita por `light-dark()`, e por isso acompanha o tema mais próximo mesmo com a paleta declarada fora ou dentro dele.
 
 No escuro o preenchimento desce ao passo 40: o 50 do azul mede 2,79:1 e o do roxo 1,94:1 contra a superficie escura.
 

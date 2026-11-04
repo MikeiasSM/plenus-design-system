@@ -9,6 +9,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoSankey } from '../estrutura/decomposicao';
 
 const RESULTADO: ChartSankeyFlow[] = [
   { source: 'Receita bruta', target: 'Deduções', value: 420000 },
@@ -202,6 +203,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira os rótulos dos nós, e ficam só as formas, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoSankey,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartSankey height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Da receita ao resultado',
       descricao: 'Cada passo da DRE reparte o que chega: a espessura é o valor que segue por ali.',
       Previa: () => (
@@ -261,6 +271,9 @@ export const pagina: Pagina = {
   ],
   Modos,
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartSankey.test.tsx' },
     {
       garantia: 'Descrição da ligação',
@@ -273,6 +286,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem ligações, ou com todas valendo zero, um EmptyState.', teste: 'ChartSankey.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'flows', tipo: 'readonly ChartSankeyFlow[]', descricao: <><code>{'{ source, target, value }'}</code>, uma por ligação.</> },
     { nome: 'nodes', tipo: 'readonly ChartSankeyNode[]', descricao: <>Ordem e aparência dos nós, <code>{'{ label, color?, intent? }'}</code>. Sem ela, saem das ligações.</> },
@@ -289,7 +303,9 @@ export const pagina: Pagina = {
     { nome: 'cyclicMessage', tipo: 'string', padrao: "'O fluxo volta sobre si mesmo e não pode ser desenhado'", descricao: 'Mensagem quando o fluxo tem ciclo.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onFlowClick', tipo: '(flow: ChartSankeyFlow) => void', descricao: 'Torna as ligações botões, percorridos pelas setas; o foco realça a faixa e abre o balão.' },
-    { nome: 'onNodeClick', tipo: '(node: ChartSankeyNodeClick) => void', descricao: 'Torna os nós botões, numa linha abaixo das ligações; recebe o rótulo e o total que passa pelo nó.' },
+    { nome: 'onMarkClick', tipo: '(mark: ChartSankeyMark) => void', descricao: <>Torna as ligações e os nós botões, os nós numa linha abaixo das ligações; <code>mark.kind</code> os distingue: <code>{"{ kind: 'flow', source, target, value }"}</code> ou <code>{"{ kind: 'node', label, value }"}</code>, com o total que passa pelo nó. O foco na ligação realça a faixa e abre o balão.</> },
+    { nome: 'onHover', tipo: '(mark: ChartSankeyMark | null) => void', descricao: 'Ligação ou nó sob o ponteiro ou o foco, ou null ao sair; costura para o ChartTooltip.' },
+    { nome: 'onFlowClick', tipo: '(flow: ChartSankeyFlow) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code> e <code>mark.kind === &apos;flow&apos;</code>. Torna só as ligações botões. Com os dois, os dois avisam.</> },
+    { nome: 'onNodeClick', tipo: '(node: ChartSankeyNodeClick) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code> e <code>mark.kind === &apos;node&apos;</code>. Torna só os nós botões. Com os dois, os dois avisam.</> },
   ],
 };

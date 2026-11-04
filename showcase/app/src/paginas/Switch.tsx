@@ -142,7 +142,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, todas as propriedades nativas de <input>, como checked, defaultChecked, onChange e name, e o ref.',
   api: [
-    { nome: 'label', tipo: 'string', descricao: 'O que é alternado. Obrigatório.' },
+    { nome: 'label', tipo: 'string', descricao: <>O que é alternado. Pode faltar quando outro elemento nomeia a chave, como o <code>FieldRow</code>, ou o <code>aria-label</code>.</> },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda e marca o controle como inválido.' },
     { nome: 'onCheckedChange', tipo: '(checked: boolean) => void', descricao: 'A marcação a cada mudança, ao lado do onChange nativo.' },

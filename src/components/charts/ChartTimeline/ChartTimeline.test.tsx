@@ -93,8 +93,8 @@ describe('ChartTimeline', () => {
     expect(fillOf('Antes da jornada')).toBe('var(--pl-chart-warning)');
   });
 
-  it('com onSegmentClick vira grupo, e cada intervalo e um botao', () => {
-    render(journey({ onSegmentClick: () => undefined }));
+  it('com onMarkClick vira grupo, e cada intervalo e um botao', () => {
+    render(journey({ onMarkClick: () => undefined }));
 
     const group = screen.getByRole('group', { name: 'Jornada de trabalho' });
 
@@ -105,7 +105,7 @@ describe('ChartTimeline', () => {
   });
 
   it('entra no teclado por um ponto so e percorre os intervalos pelas setas, Home e End', () => {
-    render(journey({ onSegmentClick: () => undefined }));
+    render(journey({ onMarkClick: () => undefined }));
     const buttons = within(screen.getByRole('group')).getAllByRole('button');
     const [before, morning, afternoon, monday] = buttons;
 
@@ -130,21 +130,21 @@ describe('ChartTimeline', () => {
     expect(morning).toHaveFocus();
   });
 
-  it('dispara onSegmentClick no clique, no Enter e no Espaco, com o intervalo e a linha', () => {
-    const onSegmentClick = vi.fn();
-    render(journey({ onSegmentClick }));
+  it('dispara onMarkClick no clique, no Enter e no Espaco, com o intervalo e a linha', () => {
+    const onMarkClick = vi.fn();
+    render(journey({ onMarkClick }));
     const [before] = within(screen.getByRole('group')).getAllByRole('button');
 
     fireEvent.click(before);
     fireEvent.keyDown(before, { key: 'Enter' });
     fireEvent.keyDown(before, { key: ' ' });
 
-    expect(onSegmentClick).toHaveBeenCalledTimes(3);
-    expect(onSegmentClick).toHaveBeenLastCalledWith(segments[0], rows[0]);
+    expect(onMarkClick).toHaveBeenCalledTimes(3);
+    expect(onMarkClick).toHaveBeenLastCalledWith({ row: rows[0], segment: segments[0] });
   });
 
   it('marca o foco com o anel', () => {
-    render(journey({ onSegmentClick: () => undefined }));
+    render(journey({ onMarkClick: () => undefined }));
     const [before] = within(screen.getByRole('group')).getAllByRole('button');
 
     act(() => before.focus());
@@ -155,18 +155,18 @@ describe('ChartTimeline', () => {
   });
 
   it('desliga a serie pela legenda, no desenho, no resumo e na tabela', () => {
-    const onHiddenSeriesChange = vi.fn();
+    const onHiddenChange = vi.fn();
     const rowSummary = vi.fn((_row: ChartTimelineRow, visible: readonly ChartTimelineSegment[]) => ({
       title: formatDuration(visible.reduce((total, segment) => total + (+segment.end - +segment.start) * HOUR, 0)),
     }));
-    render(journey({ onHiddenSeriesChange, rowSummary }));
+    render(journey({ onHiddenChange, rowSummary }));
 
     expect(screen.getByText('9h10m')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Antes da jornada' }));
 
     expect(screen.getByRole('button', { name: 'Antes da jornada' })).toHaveAttribute('aria-pressed', 'false');
-    expect(onHiddenSeriesChange).toHaveBeenLastCalledWith(['Antes da jornada']);
+    expect(onHiddenChange).toHaveBeenLastCalledWith(['Antes da jornada']);
     expect(labels().some((label) => label?.includes('Antes da jornada'))).toBe(false);
     expect(screen.getByText('8h')).toBeInTheDocument();
 
@@ -175,7 +175,7 @@ describe('ChartTimeline', () => {
   });
 
   it('obedece as series ocultas informadas pelo produto', () => {
-    render(journey({ hiddenSeries: ['Dentro da jornada'] }));
+    render(journey({ hidden: ['Dentro da jornada'] }));
 
     expect(drawnSegments()).toHaveLength(1);
   });

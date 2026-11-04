@@ -1,0 +1,50 @@
+/* A medida é a da linha. Com menos de 560px por dentro dela, todo controle desce, e as linhas de uma lista descem juntas;
+   acima, desce só o controle que não cabe ao lado de 260px de texto. */
+.row {
+  container-type: inline-size;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2) var(--pl-space-6);
+  padding: var(--pl-space-3) var(--pl-space-4);
+  font-family: var(--pl-font-body);
+}
+
+.text {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.label {
+  align-self: flex-start;
+}
+
+.description {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.control {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+}
+
+@container (max-width: 560px) {
+  .text {
+    flex-basis: 100%;
+  }
+}
+
+.row + .row {
+  border-top: 1px solid var(--pl-color-border);
+}

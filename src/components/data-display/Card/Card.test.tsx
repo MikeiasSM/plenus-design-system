@@ -105,6 +105,19 @@ describe('Card', () => {
     expect(screen.getByTestId('rodape')).toBeInTheDocument();
   });
 
+  it('em fluxo, titulo e descricao formam uma coluna sem o trailing', () => {
+    render(
+      <Card size="sm">
+        <Card.Header description="Apoio" title="Resumo" trailing={<button type="button">Agir</button>} />
+      </Card>,
+    );
+
+    const coluna = screen.getByRole('heading', { name: 'Resumo' }).parentElement?.parentElement;
+
+    expect(coluna).toContainElement(screen.getByText('Apoio'));
+    expect(coluna).not.toContainElement(screen.getByRole('button', { name: 'Agir' }));
+  });
+
   describe('trailingWhenNarrow', () => {
     afterEach(() => Reflect.deleteProperty(HTMLElement.prototype, 'offsetTop'));
 

@@ -6,6 +6,8 @@ import {
   chartHeight,
   chartRoot,
   useChartMetrics,
+  CHART_MIN_RING,
+  useTouchPin,
   useTweenedNumbers,
   type ChartHeight,
   type ChartLegendPosition,
@@ -182,6 +184,7 @@ export function ChartGauge({
 }: ChartGaugeProps) {
   const compact = size === 'compact';
   const { font, height: measuredHeight, radius: tokenRadius, ref, width } = useChartMetrics();
+  const touch = useTouchPin();
   const { fillHeight, value: drawingHeight } = chartHeight(height ?? (compact ? 96 : 220), measuredHeight);
   const clipId = useId().replace(/[^\w-]/g, '');
   const [hovered, setHovered] = useState<Hovered>(null);
@@ -212,19 +215,23 @@ export function ChartGauge({
   const rimGap = compact ? 2 : 3;
   const rimWidth = compact ? 3 : 4;
   const shownTarget = target && isNumber(target.value) && status !== 'loading' ? target : undefined;
-  const tickMode = compact ? 'hidden' : ticks;
-  const scaleMode = compact ? 'hidden' : scaleLabels;
-  const segmentLabels = compact ? 'hidden' : showSegmentLabels;
   const majors = majorTicks(domain, tickCount, reading.showsPercent ? base : null);
 
-  const outsideLabels: OutsideLabel[] = [
-    ...(segmentLabels === 'hidden' ? [] : bands)
-      .filter((band) => band.label)
-      .map((band) => ({ angle: angleOf((band.from + band.to) / 2), kind: 'segment' as const, text: band.label! })),
-    ...(shownTarget && !compact
-      ? [{ angle: angleOf(shownTarget.value), kind: 'target' as const, text: `${shownTarget.label || 'Meta'} ${formatValue(shownTarget.value)}` }]
-      : []),
-  ];
+  /** O que a escala mostra em volta do arco: o compacto e o arco sem espaco para ela retiram as marcas e os rotulos. */
+  const scaleParts = (bare: boolean) => {
+    const hidden = compact || bare;
+    const segmentLabels = hidden ? 'hidden' : showSegmentLabels;
+    const outsideLabels: OutsideLabel[] = [
+      ...(segmentLabels === 'hidden' ? [] : bands)
+        .filter((band) => band.label)
+        .map((band) => ({ angle: angleOf((band.from + band.to) / 2), kind: 'segment' as const, text: band.label! })),
+      ...(shownTarget && !hidden
+        ? [{ angle: angleOf(shownTarget.value), kind: 'target' as const, text: `${shownTarget.label || 'Meta'} ${formatValue(shownTarget.value)}` }]
+        : []),
+    ];
+
+    return { outsideLabels, scaleMode: hidden ? 'hidden' : scaleLabels, segmentLabels, tickMode: hidden ? 'hidden' : ticks } as const;
+  };
 
   const center = gaugeCenter({
     centerLabel,
@@ -264,8 +271,8 @@ export function ChartGauge({
 
   const outerBand = (rim ? rimGap + rimWidth : 0) + (shownTarget ? TARGET_MARK : 0);
 
-  function drawing() {
-    const layout = layoutGauge({
+  function layoutFor(scale: ReturnType<typeof scaleParts>) {
+    return layoutGauge({
       center,
       compact,
       endAngle: endRadians,
@@ -277,17 +284,24 @@ export function ChartGauge({
       ],
       needle,
       outerBand,
-      outsideLabels,
-      scaleLabels: scaleMode,
+      outsideLabels: scale.outsideLabels,
+      scaleLabels: scale.scaleMode,
       startAngle: startRadians,
       thickness: compact ? Math.min(thickness, COMPACT_MAX_THICKNESS) : thickness,
       tickLabels: tickLabelPriority(majors, base).map((index) => ({
         angle: angleOf(majors[index]),
         text: formatShown(reading, majors[index]),
       })),
-      ticks: tickMode,
+      ticks: scale.tickMode,
       width,
     });
+  }
+
+  const stripped = !compact && width > 0 && drawingHeight > 0 && layoutFor(scaleParts(false)).radius < CHART_MIN_RING / 2;
+  const { outsideLabels, scaleMode, segmentLabels, tickMode } = scaleParts(stripped);
+
+  function drawing() {
+    const layout = layoutFor({ outsideLabels, scaleMode, segmentLabels, tickMode });
     const { innerRadius, radius } = layout;
     const corner = Math.max(0, Math.min(trackRadius ?? tokenRadius, layout.thickness / 2));
     const ring = (from: number, to: number, inner = innerRadius, outer = radius) =>
@@ -507,6 +521,7 @@ export function ChartGauge({
 
         <div
           className={`${chartStyles.plot} ${fillHeight ? chartStyles.plotFill : ''}`}
+          {...touch.props}
           ref={ref}
           style={fillHeight ? undefined : { minHeight: drawingHeight }}
         >

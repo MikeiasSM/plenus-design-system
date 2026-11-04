@@ -12,7 +12,10 @@ import {
   measureLabel,
   roundedBarPath,
   truncateToWidth,
+  widestLabel,
   useChartMetrics,
+  TABLE_TOGGLE_MIN_WIDTH,
+  useTouchPin,
   useSeriesToggle,
   type AxisVisibility,
   type ChartHeight,
@@ -123,7 +126,13 @@ export interface ChartTimelineSummary {
   title: string;
 }
 
-export interface ChartTimelineProps extends ChartRootProps {
+/** Intervalo clicado e a linha dele. */
+export interface ChartTimelineMark {
+  row: ChartTimelineRow;
+  segment: ChartTimelineSegment;
+}
+
+export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cor de tema que abre a paleta das séries sem cor nem intenção, como nos demais gráficos. */
   accent?: string;
   axisPosition?: 'top' | 'bottom';
@@ -134,6 +143,9 @@ export interface ChartTimelineProps extends ChartRootProps {
   /** Em largura estreita, o resumo vai para baixo do rotulo ou sai. */
   compactSummary?: 'below' | 'hidden';
   defaultCollapsedGroups?: readonly string[];
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  defaultHidden?: readonly string[];
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   density?: ChartTimelineDensity;
   /** Faixa fixa do eixo. Sem ela, do primeiro ao ultimo instante, arredondada a hora ou ao dia. */
@@ -148,6 +160,9 @@ export interface ChartTimelineProps extends ChartRootProps {
   groups?: readonly ChartTimelineGroup[];
   /** Altura da area das linhas, com o eixo: as linhas rolam na vertical e o eixo fica fixo. `fill` ocupa a altura imposta pelo conteiner. Sem ela, a altura vem das linhas. */
   height?: ChartHeight;
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  hidden?: readonly string[];
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   highlightOnHover?: boolean;
   legend?: 'top' | 'bottom' | 'none';
@@ -157,8 +172,13 @@ export interface ChartTimelineProps extends ChartRootProps {
   /** Abaixo dessa largura, o desenho rola de lado dentro do conteiner, com rotulos e resumo fixos. */
   minPlotWidth?: number;
   onCollapsedGroupsChange?: (collapsed: readonly string[]) => void;
+  /** Rotulos das series ocultas, a cada alternancia da legenda. */
+  onHiddenChange?: (hidden: readonly string[]) => void;
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Com ele, os intervalos viram botoes e entram no teclado. */
+  onMarkClick?: (mark: ChartTimelineMark) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onSegmentClick?: (segment: ChartTimelineSegment, row: ChartTimelineRow) => void;
   overlap?: ChartTimelineOverlap;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -177,6 +197,8 @@ export interface ChartTimelineProps extends ChartRootProps {
   showGrid?: boolean;
   showProgress?: boolean;
   showSegmentLabels?: ChartTimelineSegmentLabels;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Alternativa a `segments`: cada mudanca de estado vale ate a seguinte. */
   states?: readonly ChartTimelineState[];
@@ -205,8 +227,6 @@ const BOTTOM_ROOM = 6;
 const TRACK_PADDING = 4;
 const PLOT_START = 10;
 const PLOT_END = 14;
-/** O que rotulos e resumo ao lado pedem alem da largura minima do desenho; abaixo disso, o resumo muda de lugar. */
-const SIDE_COLUMNS_ROOM = 200;
 const LABEL_PADDING = 10;
 const MIN_LABELED_BAR = 22;
 const MIN_CLIP_MARK_BAR = 12;
@@ -273,7 +293,7 @@ function hatch(color: string) {
 
 /**
  * Barras de intervalo em linhas sobre um eixo de tempo continuo: quem fez o que, de quando ate quando. O desenho e
- * imagem nomeada pelo titulo; com `onSegmentClick`, um grupo cujos intervalos sao botoes de tabulacao movel. A leitura
+ * imagem nomeada pelo titulo; com `onMarkClick`, um grupo cujos intervalos sao botoes de tabulacao movel. A leitura
  * medida a medida esta na visao em tabela.
  */
 export function ChartTimeline({
@@ -284,6 +304,7 @@ export function ChartTimeline({
   collapsibleGroups = true,
   compactSummary = 'below',
   defaultCollapsedGroups,
+  defaultHidden,
   defaultHiddenSeries,
   density = 'md',
   domain,
@@ -295,6 +316,7 @@ export function ChartTimeline({
   formatValue = formatDuration,
   groups = [],
   height,
+  hidden,
   hiddenSeries,
   highlightOnHover = false,
   legend = 'top',
@@ -303,7 +325,9 @@ export function ChartTimeline({
   mergeConsecutive = true,
   minPlotWidth = 360,
   onCollapsedGroupsChange,
+  onHiddenChange,
   onHiddenSeriesChange,
+  onMarkClick,
   onSegmentClick,
   overlap = 'stack',
   palette,
@@ -320,6 +344,7 @@ export function ChartTimeline({
   showGrid = true,
   showProgress = true,
   showSegmentLabels = 'auto',
+  showTableToggle = true,
   showTooltip = true,
   states,
   statesEnd,
@@ -333,12 +358,20 @@ export function ChartTimeline({
   const patternPrefix = useId().replace(/[^\w-]/g, '');
   const outer = useChartMetrics();
   const plot = useChartMetrics();
-  const seriesToggle = useSeriesToggle({ defaultHiddenSeries, hiddenSeries, onHiddenSeriesChange });
+  const touch = useTouchPin();
+  const seriesToggle = useSeriesToggle({
+    defaultHidden: defaultHidden ?? defaultHiddenSeries,
+    hidden: hidden ?? hiddenSeries,
+    onHiddenChange: (ocultas) => {
+      onHiddenChange?.(ocultas);
+      onHiddenSeriesChange?.(ocultas);
+    },
+  });
   // Recolher grupo e o mesmo controle da legenda: estado proprio ou do produto, pela chave.
   const groupToggle = useSeriesToggle({
-    defaultHiddenSeries: defaultCollapsedGroups,
-    hiddenSeries: collapsedGroups,
-    onHiddenSeriesChange: onCollapsedGroupsChange,
+    defaultHidden: defaultCollapsedGroups,
+    hidden: collapsedGroups,
+    onHiddenChange: onCollapsedGroupsChange,
   });
   const [target, setTarget] = useState<TimelineTarget | null>(null);
   const [focusedId, setFocusedId] = useState<number | null>(null);
@@ -350,7 +383,14 @@ export function ChartTimeline({
   const scrollNode = useRef<HTMLDivElement>(null);
   const scrollRef = useMergedRefs(plot.ref, scrollNode);
   const [horizontalBarHeight, setHorizontalBarHeight] = useState(0);
-  const interactive = onSegmentClick !== undefined;
+  const clickSegment =
+    onMarkClick || onSegmentClick
+      ? (segment: ChartTimelineSegment, row: ChartTimelineRow) => {
+          onMarkClick?.({ row, segment });
+          onSegmentClick?.(segment, row);
+        }
+      : undefined;
+  const interactive = clickSegment !== undefined;
 
   const colors = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
   const colorByLabel = new Map<string, string>();
@@ -420,8 +460,24 @@ export function ChartTimeline({
   ]);
   const empty = rows.length === 0 || rowsWithData.size === 0;
 
-  const compact = outer.width > 0 && outer.width < minPlotWidth + SIDE_COLUMNS_ROOM;
-  const summaryMode = !rowSummary ? 'none' : compact ? compactSummary : 'right';
+  const rowSegments = (row: ChartTimelineRow) =>
+    [...(segmentsByRow.get(row.key) ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
+  const orderedRows = rowsInDisplayOrder(rows, groups);
+  const summaries = new Map(
+    rowSummary
+      ? orderedRows.map((row) => [row.key, rowSummary(row, rowSegments(row).map((segment) => segment.source))])
+      : [],
+  );
+
+  // As colunas ao lado do desenho saem pela medida do texto delas, na ordem: o resumo vai para baixo do rotulo, depois o rotulo encurta.
+  const labelsRoom = widestLabel(rows.flatMap((row) => [row.label, row.description ?? '']), outer.font) + LABEL_PADDING * 2;
+  const summaryRoom =
+    widestLabel([...summaries.values()].flatMap((summary) => (summary ? [summary.title, summary.subtitle ?? ''] : [])), outer.font) +
+    LABEL_PADDING * 2;
+  const measured = outer.width > 0;
+  const compact = measured && outer.width < minPlotWidth + labelsRoom;
+  const summaryBeside = !measured || outer.width >= minPlotWidth + labelsRoom + summaryRoom;
+  const summaryMode = !rowSummary ? 'none' : summaryBeside ? 'right' : compactSummary;
   const size = DENSITY[density];
   const rowHeight = summaryMode === 'below' ? Math.max(size.row, ROW_WITH_SUMMARY_BELOW) : size.row;
   const laneStep = size.bar + LANE_GAP;
@@ -437,14 +493,6 @@ export function ChartTimeline({
     segments: visibleSegments,
   });
 
-  const rowSegments = (row: ChartTimelineRow) =>
-    [...(segmentsByRow.get(row.key) ?? [])].sort((a, b) => a.start - b.start || a.end - b.end);
-  const orderedRows = rowsInDisplayOrder(rows, groups);
-  const summaries = new Map(
-    rowSummary
-      ? orderedRows.map((row) => [row.key, rowSummary(row, rowSegments(row).map((segment) => segment.source))])
-      : [],
-  );
 
   const axisHeight = xAxis === 'hidden' ? 0 : AXIS_HEIGHT;
   const axisOnTop = axisPosition === 'top';
@@ -533,7 +581,7 @@ export function ChartTimeline({
 
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      onSegmentClick?.(shape.segment.source, shape.row);
+      clickSegment?.(shape.segment.source, shape.row);
       return;
     }
 
@@ -594,16 +642,17 @@ export function ChartTimeline({
     return (
       <g
         aria-label={describe(shape)}
+        data-mark={interactive ? id : undefined}
         className={`${styles.segment} ${interactive ? styles.clickable : ''} ${
           emphasizedSeries !== undefined && emphasizedSeries !== segment.series ? styles.dimmed : ''
         }`}
         key={id}
         onBlur={interactive ? () => setFocusedId(null) : undefined}
         onClick={
-          onSegmentClick
+          clickSegment
             ? () => {
                 setTabStopId(id);
-                onSegmentClick(segment.source, shape.row);
+                clickSegment(segment.source, shape.row);
               }
             : undefined
         }
@@ -629,7 +678,7 @@ export function ChartTimeline({
               }
             : undefined
         }
-        role={interactive ? 'button' : undefined}
+        role={interactive ? 'button' : 'graphics-symbol'}
         tabIndex={interactive ? (id === tabStop ? 0 : -1) : undefined}
       >
         <path
@@ -1066,6 +1115,7 @@ export function ChartTimeline({
       <div
         aria-label={scrolls && !interactive ? `${title}, ${scrollsDown ? 'área rolável' : 'área rolável de lado'}` : undefined}
         className={`${styles.scroll} ${sized ? styles.scrollSized : ''}`}
+        {...touch.props}
         onScroll={sized ? scrollAlongside : undefined}
         ref={scrollRef}
         role={scrolls && !interactive ? 'region' : undefined}
@@ -1148,9 +1198,10 @@ export function ChartTimeline({
         <span className={titleClassName} id={titleId}>
           {title}
         </span>
-        {!empty && (
+        {showTableToggle && !empty && (outer.width === 0 || outer.width >= TABLE_TOGGLE_MIN_WIDTH) && (
           <Button
             aria-pressed={tableView}
+            className={styles.tableToggle}
             onClick={() => setTableView((current) => !current)}
             size="sm"
             variant="secondary"

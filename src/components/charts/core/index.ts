@@ -42,6 +42,9 @@ export { CartesianFrame } from './CartesianFrame';
 export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './CartesianFrame';
 export { ChartFrame, chartRoot } from './ChartFrame';
 export type { ChartFrameProps, ChartRootProps } from './ChartFrame';
+export { categoryTable } from './categoryTable';
+export { shareTable, treeTable } from './shareTable';
+export { ChartTable } from './ChartTable';
 export { ChartLegend } from './ChartLegend';
 export type {
   ChartLegendAlign,
@@ -68,10 +71,11 @@ export type { ChartSlice, GroupSmallSlicesOptions } from './slices';
 export type { ChartBand, ChartCurve, ChartPoint, CornerRadii } from './shapes';
 export { useCartesianLayout } from './useCartesianLayout';
 export type { AxisReveal } from './useCartesianLayout';
+export { CHART_MIN_PLOT, CHART_MIN_RING, TABLE_TOGGLE_MIN_WIDTH, colorLegendRoom, legendRoom, plotRoom, useFit } from './decomposition';
 export { useChartMetrics } from './useChartMetrics';
 export type { ChartMetrics } from './useChartMetrics';
 export { useHoveredBand } from './useHoveredBand';
-export type { HoveredBand } from './useHoveredBand';
+export type { ChartCategoryHover, HoveredBand } from './useHoveredBand';
 export { seriesInScale, useSeriesToggle } from './useSeriesToggle';
 export type { SeriesToggle, UseSeriesToggleOptions } from './useSeriesToggle';
 export { useSliceRing } from './useSliceRing';
@@ -85,3 +89,5 @@ export type { NoDataStyle } from './NoDataHatch';
 export { isDevelopment } from '../../../utils/isDevelopment';
 export { useMarkNavigation } from './useMarkNavigation';
 export type { ChartAnchorPoint, ChartHoverDetails, ChartMarkClick, MarkNavigationOptions, MarkPosition } from './useMarkNavigation';
+export { useRingFit } from './useRingFit';
+export { useTouchPin } from './useTouchPin';

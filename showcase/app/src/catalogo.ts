@@ -48,10 +48,13 @@ export const familias: readonly Familia[] = [
       componente('Switch', 'Alternância de um estado ativo.'),
       componente('SegmentedControl', 'Escolha única entre poucos segmentos lado a lado.'),
       componente('DatePicker', 'Entrada de data, digitada ou escolhida em calendário.'),
+      componente('DatePickerRange', 'Escolha de um intervalo de datas em calendário, com atalhos definidos pelo produto.'),
       componente('TimePicker', 'Entrada de hora.'),
       componente('DateTimePicker', 'Entrada de data e hora combinadas.'),
       componente('ColorPicker', 'Escolha de cor entre amostras definidas pelo produto.'),
       componente('FileUpload', 'Seleção de arquivos, por clique ou arrasto, com a lista dos envios.'),
+      componente('FieldRow', 'Linha de ajuste: rótulo e explicação de um lado, o controle do outro.'),
+      componente('SaveBar', 'Barra de alterações não salvas, com descartar e salvar.'),
     ],
   },
   {
@@ -109,7 +112,7 @@ export const familias: readonly Familia[] = [
       componente('EmptyState', 'Ocupa o lugar do conteúdo que não há: sem registros, sem resultado ou falha ao carregar.'),
       componente('Skeleton', 'Lugar de um conteúdo que ainda carrega, na forma do que vai chegar.'),
       componente('Toast', 'Aviso flutuante sobre uma operação que acabou de acontecer.', {
-        importa: 'ToastRegion, showToast',
+        importa: 'ToastProvider, ToastRegion, showToast, useToast',
       }),
     ],
   },
@@ -117,11 +120,13 @@ export const familias: readonly Familia[] = [
     nome: 'Navegação',
     componentes: [
       componente('Breadcrumb', 'Caminho percorrido até a posição atual.'),
+      componente('PageHeader', 'Cabeçalho de página: título, descrição, selos de situação e ações.', { importa: 'PageHeader' }),
       componente('Pagination', 'Navegação entre páginas de um conjunto.'),
       componente('Tabs', 'Alternância entre painéis de conteúdo.'),
       componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
       componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
+      componente('AppShell', 'Moldura de tela em camadas: trilho de módulos, submenu do módulo e página.'),
     ],
   },
   {
@@ -129,6 +134,7 @@ export const familias: readonly Familia[] = [
     componentes: [
       componente('Dialog', 'Interação modal que interrompe o fluxo.'),
       componente('Drawer', 'Painel modal preso à lateral da tela.'),
+      componente('SidePanel', 'Painel não modal ao lado do conteúdo, de qualquer lado, que empurra a página.'),
       componente('Popover', 'Conteúdo ancorado a um gatilho, sem bloquear a página.'),
       componente('Tooltip', 'Descrição curta de um elemento, exibida no ponteiro ou no foco.'),
       componente('Menu', 'Lista de ações disparada por um gatilho.'),

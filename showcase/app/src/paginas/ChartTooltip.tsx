@@ -42,7 +42,7 @@ function BalaoDoPlayground({ registrar, valores }: { registrar: (evento: string)
 
   function focar(indice: number | null) {
     setFaixa(indice);
-    registrar(`onHoverCategory: ${indice}`);
+    registrar(`onHover: ${indice}`);
   }
 
   return (
@@ -73,7 +73,7 @@ function BalaoDoPlayground({ registrar, valores }: { registrar: (evento: string)
           showTooltip={false}
           categories={MESES}
           formatValue={formatarCompacto}
-          onHoverCategory={focar}
+          onHover={(categoria) => focar(categoria?.index ?? null)}
           series={FORMAS_DE_PAGAMENTO.map((forma) => ({ label: forma.label, values: forma.valores }))}
           stacked
           title="Faturamento por forma de pagamento"
@@ -115,7 +115,7 @@ const playground = definirPlayground({
         ['showTotal', valores.showTotal, false],
         ['totalLabel', valores.totalLabel, 'Total'],
       ],
-      '<ChartBar ... onHoverCategory={setFaixa} />',
+      '<ChartBar ... onHover={(categoria) => setFaixa(categoria?.index ?? null)} />',
     ),
   verificar: (valores) => {
     const duasColunas = valores.colunas === 'quantidade e valor';
@@ -163,7 +163,7 @@ function MediaNoTotal() {
         title={faixa === null ? '' : MESES[faixa]}
         totalLabel="Média por linha"
       >
-        <ChartBar showTooltip={false} categories={MESES} formatValue={formatarCompacto} onHoverCategory={setFaixa} series={COMPOSICAO} title="Faturamento por linha" />
+        <ChartBar showTooltip={false} categories={MESES} formatValue={formatarCompacto} onHover={(categoria) => setFaixa(categoria?.index ?? null)} series={COMPOSICAO} title="Faturamento por linha" />
       </ChartTooltip>
     </div>
   );
@@ -185,7 +185,7 @@ function CaminhoNoAnel() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={300} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartSunburst showTooltip={false} formatValue={formatarCompacto} height={300} nodes={DESPESAS} onHover={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -260,7 +260,7 @@ export const pagina: Pagina = {
   showTotal
   totalLabel="Média por linha"
 >
-  <ChartBar showTooltip={false} title="Faturamento por linha" categories={meses} series={series} onHoverCategory={setFaixa} />
+  <ChartBar showTooltip={false} title="Faturamento por linha" categories={meses} series={series} onHover={(categoria) => setFaixa(categoria?.index ?? null)} />
 </ChartTooltip>`,
     },
     {
@@ -278,7 +278,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartSunburst showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHover={setCaminho} />
 </ChartTooltip>`,
     },
     {
@@ -331,5 +331,6 @@ export const pagina: Pagina = {
     { nome: 'totalLabel', tipo: 'string', padrao: "'Total'", descricao: 'Rótulo da linha de total.' },
     { nome: 'title', tipo: 'string', descricao: 'Título do balão, como a categoria sob o ponteiro.' },
     { nome: 'subtitle', tipo: 'string', descricao: 'Linha de apoio sob o título.' },
+    { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o balão, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
   ],
 };

@@ -3,6 +3,8 @@ import { Button, Checkbox, InputText, Switch, Tabs, createPalette } from '@plenu
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const PRONTAS = ['orange', 'blue', 'purple'];
+const TEMAS_DO_PAINEL = ['herdado', 'claro', 'escuro'];
+const TEMA_NO_ATRIBUTO: Record<string, string | undefined> = { claro: 'light', escuro: 'dark' };
 const CORES_DO_PAINEL = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
 
 const ABAS = [
@@ -45,11 +47,12 @@ function escopo(paleta: string, cor: string, textoBranco: boolean) {
 }
 
 const playground = definirPlayground({
-  inicial: { paleta: 'propria', cor: '#67BD50', textoBranco: false },
+  inicial: { paleta: 'propria', cor: '#67BD50', textoBranco: false, tema: 'herdado' },
   controles: [
     { tipo: 'opcoes', nome: 'paleta', opcoes: [...PRONTAS, 'propria'] },
     { tipo: 'texto', nome: 'cor' },
     { tipo: 'booleano', nome: 'textoBranco' },
+    { tipo: 'opcoes', nome: 'tema', opcoes: TEMAS_DO_PAINEL },
   ],
   renderizar: (valores) => {
     const resultado = escopo(valores.paleta, valores.cor, valores.textoBranco);
@@ -57,15 +60,30 @@ const playground = definirPlayground({
     return resultado.erro ? (
       <p className="note">{resultado.erro}</p>
     ) : (
-      <div {...resultado.props}>
-        <Tela />
+      <div
+        data-theme={TEMA_NO_ATRIBUTO[valores.tema]}
+        style={{ background: 'var(--pl-color-background)', borderRadius: 8, padding: 16 }}
+      >
+        <div {...resultado.props}>
+          <Tela />
+        </div>
       </div>
     );
   },
-  codigo: (valores) =>
-    PRONTAS.includes(valores.paleta)
-      ? `<section data-palette="${valores.paleta}">\n  …\n</section>`
-      : `<section {...createPalette('${valores.cor}'${valores.textoBranco ? ", { onSolid: '#FFFFFF' }" : ''})}>\n  …\n</section>`,
+  codigo: (valores) => {
+    const tema = TEMA_NO_ATRIBUTO[valores.tema];
+    const abertura = PRONTAS.includes(valores.paleta)
+      ? `<section data-palette="${valores.paleta}">`
+      : `<section {...createPalette('${valores.cor}'${valores.textoBranco ? ", { onSolid: '#FFFFFF' }" : ''})}>`;
+
+    return tema ? `<div data-theme="${tema}">
+  ${abertura}
+    …
+  </section>
+</div>` : `${abertura}
+  …
+</section>`;
+  },
   verificar: (valores) => {
     if (PRONTAS.includes(valores.paleta)) {
       return [{ nivel: 'ok', titulo: 'Paleta pronta', detalhe: 'Contraste medido pelo check:contraste nos dois temas.' }];

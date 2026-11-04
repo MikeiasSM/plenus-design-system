@@ -29,8 +29,6 @@ export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   items: readonly AccordionItem[];
   multiple?: boolean;
   onExpandedKeysChange?: (keys: readonly string[]) => void;
-  /** @deprecated Use `onExpandedKeysChange`. */
-  onExpandedChange?: (keys: readonly string[]) => void;
   /** Direita e a convencao da web; esquerda serve a rotulos curtos em coluna estreita. */
   iconPosition?: AccordionIconPosition;
   /** Divisor entre as secoes, com a folga que ele exige. */
@@ -75,7 +73,6 @@ export function Accordion({
   items,
   multiple = false,
   onExpandedKeysChange,
-  onExpandedChange,
   iconPosition = 'right',
   divider = true,
   headingLevel = 3,
@@ -98,7 +95,6 @@ export function Accordion({
     selectedKeys: expandedKeys,
     onSelectionChange: (keys) => {
       onExpandedKeysChange?.([...keys]);
-      onExpandedChange?.([...keys]);
     },
   });
 

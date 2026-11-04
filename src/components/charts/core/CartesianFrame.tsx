@@ -7,7 +7,7 @@ import type { ChartFrameProps } from './ChartFrame';
 import { Grid, type GridOrientation } from './Grid';
 import type { LabelFont } from './measureText';
 import type { AxisLabelRotation, AxisPosition, AxisVisibility, ChartMargins, ChartPlot } from './cartesianLayout';
-import type { AxisReveal } from './useCartesianLayout';
+import type { AxisReveal, CartesianAxisSide, CartesianPart } from './useCartesianLayout';
 import styles from './Chart.module.css';
 
 export interface CartesianAxis {
@@ -46,7 +46,10 @@ export interface CartesianFrameProps {
   margins: ChartMargins;
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
+  /** Partes que a decomposicao por encaixe ja retirou, vindas de `useCartesianLayout`. */
+  removed?: ReadonlySet<CartesianPart>;
   root?: ChartFrameProps['root'];
+  showTableToggle?: ChartFrameProps['showTableToggle'];
   table?: ChartFrameProps['table'];
   title: string;
   tooltip?: ChartFrameProps['tooltip'];
@@ -112,17 +115,28 @@ export function CartesianFrame({
   margins,
   onToggleSeries,
   plot,
+  removed,
   root,
+  showTableToggle,
   table,
   title,
   tooltip,
   tooltipAnchor,
   width,
-  xAxis,
-  yAxis,
-  yAxisRight,
+  xAxis: xAxisProp,
+  yAxis: yAxisProp,
+  yAxisRight: yAxisRightProp,
 }: CartesianFrameProps) {
   const revealed = axisReveal?.revealed ?? false;
+  const without = (part: CartesianPart) => removed?.has(part) ?? false;
+  const decomposed = (axis: CartesianAxis, side: CartesianAxisSide): CartesianAxis => ({
+    ...axis,
+    title: without('titles') ? undefined : axis.title,
+    visibility: without('axes') || without(`labels:${side}`) ? 'hidden' : axis.visibility,
+  });
+  const xAxis = decomposed(xAxisProp, 'x');
+  const yAxis = decomposed(yAxisProp, 'y');
+  const yAxisRight = yAxisRightProp && decomposed(yAxisRightProp, 'yRight');
 
   return (
     <ChartFrame
@@ -135,12 +149,13 @@ export function CartesianFrame({
       legend={legend}
       legendAlign={legendAlign}
       legendContent={legendContent}
-      legendPosition={legendPosition}
+      legendPosition={without('legend') ? 'none' : legendPosition}
       minLegendEntries={2}
       onPointerEnter={axisReveal?.onPointerEnter}
       onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}
       root={root}
+      showTableToggle={showTableToggle}
       table={table}
       title={title}
       tooltip={tooltip}
@@ -148,7 +163,7 @@ export function CartesianFrame({
       width={width}
     >
       <g transform={`translate(${margins.left} ${margins.top})`}>
-        {grid?.map((linhas) => (
+        {!without('detail') && grid?.map((linhas) => (
           <Grid
             baseline={linhas.baseline}
             key={linhas.orientation}

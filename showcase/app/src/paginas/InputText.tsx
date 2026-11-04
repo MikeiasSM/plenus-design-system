@@ -135,6 +135,65 @@ function EmailValidado() {
   );
 }
 
+const CPF = '000.000.000-00';
+
+/** Telefone com 8 ou 9 dígitos no número: a máscara é uma função porque o padrão muda com a quantidade. */
+function formatarTelefone(texto: string) {
+  const digitos = texto.replace(/\D/g, '').slice(0, 11);
+  const fimDoCorpo = digitos.length > 10 ? 7 : 6;
+  const corpo = digitos.slice(2, fimDoCorpo);
+  const fim = digitos.slice(fimDoCorpo);
+
+  if (!digitos) {
+    return '';
+  }
+
+  return `(${digitos.slice(0, 2)}${digitos.length > 2 ? ') ' : ''}${corpo}${fim ? `-${fim}` : ''}`;
+}
+
+function MascaraDeCpf() {
+  const [formatado, setFormatado] = useState('');
+  const [cru, setCru] = useState('');
+
+  return (
+    <div style={{ width: '100%' }}>
+      <InputText
+        hint={`Formatado: "${formatado}" · cru: "${cru}"`}
+        inputMode="numeric"
+        label="CPF"
+        mask={CPF}
+        onRawValueChange={setCru}
+        onValueChange={setFormatado}
+      />
+    </div>
+  );
+}
+
+function MascaraDeTelefone() {
+  return (
+    <div style={{ width: '100%' }}>
+      <InputText hint="A função recebe o texto e devolve o texto formatado." inputMode="tel" label="Telefone" mask={formatarTelefone} />
+    </div>
+  );
+}
+
+function MascaraControladaCrua() {
+  const [cep, setCep] = useState('01310100');
+
+  return (
+    <div style={{ width: '100%' }}>
+      <InputText
+        hint={`O estado guarda o cru: "${cep}".`}
+        inputMode="numeric"
+        label="CEP"
+        mask="00000-000"
+        onRawValueChange={setCep}
+        value={cep}
+      />
+    </div>
+  );
+}
+
 function Variantes() {
   return (
     <div className="demo-grid">
@@ -180,7 +239,9 @@ function Modos() {
       </div>
       <div className="subsection">
         <h3>Número e dinheiro</h3>
-        <p className="note">O InputText não formata valores. Para número, InputNumber; para dinheiro, InputCurrency.</p>
+        <p className="note">
+          Sem <code>mask</code>, o InputText não formata valores. Para número, InputNumber; para dinheiro, InputCurrency.
+        </p>
       </div>
     </div>
   );
@@ -237,6 +298,47 @@ export const pagina: Pagina = {
       ),
       codigo: '<InputText label="Título do aviso" maxLength={60} showCharacterCount />',
     },
+    {
+      titulo: 'Máscara por padrão',
+      descricao:
+        'O padrão diz onde entra dígito (0), letra (a) ou letra ou dígito (*); o resto é literal. Digite, apague e cole no meio: o cursor fica onde estava. CPF é só exemplo, a biblioteca não traz máscara de domínio.',
+      Previa: MascaraDeCpf,
+      codigo: `const [formatado, setFormatado] = useState('');
+const [cru, setCru] = useState('');
+
+<InputText
+  label="CPF"
+  inputMode="numeric"
+  mask="000.000.000-00"
+  onValueChange={setFormatado} // "123.456.789-09"
+  onRawValueChange={setCru} // "12345678909"
+/>`,
+    },
+    {
+      titulo: 'Máscara por função',
+      descricao: 'Quando o padrão muda com o que se digita, como o telefone com 8 ou 9 dígitos, a máscara é uma função do texto.',
+      Previa: MascaraDeTelefone,
+      codigo: `function formatarTelefone(texto: string) {
+  const digitos = texto.replace(/\D/g, '').slice(0, 11);
+  // (11) 98765-4321 ou (11) 8765-4321
+}
+
+<InputText label="Telefone" inputMode="tel" mask={formatarTelefone} />`,
+    },
+    {
+      titulo: 'Valor cru no estado',
+      descricao: 'O estado do produto guarda o cru e o campo o exibe formatado: o value também passa pela máscara.',
+      Previa: MascaraControladaCrua,
+      codigo: `const [cep, setCep] = useState('01310100');
+
+<InputText
+  label="CEP"
+  inputMode="numeric"
+  mask="00000-000"
+  value={cep}
+  onRawValueChange={setCep}
+/>`,
+    },
   ],
   Variantes,
   Modos,
@@ -259,7 +361,18 @@ export const pagina: Pagina = {
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e marca o campo como inválido.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone decorativo à frente do texto, como a lupa de uma busca.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px. O lg é o da busca de destaque.' },
-    { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'O texto a cada mudança, ao lado do onChange nativo.' },
+    {
+      nome: 'mask',
+      tipo: 'InputMask',
+      descricao:
+        "InputMask é string | ((text: string) => string). Formata o que se digita ou cola. Padrão: 0 dígito, a letra, * letra ou dígito, o resto literal ('000.000.000-00'). Função: recebe o texto e devolve o formatado. value e defaultValue também passam por ela.",
+    },
+    { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'O texto a cada mudança, ao lado do onChange nativo. Com mask, o texto formatado.' },
+    {
+      nome: 'onRawValueChange',
+      tipo: '(raw: string) => void',
+      descricao: 'Com mask, o texto sem a formatação: no padrão, só o que preencheu posições; na função, as letras e os dígitos do texto.',
+    },
     { nome: 'showCharacterCount', tipo: 'boolean', padrao: 'false', descricao: 'Mostra o contador, contra o maxLength quando houver.' },
     { nome: 'maxLength', tipo: 'number', descricao: 'Limite nativo de caracteres.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Obrigatório nativo, com asterisco no rótulo.' },

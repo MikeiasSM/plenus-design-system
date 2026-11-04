@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import type { ChartAnchorPoint } from '../core/useMarkNavigation';
 import styles from './ChartTooltip.module.css';
 
@@ -47,6 +48,8 @@ export interface ChartTooltipProps {
   columns?: readonly ChartTooltipColumn[];
   /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
   computed?: ChartTooltipComputed | 'none';
+  /** Elemento que recebe o balão. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
   rows: readonly ChartTooltipRow[];
   showTotal?: boolean;
   subtitle?: string;
@@ -55,12 +58,16 @@ export interface ChartTooltipProps {
 }
 
 interface Ponto {
+  touch?: boolean;
   x: number;
   y: number;
 }
 
 /** Distancia entre o ponteiro e o balao, para o cursor nao cobrir o texto. */
 export const TOOLTIP_OFFSET = 16;
+
+/** Com o dedo, o balao sobe acima do toque: a mao cobre o que estiver abaixo e a direita dele. */
+const TOOLTIP_OFFSET_TOUCH = 48;
 
 /** Folga minima ate a borda da janela. */
 const MARGEM = 8;
@@ -93,13 +100,16 @@ function totalizar(operador: ChartTooltipTotal, valores: readonly number[]) {
  * Canto do balao a partir do ponteiro. Ele abre para baixo e para a direita
  * enquanto couber, e vira para o lado oposto ao encostar na borda.
  */
-function encaixar({ x, y }: Ponto, largura: number, altura: number): Ponto {
+function encaixar({ touch, x, y }: Ponto, largura: number, altura: number): Ponto {
+  const afastamento = touch ? TOOLTIP_OFFSET_TOUCH : TOOLTIP_OFFSET;
   const cabeADireita = x + TOOLTIP_OFFSET + largura <= larguraDaJanela() - MARGEM;
-  const cabeAbaixo = y + TOOLTIP_OFFSET + altura <= window.innerHeight - MARGEM;
+  const cabeAbaixo = y + afastamento + altura <= window.innerHeight - MARGEM;
+  const cabeAcima = y - afastamento - altura >= MARGEM;
+  const abaixo = touch ? !cabeAcima && cabeAbaixo : cabeAbaixo;
 
   return {
     x: cabeADireita ? x + TOOLTIP_OFFSET : Math.max(x - TOOLTIP_OFFSET - largura, MARGEM),
-    y: cabeAbaixo ? y + TOOLTIP_OFFSET : Math.max(y - TOOLTIP_OFFSET - altura, MARGEM),
+    y: abaixo ? y + afastamento : Math.max(y - afastamento - altura, MARGEM),
   };
 }
 
@@ -149,12 +159,14 @@ export function ChartTooltip({
   children,
   columns,
   computed,
+  portalContainer,
   rows,
   showTotal = false,
   subtitle,
   title,
   totalLabel = 'Total',
 }: ChartTooltipProps) {
+  const container = usePortalContainer(portalContainer);
   const areaRef = useRef<HTMLDivElement>(null);
   const [ponteiro, setPonteiro] = useState<Ponto | null>(null);
   const [ancoraDispensada, setAncoraDispensada] = useState<ChartAnchorPoint | null>(null);
@@ -200,18 +212,21 @@ export function ChartTooltip({
   }, [ancora, visivel]);
 
   const acompanhar = (evento: PointerEvent<HTMLDivElement>) =>
-    setPonteiro({ x: evento.clientX, y: evento.clientY });
+    setPonteiro({ touch: evento.pointerType === 'touch', x: evento.clientX, y: evento.clientY });
 
   return (
     <div
       className={styles.area}
-      onPointerLeave={() => setPonteiro(null)}
+      // O dedo sai do desenho ao levantar, e e ai que o toque fixa o balao: quem o solta e o grafico, sem linhas.
+      onPointerLeave={(evento) => evento.pointerType !== 'touch' && setPonteiro(null)}
       onPointerMove={acompanhar}
+      onPointerUp={(evento) => evento.pointerType === 'touch' && acompanhar(evento)}
       ref={areaRef}
     >
       {children}
 
       {visivel &&
+        container &&
         createPortal(
           <Balao
             columns={columns}
@@ -223,7 +238,7 @@ export function ChartTooltip({
             title={title}
             totalLabel={totalLabel}
           />,
-          document.body,
+          container,
         )}
     </div>
   );

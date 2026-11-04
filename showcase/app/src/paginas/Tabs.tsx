@@ -199,7 +199,6 @@ export const pagina: Pagina = {
     { nome: 'selectedKey', tipo: 'string', descricao: 'Aba atual, no modo controlado.' },
     { nome: 'defaultSelectedKey', tipo: 'string', padrao: 'primeira habilitada', descricao: 'Aba inicial, no modo não controlado.' },
     { nome: 'onSelectedKeyChange', tipo: '(key: string) => void', descricao: 'Recebe a chave da aba escolhida.' },
-    { nome: 'onSelectionChange', tipo: '(key: string) => void', descricao: <>Obsoleto: use <code>onSelectedKeyChange</code>.</> },
     { nome: 'orientation', tipo: "'horizontal' | 'vertical'", padrao: "'horizontal'", descricao: 'Direção da lista e eixo das setas.' },
   ],
 };

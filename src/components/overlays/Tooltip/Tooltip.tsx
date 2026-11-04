@@ -13,8 +13,10 @@ import {
   type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useFocusRing } from '@react-aria/focus';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Tooltip.module.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -24,6 +26,8 @@ interface TooltipCommonProps {
   /** Avisa cada pedido de abrir ou fechar: ponteiro, foco, blur e Escape. */
   onOpenChange?: (open: boolean) => void;
   placement?: TooltipPlacement;
+  /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 interface TooltipOnChildProps extends TooltipCommonProps {
@@ -74,12 +78,15 @@ function TooltipOnChild({
   onOpenChange,
   open: controlledOpen,
   placement = 'top',
+  portalContainer,
 }: TooltipOnChildProps) {
+  const container = usePortalContainer(portalContainer);
   const triggerRef = useRef<HTMLElement>(null);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = controlledOpen ?? internalOpen;
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const id = `tooltip-${useId()}`;
+  const { focusProps, isFocusVisible } = useFocusRing({ within: true });
 
   function setOpen(next: boolean) {
     setInternalOpen(next);
@@ -99,6 +106,14 @@ function TooltipOnChild({
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  // Só o foco por teclado abre a dica: clique e `focus()` programático não são pedidos de ajuda.
+  useEffect(() => {
+    if (isFocusVisible) {
+      setOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocusVisible]);
+
   const props = children.props;
   const mergedTriggerRef = useMergedRefs(triggerRef, props.ref as Ref<HTMLElement> | undefined);
   const trigger = cloneElement(children, {
@@ -109,8 +124,11 @@ function TooltipOnChild({
       timer.current = setTimeout(() => setOpen(true), delay);
     }),
     onMouseLeave: chain(props.onMouseLeave as (e: MouseEvent) => void, hideSoon),
-    onFocus: chain(props.onFocus as (e: FocusEvent) => void, () => setOpen(true)),
-    onBlur: chain(props.onBlur as (e: FocusEvent) => void, hide),
+    onFocus: chain(props.onFocus as (e: FocusEvent<HTMLElement>) => void, focusProps.onFocus!),
+    onBlur: chain(props.onBlur as (e: FocusEvent<HTMLElement>) => void, (event) => {
+      focusProps.onBlur!(event);
+      hide();
+    }),
     onKeyDown: chain(props.onKeyDown as (e: KeyboardEvent) => void, (event) => {
       if (event.key === 'Escape') {
         hide();
@@ -122,7 +140,7 @@ function TooltipOnChild({
     <>
       {trigger}
       {open &&
-        typeof document !== 'undefined' &&
+        container &&
         createPortal(
           <TooltipBubble
             content={content}
@@ -133,13 +151,23 @@ function TooltipOnChild({
             placement={placement}
             triggerRef={triggerRef}
           />,
-          document.body,
+          container,
         )}
     </>
   );
 }
 
-function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement = 'top' }: TooltipOnAnchorProps) {
+function TooltipOnAnchor({
+  anchorRef,
+  content,
+  id,
+  onOpenChange,
+  open,
+  placement = 'top',
+  portalContainer,
+}: TooltipOnAnchorProps) {
+  const container = usePortalContainer(portalContainer);
+
   // O foco pode estar fora da âncora, como no editor que a contém; o Escape vale em qualquer ponto da página.
   useEffect(() => {
     if (!open) {
@@ -156,7 +184,7 @@ function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement
     return () => document.removeEventListener('keydown', requestCloseOnEscape);
   }, [onOpenChange, open]);
 
-  if (!open || typeof document === 'undefined') {
+  if (!open || !container) {
     return null;
   }
 
@@ -168,7 +196,7 @@ function TooltipOnAnchor({ anchorRef, content, id, onOpenChange, open, placement
       placement={placement}
       triggerRef={anchorRef}
     />,
-    document.body,
+    container,
   );
 }
 
@@ -190,7 +218,7 @@ function TooltipBubble({
   triggerRef: RefObject<HTMLElement | null>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { overlayProps } = useOverlayPosition({
+  const { overlayProps, updatePosition } = useOverlayPosition({
     targetRef: triggerRef,
     overlayRef: ref,
     placement,
@@ -198,6 +226,39 @@ function TooltipBubble({
     isOpen: true,
     onClose,
   });
+
+  // A âncora anda numa transição ou animação sem scroll nem resize avisarem, como na barra que o submenu empurra.
+  // O balão a segue quadro a quadro enquanto ela se move, e para quando ela para.
+  useEffect(() => {
+    let frame = 0;
+    let last: DOMRect | undefined;
+
+    function follow() {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      const moved = rect !== undefined && (rect.left !== last?.left || rect.top !== last?.top);
+      last = rect;
+      if (moved) {
+        updatePosition();
+      }
+      frame = moved ? requestAnimationFrame(follow) : 0;
+    }
+
+    function watch() {
+      last = undefined;
+      if (!frame) {
+        frame = requestAnimationFrame(follow);
+      }
+    }
+
+    watch();
+    document.addEventListener('transitionstart', watch);
+    document.addEventListener('animationstart', watch);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener('transitionstart', watch);
+      document.removeEventListener('animationstart', watch);
+    };
+  }, [triggerRef, updatePosition]);
 
   return (
     <div

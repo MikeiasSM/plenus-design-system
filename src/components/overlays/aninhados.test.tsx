@@ -187,7 +187,8 @@ describe('Tooltip', () => {
 
     const alvo = screen.getByRole('button', { name: 'Alvo' });
 
-    fireEvent.focus(alvo);
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => alvo.focus());
 
     expect(alvo.getAttribute('aria-describedby')).toMatch(/^anterior /);
   });

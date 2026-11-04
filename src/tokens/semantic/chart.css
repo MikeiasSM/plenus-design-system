@@ -1,6 +1,7 @@
 /* Cores de serie para graficos. A ordem e fixa: a serie N usa sempre o mesmo
    token, para que um filtro que reduza as series nao repinte as restantes. */
-:root {
+:root,
+[data-theme="light"] {
   --pl-chart-series-1: var(--pl-brand-blue-50);
   --pl-chart-series-2: var(--pl-brand-orange-50);
   --pl-chart-series-3: var(--pl-brand-purple-50);
@@ -11,15 +12,11 @@
   --pl-chart-series-5: var(--pl-brand-orange-70);
   --pl-chart-series-6: var(--pl-brand-purple-40);
 
-  /* Papeis semanticos. Quando a serie declara intenção, a cor carrega
-     significado e nao entra na rotacao categorica. */
-  --pl-chart-positive: var(--pl-color-success);
-  --pl-chart-negative: var(--pl-color-danger);
-  --pl-chart-warning: var(--pl-color-warning);
-  --pl-chart-neutral: var(--pl-neutral-gray);
 
   /* Texto escrito sobre a propria cor, como a porcentagem dentro da fatia. Cada
      cor aponta para o lado que mede mais contraste contra ela, em cada tema. */
+  --pl-chart-neutral: var(--pl-neutral-gray);
+
   --pl-chart-on-dark: var(--pl-neutral-white);
   --pl-chart-on-light: var(--pl-neutral-black);
   --pl-chart-on-series-1: var(--pl-chart-on-dark);
@@ -37,13 +34,6 @@
      escuro: um veu escuro sobre superficie escura nao apareceria. */
   --pl-chart-cursor: rgba(24, 26, 28, 0.06);
 
-  --pl-chart-grid: var(--pl-color-border);
-  /* A linha da base separa positivos de negativos, entao ela se destaca da
-     grade — mas so um passo, nao ate a cor do texto do eixo. */
-  --pl-chart-baseline: var(--pl-color-border-strong);
-  --pl-chart-axis: var(--pl-color-text-tertiary);
-  --pl-chart-label: var(--pl-color-text-secondary);
-
   /* Escalas de valor do mapa: mais escuro e maior, nos dois temas. A sequencial
      sai da rampa azul; a divergente leva as intencoes nas pontas. */
   --pl-chart-sequential-1: var(--pl-brand-blue-20);
@@ -54,11 +44,9 @@
   --pl-chart-sequential-6: var(--pl-brand-blue-70);
   --pl-chart-sequential-7: var(--pl-brand-blue-90);
   --pl-chart-diverging-negative-3: #A11D22;
-  --pl-chart-diverging-negative-2: var(--pl-chart-negative);
   --pl-chart-diverging-negative-1: #F6A3A5;
   --pl-chart-diverging-center: #E6E8EB;
   --pl-chart-diverging-positive-1: #B8DDA9;
-  --pl-chart-diverging-positive-2: var(--pl-chart-positive);
   --pl-chart-diverging-positive-3: #3E7D2D;
 
   /* Ausencia de dado: neutro proprio e o traco da hachura, para nao parecer o menor valor. */
@@ -67,9 +55,8 @@
 }
 
 /* O tema escuro recebe tons proprios das mesmas rampas. A paleta do claro
-   reprova em contraste contra a superficie escura. O seletor e o das demais
-   camadas: o tema e do documento, e numa subarvore so os graficos trocariam. */
-:root[data-theme='dark'] {
+   reprova em contraste contra a superficie escura. */
+[data-theme="dark"] {
   --pl-chart-series-1: var(--pl-brand-blue-40);
   --pl-chart-series-2: var(--pl-brand-orange-40);
   --pl-chart-series-3: var(--pl-brand-purple-40);
@@ -105,4 +92,64 @@
   --pl-chart-diverging-positive-3: #2B7F5B;
   --pl-chart-no-data: #25282C;
   --pl-chart-no-data-hatch: #3F434A;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pl-chart-series-1: var(--pl-brand-blue-40);
+    --pl-chart-series-2: var(--pl-brand-orange-40);
+    --pl-chart-series-3: var(--pl-brand-purple-40);
+    --pl-chart-series-4: var(--pl-brand-blue-30);
+    --pl-chart-series-5: var(--pl-brand-orange-50);
+    --pl-chart-series-6: var(--pl-brand-purple-30);
+
+    /* O cinza medio some contra a superficie escura, em 2,69:1. */
+    --pl-chart-neutral: #9A9DA1;
+
+    /* Os tons do escuro sao todos claros, e o texto sobre eles e o preto. */
+    --pl-chart-on-series-1: var(--pl-chart-on-light);
+    --pl-chart-on-series-3: var(--pl-chart-on-light);
+    --pl-chart-on-series-4: var(--pl-chart-on-light);
+    --pl-chart-on-series-5: var(--pl-chart-on-light);
+    --pl-chart-on-neutral: var(--pl-chart-on-light);
+
+    --pl-chart-cursor: rgba(233, 234, 235, 0.08);
+
+    /* Mais escuro continua sendo maior. O tom mais escuro para no azul 60, que
+       ainda mede 2,17:1 contra a superficie; a borda forte contorna as regioes. */
+    --pl-chart-sequential-1: var(--pl-brand-blue-30);
+    --pl-chart-sequential-2: #A8B7DC;
+    --pl-chart-sequential-3: var(--pl-brand-blue-40);
+    --pl-chart-sequential-4: #778CBE;
+    --pl-chart-sequential-5: #5D73AA;
+    --pl-chart-sequential-6: var(--pl-brand-blue-50);
+    --pl-chart-sequential-7: var(--pl-brand-blue-60);
+    --pl-chart-diverging-negative-3: #B4473C;
+    --pl-chart-diverging-negative-1: #F0ADA5;
+    --pl-chart-diverging-center: #CDD0D4;
+    --pl-chart-diverging-positive-1: #98CFB3;
+    --pl-chart-diverging-positive-3: #2B7F5B;
+    --pl-chart-no-data: #25282C;
+    --pl-chart-no-data-hatch: #3F434A;
+  }
+}
+
+/* Derivados de tokens que mudam com o tema: declarados em cada escopo de tema, para serem recalculados nele. */
+:root,
+[data-theme] {
+  /* Papeis semanticos. Quando a serie declara intenção, a cor carrega
+     significado e nao entra na rotacao categorica. */
+  --pl-chart-positive: var(--pl-color-success);
+  --pl-chart-negative: var(--pl-color-danger);
+  --pl-chart-warning: var(--pl-color-warning);
+
+  --pl-chart-grid: var(--pl-color-border);
+  /* A linha da base separa positivos de negativos, entao ela se destaca da
+     grade — mas so um passo, nao ate a cor do texto do eixo. */
+  --pl-chart-baseline: var(--pl-color-border-strong);
+  --pl-chart-axis: var(--pl-color-text-tertiary);
+  --pl-chart-label: var(--pl-color-text-secondary);
+
+  --pl-chart-diverging-negative-2: var(--pl-chart-negative);
+  --pl-chart-diverging-positive-2: var(--pl-chart-positive);
 }

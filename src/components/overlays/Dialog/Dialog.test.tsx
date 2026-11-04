@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { Button } from '../../actions/Button';
 import { Dialog } from './Dialog';
@@ -145,13 +145,63 @@ describe('Dialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('ainda chama o obsoleto onClose ao fechar', () => {
-    const onClose = vi.fn();
-    render(<Dialog onClose={onClose} open title="Publicar" />);
+  describe('onBeforeClose', () => {
+    it('devolver false mantem aberto no Esc, no veu e no botao Fechar', () => {
+      const onBeforeClose = vi.fn(() => false);
+      const onOpenChange = vi.fn();
+      render(<Dialog onBeforeClose={onBeforeClose} onOpenChange={onOpenChange} open title="Editar" />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.mouseUp(document.body);
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
 
-    expect(onClose).toHaveBeenCalledOnce();
+      expect(onBeforeClose).toHaveBeenCalledTimes(3);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('devolver true fecha', () => {
+      render(<Dialog defaultOpen onBeforeClose={() => true} title="Editar" />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('espera a promessa e so fecha se ela resolver true', async () => {
+      let responder: (permitir: boolean) => void = () => {};
+      const onBeforeClose = vi.fn(() => new Promise<boolean>((resolve) => (responder = resolve)));
+      render(<Dialog defaultOpen onBeforeClose={onBeforeClose} title="Editar" />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+      expect(onBeforeClose).toHaveBeenCalledOnce();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      await act(async () => responder(false));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      await act(async () => responder(true));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('nao e consultado quando o produto muda open', () => {
+      const onBeforeClose = vi.fn(() => false);
+      const { rerender } = render(<Dialog onBeforeClose={onBeforeClose} open title="Editar" />);
+
+      rerender(<Dialog onBeforeClose={onBeforeClose} open={false} title="Editar" />);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(onBeforeClose).not.toHaveBeenCalled();
+    });
+  });
+
+  it('o tamanho xl alarga o dialogo', () => {
+    render(<Dialog open size="xl" title="Importar" />);
+
+    expect(screen.getByRole('dialog')).toHaveClass(styles.xl!);
   });
 
   describe('sem titulo', () => {

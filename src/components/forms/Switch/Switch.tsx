@@ -5,7 +5,8 @@ import styles from './Switch.module.css';
 export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
   error?: string;
   hint?: string;
-  label: string;
+  /** Sem ele, o nome vem de quem rotula o controle por fora, como o `FieldRow`, ou do `aria-label`. */
+  label?: string;
   /** O estado a cada mudanca, ao lado do `onChange` nativo. */
   onCheckedChange?: (checked: boolean) => void;
 }
@@ -47,7 +48,7 @@ export function Switch({
           role="switch"
           type="checkbox"
         />
-        <span className={styles.text}>{label}</span>
+        {label && <span className={styles.text}>{label}</span>}
       </label>
       {(error || hint) && (
         <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3-sankey';
 import {
+  ChartTable,
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
   ChartFrame,
@@ -8,6 +8,8 @@ import {
   measureLabel,
   truncateToWidth,
   useChartMetrics,
+  useFit,
+  CHART_MIN_PLOT,
   useMarkNavigation,
   widestLabel,
   type ChartHeight,
@@ -15,6 +17,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import { posicionarSankey, type LigacaoDoSankey, type NoDoSankey } from './leiauteDoSankey';
 import styles from './ChartSankey.module.css';
 
 export interface ChartSankeyNode extends SeriesAppearance {
@@ -46,6 +49,11 @@ export interface ChartSankeyNodeClick {
   value: number;
 }
 
+/** Marca do Sankey, discriminada por `kind`: a ligacao ou o no. */
+export type ChartSankeyMark =
+  | ({ kind: 'flow' } & ChartSankeyFlow)
+  | ({ kind: 'node' } & ChartSankeyNodeClick);
+
 export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
   /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
@@ -64,27 +72,26 @@ export interface ChartSankeyProps extends ChartRootProps {
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
-  /** Clique na ligacao. Com ele, as ligacoes viram botoes percorridos pelas setas. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'flow'`. Aceito ate a 0.7.0. */
   onFlowClick?: (flow: ChartSankeyFlow) => void;
-  /** Clique no no, com o total que passa por ele. Com ele, os nos viram botoes, numa linha abaixo das ligacoes. */
+  /** Ligacao ou no sob o ponteiro ou em foco pelo teclado, ou `null` ao sair. */
+  onHover?: (mark: ChartSankeyMark | null) => void;
+  /**
+   * Clique na ligacao ou no no, que se distinguem por `mark.kind`. Com ele, as ligacoes e os nos viram botoes,
+   * os nos numa linha abaixo das ligacoes.
+   */
+  onMarkClick?: (mark: ChartSankeyMark) => void;
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'node'`. Aceito ate a 0.7.0. */
   onNodeClick?: (node: ChartSankeyNodeClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showFlowValues?: boolean;
   showLabels?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   title: string;
-}
-
-interface NoPosicionado {
-  index: number;
-  label: string;
-  value: number;
-  x0: number;
-  x1: number;
-  y0: number;
-  y1: number;
 }
 
 interface Caixa {
@@ -98,29 +105,12 @@ function seCruzam(uma: Caixa, outra: Caixa) {
   return uma.x0 < outra.x1 && outra.x0 < uma.x1 && uma.y0 < outra.y1 && outra.y0 < uma.y1;
 }
 
-interface LigacaoPosicionada {
-  index: number;
-  source: NoPosicionado;
-  target: NoPosicionado;
-  value: number;
-  width: number;
-  y0: number;
-  y1: number;
-}
-
-const ALINHAMENTO = {
-  center: sankeyCenter,
-  justify: sankeyJustify,
-  left: sankeyLeft,
-  right: sankeyRight,
-};
-
 /**
  * Bezier cubica entre a borda de saida e a borda de entrada, com os pontos de
  * controle no meio do vao. E o que da a ligacao a curva que sai e chega na
  * horizontal, sem torcer perto dos nos.
  */
-function caminhoDa(ligacao: LigacaoPosicionada) {
+function caminhoDa(ligacao: LigacaoDoSankey) {
   const saida = ligacao.source.x1;
   const chegada = ligacao.target.x0;
   const meio = (saida + chegada) / 2;
@@ -177,10 +167,13 @@ export function ChartSankey({
   nodePadding = 12,
   nodeWidth = 12,
   onFlowClick,
+  onHover,
+  onMarkClick,
   onNodeClick,
   palette,
   showFlowValues = false,
   showLabels = true,
+  showTableToggle = true,
   showTooltip = true,
   title,
   ...root
@@ -221,11 +214,16 @@ export function ChartSankey({
     return declarados.map((no) => no.label).filter((rotulo) => !origens.has(rotulo));
   }, [declarados, flows]);
 
-  const bandaDireita = showLabels
-    ? Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET
-    : 0;
+  const bandaDosRotulos = Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET;
+  const removed = useFit(
+    width > 0 && alturaDoDesenho > 0 ? ['labels'] as const : [],
+    (partes) => ({ height: alturaDoDesenho, width: width - (showLabels && !partes.has('labels') ? bandaDosRotulos : 0) }),
+    CHART_MIN_PLOT,
+  );
+  const comRotulos = showLabels && !removed.has('labels');
+  const bandaDireita = comRotulos ? bandaDosRotulos : 0;
 
-  // Um diagrama de fluxo e aciclico por definicao, e o `d3-sankey` lanca ao
+  // Um diagrama de fluxo e aciclico por definicao, e o leiaute lanca ao
   // encontrar um ciclo. Detectar antes troca a queda da arvore inteira por uma
   // mensagem, sem descartar ligacao nenhuma pelas costas.
   const ciclico = useMemo(() => temCiclo(flows), [flows]);
@@ -238,53 +236,75 @@ export function ChartSankey({
     const util = width - bandaDireita;
 
     if (util <= 0 || alturaDoDesenho <= 0 || flows.length === 0 || ciclico || totalDoFluxo <= 0) {
-      return { links: [] as LigacaoPosicionada[], nodes: [] as NoPosicionado[] };
+      return { links: [] as LigacaoDoSankey[], nodes: [] as NoDoSankey[] };
     }
 
-    const posicionar = sankey<{ label: string }, { value: number }>()
-      .nodeId((no) => no.label)
-      .nodeAlign(ALINHAMENTO[nodeAlign])
-      .nodeWidth(nodeWidth)
-      .nodePadding(nodePadding)
-      .extent([
-        [0, 2],
-        [util, alturaDoDesenho - 2],
-      ]);
-
-    const resultado = posicionar({
-      links: flows.map((fluxo) => ({
+    return posicionarSankey({
+      align: nodeAlign,
+      flows: flows.map((fluxo) => ({
         ...fluxo,
         value: Number.isFinite(fluxo.value) ? Math.max(fluxo.value, 0) : 0,
       })),
-      nodes: declarados.map((no) => ({ label: no.label })),
+      labels: declarados.map((no) => no.label),
+      nodePadding,
+      nodeWidth,
+      x0: 0,
+      x1: util,
+      y0: 2,
+      y1: alturaDoDesenho - 2,
     });
-
-    return resultado as unknown as { links: LigacaoPosicionada[]; nodes: NoPosicionado[] };
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
   // As ligacoes ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
+  const marcaDaLigacao = (column: number): ChartSankeyMark => ({ kind: 'flow', ...flows[grafo.links[column].index] });
+  const marcaDoNo = (column: number): ChartSankeyMark => ({
+    kind: 'node',
+    label: grafo.nodes[column].label,
+    value: grafo.nodes[column].value,
+  });
+
+  function focarLigacao(indice: number | null) {
+    setEmFoco(indice);
+    onHover?.(indice === null ? null : marcaDaLigacao(indice));
+  }
+
+  const aoClicarNaLigacao =
+    onMarkClick || onFlowClick
+      ? (column: number) => {
+          onMarkClick?.(marcaDaLigacao(column));
+          onFlowClick?.(flows[grafo.links[column].index]);
+        }
+      : undefined;
+  const aoClicarNoNo =
+    onMarkClick || onNodeClick
+      ? (column: number) => {
+          onMarkClick?.(marcaDoNo(column));
+          onNodeClick?.({ label: grafo.nodes[column].label, value: grafo.nodes[column].value });
+        }
+      : undefined;
+
   const marcas = useMarkNavigation({
     onActivate:
-      onFlowClick || onNodeClick
-        ? ({ column, row }) => {
-            if (row === 0) {
-              onFlowClick?.(flows[grafo.links[column].index]);
-            } else {
-              const no = grafo.nodes[column];
-              onNodeClick?.({ label: no.label, value: no.value });
-            }
-          }
+      aoClicarNaLigacao || aoClicarNoNo
+        ? ({ column, row }) => (row === 0 ? aoClicarNaLigacao : aoClicarNoNo)?.(column)
         : undefined,
-    onFocusMark: (posicao) => setEmFoco(posicao?.row === 0 ? posicao.column : null),
+    onFocusMark: (posicao) => {
+      if (posicao?.row === 1) {
+        setEmFoco(null);
+        onHover?.(marcaDoNo(posicao.column));
+      } else {
+        focarLigacao(posicao?.column ?? null);
+      }
+    },
     present: [
-      ...(onFlowClick ? grafo.links.map((_, column) => ({ column, row: 0 })) : []),
-      ...(onNodeClick ? grafo.nodes.map((_, column) => ({ column, row: 1 })) : []),
+      ...(aoClicarNaLigacao ? grafo.links.map((_, column) => ({ column, row: 0 })) : []),
+      ...(aoClicarNoNo ? grafo.nodes.map((_, column) => ({ column, row: 1 })) : []),
     ],
   });
 
   const corDoNo = (indice: number) => cores[indice] ?? 'var(--pl-chart-neutral)';
 
-  function corDa(ligacao: LigacaoPosicionada) {
+  function corDa(ligacao: LigacaoDoSankey) {
     if (flowColor === 'neutral') {
       return 'var(--pl-chart-neutral)';
     }
@@ -292,8 +312,14 @@ export function ChartSankey({
     return corDoNo(flowColor === 'target' ? ligacao.target.index : ligacao.source.index);
   }
 
-  function descreverLigacao(ligacao: LigacaoPosicionada) {
+  function descreverLigacao(ligacao: LigacaoDoSankey) {
     return `${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`;
+  }
+
+  function saidaDaOrigem(ligacao: LigacaoDoSankey) {
+    return grafo.links
+      .filter((outra) => outra.source.index === ligacao.source.index)
+      .reduce((soma, outra) => soma + outra.value, 0);
   }
 
   /** O fluxo e a parte dele na saida da origem, que e o que a largura da faixa compara. */
@@ -304,9 +330,7 @@ export function ChartSankey({
       return [];
     }
 
-    const saida = grafo.links
-      .filter((outra) => outra.source.index === ligacao.source.index)
-      .reduce((soma, outra) => soma + outra.value, 0);
+    const saida = saidaDaOrigem(ligacao);
 
     return [
       { color: corDa(ligacao), label: 'Fluxo', values: [ligacao.value] },
@@ -339,7 +363,7 @@ export function ChartSankey({
     return Math.max(passo - nodeWidth - CHART_LABEL_OFFSET, 0);
   })();
 
-  function rotuloDoNo(no: NoPosicionado) {
+  function rotuloDoNo(no: NoDoSankey) {
     const saida = saidas.includes(no.label);
     const texto = truncateToWidth(
       no.label,
@@ -362,14 +386,14 @@ export function ChartSankey({
     };
   }
 
-  const rotulosDosNos = showLabels ? grafo.nodes.map(rotuloDoNo) : [];
+  const rotulosDosNos = comRotulos ? grafo.nodes.map(rotuloDoNo) : [];
 
   /**
    * Valor de uma ligacao, ja posicionado. Ele e omitido quando cruza o rotulo
    * de algum no: dois textos sobrepostos nao informam nada, e o valor continua
    * no `title` da propria ligacao.
    */
-  function valorDa(ligacao: LigacaoPosicionada) {
+  function valorDa(ligacao: LigacaoDoSankey) {
     const texto = formatValue(ligacao.value);
     const largura = measureLabel(texto, font);
     const saida = ligacao.source.x1;
@@ -409,6 +433,18 @@ export function ChartSankey({
       height={alturaDoDesenho}
       legendPosition="none"
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Valor', 'Da saída da origem']}
+          rows={grafo.links.map((ligacao, indice) => ({
+            cells: [formatValue(ligacao.value), saidaDaOrigem(ligacao) > 0 ? formatPercent(ligacao.value / saidaDaOrigem(ligacao)) : ''],
+            header: `${ligacao.source.label} → ${ligacao.target.label}`,
+            key: String(indice),
+          }))}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -428,11 +464,11 @@ export function ChartSankey({
           {grafo.links.map((ligacao, indice) => (
             <path
               aria-label={descreverLigacao(ligacao)}
-              {...(onFlowClick ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice) })}
+              {...(aoClicarNaLigacao ? marcas.markProps({ column: indice, row: 0 }, classeDa(indice)) : { className: classeDa(indice), role: 'graphics-symbol' })}
               d={caminhoDa(ligacao)}
               key={indice}
-              onMouseEnter={() => setEmFoco(indice)}
-              onMouseLeave={() => setEmFoco(null)}
+              onMouseEnter={() => focarLigacao(indice)}
+              onMouseLeave={() => focarLigacao(null)}
               stroke={corDa(ligacao)}
               // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
               style={{ strokeWidth: Math.max(ligacao.width, 1) }}
@@ -445,10 +481,12 @@ export function ChartSankey({
         {grafo.nodes.map((no, indice) => (
           <rect
             aria-label={no.label}
-            {...(onNodeClick ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node })}
+            {...(aoClicarNoNo ? marcas.markProps({ column: indice, row: 1 }, styles.node) : { className: styles.node, role: 'graphics-symbol' })}
             fill={corDoNo(no.index)}
             height={Math.max(no.y1 - no.y0, 1)}
             key={no.label}
+            onMouseEnter={() => onHover?.(marcaDoNo(indice))}
+            onMouseLeave={() => onHover?.(null)}
             width={no.x1 - no.x0}
             x={no.x0}
             y={no.y0}

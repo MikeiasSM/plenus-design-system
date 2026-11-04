@@ -86,6 +86,24 @@ import '@plenustech/design-system/styles.css';
 
 Sem essa importação os componentes são renderizados sem estilo.
 
+### CSS só dos componentes que a tela usa
+
+`styles.css` continua sendo a folha inteira (cerca de 25 KB comprimida com gzip). Quem quer carregar só o CSS dos componentes que usa importa a base e uma folha por componente:
+
+```ts
+import '@plenustech/design-system/styles/base.css';
+import '@plenustech/design-system/styles/Button.css';
+import '@plenustech/design-system/styles/Select.css';
+```
+
+- `styles/base.css` traz os tokens, os temas e a base de página que os componentes pressupõem. Vem sempre, e uma vez.
+- `styles/<Componente>.css` traz o CSS de um componente, com o nome do módulo: `Button`, `InputText`, `Table`, `ChartBar`, `CardMetricBar`.
+- Cada folha já importa, com `@import`, as folhas de que o componente depende: `styles/Select.css` traz as de `List`, `Field` e `Label`, sem que o consumidor as liste. O empacotador junta as repetidas.
+- Um componente que recebe outros como filhos, como o `Dialog` com um `Button` dentro, não traz o CSS dos filhos: importe a folha de cada um que a tela usa.
+- Não misture com `styles.css`, que já contém tudo.
+
+Para uma tela com `Button`, `InputText`, `Select`, `Dialog` e `Table`, a base e as folhas somam cerca de 8 KB comprimidos com gzip. A base sozinha tem 3 KB e a folha do `Button`, menos de 1 KB.
+
 Há uma segunda folha, **opcional**, com a base de página do sistema — tipografia do corpo, títulos, links, controles nativos e barra de rolagem:
 
 ```ts
@@ -109,10 +127,24 @@ Isso permite alterar a organização interna do projeto sem transformar a estrut
 
 ### Tema e paleta
 
-O tema claro é o padrão. O escuro é ligado na raiz do documento:
+O tema segue `prefers-color-scheme` do sistema. `data-theme="dark"` e `data-theme="light"` fixam o tema em qualquer elemento, valem para toda a subárvore e podem se aninhar, como um painel escuro numa página clara:
 
 ```html
-<html data-theme="dark">
+<html data-theme="dark">...</html>
+
+<aside data-theme="dark">...</aside>
+```
+
+`data-theme="light"` força o claro mesmo com o sistema escuro. Os overlays em portal (`Dialog`, `Popover`, `Tooltip` e os painéis dos campos) vão para o `body` e seguem o tema do documento, não o da subárvore do gatilho. Para que herdem o tema e a paleta de uma subárvore, o `PortalProvider` indica o elemento de destino, ou cada overlay recebe `portalContainer`:
+
+```tsx
+import { PortalProvider } from '@plenustech/design-system';
+
+const [destino, setDestino] = useState<HTMLElement | null>(null);
+
+<aside data-theme="dark" ref={setDestino}>
+  <PortalProvider container={destino}>...</PortalProvider>
+</aside>
 ```
 
 A identidade de marca vem de uma paleta. O laranja é o padrão; `data-palette="blue"` e `data-palette="purple"` trocam a paleta em qualquer elemento, inclusive numa parte da página. Uma paleta própria é gerada e medida a partir de uma cor:
@@ -135,6 +167,14 @@ Os ícones de interface vêm do ponto de entrada principal. A suíte completa do
 ```tsx
 import { IconFolder, IconTruck } from '@plenustech/design-system/icons';
 ```
+
+Cada ícone da suíte tem ainda o próprio módulo, para quem não conta com o tree-shaking do empacotador: só o desenho importado entra no bundle.
+
+```tsx
+import { IconStar } from '@plenustech/design-system/icons/IconStar';
+```
+
+`icons/<Nome>` é sempre o desenho da suíte, e não o do ponto de entrada principal. Oito nomes existem nos dois com desenhos diferentes, como `IconFilter`; a página de ícones do Showcase os lista.
 
 ### Fontes
 
@@ -178,9 +218,10 @@ npm test                  # suíte do Vitest
 npm run build:pacote      # pacote em dist/
 npm run check:pacote      # confere o pacote construído
 npm run check:contraste   # mede o contraste dos tokens nos dois temas
+npm run check:consumo     # instala o pacote em apps mínimos e confere o consumo real
 ```
 
-A publicação repete essas conferências antes de enviar o pacote ao npm. O processo de contribuição está em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+A publicação repete os testes, o build, o `check:pacote` e o `check:contraste` antes de enviar o pacote ao npm. O `check:consumo` roda na máquina, com o Chrome instalado, depois do build. O processo de contribuição está em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Estrutura
 

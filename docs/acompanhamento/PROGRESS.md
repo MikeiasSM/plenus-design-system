@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-1437 testes em 129 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+1816 testes passando, mais 4 pulados, em 147 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -32,7 +32,7 @@ Outros modulos:
 - `src/hooks/useCalendar` — State Motor de calendario, com `calendar.ts` puro e a ligacao React. **Interno**, nao exportado. Serve `DatePicker` e, por ele, `DateTimePicker`.
 - `src/utils/textSearch` — comparacao textual que ignora caixa e acento, sobre `Intl.Collator`. **Interno**, nao exportado. Serve o typeahead do motor e o filtro do `ComboBox`.
 - `src/components/forms/TimePicker/TimeSlots` — campo `hh:mm` e lista de horarios do painel. **Interno**, nao exportado. Serve `TimePicker` e `DateTimePicker`.
-- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal` e `formatarEdicaoDecimal`, `formatarEntradaMonetaria`, `formatarEntradaData` com `lerEntradaData`, `formatarEntradaHora` com `lerEntradaHora` e `formatarEntradaDataHora` com `lerEntradaDataHora`, as tres ultimas sobre `mascararPartes`, **nao exportadas**, e os formatadores de apresentacao `formatarData`, `formatarHora`, `formatarMoeda`, `formatarNumero` e `formatarPercentual`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
+- `src/utils/formatters` — mascaras de entrada `formatarEntradaDecimal` e `formatarEdicaoDecimal`, `formatarEntradaMonetaria`, `formatarEntradaData` com `lerEntradaData`, `formatarEntradaHora` com `lerEntradaHora` e `formatarEntradaDataHora` com `lerEntradaDataHora`, as tres ultimas sobre `mascararPartes`, **nao exportadas**, e os formatadores de apresentacao `formatDate`, `formatTime`, `formatCurrency`, `formatNumber` e `formatPercent`, **exportados** conforme `ARCHITECTURE.md` secao 9.1.
 - `src/components/charts/core` — o que os onze graficos compartilham. `ChartFrame` e a moldura de todos: titulo,
   area de desenho, estado vazio e legenda. `CartesianFrame` e uma camada sobre ela, com grade e eixos. Ao lado,
   `ChartLegend`, o calculo de layout de `cartesianLayout.ts`, as medidas de `spacing.ts`, a medida e o corte de
@@ -43,7 +43,7 @@ Outros modulos:
 - `src/components/feedback/Toast/toastStore` — fila dos avisos, lida pelo `ToastRegion`. Exporta so `showToast`, `dismissToast` e os tipos.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-sankey`. Todas externalizadas no build.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-geo`. Todas externalizadas no build. O `d3-sankey` saiu na 0.6.0: o `ChartSankey` calcula o proprio leiaute, em `leiauteDoSankey.ts`.
 
 ### Decisoes tomadas
 
@@ -124,7 +124,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - **Digitado, o ponto espera a proxima tecla.** Decidido na hora, `1.` virava `1,` e `1.234,56` tecla a tecla terminava em `1,23`. Com menos de tres digitos depois, o ponto fica na tela como foi digitado e o valor o le como decimal; o terceiro digito, ou a virgula, decide. Ao sair do campo, o ponto indeciso vira virgula. Quem mostra e `formatarEdicaoDecimal`, e o estado vive em `useDecimalInput`, que `InputNumber` e `InputCurrency` compartilham.
 - **Numero que vem de fora arredonda; o que esta sendo digitado trunca.** Sao coisas diferentes: no primeiro caso o valor esta pronto e truncar e perda; no segundo ele esta pela metade.
 - **Data sem hora entra pelo fuso local; o resto vai inteiro para o `Date`.** O corte por hifen engolia o `T` e devolvia vazio para tudo que sai de `toISOString()`.
-- **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de chamar o `d3-sankey`, que lancava e derrubava a arvore. Anuncia em vez de descartar ligacao pelas costas.
+- **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de calcular o leiaute; o `d3-sankey`, usado ate a 0.5, lancava e derrubava a arvore. O leiaute proprio da 0.6.0 manteve a deteccao. Anuncia em vez de descartar ligacao pelas costas.
 - **Com sinais mistos, o total nao define a pilha.** `+10` e `-5` somam `5`, mas o segmento positivo chega a `10` e era desenhado por cima do titulo. `stackedExtremes` devolve o caminho do acumulado, e nao so o fim dele.
 - **Cada keyframe vive no modulo que o usa.** O CSS Modules renomeia o nome na declaracao `animation` mesmo quando ele foi definido num arquivo global, e a referencia deixava de casar — em silencio, porque CSS nao reclama de animacao inexistente. No pacote publicado, Spinner nao girava, Progress indeterminado nao andava e as entradas de Sankey e Treemap nao animavam. O `check:pacote` agora compara definidos contra referenciados.
 - **Numero invalido tem o mesmo destino do ausente: nao se desenha.** `NaN` virava `y = 0`, que o eixo le como o maximo, entao a curva afirmava o contrario do dado. Uma fatia invalida zerava o anel inteiro. A regra chegou depois a cascata, onde o passo invalido nao desenha nem move o acumulado; a dispersao, que desenhava o ponto em `x = 0`; o radial, cujo maximo virava `NaN`; a area empilhada, onde um invalido embaixo partia a serie de cima; o agrupamento em "Outros"; e aos rotulos e descricoes da barra e do anel. Anel ou mapa sem valor positivo anuncia vazio.
@@ -327,7 +327,7 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - **Verificacao em navegador real, por Playwright.** Duas coisas medidas em Chrome, contra o Showcase servido: o movimento ao desligar uma serie pela legenda anima — a largura da barra caminha 55,6 → 34,3 → 16,5 → 3,2 → 0 em cerca de 200ms, e a altura acompanha o eixo reescalando —, e a lista virtual assenta no fim, com `scrollTop` fixo em 399.764 contra `scrollHeight` de 400.004, que e `10000 x 40 + 4` como a conta previa. O `prefers-reduced-motion` reportado pelo navegador limpo e `false`.
 - O MCP do Playwright esta configurado no escopo local do projeto. Ele so entra em vigor numa sessao nova, porque servidores MCP sao carregados na abertura.
 - **O Showcase estatico foi removido, e a entrada oficial passa a ser unica: `showcase/app`.** Ele era o mock de uma implementacao anterior — 53 KB de HTML escrito a mao e 44 KB de CSS que reimplementava estilo de producao, exatamente o que `README.md` nega ao Showcase. Nenhum script o alcancava: a raiz do `vite.config.ts` ja era `app`, e a entrada React cobre 53 secoes contra 38 dele.
-- Saiu com ele a documentacao **visual** de fundamentos: cores, tipografia, espacamento, raios e sombras e estrategia de CSS. O conteudo continua normativo em `TOKENS.md` e nos dois documentos de referencia; o que se perdeu foi a pagina que o desenhava. Esta no historico do git, se for para repor.
+- Saiu com ele a documentacao **visual** de fundamentos: cores, tipografia, espacamento, raios e sombras e estrategia de CSS. O conteudo continua normativo em `TOKENS.md` e nos dois documentos de referencia. **A pagina foi reposta** no Showcase React, em `#/fundamentos`, na 0.6.0: nomes e valores sao lidos de `src/tokens` e `src/styles/tokens.css`, sem copia a mao, e entram os tokens novos (`--pl-shell-gap`, `--pl-color-primary-selected`, `--pl-type-micro-*` e as camadas `--pl-z-*`). Ela desenha e aponta para os documentos normativos, sem redefinir regra.
 - Showcase sem formatador improvisado: as vinte e oito funcoes de formatacao escritas a mao nos graficos deram lugar aos formatadores de apresentacao. Sobraram duas, e ambas acrescentam unidade de dominio — `dias` — que nao pertence ao Design System.
 - **O Showcase passou a ter uma pagina por componente**, em 18/10/2026, a partir de um modelo validado num artefato. A pagina unica de 2.600 linhas tinha ficado dificil de percorrer. Agora:
   - topo com busca por nome, papel ou familia, sem acento nem caixa, em `Ctrl K`, e o tema claro ou escuro, guardado;
@@ -346,7 +346,6 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
-- `AppShell`, `SidePanel`, `PageHeader`, `FieldRow` e `SaveBar`, previstos no catalogo desde 02/11/2026, e a secao de composicao no Showcase. Modelo decidido e pendente, ainda fora do roadmap: entra na 0.6.0 se a integracao com o Painel nao exigir nada de imediato dessa versao; senao, provavelmente na 0.7.0. O contexto completo, com os prototipos, esta em [`appshell/APPSHELL.md`](appshell/APPSHELL.md). O token `--pl-shell-gap` ja existe e ainda nao tem consumidor.
 
 ## Pendencias de correcao identificadas no review
 
@@ -355,19 +354,25 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - Definir o idioma dos tokens de raio, espacamento e motion na consolidacao de `tokens.css`. Nenhum documento de referencia os cobre, e `TOKENS.md` secoes 7 e 8 os exemplifica em portugues.
 - A escala tipografica paralela foi **removida**: `--pl-size-*` e os pesos `--pl-weight-bold` e `--pl-weight-medium` nao existem mais, e nada os referencia.
 - Promover as decisoes arquiteturais registradas no cabecalho de `tokens.css` para o documento normativo adequado, antes de enxugar o comentario.
-- Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatarData` e `formatarHora` ja sao exportados.
+- Exportar as mascaras de entrada pela API publica quando fizerem parte do contrato de consumo. Os formatadores de apresentacao `formatDate` e `formatTime` ja sao exportados.
 - Consolidar os tokens antigos e novos, removendo ambiguidades entre `tokens.css` e as camadas primitivas/semanticas.
 - Ampliar testes para controlled inputs, temas dark, limites de escala, acessibilidade e importacao do pacote construido.
-- Verificar em navegador real o foco inicial e a contencao de foco dos overlays. O jsdom trata como invisivel todo elemento em portal, por nao ter layout, entao `autoFocus` e `contain` do `FocusScope` nao sao observaveis na suite. O retorno de foco, esse sim, e verificado.
+- Foco inicial e contencao de foco dos overlays, **verificados em Chrome real em 03/11/2026**, com eventos de teclado pelo DevTools (Tab, Shift+Tab, Enter, Escape) sobre uma pagina com todos os overlays; o jsdom nao os observa por tratar o portal como invisivel.
+  - `Dialog` e `Drawer`: o foco inicial vai ao primeiro focavel, que e o botao Fechar do cabecalho (sem titulo, o primeiro campo). Tab e Shift+Tab ficam contidos, e dao a volta. Escape fecha e o foco volta ao gatilho. Passa.
+  - `Popover`: o foco entra no primeiro controle. Sem `contain`, por desenho: o Tab do ultimo controle segue para o elemento depois do gatilho, e o Shift+Tab do primeiro, para o elemento antes dele. Escape fecha e o foco volta ao gatilho (a devolucao espera um quadro de animacao: com a janela sem foco ela pode levar quase um segundo). Passa.
+  - `Select`: o foco vai a lista; Tab e Shift+Tab fecham e seguem para os vizinhos do gatilho; Escape devolve o foco. `ComboBox`: o foco fica no campo, e as setas percorrem as opcoes. `Menu`: o foco vai ao primeiro item; Tab fecha e segue; Escape devolve ao gatilho. Passam.
+  - `DatePicker`, `DateTimePicker` e `TimePicker`: o foco inicial e correto (o dia do rascunho, ou a lista de horas), e Escape devolve o foco ao gatilho. **Falhava**: o painel nao tinha escopo de foco, entao o Tab no ultimo controle saia para o fim do documento e o Shift+Tab no primeiro ia ao ultimo elemento da pagina. Corrigido com `FocusScope restoreFocus` no painel, o mesmo do `Popover`: o foco segue para o vizinho do gatilho.
+  - Efeito do mesmo escopo, igual ao do `Popover`: o clique fora numa area sem foco devolve o foco ao controle de onde o painel abriu; antes ele ficava no `body`. Reconferido em 03/11/2026, no Showcase.
+  - Fica como observacao, sem mudanca: o painel dos tres seletores nao fecha quando o Tab o deixa, e o foco o reencontra ao percorrer a pagina ate o fim.
 
 ## Decisoes pendentes da reverificacao da 0.1.1
 
 O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que segue muda contrato ou pede desenho, e depende do mantenedor.
 
-- **Valor de `InputNumber` e `InputCurrency`.** Eles emitem texto em pt-BR, `'1234,56'`, e o consumidor converte antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
+- **Valor de `InputNumber` e `InputCurrency`.** Decidido na 0.6.0: numero (`number | null`). Ate a 0.5 eles emitiam texto em pt-BR, `'1234,56'`, e o consumidor convertia antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
 - **Teclado e toque nos graficos.** O hover so ouve o mouse, e no toque nao ha passar por cima. Tocar para fixar o realce e o balao e tocar fora para soltar e um modelo de interacao a desenhar. O teclado segue o catalogo: o grafico e uma imagem so, e a leitura medida a medida vem pela visao em tabela.
 - **API comum entre os `Chart*`.** `series`, `slices`, `tracks`, `nodes` e `flows`, e `onHoverCategory`, `onHoverStep` e `onHoverSlice`, seguem a forma do dado de cada grafico; a unificacao feita cobre so os cartesianos. Unificar o resto quebra quase todos os graficos, e pede o desenho da API antes.
-- **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter.
+- **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter. **Resolvido na 0.6.0:** o leiaute foi reescrito em `leiauteDoSankey.ts`, com as mesmas coordenadas, e o `d3-sankey` saiu das dependencias, levando as copias antigas.
 
 ## Decisoes pendentes do relato do PlenusLAB
 
@@ -378,6 +383,24 @@ Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segu
 - **`Popover` que nao leva o foco para dentro.** Descartado pelo mantenedor em 18/10/2026: ele e `role="dialog"`, e `COMPONENTS.md` secao 7 pede que dialogo gerencie o foco. O painel sob um campo em que se digita e o `ComboBox` com opcao composta ou, fora de uma lista, um painel no fluxo, como descreve o catalogo, secao 9.
 - **Contador sobreposto ao botao**, a ultima peca da barra de filtros do PlenusLAB, prevista em 17/10/2026. A busca com icone entrou como `icon` do `InputText` e a etiqueta removivel como `Tag`, em 18/10/2026. O contador nao tem lugar no catalogo: o `Badge` e rotulo de estado, e pendura-lo no `ButtonIcon` muda o papel do botao. A barra em si e composicao do produto e fica na aplicacao.
 - **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
+
+## 0.6.0: candidatos e propostas fora do roadmap
+
+`AppShell`, `SidePanel`, `PageHeader`, `FieldRow` e `SaveBar` entraram na 0.6.0, com a secao de composicoes do Showcase; o contexto, com os prototipos, esta em [`appshell/APPSHELL.md`](appshell/APPSHELL.md). Montar as telas do prototipo `composicoes.html` so com componentes do pacote revelou o que segue. Nada disso esta no roadmap nem no catalogo: cada item e candidato, e entra so com decisao do mantenedor.
+
+**Candidatos a componente ou recurso**, com onde a composicao precisou dele:
+
+- **`DescriptionList`.** Pares de termo e valor, como os dados do pedido e os totais. As telas `Pedido` e `NovoPedido` montam `<dl>` com CSS do Showcase.
+- **Tom de perigo no `Card`.** A acao destrutiva das configuracoes fica num cartao proprio, no fim; hoje o perigo esta so no botao.
+- **Indice "Nesta pagina".** A configuracao no arranjo com indice monta o `nav` ao lado das secoes, preso a rolagem, a mao.
+- **Link de linha de tabela.** A linha da lista que abre o registro: a lista de pedidos poe o link so no numero, porque a `Table` nao tem a linha inteira como link.
+- **Legenda visivel no `SegmentedControl`.** O controle e nomeado so pelo `label` oculto; as telas pediram o nome visivel ao lado.
+- **Rotulo oculto no `Table.Column`.** A coluna de remover tem o nome so para o leitor de tela, montado com a classe `so-leitor` do Showcase.
+
+**Propostas fora do repositorio, para decisao do mantenedor.** Nenhum documento normativo foi alterado.
+
+- `F:\temp\proposta-icones\PROPOSTA.md` (item 19): conciliar `ARCHITECTURE.md` secao 12 e 13 com o catalogo, secao 10 — as tres entradas de icones, o criterio de entrada na raiz e a base `Icon`. Recomenda ratificar as entradas e adotar o criterio "a raiz so ganha icone que um componente usa", sem abrir a base.
+- `F:\temp\proposta-tokens\PROPOSTA.md` (item 23): levar ao corpus as decisoes do cabecalho de `tokens.css` que nenhum documento cobre — escala tipografica inteira e fixa, espacamento em base 4px e os breakpoints com o container —, e a divergencia entre os nomes de raio, espaco e movimento dos documentos e os implementados.
 
 ## Relatorio de compatibilidade com o Painel, 27/10/2026
 
@@ -405,7 +428,7 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
   - CSS por componente, mantendo o `styles.css` agregado. Preparado em 28/10/2026: os `composes` entre arquivos sairam, e cada componente usa no TSX a classe do modulo de origem; com `cssCodeSplit`, as folhas somam os mesmos 127 KB da agregada, sem copia do nucleo. A publicacao por componente, por importacao manual como no Mantine, so entra se o Painel medir que o CSS pesa no primeiro carregamento: a agregada tem 19 KB comprimida.
   - Guarda de `prefers-reduced-motion` nos dezoito modulos que animam, e o bloco do `base.css` restrito a biblioteca.
   - Visao em tabela nos graficos primeiro; teclado marca a marca so onde houver clique na marca, como no `ChartMap`. Acrescenta essa linha ao catalogo.
-- **Mantem a regra:** provider de i18n, ganchos `data-part`, tabela de propriedades gerada dos tipos, Showcase publicado e `d3-sankey` reescrito; os 18 KB duplicados ficam ate o Painel medi-los.
+- **Mantem a regra:** provider de i18n, ganchos `data-part`, tabela de propriedades gerada dos tipos, Showcase publicado e `d3-sankey` reescrito; os 18 KB duplicados ficam ate o Painel medi-los. O `d3-sankey` acabou reescrito na 0.6.0, ver as decisoes pendentes da 0.1.1.
 - **Em avaliacao:** o anel de foco segue o atual; o mantenedor compara as propostas num artefato antes de decidir.
 - **Documentado:** a biblioteca exige React 19. O Painel usa 19.
 
@@ -461,7 +484,7 @@ Decisoes tomadas em discussao com o mantenedor, antes de qualquer implementacao.
 
 ### Formatadores e localidade
 
-`formatCurrency`, `formatNumber` e `formatPercent` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `locale` em pt-BR por padrao. Ate a 0.3 eram `formatarMoeda`, `formatarNumero` e `formatarPercentual`, que seguem como obsoletos. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
+`formatCurrency`, `formatNumber` e `formatPercent` existem, com a assinatura que `ARCHITECTURE.md` secao 9.1 define: valor e um objeto de opcoes, com `locale` em pt-BR por padrao. Ate a 0.3 eram `formatarMoeda`, `formatarNumero` e `formatarPercentual`, que sairam na 0.6.0. Todos sobre `Intl.NumberFormat`, sem dependencia externa.
 
 - `formatPercent` recebe a **fracao**, nao o numero ja multiplicado: `0.42` vira `42%`. E a fracao que sai de uma divisao de duas medidas, e receber o valor pronto obrigaria cada consumidor a dividir antes de exibir.
 - A forma compacta sai da **localidade**, e nao de um sufixo proprio: em pt-BR um milhao e `1 mi`, nao `1M`. Inventar o sufixo quebraria em qualquer outra localidade.
@@ -480,7 +503,7 @@ Atencao a um detalhe que agora tem consequencia visivel: `Intl.NumberFormat` usa
 - O modo decimal usa virgula como separador e respeita `decimalScale`.
 - `InputCurrency` deve manter a edicao bruta durante o foco e aplicar a formatacao monetaria no blur.
 - Mudancas externas em componentes controlled devem ser refletidas mesmo durante o foco, conforme o contrato definido.
-- `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja normalizado. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
+- `InputNumber` e `InputCurrency` expoem apenas `onValueChange`, com o valor ja como numero (`number | null`; `null` e vazio ou texto sem numero, como `-`). Com `name`, o formulario recebe o numero com ponto decimal (`1234.56`), por um `input` oculto; o campo visivel nao envia a mascara. Repassar o evento cru divergia do valor exibido, e a propriedade `onChange` foi removida por isso.
 
 ### Graficos
 
@@ -731,13 +754,17 @@ Entrou no catalogo em 18/10/2026. O esqueleto ja existia dentro da `Table`, que 
 - Tres formas, `line`, `circle` e `block`, com `width` e `height` para a medida do que vai chegar.
 - **Decorativo**, sempre com `aria-hidden`. Quem envolve anuncia o carregamento, como a `Table` faz com a mensagem de status.
 
+### Pagination
+
+- **A ordem fica: intervalo, seletor de itens por pagina e passos.** Decidido em 03/11/2026, para a 0.6.0. O pedido do Painel era o seletor antes do intervalo. As referencias nao concordam: o AG Grid poe o seletor primeiro (`DEFAULT_PANELS = ['pageSize', 'rowSummary', 'pageSummary']`); o Untitled UI nao tem intervalo de itens, so "Page x of y", e a ordem dele com o seletor muda entre variantes e com o alinhamento. Sem acordo entre as referencias, a ordem atual se mantem.
+
 ### Steps
 
 Entrou no catalogo em 18/10/2026, para as `Etapas` do PlenusLAB.
 
 - **E o indicador, nao o processo.** O conteudo da etapa e os botoes de anterior e proxima ficam no produto: no PlenusLAB, cada uso monta um formulario diferente.
 - As anteriores a atual sao concluidas, com o visto e ", concluída" para o leitor de tela; a atual leva `aria-current="step"`.
-- Com `onStepChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
+- Com `onCurrentChange`, cada etapa vira botao. Sem ele, o indicador so mostra a posicao.
 - No celular as etapas empilham, com a linha na vertical.
 
 ### ButtonTile
@@ -779,7 +806,7 @@ Entrou no catalogo em 18/10/2026, para os anexos do PlenusLAB.
 - **Nao envia.** `onFilesSelected` entrega os aceitos; o produto envia e devolve a lista em `items`, com `status` e `progress`. Cancelar, remover e tentar de novo sao chamadas para o produto.
 - **Tipo e tamanho conferidos na escolha**, por `accept` e `maxSize`; os recusados saem em `onFilesRejected`, com o motivo, e a mensagem aparece no campo.
 - **O controle acessivel e o `input type="file"` nativo**, que recebe o foco; o botao visivel fica fora da arvore para nao duplicar o nome.
-- O tamanho do arquivo sai por `formatarTamanhoDeArquivo`, novo formatador publico.
+- O tamanho do arquivo sai por `formatFileSize`, novo formatador publico.
 
 ### Timeline
 
@@ -1185,7 +1212,7 @@ Desenho aprovado em artefato pelo mantenedor em 28/10/2026, com a mesma tela em 
 - O no do sankey usa o raio do token, pelo mesmo caminho das barras, em vez de um valor proprio no CSS.
 - O lado do rotulo do sankey sai do **papel do no**: entrada a esquerda, saida a direita, cada um na sua banda reservada. A regra anterior usava a metade da largura e jogava o rotulo da primeira coluna para dentro do fluxo. O no do meio nao tem banda e cai sobre o fluxo mesmo; ali um halo da cor da superficie e que o separa do que passa por baixo.
 - Entrada e saida saem das proprias ligacoes, antes do posicionamento: e isso que permite reservar a banda de cada lado.
-- `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
+- `d3-hierarchy` entra pela mesma fronteira do restante do D3: calcula posicoes e devolve numeros, sem tocar no DOM. O leiaute do sankey, proprio desde a 0.6.0 em `leiauteDoSankey.ts`, segue a mesma fronteira.
 - As pontas do arco sao arredondadas nos tres radiais, com o raio vindo do token e aberto por propriedade em cada um.
 - Quando mostrado, **o centro reserva o espaco do valor** no menor degrau, ate metade do raio: com muitos aneis, quem cede e a espessura deles.
 - O valor do centro **desce de degrau da escala oficial ate caber**, e no ultimo degrau e cortado. O SVG nao quebra linha nem esconde o que transborda, entao quem precisa caber e o texto. O degrau depende do valor **e** do anel: um numero longo desce mesmo em anel grande.
@@ -1226,7 +1253,7 @@ Desenho aprovado em artefato pelo mantenedor em 28/10/2026, com a mesma tela em 
    - Entrada oficial unica definida: `showcase/app`, a aplicacao React que consome o Design System. O
      Showcase estatico foi removido.
    - Preservar o Showcase como demonstracao, validacao visual e ambiente de integracao.
-   - Repor as paginas visuais de fundamentos que sairam com o estatico, se forem desejadas.
+   - ~~Repor as paginas visuais de fundamentos que sairam com o estatico, se forem desejadas.~~ Feito na 0.6.0: `#/fundamentos`, desenhada a partir dos tokens reais.
 
 **Icones** — concluida. Biblioteca oficial criada e consumida pelos dez componentes que desenhavam o proprio SVG.
 

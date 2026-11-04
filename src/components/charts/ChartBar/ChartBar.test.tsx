@@ -191,7 +191,7 @@ describe('ChartBar', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
     const escala = rotulosDoEixo().filter((rotulo) => /\d/.test(rotulo ?? '') && !rotulo?.includes('/'));
 
-    rerender(<ChartBar categories={periodos} hiddenSeries={dre.map((serie) => serie.label)} series={dre} title="DRE" />);
+    rerender(<ChartBar categories={periodos} hidden={dre.map((serie) => serie.label)} series={dre} title="DRE" />);
 
     expect(rotulosDoEixo()).toEqual(expect.arrayContaining(escala));
   });
@@ -428,7 +428,7 @@ describe('ChartBar', () => {
 
   it('com clique na barra, cada barra e botao, com uma parada de tabulacao so', () => {
     const aoClicar = vi.fn();
-    render(<ChartBar categories={periodos} onBarClick={aoClicar} series={dre} title="DRE" />);
+    render(<ChartBar categories={periodos} onMarkClick={aoClicar} series={dre} title="DRE" />);
     const botoes = screen.getAllByRole('button', { name: /, \d{2}\/2026:/ });
 
     expect(screen.getByRole('group', { name: 'DRE' })).toBeInTheDocument();
@@ -442,7 +442,7 @@ describe('ChartBar', () => {
 
   it('as setas andam entre categorias e series, e Enter ativa a barra em foco', () => {
     const aoClicar = vi.fn();
-    render(<ChartBar categories={periodos} onBarClick={aoClicar} series={dre} title="DRE" />);
+    render(<ChartBar categories={periodos} onMarkClick={aoClicar} series={dre} title="DRE" />);
     const primeira = screen.getByRole('button', { name: /Receita, 08\/2026/ });
 
     act(() => primeira.focus());

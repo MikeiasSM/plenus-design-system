@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
+import { useOverlayPosition } from '@react-aria/overlays';
 import { Menu, type MenuItem } from './Menu';
+
+vi.mock('@react-aria/overlays', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@react-aria/overlays')>();
+  return { ...original, useOverlayPosition: vi.fn(original.useOverlayPosition) };
+});
 
 const editar = vi.fn();
 const duplicar = vi.fn();
@@ -32,6 +38,15 @@ describe('Menu', () => {
     expect(screen.getAllByRole('menuitem')).toHaveLength(4);
     expect(gatilho).toHaveAttribute('aria-expanded', 'true');
   });
+
+  it.each([[undefined, 'bottom start'], ['bottom end', 'bottom end'], ['top', 'top'], ['right', 'right']] as const)(
+    'posiciona o painel em %s como %s',
+    (placement, esperado) => {
+      render(<Menu items={itens} label="Acoes" open placement={placement}><Button>Acoes</Button></Menu>);
+
+      expect(vi.mocked(useOverlayPosition).mock.calls.at(-1)?.[0].placement).toBe(esperado);
+    },
+  );
 
   it('foca a primeira opcao ao abrir e navega com as setas pulando desabilitados', () => {
     fireEvent.click(montar());

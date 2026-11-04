@@ -174,13 +174,13 @@ describe('ChartSunburst', () => {
   });
 
   it('com a costura, avisa o caminho ate o arco sob o ponteiro e tira o <title>', () => {
-    const onHoverNode = vi.fn();
-    render(<ChartSunburst nodes={despesas} onHoverNode={onHoverNode} title="Despesas" />);
+    const onHover = vi.fn();
+    render(<ChartSunburst nodes={despesas} onHover={onHover} title="Despesas" />);
 
     const aluguel = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Aluguel'))!;
     fireEvent.mouseEnter(aluguel);
 
-    expect(onHoverNode).toHaveBeenCalledWith([
+    expect(onHover).toHaveBeenCalledWith([
       { label: 'Operacionais', value: 800 },
       { label: 'Aluguel', value: 300 },
     ]);
@@ -189,7 +189,7 @@ describe('ChartSunburst', () => {
 
   it('com clique no arco, os arcos sao botoes e o clique entrega o caminho ate o no', () => {
     const aoClicar = vi.fn();
-    render(<ChartSunburst nodes={despesas} onNodeClick={aoClicar} title="Despesas" />);
+    render(<ChartSunburst nodes={despesas} onMarkClick={aoClicar} title="Despesas" />);
     const operacionais = screen.getByRole('button', { name: /^Operacionais:/ });
 
     expect(screen.getByRole('group', { name: 'Despesas' })).toBeInTheDocument();
@@ -217,7 +217,7 @@ describe('ChartSunburst: legenda e costura', () => {
 
   it('a entrada da legenda avisa o caminho ate o grupo, com o detalhe, e apaga o resto', () => {
     const aoPassar = vi.fn();
-    render(<ChartSunburst nodes={despesas} onHoverNode={aoPassar} palette={{ base: '#00A3A3' }} title="Despesas" />);
+    render(<ChartSunburst nodes={despesas} onHover={aoPassar} palette={{ base: '#00A3A3' }} title="Despesas" />);
 
     fireEvent.pointerEnter(entrada(/Administrativas/));
 
@@ -237,7 +237,7 @@ describe('ChartSunburst: legenda e costura', () => {
 
   it('grupo desligado nao e realcado pela legenda', () => {
     const aoPassar = vi.fn();
-    render(<ChartSunburst defaultHiddenGroups={['Administrativas']} nodes={despesas} onHoverNode={aoPassar} title="Despesas" />);
+    render(<ChartSunburst defaultHidden={['Administrativas']} nodes={despesas} onHover={aoPassar} title="Despesas" />);
 
     fireEvent.pointerEnter(entrada(/Administrativas/, false));
 
@@ -247,7 +247,7 @@ describe('ChartSunburst: legenda e costura', () => {
 
   it('no teclado o aviso segue com o caminho e um argumento so', () => {
     const aoPassar = vi.fn();
-    render(<ChartSunburst nodes={despesas} onHoverNode={aoPassar} onNodeClick={() => undefined} title="Despesas" />);
+    render(<ChartSunburst nodes={despesas} onHover={aoPassar} onMarkClick={() => undefined} title="Despesas" />);
 
     act(() => screen.getByRole('button', { name: /^Aluguel:/ }).focus());
 
@@ -263,17 +263,17 @@ describe('ChartSunburst: valor do no intermediario', () => {
   });
 
   function valoresDoCaminho(valorDoPai: number | undefined) {
-    const onHoverNode = vi.fn();
+    const onHover = vi.fn();
     const nodes: ChartSunburstNode[] = [
       { label: 'Pai', value: valorDoPai, children: [{ label: 'A', value: 30 }, { label: 'B', value: 30 }] },
       { label: 'Outro', value: 60 },
     ];
-    render(<ChartSunburst nodes={nodes} onHoverNode={onHoverNode} title="Teste" />);
+    render(<ChartSunburst nodes={nodes} onHover={onHover} title="Teste" />);
     const filho = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('A:'))!;
 
     fireEvent.mouseEnter(filho);
 
-    return { path: onHoverNode.mock.calls[0][0], rotulos: arcos().map((arco) => arco.getAttribute('aria-label')) };
+    return { path: onHover.mock.calls[0][0], rotulos: arcos().map((arco) => arco.getAttribute('aria-label')) };
   }
 
   it('sem valor proprio, o pai vale a soma dos filhos', () => {

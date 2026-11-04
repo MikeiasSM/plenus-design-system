@@ -126,3 +126,103 @@ describe('InputText', () => {
     expect(onValueChange).toHaveBeenCalledWith('Aurora');
   });
 });
+
+describe('InputText com mask', () => {
+  const CPF = '000.000.000-00';
+
+  function edit(input: HTMLInputElement, text: string, caret: number, inputType = 'insertText') {
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+
+    act(() => {
+      setValue.call(input, text);
+      input.setSelectionRange(caret, caret);
+      input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType }));
+    });
+  }
+
+  it('formata ao digitar e entrega o texto formatado e o cru', () => {
+    const onValueChange = vi.fn();
+    const onRawValueChange = vi.fn();
+    render(<InputText label="CPF" mask={CPF} onRawValueChange={onRawValueChange} onValueChange={onValueChange} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'CPF' });
+
+    edit(input, '1234', 4);
+
+    expect(input).toHaveValue('123.4');
+    expect(onValueChange).toHaveBeenLastCalledWith('123.4');
+    expect(onRawValueChange).toHaveBeenLastCalledWith('1234');
+    expect(input.selectionStart).toBe(5);
+  });
+
+  it('cola texto cru ou formatado', () => {
+    render(<InputText label="CPF" mask={CPF} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'CPF' });
+
+    edit(input, '12345678909', 11, 'insertFromPaste');
+    expect(input).toHaveValue('123.456.789-09');
+
+    edit(input, '987.654.321-00', 14, 'insertFromPaste');
+    expect(input).toHaveValue('987.654.321-00');
+  });
+
+  it('mantem o cursor ao digitar no meio', () => {
+    render(<InputText defaultValue="123.456.789-09" label="CPF" mask={CPF} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'CPF' });
+
+    edit(input, '1923.456.789-09', 2);
+
+    expect(input).toHaveValue('192.345.678-90');
+    expect(input.selectionStart).toBe(2);
+  });
+
+  it('apaga no meio sem pular para o fim', () => {
+    render(<InputText defaultValue="123.456.789-09" label="CPF" mask={CPF} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'CPF' });
+
+    edit(input, '123.46.789-09', 5, 'deleteContentBackward');
+
+    expect(input).toHaveValue('123.467.890-9');
+    expect(input.selectionStart).toBe(5);
+  });
+
+  it('apagar sobre o separador recua o cursor e Delete avanca sobre ele', () => {
+    render(<InputText defaultValue="123.456" label="CPF" mask={CPF} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'CPF' });
+
+    edit(input, '123456', 3, 'deleteContentBackward');
+    expect(input).toHaveValue('123.456');
+    expect(input.selectionStart).toBe(3);
+
+    edit(input, '123456', 3, 'deleteContentForward');
+    expect(input).toHaveValue('123.456');
+    expect(input.selectionStart).toBe(4);
+  });
+
+  it('formata o valor controlado que chega cru', () => {
+    render(<InputText label="CPF" mask={CPF} onChange={() => undefined} value="12345678909" />);
+
+    expect(screen.getByRole('textbox', { name: 'CPF' })).toHaveValue('123.456.789-09');
+  });
+
+  it('aceita uma funcao de formatacao', () => {
+    const onRawValueChange = vi.fn();
+    render(<InputText label="Placa" mask={(text) => text.toUpperCase()} onRawValueChange={onRawValueChange} />);
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'Placa' });
+
+    edit(input, 'abc1', 4);
+
+    expect(input).toHaveValue('ABC1');
+    expect(onRawValueChange).toHaveBeenLastCalledWith('ABC1');
+  });
+
+  it('sem mask deixa o texto como esta e nao avisa o cru', () => {
+    const onRawValueChange = vi.fn();
+    render(<InputText label="Nome" onRawValueChange={onRawValueChange} />);
+    const input = screen.getByRole('textbox', { name: 'Nome' });
+
+    fireEvent.change(input, { target: { value: 'Ana-1' } });
+
+    expect(input).toHaveValue('Ana-1');
+    expect(onRawValueChange).not.toHaveBeenCalled();
+  });
+});

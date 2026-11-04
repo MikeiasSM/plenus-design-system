@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  ChartTable,
   BandCursor,
   markShown,
   CartesianFrame,
@@ -19,18 +20,22 @@ import {
   type ChartHeight,
   type ChartRootProps,
 } from '../core';
-import { resolveSeriesColors, type SeriesIntent } from '../palette';
+import { resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
 import { bandScale, domainOf, linearScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartWaterfall.module.css';
 
-export interface ChartWaterfallStep {
-  color?: string;
-  intent?: SeriesIntent;
+export interface ChartWaterfallStep extends SeriesAppearance {
   label: string;
   total?: boolean;
   value: number;
+}
+
+/** Passo sob o ponteiro ou clicado: a posicao dele em `steps` e o proprio passo. */
+export interface ChartWaterfallMark {
+  index: number;
+  step: ChartWaterfallStep;
 }
 
 export interface ChartWaterfallProps extends ChartRootProps {
@@ -42,12 +47,18 @@ export interface ChartWaterfallProps extends ChartRootProps {
   labelAngle?: AxisLabelAngle;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
-  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
-  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
-  /** Indice do passo sob o ponteiro, ou `null` ao sair dele. */
+  /** Passo sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
+  onHover?: (mark: ChartWaterfallMark | null) => void;
+  /** @deprecated Use `onHover`, que traz o passo e o indice. Aceito ate a 0.7.0. */
   onHoverStep?: (index: number | null) => void;
+  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
+  onMarkClick?: (mark: ChartWaterfallMark) => void;
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   steps: readonly ChartWaterfallStep[];
@@ -120,9 +131,12 @@ export function ChartWaterfall({
   height = 280,
   labelAngle = 'auto',
   minTickStep,
+  onHover,
   onHoverStep,
+  onMarkClick,
   onStepClick,
   showDataLabels = 'visible',
+  showTableToggle = true,
   showTooltip = true,
   steps,
   title,
@@ -136,11 +150,24 @@ export function ChartWaterfall({
 }: ChartWaterfallProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
-  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(onHoverStep);
+  const hoverDoPasso =
+    onHover || onHoverStep
+      ? (index: number | null) => {
+          onHover?.(index === null ? null : { index, step: steps[index] });
+          onHoverStep?.(index);
+        }
+      : undefined;
+  const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(hoverDoPasso);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
   const marcas = useMarkNavigation({
-    onActivate: onStepClick && (({ column }) => onStepClick(steps[column], column)),
+    onActivate:
+      onMarkClick || onStepClick
+        ? ({ column }) => {
+            onMarkClick?.({ index: column, step: steps[column] });
+            onStepClick?.(steps[column], column);
+          }
+        : undefined,
     onFocusMark: (posicao) => focarPasso(posicao?.column ?? null),
     present: trechos.flatMap((trecho, column) => (trecho ? [{ column, row: 0 }] : [])),
   });
@@ -157,7 +184,8 @@ export function ChartWaterfall({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legendPosition: 'none', valueAxes: ['yRight', 'y'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: steps.map((passo) => passo.label),
     font,
@@ -171,6 +199,8 @@ export function ChartWaterfall({
     yAxis,
     yAxisRight,
   });
+
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
 
   // A faixa e indexada pela posicao, nao pelo rotulo: numa sequencia de passos o
   // mesmo rotulo pode repetir, e a escala categorica funde dominios iguais.
@@ -249,7 +279,20 @@ export function ChartWaterfall({
       legendPosition="none"
       margins={margins}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Variação', 'Acumulado']}
+          rows={steps.map((passo, indice) => ({
+            cells: trechos[indice] ? [passo.total ? '' : comSinal(passo.value, formatValue), formatValue(trechos[indice].fim)] : ['', ''],
+            header: passo.label,
+            key: `${indice}:${passo.label}`,
+          }))}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -322,7 +365,7 @@ export function ChartWaterfall({
         })}
       </g>
 
-      {showDataLabels !== 'hidden' &&
+      {rotulosDeDado !== 'hidden' &&
         steps.map((passo, indice) => {
           const trecho = trechos[indice];
 
@@ -334,7 +377,7 @@ export function ChartWaterfall({
 
           return (
             <text
-              className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indice === passoEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+              className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, indice === passoEmFoco) ? '' : chartStyles.valueLabelHidden}`}
               key={indice}
               textAnchor="middle"
               x={faixaDe(indice) + escalaPassos.bandwidth() / 2}

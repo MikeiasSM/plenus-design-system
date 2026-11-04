@@ -11,6 +11,9 @@ import {
 import { EmptyState } from '../../feedback/EmptyState';
 import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
 import { IconChartBar } from '../../icons';
+import { TABLE_TOGGLE_MIN_WIDTH } from './decomposition';
+import { useChartMetrics } from './useChartMetrics';
+import { useTouchPin } from './useTouchPin';
 import styles from './Chart.module.css';
 
 export interface ChartRootProps extends Omit<ComponentPropsWithRef<'figure'>, 'children' | 'title'> {
@@ -60,6 +63,8 @@ export interface ChartFrameProps {
   swatch?: ChartLegendSwatch;
   /** Leitura medida a medida, no lugar do desenho, pelo botao "Ver como tabela". */
   table?: ReactNode;
+  /** `false` tira o botao "Ver como tabela" e deixa so o desenho. */
+  showTableToggle?: boolean;
   title: string;
   /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
   tooltip?: Omit<ChartTooltipProps, 'children'>;
@@ -92,6 +97,7 @@ export function ChartFrame({
   onPointerLeave,
   onToggleSeries,
   root = {},
+  showTableToggle = true,
   swatch = 'square',
   table,
   title,
@@ -101,14 +107,19 @@ export function ChartFrame({
 }: ChartFrameProps) {
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
-  const alternavel = table !== undefined && !empty;
+  const toque = useTouchPin();
+  // O botao divide a linha com o titulo: vale a largura do corpo, que a legenda ao lado nao estreita como a do desenho.
+  const corpo = useChartMetrics();
+  const alternavel = table !== undefined && showTableToggle && !empty && (corpo.width === 0 || corpo.width >= TABLE_TOGGLE_MIN_WIDTH);
   const { figureProps, titleClassName } = chartRoot(root, {
     figure: fillHeight ? `${styles.figure} ${styles.figureFill}` : styles.figure,
     title: styles.title,
   });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const plotDaForma = centerOrigin && lateral;
-  const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
+  const mostraTabela = alternavel && emTabela;
+  // A tabela mostra o dado inteiro: a legenda, que filtra so o desenho, sai com ele.
+  const legenda = !mostraTabela && legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
       align={legendAlign}
       entries={legend}
@@ -139,7 +150,13 @@ export function ChartFrame({
           <span className={titleClassName} id={tituloId}>
             {title}
           </span>
-          <Button aria-pressed={emTabela} onClick={() => setEmTabela((atual) => !atual)} size="sm" variant="secondary">
+          <Button
+            aria-pressed={emTabela}
+            className={styles.tableToggle}
+            onClick={() => setEmTabela((atual) => !atual)}
+            size="sm"
+            variant="secondary"
+          >
             Ver como tabela
           </Button>
         </figcaption>
@@ -149,11 +166,12 @@ export function ChartFrame({
         </figcaption>
       )}
 
-      <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`}>
+      <div className={`${styles.body} ${lateral ? styles.bodyRow : styles.bodyColumn}`} ref={corpo.ref}>
         {(legendPosition === 'top' || legendPosition === 'left') && legenda}
 
         <div
           className={[styles.plot, fillHeight && styles.plotFill, plotDaForma && styles.plotShape].filter(Boolean).join(' ')}
+          {...toque.props}
           onPointerEnter={onPointerEnter}
           onPointerLeave={onPointerLeave}
           ref={containerRef}
@@ -166,7 +184,7 @@ export function ChartFrame({
             <div className={styles.empty}>
               <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
             </div>
-          ) : alternavel && emTabela ? (
+          ) : mostraTabela ? (
             table
           ) : width === 0 || height === 0 ? null : tooltip ? (
             <ChartTooltip anchor={tooltipAnchor} {...tooltip}>{desenho}</ChartTooltip>

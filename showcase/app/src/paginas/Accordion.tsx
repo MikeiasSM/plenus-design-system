@@ -175,7 +175,6 @@ export const pagina: Pagina = {
     { nome: 'defaultExpandedKeys', tipo: 'readonly string[]', descricao: 'Abertas no início, no modo não controlado.' },
     { nome: 'expandedKeys', tipo: 'readonly string[]', descricao: 'Abertas, no modo controlado.' },
     { nome: 'onExpandedKeysChange', tipo: '(keys: readonly string[]) => void', descricao: 'Recebe as chaves abertas a cada mudança.' },
-    { nome: 'onExpandedChange', tipo: '(keys: readonly string[]) => void', descricao: <>Obsoleto: use <code>onExpandedKeysChange</code>.</> },
     { nome: 'iconPosition', tipo: "'left' | 'right'", padrao: "'right'", descricao: 'Lado do chevron, que gira ao abrir.' },
     { nome: 'divider', tipo: 'boolean', padrao: 'true', descricao: 'Divisor entre as seções, com a folga que ele exige.' },
   ],

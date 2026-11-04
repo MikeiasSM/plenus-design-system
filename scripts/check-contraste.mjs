@@ -13,7 +13,7 @@ import { resolve } from 'node:path';
 const raiz = resolve(import.meta.dirname, '..');
 
 // A ordem e a mesma de `src/styles/tokens.css`: os `@import` primeiro, o bloco
-// legado do proprio arquivo por ultimo. E ele quem vence onde redeclara.
+// de aliases do proprio arquivo por ultimo.
 const ARQUIVOS = [
   'src/tokens/primitive/brand.css',
   'src/tokens/primitive/neutral.css',
@@ -44,6 +44,7 @@ const PARES = [
   ['--pl-color-text-tertiary', '--pl-color-surface', TEXTO_MINIMO, 'texto terciario'],
   ['--pl-color-on-primary', '--pl-color-primary', TEXTO_MINIMO, 'texto sobre primary'],
   ['--pl-color-on-primary-container', '--pl-color-primary-container', TEXTO_MINIMO, 'texto no container'],
+  ['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'texto no item selecionado'],
   ['--pl-color-on-ink', '--pl-color-ink', TEXTO_MINIMO, 'texto sobre tinta'],
   ['--pl-color-on-success-container', '--pl-color-success-container', TEXTO_MINIMO, 'mensagem de sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-warning-container', TEXTO_MINIMO, 'mensagem de atencao'],
@@ -85,6 +86,27 @@ const ACEITAS = new Set([
   ]),
 ]);
 
+/** `light-dark(claro, escuro)` vale um lado por tema; qualquer outro valor vale nos dois. */
+function valorPorTema(valor) {
+  if (!valor.startsWith('light-dark(')) {
+    return [valor, valor];
+  }
+
+  const argumentos = valor.slice('light-dark('.length, -1);
+  let profundidade = 0;
+
+  for (let indice = 0; indice < argumentos.length; indice++) {
+    const caractere = argumentos[indice];
+    profundidade += caractere === '(' ? 1 : caractere === ')' ? -1 : 0;
+
+    if (caractere === ',' && profundidade === 0) {
+      return [argumentos.slice(0, indice).trim(), argumentos.slice(indice + 1).trim()];
+    }
+  }
+
+  return [valor, valor];
+}
+
 function declaracoesPorTema(paleta) {
   const claro = new Map();
   const escuro = new Map();
@@ -114,8 +136,11 @@ function declaracoesPorTema(paleta) {
       const alvos = partes.every((parte) => parte.includes('data-theme')) ? [escuro] : [claro, escuro];
 
       for (const declaracao of bloco[2].matchAll(/(--pl-[\w-]+)\s*:\s*([^;]+);/g)) {
+        const valor = declaracao[2].trim();
+        const [doClaro, doEscuro] = valorPorTema(valor);
+
         for (const alvo of alvos) {
-          alvo.set(declaracao[1], declaracao[2].trim());
+          alvo.set(declaracao[1], alvo === escuro ? doEscuro : doClaro);
         }
       }
     }

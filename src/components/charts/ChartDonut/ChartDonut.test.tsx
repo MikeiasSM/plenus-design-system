@@ -97,7 +97,7 @@ describe('ChartDonut', () => {
     const avisado: string[][] = [];
     render(
       <ChartDonut
-        onHiddenSlicesChange={(ocultas) => avisado.push([...ocultas])}
+        onHiddenChange={(ocultas) => avisado.push([...ocultas])}
         slices={custos}
         title="Custos"
       />,
@@ -131,7 +131,7 @@ describe('ChartDonut', () => {
 
     render(
       <ChartDonut
-        onHoverSlice={(fatia) => vistas.push(fatia?.label ?? null)}
+        onHover={(fatia) => vistas.push(fatia?.label ?? null)}
         slices={[
           { label: 'CMV', value: 940 },
           { label: 'Frete', value: 20 },
@@ -201,7 +201,7 @@ describe('ChartDonut: legenda e costura', () => {
   it('pela legenda avisa a fatia como foi informada, com a cor desenhada e a ancora, e null uma vez ao sair', () => {
     posicionarLegenda();
     const aoPassar = vi.fn();
-    render(<ChartDonut onHoverSlice={aoPassar} palette={{ base: '#00A3A3' }} slices={custos} title="Custos" />);
+    render(<ChartDonut onHover={aoPassar} palette={{ base: '#00A3A3' }} slices={custos} title="Custos" />);
 
     fireEvent.pointerEnter(entradaDe(/CMV/));
     expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { height: 20, width: 60, x: 160, y: 60 }, color: fatias()[1].getAttribute('fill') });
@@ -215,7 +215,7 @@ describe('ChartDonut: legenda e costura', () => {
   it('no ponteiro, no teclado e no clique o aviso segue com a fatia informada e um argumento so', () => {
     const aoPassar = vi.fn();
     const aoClicar = vi.fn();
-    render(<ChartDonut onHoverSlice={aoPassar} onSliceClick={aoClicar} slices={custos} title="Custos" />);
+    render(<ChartDonut onHover={aoPassar} onMarkClick={aoClicar} slices={custos} title="Custos" />);
     const cmv = screen.getByRole('button', { name: /^CMV:/ });
 
     fireEvent.mouseEnter(cmv);
@@ -228,7 +228,7 @@ describe('ChartDonut: legenda e costura', () => {
 
   it('o salto da fatia para a legenda, que entra antes de sair, mantem o realce da legenda', () => {
     const aoPassar = vi.fn();
-    render(<ChartDonut onHoverSlice={aoPassar} slices={custos} title="Custos" />);
+    render(<ChartDonut onHover={aoPassar} slices={custos} title="Custos" />);
 
     fireEvent.mouseEnter(fatias()[0]);
     fireEvent.pointerEnter(entradaDe(/CMV/));
@@ -255,7 +255,7 @@ describe('ChartDonut: legenda e costura', () => {
 
   it('serie escondida nao realca, nao avisa e nao abre balao', () => {
     const aoPassar = vi.fn();
-    render(<ChartDonut defaultHiddenSlices={['CMV']} onHoverSlice={aoPassar} slices={custos} title="Custos" />);
+    render(<ChartDonut defaultHidden={['CMV']} onHover={aoPassar} slices={custos} title="Custos" />);
     const entrada = screen.getByRole('button', { name: /CMV/, pressed: false }).closest('li')!;
 
     fireEvent.pointerEnter(entrada);

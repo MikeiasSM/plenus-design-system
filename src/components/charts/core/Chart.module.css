@@ -13,6 +13,11 @@
   gap: var(--pl-space-2);
 }
 
+.tableToggle {
+  flex: none;
+  white-space: nowrap;
+}
+
 .title {
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
@@ -379,4 +384,63 @@
 /* O ponto escondido aparece quando recebe o foco pelo teclado. */
 .dot.interactiveMark:focus-visible {
   opacity: 1;
+}
+
+/* Visao em tabela, a leitura completa de qualquer grafico. */
+.tableScroll {
+  max-height: 380px;
+  overflow: auto;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+}
+
+.tableScroll:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.table th,
+.table td {
+  padding: var(--pl-space-1) var(--pl-space-3);
+  border-bottom: 1px solid var(--pl-color-border);
+  color: var(--pl-color-text);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th,
+.table thead td {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.table tbody th {
+  font-weight: var(--pl-type-label-weight);
+}
+
+.table .numeric {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

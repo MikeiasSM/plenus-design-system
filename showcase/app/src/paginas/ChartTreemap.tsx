@@ -11,6 +11,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS, OPCOES_DE_ACCENT, TOTAL_DE_DESPESAS, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoTreemap } from '../estrutura/decomposicao';
 
 const PRODUTOS_POR_MARGEM: ChartTreemapNode[] = [
   {
@@ -75,8 +76,8 @@ const playground = definirPlayground({
         legend={valores.legend as ChartLegendPosition}
         legendAlign={valores.legendAlign as ChartLegendAlign}
         nodes={valores.dados === 'margem' ? PRODUTOS_POR_MARGEM : DESPESAS}
-        onHiddenGroupsChange={(ocultos) => registrar(`onHiddenGroupsChange: [${ocultos.join(', ')}]`)}
-        onHoverNode={(caminho) => registrar(`onHoverNode: ${caminho ? caminho.map((nivel) => nivel.label).join(' › ') : null}`)}
+        onHiddenChange={(ocultos) => registrar(`onHiddenChange: [${ocultos.join(', ')}]`)}
+        onHover={(caminho) => registrar(`onHover: ${caminho ? caminho.map((nivel) => nivel.label).join(' › ') : null}`)}
         showDataLabels={valores.showDataLabels}
         title={valores.title}
       />
@@ -94,7 +95,7 @@ const playground = definirPlayground({
       ['accent', accentDa(valores.accent)],
       ['formatValue', expr(FORMATOS[valores.formatValue].codigo)],
       ['formatTooltipValue', FORMATOS[valores.formatTooltipValue] && expr(FORMATOS[valores.formatTooltipValue].codigo)],
-      ['onHoverNode', expr('setCaminho')],
+      ['onHover', expr('setCaminho')],
     ]),
   verificar: (valores) => {
     const porStatus = valores.dados === 'margem';
@@ -148,7 +149,7 @@ function CaminhoNoPonteiro() {
         subtitle="Valor e fatia do total de despesas"
         title={caminho?.at(-1)?.label}
       >
-        <ChartTreemap showTooltip={false} formatValue={formatarCompacto} nodes={DESPESAS} onHoverNode={setCaminho} title="Estrutura de despesas" />
+        <ChartTreemap showTooltip={false} formatValue={formatarCompacto} nodes={DESPESAS} onHover={setCaminho} title="Estrutura de despesas" />
       </ChartTooltip>
     </div>
   );
@@ -178,7 +179,7 @@ function Modos() {
           Rótulo e valor são cortados conforme a área: onde não cabe o valor, fica só o rótulo; onde não cabe nem o rótulo,
           fica só a área.
         </dd>
-        <dt><code>onHoverNode</code></dt>
+        <dt><code>onHover</code></dt>
         <dd>
           Entrega o caminho do grupo até o retângulo sob o ponteiro, cada nível com o maior entre o valor próprio e a soma dos filhos. Com ele, o{' '}
           <code>&lt;title&gt;</code> sai.
@@ -196,6 +197,15 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda e, retângulo a retângulo, os rótulos que não cabem, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoTreemap,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartTreemap height="fill" title="..." /* dados */ />
+</div>`,
+    },
     {
       titulo: 'Colorido por status',
       descricao: 'Com intentLabels, a legenda explica o significado das cores, e não a categoria.',
@@ -246,7 +256,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Caminho no ponteiro',
-      descricao: 'onHoverNode entrega grupo e folha com o maior entre o valor próprio e a soma dos filhos; a última linha, a do retângulo, sobe de tom.',
+      descricao: 'onHover entrega grupo e folha com o maior entre o valor próprio e a soma dos filhos; a última linha, a do retângulo, sobe de tom.',
       Previa: CaminhoNoPonteiro,
       codigo: `const [caminho, setCaminho] = useState<readonly ChartHoveredNode[] | null>(null);
 
@@ -261,7 +271,7 @@ export const pagina: Pagina = {
     values: [nivel.value],
   }))}
 >
-  <ChartTreemap showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHoverNode={setCaminho} />
+  <ChartTreemap showTooltip={false} title="Estrutura de despesas" nodes={despesas} onHover={setCaminho} />
 </ChartTooltip>`,
     },
   ],
@@ -271,6 +281,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o grupo da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartTreemap.test.tsx' },
     {
       garantia: 'Descrição da folha',
@@ -283,6 +296,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem valor positivo, um EmptyState no lugar do desenho.', teste: 'ChartTreemap.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'nodes',
@@ -298,16 +312,21 @@ export const pagina: Pagina = {
     { nome: 'height', tipo: "number | 'fill'", padrao: '280', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
-    { nome: 'hiddenGroups', tipo: 'readonly string[]', descricao: 'Grupos ocultos, pelo rótulo, no modo controlado.' },
-    { nome: 'defaultHiddenGroups', tipo: 'readonly string[]', descricao: 'Grupos ocultos de início, no modo não controlado.' },
-    { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos, pelo rótulo, no modo controlado.' },
+    { nome: 'hiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos de início, no modo não controlado.' },
+    { nome: 'defaultHiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
+    { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
+    { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     {
-      nome: 'onHoverNode',
+      nome: 'onHover',
       tipo: '(path: readonly ChartHoveredNode[] | null) => void',
       descricao: 'Caminho do grupo ao nó sob o ponteiro, com os valores somados; costura para o ChartTooltip.',
     },
+    { nome: 'onHoverNode', tipo: '(path: readonly ChartHoveredNode[] | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
-    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os retângulos botões; o clique entrega o caminho do grupo até o nó.' },
+    { nome: 'onMarkClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os retângulos botões; o clique entrega o caminho do grupo até o nó.' },
+    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };
