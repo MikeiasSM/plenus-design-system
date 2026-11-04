@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
+  categoryTable,
   BandCursor,
   categoryTooltip,
   markShown,
@@ -94,6 +96,8 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
    * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
    */
   showDataLabels?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
   stacked?: boolean;
@@ -132,6 +136,7 @@ export function ChartBar({
   palette,
   series,
   showDataLabels = 'hidden',
+  showTableToggle = true,
   showTooltip = true,
   stacked = false,
   title,
@@ -233,8 +238,15 @@ export function ChartBar({
       ? widestLabel(valoresRotuladosAdireita().map(formatValue), font) + AFASTAMENTO_DO_ROTULO
       : 0;
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     axisTitles: { x: xAxisTitle, y: yAxisTitle },
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: posicaoDaLegenda, valueAxes: vertical ? ['yRight', 'y'] : ['x'] },
     bottomLabels: vertical ? categories : rotulosDeValor,
     font,
     height: alturaDoDesenho,
@@ -249,6 +261,7 @@ export function ChartBar({
     yAxisRight,
   });
 
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
   const comprimentoCategorias = vertical ? plot.width : plot.height;
   const comprimentoValores = vertical ? plot.height : plot.width;
   const inicioDaFaixa = vertical ? comprimentoValores : 0;
@@ -339,7 +352,7 @@ export function ChartBar({
 
     return (
       <text
-        className={`${chartStyles.valueLabel} ${markShown(showDataLabels, emFoco) ? '' : chartStyles.valueLabelHidden}`}
+        className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, emFoco) ? '' : chartStyles.valueLabelHidden}`}
         dominantBaseline={vertical ? (negativo ? 'hanging' : 'auto') : 'middle'}
         key={chave}
         textAnchor={vertical ? 'middle' : negativo ? 'end' : 'start'}
@@ -381,17 +394,18 @@ export function ChartBar({
         },
       ]}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={posicaoDaLegenda}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -469,7 +483,7 @@ export function ChartBar({
               );
             })}
 
-            {showDataLabels !== 'hidden' &&
+            {rotulosDeDado !== 'hidden' &&
               !stacked &&
               categories.map((categoria, indiceCategoria) => {
                 const valor = serie.values[indiceCategoria];
@@ -488,7 +502,7 @@ export function ChartBar({
       })}
       </g>
 
-      {showDataLabels !== 'hidden' &&
+      {rotulosDeDado !== 'hidden' &&
         stacked &&
         categories.map((categoria, indiceCategoria) => {
           const presentes = series.filter(

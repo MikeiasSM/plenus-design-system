@@ -4,7 +4,7 @@ import { Button } from '../../actions/Button';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTriangle, IconInfoCircle } from '../../icons';
 import { useChosenPortalContainer } from '../../overlays/Portal/PortalContext';
 import { useToastStore } from './ToastProvider';
-import type { ToastEntry, ToastStore } from './toastStore';
+import { MAX_TOAST_ACTIONS, type ToastEntry, type ToastStore } from './toastStore';
 import styles from './Toast.module.css';
 
 const VISIBLE_LIMIT = 3;
@@ -39,7 +39,8 @@ export function ToastRegion({ className, portalContainer, ...props }: ToastRegio
 }
 
 function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
-  const { action, description, id, title, tone = 'info' } = toast;
+  const { description, id, title, tone = 'info' } = toast;
+  const actions = (toast.actions ?? (toast.action ? [toast.action] : [])).slice(0, MAX_TOAST_ACTIONS);
   const duration = toast.duration === undefined ? (tone === 'danger' ? null : DEFAULT_DURATION) : toast.duration;
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -74,18 +75,21 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
       <div className={styles.content}>
         <strong className={styles.title}>{title}</strong>
         {description && <p className={styles.description}>{description}</p>}
-        {action && (
+        {actions.length > 0 && (
           <div className={styles.actions}>
-            <Button
-              onClick={() => {
-                action.onClick();
-                store.dismiss(id);
-              }}
-              size="sm"
-              variant="secondary"
-            >
-              {action.label}
-            </Button>
+            {actions.map((action) => (
+              <Button
+                key={action.label}
+                onClick={() => {
+                  action.onClick();
+                  store.dismiss(id);
+                }}
+                size="sm"
+                variant="secondary"
+              >
+                {action.label}
+              </Button>
+            ))}
           </div>
         )}
       </div>

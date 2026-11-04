@@ -194,6 +194,30 @@ for (const nome of naSuite) {
   exigir(nome in iconesCjs, `${nome} esta na suite e falta na entrada CommonJS dos icones`);
 }
 
+// Cada icone da suite tem tambem o proprio modulo em `./icons/<Nome>`, com tipos, e ele traz o mesmo desenho.
+const modulosEsm = await Promise.all(
+  [...naSuite].map((nome) =>
+    import(`../dist/icons/${nome}.js`).then(
+      (modulo) => modulo[nome],
+      (erro) => falhas.push(`o modulo ESM de ${nome} nao carregou: ${erro.message}`),
+    ),
+  ),
+);
+
+[...naSuite].forEach((nome, posicao) => {
+  exigir(typeof modulosEsm[posicao] === 'function', `${nome} nao e exportado pelo proprio modulo ESM em dist/icons`);
+  exigir(arquivoComConteudo(`dist/icons/${nome}.cjs`, 50), `dist/icons/${nome}.cjs ausente`);
+  exigir(arquivoComConteudo(`dist/types/icons/${nome}.d.ts`, 50), `dist/types/icons/${nome}.d.ts ausente`);
+});
+
+try {
+  const amostra = [...naSuite][0];
+
+  exigir(typeof require(`../dist/icons/${amostra}.cjs`)[amostra] === 'function', `${amostra} nao e exportado pelo modulo CommonJS`);
+} catch (erro) {
+  falhas.push(`o modulo CommonJS de um icone nao carregou: ${erro.message}`);
+}
+
 if (falhas.length > 0) {
   console.error('Pacote reprovado:\n' + falhas.map((falha) => `  - ${falha}`).join('\n'));
   process.exit(1);
@@ -201,6 +225,6 @@ if (falhas.length > 0) {
 
 console.log(
   `Pacote aprovado: ${naFonte.size} exportacoes da fonte presentes nas duas entradas ` +
-    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons; ` +
+    `(ESM ${noEsm.size}, CommonJS ${noCjs.size}); ${naSuite.size} icones da suite nas duas entradas de ./icons e cada um em ./icons/<Nome>; ` +
     'no CSS, nenhuma animacao orfa, variavel sem declaracao ou seletor de pagina.',
 );

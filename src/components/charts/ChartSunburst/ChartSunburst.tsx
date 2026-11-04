@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { hierarchy, partition, type HierarchyRectangularNode } from 'd3-hierarchy';
 import {
+  ChartTable,
+  treeTable,
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
   ChartFrame,
@@ -14,6 +16,10 @@ import {
   ringDiameter,
   truncateToWidth,
   useChartMetrics,
+  useFit,
+  CHART_MIN_RING,
+  legendRoom,
+  plotRoom,
   useMarkNavigation,
   useSeriesToggle,
   widestLabel,
@@ -81,6 +87,8 @@ export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
    * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
 }
@@ -149,6 +157,7 @@ export function ChartSunburst({
   palette,
   ringGap = 2,
   showLabels = true,
+  showTableToggle = true,
   showTooltip = true,
   sliceRadius,
   title,
@@ -189,6 +198,11 @@ export function ChartSunburst({
     [isHidden, nodes],
   );
 
+  const arvoreCompleta = useMemo(
+    () => assignNodeValues(hierarchy<ChartSunburstNode>({ children: nodes, label: '' }), (no) => Math.max(no.value ?? 0, 0)),
+    [nodes],
+  );
+
   // A banda dos rotulos e reservada antes do anel, medida pelo rotulo mais
   // largo do anel externo. Sem reservar, o rotulo era desenhado no que sobrasse
   // — quase nada nas laterais — e acabava cortado ate sumir.
@@ -199,10 +213,28 @@ export function ChartSunburst({
     return niveis.get(externo) ?? [];
   }, [visiveis]);
 
-  const larguraDoRotulo = showLabels
-    ? Math.min(widestLabel(rotulosExternos, font), width * CHART_LABEL_BAND)
-    : 0;
-  const banda = showLabels ? COMPRIMENTO_DO_CONECTOR * 2 + CHART_LABEL_OFFSET + larguraDoRotulo : 0;
+  const entradasDaLegenda = nodes.map((grupo, indice) => ({
+    color: coresDeNivelZero[indice],
+    hidden: isHidden(grupo.label),
+    label: grupo.label,
+  }));
+  const larguraDoRotulo = Math.min(widestLabel(rotulosExternos, font), width * CHART_LABEL_BAND);
+  const bandaDosRotulos = COMPRIMENTO_DO_CONECTOR * 2 + CHART_LABEL_OFFSET + larguraDoRotulo;
+  const medido = width > 0 && alturaDoDesenho > 0;
+  const espacoDaLegenda = legendRoom(entradasDaLegenda, legend, font, width, fillHeight);
+  const removed = useFit(
+    medido ? ['legend', 'labels'] as const : [],
+    (partes, legendaEstava) => {
+      const area = plotRoom({ height: alturaDoDesenho, width }, espacoDaLegenda, legendaEstava, !partes.has('legend'));
+      const banda = showLabels && !partes.has('labels') ? bandaDosRotulos : 0;
+      const diametro = ringDiameter(Math.max(area.width - banda * 2, 0), area.height);
+
+      return { height: diametro, width: diametro };
+    },
+    { height: CHART_MIN_RING, width: CHART_MIN_RING },
+  );
+  const comRotulos = showLabels && !removed.has('labels');
+  const banda = comRotulos ? bandaDosRotulos : 0;
 
   const diametro = ringDiameter(Math.max(width - banda * 2, 0), alturaDoDesenho);
   const raio = diametro / 2;
@@ -318,16 +350,16 @@ export function ChartSunburst({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={nodes.map((grupo, indice) => ({
-        color: coresDeNivelZero[indice],
-        hidden: isHidden(grupo.label),
-        label: grupo.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={legend}
+      legendPosition={removed.has('legend') ? 'none' : legend}
       onHighlightSeries={realcarGrupo}
       onToggleSeries={alternarGrupo}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...treeTable(arvoreCompleta, formatValue, formatPercent)} title={title} />
+      }
       swatch="dot"
       title={title}
       tooltip={
@@ -366,7 +398,7 @@ export function ChartSunburst({
         ))}
       </g>
 
-      {showLabels &&
+      {comRotulos &&
         arcos
           .filter(
             (arco) => arco.depth === profundidadeMaxima && arco.x1 - arco.x0 >= ANGULO_MINIMO_DO_ROTULO,

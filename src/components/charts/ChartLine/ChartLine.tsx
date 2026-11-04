@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
+  categoryTable,
   CartesianFrame,
   categoryTooltip,
   PointBands,
@@ -102,6 +104,8 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
    * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
    * `ChartTooltip` pela costura; sem balao nem costura, o ponto volta a ter o `<title>`.
    */
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -144,6 +148,7 @@ export function ChartLine({
   series,
   showDataLabels = 'hidden',
   showDots = 'onHover',
+  showTableToggle = true,
   showTooltip = true,
   title,
   xAxis = 'visible',
@@ -186,7 +191,14 @@ export function ChartLine({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
@@ -221,6 +233,8 @@ export function ChartLine({
           onPointClick?.(ponto);
         }
       : undefined;
+  const visibilidadeDosPontos = removed.has('detail') ? 'hidden' : showDots;
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
   const [alturaDoPonteiro, setAlturaDoPonteiro] = useState<number | null>(null);
   const comFaixas =
     showTooltip ||
@@ -308,17 +322,18 @@ export function ChartLine({
           : undefined
       }
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -366,7 +381,7 @@ export function ChartLine({
 
               const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
 
-              const classeDoPonto = markShown(showDots, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
+              const classeDoPonto = markShown(visibilidadeDosPontos, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
 
               return (
                 <circle
@@ -383,7 +398,7 @@ export function ChartLine({
               );
             })}
 
-            {showDataLabels !== 'hidden' &&
+            {rotulosDeDado !== 'hidden' &&
               pontosPorSerie[indiceSerie].map((ponto, indice) => {
                 if (ponto === null) {
                   return null;
@@ -395,7 +410,7 @@ export function ChartLine({
 
                 return (
                   <text
-                    className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+                    className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, indiceSerie === serieEmFoco) ? '' : chartStyles.valueLabelHidden}`}
                     key={indice}
                     textAnchor={textAnchor}
                     x={ponto.x + dx}

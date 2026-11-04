@@ -14,6 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { DecomposicaoDoHeatmap } from '../estrutura/decomposicao';
 
 const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const HORARIOS = ['08h', '10h', '12h', '14h', '16h', '18h'];
@@ -207,6 +208,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda da escala, os rótulos dos eixos (espaçados e depois retirados) e os valores das células, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoHeatmap,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartHeatmap height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Volume por dia e horário',
       descricao: 'A escala sequencial mostra onde a demanda se concentra; o sábado à tarde não tem atendimento.',
       Previa: () => (
@@ -337,6 +347,8 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Aciona a célula focada, como o clique.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é nomeado pelo <code>title</code>: <code>img</code>, ou <code>group</code> com células clicáveis.</>, teste: 'ChartHeatmap.test.tsx' },
     { garantia: 'Descrição da célula', como: <><code>aria-label</code> com as duas categorias e o valor, ou o texto de sem dado.</>, teste: 'ChartHeatmap.test.tsx' },
     { garantia: 'Uma parada de Tab', como: 'Com onMarkClick, só uma célula tem tabindex 0; as setas levam o foco.', teste: 'ChartHeatmap.test.tsx' },
@@ -345,6 +357,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem células, um EmptyState no lugar do desenho.', teste: 'ChartHeatmap.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'cells', tipo: 'readonly ChartHeatmapCell[]', descricao: <><code>{'{ x, y, value }'}</code>, uma por cruzamento; <code>value: null</code> é sem dado e o cruzamento sem célula fica em branco.</> },
     { nome: 'xCategories', tipo: 'readonly string[]', descricao: 'Ordem das colunas. Sem ela, a ordem em que aparecem nas células.' },

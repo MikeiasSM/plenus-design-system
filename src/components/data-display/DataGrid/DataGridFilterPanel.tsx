@@ -247,7 +247,7 @@ interface ConditionEditorProps {
   optionalLabel?: string;
 }
 
-function ConditionEditor({ condition, header, kind, label, onChange, operators, optionalLabel }: ConditionEditorProps) {
+export function ConditionEditor({ condition, header, kind, label, onChange, operators, optionalLabel }: ConditionEditorProps) {
   const operator = operators.find((candidate) => candidate.id === condition.operator);
   const selectOptions = [
     ...(optionalLabel ? [{ label: optionalLabel, value: '' }] : []),
@@ -324,7 +324,7 @@ interface SetEditorProps {
   selected: readonly string[] | null;
 }
 
-function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: SetEditorProps) {
+export function SetEditor({ header, onSelectedChange, options: optionsOf, selected }: SetEditorProps) {
   const [term, setTerm] = useState('');
   const [options] = useState(optionsOf);
   const found = useMemo(() => options.filter((option) => containsTerm(option || 'Vazio', term)), [options, term]);

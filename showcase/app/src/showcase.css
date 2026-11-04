@@ -143,6 +143,14 @@ body {
   cursor: pointer;
 }
 
+.sidebar-title-link {
+  text-decoration: none;
+}
+
+.sidebar-title-link[aria-current='page'] {
+  color: var(--pl-color-text);
+}
+
 .sidebar-title:hover {
   background: var(--pl-color-surface-muted);
   color: var(--pl-color-text);

@@ -15,6 +15,7 @@ import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
 import { useListing, type ListingItem } from '../../data-display/List/useListing';
 import { Badge } from '../../data-display/Badge';
+import { Button } from '../../actions/Button';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
@@ -63,14 +64,36 @@ interface ComboBoxBaseProps
   size?: ComboBoxSize;
 }
 
-export interface ComboBoxSingleProps extends ComboBoxBaseProps {
+/** Textos do rodapé do painel. O que não for informado fica em português. */
+export interface ComboBoxLabels {
+  apply: string;
+  cancel: string;
+  clear: string;
+  selectAll: string;
+}
+
+/** Controles do rodapé do painel, só na seleção múltipla. Sem nenhum deles, o painel não tem rodapé. */
+export interface ComboBoxMultipleActions {
+  /** "Limpar": desmarca tudo, inclusive o que a busca esconde. */
+  clearable?: boolean;
+  /**
+   * A escolha só vale ao aplicar: `onValueChange` é chamado uma vez, em "Aplicar". Fechar o painel de qualquer outro
+   * modo, inclusive "Cancelar", descarta o que foi marcado.
+   */
+  confirmSelection?: boolean;
+  labels?: Partial<ComboBoxLabels>;
+  /** "Selecionar todos": marca os itens habilitados do resultado da busca, sem desmarcar o resto. */
+  selectAll?: boolean;
+}
+
+export interface ComboBoxSingleProps extends ComboBoxBaseProps, Partial<Record<keyof ComboBoxMultipleActions, never>> {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   selectionMode?: 'single';
   value?: string;
 }
 
-export interface ComboBoxMultipleProps extends ComboBoxBaseProps {
+export interface ComboBoxMultipleProps extends ComboBoxBaseProps, ComboBoxMultipleActions {
   defaultValue?: readonly string[];
   onValueChange?: (values: readonly string[]) => void;
   selectionMode: 'multiple';
@@ -104,6 +127,8 @@ export function ComboBox(allProps: ComboBoxProps) {
   const {
     'aria-describedby': ariaDescribedBy,
     className,
+    clearable = false,
+    confirmSelection = false,
     defaultOpen,
     defaultValue,
     name,
@@ -113,6 +138,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     hint,
     id: providedId,
     label,
+    labels,
     loading = false,
     onBlur,
     onClick,
@@ -127,6 +153,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     placeholder,
     ref,
     required = false,
+    selectAll = false,
     selectionMode = 'single',
     size = 'md',
     value,
@@ -134,6 +161,14 @@ export function ComboBox(allProps: ComboBoxProps) {
   } = allProps;
   const container = usePortalContainer(portalContainer);
   const multiple = selectionMode === 'multiple';
+  const confirm = multiple && confirmSelection;
+  const texts: ComboBoxLabels = {
+    apply: 'Aplicar',
+    cancel: 'Cancelar',
+    clear: 'Limpar',
+    selectAll: 'Selecionar todos',
+    ...labels,
+  };
   const inputRef = useRef<HTMLInputElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -141,8 +176,13 @@ export function ComboBox(allProps: ComboBoxProps) {
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const wasOpenRef = useRef(open);
   const [filtering, setFiltering] = useState(false);
+  // Só com `confirmSelection`: o que se marca no painel é rascunho, e o valor do campo continua o aplicado.
+  const [draft, setDraft] = useState<readonly ListingItem[] | null>(null);
+  const [appliedInternally, setAppliedInternally] = useState<readonly ListingItem[]>(() => comoItens(defaultValue) ?? []);
+  const applied = comoItens(value) ?? appliedInternally;
   const resetRef = useFormReset<HTMLInputElement>(() => {
     listing.reset();
+    setAppliedInternally(comoItens(defaultValue) ?? []);
     fechar();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
@@ -152,12 +192,15 @@ export function ComboBox(allProps: ComboBoxProps) {
     items: options,
     selectionMode,
     defaultValue: comoItens(defaultValue),
-    value: comoItens(value),
+    value: confirm ? (open ? (draft ?? applied) : applied) : comoItens(value),
     onSearch,
-    onSelectionChange: (escolhidos) => relatarEscolha(allProps, escolhidos),
+    onSelectionChange: (escolhidos) => (confirm ? setDraft(escolhidos) : relatarEscolha(allProps, escolhidos)),
   });
 
-  const escolhidos = listing.selected;
+  const known = [...listing.selected, ...options];
+  const escolhidos = confirm
+    ? applied.map((item) => known.find((option) => option.value === item.value && option.label) ?? item)
+    : listing.selected;
   const [chosen] = escolhidos;
   // Na escolha multipla o campo so guarda a busca: quem mostra o que esta escolhido sao as etiquetas.
   const texto = multiple || filtering ? listing.term : chosen?.label ?? '';
@@ -211,13 +254,63 @@ export function ComboBox(allProps: ComboBoxProps) {
 
   function fechar() {
     setOpen(false);
+    setDraft(null);
     encerrarFiltro();
+  }
+
+  function fecharNoCampo() {
+    inputRef.current?.focus();
+    fechar();
+  }
+
+  function aplicar() {
+    setAppliedInternally(listing.selected);
+    relatarEscolha(allProps, listing.selected);
+    fecharNoCampo();
+  }
+
+  const hasFooter = multiple && (selectAll || clearable || confirm);
+
+  function footerButtons() {
+    return Array.from(panelRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
+  }
+
+  // O painel fica em outro ponto do DOM; o Tab percorre o rodape e volta ao campo, de onde segue a ordem da pagina.
+  function handlePanelKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      fecharNoCampo();
+      return;
+    }
+
+    const buttons = footerButtons();
+    const edge = buttons[event.shiftKey ? 0 : buttons.length - 1];
+
+    if (event.key === 'Tab' && document.activeElement === edge) {
+      if (event.shiftKey) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      } else {
+        fecharNoCampo();
+      }
+    }
+  }
+
+  function handlePanelBlur(event: FocusEvent<HTMLDivElement>) {
+    const next = event.relatedTarget as Node | null;
+
+    if (!next || (!event.currentTarget.contains(next) && next !== inputRef.current)) {
+      fechar();
+    }
   }
 
   // O fechamento feito pelo produto ao mudar `open` tambem desfaz a busca.
   useEffect(() => {
     if (wasOpenRef.current && !open && filtering) {
       encerrarFiltro();
+    }
+    if (!open) {
+      setDraft(null);
     }
     wasOpenRef.current = open;
     // Só na transição de `open`: `encerrarFiltro` muda a cada renderização.
@@ -236,6 +329,16 @@ export function ComboBox(allProps: ComboBoxProps) {
 
     if (event.key === 'Escape') {
       fechar();
+      return;
+    }
+
+    if (event.key === 'Tab' && !event.shiftKey && open && hasFooter) {
+      const [first] = footerButtons();
+
+      if (first) {
+        event.preventDefault();
+        first.focus();
+      }
       return;
     }
 
@@ -290,7 +393,9 @@ export function ComboBox(allProps: ComboBoxProps) {
             value={texto}
             // Sair do campo desfaz a busca: o texto volta a dizer o que esta escolhido.
             onBlur={(event: FocusEvent<HTMLInputElement>) => {
-              fechar();
+              if (!panelRef.current?.contains(event.relatedTarget as Node | null)) {
+                fechar();
+              }
               onBlur?.(event);
             }}
             onChange={(event) => {
@@ -360,6 +465,8 @@ export function ComboBox(allProps: ComboBoxProps) {
                   // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
                   data-react-aria-top-layer="true"
                   // O clique no painel, fora de uma opcao, nao tira o foco do campo nem fecha a lista.
+                  onBlur={handlePanelBlur}
+                  onKeyDown={hasFooter ? handlePanelKeyDown : undefined}
                   onMouseDown={(event) => event.preventDefault()}
                   style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
                 >
@@ -372,6 +479,55 @@ export function ComboBox(allProps: ComboBoxProps) {
                     loading={loading}
                     onSelect={multiple ? undefined : fechar}
                   />
+                  {hasFooter && (
+                    <div className={styles.footer}>
+                      <span className={styles.status} role="status">
+                        {listing.selected.length === 0
+                          ? 'Nenhum selecionado'
+                          : `${listing.selected.length} ${listing.selected.length === 1 ? 'selecionado' : 'selecionados'}`}
+                      </span>
+                      <div className={styles.footerActions}>
+                        {selectAll && (
+                          <Button
+                            disabled={listing.status === 'all' || !listing.visible.some((option) => !option.disabled)}
+                            onClick={() => {
+                              listing.selectAll();
+                              inputRef.current?.focus();
+                            }}
+                            size="sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            {texts.selectAll}
+                          </Button>
+                        )}
+                        {clearable && (
+                          <Button
+                            disabled={listing.selected.length === 0}
+                            onClick={() => {
+                              listing.clear();
+                              inputRef.current?.focus();
+                            }}
+                            size="sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            {texts.clear}
+                          </Button>
+                        )}
+                      </div>
+                      {confirm && (
+                        <div className={styles.footerActions}>
+                          <Button onClick={fecharNoCampo} size="sm" type="button" variant="secondary">
+                            {texts.cancel}
+                          </Button>
+                          <Button onClick={aplicar} size="sm" type="button">
+                            {texts.apply}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>,
                 container,
               )}

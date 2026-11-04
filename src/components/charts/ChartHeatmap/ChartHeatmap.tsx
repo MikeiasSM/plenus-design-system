@@ -2,13 +2,16 @@ import { useEffect, useId, useMemo, useState, type KeyboardEvent, type MouseEven
 import { formatNumber } from '../../../utils/formatters';
 import {
   CartesianFrame,
+  ChartTable,
   ColorLegend,
   NO_DATA_FILL,
   NO_DATA_HATCH,
   NoDataHatch,
   bottomLabelRotation,
   cartesianLayout,
+  CHART_MIN_PLOT,
   chartHeight,
+  colorLegendRoom,
   isDevelopment,
   markShown,
   measureLabel,
@@ -27,7 +30,6 @@ import {
   type NoDataStyle,
 } from '../core';
 import { bandScale, buildColorScale, type ChartColorScale } from '../scales';
-import { ChartHeatmapTable } from './ChartHeatmapTable';
 import styles from './ChartHeatmap.module.css';
 
 export interface ChartHeatmapCell {
@@ -66,6 +68,8 @@ export interface ChartHeatmapProps extends ChartRootProps {
   onHoverCell?: (cell: ChartHeatmapCell | null) => void;
   /** Torna as celulas botoes, percorridos pelas setas. */
   onMarkClick?: (cell: ChartHeatmapCell) => void;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Valor escrito na celula, quando cabe nela. */
   showValues?: MarkVisibility;
@@ -94,6 +98,7 @@ type Grade = readonly (readonly (ChartHeatmapCell | undefined)[])[];
 const CELL_GAP = 2;
 const DENSE_CELL_GAP = 1;
 const DENSE_CELL_SIZE = 14;
+
 const LABEL_PADDING = 4;
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
 
@@ -176,6 +181,7 @@ export function ChartHeatmap({
   onHover,
   onHoverCell,
   onMarkClick,
+  showTableToggle = true,
   showTooltip = true,
   showValues = 'visible',
   squareCells = false,
@@ -266,8 +272,18 @@ export function ChartHeatmap({
     yAxis,
     yAxisRight: 'hidden',
   } as const;
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     ...opcoesDoLayout,
+    decomposition: {
+      fillHeight,
+      legendPosition: legend,
+      legendRoom: colorLegendRoom(legend, fillHeight),
+      minPlot: {
+        height: Math.min(CHART_MIN_PLOT.height, linhas.length * DENSE_CELL_SIZE),
+        width: Math.min(CHART_MIN_PLOT.width, colunas.length * DENSE_CELL_SIZE),
+      },
+      valueAxes: [],
+    },
     labelAngle: squareCells ? anguloDaColunaQuadrada(opcoesDoLayout, linhas.length) : 'auto',
   });
 
@@ -348,8 +364,14 @@ export function ChartHeatmap({
     event.currentTarget.querySelector<SVGElement>(`[data-cell="${destino.row}:${destino.column}"]`)?.focus();
   }
 
-  const marcasX: AxisTick[] = colunas.map((label) => ({ label, position: (escalaX(label) ?? 0) + escalaX.bandwidth() / 2 }));
-  const marcasY: AxisTick[] = linhas.map((label) => ({ label, position: (escalaY(label) ?? 0) + escalaY.bandwidth() / 2 }));
+  // Rotulos que se tocariam saem de k em k, e nao todos juntos: a faixa que ficou sem nome se le pelos vizinhos.
+  const aCada = (passo: number) => Math.max(Math.ceil(font.lineHeight / Math.max(passo, 1)), 1);
+  const espacados = (rotulos: readonly string[], escala: typeof escalaX, passo: number): AxisTick[] =>
+    rotulos.flatMap((label, indice) =>
+      indice % passo === 0 ? [{ label, position: (escala(label) ?? 0) + escala.bandwidth() / 2 }] : [],
+    );
+  const marcasX = espacados(colunas, escalaX, rotation === 90 ? aCada(escalaX.step()) : 1);
+  const marcasY = espacados(linhas, escalaY, aCada(escalaY.step()));
   const contagem = new Map<string, number>();
   grade.flat().forEach((cell) => {
     const chave = cell?.value == null ? undefined : escala.keyOf(datumOf(cell));
@@ -393,14 +415,17 @@ export function ChartHeatmap({
       legendPosition={legend}
       margins={margins}
       plot={area}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
       table={
-        <ChartHeatmapTable
+        <ChartTable
           columns={colunas}
-          formatValue={formatValue}
-          grade={grade}
-          noDataLabel={noDataLabel}
-          rows={linhas}
+          rows={grade.map((linha, row) => ({
+            cells: linha.map((cell) => (cell === undefined ? '' : cell.value === null ? noDataLabel : formatValue(cell.value))),
+            header: linhas[row],
+            key: linhas[row],
+          }))}
           title={title}
         />
       }
@@ -490,7 +515,7 @@ export function ChartHeatmap({
                   x={x}
                   y={y}
                 />
-                {cabe && !oculta && markShown(showValues, emFocoAgora) && (
+                {cabe && !oculta && markShown(removed.has('detail') ? 'hidden' : showValues, emFocoAgora) && (
                   <text
                     className={corDoTexto === undefined ? `${styles.valueLabel} ${styles.valueLabelHalo}` : styles.valueLabel}
                     dominantBaseline="central"

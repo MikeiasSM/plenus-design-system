@@ -11,6 +11,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS, OPCOES_DE_ACCENT, TOTAL_DE_DESPESAS, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoTreemap } from '../estrutura/decomposicao';
 
 const PRODUTOS_POR_MARGEM: ChartTreemapNode[] = [
   {
@@ -197,6 +198,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda e, retângulo a retângulo, os rótulos que não cabem, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoTreemap,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartTreemap height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Colorido por status',
       descricao: 'Com intentLabels, a legenda explica o significado das cores, e não a categoria.',
       Previa: () => (
@@ -271,6 +281,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o grupo da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartTreemap.test.tsx' },
     {
       garantia: 'Descrição da folha',
@@ -283,6 +296,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem valor positivo, um EmptyState no lugar do desenho.', teste: 'ChartTreemap.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'nodes',

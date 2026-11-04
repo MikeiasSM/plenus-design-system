@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type FocusEvent } from 'react';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useCalendar, type CalendarLimits } from '../../../hooks/useCalendar';
+import { sameDay } from '../../../hooks/useCalendar/calendar';
 import styles from './DatePicker.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
 
@@ -8,10 +9,12 @@ export interface CalendarProps extends CalendarLimits {
   autoFocus?: boolean;
   locale?: string;
   onSelect: (date: CalendarDate) => void;
+  /** Fim do intervalo que começa em `value`: os dois extremos ficam marcados e os dias entre eles, realçados. */
+  rangeEnd?: CalendarDate;
   value?: CalendarDate;
 }
 
-export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value, ...limits }: CalendarProps) {
+export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, rangeEnd, value, ...limits }: CalendarProps) {
   const calendario = useCalendar({ ...limits, locale, onSelect, value });
   const fuso = getLocalTimeZone();
   const nomeDoMes = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }), [locale]);
@@ -95,7 +98,9 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
           {calendario.weeks.map((semana) => (
             <tr key={semana[0].date.toString()}>
               {semana.map((dia) => {
-                const selecionado = calendario.isSelected(dia.date);
+                const selecionado = calendario.isSelected(dia.date) || sameDay(dia.date, rangeEnd);
+                const noIntervalo =
+                  value && rangeEnd && dia.date.compare(value) > 0 && dia.date.compare(rangeEnd) < 0;
                 const focado = dia.date.toString() === chaveEmFoco;
 
                 return (
@@ -106,7 +111,12 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, value,
                       aria-disabled={dia.unavailable || undefined}
                       aria-label={nomeDoDia.format(dia.date.toDate(fuso))}
                       aria-pressed={selecionado}
-                      className={[styles.day, dia.outside && styles.outside, selecionado && styles.selectedDay]
+                      className={[
+                        styles.day,
+                        dia.outside && styles.outside,
+                        noIntervalo && styles.rangeDay,
+                        selecionado && styles.selectedDay,
+                      ]
                         .filter(Boolean)
                         .join(' ')}
                       onClick={() => calendario.select(dia.date)}

@@ -16,6 +16,7 @@ import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../Portal/PortalContext';
+import type { PopoverPlacement } from '../Popover/Popover';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck, IconChevronRight } from '../../icons';
 import { toAriaKeyShortcuts } from './keyShortcuts';
@@ -57,6 +58,8 @@ export interface MenuProps {
   onOpenChange?: (open: boolean) => void;
   /** Controla a abertura; sem ele, o menu guarda o proprio estado. */
   open?: boolean;
+  /** Lado e alinhamento do painel em relação ao gatilho, com os nomes do `Popover`. O padrão é `bottom start`. */
+  placement?: PopoverPlacement;
   /** Elemento que recebe o overlay. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
   portalContainer?: HTMLElement | null;
 }
@@ -81,6 +84,7 @@ export function Menu({
   label,
   onOpenChange,
   open: controlledOpen,
+  placement = 'bottom start',
   portalContainer,
 }: MenuProps) {
   const container = usePortalContainer(portalContainer);
@@ -144,6 +148,7 @@ export function Menu({
               label={label}
               ownerId={ownerId}
               onClose={fechar}
+              placement={placement}
             />
           </FocusScope>,
           container,
@@ -171,6 +176,8 @@ interface MenuListProps {
   onClose: (devolverFoco: boolean) => void;
   onPointerEnter?: () => void;
   ownerId: string;
+  /** Só no menu: o submenu abre sempre à direita do item pai. */
+  placement?: PopoverPlacement;
 }
 
 function MenuList({
@@ -184,6 +191,7 @@ function MenuList({
   onClose,
   onPointerEnter,
   ownerId,
+  placement = 'bottom start',
 }: MenuListProps) {
   const ref = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRefs(ref, listRef);
@@ -222,7 +230,7 @@ function MenuList({
   const { overlayProps: positionProps } = useOverlayPosition({
     targetRef: anchorRef,
     overlayRef: ref,
-    placement: isSubmenu ? 'end top' : 'bottom start',
+    placement: isSubmenu ? 'end top' : placement,
     offset: isSubmenu ? 2 : 6,
     crossOffset: isSubmenu ? -5 : 0,
     containerPadding: 8,

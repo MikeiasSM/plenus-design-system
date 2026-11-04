@@ -72,7 +72,7 @@ export type { FieldProps, FieldSize, FieldWiring } from './components/forms/Fiel
 export { Label } from './components/forms/Label';
 export type { LabelProps } from './components/forms/Label';
 export { InputText } from './components/forms/InputText';
-export type { InputTextProps, InputTextSize } from './components/forms/InputText';
+export type { InputMask, InputTextProps, InputTextSize } from './components/forms/InputText';
 export { InputNumber } from './components/forms/InputNumber';
 export type { InputNumberProps } from './components/forms/InputNumber';
 export { InputPassword } from './components/forms/InputPassword';
@@ -176,6 +176,8 @@ export { Select } from './components/forms/Select';
 export type { SelectProps, SelectOption, SelectSize } from './components/forms/Select';
 export { ComboBox } from './components/forms/ComboBox';
 export type {
+  ComboBoxLabels,
+  ComboBoxMultipleActions,
   ComboBoxMultipleProps,
   ComboBoxOption,
   ComboBoxProps,
@@ -255,13 +257,21 @@ export type {
   TableSize,
   TableSort,
 } from './components/data-display/Table';
-export { DataGrid, dataGridAggregators, dataGridCsvExporter, dataGridFilterOperators } from './components/data-display/DataGrid';
+export {
+  DataGrid,
+  dataGridAggregators,
+  dataGridCsvExporter,
+  dataGridExportMatrix,
+  dataGridFilterOperators,
+} from './components/data-display/DataGrid';
 export type {
   DataGridAggregator,
   DataGridAggregatorId,
   DataGridAlign,
+  DataGridApi,
   DataGridAsidePlacement,
   DataGridCellContext,
+  DataGridCellEdit,
   DataGridColumn,
   DataGridColumnDefinition,
   DataGridColumnGroup,
@@ -271,15 +281,19 @@ export type {
   DataGridDetailLayoutProps,
   DataGridDetailState,
   DataGridDensity,
+  DataGridEditorContext,
   DataGridExpandMode,
   DataGridExportCell,
   DataGridExportColumn,
   DataGridExporter,
+  DataGridExportMatrix,
   DataGridExportModel,
   DataGridExportRow,
   DataGridExportScope,
+  DataGridExportValues,
   DataGridFilter,
   DataGridFilterApplyMode,
+  DataGridFilterBuilderProps,
   DataGridFilterCondition,
   DataGridFilterKind,
   DataGridFilterLogic,
@@ -299,6 +313,13 @@ export type {
 } from './components/data-display/DataGrid';
 export { DatePicker } from './components/forms/DatePicker';
 export type { DatePickerProps, DatePickerSize } from './components/forms/DatePicker';
+export { DatePickerRange, defaultDateRangeShortcuts } from './components/forms/DatePickerRange';
+export type {
+  DatePickerRangeProps,
+  DatePickerRangeSize,
+  DateRange,
+  DateRangeShortcut,
+} from './components/forms/DatePickerRange';
 export { TimePicker } from './components/forms/TimePicker';
 export type { TimePickerProps, TimePickerSize } from './components/forms/TimePicker';
 export { DateTimePicker } from './components/forms/DateTimePicker';

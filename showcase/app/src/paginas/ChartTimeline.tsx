@@ -26,6 +26,7 @@ import {
 import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
+import { DecomposicaoDoTimeline } from '../estrutura/decomposicao';
 
 /* ---- Jornada de trabalho: um dia por linha, eixo de 0h a 24h --------------------------------------------------- */
 
@@ -764,6 +765,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira o resumo das linhas, que vai para baixo do rótulo, e depois o encurtamento dos rótulos, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoTimeline,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartTimeline height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Jornada de trabalho do mês',
       largo: true,
       descricao:
@@ -973,6 +983,8 @@ const dias = jornadaDoMes(mes);
     { teclas: ['Enter', 'Espaço'], acao: 'Dispara onMarkClick; na legenda, liga e desliga a série; no grupo, recolhe e expande.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code> nomeado pelo <code>title</code>; com clique, <code>role=&quot;group&quot;</code>.</>, teste: 'ChartTimeline.test.tsx' },
     { garantia: 'Descrição do intervalo', como: 'Cada intervalo tem aria-label com linha, série, início, fim e duração, e a ponta cortada quando houver.', teste: 'ChartTimeline.test.tsx' },
     { garantia: 'Teclado', como: 'Tabulação móvel, setas, Home, End, Enter e Espaço, com o anel do foco.', teste: 'ChartTimeline.test.tsx' },
@@ -983,6 +995,7 @@ const dias = jornadaDoMes(mes);
     { garantia: 'Duração', como: <><code>formatDuration</code>: <code>10h16m</code>, <code>48m</code>, <code>12h</code>.</>, teste: 'formatDuration.test.ts' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do desenho.' },
     { nome: 'rows', tipo: 'readonly ChartTimelineRow[]', descricao: <><code>{'{ key, label, description?, group? }'}</code>, na ordem de exibição. A key identifica; o label pode repetir.</> },
     { nome: 'series', tipo: 'readonly ChartTimelineSeries[]', descricao: <><code>{'{ label, color?, intent? }'}</code>. Servem a intervalos, faixas e marcas.</> },

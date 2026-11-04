@@ -15,8 +15,8 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
 import { RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
 
-const TAMANHOS = ['sm', 'md', 'lg'] as const;
-const LARGURAS: Record<DialogSize, string> = { sm: '400px', md: '560px', lg: '760px' };
+const TAMANHOS = ['sm', 'md', 'lg', 'xl'] as const;
+const LARGURAS: Record<DialogSize, string> = { sm: '400px', md: '560px', lg: '760px', xl: '1040px' };
 const RODAPE = '<>\n  <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n  <Button onClick={confirmar}>Confirmar</Button>\n</>';
 
 function DialogDoPlayground({ valores, registrar }: { valores: Valores; registrar: (evento: string) => void }) {
@@ -182,6 +182,54 @@ function NovaSecao() {
   );
 }
 
+function AlteracoesNaoSalvas() {
+  const [aberto, setAberto] = useState(false);
+  const [alterado, setAlterado] = useState(false);
+  const [responder, setResponder] = useState<((descartar: boolean) => void) | null>(null);
+
+  function responderPergunta(descartar: boolean) {
+    responder?.(descartar);
+    setResponder(null);
+  }
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setAlterado(false);
+          setAberto(true);
+        }}
+        variant="secondary"
+      >
+        Editar cadastro
+      </Button>
+      <Dialog
+        footer={<Button onClick={() => setAberto(false)}>Salvar</Button>}
+        onBeforeClose={() => (alterado ? new Promise<boolean>((resolve) => setResponder(() => resolve)) : true)}
+        onOpenChange={setAberto}
+        open={aberto}
+        size="xl"
+        title="Editar cadastro"
+      >
+        <InputText defaultValue="Ana Prado" label="Nome" onChange={() => setAlterado(true)} />
+      </Dialog>
+      <Dialog
+        footer={
+          <>
+            <Button onClick={() => responderPergunta(false)} variant="secondary">Continuar editando</Button>
+            <Button onClick={() => responderPergunta(true)} variant="danger">Descartar</Button>
+          </>
+        }
+        onOpenChange={() => responderPergunta(false)}
+        open={responder !== null}
+        role="alertdialog"
+        size="sm"
+        title="Descartar alterações?"
+      />
+    </>
+  );
+}
+
 function SessaoExpirada() {
   const [aberto, setAberto] = useState(false);
 
@@ -308,6 +356,13 @@ export const pagina: Pagina = {
         '<Button variant="secondary" onClick={abrir}>Nova seção</Button>\n<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  icon={<IconPlusCircle />}\n  title="Nova seção"\n  description="A seção agrupa documentos dentro da coleção."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={criar}>Criar seção</Button>\n  </>}\n>\n  <InputText label="Nome" />\n  <InputText label="Descrição" />\n</Dialog>',
     },
     {
+      titulo: 'Alterações não salvas',
+      descricao: 'onBeforeClose é consultado por Escape, clique fora e botão Fechar. Com o nome alterado, a resposta vem de uma confirmação; sem alteração, fecha direto.',
+      Previa: AlteracoesNaoSalvas,
+      codigo:
+        '<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  size="xl"\n  title="Editar cadastro"\n  onBeforeClose={() =>\n    alterado ? confirmarDescarte() : true // Promise<boolean>\n  }\n/>',
+    },
+    {
       titulo: 'Não dispensável, sem corpo',
       descricao: 'Escape e clique fora não fecham; a única saída é a ação do rodapé.',
       Previa: SessaoExpirada,
@@ -373,7 +428,12 @@ export const pagina: Pagina = {
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone ao lado do título, fora da leitura.' },
     { nome: 'role', tipo: "'dialog' | 'alertdialog'", padrao: "'dialog'", descricao: 'alertdialog para a confirmação que exige resposta.' },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Largura máxima de 400, 560 ou 760px.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg' | 'xl'", padrao: "'md'", descricao: 'Largura máxima de 400, 560, 760 ou 1040px.' },
+    {
+      nome: 'onBeforeClose',
+      tipo: '() => boolean | Promise<boolean>',
+      descricao: 'Consultado antes de fechar por Escape, clique fora ou botão de fechar. false, ou uma promessa que resolve false, mantém aberto. Não vale quando o produto muda open.',
+    },
     { nome: 'dismissable', tipo: 'boolean', padrao: 'true', descricao: 'Botão de fechar, Escape e clique fora.' },
   ],
 };

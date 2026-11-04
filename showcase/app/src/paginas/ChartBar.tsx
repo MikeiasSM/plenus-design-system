@@ -21,6 +21,7 @@ import {
   OPCOES_DE_ACCENT,
   accentDa,
   formatarCompacto, FORMATOS, VISIBILIDADES } from '../dadosDosGraficos';
+import { DecomposicaoDoBar } from '../estrutura/decomposicao';
 
 const LADOS_DA_LEGENDA = ['top', 'right', 'bottom', 'left', 'none'] as const;
 const ALINHAMENTOS = ['left', 'center', 'right'] as const;
@@ -297,6 +298,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o título dos eixos, os rótulos do eixo de valor, os eixos e, por fim, a grade, os pontos e os rótulos de dado, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoBar,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartBar height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Eixos com título e contagem inteira',
       descricao: 'O passo mínimo 1 impede marcas fracionárias em pedidos; os títulos dizem o que cada eixo mede.',
       Previa: () => (
@@ -483,6 +493,9 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a série da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartBar.test.tsx' },
     { garantia: 'Descrição da marca', como: <>Cada barra tem <code>aria-label</code> com série, categoria e valor no formato do consumidor.</>, teste: 'ChartBar.test.tsx' },
     { garantia: 'Significado da cor', como: 'A série com intent mantém a cor de status, com ou sem cor de tema.', teste: 'ChartBar.test.tsx' },
@@ -491,6 +504,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { garantia: 'Menos movimento', como: <>Com <code>prefers-reduced-motion</code>, os valores saltam ao alvo em vez de caminhar.</>, teste: 'motion.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo, uma faixa cada.' },
     { nome: 'series', tipo: 'readonly ChartBarSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>, uma por série.</> },

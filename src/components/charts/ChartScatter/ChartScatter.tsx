@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
   CartesianFrame,
   seriesInScale,
   useCartesianLayout,
@@ -81,6 +82,8 @@ export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   title: string;
@@ -135,6 +138,7 @@ export function ChartScatter({
   onPointClick,
   palette,
   series,
+  showTableToggle = true,
   showTooltip = true,
   title,
   xLabel = 'X',
@@ -195,7 +199,14 @@ export function ChartScatter({
   const rotulosY = valueLabelsFor(dominioY, alturaDoDesenho, formatY, minYTickStep);
   const rotulosX = valueLabelsFor(dominioX, width, formatX, minXTickStep);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y', 'x'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: rotulosX,
     font,
@@ -301,17 +312,32 @@ export function ChartScatter({
       fillHeight={fillHeight}
       font={font}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={[xLabel, yLabel, ...(maiorZ > 0 ? [zLabel] : [])]}
+          rows={series.flatMap((serie, indiceSerie) =>
+            serie.points.map((ponto, indice) => {
+              const z = zValido(ponto);
+
+              return {
+                cells: [formatX(ponto.x), formatY(ponto.y), ...(maiorZ > 0 ? [z === undefined ? '' : formatZ(z)] : [])],
+                header: ponto.label ? `${serie.label}, ${ponto.label}` : serie.label,
+                key: `${indiceSerie}:${indice}`,
+              };
+            }),
+          )}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip

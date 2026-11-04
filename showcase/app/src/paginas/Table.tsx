@@ -436,12 +436,45 @@ function Modos() {
         herda da coluna da mesma posição, como <code>align</code> e <code>numeric</code>.
       </dd>
       <dt><code>help</code></dt>
-      <dd>Ícone de ajuda focável ao lado do título da coluna, com a dica no Tooltip, fora do botão de ordenação.</dd>
+      <dd>
+        Ícone de ajuda focável ao lado do título da coluna, com a dica no Tooltip, fora do botão de ordenação. A dica abre
+        embaixo do título: em cima, cobriria a barra de filtros ou o cabeçalho da página, e embaixo cobre só o respiro da
+        primeira linha. Sem espaço embaixo, ela inverte sozinha. O lado não se configura.
+      </dd>
       <dt><code>stickyHeader</code></dt>
       <dd>
         O cabeçalho cola na rolagem da página enquanto a tabela cabe; se ela transbordar, na rolagem da própria tabela.
       </dd>
     </dl>
+  );
+}
+
+function AjudaSobBarraDeFiltros() {
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Button size="sm" variant="secondary">Status: Ativos</Button>
+        <Button size="sm" variant="secondary">Função: Todas</Button>
+      </div>
+      <Card>
+        <Table label="Membros filtrados" rows={equipe}>
+          <Table.Header>
+            <Table.Column id="nome">Nome</Table.Column>
+            <Table.Column help="Define o que a pessoa pode fazer" id="funcao">Função</Table.Column>
+            <Table.Column id="status">Status</Table.Column>
+          </Table.Header>
+          <Table.Body items={equipe}>
+            {(membro) => (
+              <Table.Row id={membro.id}>
+                <Table.Cell>{membro.nome}</Table.Cell>
+                <Table.Cell>{membro.funcao}</Table.Cell>
+                <Table.Cell>{membro.status}</Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
+      </Card>
+    </div>
   );
 }
 
@@ -486,6 +519,21 @@ export const pagina: Pagina = {
     <span>{escolhidos.length} selecionados</span>
     <Pagination page={pagina} pageCount={5} onPageChange={setPagina} />
   </Card.Footer>
+</Card>`,
+    },
+    {
+      titulo: 'Ajuda sob uma barra de filtros',
+      descricao: 'Passe o ponteiro ou Tab no ícone de Função: a dica abre embaixo e deixa a barra de filtros à vista.',
+      Previa: AjudaSobBarraDeFiltros,
+      codigo: `{/* barra de filtros do produto */}
+<Card>
+  <Table label="Membros" rows={membros}>
+    <Table.Header>
+      <Table.Column id="nome">Nome</Table.Column>
+      <Table.Column id="funcao" help="Define o que a pessoa pode fazer">Função</Table.Column>
+    </Table.Header>
+    …
+  </Table>
 </Card>`,
     },
     {

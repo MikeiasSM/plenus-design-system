@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  ChartTable,
   BandCursor,
   markShown,
   CartesianFrame,
@@ -56,6 +57,8 @@ export interface ChartWaterfallProps extends ChartRootProps {
   onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   steps: readonly ChartWaterfallStep[];
@@ -133,6 +136,7 @@ export function ChartWaterfall({
   onMarkClick,
   onStepClick,
   showDataLabels = 'visible',
+  showTableToggle = true,
   showTooltip = true,
   steps,
   title,
@@ -180,7 +184,8 @@ export function ChartWaterfall({
 
   const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legendPosition: 'none', valueAxes: ['yRight', 'y'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: steps.map((passo) => passo.label),
     font,
@@ -194,6 +199,8 @@ export function ChartWaterfall({
     yAxis,
     yAxisRight,
   });
+
+  const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
 
   // A faixa e indexada pela posicao, nao pelo rotulo: numa sequencia de passos o
   // mesmo rotulo pode repetir, e a escala categorica funde dominios iguais.
@@ -272,7 +279,20 @@ export function ChartWaterfall({
       legendPosition="none"
       margins={margins}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Variação', 'Acumulado']}
+          rows={steps.map((passo, indice) => ({
+            cells: trechos[indice] ? [passo.total ? '' : comSinal(passo.value, formatValue), formatValue(trechos[indice].fim)] : ['', ''],
+            header: passo.label,
+            key: `${indice}:${passo.label}`,
+          }))}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -345,7 +365,7 @@ export function ChartWaterfall({
         })}
       </g>
 
-      {showDataLabels !== 'hidden' &&
+      {rotulosDeDado !== 'hidden' &&
         steps.map((passo, indice) => {
           const trecho = trechos[indice];
 
@@ -357,7 +377,7 @@ export function ChartWaterfall({
 
           return (
             <text
-              className={`${chartStyles.valueLabel} ${markShown(showDataLabels, indice === passoEmFoco) ? '' : chartStyles.valueLabelHidden}`}
+              className={`${chartStyles.valueLabel} ${markShown(rotulosDeDado, indice === passoEmFoco) ? '' : chartStyles.valueLabelHidden}`}
               key={indice}
               textAnchor="middle"
               x={faixaDe(indice) + escalaPassos.bandwidth() / 2}

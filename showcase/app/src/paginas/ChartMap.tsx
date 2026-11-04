@@ -19,6 +19,7 @@ import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 import { MALHA_DAS_UFS } from '../dadosDoMapa';
+import { DecomposicaoDoMap } from '../estrutura/decomposicao';
 
 /* ---- Dados de exemplo, por UF ------------------------------------------------------------------------------------ */
 
@@ -608,6 +609,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda e a coluna de rótulos das regiões pequenas, e fica só o mapa, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoMap,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartMap height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       largo: true,
       titulo: 'UF em escala sequencial',
       descricao: 'Uma matiz do claro ao escuro, com o total do nível sob o título. Roraima e Amapá sem dado, em hachura.',
@@ -889,6 +899,8 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { teclas: ['Enter', 'Espaço'], acao: 'Dispara onMarkClick e alterna a região escolhida; na legenda, liga e desliga a faixa ou a série.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code> nomeado pelo <code>title</code>, com o resumo de maior, menor e sem dado como descrição; com clique, <code>role=&quot;group&quot;</code>.</>, teste: 'ChartMap.test.tsx' },
     { garantia: 'Descrição da região', como: 'aria-label com nome, valor e posição: "São Paulo, R$ 1,8 bi, 1º de 25"; sem dado, diz "Sem dado".', teste: 'ChartMap.test.tsx' },
     { garantia: 'Teclado', como: 'Tabulação móvel, setas pela direção, Enter e Espaço, com o contorno do foco na cor primária.', teste: 'ChartMap.test.tsx' },

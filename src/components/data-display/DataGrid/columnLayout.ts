@@ -395,3 +395,41 @@ export function headerSegments<Column extends DataGridColumnSizing>(
 
   return segments;
 }
+
+/** As colunas que rolam e aparecem na tela: o intervalo `[start, end)` de posições em `placed`. As fixas sempre aparecem. */
+export interface DataGridColumnWindow {
+  end: number;
+  start: number;
+}
+
+/**
+ * O intervalo das colunas que rolam e cruzam a faixa visível, mais `overscan` de cada lado. As fixas ocupam o fluxo
+ * antes e depois delas, então a posição natural de cada coluna é a soma das larguras das anteriores.
+ */
+export function visibleColumnWindow(
+  placed: readonly Pick<DataGridPlacedColumn<unknown>, 'pin' | 'width'>[],
+  scrollLeft: number,
+  viewWidth: number,
+  overscan: number,
+): DataGridColumnWindow {
+  const zoneStart = placed.filter((item) => item.pin === 'start').length;
+  const zoneEnd = placed.length - placed.filter((item) => item.pin === 'end').length;
+  let left = placed.slice(0, zoneStart).reduce((sum, item) => sum + item.width, 0);
+  let first = -1;
+  let last = -1;
+
+  for (let index = zoneStart; index < zoneEnd; index += 1) {
+    const right = left + placed[index].width;
+    if (right > scrollLeft && left < scrollLeft + viewWidth) {
+      first = first === -1 ? index : first;
+      last = index;
+    }
+    left = right;
+  }
+
+  if (first === -1) {
+    return { start: zoneStart, end: zoneStart };
+  }
+
+  return { start: Math.max(first - overscan, zoneStart), end: Math.min(last + 1 + overscan, zoneEnd) };
+}

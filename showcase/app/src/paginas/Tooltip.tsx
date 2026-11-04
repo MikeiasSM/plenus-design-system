@@ -254,7 +254,7 @@ export const pagina: Pagina = {
     { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória sem anchorRef. O gatilho: um único elemento focável.' },
     { nome: 'content', tipo: 'ReactNode', descricao: 'Obrigatória. Texto do balão, que descreve o gatilho.' },
     { nome: 'placement', tipo: "'top' | 'bottom' | 'left' | 'right'", padrao: "'top'", descricao: 'Lado do gatilho em que o balão aparece.' },
-    { nome: 'delay', tipo: 'number', padrao: '500', descricao: 'Espera, em ms, antes de aparecer no ponteiro. O foco não espera.' },
+    { nome: 'delay', tipo: 'number', padrao: '500', descricao: 'Espera, em ms, antes de aparecer no ponteiro. O foco por teclado não espera; o foco do clique ou de focus() não abre a dica.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Controla a abertura; sem ele, o Tooltip guarda o próprio estado. Obrigatória com anchorRef.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado. Recusada com anchorRef.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar.' },

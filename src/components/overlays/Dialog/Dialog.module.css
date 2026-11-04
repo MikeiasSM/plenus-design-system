@@ -40,6 +40,10 @@
   max-width: 760px;
 }
 
+.xl {
+  max-width: 1040px;
+}
+
 .header {
   position: relative;
   display: flex;
@@ -135,6 +139,10 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
+}
+
+.bodyFlush {
+  padding: 0;
 }
 
 .footer {

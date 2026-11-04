@@ -13,7 +13,7 @@ import { resolve } from 'node:path';
 const raiz = resolve(import.meta.dirname, '..');
 
 // A ordem e a mesma de `src/styles/tokens.css`: os `@import` primeiro, o bloco
-// legado do proprio arquivo por ultimo. E ele quem vence onde redeclara.
+// de aliases do proprio arquivo por ultimo.
 const ARQUIVOS = [
   'src/tokens/primitive/brand.css',
   'src/tokens/primitive/neutral.css',

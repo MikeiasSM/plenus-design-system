@@ -1,10 +1,13 @@
 import {
+  ChartTable,
+  shareTable,
   ChartFrame,
   arcPath,
   chartHeight,
   fitCenterText,
   ringDiameter,
   useChartMetrics,
+  useRingFit,
   sliceTooltip,
   useSliceRing,
   type ChartHeight,
@@ -63,6 +66,8 @@ export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   sliceRadius?: number;
   showCenter?: boolean;
   showLegendValues?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   slices: readonly ChartSlice[];
@@ -97,6 +102,7 @@ export function ChartDonut({
   palette,
   showCenter = true,
   showLegendValues = true,
+  showTableToggle = true,
   showTooltip = true,
   sliceRadius,
   slices,
@@ -136,6 +142,22 @@ export function ChartDonut({
     smallSliceThreshold,
   });
 
+  const entradasDaLegenda = anel.slices.map((fatia, indice) => ({
+    color: anel.colors[indice],
+    hidden: anel.isHidden(fatia.label),
+    label: fatia.label,
+    value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
+  }));
+  const removed = useRingFit({
+    center: showCenter ? { innerShare: 1 - Math.min(Math.max(thickness, 0), 1), value: formatValue(anel.total) } : undefined,
+    fillHeight,
+    font,
+    height: alturaDoDesenho,
+    legend: entradasDaLegenda,
+    legendPosition: legend,
+    width,
+  });
+
   const diametro = ringDiameter(width, alturaDoDesenho);
   const raio = diametro / 2;
   const raioInterno = raio * (1 - Math.min(Math.max(thickness, 0), 1));
@@ -161,17 +183,16 @@ export function ChartDonut({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={anel.slices.map((fatia, indice) => ({
-        color: anel.colors[indice],
-        hidden: anel.isHidden(fatia.label),
-        label: fatia.label,
-        value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={legend}
+      legendPosition={removed.has('legend') ? 'none' : legend}
       onHighlightSeries={anel.highlight}
       onToggleSeries={anel.toggle}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...shareTable(anel.slices, formatValue, formatPercent)} title={title} />
+      }
       swatch="dot"
       title={title}
       tooltip={
@@ -208,7 +229,7 @@ export function ChartDonut({
       ))}
       </g>
 
-      {showCenter && (
+      {showCenter && !removed.has('centerText') && (
         <g className={styles.center}>
           <text
             className={styles.centerValue}

@@ -8,6 +8,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
+import { ButtonIcon } from '../../actions/ButtonIcon';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { IconChevronLeft, IconChevronRight, IconClose, IconExternalLink, IconSidebar } from '../../icons';
 import { useAppShell } from './AppShell.context';
@@ -20,7 +21,6 @@ import {
   type AppShellNestedMode,
 } from './AppShellPanel.context';
 import { ShellAction, type ShellActionProps } from './ShellAction';
-import { ShellIconButton } from './ShellIconButton';
 import styles from './AppShellPanel.module.css';
 
 export interface AppShellPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
@@ -81,15 +81,17 @@ export function AppShellPanel({
             <div className={styles.head}>
               <div className={styles.brand}>{brand}</div>
               {narrow ? (
-                <ShellIconButton icon={<IconClose size={18} />} label="Fechar menu" onClick={() => setMenuOpen(false)} />
+                <ButtonIcon icon={<IconClose />} label="Fechar menu" onClick={() => setMenuOpen(false)} size="sm" variant="ghost" />
               ) : (
-                <ShellIconButton
+                <ButtonIcon
                   aria-controls={panelId}
                   aria-expanded={submenuOpen}
-                  icon={<IconSidebar size={18} />}
+                  icon={<IconSidebar />}
                   label="Recolher submenu"
                   onClick={collapsePanel}
                   ref={collapseRef}
+                  size="sm"
+                  variant="ghost"
                 />
               )}
             </div>

@@ -25,6 +25,11 @@
       "import": "./dist/icons.js",
       "require": "./dist/icons.cjs"
     },
+    "./icons/*": {
+      "types": "./dist/types/icons/*.d.ts",
+      "import": "./dist/icons/*.js",
+      "require": "./dist/icons/*.cjs"
+    },
     "./styles.css": {
       "types": "./dist/folha.d.ts",
       "default": "./dist/design-system.css"
@@ -47,6 +52,7 @@
     "dev:showcase": "vite --config showcase/vite.config.ts",
     "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs",
     "check:pacote": "node scripts/check-pacote.mjs",
+    "check:consumo": "node scripts/check-consumo.mjs",
     "gerar:icones": "node scripts/gerar-icones.mjs",
     "check:contraste": "node scripts/check-contraste.mjs",
     "prepare": "npm run build:pacote",

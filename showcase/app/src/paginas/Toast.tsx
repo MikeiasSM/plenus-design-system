@@ -199,6 +199,28 @@ export const pagina: Pagina = {
         "showToast({\n  tone: 'danger',\n  title: 'Falha ao salvar',\n  description: 'A conexão falhou. O item continua na fila.',\n  action: { label: 'Tentar de novo', onClick: salvar },\n});",
     },
     {
+      titulo: 'Duas ações',
+      descricao: 'actions aceita até duas, na ordem dada; a terceira em diante não aparece. Acionar qualquer uma fecha o aviso.',
+      Previa: () => (
+        <Button
+          onClick={() =>
+            showToast({
+              actions: [
+                { label: 'Desfazer', onClick: () => showToast({ title: 'Registro restaurado', tone: 'success' }) },
+                { label: 'Ver detalhes', onClick: () => showToast({ title: 'Detalhes abertos' }) },
+              ],
+              title: 'Registro removido',
+            })
+          }
+          variant="secondary"
+        >
+          Remover
+        </Button>
+      ),
+      codigo:
+        "showToast({\n  title: 'Registro removido',\n  actions: [\n    { label: 'Desfazer', onClick: desfazer },\n    { label: 'Ver detalhes', onClick: abrirDetalhes },\n  ],\n});",
+    },
+    {
       titulo: 'Copiado',
       descricao: 'Confirmação curta, só com título, em 3s.',
       Previa: () => (
@@ -266,6 +288,7 @@ export const pagina: Pagina = {
       padrao: '6000',
       descricao: <>Milissegundos até sumir; <code>null</code> mantém. No erro, o padrão é <code>null</code>.</>,
     },
-    { nome: 'action', tipo: '{ label: string; onClick: () => void }', descricao: 'Ação única; acioná-la fecha o aviso.' },
+    { nome: 'action', tipo: '{ label: string; onClick: () => void }', descricao: 'Ação única; acioná-la fecha o aviso. Ignorada quando actions vem.' },
+    { nome: 'actions', tipo: 'readonly { label: string; onClick: () => void }[]', descricao: 'Até duas ações, na ordem dada; a terceira em diante não aparece. Acionar uma fecha o aviso.' },
   ],
 };

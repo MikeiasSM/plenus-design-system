@@ -9,6 +9,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
+import { DecomposicaoDoScatter } from '../estrutura/decomposicao';
 
 const ZEROS = { true: true, false: false, x: 'x', y: 'y' } as const;
 
@@ -167,6 +168,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o título dos eixos, os rótulos dos eixos de valor, os eixos e, por fim, a grade, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoScatter,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartScatter height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Bolha dimensionada por z',
       descricao: 'Prazo no eixo X, margem no Y, faturamento no tamanho. Passe o ponteiro numa bolha para ver as guias.',
       Previa: () => (
@@ -252,6 +262,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a série da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartScatter.test.tsx' },
     {
       garantia: 'Descrição do ponto',
@@ -264,6 +277,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem pontos, um EmptyState no lugar do desenho.', teste: 'ChartScatter.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'series',

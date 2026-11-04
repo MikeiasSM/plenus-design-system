@@ -36,17 +36,12 @@
   min-height: 0;
 }
 
-/* A gaveta do celular tem a mecânica do Drawer; o corpo dela é o trilho e o submenu, sem o respiro do diálogo. */
+/* A gaveta do celular se ajusta ao trilho e ao submenu e usa o fundo da aplicação. */
 .menuSurface.menuSurface {
   width: auto;
   max-width: 100%;
   padding: var(--pl-shell-gap);
   background: var(--pl-color-background);
-}
-
-.menuSurface.menuSurface > div {
-  padding: 0;
-  overflow: hidden;
 }
 
 .menu .rail {

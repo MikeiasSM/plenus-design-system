@@ -36,11 +36,52 @@ describe('Drawer', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('onBeforeClose impede o fechamento', () => {
+    const onBeforeClose = vi.fn(() => false);
+    render(<Drawer defaultOpen onBeforeClose={onBeforeClose} title="Filtros" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onBeforeClose).toHaveBeenCalledOnce();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('sai do lado pedido, a direita por padrao', () => {
     const { rerender } = render(<Drawer open title="Acesso" />);
     expect(screen.getByRole('dialog').parentElement).toHaveClass(styles.right!);
 
     rerender(<Drawer open side="left" title="Acesso" />);
     expect(screen.getByRole('dialog').parentElement).toHaveClass(styles.left!);
+  });
+
+  it('sem titulo, toma o nome do aria-label, sem cabecalho nem botao de fechar, e o Esc fecha', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer aria-label="Menu" onOpenChange={onOpenChange} open>
+        <button type="button">Item</button>
+      </Drawer>,
+    );
+
+    expect(screen.getByRole('dialog', { name: 'Menu' })).not.toHaveAttribute('aria-labelledby');
+    expect(document.querySelector('header')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument();
+
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Item' }), { key: 'Escape' });
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('exige o aria-label quando falta o titulo', () => {
+    // @ts-expect-error sem titulo, o nome acessivel e obrigatorio
+    render(<Drawer open />);
+  });
+
+  it('com flush, o corpo perde o respiro interno', () => {
+    const { rerender } = render(<Drawer open title="Acesso">Corpo</Drawer>);
+    expect(screen.getByText('Corpo').className).toContain('body');
+    expect(screen.getByText('Corpo').className).not.toContain('bodyFlush');
+
+    rerender(<Drawer flush open title="Acesso">Corpo</Drawer>);
+    expect(screen.getByText('Corpo').className).toContain('bodyFlush');
   });
 });

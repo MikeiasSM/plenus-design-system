@@ -210,7 +210,7 @@
   justify-content: center;
 }
 
-/* Os breakpoints do sistema, `--pl-bp-*` em `tokens.css`; variavel CSS nao entra em @media. */
+/* Os breakpoints do sistema, `--pl-bp-*` em `tokens/primitive/layout.css`; variavel CSS nao entra em @media. */
 @media (max-width: 900px) {
   .table [data-hide-below='sm'] {
     display: none;

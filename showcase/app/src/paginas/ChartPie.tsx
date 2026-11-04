@@ -11,6 +11,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoPie } from '../estrutura/decomposicao';
 
 const TOTAL_DESPESAS_POR_TIPO = DESPESAS_POR_TIPO.reduce((soma, fatia) => soma + fatia.value, 0);
 const TOTAL_DA_RECEITA = RECEITA.reduce((soma, fatia) => soma + fatia.value, 0);
@@ -166,6 +167,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda e, depois, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoPie,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartPie height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Percentual na fatia',
       descricao: 'O texto sobre a fatia usa o token de texto daquela cor, medido nos dois temas.',
       Previa: () => (
@@ -252,6 +262,9 @@ const cores = resolveSeriesColors(receita);
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a fatia da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartPie.test.tsx' },
     { garantia: 'Descrição da fatia', como: <><code>aria-label</code> com rótulo, valor e percentual.</>, teste: 'ChartPie.test.tsx' },
     { garantia: 'Legenda como controle', como: <>Botão com <code>aria-pressed</code> que desliga a fatia.</>, teste: 'ChartPie.test.tsx' },
@@ -260,6 +273,7 @@ const cores = resolveSeriesColors(receita);
     { garantia: 'Ausência anunciada', como: 'Sem fatia positiva, um EmptyState no lugar do desenho.', teste: 'ChartPie.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'slices', tipo: 'readonly ChartPieSlice[]', descricao: <><code>{'{ label, value, color?, intent? }'}</code>, uma por fatia.</> },
     { nome: 'showDataLabels', tipo: 'boolean', padrao: 'false', descricao: 'Percentual dentro da fatia, onde couber.' },

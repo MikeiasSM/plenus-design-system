@@ -1,5 +1,8 @@
 import type { AlertTone } from '../Alert';
 
+/** Quantas acoes um aviso mostra; a terceira em diante e descartada, e o aviso nao e lugar de menu. */
+export const MAX_TOAST_ACTIONS = 2;
+
 export type ToastTone = AlertTone;
 
 export interface ToastAction {
@@ -8,8 +11,10 @@ export interface ToastAction {
 }
 
 export interface ToastOptions {
-  /** Botao unico de acao, como tentar de novo. Acionar fecha o aviso. */
+  /** Botao unico de acao, como tentar de novo. Acionar fecha o aviso. Com `actions`, esta e ignorada. */
   action?: ToastAction;
+  /** Ate dois botoes, na ordem dada; os que passam de dois nao aparecem. Acionar um fecha o aviso. */
+  actions?: readonly ToastAction[];
   description?: string;
   /** Milissegundos ate sumir. `null` mantem ate a pessoa fechar; o padrao e 6s, e o erro fica. */
   duration?: number | null;

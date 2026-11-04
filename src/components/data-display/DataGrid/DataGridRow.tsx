@@ -17,6 +17,8 @@ export interface DataGridCellContext<Row> {
 export interface DataGridRowColumn<Row> extends DataGridColumnModel<Row> {
   /** Coluna fixa e divisa das fixas. */
   className: string;
+  /** Posição da coluna na grade, a partir de 1: com colunas virtuais, nem toda coluna é desenhada. */
+  colIndex: number;
   renderCell?: (context: DataGridCellContext<Row>) => ReactNode;
   style: CSSProperties;
 }
@@ -26,6 +28,8 @@ interface DataGridRowProps<Row> {
   columns: readonly DataGridRowColumn<Row>[];
   /** Nível na árvore, a partir de 0. */
   depth: number;
+  /** A célula em edição nesta linha, com o editor já montado; nas outras linhas, nenhuma. */
+  editing: { columnId: string; content: ReactNode } | undefined;
   /** `undefined` na linha sem detalhe nem filhos. */
   expanded: boolean | undefined;
   /** Coluna com foco nesta linha; nas outras linhas, nenhuma. */
@@ -35,6 +39,7 @@ interface DataGridRowProps<Row> {
   level: number | undefined;
   /** Aberta, com os filhos ainda por carregar. */
   loading: boolean;
+  onCellDoubleClick: ((rowKey: string, columnId: string) => void) | undefined;
   onCellFocus: (rowKey: string, columnId: string) => void;
   /** Clique fora dos controles da linha; ausente quando a linha não responde ao clique. */
   onRowClick: ((rowKey: string, event: MouseEvent) => void) | undefined;
@@ -44,10 +49,12 @@ interface DataGridRowProps<Row> {
   position: number | undefined;
   row: Row;
   rowKey: string;
+  /** A grade tem seleção. Com `selected` indefinido, a linha só reserva o lugar da caixa. */
   selectable: boolean;
   selected: boolean | undefined;
   setSize: number | undefined;
-  top: number;
+  /** Sem ele, a linha fica no fluxo, como as fixas no topo. */
+  top: number | undefined;
   /** A grade com detalhe reserva o espaço da seta em todas as linhas, para os textos alinharem. */
   withExpander: boolean;
 }
@@ -57,11 +64,13 @@ export const DataGridRow = memo(function DataGridRow<Row>({
   ariaRowIndex,
   columns,
   depth,
+  editing,
   expanded,
   focusedColumnId,
   height,
   level,
   loading,
+  onCellDoubleClick,
   onCellFocus,
   onRowClick,
   onToggle,
@@ -84,23 +93,32 @@ export const DataGridRow = memo(function DataGridRow<Row>({
       aria-rowindex={ariaRowIndex}
       aria-selected={selected}
       aria-setsize={setSize}
-      className={[styles.row, selected && styles.selected, expanded && styles.expanded, onRowClick && styles.clickable]
+      className={[
+        styles.row,
+        selected && styles.selected,
+        expanded && styles.expanded,
+        editing && styles.editingRow,
+        onRowClick && styles.clickable,
+      ]
         .filter(Boolean)
         .join(' ')}
-      data-anchor=""
+      data-anchor={top === undefined ? undefined : ''}
       role="row"
-      style={{ height, transform: `translateY(${top}px)` }}
+      style={{ height, transform: top === undefined ? undefined : `translateY(${top}px)` }}
       onClick={onRowClick && ((event) => onRowClick(rowKey, event))}
     >
-      {columns.map((column, columnIndex) => {
+      {columns.map((column) => {
         const text = cellText(column, row);
         const focused = focusedColumnId === column.id;
+        const first = column.colIndex === 1;
+        const editor = editing?.columnId === column.id ? editing.content : undefined;
 
         return (
           <div
-            aria-colindex={columnIndex + 1}
+            aria-colindex={column.colIndex}
             className={[
               styles.cell,
+              editor !== undefined && styles.editingCell,
               styles[columnAlign(column)],
               (column.type === 'number' || column.type === 'currency') && styles.numeric,
               column.className,
@@ -113,14 +131,15 @@ export const DataGridRow = memo(function DataGridRow<Row>({
             role="gridcell"
             style={column.style}
             tabIndex={focused ? 0 : -1}
+            onDoubleClick={onCellDoubleClick && (() => onCellDoubleClick(rowKey, column.id))}
             onFocus={() => {
               if (!focused) {
                 onCellFocus(rowKey, column.id);
               }
             }}
           >
-            {columnIndex === 0 && depth > 0 && <span className={styles.indent} style={{ width: depth * INDENT }} />}
-            {columnIndex === 0 && withExpander && (
+            {first && depth > 0 && <span className={styles.indent} style={{ width: depth * INDENT }} />}
+            {first && withExpander && (
               <span className={styles.control}>
                 {expanded !== undefined && (
                   <button
@@ -136,7 +155,8 @@ export const DataGridRow = memo(function DataGridRow<Row>({
                 )}
               </span>
             )}
-            {columnIndex === 0 && selectable && (
+            {first && selectable && selected === undefined && <span className={styles.control} />}
+            {first && selectable && selected !== undefined && (
               <Checkbox
                 aria-label={`Selecionar ${text || rowKey}`}
                 checked={Boolean(selected)}
@@ -146,15 +166,19 @@ export const DataGridRow = memo(function DataGridRow<Row>({
                 onClick={(event) => onToggle(rowKey, event.shiftKey)}
               />
             )}
-            <span
-              className={styles.text}
-              onPointerEnter={(event) => {
-                const element = event.currentTarget;
-                element.title = element.scrollWidth > element.clientWidth ? text : '';
-              }}
-            >
-              {column.renderCell ? column.renderCell({ row, text, value: cellValue(column, row) }) : text}
-            </span>
+            {editor !== undefined ? (
+              editor
+            ) : (
+              <span
+                className={styles.text}
+                onPointerEnter={(event) => {
+                  const element = event.currentTarget;
+                  element.title = element.scrollWidth > element.clientWidth ? text : '';
+                }}
+              >
+                {column.renderCell ? column.renderCell({ row, text, value: cellValue(column, row) }) : text}
+              </span>
+            )}
           </div>
         );
       })}

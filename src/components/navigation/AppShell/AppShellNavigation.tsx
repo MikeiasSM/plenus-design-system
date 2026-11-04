@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { DialogFrame } from '../../overlays/Dialog/DialogFrame';
-import drawerStyles from '../../overlays/Drawer/Drawer.module.css';
+import { Drawer } from '../../overlays/Drawer';
 import { useAppShell } from './AppShell.context';
 import styles from './AppShell.module.css';
 
@@ -40,14 +39,8 @@ export function AppShellNavigation({ children, menuLabel = 'Menu' }: AppShellNav
   }
 
   return (
-    <DialogFrame
-      aria-label={menuLabel}
-      onOpenChange={setMenuOpen}
-      open={menuOpen}
-      surfaceClassName={[drawerStyles.drawer, styles.menuSurface].join(' ')}
-      underlayClassName={[drawerStyles.underlay, drawerStyles.left].join(' ')}
-    >
+    <Drawer aria-label={menuLabel} className={styles.menuSurface} flush onOpenChange={setMenuOpen} open={menuOpen} side="left">
       <div className={styles.menu} ref={menuRef}>{children}</div>
-    </DialogFrame>
+    </Drawer>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import {
+  ChartTable,
   ChartFrame,
   VOLTA,
   arcPath,
@@ -8,6 +9,7 @@ import {
   fitCenterText,
   ringDiameter,
   useChartMetrics,
+  useRingFit,
   useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
@@ -67,6 +69,8 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   startAngle?: number;
@@ -109,6 +113,7 @@ export function ChartRadial({
   onTrackClick,
   palette,
   showCenter = true,
+  showTableToggle = true,
   showTooltip = true,
   startAngle = 0,
   thickness = 16,
@@ -220,7 +225,24 @@ export function ChartRadial({
   const emFocoLegivel = anelEmFoco && !isHidden(anelEmFoco.label) && valido(anelEmFoco) ? anelEmFoco : undefined;
   const destaque = emFocoLegivel ?? primeiroVisivel;
   const textoDoCentro = emFocoLegivel ? emFocoLegivel.label : (centerLabel ?? destaque?.label);
-  const valorDoCentro = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
+  const valorDoCentroPedido = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
+  const entradasDaLegenda = tracks.map((anel, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(anel.label),
+    label: anel.label,
+    value: valido(anel) ? formatValue(anel.value) : undefined,
+  }));
+  const posicaoDaLegenda = tracks.length > 1 ? legend : 'none';
+  const removed = useRingFit({
+    center: valorDoCentroPedido === undefined ? undefined : { innerShare: 0.5, value: valorDoCentroPedido },
+    fillHeight,
+    font,
+    height: alturaDoDesenho,
+    legend: entradasDaLegenda,
+    legendPosition: posicaoDaLegenda,
+    width,
+  });
+  const valorDoCentro = removed.has('centerText') ? undefined : valorDoCentroPedido;
   // O centro reserva o que o valor pede no menor degrau da escala, ate metade do raio; quem cede e a espessura dos aneis.
   const piso =
     valorDoCentro === undefined
@@ -249,17 +271,28 @@ export function ChartRadial({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={tracks.map((anel, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(anel.label),
-        label: anel.label,
-        value: valido(anel) ? formatValue(anel.value) : undefined,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={tracks.length > 1 ? legend : 'none'}
+      legendPosition={removed.has('legend') ? 'none' : posicaoDaLegenda}
       onHighlightSeries={realcarAnel}
       onToggleSeries={alternarAnel}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Valor', 'Meta', 'Atingido']}
+          rows={tracks.map((anel, indice) => {
+            const meta = anel.max ?? maiorValor;
+
+            return {
+              cells: valido(anel) ? [formatValue(anel.value), formatValue(meta), meta > 0 ? formatPercent(anel.value / meta) : ''] : ['', '', ''],
+              header: anel.label,
+              key: `${indice}:${anel.label}`,
+            };
+          })}
+          title={title}
+        />
+      }
       swatch="dot"
       title={title}
       tooltip={

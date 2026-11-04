@@ -161,7 +161,8 @@ describe('painéis fecham quando o gatilho rola', () => {
         </Tooltip>
       </Conteiner>,
     );
-    fireEvent.focus(screen.getByRole('button', { name: 'Alvo' }));
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => screen.getByRole('button', { name: 'Alvo' }).focus());
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
     rolar(screen.getByTestId('conteiner'));

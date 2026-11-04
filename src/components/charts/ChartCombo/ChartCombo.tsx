@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartTable,
+  categoryTable,
   BandCursor,
   markShown,
   categoryTooltip,
@@ -112,6 +114,8 @@ export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Pontos das linhas. Em `onHover`, os da categoria sob o ponteiro. */
   showDots?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com as series da categoria sob o ponteiro, cada uma no formato do seu eixo. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   title: string;
@@ -187,6 +191,7 @@ export function ChartCombo({
   palette,
   series,
   showDataLabels = 'hidden',
+  showTableToggle = true,
   showTooltip = true,
   showDots = 'onHover',
   title,
@@ -256,7 +261,14 @@ export function ChartCombo({
   // serie a direita, o eixo aparece sem ninguem pedir.
   const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
 
-  const { axisReveal, margins, plot, rotation } = useCartesianLayout({
+  const entradasDaLegenda = series.map((serie, indice) => ({
+    color: cores[indice],
+    hidden: isHidden(serie.label),
+    label: serie.label,
+  }));
+
+  const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
+    decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y'] },
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: yAxisRightTitle },
     bottomLabels: categories,
     font,
@@ -353,17 +365,18 @@ export function ChartCombo({
         },
       ]}
       height={alturaDoDesenho}
-      legend={series.map((serie, indice) => ({
-        color: cores[indice],
-        hidden: isHidden(serie.label),
-        label: serie.label,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
       onToggleSeries={toggle}
       plot={plot}
+      removed={removed}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(series[indice])(valor))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip
@@ -406,7 +419,7 @@ export function ChartCombo({
           const oculta = isHidden(serie.label);
           const escala = escalaDa(serie);
           const formatar = formatoDa(serie);
-          const rotulos = rotuloDaSerie(serie, showDataLabels);
+          const rotulos = removed.has('detail') ? 'hidden' : rotuloDaSerie(serie, showDataLabels);
           const base = escala(0);
 
           return (
@@ -485,7 +498,7 @@ export function ChartCombo({
           const oculta = isHidden(serie.label);
           const escala = escalaDa(serie);
           const formatar = formatoDa(serie);
-          const rotulos = rotuloDaSerie(serie, showDataLabels);
+          const rotulos = removed.has('detail') ? 'hidden' : rotuloDaSerie(serie, showDataLabels);
           const pontos = categories.map<ChartPoint | null>((categoria, indice) => {
             const valor = serie.values[indice];
 
@@ -515,7 +528,7 @@ export function ChartCombo({
                     aria-label={`${serie.label}, ${categories[indice]}: ${formatar(serie.values[indice] ?? 0)}`}
                     {...marcas.markProps(
                       { column: indice, row: indiceSerie },
-                      markShown(showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? chartStyles.dotVisible : chartStyles.dot,
+                      markShown(removed.has('detail') ? 'hidden' : showDots, indice === faixaEmFoco) || isolado(pontos, indice) ? chartStyles.dotVisible : chartStyles.dot,
                     )}
                     cx={ponto.x}
                     cy={ponto.y}

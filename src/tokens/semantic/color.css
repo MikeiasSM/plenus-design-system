@@ -94,6 +94,12 @@
   }
 }
 
+/* Texto sobre a superficie escura (`ink`), igual nos dois temas. */
+:root {
+  --pl-on-ink-2: #A5A8AC;
+  --pl-on-ink-3: #7C8085;
+}
+
 /* A cor primaria sai da paleta ativa e do tema. O solido e o preenchimento; o forte e o traco, lido contra a
    superficie: texto, borda e foco. No escuro, o solido desce ao passo 40, que se le contra a superficie escura em todas
    as paletas. `light-dark()` escolhe pelo `color-scheme` de quem usa o token, entao a escolha acompanha o tema mais

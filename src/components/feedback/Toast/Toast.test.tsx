@@ -55,6 +55,42 @@ describe('Toast', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('mostra as acoes na ordem dada e aciona a escolhida', () => {
+    const desfazer = vi.fn();
+    const verDetalhes = vi.fn();
+    render(<ToastRegion />);
+    show({
+      actions: [
+        { label: 'Desfazer', onClick: desfazer },
+        { label: 'Ver detalhes', onClick: verDetalhes },
+      ],
+      title: 'Registro removido',
+    });
+
+    expect(screen.getAllByRole('button').map((botao) => botao.textContent)).toEqual([
+      'Desfazer',
+      'Ver detalhes',
+      '',
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes' }));
+
+    expect(verDetalhes).toHaveBeenCalledOnce();
+    expect(desfazer).not.toHaveBeenCalled();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('descarta a partir da terceira acao', () => {
+    render(<ToastRegion />);
+    show({
+      actions: ['Uma', 'Duas', 'Tres'].map((label) => ({ label, onClick: vi.fn() })),
+      title: 'Aviso',
+    });
+
+    expect(screen.queryByRole('button', { name: 'Tres' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Duas' })).toBeInTheDocument();
+  });
+
   it('para o tempo com o ponteiro em cima e recomeca ao sair', () => {
     render(<ToastRegion />);
     show({ title: 'Copiado' });

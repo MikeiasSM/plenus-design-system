@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { sankey, sankeyCenter, sankeyJustify, sankeyLeft, sankeyRight } from 'd3-sankey';
 import {
+  ChartTable,
   CHART_LABEL_BAND,
   CHART_LABEL_OFFSET,
   ChartFrame,
@@ -8,6 +9,8 @@ import {
   measureLabel,
   truncateToWidth,
   useChartMetrics,
+  useFit,
+  CHART_MIN_PLOT,
   useMarkNavigation,
   widestLabel,
   type ChartHeight,
@@ -84,6 +87,8 @@ export interface ChartSankeyProps extends ChartRootProps {
   palette?: ChartPalette;
   showFlowValues?: boolean;
   showLabels?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   title: string;
@@ -195,6 +200,7 @@ export function ChartSankey({
   palette,
   showFlowValues = false,
   showLabels = true,
+  showTableToggle = true,
   showTooltip = true,
   title,
   ...root
@@ -235,9 +241,14 @@ export function ChartSankey({
     return declarados.map((no) => no.label).filter((rotulo) => !origens.has(rotulo));
   }, [declarados, flows]);
 
-  const bandaDireita = showLabels
-    ? Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET
-    : 0;
+  const bandaDosRotulos = Math.min(widestLabel(saidas, font), width * CHART_LABEL_BAND) + CHART_LABEL_OFFSET;
+  const removed = useFit(
+    width > 0 && alturaDoDesenho > 0 ? ['labels'] as const : [],
+    (partes) => ({ height: alturaDoDesenho, width: width - (showLabels && !partes.has('labels') ? bandaDosRotulos : 0) }),
+    CHART_MIN_PLOT,
+  );
+  const comRotulos = showLabels && !removed.has('labels');
+  const bandaDireita = comRotulos ? bandaDosRotulos : 0;
 
   // Um diagrama de fluxo e aciclico por definicao, e o `d3-sankey` lanca ao
   // encontrar um ciclo. Detectar antes troca a queda da arvore inteira por uma
@@ -337,6 +348,12 @@ export function ChartSankey({
     return `${ligacao.source.label} → ${ligacao.target.label}: ${formatValue(ligacao.value)}`;
   }
 
+  function saidaDaOrigem(ligacao: LigacaoPosicionada) {
+    return grafo.links
+      .filter((outra) => outra.source.index === ligacao.source.index)
+      .reduce((soma, outra) => soma + outra.value, 0);
+  }
+
   /** O fluxo e a parte dele na saida da origem, que e o que a largura da faixa compara. */
   function linhasDoBalao() {
     const ligacao = emFoco === null ? undefined : grafo.links[emFoco];
@@ -345,9 +362,7 @@ export function ChartSankey({
       return [];
     }
 
-    const saida = grafo.links
-      .filter((outra) => outra.source.index === ligacao.source.index)
-      .reduce((soma, outra) => soma + outra.value, 0);
+    const saida = saidaDaOrigem(ligacao);
 
     return [
       { color: corDa(ligacao), label: 'Fluxo', values: [ligacao.value] },
@@ -403,7 +418,7 @@ export function ChartSankey({
     };
   }
 
-  const rotulosDosNos = showLabels ? grafo.nodes.map(rotuloDoNo) : [];
+  const rotulosDosNos = comRotulos ? grafo.nodes.map(rotuloDoNo) : [];
 
   /**
    * Valor de uma ligacao, ja posicionado. Ele e omitido quando cruza o rotulo
@@ -450,6 +465,18 @@ export function ChartSankey({
       height={alturaDoDesenho}
       legendPosition="none"
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable
+          columns={['Valor', 'Da saída da origem']}
+          rows={grafo.links.map((ligacao, indice) => ({
+            cells: [formatValue(ligacao.value), saidaDaOrigem(ligacao) > 0 ? formatPercent(ligacao.value / saidaDaOrigem(ligacao)) : ''],
+            header: `${ligacao.source.label} → ${ligacao.target.label}`,
+            key: String(indice),
+          }))}
+          title={title}
+        />
+      }
       title={title}
       tooltip={
         showTooltip

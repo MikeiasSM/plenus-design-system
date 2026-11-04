@@ -1,0 +1,192 @@
+/* Leiaute da página de fundamentos. As cores, medidas e formas mostradas vêm dos tokens, pelo `var()`. */
+
+.fundamentos-grupo {
+  margin-top: var(--pl-space-5);
+}
+
+.fundamentos-grupo h3 {
+  margin: 0 0 var(--pl-space-3);
+  font-family: var(--pl-font-heading);
+  font-size: var(--pl-type-title-size);
+}
+
+.amostras {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--pl-space-2) var(--pl-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.amostra {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-areas:
+    'cor nome novo'
+    'cor valor novo';
+  align-items: center;
+  column-gap: var(--pl-space-3);
+}
+
+.amostra-xadrez {
+  grid-area: cor;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background: repeating-conic-gradient(var(--pl-color-surface-muted) 0% 25%, var(--pl-color-surface) 0% 50%) 0 0 / 10px 10px;
+}
+
+.amostra-cor {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.amostra code {
+  grid-area: nome;
+  overflow: hidden;
+  font-size: var(--pl-type-caption-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amostra-valor {
+  grid-area: valor;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-caption-size);
+}
+
+.amostra > :last-child:not(.amostra-valor) {
+  grid-area: novo;
+}
+
+.fundamentos-familias,
+.fundamentos-escala,
+.fundamentos-medidas {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fundamentos-familias li,
+.fundamentos-escala li,
+.fundamentos-medidas li {
+  display: grid;
+  align-items: center;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-3) 0;
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
+.fundamentos-familias li {
+  grid-template-columns: 220px minmax(0, 1fr) auto;
+}
+
+.fundamentos-escala li {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.fundamentos-escala li > span:first-child {
+  display: grid;
+  gap: var(--pl-space-1);
+  justify-items: start;
+}
+
+.fundamentos-medidas li {
+  grid-template-columns: 160px minmax(0, 1fr) 56px auto;
+}
+
+.fundamentos-familias code,
+.fundamentos-escala code,
+.fundamentos-medidas code {
+  font-size: var(--pl-type-caption-size);
+}
+
+.fundamentos-familias small,
+.fundamentos-escala small,
+.fundamentos-medidas small {
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-caption-size);
+}
+
+.fundamentos-barra {
+  display: block;
+  height: 12px;
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-primary);
+}
+
+.fundamentos-formas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-5);
+}
+
+.fundamentos-formas figure {
+  display: grid;
+  gap: var(--pl-space-2);
+  margin: 0;
+}
+
+.fundamentos-forma {
+  display: block;
+  width: 96px;
+  height: 72px;
+  border: 1px solid var(--pl-color-border-strong);
+  background: var(--pl-color-surface);
+}
+
+.fundamentos-formas figcaption {
+  display: grid;
+  gap: 2px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.fundamentos-formas small {
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-mono);
+}
+
+.fundamentos-camadas {
+  display: grid;
+  gap: var(--pl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fundamentos-camadas li {
+  display: grid;
+  grid-template-columns: 28px 140px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-3) var(--pl-space-4);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+}
+
+.fundamentos-camadas li > span {
+  color: var(--pl-color-text-tertiary);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.fundamentos-camadas p {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .fundamentos-familias li,
+  .fundamentos-escala li,
+  .fundamentos-medidas li,
+  .fundamentos-camadas li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

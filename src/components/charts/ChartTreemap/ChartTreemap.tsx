@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { hierarchy, treemap } from 'd3-hierarchy';
 import {
+  ChartTable,
+  treeTable,
   CHART_LABEL_OFFSET,
   ChartFrame,
   assignNodeValues,
@@ -9,6 +11,10 @@ import {
   pathTooltip,
   truncateToWidth,
   useChartMetrics,
+  useFit,
+  CHART_MIN_PLOT,
+  legendRoom,
+  plotRoom,
   useMarkNavigation,
   useSeriesToggle,
   type ChartHeight,
@@ -25,7 +31,7 @@ import {
   type SeriesAppearance,
   type SeriesIntent,
 } from '../palette';
-import { formatNumber } from '../../../utils/formatters';
+import { formatNumber, formatPercent } from '../../../utils/formatters';
 import styles from './ChartTreemap.module.css';
 
 export interface ChartTreemapNode extends SeriesAppearance {
@@ -79,6 +85,8 @@ export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
    * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
 }
@@ -112,6 +120,7 @@ export function ChartTreemap({
   onNodeClick,
   palette,
   showDataLabels = true,
+  showTableToggle = true,
   showTooltip = true,
   title,
   ...root
@@ -146,10 +155,8 @@ export function ChartTreemap({
   const coresDeGrupo = useMemo(() => resolveSeriesColors(nodes, { accent, palette }), [accent, palette, nodes]);
 
   // Sem valor positivo nao ha area a repartir: anuncia vazio. Desligar todos os grupos, nao: a legenda e a volta.
-  const semValor = useMemo(
-    () => !((assignNodeValues(hierarchy<ChartTreemapNode>({ children: nodes, label: '' }), ocupacao).value ?? 0) > 0),
-    [nodes],
-  );
+  const arvoreCompleta = useMemo(() => assignNodeValues(hierarchy<ChartTreemapNode>({ children: nodes, label: '' }), ocupacao), [nodes]);
+  const semValor = !((arvoreCompleta.value ?? 0) > 0);
 
   const retangulos = useMemo(() => {
     const visiveis = nodes.filter((grupo) => !isHidden(grupo.label));
@@ -211,6 +218,14 @@ export function ChartTreemap({
         label: grupo.label,
       }));
 
+  const medido = width > 0 && alturaDoDesenho > 0;
+  const espacoDaLegenda = legendRoom(entradasDaLegenda, legend, font, width, fillHeight);
+  const removed = useFit(
+    medido ? ['legend'] as const : [],
+    (partes, legendaEstava) => plotRoom({ height: alturaDoDesenho, width }, espacoDaLegenda, legendaEstava, !partes.has('legend')),
+    CHART_MIN_PLOT,
+  );
+
   return (
     <ChartFrame
       canvasRole={marcas.interactive ? 'group' : 'img'}
@@ -221,9 +236,13 @@ export function ChartTreemap({
       height={alturaDoDesenho}
       legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={legend}
+      legendPosition={removed.has('legend') ? 'none' : legend}
       onToggleSeries={intentLabels ? undefined : toggle}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...treeTable(arvoreCompleta, formatValue, (fracao) => formatPercent(fracao))} title={title} />
+      }
       title={title}
       tooltip={
         showTooltip

@@ -3,14 +3,46 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
 import { Tooltip } from './Tooltip';
 
+function focusByKeyboard(element: HTMLElement) {
+  fireEvent.keyDown(document.body, { key: 'Tab' });
+  act(() => element.focus());
+}
+
+function focusByPointer(element: HTMLElement) {
+  fireEvent.mouseDown(element);
+  act(() => element.focus());
+}
+
 describe('Tooltip', () => {
+  it('não abre com o foco que vem do clique', () => {
+    render(<Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>);
+    const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+    focusByPointer(gatilho);
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('o hover continua abrindo mesmo com o foco vindo do clique', () => {
+    vi.useFakeTimers();
+    render(<Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>);
+    const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+    focusByPointer(gatilho);
+    fireEvent.mouseEnter(gatilho);
+    act(() => vi.runAllTimers());
+
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
   it('aparece no foco e descreve o gatilho', () => {
     render(<Tooltip content="Salva e mantem na tela"><Button>Salvar</Button></Tooltip>);
 
     const gatilho = screen.getByRole('button', { name: 'Salvar' });
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    fireEvent.focus(gatilho);
+    focusByKeyboard(gatilho);
 
     expect(screen.getByRole('tooltip')).toHaveTextContent('Salva e mantem na tela');
     expect(gatilho).toHaveAccessibleDescription('Salva e mantem na tela');
@@ -20,11 +52,11 @@ describe('Tooltip', () => {
     render(<Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>);
     const gatilho = screen.getByRole('button', { name: 'Salvar' });
 
-    fireEvent.focus(gatilho);
-    fireEvent.blur(gatilho);
+    focusByKeyboard(gatilho);
+    act(() => gatilho.blur());
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    fireEvent.focus(gatilho);
+    focusByKeyboard(gatilho);
     fireEvent.keyDown(gatilho, { key: 'Escape' });
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -37,7 +69,7 @@ describe('Tooltip', () => {
     fireEvent.mouseEnter(gatilho);
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    act(() => vi.advanceTimersByTime(500));
+    act(() => vi.runAllTimers());
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
     vi.useRealTimers();
@@ -47,7 +79,7 @@ describe('Tooltip', () => {
     const onFocus = vi.fn();
     render(<Tooltip content="Ajuda"><Button onFocus={onFocus}>Salvar</Button></Tooltip>);
 
-    fireEvent.focus(screen.getByRole('button', { name: 'Salvar' }));
+    focusByKeyboard(screen.getByRole('button', { name: 'Salvar' }));
 
     expect(onFocus).toHaveBeenCalled();
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -82,10 +114,10 @@ describe('Tooltip', () => {
     render(<Tooltip content="Ajuda" onOpenChange={mudou}><Button>Salvar</Button></Tooltip>);
     const gatilho = screen.getByRole('button', { name: 'Salvar' });
 
-    fireEvent.focus(gatilho);
+    focusByKeyboard(gatilho);
     expect(mudou).toHaveBeenLastCalledWith(true);
 
-    fireEvent.blur(gatilho);
+    act(() => gatilho.blur());
     expect(mudou).toHaveBeenLastCalledWith(false);
   });
 

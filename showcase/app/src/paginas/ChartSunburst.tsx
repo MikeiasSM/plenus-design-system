@@ -10,6 +10,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS, OPCOES_DE_ACCENT, TOTAL_DE_DESPESAS, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoSunburst } from '../estrutura/decomposicao';
 
 const playground = definirPlayground({
   inicial: {
@@ -150,6 +151,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, os rótulos dos nós e, por fim, só as formas, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoSunburst,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartSunburst height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Anéis aninhados',
       descricao: 'Grupo no anel de dentro, itens no de fora, com o rótulo projetado.',
       Previa: () => (
@@ -260,6 +270,9 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga o ramo da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartSunburst.test.tsx' },
     {
       garantia: 'Descrição do arco',
@@ -272,6 +285,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem nós, um EmptyState no lugar do desenho.', teste: 'ChartSunburst.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'nodes',

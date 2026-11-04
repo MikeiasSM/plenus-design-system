@@ -81,7 +81,7 @@ describe('ChartTreemap', () => {
     );
 
     expect(screen.getByText('Margem alta')).toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Margem/ })).not.toBeInTheDocument();
   });
 
   it('lista os grupos na legenda quando as cores nao carregam status', () => {

@@ -366,7 +366,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
 
   // A ajuda e focavel e fica fora do botao de ordenacao: controle dentro de controle nao e HTML valido.
   const ajuda = help && (
-    <Tooltip content={help}>
+    <Tooltip content={help} placement="bottom">
       <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
         <IconQuestionCircle size={14} />
       </span>

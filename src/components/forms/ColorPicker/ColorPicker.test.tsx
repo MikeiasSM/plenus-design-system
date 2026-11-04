@@ -65,7 +65,8 @@ describe('ColorPicker', () => {
     render(<ColorPicker label="Cor do texto" options={cores} />);
 
     act(() => {
-      fireEvent.focus(screen.getByRole('radio', { name: 'Vermelho' }));
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      screen.getByRole('radio', { name: 'Vermelho' }).focus();
     });
 
     expect(screen.getByRole('tooltip')).toHaveTextContent('Vermelho');

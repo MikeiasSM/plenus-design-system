@@ -21,7 +21,8 @@ describe('ButtonIcon', () => {
     render(<ButtonIcon icon={<IconClose />} label="Fechar" />);
 
     act(() => {
-      fireEvent.focus(screen.getByRole('button', { name: 'Fechar' }));
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      screen.getByRole('button', { name: 'Fechar' }).focus();
       vi.advanceTimersByTime(1000);
     });
 

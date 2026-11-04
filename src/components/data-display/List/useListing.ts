@@ -26,6 +26,8 @@ export interface UseListingOptions {
 }
 
 export interface Listing {
+  /** Desmarca tudo, inclusive o que a busca esconde. */
+  clear: () => void;
   detached: readonly ListingItem[];
   focus: (value?: string) => void;
   focusFirst: () => void;
@@ -37,6 +39,8 @@ export interface Listing {
   reset: () => void;
   typeahead: (character: string) => void;
   select: (item: ListingItem, extend?: boolean) => void;
+  /** Marca os itens habilitados do resultado atual, sem desmarcar o que já estava. */
+  selectAll: () => void;
   selected: readonly ListingItem[];
   selectionMode: ListingSelectionMode;
   status: SelectionStatus;
@@ -143,6 +147,7 @@ export function useListing({
   }
 
   return {
+    clear: selection.clear,
     detached,
     focus: selection.focus,
     focusFirst: selection.focusFirst,
@@ -168,6 +173,11 @@ export function useListing({
       }
 
       selection.select(item.value);
+    },
+    selectAll: () => {
+      if (selection.status !== 'all') {
+        selection.toggleAll();
+      }
     },
     selected,
     selectionMode,

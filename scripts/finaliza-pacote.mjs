@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /**
@@ -77,6 +77,28 @@ for (const formato of ['js', 'cjs']) {
   writeFileSync(suite, readFileSync(suite, 'utf8').replace(/\r?\n\/\/# sourceMappingURL=[^\n]*\s*$/, '\n'));
 }
 
+// Os modulos por icone (`dist/icons/<Nome>`) tambem nao levam mapa, e ganham a declaracao que o `tsc` nao emite,
+// porque eles nao existem no disco: cada uma repete a assinatura do icone na declaracao da suite.
+const nomesDosIcones = [
+  ...readFileSync(resolve(raiz, 'dist/types/components/icons/suite.d.ts'), 'utf8').matchAll(/^export declare function (Icon\w+)/gm),
+].map(([, nome]) => nome);
+
+mkdirSync(resolve(raiz, 'dist/types/icons'), { recursive: true });
+
+for (const nome of nomesDosIcones) {
+  for (const formato of ['js', 'cjs']) {
+    const modulo = resolve(raiz, `dist/icons/${nome}.${formato}`);
+
+    rmSync(`${modulo}.map`, { force: true });
+    writeFileSync(modulo, readFileSync(modulo, 'utf8').replace(/\r?\n\/\/# sourceMappingURL=[^\n]*\s*$/, '\n'));
+  }
+
+  writeFileSync(
+    resolve(raiz, `dist/types/icons/${nome}.d.ts`),
+    `import { type IconProps } from '../components/icons/Icon.js';\nexport declare function ${nome}(props: IconProps): import("react").JSX.Element;\n`,
+  );
+}
+
 console.log(
-  `Pacote finalizado: reset copiado, folhas declaradas, ${ajustados} declaracoes com extensao explicita, suite de icones sem mapa.`,
+  `Pacote finalizado: reset copiado, folhas declaradas, ${ajustados} declaracoes com extensao explicita, suite de icones sem mapa, ${nomesDosIcones.length} modulos por icone.`,
 );

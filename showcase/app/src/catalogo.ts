@@ -48,6 +48,7 @@ export const familias: readonly Familia[] = [
       componente('Switch', 'Alternância de um estado ativo.'),
       componente('SegmentedControl', 'Escolha única entre poucos segmentos lado a lado.'),
       componente('DatePicker', 'Entrada de data, digitada ou escolhida em calendário.'),
+      componente('DatePickerRange', 'Escolha de um intervalo de datas em calendário, com atalhos definidos pelo produto.'),
       componente('TimePicker', 'Entrada de hora.'),
       componente('DateTimePicker', 'Entrada de data e hora combinadas.'),
       componente('ColorPicker', 'Escolha de cor entre amostras definidas pelo produto.'),

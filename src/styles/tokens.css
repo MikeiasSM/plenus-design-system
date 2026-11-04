@@ -1,127 +1,30 @@
-/* ==========================================================================
-   Plenustech Design System — tokens.css
-   Fonte da verdade visual do sistema. Extraído do mock PlenusLAB v8.
+/* Ponto de entrada dos tokens, em `src/tokens`: primitivos, semanticos e os nomes antigos como alias.
+   A norma esta em `TOKENS.md` e nos dois `TOKENS-REFERENCE-*.md`: paleta laranja padrao e tema por subarvore (§4).
 
-   Decisões registradas (conversa de definição):
-   • Primária oficial = laranja do mock (#F87500) — NÃO usar o coral do logo
-   • Escala tipográfica normalizada, sem tamanhos fracionados
-   • Espaçamento em base 4px
-   • Breakpoints do mock: 900 / 1180 / 1280 · container máx. 1600px
-   • Tema por subárvore: data-theme="light" | "dark"; sem ele, prefers-color-scheme
-
-   Regra arquitetural: componentes NUNCA definem cor, fonte, espaço ou raio
-   próprios — sempre consomem um token daqui.
-   ========================================================================== */
+   Aguardam promocao ao corpus normativo (proposta em andamento):
+   • Escala tipografica normalizada, sem tamanhos fracionados; UI densa, nao cresce em telas grandes
+   • Espacamento em base 4px
+   • Breakpoints 900 / 1180 / 1280 e container maximo de 1600px */
 
 @import '../tokens/primitive/brand.css';
 @import '../tokens/primitive/neutral.css';
 @import '../tokens/primitive/status.css';
+@import '../tokens/primitive/space.css';
+@import '../tokens/primitive/radius.css';
+@import '../tokens/primitive/motion.css';
+@import '../tokens/primitive/layout.css';
 @import '../tokens/semantic/palette.css';
 @import '../tokens/semantic/color.css';
 @import '../tokens/semantic/typography.css';
+@import '../tokens/semantic/elevation.css';
 @import '../tokens/semantic/chart.css';
 @import '../tokens/semantic/code.css';
 @import '../tokens/semantic/control.css';
 @import '../tokens/semantic/shell.css';
 @import '../tokens/semantic/layer.css';
 
-:root {
-
-  /* ---- Cor · texto sobre a superfície escura, igual nos dois temas ------- */
-  --pl-on-ink-2: #A5A8AC;
-  --pl-on-ink-3: #7C8085;
-
-  /* ---- Tipografia -------------------------------------------------------- */
-  --pl-font-ui:   'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
-
-  /* Escala normalizada (aprovada) — UI densa, não cresce em telas grandes */
-
-  --pl-weight-semibold:  600;
-
-  --pl-leading-tight: 1.2;
-  --pl-leading:       1.6;
-
-  /* ---- Espaçamento · base 4px --------------------------------------------- */
-  --pl-space-1: 4px;
-  --pl-space-2: 8px;
-  --pl-space-3: 12px;
-  --pl-space-4: 16px;
-  --pl-space-5: 24px;
-  --pl-space-6: 32px;
-  --pl-space-7: 48px;
-
-  /* ---- Raios ---------------------------------------------------------------- */
-  --pl-radius-sm:   5px;    /* elementos pequenos: badge, tag, célula   */
-  --pl-radius-md:   8px;    /* base do sistema (352 ocorrências na v8)  */
-  --pl-radius-full: 999px;  /* pílulas, avatares, switches              */
-
-  /* ---- Layout ---------------------------------------------------------------- */
-  --pl-container: 1600px;
-
-  /* ---- Movimento --------------------------------------------------------------- */
-  --pl-speed-1: 120ms;   /* hover de cor/fundo          */
-  --pl-speed-2: 180ms;   /* elevação, painéis, switches */
-  --pl-ease: cubic-bezier(.2, .6, .3, 1);
-
-  /* ---- Breakpoints (REFERÊNCIA DOCUMENTAL) ---------------------------------------
-     ⚠️ Variáveis CSS não funcionam dentro de @media. Estes valores documentam
-     os breakpoints oficiais extraídos da v8; use os literais nas media queries:
-       900px  → mobile: sidebar vira barra horizontal, tabelas rolam (min-width 720px)
-       1180px → grids "split"/"ver" colapsam para 1 coluna
-       1280px → rails laterais (toc/lib) ocultam-se
-     Acima disso o container trava em --pl-container (1600px).                  */
-  --pl-bp-sm: 900px;
-  --pl-bp-md: 1180px;
-  --pl-bp-lg: 1280px;
-}
-
-/* ==========================================================================
-   Tema — alterna 100% dos tokens de cor. `data-theme="light"` ou `"dark"` vale
-   no elemento e em toda a sua subárvore; sem `data-theme` no `:root`, o sistema
-   decide por `prefers-color-scheme`. O mesmo vale para as camadas em
-   `tokens/semantic`.
-   ========================================================================== */
-:root,
-[data-theme="light"] {
-  --pl-ok-soft:      #E8F6EF;
-  --pl-warn-soft:    #FDF3E3;
-  --pl-info-soft:    #EAF2FB;
-  --pl-danger-soft:  #FBECEA;
-
-  --pl-scrim:        rgba(16, 17, 19, .38);   /* véu atrás de modais  */
-  --pl-sh-1: 0 1px 2px  rgba(24, 26, 28, .06);  /* elevação sutil       */
-  --pl-sh-2: 0 8px 20px rgba(24, 26, 28, .10);  /* dropdowns, toasts    */
-  --pl-sh-3: 0 20px 46px rgba(24, 26, 28, .20); /* modais               */
-}
-
-[data-theme="dark"] {
-  --pl-ok-soft:      #16281F;
-  --pl-warn-soft:    #2A2116;
-  --pl-info-soft:    #16202C;
-  --pl-danger-soft:  #2A1917;
-
-  --pl-scrim:        rgba(0, 0, 0, .62);
-  --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
-  --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
-  --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --pl-ok-soft:      #16281F;
-    --pl-warn-soft:    #2A2116;
-    --pl-info-soft:    #16202C;
-    --pl-danger-soft:  #2A1917;
-
-    --pl-scrim:        rgba(0, 0, 0, .62);
-    --pl-sh-1: 0 1px 2px  rgba(0, 0, 0, .45);
-    --pl-sh-2: 0 8px 20px rgba(0, 0, 0, .52);
-    --pl-sh-3: 0 22px 50px rgba(0, 0, 0, .62);
-  }
-}
-
-/* Aliases dos nomes antigos. Declarados em cada escopo de tema e de paleta: uma variável
-   derivada é calculada onde é declarada e não se recalcula nos descendentes. */
+/* Nomes antigos, apontando para os tokens atuais. Declarados em cada escopo de tema e de paleta: uma variavel
+   derivada e calculada onde e declarada e nao se recalcula nos descendentes. */
 :root,
 [data-theme],
 [data-palette] {
@@ -146,6 +49,10 @@
   --pl-warn: var(--pl-color-warning);
   --pl-info: var(--pl-color-info);
   --pl-danger: var(--pl-color-danger);
+  --pl-ok-soft: var(--pl-color-success-container);
+  --pl-warn-soft: var(--pl-color-warning-container);
+  --pl-info-soft: var(--pl-color-info-container);
+  --pl-danger-soft: var(--pl-color-danger-container);
+  --pl-scrim: var(--pl-color-scrim);
   --pl-font-ui: var(--pl-font-body);
 }
-

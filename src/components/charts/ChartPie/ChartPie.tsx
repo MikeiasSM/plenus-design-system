@@ -1,4 +1,6 @@
 import {
+  ChartTable,
+  shareTable,
   ChartFrame,
   arcCentroid,
   arcPath,
@@ -7,6 +9,7 @@ import {
   ringDiameter,
   sliceTooltip,
   useChartMetrics,
+  useRingFit,
   useSliceRing,
   type ChartHeight,
   type ChartHoverDetails,
@@ -60,6 +63,8 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   palette?: ChartPalette;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
@@ -93,6 +98,7 @@ export function ChartPie({
   palette,
   showDataLabels = false,
   showLegendValues = false,
+  showTableToggle = true,
   showTooltip = true,
   sliceRadius,
   slices,
@@ -131,6 +137,14 @@ export function ChartPie({
     smallSliceThreshold,
   });
 
+  const entradasDaLegenda = anel.slices.map((fatia, indice) => ({
+    color: anel.colors[indice],
+    hidden: anel.isHidden(fatia.label),
+    label: fatia.label,
+    value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
+  }));
+  const removed = useRingFit({ fillHeight, font, height: alturaDoDesenho, legend: entradasDaLegenda, legendPosition: legend, width });
+
   const raio = ringDiameter(width, alturaDoDesenho) / 2;
   const canto = sliceRadius ?? raioDoCanto;
 
@@ -146,17 +160,16 @@ export function ChartPie({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={anel.slices.map((fatia, indice) => ({
-        color: anel.colors[indice],
-        hidden: anel.isHidden(fatia.label),
-        label: fatia.label,
-        value: showLegendValues ? formatPercent(anel.ratioOf(indice)) : undefined,
-      }))}
+      legend={entradasDaLegenda}
       legendAlign={legendAlign}
-      legendPosition={legend}
+      legendPosition={removed.has('legend') ? 'none' : legend}
       onHighlightSeries={anel.highlight}
       onToggleSeries={anel.toggle}
       root={root}
+      showTableToggle={showTableToggle}
+      table={
+        <ChartTable {...shareTable(anel.slices, formatValue, formatPercent)} title={title} />
+      }
       swatch="dot"
       title={title}
       tooltip={

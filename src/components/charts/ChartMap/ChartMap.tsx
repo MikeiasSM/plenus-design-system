@@ -14,6 +14,12 @@ import {
   NO_DATA_HATCH,
   NoDataHatch,
   useChartMetrics,
+  TABLE_TOGGLE_MIN_WIDTH,
+  useFit,
+  CHART_MIN_PLOT,
+  colorLegendRoom,
+  plotRoom,
+  useTouchPin,
   useSeriesToggle,
   type ChartHeight,
   type ChartLegendAlign,
@@ -262,7 +268,7 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
   const padding = frame?.padding ?? MAP_PADDING;
   const maxZoom = frame ? MAX_MARKER_ZOOM : target.length === all.length ? undefined : MAX_FOCUS_ZOOM;
 
-  const pass = (drawingWidth: number): MapLayout => {
+  const pass = (drawingWidth: number, withCallouts = callouts): MapLayout => {
     const height = fixedHeight
       ? maxHeight
       : Math.round(Math.min(maxHeight, Math.max(MIN_HEIGHT, naturalHeight(corners, drawingWidth, padding))));
@@ -297,7 +303,7 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
     return {
       height,
       plan: planLabels(candidates, {
-        callouts,
+        callouts: withCallouts,
         calloutStep: font.lineHeight,
         height,
         lineHeight,
@@ -316,7 +322,8 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
 
   const gutter = Math.ceil(Math.max(...first.plan.callouts.map((label) => calloutWidth(label, measure))) + CALLOUT_GAP + 4);
 
-  return pass(Math.max(width - gutter, width / 2));
+  // A coluna so fica enquanto o mapa ainda cabe ao lado dela: sem isso, o mapa fica por conta do rotulo.
+  return width - gutter < CHART_MIN_PLOT.width ? pass(width, false) : pass(Math.max(width - gutter, width / 2));
 }
 
 function isDimmed(key: string | undefined, highlightedKey: string | null) {
@@ -386,6 +393,7 @@ export function ChartMap({
   const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;
   const outer = useChartMetrics();
   const plot = useChartMetrics();
+  const touch = useTouchPin();
   const svgRef = useRef<SVGSVGElement>(null);
   const seriesToggle = useSeriesToggle({
     defaultHidden: defaultHidden ?? defaultHiddenSeries,
@@ -550,6 +558,14 @@ export function ChartMap({
   const width = plot.width;
   const fillHeight = height === 'fill';
   const maxHeight = fillHeight ? plot.height : height;
+
+  const removed = useFit(
+    width > 0 && maxHeight > 0 ? ['legend'] as const : [],
+    (partes, legendaEstava) =>
+      plotRoom({ height: maxHeight, width }, colorLegendRoom(legendPosition, fillHeight), legendaEstava, !partes.has('legend')),
+    CHART_MIN_PLOT,
+  );
+  const shownLegend = removed.has('legend') ? 'none' : legendPosition;
 
   const labelsOn = regionLabels !== 'hidden';
   const valuesOn = showDataLabels !== 'hidden' && scale.numeric;
@@ -992,7 +1008,7 @@ export function ChartMap({
   const counts = new Map<string, number>();
   entries.forEach((entry) => entry.key !== undefined && counts.set(entry.key, (counts.get(entry.key) ?? 0) + 1));
 
-  const legendView = legendPosition !== 'none' && (
+  const legendView = shownLegend !== 'none' && (
     <ChartMapLegend
       align={legendAlign}
       entries={scale.entries.map((entry) => ({
@@ -1021,7 +1037,7 @@ export function ChartMap({
       onHighlight={(key) => setHighlightedKey(key)}
       onToggle={legendToggle.toggle}
       onToggleMarkerSeries={seriesToggle.toggle}
-      position={legendPosition}
+      position={shownLegend}
       style={sideLegend ? { width: Math.min(SIDE_LEGEND_MAX, Math.round(outer.width * 0.3)) } : undefined}
       valueLabel={valueLabel}
     />
@@ -1060,7 +1076,7 @@ export function ChartMap({
           </span>
           {subtitle && <span className={styles.subtitle}>{subtitle}</span>}
         </span>
-        {showTableToggle && !empty && (
+        {showTableToggle && !empty && (outer.width === 0 || outer.width >= TABLE_TOGGLE_MIN_WIDTH) && (
           <Button
             aria-pressed={tableView}
             className={styles.tableToggle}
@@ -1078,7 +1094,7 @@ export function ChartMap({
       </span>
 
       <div className={`${styles.body} ${sideLegend && !tableView ? styles.bodyRow : ''}`} ref={outer.ref}>
-        {legendPosition === 'top' && !tableView && !empty && legendView}
+        {shownLegend === 'top' && !tableView && !empty && legendView}
 
         {empty ? (
           <div className={styles.empty}>
@@ -1100,12 +1116,12 @@ export function ChartMap({
             valueLabel={valueLabel}
           />
         ) : (
-          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={plot.ref}>
+          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={plot.ref} {...touch.props}>
             {svg && (showTooltip ? <ChartTooltip {...tooltip}>{svg}</ChartTooltip> : svg)}
           </div>
         )}
 
-        {(legendPosition === 'bottom' || legendPosition === 'right') && !tableView && !empty && legendView}
+        {(shownLegend === 'bottom' || shownLegend === 'right') && !tableView && !empty && legendView}
       </div>
     </figure>
   );

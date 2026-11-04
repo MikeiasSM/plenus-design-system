@@ -203,6 +203,12 @@
   text-underline-offset: 3px;
 }
 
+.rangeDay {
+  border-radius: 0;
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
 .selectedDay,
 .selectedDay:hover:not([aria-disabled='true']) {
   background: var(--pl-color-primary);

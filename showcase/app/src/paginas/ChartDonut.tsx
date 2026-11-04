@@ -12,6 +12,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoDonut } from '../estrutura/decomposicao';
 
 const CUSTOS = [
   { label: 'Devoluções de vendas', value: 400000 },
@@ -246,6 +247,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o texto do centro e, por fim, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoDonut,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartDonut height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Total no centro',
       descricao: 'Passe o ponteiro numa fatia: o centro troca o total pelo valor e pelo rótulo dela.',
       Previa: () => (
@@ -405,6 +415,9 @@ const cores = resolveSeriesColors(situacao);
     { teclas: ['Enter', 'Espaço'], acao: 'Liga ou desliga a fatia da entrada focada; aria-pressed acompanha.' },
   ],
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartDonut.test.tsx' },
     { garantia: 'Descrição da fatia', como: <><code>aria-label</code> com rótulo, valor e percentual.</>, teste: 'ChartDonut.test.tsx' },
     { garantia: 'Legenda como controle', como: <>Botão com <code>aria-pressed</code>; o anel se reparte e o produto é avisado.</>, teste: 'ChartDonut.test.tsx' },
@@ -414,6 +427,7 @@ const cores = resolveSeriesColors(situacao);
     { garantia: 'Ausência anunciada', como: 'Sem fatia positiva, um EmptyState no lugar do desenho.', teste: 'ChartDonut.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'slices', tipo: 'readonly ChartDonutSlice[]', descricao: <><code>{'{ label, value, color?, intent? }'}</code>, uma por fatia.</> },
     { nome: 'thickness', tipo: 'number', padrao: '0.38', descricao: 'Espessura do anel, como fração do raio, entre 0 e 1.' },

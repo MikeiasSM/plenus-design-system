@@ -27,6 +27,8 @@ export interface DataGridSortItem {
 export interface DataGridColumnModel<Row> {
   align?: DataGridAlign;
   compare?: (a: unknown, b: unknown) => number;
+  /** Habilita a edição da célula, para todas as linhas ou para as que a função aceita. */
+  editable?: boolean | ((row: Row) => boolean);
   /** Tipo do filtro no funil; sem ele, sai do tipo da coluna. `false` tira o funil. */
   filter?: DataGridFilterKind | false;
   /** Substitui os operadores do tipo, como `[...dataGridFilterOperators.text, proprio]`. */
@@ -34,13 +36,19 @@ export interface DataGridColumnModel<Row> {
   /** Valores do filtro por conjunto no modo servidor; no cliente, saem das linhas. */
   filterOptions?: readonly string[];
   format?: (value: unknown, row: Row) => string;
+  /** Põe "Agrupar por esta coluna" no menu da coluna. O agrupamento por `groupBy` vale para qualquer coluna. */
+  groupable?: boolean;
   header: string;
   id: string;
+  /** Converte o texto do campo padrão de edição no valor. Sem ele, o número vira número e o resto fica texto. */
+  parse?: (input: string, row: Row) => unknown;
   searchable?: boolean;
   sortable?: boolean;
   /** Agregado da linha de sumarização, sobre as linhas filtradas de todas as páginas. */
   summary?: DataGridAggregatorId | DataGridAggregator;
   type?: DataGridColumnType;
+  /** Mensagem de recusa do valor novo, ou nada se ele vale. A edição fica aberta enquanto houver mensagem. */
+  validate?: (value: unknown, row: Row) => string | null | undefined;
   value?: (row: Row) => unknown;
 }
 

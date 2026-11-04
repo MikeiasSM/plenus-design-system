@@ -10,6 +10,7 @@ import {
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
+import { DecomposicaoDoWaterfall } from '../estrutura/decomposicao';
 
 
 function resultadoDoExercicio(resultado: number, deducoesComoAlerta: boolean): ChartWaterfallStep[] {
@@ -185,6 +186,15 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Decomposição por encaixe',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira o título dos eixos, os rótulos do eixo de valor, os eixos e, por fim, a grade e os rótulos de dado, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      largo: true,
+      Previa: DecomposicaoDoWaterfall,
+      codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
+  <ChartWaterfall height="fill" title="..." /* dados */ />
+</div>`,
+    },
+    {
       titulo: 'Total nomeado e eixos com título',
       descricao: 'O balão do passo de total usa o rótulo do próprio passo.',
       Previa: () => (
@@ -278,6 +288,9 @@ export const pagina: Pagina = {
   ],
   Modos,
   garantias: [
+    { garantia: 'Visão em tabela', como: <>O botão <code>Ver como tabela</code> troca o desenho pela leitura completa; <code>showTableToggle={'{false}'}</code> o tira.</>, teste: 'visao-em-tabela.test.tsx' },
+    { garantia: 'Toque', como: 'O primeiro toque fixa o realce e o balão; tocar na marca fixada ativa onMarkClick; tocar fora ou rolar solta. A rolagem da página não é afetada.', teste: 'toque.test.tsx' },
+    { garantia: 'Decomposição por encaixe', como: 'Sem espaço, as partes saem na ordem da família e a leitura segue pelo aria-label das marcas.', teste: 'decomposicao.test.tsx' },
     { garantia: 'Nome acessível', como: <>O desenho é <code>role=&quot;img&quot;</code>, nomeado pelo <code>title</code>.</>, teste: 'ChartWaterfall.test.tsx' },
     { garantia: 'Barra flutuante', como: 'Cada passo parte de onde o anterior parou; o total parte do zero.', teste: 'ChartWaterfall.test.tsx' },
     { garantia: 'Cor com significado', como: 'Pelo sinal, ou pela intent declarada, que vence a deduzida.', teste: 'ChartWaterfall.test.tsx' },
@@ -286,6 +299,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem passos, um EmptyState no lugar do desenho.', teste: 'ChartWaterfall.test.tsx' },
   ],
   api: [
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'steps',

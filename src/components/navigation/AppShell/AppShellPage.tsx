@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef } from 'react';
+import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconSidebar } from '../../icons';
 import { useAppShell } from './AppShell.context';
-import { ShellIconButton } from './ShellIconButton';
 import styles from './AppShell.module.css';
 
 export type AppShellPageProps = ComponentPropsWithRef<'main'>;
@@ -20,22 +20,26 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
   return (
     <div {...props} className={[styles.pageBar, className].filter(Boolean).join(' ')}>
       {showsMenuButton && (
-        <ShellIconButton
+        <ButtonIcon
           aria-expanded={menuOpen}
           aria-haspopup="dialog"
-          icon={<IconSidebar size={18} />}
+          icon={<IconSidebar />}
           label="Abrir menu"
           onClick={() => setMenuOpen(true)}
+          size="sm"
+          variant="ghost"
         />
       )}
       {showsExpandButton && (
-        <ShellIconButton
+        <ButtonIcon
           aria-controls={panelId}
           aria-expanded={false}
-          icon={<IconSidebar size={18} />}
+          icon={<IconSidebar />}
           label="Abrir submenu"
           onClick={expandPanel}
           ref={expandRef}
+          size="sm"
+          variant="ghost"
         />
       )}
       {children}
