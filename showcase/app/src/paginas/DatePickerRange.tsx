@@ -189,10 +189,11 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'value', tipo: 'DateRange | null', descricao: 'Intervalo em ISO, no modo controlado. null é controlado e vazio.' },
+    { nome: 'value', tipo: 'DateRange | null', descricao: 'Intervalo em ISO, no modo controlado: DateRange é { start, end }, as duas pontas incluídas. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'DateRange', descricao: 'Intervalo inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: DateRange | null) => void', descricao: 'Chamado em Aplicar, com o intervalo ou null.' },
-    { nome: 'shortcuts', tipo: 'readonly DateRangeShortcut[]', descricao: 'Atalhos do painel, definidos pelo produto. Sem a propriedade, não há atalho. defaultDateRangeShortcuts é uma lista pronta.' },
+    { nome: 'shortcuts', tipo: 'readonly DateRangeShortcut[]', descricao: 'Atalhos do painel, definidos pelo produto: DateRangeShortcut é { label, range }, com range uma função chamada ao abrir. Sem a propriedade, não há atalho.' },
+    { nome: 'defaultDateRangeShortcuts', tipo: 'readonly DateRangeShortcut[]', descricao: 'Lista pronta e opcional: Hoje, Ontem, Últimos 7 dias, Últimos 30 dias, Este mês e Mês passado. O produto a passa inteira, filtra ou substitui.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o painel, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar.' },
@@ -204,7 +205,7 @@ export const pagina: Pagina = {
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Marca o rótulo e barra o envio vazio.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o gatilho.' },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo.' },
+    { nome: 'size', tipo: "DatePickerRangeSize: 'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo.' },
     { nome: 'placeholder', tipo: 'string', padrao: "'Selecione o período'", descricao: 'Texto do gatilho sem intervalo.' },
     { nome: 'locale', tipo: 'string', padrao: "'pt-BR'", descricao: 'Idioma do calendário e formato das datas.' },
     { nome: 'startName', tipo: 'string', descricao: 'Nome do início no formulário.' },

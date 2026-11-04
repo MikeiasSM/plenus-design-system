@@ -2,6 +2,7 @@ import { memo, type CSSProperties, type MouseEvent, type ReactNode } from 'react
 import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
 import { IconChevronRight } from '../../icons';
+import { isEditable } from './editModel';
 import { cellText, cellValue, columnAlign, type DataGridColumnModel } from './gridState';
 import styles from './DataGrid.module.css';
 
@@ -28,6 +29,8 @@ interface DataGridRowProps<Row> {
   columns: readonly DataGridRowColumn<Row>[];
   /** Nível na árvore, a partir de 0. */
   depth: number;
+  /** Id do texto que descreve a célula editável ao leitor de tela; ausente onde a linha não se edita. */
+  editHintId: string | undefined;
   /** A célula em edição nesta linha, com o editor já montado; nas outras linhas, nenhuma. */
   editing: { columnId: string; content: ReactNode } | undefined;
   /** `undefined` na linha sem detalhe nem filhos. */
@@ -64,6 +67,7 @@ export const DataGridRow = memo(function DataGridRow<Row>({
   ariaRowIndex,
   columns,
   depth,
+  editHintId,
   editing,
   expanded,
   focusedColumnId,
@@ -112,10 +116,12 @@ export const DataGridRow = memo(function DataGridRow<Row>({
         const focused = focusedColumnId === column.id;
         const first = column.colIndex === 1;
         const editor = editing?.columnId === column.id ? editing.content : undefined;
+        const editable = editHintId !== undefined && editor === undefined && isEditable(column, row);
 
         return (
           <div
             aria-colindex={column.colIndex}
+            aria-describedby={editable ? editHintId : undefined}
             className={[
               styles.cell,
               editor !== undefined && styles.editingCell,

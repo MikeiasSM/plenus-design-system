@@ -94,7 +94,6 @@ export function AppShellRailAccount({ children, className, label, onClick, ...pr
           {...props}
           aria-controls={accountId}
           aria-expanded={false}
-          aria-label={label}
           className={[styles.railAccount, className].filter(Boolean).join(' ')}
           onClick={(event) => {
             onClick?.(event);
@@ -104,7 +103,10 @@ export function AppShellRailAccount({ children, className, label, onClick, ...pr
           }}
           type="button"
         >
-          {children}
+          <span aria-hidden="true" className={styles.railAccountAvatar}>
+            {children}
+          </span>
+          <span className={styles.visuallyHidden}>{label}</span>
         </button>
       </Tooltip>
     </li>

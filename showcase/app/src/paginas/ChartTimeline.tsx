@@ -995,7 +995,7 @@ const dias = jornadaDoMes(mes);
     { garantia: 'Duração', como: <><code>formatDuration</code>: <code>10h16m</code>, <code>48m</code>, <code>12h</code>.</>, teste: 'formatDuration.test.ts' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do desenho.' },
     { nome: 'rows', tipo: 'readonly ChartTimelineRow[]', descricao: <><code>{'{ key, label, description?, group? }'}</code>, na ordem de exibição. A key identifica; o label pode repetir.</> },
     { nome: 'series', tipo: 'readonly ChartTimelineSeries[]', descricao: <><code>{'{ label, color?, intent? }'}</code>. Servem a intervalos, faixas e marcas.</> },

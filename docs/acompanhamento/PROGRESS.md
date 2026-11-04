@@ -8,7 +8,7 @@ O historico cronologico das alteracoes esta no `git log`. Aqui ficam o estado at
 
 ## Estado atual
 
-1437 testes em 129 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
+1816 testes passando, mais 4 pulados, em 147 arquivos. Build da biblioteca e do Showcase validados; `check:pacote` e `check:contraste` aprovam.
 
 ### Inventario
 
@@ -43,7 +43,7 @@ Outros modulos:
 - `src/components/feedback/Toast/toastStore` — fila dos avisos, lida pelo `ToastRegion`. Exporta so `showToast`, `dismissToast` e os tipos.
 - `src/tokens` — camadas primitiva e semantica. `src/styles/tokens.css` ainda carrega o bloco legado.
 
-Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-sankey`. Todas externalizadas no build.
+Dependencias de runtime: `react`, `react-dom`, `@react-aria/focus`, `@react-aria/overlays`, `@internationalized/date`, `d3-scale`, `d3-array`, `d3-shape`, `d3-hierarchy` e `d3-geo`. Todas externalizadas no build. O `d3-sankey` saiu na 0.6.0: o `ChartSankey` calcula o proprio leiaute, em `leiauteDoSankey.ts`.
 
 ### Decisoes tomadas
 
@@ -124,7 +124,7 @@ Registradas para nao serem reabertas sem motivo novo. O porque importa mais que 
 - **Digitado, o ponto espera a proxima tecla.** Decidido na hora, `1.` virava `1,` e `1.234,56` tecla a tecla terminava em `1,23`. Com menos de tres digitos depois, o ponto fica na tela como foi digitado e o valor o le como decimal; o terceiro digito, ou a virgula, decide. Ao sair do campo, o ponto indeciso vira virgula. Quem mostra e `formatarEdicaoDecimal`, e o estado vive em `useDecimalInput`, que `InputNumber` e `InputCurrency` compartilham.
 - **Numero que vem de fora arredonda; o que esta sendo digitado trunca.** Sao coisas diferentes: no primeiro caso o valor esta pronto e truncar e perda; no segundo ele esta pela metade.
 - **Data sem hora entra pelo fuso local; o resto vai inteiro para o `Date`.** O corte por hifen engolia o `T` e devolvia vazio para tudo que sai de `toISOString()`.
-- **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de chamar o `d3-sankey`, que lancava e derrubava a arvore. Anuncia em vez de descartar ligacao pelas costas.
+- **Um diagrama de fluxo e aciclico.** O `ChartSankey` detecta ciclo e autolaco antes de calcular o leiaute; o `d3-sankey`, usado ate a 0.5, lancava e derrubava a arvore. O leiaute proprio da 0.6.0 manteve a deteccao. Anuncia em vez de descartar ligacao pelas costas.
 - **Com sinais mistos, o total nao define a pilha.** `+10` e `-5` somam `5`, mas o segmento positivo chega a `10` e era desenhado por cima do titulo. `stackedExtremes` devolve o caminho do acumulado, e nao so o fim dele.
 - **Cada keyframe vive no modulo que o usa.** O CSS Modules renomeia o nome na declaracao `animation` mesmo quando ele foi definido num arquivo global, e a referencia deixava de casar — em silencio, porque CSS nao reclama de animacao inexistente. No pacote publicado, Spinner nao girava, Progress indeterminado nao andava e as entradas de Sankey e Treemap nao animavam. O `check:pacote` agora compara definidos contra referenciados.
 - **Numero invalido tem o mesmo destino do ausente: nao se desenha.** `NaN` virava `y = 0`, que o eixo le como o maximo, entao a curva afirmava o contrario do dado. Uma fatia invalida zerava o anel inteiro. A regra chegou depois a cascata, onde o passo invalido nao desenha nem move o acumulado; a dispersao, que desenhava o ponto em `x = 0`; o radial, cujo maximo virava `NaN`; a area empilhada, onde um invalido embaixo partia a serie de cima; o agrupamento em "Outros"; e aos rotulos e descricoes da barra e do anel. Anel ou mapa sem valor positivo anuncia vazio.
@@ -346,7 +346,6 @@ Mudancas incompativeis destes consertos, conforme `CONTRIBUTING.md` secao 11:
 - State Motor da grade, para o `DataGrid`.
 - Temas alternativos de marca, previstos em `TOKENS-REFERENCE-COLORS.md`.
 - Testes de tema escuro e de importacao do pacote construido. O contraste e o pacote ja tem conferencia automatizada, por script, e o fluxo de publicacao repete as comportas.
-- `AppShell`, `SidePanel`, `PageHeader`, `FieldRow` e `SaveBar`, previstos no catalogo desde 02/11/2026, e a secao de composicao no Showcase. Modelo decidido e pendente, ainda fora do roadmap: entra na 0.6.0 se a integracao com o Painel nao exigir nada de imediato dessa versao; senao, provavelmente na 0.7.0. O contexto completo, com os prototipos, esta em [`appshell/APPSHELL.md`](appshell/APPSHELL.md). O token `--pl-shell-gap` ja existe e ainda nao tem consumidor.
 
 ## Pendencias de correcao identificadas no review
 
@@ -373,7 +372,7 @@ O resto da lista foi resolvido na 0.2.0 e esta registrado nas decisoes. O que se
 - **Valor de `InputNumber` e `InputCurrency`.** Decidido na 0.6.0: numero (`number | null`). Ate a 0.5 eles emitiam texto em pt-BR, `'1234,56'`, e o consumidor convertia antes de usar. Numero — `value?: number | null` e `onValueChange(number | null)` — e o que um formulario de valores espera, e ida e volta nao tem ambiguidade; um texto canonico como `'1234.56'` teria, porque `formatarEntradaDecimal` le `'1.234'` como milhar. Recomendacao: numero. Muda o contrato dos dois campos e de `useDecimalInput`, entao e decisao do mantenedor; se vier, o melhor momento e a mesma 0.2.0, que ja quebra contrato.
 - **Teclado e toque nos graficos.** O hover so ouve o mouse, e no toque nao ha passar por cima. Tocar para fixar o realce e o balao e tocar fora para soltar e um modelo de interacao a desenhar. O teclado segue o catalogo: o grafico e uma imagem so, e a leitura medida a medida vem pela visao em tabela.
 - **API comum entre os `Chart*`.** `series`, `slices`, `tracks`, `nodes` e `flows`, e `onHoverCategory`, `onHoverStep` e `onHoverSlice`, seguem a forma do dado de cada grafico; a unificacao feita cobre so os cartesianos. Unificar o resto quebra quase todos os graficos, e pede o desenho da API antes.
-- **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter.
+- **Copias antigas que o `d3-sankey` arrasta.** A ultima versao dele, a 0.12.3, depende de `d3-array` 2 e `d3-shape` 1, e quem usa o `ChartSankey` recebe cerca de 18 KB duplicados. O pacote nao consegue corrigir isso pelo consumidor: `overrides` nao atravessa a instalacao. Os caminhos sao aceitar, pedir ao consumidor o proprio `overrides` ou reescrever o layout aqui, o que troca uma dependencia parada por codigo a manter. **Resolvido na 0.6.0:** o leiaute foi reescrito em `leiauteDoSankey.ts`, com as mesmas coordenadas, e o `d3-sankey` saiu das dependencias, levando as copias antigas.
 
 ## Decisoes pendentes do relato do PlenusLAB
 
@@ -384,6 +383,24 @@ Linhas do relato de 07/10/2026 que nao entraram, cada uma com a norma que a segu
 - **`Popover` que nao leva o foco para dentro.** Descartado pelo mantenedor em 18/10/2026: ele e `role="dialog"`, e `COMPONENTS.md` secao 7 pede que dialogo gerencie o foco. O painel sob um campo em que se digita e o `ComboBox` com opcao composta ou, fora de uma lista, um painel no fluxo, como descreve o catalogo, secao 9.
 - **Contador sobreposto ao botao**, a ultima peca da barra de filtros do PlenusLAB, prevista em 17/10/2026. A busca com icone entrou como `icon` do `InputText` e a etiqueta removivel como `Tag`, em 18/10/2026. O contador nao tem lugar no catalogo: o `Badge` e rotulo de estado, e pendura-lo no `ButtonIcon` muda o papel do botao. A barra em si e composicao do produto e fica na aplicacao.
 - **Nomes dos botoes da `Pagination` configuraveis.** Os acentos foram corrigidos; nomes por propriedade so fazem falta com outro idioma, e a infraestrutura de internacionalizacao esta fora do escopo pelo catalogo, secao 11.
+
+## 0.6.0: candidatos e propostas fora do roadmap
+
+`AppShell`, `SidePanel`, `PageHeader`, `FieldRow` e `SaveBar` entraram na 0.6.0, com a secao de composicoes do Showcase; o contexto, com os prototipos, esta em [`appshell/APPSHELL.md`](appshell/APPSHELL.md). Montar as telas do prototipo `composicoes.html` so com componentes do pacote revelou o que segue. Nada disso esta no roadmap nem no catalogo: cada item e candidato, e entra so com decisao do mantenedor.
+
+**Candidatos a componente ou recurso**, com onde a composicao precisou dele:
+
+- **`DescriptionList`.** Pares de termo e valor, como os dados do pedido e os totais. As telas `Pedido` e `NovoPedido` montam `<dl>` com CSS do Showcase.
+- **Tom de perigo no `Card`.** A acao destrutiva das configuracoes fica num cartao proprio, no fim; hoje o perigo esta so no botao.
+- **Indice "Nesta pagina".** A configuracao no arranjo com indice monta o `nav` ao lado das secoes, preso a rolagem, a mao.
+- **Link de linha de tabela.** A linha da lista que abre o registro: a lista de pedidos poe o link so no numero, porque a `Table` nao tem a linha inteira como link.
+- **Legenda visivel no `SegmentedControl`.** O controle e nomeado so pelo `label` oculto; as telas pediram o nome visivel ao lado.
+- **Rotulo oculto no `Table.Column`.** A coluna de remover tem o nome so para o leitor de tela, montado com a classe `so-leitor` do Showcase.
+
+**Propostas fora do repositorio, para decisao do mantenedor.** Nenhum documento normativo foi alterado.
+
+- `F:\temp\proposta-icones\PROPOSTA.md` (item 19): conciliar `ARCHITECTURE.md` secao 12 e 13 com o catalogo, secao 10 — as tres entradas de icones, o criterio de entrada na raiz e a base `Icon`. Recomenda ratificar as entradas e adotar o criterio "a raiz so ganha icone que um componente usa", sem abrir a base.
+- `F:\temp\proposta-tokens\PROPOSTA.md` (item 23): levar ao corpus as decisoes do cabecalho de `tokens.css` que nenhum documento cobre — escala tipografica inteira e fixa, espacamento em base 4px e os breakpoints com o container —, e a divergencia entre os nomes de raio, espaco e movimento dos documentos e os implementados.
 
 ## Relatorio de compatibilidade com o Painel, 27/10/2026
 
@@ -411,7 +428,7 @@ Revisao da 0.2.5 contra o uso real do Painel. Por decisao do mantenedor, o que c
   - CSS por componente, mantendo o `styles.css` agregado. Preparado em 28/10/2026: os `composes` entre arquivos sairam, e cada componente usa no TSX a classe do modulo de origem; com `cssCodeSplit`, as folhas somam os mesmos 127 KB da agregada, sem copia do nucleo. A publicacao por componente, por importacao manual como no Mantine, so entra se o Painel medir que o CSS pesa no primeiro carregamento: a agregada tem 19 KB comprimida.
   - Guarda de `prefers-reduced-motion` nos dezoito modulos que animam, e o bloco do `base.css` restrito a biblioteca.
   - Visao em tabela nos graficos primeiro; teclado marca a marca so onde houver clique na marca, como no `ChartMap`. Acrescenta essa linha ao catalogo.
-- **Mantem a regra:** provider de i18n, ganchos `data-part`, tabela de propriedades gerada dos tipos, Showcase publicado e `d3-sankey` reescrito; os 18 KB duplicados ficam ate o Painel medi-los.
+- **Mantem a regra:** provider de i18n, ganchos `data-part`, tabela de propriedades gerada dos tipos, Showcase publicado e `d3-sankey` reescrito; os 18 KB duplicados ficam ate o Painel medi-los. O `d3-sankey` acabou reescrito na 0.6.0, ver as decisoes pendentes da 0.1.1.
 - **Em avaliacao:** o anel de foco segue o atual; o mantenedor compara as propostas num artefato antes de decidir.
 - **Documentado:** a biblioteca exige React 19. O Painel usa 19.
 
@@ -1195,7 +1212,7 @@ Desenho aprovado em artefato pelo mantenedor em 28/10/2026, com a mesma tela em 
 - O no do sankey usa o raio do token, pelo mesmo caminho das barras, em vez de um valor proprio no CSS.
 - O lado do rotulo do sankey sai do **papel do no**: entrada a esquerda, saida a direita, cada um na sua banda reservada. A regra anterior usava a metade da largura e jogava o rotulo da primeira coluna para dentro do fluxo. O no do meio nao tem banda e cai sobre o fluxo mesmo; ali um halo da cor da superficie e que o separa do que passa por baixo.
 - Entrada e saida saem das proprias ligacoes, antes do posicionamento: e isso que permite reservar a banda de cada lado.
-- `d3-hierarchy` e `d3-sankey` entram pela mesma fronteira do restante do D3: calculam posicoes e devolvem numeros, sem tocar no DOM.
+- `d3-hierarchy` entra pela mesma fronteira do restante do D3: calcula posicoes e devolve numeros, sem tocar no DOM. O leiaute do sankey, proprio desde a 0.6.0 em `leiauteDoSankey.ts`, segue a mesma fronteira.
 - As pontas do arco sao arredondadas nos tres radiais, com o raio vindo do token e aberto por propriedade em cada um.
 - Quando mostrado, **o centro reserva o espaco do valor** no menor degrau, ate metade do raio: com muitos aneis, quem cede e a espessura deles.
 - O valor do centro **desce de degrau da escala oficial ate caber**, e no ultimo degrau e cortado. O SVG nao quebra linha nem esconde o que transborda, entao quem precisa caber e o texto. O degrau depende do valor **e** do anel: um numero longo desce mesmo em anel grande.

@@ -427,7 +427,7 @@ const cores = resolveSeriesColors(situacao);
     { garantia: 'Ausência anunciada', como: 'Sem fatia positiva, um EmptyState no lugar do desenho.', teste: 'ChartDonut.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'slices', tipo: 'readonly ChartDonutSlice[]', descricao: <><code>{'{ label, value, color?, intent? }'}</code>, uma por fatia.</> },
     { nome: 'thickness', tipo: 'number', padrao: '0.38', descricao: 'Espessura do anel, como fração do raio, entre 0 e 1.' },

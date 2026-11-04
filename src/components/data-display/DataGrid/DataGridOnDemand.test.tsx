@@ -1,7 +1,7 @@
 import { createRef } from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { formatCurrency } from '../../../utils/formatters';
-import { DataGrid, type DataGridApi, type DataGridColumn, type DataGridFilter } from '.';
+import { DataGrid, dataGridGroupKey, type DataGridApi, type DataGridColumn, type DataGridFilter } from '.';
 
 interface Order {
   id: string;
@@ -297,6 +297,52 @@ describe('DataGrid, cell editing', () => {
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 
+  it('describes the editable cells to the screen reader, and only them', () => {
+    renderGrid({ columns: editable });
+
+    expect(cell('Atacado Sul')).toHaveAccessibleDescription('Editável: Enter ou F2 edita.');
+    expect(cell(/80,00/)).not.toHaveAccessibleDescription();
+    expect(screen.getAllByRole('gridcell', { name: 'Sul' })[0]).not.toHaveAccessibleDescription();
+  });
+
+  it('runs the row action once on a double click, which opens the edit', () => {
+    const onRowActivate = vi.fn();
+    renderGrid({ columns: editable, rowClickAction: 'activate', onRowActivate });
+    const target = cell('Casa Norte');
+
+    fireEvent.click(target, { detail: 1 });
+    fireEvent.click(target, { detail: 2 });
+    fireEvent.doubleClick(target);
+
+    expect(onRowActivate).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+  });
+
+  it('settles the edit when the focus goes to the summary row', () => {
+    const onCellEdit = vi.fn();
+    renderGrid({ columns: editable, onCellEdit });
+    startEdit('Casa Norte');
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Casa Leste' } });
+
+    const summaryCell = within(screen.getAllByRole('row').at(-1) as HTMLElement).getAllByRole('gridcell')[0];
+    act(() => summaryCell.focus());
+
+    expect(onCellEdit).toHaveBeenCalledWith(expect.objectContaining({ value: 'Casa Leste' }));
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  it('announces the refusal when the focus leaves a refused value', () => {
+    const validated = { ...editable[1], validate: (value: unknown) => (value === '' ? 'O cliente é obrigatório.' : null) };
+    renderGrid({ columns: [columns[0], validated, ...editable.slice(2)] });
+    startEdit('Casa Norte');
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '' } });
+
+    act(() => cell('Loja Sul').focus());
+
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Valor descartado: O cliente é obrigatório.');
+  });
+
   it('hands the value of a product editor over as it comes, without parsing it', () => {
     const onCellEdit = vi.fn();
     const regions = columns[2];
@@ -365,6 +411,18 @@ describe('DataGrid, group by column', () => {
     expect(south).toHaveAttribute('aria-expanded', 'false');
     fireEvent.keyDown(cellOfGroup, { key: ' ' });
     expect(south).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('opens a group by the key of dataGridGroupKey, and the left arrow goes back from a row to its group', () => {
+    renderGrid({ defaultExpandedIds: [dataGridGroupKey(['Sul'])], groupBy: ['region'] });
+    const south = groupRowOf('Região: Sul');
+    expect(south).toHaveAttribute('aria-expanded', 'true');
+
+    const child = within(screen.getAllByRole('row').find((row) => row.textContent?.includes('Casa Norte')) as HTMLElement).getAllByRole('gridcell')[0];
+    act(() => child.focus());
+    fireEvent.keyDown(child, { key: 'ArrowLeft' });
+
+    expect(within(south).getAllByRole('gridcell')[0]).toHaveFocus();
   });
 
   it('groups in levels, one inside the other', () => {

@@ -229,7 +229,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   getRowId: (row: Row) => string;
   /**
    * Ids das colunas que agrupam as linhas, em níveis. O grupo mostra o valor e a quantidade, e o agregado `summary`
-   * de cada coluna. Abre e fecha pelo `expandedIds`. Só no cliente e fora da árvore.
+   * de cada coluna. Abre e fecha pelo `expandedIds`, com a chave de `dataGridGroupKey`. Só no cliente e fora da árvore.
    */
   groupBy?: readonly string[];
   /** Altura da área rolável, em pixels, ou `fill` para ocupar a altura imposta pelo contêiner (480 sem altura imposta). Na grade aninhada não vale: ela rola com a de fora. */
@@ -915,6 +915,10 @@ export function DataGrid<Row>({
   /* O clique num Popover ou Menu da célula atravessa o portal pela árvore do React: não é clique na linha. */
   function clickRow(rowKey: string, event: MouseEvent) {
     const target = event.target as Element;
+    /* O segundo clique de um duplo clique não repete a ação: o duplo clique é da edição. */
+    if (event.detail > 1) {
+      return;
+    }
     if ((event.currentTarget as Element).contains(target) && !target.closest(INTERACTIVE_SELECTOR)) {
       runRowAction(rowKey, event.shiftKey);
     }
@@ -1141,6 +1145,7 @@ export function DataGrid<Row>({
     exportModelOf,
     optionsForColumn,
     returnToHeader,
+    settleEditing,
     tableMenu,
     toggleRow,
     toggleRowExpanded,
@@ -1156,6 +1161,7 @@ export function DataGrid<Row>({
       exportModelOf,
       optionsForColumn,
       returnToHeader,
+      settleEditing,
       tableMenu,
       toggleRow,
       toggleRowExpanded,
@@ -1176,10 +1182,10 @@ export function DataGrid<Row>({
   const editFromRow = useCallback((rowKey: string, columnId: string) => latest.current.beginEdit(rowKey, columnId), []);
   const applyFilterFromPart = useCallback((next: DataGridFilter) => latest.current.applyFilter(next), []);
   const optionsFromPart = useCallback((columnId: string) => latest.current.optionsForColumn(columnId), []);
-  const focusFromDetail = useCallback(
-    (rowKey: string) => setFocus((current) => ({ rowKey: detailKeyOf(rowKey), columnId: current.columnId })),
-    [],
-  );
+  const focusFromDetail = useCallback((rowKey: string) => {
+    latest.current.settleEditing();
+    setFocus((current) => ({ rowKey: detailKeyOf(rowKey), columnId: current.columnId }));
+  }, []);
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLDivElement>(null);
@@ -1529,11 +1535,15 @@ export function DataGrid<Row>({
     return true;
   }
 
-  /* Outra célula com foco encerra a edição: o valor válido fica, o recusado é descartado. */
+  /* Outra célula com foco encerra a edição: o valor válido fica, o recusado é descartado, com o motivo anunciado. */
   function settleEditing() {
-    if (editingRef.current && !commitEditing()) {
-      cancelEditing(false);
+    if (!editingRef.current || commitEditing()) {
+      return;
     }
+
+    const refusal = editingRef.current?.error;
+    setEditing(null);
+    setAnnouncement(`Valor descartado: ${refusal}`);
   }
 
   function cellFocused(rowKey: string, columnId: string) {
@@ -1695,6 +1705,13 @@ export function DataGrid<Row>({
     if (move) {
       event.preventDefault();
       if (detailRowKey !== undefined && SIDEWAYS_MOVES.has(move)) {
+        return;
+      }
+
+      /* Na primeira coluna, a seta à esquerda sobe da linha filha ao grupo ou à linha-mãe, como na árvore do WAI-ARIA. */
+      const parentKey = move === 'left' && columnId === columnIds[0] && rowKey !== null ? parentKeys?.get(rowKey) : undefined;
+      if (parentKey !== undefined) {
+        goTo({ rowKey: parentKey, columnId });
         return;
       }
 
@@ -2169,6 +2186,7 @@ export function DataGrid<Row>({
         ariaRowIndex={groupRows + index + 2}
         columns={drawnColumns}
         depth={0}
+        editHintId={undefined}
         editing={undefined}
         expanded={undefined}
         focusedColumnId={activeFocus.rowKey === rowKey ? activeFocus.columnId : undefined}
@@ -2234,6 +2252,7 @@ export function DataGrid<Row>({
         ariaRowIndex={rowOffset + item.rowIndex + groupRows + 2 + pinnedCount}
         columns={drawnColumns}
         depth={node?.depth ?? 0}
+        editHintId={editableGrid ? editHintId : undefined}
         editing={
           editing && editingColumn
             ? { columnId: editing.columnId, content: editorOf(editingColumn, row, item.rowKey, editing) }
@@ -2316,6 +2335,7 @@ export function DataGrid<Row>({
               title={name && text ? `${name}: ${text}` : name}
               onFocus={() => {
                 if (!focused) {
+                  settleEditing();
                   setFocus({ rowKey: SUMMARY_KEY, columnId: column.id });
                 }
               }}
@@ -2372,6 +2392,7 @@ export function DataGrid<Row>({
   const bodyRowCount = showsMessage ? 1 : nodes ? nodes.length : totalRows;
   const summaryRowIndex = groupRows + pinnedCount + bodyRowCount + 2;
   const editableGrid = columns.some((column) => column.editable);
+  const editHintId = `${baseId}-edit-hint`;
   const fillsContainer = height === 'fill' && !nested && !fullScreen;
 
   return (
@@ -2493,6 +2514,11 @@ export function DataGrid<Row>({
                 onPageSizeChange={setPageSize}
               />
             </div>
+          )}
+          {editableGrid && (
+            <span hidden id={editHintId}>
+              {rowClickAction === 'none' ? 'Editável: Enter ou F2 edita.' : 'Editável: F2 edita.'}
+            </span>
           )}
           <div aria-live="polite" className={styles.visuallyHidden} role="status">
             {announcement.text}

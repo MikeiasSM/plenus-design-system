@@ -504,7 +504,7 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { garantia: 'Menos movimento', como: <>Com <code>prefers-reduced-motion</code>, os valores saltam ao alvo em vez de caminhar.</>, teste: 'motion.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo, uma faixa cada.' },
     { nome: 'series', tipo: 'readonly ChartBarSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>, uma por série.</> },

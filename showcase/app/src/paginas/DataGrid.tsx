@@ -1081,6 +1081,7 @@ export const pagina: Pagina = {
   teclado: [
     { teclas: ['Tab'], acao: 'Entra na grade pela última célula com foco e sai dela; uma parada só.' },
     { teclas: ['↑', '↓', '←', '→'], acao: 'Anda entre as células, do cabeçalho até a última linha.' },
+    { teclas: ['←'], acao: 'Na primeira coluna de uma linha filha ou de um grupo, volta à linha-mãe ou à linha do grupo.' },
     { teclas: ['Home', 'End'], acao: 'Primeira e última célula da linha.' },
     { teclas: ['Ctrl+Home', 'Ctrl+End'], acao: 'Primeira célula do cabeçalho e última da grade.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Uma tela de linhas para cima ou para baixo.' },
@@ -1169,7 +1170,7 @@ export const pagina: Pagina = {
     {
       nome: 'filter',
       tipo: 'DataGridFilter',
-      descricao: 'Condições { columnId, operator, value } em grupos { logic, conditions }, E ou OU. O funil edita a da coluna.',
+      descricao: 'Condições { columnId, operator, value } em grupos { logic, conditions }, E ou OU. O funil edita a da coluna. Na coluna numérica, value é número, e na faixa as duas pontas também.',
     },
     {
       nome: 'filterApplyMode',
@@ -1196,7 +1197,7 @@ export const pagina: Pagina = {
       descricao: 'Árvore: os filhos de cada linha, na mesma grade; undefined enquanto não carregaram.',
     },
     { nome: 'rowHasChildren', tipo: '(row: Row) => boolean', descricao: 'Na árvore, se a linha tem filhos ainda não carregados.' },
-    { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, pelas chaves.' },
+    { nome: 'expandedIds', tipo: 'readonly string[]', descricao: 'Linhas com o detalhe aberto, ou grupos abertos com groupBy, pelas chaves. A chave do grupo sai de dataGridGroupKey.' },
     { nome: 'expandMode', tipo: "'single' | 'multiple'", padrao: "'multiple'", descricao: 'Na single, abrir um detalhe fecha o outro.' },
     {
       nome: 'rowClickAction',
@@ -1227,9 +1228,25 @@ export const pagina: Pagina = {
     { nome: 'virtualizeColumns', tipo: 'boolean', padrao: 'false', descricao: 'Desenha só as colunas que cruzam a tela, as fixas e a com foco.' },
     { nome: 'apiRef', tipo: 'Ref<DataGridApi>', descricao: 'getExportModel(scope) devolve as colunas e as linhas do escopo, com o texto e o valor cru.' },
     {
+      nome: 'dataGridExportMatrix',
+      tipo: '(model, values) => DataGridExportMatrix',
+      descricao: "values é DataGridExportValues. Converte o modelo em { header, rows, summary }, com o texto exibido ('text') ou o valor cru ('raw'), o formato das bibliotecas de planilha.",
+    },
+    {
+      nome: 'dataGridGroupKey',
+      tipo: '(values: readonly string[]) => string',
+      descricao: "Chave do grupo em expandedIds: os valores do grupo, do primeiro nível ao dele, como a célula os mostra: com ['Sul'], abre o grupo Sul. O formato da chave não é contrato.",
+    },
+    {
+      nome: 'FilterBuilder · label / className',
+      tipo: 'DataGridFilterBuilderProps',
+      padrao: "'Filtros'",
+      descricao: 'Nome do botão e classe. Botão e painel do construtor de filtros, dentro do DataGrid.Toolbar. Escreve no mesmo filter do funil e mostra quantas condições filtram.',
+    },
+    {
       nome: 'columns[].editable / parse / validate / renderEditor',
       tipo: 'boolean | (row) => boolean; (input, row) => unknown; (value, row) => string | null; (context) => ReactNode',
-      descricao: 'Edição da célula: quais células edita, como converte o texto, a recusa do produto e o editor próprio.',
+      descricao: 'Edição da célula: quais células edita, como converte o texto, a recusa do produto e o editor próprio, que recebe o contexto da edição (o tipo DataGridEditorContext). A célula editável é descrita ao leitor de tela.',
     },
     { nome: 'columns[].groupable', tipo: 'boolean', descricao: 'Põe "Agrupar linhas por esta coluna" no menu da coluna.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },

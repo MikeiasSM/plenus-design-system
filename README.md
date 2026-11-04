@@ -86,7 +86,7 @@ import '@plenustech/design-system/styles.css';
 
 Sem essa importação os componentes são renderizados sem estilo.
 
-#### CSS só dos componentes que a tela usa
+### CSS só dos componentes que a tela usa
 
 `styles.css` continua sendo a folha inteira (cerca de 25 KB comprimida com gzip). Quem quer carregar só o CSS dos componentes que usa importa a base e uma folha por componente:
 
@@ -135,7 +135,17 @@ O tema segue `prefers-color-scheme` do sistema. `data-theme="dark"` e `data-them
 <aside data-theme="dark">...</aside>
 ```
 
-`data-theme="light"` força o claro mesmo com o sistema escuro. Os overlays em portal (`Dialog`, `Popover`, `Tooltip` e os painéis dos campos) vão para o `body` e seguem o tema do documento, não o da subárvore do gatilho.
+`data-theme="light"` força o claro mesmo com o sistema escuro. Os overlays em portal (`Dialog`, `Popover`, `Tooltip` e os painéis dos campos) vão para o `body` e seguem o tema do documento, não o da subárvore do gatilho. Para que herdem o tema e a paleta de uma subárvore, o `PortalProvider` indica o elemento de destino, ou cada overlay recebe `portalContainer`:
+
+```tsx
+import { PortalProvider } from '@plenustech/design-system';
+
+const [destino, setDestino] = useState<HTMLElement | null>(null);
+
+<aside data-theme="dark" ref={setDestino}>
+  <PortalProvider container={destino}>...</PortalProvider>
+</aside>
+```
 
 A identidade de marca vem de uma paleta. O laranja é o padrão; `data-palette="blue"` e `data-palette="purple"` trocam a paleta em qualquer elemento, inclusive numa parte da página. Uma paleta própria é gerada e medida a partir de uma cor:
 
@@ -157,6 +167,14 @@ Os ícones de interface vêm do ponto de entrada principal. A suíte completa do
 ```tsx
 import { IconFolder, IconTruck } from '@plenustech/design-system/icons';
 ```
+
+Cada ícone da suíte tem ainda o próprio módulo, para quem não conta com o tree-shaking do empacotador: só o desenho importado entra no bundle.
+
+```tsx
+import { IconStar } from '@plenustech/design-system/icons/IconStar';
+```
+
+`icons/<Nome>` é sempre o desenho da suíte, e não o do ponto de entrada principal. Oito nomes existem nos dois com desenhos diferentes, como `IconFilter`; a página de ícones do Showcase os lista.
 
 ### Fontes
 
@@ -200,9 +218,10 @@ npm test                  # suíte do Vitest
 npm run build:pacote      # pacote em dist/
 npm run check:pacote      # confere o pacote construído
 npm run check:contraste   # mede o contraste dos tokens nos dois temas
+npm run check:consumo     # instala o pacote em apps mínimos e confere o consumo real
 ```
 
-A publicação repete essas conferências antes de enviar o pacote ao npm. O processo de contribuição está em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+A publicação repete os testes, o build, o `check:pacote` e o `check:contraste` antes de enviar o pacote ao npm. O `check:consumo` roda na máquina, com o Chrome instalado, depois do build. O processo de contribuição está em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Estrutura
 

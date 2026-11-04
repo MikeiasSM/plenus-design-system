@@ -190,6 +190,44 @@ export const pagina: Pagina = {
       ),
       codigo: '<Card>\n  <Card.Header headingLevel={2} title="Resumo" />\n  <Card.Body>Três módulos ativos e um pendente.</Card.Body>\n</Card>',
     },
+    {
+      titulo: 'Cartão compacto, com a descrição sob o título',
+      descricao: 'Em size="sm", a descrição fica logo abaixo do título, na coluna dele, com o trailing ao lado. Se o trailing descer de linha, desce abaixo da descrição.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          <Card size="sm">
+            <Card.Header
+              description="Comparado ao mês anterior"
+              title="Valor total de compras"
+              trailing={<Badge tone="success">+14,6%</Badge>}
+              trailingWhenNarrow="wrap"
+            />
+            <Card.Body>
+              <strong style={{ fontSize: 24 }}>R$ 18.420,00</strong>
+            </Card.Body>
+          </Card>
+        </div>
+      ),
+      codigo:
+        '<Card size="sm">\n  <Card.Header\n    title="Valor total de compras"\n    description="Comparado ao mês anterior"\n    trailing={<Badge tone="success">+14,6%</Badge>}\n    trailingWhenNarrow="wrap"\n  />\n  <Card.Body>\n    <strong>R$ 18.420,00</strong>\n  </Card.Body>\n</Card>',
+    },
+    {
+      titulo: 'Rodapé com uma ação só',
+      descricao: 'Com um filho só, o rodapé o leva ao fim da linha, como as ações do Dialog. Com dois ou mais, ficam nas pontas.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          <Card>
+            <Card.Header title="Pedidos recentes" />
+            <Card.Body>Doze pedidos nos últimos sete dias.</Card.Body>
+            <Card.Footer>
+              <Button size="sm" variant="secondary">Ver todos</Button>
+            </Card.Footer>
+          </Card>
+        </div>
+      ),
+      codigo:
+        '<Card>\n  <Card.Header title="Pedidos recentes" />\n  <Card.Body>Doze pedidos nos últimos sete dias.</Card.Body>\n  <Card.Footer>\n    <Button size="sm" variant="secondary">Ver todos</Button>\n  </Card.Footer>\n</Card>',
+    },
   ],
   Modos,
   garantias: [

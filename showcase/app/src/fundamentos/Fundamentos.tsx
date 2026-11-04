@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Card, Table } from '@plenustech/design-system';
+import { Card, CodeBlock, Table } from '@plenustech/design-system';
 import { GradeDeCores } from './Amostras';
 import { tokens, tokensDe, type Token } from './tokens';
 import './fundamentos.css';
@@ -174,17 +174,67 @@ function TabelaDeTokens({ coluna, label, tokens: linhas }: { coluna: string; lab
   );
 }
 
+const FOLHAS = [
+  { id: 'styles.css', folha: '@plenustech/design-system/styles.css', traz: 'A folha inteira: tokens, temas e todos os componentes, cerca de 25 KB com gzip.' },
+  { id: 'base.css', folha: '@plenustech/design-system/styles/base.css', traz: 'Os tokens, os temas e a base de página que os componentes pressupõem. Vem sempre, e uma vez.' },
+  {
+    id: 'componente.css',
+    folha: '@plenustech/design-system/styles/<Componente>.css',
+    traz: 'O CSS de um componente, pelo nome do módulo, já com as folhas de que ele depende: Select.css traz as de List, Field e Label.',
+  },
+  { id: 'reset.css', folha: '@plenustech/design-system/reset.css', traz: 'Opcional: tipografia do corpo, títulos, links, controles nativos e barra de rolagem.' },
+];
+
+const IMPORTACAO_POR_COMPONENTE = `import '@plenustech/design-system/styles/base.css';
+import '@plenustech/design-system/styles/Button.css';
+import '@plenustech/design-system/styles/Select.css';`;
+
 function EstrategiaDeCss() {
   return (
-    <ol className="fundamentos-camadas">
-      {ESTRATEGIA.map(([nome, descricao], indice) => (
-        <li key={nome}>
-          <span aria-hidden="true">{indice + 1}</span>
-          <strong>{nome}</strong>
-          <p>{descricao}</p>
-        </li>
-      ))}
-    </ol>
+    <>
+      <ol className="fundamentos-camadas">
+        {ESTRATEGIA.map(([nome, descricao], indice) => (
+          <li key={nome}>
+            <span aria-hidden="true">{indice + 1}</span>
+            <strong>{nome}</strong>
+            <p>{descricao}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="fundamentos-grupo">
+        <h3>Folhas do pacote</h3>
+        <p className="section-sub">
+          A aplicação importa a folha inteira ou, para carregar só o que a tela usa, a base e uma folha por componente. As duas formas
+          não se misturam: <code>styles.css</code> já contém tudo.
+        </p>
+        <Card>
+          <Card.Body flush>
+            <Table label="Folhas do pacote">
+              <Table.Header>
+                <Table.Column id="folha">Importação</Table.Column>
+                <Table.Column id="traz">O que traz</Table.Column>
+              </Table.Header>
+              <Table.Body items={FOLHAS}>
+                {(linha) => (
+                  <Table.Row id={linha.id}>
+                    <Table.Cell>
+                      <code>{linha.folha}</code>
+                    </Table.Cell>
+                    <Table.Cell>{linha.traz}</Table.Cell>
+                  </Table.Row>
+                )}
+              </Table.Body>
+            </Table>
+          </Card.Body>
+        </Card>
+        <CodeBlock code={IMPORTACAO_POR_COMPONENTE} syntax="typescript" />
+        <p className="section-sub">
+          Um componente que recebe outros como filhos, como o <code>Dialog</code> com um <code>Button</code> dentro, não traz o CSS deles:
+          importe a folha de cada um que a tela usa. Numa tela com <code>Button</code>, <code>InputText</code>, <code>Select</code>,{' '}
+          <code>Dialog</code> e <code>Table</code>, a base e as folhas somam cerca de 8 KB com gzip.
+        </p>
+      </div>
+    </>
   );
 }
 
@@ -260,7 +310,8 @@ const SECOES: readonly Secao[] = [
     titulo: 'Estratégia de CSS',
     subtitulo: (
       <>
-        Cada camada tem uma responsabilidade e só enxerga as de cima. A decisão está em <code>ARCHITECTURE.md</code> §4.
+        Cada camada tem uma responsabilidade e só enxerga as de cima, e o pacote entrega a folha inteira ou uma por componente. A decisão
+        está em <code>ARCHITECTURE.md</code> §4.
       </>
     ),
     conteudo: <EstrategiaDeCss />,

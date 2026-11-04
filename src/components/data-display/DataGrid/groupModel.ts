@@ -38,7 +38,7 @@ function groupLevel<Row>(
   });
 
   return [...byText].map(([text, members]) => {
-    const key = `${parentKey}${GROUP_PREFIX}${text}`;
+    const key = `${parentKey}${dataGridGroupKey([text])}`;
     return {
       aggregates: summarize(members, columns),
       children: groupLevel(members, columns, deeper, key),
@@ -48,6 +48,14 @@ function groupLevel<Row>(
       text,
     };
   });
+}
+
+/**
+ * A chave com que o grupo entra em `expandedIds`: os valores do grupo, do primeiro nível ao dele, como a célula os
+ * mostra. O produto a monta por aqui para abrir um grupo; o formato não é contrato.
+ */
+export function dataGridGroupKey(values: readonly string[]) {
+  return values.map((value) => `${GROUP_PREFIX}${value}`).join('');
 }
 
 /** Os grupos na ordem em que aparecem nas linhas, que chegam já ordenadas. Coluna desconhecida encerra o aninhamento. */

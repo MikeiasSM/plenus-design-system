@@ -77,9 +77,9 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
         {description && <p className={styles.description}>{description}</p>}
         {actions.length > 0 && (
           <div className={styles.actions}>
-            {actions.map((action) => (
+            {actions.map((action, index) => (
               <Button
-                key={action.label}
+                key={index}
                 onClick={() => {
                   action.onClick();
                   store.dismiss(id);

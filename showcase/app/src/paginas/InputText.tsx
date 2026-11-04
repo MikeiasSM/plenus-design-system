@@ -363,9 +363,9 @@ const [cru, setCru] = useState('');
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px. O lg é o da busca de destaque.' },
     {
       nome: 'mask',
-      tipo: 'string | ((text: string) => string)',
+      tipo: 'InputMask',
       descricao:
-        "Formata o que se digita ou cola. Padrão: 0 dígito, a letra, * letra ou dígito, o resto literal ('000.000.000-00'). Função: recebe o texto e devolve o formatado. value e defaultValue também passam por ela.",
+        "InputMask é string | ((text: string) => string). Formata o que se digita ou cola. Padrão: 0 dígito, a letra, * letra ou dígito, o resto literal ('000.000.000-00'). Função: recebe o texto e devolve o formatado. value e defaultValue também passam por ela.",
     },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'O texto a cada mudança, ao lado do onChange nativo. Com mask, o texto formatado.' },
     {

@@ -285,7 +285,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem nós, um EmptyState no lugar do desenho.', teste: 'ChartSunburst.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'nodes',

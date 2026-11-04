@@ -1,5 +1,6 @@
 export { DataGrid } from './DataGrid';
 export { dataGridFilterOperators } from './filterModel';
+export { dataGridGroupKey } from './groupModel';
 export { dataGridAggregators } from './summaries';
 export { dataGridCsvExporter } from './exporters';
 export { toExportMatrix as dataGridExportMatrix } from './exportModel';

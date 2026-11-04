@@ -117,7 +117,9 @@ export function ChartFrame({
   });
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const plotDaForma = centerOrigin && lateral;
-  const legenda = legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
+  const mostraTabela = alternavel && emTabela;
+  // A tabela mostra o dado inteiro: a legenda, que filtra so o desenho, sai com ele.
+  const legenda = !mostraTabela && legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
       align={legendAlign}
       entries={legend}
@@ -182,7 +184,7 @@ export function ChartFrame({
             <div className={styles.empty}>
               <EmptyState icon={<IconChartBar />} size="sm" title={emptyMessage} />
             </div>
-          ) : alternavel && emTabela ? (
+          ) : mostraTabela ? (
             table
           ) : width === 0 || height === 0 ? null : tooltip ? (
             <ChartTooltip anchor={tooltipAnchor} {...tooltip}>{desenho}</ChartTooltip>

@@ -276,6 +276,7 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao painel, como aria-label e id; o className soma ao do sistema.',
   api: [
     { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
+    { nome: 'PortalProvider · container / children', tipo: 'HTMLElement | null · ReactNode', descricao: 'Destino dos overlays em portal de toda a árvore abaixo dele: Dialog, Drawer, Popover, Tooltip, Menu, Toolbar ancorada, ChartTooltip, os painéis dos campos e o ToastRegion. O elemento chega por ref em estado; null mantém o document.body.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape ou clique fora.' },

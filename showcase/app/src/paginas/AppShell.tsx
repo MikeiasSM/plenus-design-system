@@ -350,10 +350,10 @@ export const pagina: Pagina = {
     { nome: 'Navigation · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
     { nome: 'Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
     { nome: 'RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
-    { nome: 'RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. O ponto de aviso é do produto.' },
+    { nome: 'RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
     { nome: 'Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },
-    { nome: 'Panel · nestedMode', tipo: "'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
-    { nome: 'Panel · accountMode', tipo: "'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
+    { nome: 'Panel · nestedMode', tipo: "AppShellNestedMode: 'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
+    { nome: 'Panel · accountMode', tipo: "AppShellAccountMode: 'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
     { nome: 'PanelGroup · label', tipo: 'string', descricao: 'Título que reúne itens.' },
     {
       nome: 'PanelItem · label / icon / current / external / trailing',

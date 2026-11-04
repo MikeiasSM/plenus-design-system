@@ -289,6 +289,9 @@ export const pagina: Pagina = {
       descricao: <>Milissegundos até sumir; <code>null</code> mantém. No erro, o padrão é <code>null</code>.</>,
     },
     { nome: 'action', tipo: '{ label: string; onClick: () => void }', descricao: 'Ação única; acioná-la fecha o aviso. Ignorada quando actions vem.' },
-    { nome: 'actions', tipo: 'readonly { label: string; onClick: () => void }[]', descricao: 'Até duas ações, na ordem dada; a terceira em diante não aparece. Acionar uma fecha o aviso.' },
+    { nome: 'actions', tipo: 'readonly ToastAction[]', descricao: 'Até duas ações { label, onClick }, na ordem dada; a terceira em diante não aparece. Acionar uma fecha o aviso.' },
+    { nome: 'ToastRegion · portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o canto, que passa a herdar o tema dele. Vale sobre o PortalProvider; sem os dois, o canto fica onde foi montado.' },
+    { nome: 'ToastProvider · children', tipo: 'ReactNode', descricao: 'Árvore com o próprio estado de avisos. Não desenha o canto: o ToastRegion continua sendo posto dentro dela.' },
+    { nome: 'useToast()', tipo: 'UseToastResult', descricao: <>Devolve <code>{'{ showToast, dismissToast }'}</code> do estado da árvore; fora de um <code>ToastProvider</code>, age no estado global.</> },
   ],
 };

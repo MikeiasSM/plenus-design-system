@@ -391,7 +391,7 @@ export const pagina: Pagina = {
     { nome: 'selectAll', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que marca os itens habilitados do resultado da busca, sem desmarcar o resto.' },
     { nome: 'clearable', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que desmarca tudo, inclusive o que a busca esconde.' },
     { nome: 'confirmSelection', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. A marcação é rascunho: onValueChange é chamado uma vez, em Aplicar. Cancelar, Escape e sair do campo descartam.' },
-    { nome: 'labels', tipo: 'Partial<{ selectAll: string; clear: string; apply: string; cancel: string }>', descricao: "Textos do rodapé. Padrões: 'Selecionar todos', 'Limpar', 'Aplicar' e 'Cancelar'." },
+    { nome: 'labels', tipo: 'Partial<ComboBoxLabels>', descricao: "ComboBoxLabels é { selectAll, clear, apply, cancel }, todos string. As três propriedades do rodapé e labels formam ComboBoxMultipleActions. Textos do rodapé. Padrões: 'Selecionar todos', 'Limpar', 'Aplicar' e 'Cancelar'." },
     { nome: 'value', tipo: 'string | string[]', descricao: 'Chave ou chaves escolhidas, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string | string[]', descricao: 'Escolha inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void | (values: string[]) => void', descricao: 'Avisa a escolha, conforme o modo.' },

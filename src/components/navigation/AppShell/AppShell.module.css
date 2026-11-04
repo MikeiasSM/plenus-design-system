@@ -123,6 +123,19 @@
   font-size: inherit;
 }
 
+.railAccountAvatar {
+  display: grid;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .railItem:focus-visible,
 .railAccount:focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);

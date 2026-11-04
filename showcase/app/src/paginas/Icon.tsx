@@ -152,9 +152,59 @@ const playground = definirPlayground({
   },
 });
 
+const CAMINHOS = [
+  {
+    id: 'raiz',
+    caminho: "import { IconFilter } from '@plenustech/design-system';",
+    traz: 'Os ícones de interface, nomeados pelo significado. Saem junto com os componentes.',
+  },
+  {
+    id: 'suite',
+    caminho: "import { IconFolder } from '@plenustech/design-system/icons';",
+    traz: 'A suíte completa, pelo nome do Bootstrap. O tree-shaking do empacotador deixa só os importados.',
+  },
+  {
+    id: 'modulo',
+    caminho: "import { IconStar } from '@plenustech/design-system/icons/IconStar';",
+    traz: 'Um ícone da suíte por módulo, em ESM e CommonJS, com tipos: só o desenho importado, sem depender do tree-shaking.',
+  },
+];
+
 function Variantes() {
   return (
     <div className="stack">
+      <div className="subsection">
+        <h3>Três caminhos de importação</h3>
+        <div className="stack">
+          <ds.Card>
+            <ds.Card.Body flush>
+              <ds.Table label="Caminhos de importação dos ícones">
+                <ds.Table.Header>
+                  <ds.Table.Column id="caminho">Importação</ds.Table.Column>
+                  <ds.Table.Column id="traz">O que traz</ds.Table.Column>
+                </ds.Table.Header>
+                <ds.Table.Body items={CAMINHOS}>
+                  {(linha) => (
+                    <ds.Table.Row id={linha.id}>
+                      <ds.Table.Cell><code>{linha.caminho}</code></ds.Table.Cell>
+                      <ds.Table.Cell>{linha.traz}</ds.Table.Cell>
+                    </ds.Table.Row>
+                  )}
+                </ds.Table.Body>
+              </ds.Table>
+            </ds.Card.Body>
+          </ds.Card>
+          <ds.Alert title="icons/<Nome> é sempre a suíte">
+            <code>icons/IconStar</code> é o módulo do <code>IconStar</code> da suíte, não o do ponto de entrada principal. Para
+            os oito nomes da tabela abaixo, o desenho muda: <code>icons/IconFilter</code> é o filtro do Bootstrap, e não o funil
+            da raiz.
+          </ds.Alert>
+        </div>
+        <p className="note">
+          Num app mínimo com esbuild, o ícone por módulo gera 0,9 KB em ESM e 1,4 KB em CommonJS; pelo subcaminho{' '}
+          <code>icons</code>, sem tree-shaking, o mesmo ícone arrasta 1,0 MB em ESM e 1,2 MB em CommonJS.
+        </p>
+      </div>
       <div className="subsection">
         <h3>A suíte completa</h3>
         <p className="note">

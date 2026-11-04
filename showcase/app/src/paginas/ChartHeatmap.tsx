@@ -357,7 +357,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem células, um EmptyState no lugar do desenho.', teste: 'ChartHeatmap.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'cells', tipo: 'readonly ChartHeatmapCell[]', descricao: <><code>{'{ x, y, value }'}</code>, uma por cruzamento; <code>value: null</code> é sem dado e o cruzamento sem célula fica em branco.</> },
     { nome: 'xCategories', tipo: 'readonly string[]', descricao: 'Ordem das colunas. Sem ela, a ordem em que aparecem nas células.' },

@@ -263,6 +263,7 @@ export {
   dataGridCsvExporter,
   dataGridExportMatrix,
   dataGridFilterOperators,
+  dataGridGroupKey,
 } from './components/data-display/DataGrid';
 export type {
   DataGridAggregator,

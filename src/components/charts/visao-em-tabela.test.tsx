@@ -115,6 +115,17 @@ describe('o conteúdo da tabela', () => {
     expect(linhas()).toEqual(['ReceitaCusto', 'jan13', 'fev4']);
   });
 
+  it('a legenda sai enquanto a tabela está aberta e volta com o desenho', () => {
+    render(<ChartBar categories={categorias} series={serie} title="Gráfico" />);
+    expect(screen.getByRole('list')).toBeInTheDocument();
+
+    abrir();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+
+    abrir();
+    expect(screen.getByRole('list')).toBeInTheDocument();
+  });
+
   it('combo: cada série no formato do eixo dela', () => {
     render(
       <ChartCombo
