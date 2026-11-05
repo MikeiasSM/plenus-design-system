@@ -383,6 +383,7 @@ export type {
   ChartMapProps,
   ChartMapRegion,
   ChartMapRegionDatum,
+  ChartMapView,
 } from './components/charts/ChartMap';
 export { ChartTimeline } from './components/charts/ChartTimeline';
 export type {
@@ -422,6 +423,7 @@ export type {
   ChartComboProps,
   ChartComboSeries,
 } from './components/charts/ChartCombo';
+export type { ChartValueAxis } from './components/charts/core/valueAxes';
 export { ChartArea } from './components/charts/ChartArea';
 export type { ChartAreaProps, ChartAreaSeries } from './components/charts/ChartArea';
 export { ChartScatter } from './components/charts/ChartScatter';

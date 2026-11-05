@@ -128,6 +128,7 @@ O tema vale por subárvore, como a paleta:
 - Sem `data-theme` em lugar nenhum, o tema segue `prefers-color-scheme` do sistema. `data-theme="light"` força o claro mesmo com o sistema escuro.
 - `color-scheme` acompanha o tema no mesmo escopo, e os controles nativos e as barras de rolagem o seguem.
 - Uma variável CSS derivada de outra, seja por `var()` ou por `color-mix`, é calculada onde é declarada e não se recalcula nos descendentes. Por isso o token derivado de cor é declarado também no seletor de cada escopo de tema (`:root, [data-theme]`) e de paleta (`[data-palette]`). Onde a escolha depende do tema e da paleta ao mesmo tempo, como a cor primária, o valor usa `light-dark()`, que se resolve pelo `color-scheme` de quem usa o token.
+- Pela mesma razão, o produto que ajusta um tema redefine os tokens de base no elemento que leva o `data-theme`, com especificidade maior, como `html[data-theme="dark"]`. Redefinidos num descendente, como o `body`, eles não chegam aos derivados, que já foram calculados acima.
 - Os seletores são `[data-theme="light"]` e `[data-theme="dark"]`, mais `:root:not([data-theme])` dentro de `@media (prefers-color-scheme: dark)`. O seletor `:root[data-theme="dark"]` das versões anteriores à 0.6.0 deixou de existir.
 
 ### Camadas em portal

@@ -6,6 +6,26 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.6.1] — 2026-11-04
+
+### Adicionado
+
+- `ChartMap`: zoom e arraste com `zoomable`, desligado por padrão. A vista fica no trio `view`, `defaultView` e `onViewChange`, com o tipo `ChartMapView` (`{ center: [longitude, latitude], scale }`). A escala 1 é o enquadramento de `focus` e `focusMarkers`, e o teto é o mesmo do `focusMarkers`, 100 vezes o mapa inteiro.
+  - Os botões "Aproximar", "Afastar" e "Voltar ao enquadramento" ficam no canto do desenho e saem abaixo de 200 px de largura.
+  - Ponteiro: arrastar move o mapa, e o arraste além da folga não ativa a marca. A rodinha só aproxima com Ctrl ou ⌘; sem a tecla, a página rola e uma dica ensina o gesto.
+  - Toque: um dedo segue rolando a página, e dois dedos aproximam e arrastam. Só com `zoomable`, a área do mapa passa a ter `touch-action: pan-x pan-y`.
+  - Teclado: `+` aproxima, `-` afasta, `0` volta e Shift com as setas arrasta. As setas continuam passando de marca em marca, e a marca focada fora da vista traz a vista até ela.
+  - A escala é anunciada numa região de status. As bordas e o raio dos marcadores ficam constantes em pixels, e os rótulos de região são refeitos para a vista.
+- `ChartSankey` e `ChartMap`: `clickableMarks`, as espécies de marca que viram botão com `onMarkClick`. O padrão são todas, como antes; as que ficam de fora seguem como símbolo gráfico, fora da tabulação. Substitui a escolha que os nomes obsoletos `onFlowClick`, `onNodeClick`, `onRegionClick` e `onMarkerClick` faziam, e também os limita.
+- `ChartArea`, `ChartLine` e `ChartBar`: eixo de valor por série, com `axis: 'left' | 'right'`, `formatRightValue` e `minRightTickStep`, como no `ChartCombo`. A escala da direita usa só as séries dela, e o zero fica na mesma altura nos dois eixos. Sem série à direita, nada muda.
+  - Com `stacked`, cada eixo tem a sua pilha. No `ChartBar`, as duas pilhas dividem a faixa da categoria, e o total do balão sai quando há série à direita.
+  - No `ChartBar`, só na orientação vertical: na horizontal, `axis` é ignorado, com aviso em desenvolvimento. O `ChartBar` ganha `yAxisRightTitle`.
+  - O tipo `ChartValueAxis` é exportado, e `ChartComboAxis` passa a ser um nome dele.
+
+### Corrigido
+
+- Grade e linha de base dos cartesianos alinhadas ao centro do pixel. Em coordenada fracionária, a linha de 1 px se espalhava por dois e saía mais clara que `--pl-chart-grid`.
+
 ## [0.6.0] — 2026-11-04
 
 ### Incompatível

@@ -8,5 +8,6 @@ export type {
   ChartMapProps,
   ChartMapRegion,
   ChartMapRegionDatum,
+  ChartMapView,
 } from './ChartMap';
 export type { ChartMapFeature, ChartMapFeatureCollection } from './mapGeometry';

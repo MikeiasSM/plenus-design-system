@@ -4,6 +4,7 @@ import {
   ChartTooltip,
   formatCurrency,
   formatNumber,
+  formatPercent,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartCurve,
@@ -13,7 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { COMPOSICAO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
+import { COMPOSICAO, CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoLine } from '../estrutura/decomposicao';
 
 const TICKET_MEDIO = [1240, 1310, 1180, 1520, 1460, 1590];
@@ -266,6 +267,34 @@ export const pagina: Pagina = {
 />`,
     },
     {
+      titulo: 'Faturamento e conversão em eixos separados',
+      descricao: 'A conversão declara o eixo da direita e ganha escala própria; sem isso, a taxa se achataria contra a base na escala dos reais.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartLine
+            categories={MESES}
+            formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
+            formatValue={formatarCompacto}
+            series={[
+              { label: 'Faturamento', values: FATURAMENTO },
+              { axis: 'right', label: 'Conversão', values: CONVERSAO },
+            ]}
+            title="Faturamento e conversão"
+          />
+        </div>
+      ),
+      codigo: `<ChartLine
+  title="Faturamento e conversão"
+  categories={meses}
+  series={[
+    { label: 'Faturamento', values: faturamento },
+    { label: 'Conversão', values: conversao, axis: 'right' },
+  ]}
+  formatValue={formatarCompacto}
+  formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
+/>`,
+    },
+    {
       titulo: 'Linha reta, marcadores visíveis',
       descricao: 'Uma série só dispensa a legenda: o título já a nomeia.',
       Previa: () => (
@@ -388,13 +417,15 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo de baixo.' },
-    { nome: 'series', tipo: 'readonly ChartLineSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>; <code>null</code> marca valor ausente.</> },
+    { nome: 'series', tipo: 'readonly ChartLineSeries[]', descricao: <><code>{'{ label, values, axis?, color?, intent? }'}</code>; <code>null</code> marca valor ausente. <code>axis</code> padrão <code>'left'</code>; com série em <code>'right'</code>, o eixo da direita ganha escala própria e fica visível.</> },
     { nome: 'curve', tipo: "'smooth' | 'straight'", padrao: "'smooth'", descricao: 'Curva suave ou segmentos retos.' },
     { nome: 'showDots', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'onHover'", descricao: 'Pontos: sempre, só os da série mais próxima do ponteiro, ou nunca.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor acima de cada ponto; em onHover, os da série mais próxima do ponteiro.' },
     { nome: 'includeZero', tipo: 'boolean', padrao: 'true', descricao: 'Inclui o zero no domínio do eixo de valor.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
+    { nome: 'formatRightValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato do eixo da direita, dos rótulos e do balão das séries dele.' },
+    { nome: 'minRightTickStep', tipo: "number", descricao: 'O mesmo passo mínimo, para o eixo da direita.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },
@@ -402,7 +433,7 @@ const cores = resolveSeriesColors([{}, {}]);
     { nome: 'xAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo de baixo.' },
     { nome: 'yAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo da esquerda.' },
     { nome: 'showGrid', tipo: 'boolean', padrao: 'true', descricao: 'Linhas horizontais de referência e a linha do zero.' },
-    { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
+    { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita: espelho da esquerda, ou escala própria das séries com axis \'right\', e então visível por padrão.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
     { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
     { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },

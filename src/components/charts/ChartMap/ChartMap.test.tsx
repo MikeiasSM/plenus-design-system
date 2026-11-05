@@ -535,4 +535,275 @@ describe('ChartMap', () => {
     expect(regionPaths()[0]).toHaveAttribute('aria-label', 'Minas, 5, 1º de 1');
     expect(document.querySelector(`text.${styles.label}`)).toHaveTextContent('MG');
   });
+
+  describe('clickableMarks', () => {
+    const cidades = [
+      {
+        id: 'capitais',
+        label: 'Capitais',
+        points: [
+          { id: 'a', label: 'Cidade A', latitude: 5, longitude: 5, value: 100 },
+          { id: 'b', label: 'Cidade B', latitude: 5, longitude: 15, value: 25 },
+        ],
+      },
+    ];
+    const tabStops = () => document.querySelectorAll('[tabindex="0"]');
+
+    it('por padrao, regioes e marcadores viram botoes', () => {
+      render(map({ markers: cidades, onMarkClick: () => undefined }));
+
+      expect(screen.getAllByRole('button').filter((button) => button.hasAttribute('data-mark'))).toHaveLength(5 + 2);
+    });
+
+    it('so os marcadores: as regioes seguem como desenho, fora do Tab e sem chamar onMarkClick', () => {
+      const onMarkClick = vi.fn();
+      render(map({ clickableMarks: ['marker'], markers: cidades, onMarkClick }));
+
+      expect(regionPaths().every((path) => path.getAttribute('role') === 'graphics-symbol')).toBe(true);
+      expect(screen.getAllByRole('button').filter((button) => button.hasAttribute('data-mark'))).toHaveLength(2);
+      expect(tabStops()).toHaveLength(1);
+      expect(tabStops()[0]).toHaveAccessibleName('Cidade A, Capitais, 100');
+
+      fireEvent.click(regionNamed('Alfa'));
+      expect(onMarkClick).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cidade B, Capitais, 25' }));
+      expect(onMarkClick).toHaveBeenCalledWith({ id: 'b', kind: 'marker', series: 'capitais', value: 25 });
+    });
+
+    it('so as regioes: os marcadores deixam de ser botoes', () => {
+      const onMarkClick = vi.fn();
+      render(map({ clickableMarks: ['region'], markers: cidades, onMarkClick }));
+
+      expect(screen.queryByRole('button', { name: /Cidade A/ })).toBeNull();
+      expect(screen.getByRole('img', { name: 'Cidade A, Capitais, 100' })).toBeInTheDocument();
+      expect(tabStops()).toHaveLength(1);
+
+      fireEvent.click(regionNamed('Alfa'));
+      expect(onMarkClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('zoomable', () => {
+    const status = () => screen.getByRole('status');
+    const canvas = () => screen.getByRole('img', { name: 'Vendas por região' });
+    const view = { center: [15, 8] as [number, number], scale: 3 };
+
+    it('desligado, nao traz controles, status nem touch-action proprio', () => {
+      render(map());
+
+      expect(screen.queryByRole('button', { name: 'Aproximar' })).toBeNull();
+      expect(screen.queryByRole('status')).toBeNull();
+      expect(document.querySelector(`.${styles.plotZoomable}`)).toBeNull();
+      expect(canvas()).not.toHaveAttribute('tabindex');
+    });
+
+    it('ligado, a area do mapa libera so o pan do navegador: um dedo rola a pagina', () => {
+      render(map({ zoomable: true }));
+
+      expect(document.querySelector(`.${styles.plotZoomable}`)).toBeInTheDocument();
+    });
+
+    it('aproxima, afasta e volta pelos botoes, anunciando a escala e travando os que nao se aplicam', () => {
+      const onViewChange = vi.fn();
+      render(map({ onViewChange, zoomable: true }));
+      const zoomIn = screen.getByRole('button', { name: 'Aproximar' });
+      const zoomOut = screen.getByRole('button', { name: 'Afastar' });
+      const reset = screen.getByRole('button', { name: 'Voltar ao enquadramento' });
+
+      expect(zoomOut).toBeDisabled();
+      expect(reset).toBeDisabled();
+      expect(status()).toBeEmptyDOMElement();
+
+      fireEvent.click(zoomIn);
+      fireEvent.click(zoomIn);
+      expect(status()).toHaveTextContent('Aproximação de 4 vezes');
+      expect(onViewChange).toHaveBeenLastCalledWith(expect.objectContaining({ scale: expect.closeTo(4) }));
+      expect(zoomOut).toBeEnabled();
+      expect(reset).toBeEnabled();
+
+      fireEvent.click(zoomOut);
+      expect(status()).toHaveTextContent('Aproximação de 2 vezes');
+
+      fireEvent.click(reset);
+      expect(status()).toHaveTextContent('Enquadramento inicial');
+      expect(onViewChange).toHaveBeenLastCalledWith(expect.objectContaining({ scale: 1 }));
+      expect(reset).toBeDisabled();
+    });
+
+    it('aproximado, afasta os marcadores uns dos outros mas mantem o raio deles em pixels', () => {
+      const points = [
+        { id: 'p', label: 'Ponto', latitude: 5, longitude: 5, value: 10 },
+        { id: 'q', label: 'Outro', latitude: 5, longitude: 15, value: 10 },
+      ];
+      render(map({ markers: [{ id: 's', label: 'Série', points }], zoomable: true }));
+      const circles = () => [...document.querySelectorAll<SVGCircleElement>(`circle.${styles.marker}`)];
+      const gap = () => Math.abs(Number(circles()[0].getAttribute('cx')) - Number(circles()[1].getAttribute('cx')));
+      const [before, radius] = [gap(), circles()[0].getAttribute('r')];
+
+      fireEvent.click(screen.getByRole('button', { name: 'Aproximar' }));
+
+      expect(gap()).toBeCloseTo(before * 2, 3);
+      expect(circles()[0].getAttribute('r')).toBe(radius);
+    });
+
+    it('controlada, mostra a vista recebida e so avisa o pedido do usuario', () => {
+      const onViewChange = vi.fn();
+      render(map({ onViewChange, view, zoomable: true }));
+
+      expect(status()).toHaveTextContent('Aproximação de 3 vezes');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Aproximar' }));
+
+      expect(onViewChange).toHaveBeenCalledWith(expect.objectContaining({ scale: expect.closeTo(6) }));
+      expect(status()).toHaveTextContent('Aproximação de 3 vezes');
+    });
+
+    it('comeca pelo defaultView e limita a escala ao teto', () => {
+      render(map({ defaultView: { center: [15, 8], scale: 1e6 }, zoomable: true }));
+
+      expect(screen.getByRole('button', { name: 'Aproximar' })).toBeDisabled();
+      expect(status()).toHaveTextContent(/Aproximação de \d+/);
+    });
+
+    it('so a rolagem com Ctrl ou ⌘ aproxima; sem a tecla, a pagina rola e aparece a dica', () => {
+      vi.useFakeTimers();
+      render(map({ zoomable: true }));
+
+      expect(fireEvent.wheel(canvas(), { deltaY: -100 })).toBe(true);
+      expect(screen.getByText('Use Ctrl + rolagem para aproximar')).toBeInTheDocument();
+      expect(status()).toBeEmptyDOMElement();
+
+      act(() => {
+        vi.advanceTimersByTime(1600);
+      });
+      expect(screen.queryByText('Use Ctrl + rolagem para aproximar')).toBeNull();
+
+      expect(fireEvent.wheel(canvas(), { ctrlKey: true, deltaY: -100 })).toBe(false);
+      expect(status()).toHaveTextContent(/Aproximação de/);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Voltar ao enquadramento' }));
+      expect(fireEvent.wheel(canvas(), { deltaY: -100, metaKey: true })).toBe(false);
+      expect(status()).toHaveTextContent(/Aproximação de/);
+      vi.useRealTimers();
+    });
+
+    it('atende ao teclado: + aproxima, - afasta, 0 volta e Shift com a seta arrasta', () => {
+      const onViewChange = vi.fn();
+      render(map({ onViewChange, zoomable: true }));
+
+      expect(canvas()).toHaveAttribute('tabindex', '0');
+      expect(canvas()).toHaveAccessibleDescription(/Use \+ e -/);
+
+      fireEvent.keyDown(canvas(), { key: '+' });
+      fireEvent.keyDown(canvas(), { key: '=' });
+      expect(status()).toHaveTextContent('Aproximação de 4 vezes');
+
+      fireEvent.keyDown(canvas(), { key: '-' });
+      expect(status()).toHaveTextContent('Aproximação de 2 vezes');
+
+      const before = onViewChange.mock.lastCall![0].center[0];
+      fireEvent.keyDown(canvas(), { key: 'ArrowRight', shiftKey: true });
+      expect(onViewChange.mock.lastCall![0].center[0]).toBeGreaterThan(before);
+
+      fireEvent.keyDown(canvas(), { key: '0' });
+      expect(status()).toHaveTextContent('Enquadramento inicial');
+    });
+
+    it('as setas sem Shift seguem percorrendo as marcas, e o Shift nao as percorre', () => {
+      render(map({ onMarkClick: () => undefined, zoomable: true }));
+      regionNamed('Alfa').focus();
+
+      fireEvent.keyDown(regionNamed('Alfa'), { key: 'ArrowRight', shiftKey: true });
+      expect(document.activeElement).toBe(regionNamed('Alfa'));
+
+      fireEvent.keyDown(regionNamed('Alfa'), { key: 'ArrowRight' });
+      expect(document.activeElement).not.toBe(regionNamed('Alfa'));
+    });
+
+    describe('arraste', () => {
+      /** O jsdom nao tem PointerEvent: sem ele, `pointerId` e `pointerType` nao chegam ao gesto. */
+      class PointerEventDoJsdom extends MouseEvent {
+        readonly pointerId: number;
+        readonly pointerType: string;
+
+        constructor(type: string, init: PointerEventInit = {}) {
+          super(type, init);
+          this.pointerId = init.pointerId ?? 0;
+          this.pointerType = init.pointerType ?? '';
+        }
+      }
+
+      beforeAll(() => {
+        vi.stubGlobal('PointerEvent', PointerEventDoJsdom);
+      });
+      afterAll(() => {
+        vi.unstubAllGlobals();
+      });
+
+      const press = (target: Element, x: number, y: number) =>
+        fireEvent.pointerDown(target, { button: 0, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse' });
+      const move = (x: number, y: number) =>
+        fireEvent.pointerMove(regionNamed('Alfa'), {
+          buttons: 1,
+          clientX: x,
+          clientY: y,
+          pointerId: 1,
+          pointerType: 'mouse',
+        });
+      const release = () =>
+        fireEvent.pointerUp(regionNamed('Alfa'), { pointerId: 1, pointerType: 'mouse' });
+
+      function setup() {
+        const onMarkClick = vi.fn();
+        const onViewChange = vi.fn();
+        render(map({ defaultView: view, onMarkClick, onViewChange, zoomable: true }));
+        return { onMarkClick, onViewChange };
+      }
+
+      it('move o mapa com o botao pressionado e nao dispara o clique depois', () => {
+        const { onMarkClick, onViewChange } = setup();
+        const alfa = regionNamed('Alfa');
+
+        press(alfa, 100, 100);
+        move(160, 100);
+        expect(onViewChange).toHaveBeenCalledTimes(1);
+        expect(onViewChange.mock.lastCall![0].center[0]).toBeLessThan(view.center[0]);
+
+        release();
+        fireEvent.click(alfa);
+        expect(onMarkClick).not.toHaveBeenCalled();
+      });
+
+      it('o arraste curto, dentro da folga, nao move o mapa nem cancela o clique', () => {
+        const { onMarkClick, onViewChange } = setup();
+        const alfa = regionNamed('Alfa');
+
+        press(alfa, 100, 100);
+        move(102, 101);
+        release();
+        fireEvent.click(alfa);
+
+        expect(onViewChange).not.toHaveBeenCalled();
+        expect(onMarkClick).toHaveBeenCalledTimes(1);
+      });
+
+      it('o botao solto fora do mapa encerra o arraste: o ponteiro de volta, sem botao, nao move o mapa', () => {
+        const { onViewChange } = setup();
+
+        press(regionNamed('Alfa'), 100, 100);
+        fireEvent.pointerMove(regionNamed('Alfa'), { buttons: 0, clientX: 160, clientY: 100, pointerId: 1, pointerType: 'mouse' });
+
+        expect(onViewChange).not.toHaveBeenCalled();
+      });
+    });
+
+    it('abaixo de 200 px de largura os controles saem, e o status continua', () => {
+      setSize(180);
+      render(map({ zoomable: true }));
+
+      expect(screen.queryByRole('button', { name: 'Aproximar' })).toBeNull();
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+  });
 });

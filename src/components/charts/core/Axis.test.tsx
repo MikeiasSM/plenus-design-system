@@ -62,11 +62,11 @@ describe('Axis', () => {
 
 describe('Grid', () => {
   it('desenha uma linha por marca, no comprimento informado', () => {
-    const svg = desenhar(<Grid length={400} lines={[0, 60, 120]} orientation="horizontal" />);
+    const svg = desenhar(<Grid length={400} lines={[0, 60.67, 120]} orientation="horizontal" />);
     const linhas = svg.querySelectorAll('line');
 
     expect(linhas).toHaveLength(3);
-    expect(linhas[1]).toHaveAttribute('y1', '60');
+    expect(linhas[1]).toHaveAttribute('y1', '60.5');
     expect(linhas[1]).toHaveAttribute('x2', '400');
   });
 
@@ -74,7 +74,7 @@ describe('Grid', () => {
     const svg = desenhar(<Grid length={300} lines={[40]} orientation="vertical" />);
     const linha = svg.querySelector('line');
 
-    expect(linha).toHaveAttribute('x1', '40');
+    expect(linha).toHaveAttribute('x1', '40.5');
     expect(linha).toHaveAttribute('y2', '300');
   });
 

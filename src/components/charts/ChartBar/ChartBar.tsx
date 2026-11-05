@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ChartTable,
   categoryTable,
@@ -8,7 +8,9 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
-  seriesInScale,
+  axisOf,
+  isDevelopment,
+  stackByAxis,
   useCartesianLayout,
   chartHeight,
   roundedBarPath,
@@ -17,6 +19,8 @@ import {
   useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
+  useValueScales,
+  valueAxisDomains,
   valueLabelRoom,
   valueLabelsFor,
   truncateToWidth,
@@ -34,9 +38,10 @@ import {
   type ChartCategoryHover,
   type ChartMarkClick,
   type ChartRootProps,
+  type ChartValueAxis,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { bandScale, domainOf, linearScale, mergeDomains, stackDiverging, ticksFor } from '../scales';
+import { bandScale, domainOf, mergeDomains, stackDiverging, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartBar.module.css';
@@ -50,6 +55,8 @@ const PISO_DA_COLUNA = 128;
 export type ChartBarOrientation = 'vertical' | 'horizontal';
 
 export interface ChartBarSeries extends SeriesAppearance {
+  /** Eixo de valor da serie, so na vertical. Com alguma a direita, o eixo da direita ganha escala propria. */
+  axis?: ChartValueAxis;
   label: string;
   values: readonly number[];
 }
@@ -62,7 +69,9 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
+  formatRightValue?: (value: number) => string;
+  /** Formato dos valores no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   height?: ChartHeight;
@@ -75,6 +84,8 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
+  /** O mesmo para o eixo da direita. */
+  minRightTickStep?: number;
   /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onBarClick?: (bar: ChartMarkClick) => void;
   /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
@@ -100,6 +111,7 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
+  /** Empilha so as series do mesmo eixo: cada eixo tem a sua pilha, lado a lado na faixa. */
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -108,7 +120,10 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   yAxis?: AxisVisibility;
   /** Titulo do eixo da esquerda, como o `yAxis`: o valor na vertical, as categorias na horizontal. */
   yAxisTitle?: string;
+  /** Padrao: escondido; visivel quando alguma serie esta a direita. */
   yAxisRight?: AxisVisibility;
+  /** Titulo do eixo de valor da direita, so na vertical. */
+  yAxisRightTitle?: string;
 }
 
 export function ChartBar({
@@ -117,6 +132,7 @@ export function ChartBar({
   defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
+  formatRightValue,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
@@ -125,6 +141,7 @@ export function ChartBar({
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
+  minRightTickStep,
   minTickStep,
   onBarClick,
   onHiddenChange,
@@ -144,7 +161,8 @@ export function ChartBar({
   xAxisTitle,
   yAxis = 'visible',
   yAxisTitle,
-  yAxisRight = 'hidden',
+  yAxisRight,
+  yAxisRightTitle,
   ...root
 }: ChartBarProps) {
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
@@ -198,22 +216,41 @@ export function ChartBar({
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
-  const dominio = useMemo(() => {
-    const naEscala = seriesInScale(series, isOutOfScale);
+  // Na horizontal o eixo de valor e unico: `axis` nao vale.
+  const eixos = useMemo(() => series.map((serie) => (vertical ? axisOf(serie) : 'left')), [series, vertical]);
+  const temEixoDireito = eixos.includes('right');
+  const formatarDireita = formatRightValue ?? formatValue;
+  const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
+  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
+  const ignoraEixo = !vertical && series.some((serie) => serie.axis === 'right');
 
-    if (stacked) {
-      return domainOf(
-        categories.flatMap((_, indice) => stackDiverging(naEscala.map((serie) => serie.values[indice] ?? 0)).flat()),
-      );
+  useEffect(() => {
+    if (ignoraEixo && isDevelopment()) {
+      console.warn(`ChartBar "${title}": \`axis\` só vale na orientação vertical; na horizontal as séries dividem um eixo de valor.`);
     }
+  }, [ignoraEixo, title]);
 
-    return mergeDomains(naEscala.map((serie) => domainOf([...serie.values])));
-  }, [categories, isOutOfScale, series, stacked]);
+  const dominios = useMemo(
+    () =>
+      valueAxisDomains({
+        axes: eixos,
+        domainOfSeries: (grupo) =>
+          stacked
+            ? domainOf(categories.flatMap((_, indice) => stackDiverging(grupo.map((serie) => serie.values[indice] ?? 0)).flat()))
+            : mergeDomains(grupo.map((serie) => domainOf([...serie.values]))),
+        isOutOfScale,
+        series,
+      }),
+    [categories, eixos, isOutOfScale, series, stacked],
+  );
+  const [dominioEsquerda, dominioDireita] = dominios;
 
   // Barras horizontais consomem a largura: a legenda ao lado espremeria o desenho.
   const posicaoDaLegenda = !vertical && (legend === 'left' || legend === 'right') ? 'bottom' : legend;
 
-  const rotulosDeValor = valueLabelsFor(dominio, vertical ? alturaDoDesenho : width, formatValue, minTickStep);
+  const comprimentoDoEixoDeValor = vertical ? alturaDoDesenho : width;
+  const rotulosEsquerda = valueLabelsFor(dominioEsquerda, comprimentoDoEixoDeValor, formatValue, minTickStep);
+  const rotulosDireita = valueLabelsFor(dominioDireita, comprimentoDoEixoDeValor, formatarDireita, passoDireito);
 
   // Na horizontal os nomes formam uma coluna a esquerda; sem teto, nomes longos tomariam o desenho.
   const larguraMaximaDaColuna = Math.max(width * CHART_LABEL_BAND, PISO_DA_COLUNA) - CHART_LABEL_OFFSET;
@@ -245,20 +282,20 @@ export function ChartBar({
   }));
 
   const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
-    axisTitles: { x: xAxisTitle, y: yAxisTitle },
+    axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: vertical ? yAxisRightTitle : undefined },
     decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: posicaoDaLegenda, valueAxes: vertical ? ['yRight', 'y'] : ['x'] },
-    bottomLabels: vertical ? categories : rotulosDeValor,
+    bottomLabels: vertical ? categories : rotulosEsquerda,
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: vertical ? rotulosDeValor : nomesDaColuna,
-    rightLabels: vertical ? rotulosDeValor : nomesDaColuna,
+    leftLabels: vertical ? rotulosEsquerda : nomesDaColuna,
+    rightLabels: vertical ? rotulosDireita : nomesDaColuna,
     rightRoom: reservaDireita,
     topRoom: showDataLabels !== 'hidden' && vertical ? valueLabelRoom(font) : 0,
     width,
     xAxis,
     yAxis,
-    yAxisRight,
+    yAxisRight: visibilidadeDireita,
   });
 
   const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
@@ -272,41 +309,42 @@ export function ChartBar({
     [categories, comprimentoCategorias],
   );
 
-  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
-  // duas, as marcas exibiriam valores quebrados durante a transicao.
-  const escalaAlvo = useMemo(
-    () => linearScale({ domain: dominio, range: [inicioDaFaixa, fimDaFaixa] }),
-    [dominio, fimDaFaixa, inicioDaFaixa],
-  );
+  const {
+    left: escalaEsquerda,
+    right: escalaDireita,
+    targetLeft: alvoEsquerda,
+    targetRight: alvoDireita,
+  } = useValueScales(dominios, inicioDaFaixa, fimDaFaixa);
 
-  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+  const escalaDa = (indice: number) => (eixos[indice] === 'right' ? escalaDireita : escalaEsquerda);
+  const formatoDa = (indice: number) => (eixos[indice] === 'right' ? formatarDireita : formatValue);
 
-  const escalaValores = useMemo(
-    () =>
-      linearScale({
-        domain: { min: minimo, max: maximo },
-        nice: false,
-        range: [inicioDaFaixa, fimDaFaixa],
-      }),
-    [fimDaFaixa, inicioDaFaixa, maximo, minimo],
-  );
-
-  const marcasDeValor = ticksFor(escalaAlvo, comprimentoValores, undefined, minTickStep);
+  const marcasEsquerda = ticksFor(alvoEsquerda, comprimentoValores, undefined, minTickStep);
+  const marcasDireita = ticksFor(alvoDireita, comprimentoValores, undefined, passoDireito);
 
   const vao = escalaCategorias.bandwidth();
   const faixas = barSlots(vao, presencas);
 
-  // Empilhada, a serie ocupa a faixa inteira: quem reparte e a pilha, nao a faixa.
-  function faixaDa(indiceSerie: number) {
-    return faixas[indiceSerie] ?? NO_BAR_SLOT;
+  // Pilhas de eixos distintos dividem a faixa; com um eixo so, a pilha ocupa a faixa inteira.
+  const faixasDasPilhas = barSlots(
+    vao,
+    (['left', 'right'] as const).map((eixo) => Math.max(0, ...presencas.filter((_, indice) => eixos[indice] === eixo))),
+  );
+
+  function posicaoNaFaixa(indiceSerie: number) {
+    if (!stacked) {
+      return faixas[indiceSerie] ?? NO_BAR_SLOT;
+    }
+
+    return temEixoDireito ? (faixasDasPilhas[eixos[indiceSerie] === 'right' ? 1 : 0] ?? NO_BAR_SLOT) : { offset: 0, thickness: vao };
   }
 
   function espessuraDa(indiceSerie: number) {
-    return stacked ? vao : faixaDa(indiceSerie).thickness;
+    return posicaoNaFaixa(indiceSerie).thickness;
   }
 
   function deslocamentoDa(indiceSerie: number) {
-    return stacked ? 0 : faixaDa(indiceSerie).offset;
+    return posicaoNaFaixa(indiceSerie).offset;
   }
 
   /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto; invalido conta zero. */
@@ -318,7 +356,7 @@ export function ChartBar({
   }
 
   const pilhas = categories.map((_, indiceCategoria) =>
-    stacked ? stackDiverging(series.map((_, indiceSerie) => contribuicao(indiceSerie, indiceCategoria))) : [],
+    stacked ? stackByAxis(series.map((_, indiceSerie) => contribuicao(indiceSerie, indiceCategoria)), eixos) : [],
   );
 
   function segmentoDa(indiceSerie: number, indiceCategoria: number): [number, number] {
@@ -336,7 +374,7 @@ export function ChartBar({
       return [raioDoCanto, raioDoCanto, raioDoCanto, raioDoCanto];
     }
 
-    const pilha = pilhas[indiceCategoria];
+    const pilha = pilhas[indiceCategoria].filter((_, indice) => eixos[indice] === eixos[indiceSerie]);
     const extremo = fim < inicio ? Math.min(...pilha.map(([, ate]) => ate)) : Math.max(...pilha.map(([, ate]) => ate));
     const abre = fim !== inicio && inicio === 0 ? raioDoCanto : 0;
     const fecha = fim !== inicio && fim === extremo ? raioDoCanto : 0;
@@ -347,7 +385,14 @@ export function ChartBar({
   }
 
   /** Rotulo alem da ponta da barra: no negativo ela esta embaixo, ou a esquerda. */
-  function rotuloAlemDaPonta(valor: number, ponta: number, centro: number, chave: number, emFoco: boolean) {
+  function rotuloAlemDaPonta(
+    valor: number,
+    ponta: number,
+    centro: number,
+    chave: number | string,
+    emFoco: boolean,
+    formatar: (valor: number) => string,
+  ) {
     const negativo = valor < 0;
 
     return (
@@ -359,7 +404,7 @@ export function ChartBar({
         x={vertical ? centro : ponta + (negativo ? -AFASTAMENTO_DO_ROTULO : AFASTAMENTO_DO_ROTULO)}
         y={vertical ? ponta + (negativo ? AFASTAMENTO_DO_ROTULO : -AFASTAMENTO_DO_ROTULO) : centro}
       >
-        {formatValue(valor)}
+        {formatar(valor)}
       </text>
     );
   }
@@ -369,13 +414,16 @@ export function ChartBar({
     position: (escalaCategorias(categoria) ?? 0) + vao / 2,
   }));
 
-  const marcasValor: AxisTick[] = marcasDeValor.map((valor) => ({
-    label: formatValue(valor),
-    position: escalaValores(valor),
-  }));
+  const marcasDeValor = (valores: readonly number[], escala: (valor: number) => number, formatar: (valor: number) => string): AxisTick[] =>
+    valores.map((valor) => ({ label: formatar(valor), position: escala(valor) }));
 
   const eixoDeCategoria = { labelRotation: rotation, ticks: marcasCategoria, title: categoryAxisTitle };
-  const eixoDeValor = { hideLine: true, ticks: marcasValor, title: valueAxisTitle };
+  const eixoDeValor = { hideLine: true, ticks: marcasDeValor(marcasEsquerda, escalaEsquerda, formatValue), title: valueAxisTitle };
+  const eixoDeValorDireito = {
+    hideLine: true,
+    ticks: marcasDeValor(marcasDireita, escalaDireita, formatarDireita),
+    title: yAxisRightTitle,
+  };
 
   return (
     <CartesianFrame
@@ -388,8 +436,8 @@ export function ChartBar({
       font={font}
       grid={[
         {
-          baseline: escalaValores(0),
-          lines: marcasDeValor.map((valor) => escalaValores(valor)),
+          baseline: escalaEsquerda(0),
+          lines: marcasEsquerda.map((valor) => escalaEsquerda(valor)),
           orientation: vertical ? 'horizontal' : 'vertical',
         },
       ]}
@@ -404,7 +452,7 @@ export function ChartBar({
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor))} title={title} />
       }
       title={title}
       tooltip={
@@ -415,8 +463,8 @@ export function ChartBar({
               format: formatTooltipValue ?? formatValue,
               index: faixaEmFoco,
               isHidden,
-              series,
-              showTotal: stacked,
+              series: series.map((serie, indice) => ({ ...serie, format: eixos[indice] === 'right' ? formatarDireita : undefined })),
+              showTotal: stacked && !temEixoDireito,
             })
           : undefined
       }
@@ -424,7 +472,7 @@ export function ChartBar({
       width={width}
       xAxis={{ ...(vertical ? eixoDeCategoria : eixoDeValor), visibility: xAxis }}
       yAxis={{ ...(vertical ? eixoDeValor : eixoDeCategoria), visibility: yAxis }}
-      yAxisRight={{ ...(vertical ? eixoDeValor : eixoDeCategoria), hideLine: true, title: undefined, visibility: yAxisRight }}
+      yAxisRight={{ ...(vertical ? eixoDeValorDireito : { ...eixoDeCategoria, title: undefined }), hideLine: true, visibility: visibilidadeDireita }}
     >
       {faixaEmFoco !== null && (
         <BandCursor
@@ -452,8 +500,9 @@ export function ChartBar({
 
               const inicioCategoria = escalaCategorias(categoria) ?? 0;
               const [de, ate] = segmentoDa(indiceSerie, indiceCategoria);
-              const comeco = escalaValores(de);
-              const fim = escalaValores(ate);
+              const escala = escalaDa(indiceSerie);
+              const comeco = escala(de);
+              const fim = escala(ate);
               const tamanho = Math.abs(fim - comeco);
               const espessura = espessuraDa(indiceSerie);
               const deslocamento = deslocamentoDa(indiceSerie);
@@ -461,7 +510,7 @@ export function ChartBar({
               return (
                 <path
                   {...marcas.markProps({ column: indiceCategoria, row: indiceSerie }, styles.bar)}
-                  aria-label={`${serie.label}, ${categoria}: ${formatValue(serie.values[indiceCategoria])}`}
+                  aria-label={`${serie.label}, ${categoria}: ${formatoDa(indiceSerie)(serie.values[indiceCategoria])}`}
                   d={roundedBarPath(
                     vertical ? inicioCategoria + deslocamento : Math.min(comeco, fim),
                     vertical ? Math.min(comeco, fim) : inicioCategoria + deslocamento,
@@ -495,7 +544,7 @@ export function ChartBar({
                 const centro =
                   (escalaCategorias(categoria) ?? 0) + deslocamentoDa(indiceSerie) + espessuraDa(indiceSerie) / 2;
 
-                return rotuloAlemDaPonta(valor, escalaValores(valor), centro, indiceCategoria, indiceSerie === serieEmFoco);
+                return rotuloAlemDaPonta(valor, escalaDa(indiceSerie)(valor), centro, indiceCategoria, indiceSerie === serieEmFoco, formatoDa(indiceSerie));
               })}
           </g>
         );
@@ -504,22 +553,32 @@ export function ChartBar({
 
       {rotulosDeDado !== 'hidden' &&
         stacked &&
-        categories.map((categoria, indiceCategoria) => {
-          const presentes = series.filter(
-            (serie) => !isHidden(serie.label) && Number.isFinite(serie.values[indiceCategoria]),
-          );
+        categories.flatMap((categoria, indiceCategoria) =>
+          (['left', 'right'] as const).map((eixo) => {
+            const indices = series.flatMap((serie, indice) =>
+              eixos[indice] === eixo && !isHidden(serie.label) && Number.isFinite(serie.values[indiceCategoria]) ? [indice] : [],
+            );
 
-          if (presentes.length === 0) {
-            return null;
-          }
+            if (indices.length === 0) {
+              return null;
+            }
 
-          const total = presentes.reduce((soma, serie) => soma + serie.values[indiceCategoria], 0);
-          const pontas = pilhas[indiceCategoria].map(([, ate]) => ate);
-          const extremo = total < 0 ? Math.min(0, ...pontas) : Math.max(0, ...pontas);
-          const centro = (escalaCategorias(categoria) ?? 0) + vao / 2;
+            const total = indices.reduce((soma, indice) => soma + series[indice].values[indiceCategoria], 0);
+            const pontas = indices.map((indice) => pilhas[indiceCategoria][indice][1]);
+            const extremo = total < 0 ? Math.min(0, ...pontas) : Math.max(0, ...pontas);
+            const posicao = posicaoNaFaixa(indices[0]);
+            const centro = (escalaCategorias(categoria) ?? 0) + posicao.offset + posicao.thickness / 2;
 
-          return rotuloAlemDaPonta(total, escalaValores(extremo), centro, indiceCategoria, indiceCategoria === faixaEmFoco);
-        })}
+            return rotuloAlemDaPonta(
+              total,
+              escalaDa(indices[0])(extremo),
+              centro,
+              `${indiceCategoria}-${eixo}`,
+              indiceCategoria === faixaEmFoco,
+              formatoDa(indices[0]),
+            );
+          }),
+        )}
     </CartesianFrame>
   );
 }

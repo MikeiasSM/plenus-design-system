@@ -198,6 +198,18 @@ interface FitOptions {
   padding?: number;
 }
 
+function extentOf(width: number, height: number, padding: number): [[number, number], [number, number]] {
+  return [
+    [padding, padding],
+    [Math.max(width - padding, padding + 1), Math.max(height - padding, padding + 1)],
+  ];
+}
+
+/** Escala da projecao no teto da aproximacao: 100 vezes a do mapa inteiro. */
+export function zoomCeiling(all: readonly MapRegion[], width: number, height: number, padding = MAP_PADDING) {
+  return geoMercator().fitExtent(extentOf(width, height, padding), cornersOf(all)).scale() * MAX_MARKER_ZOOM;
+}
+
 /** Projecao que enquadra a caixa na area, com teto de aproximacao relativo ao mapa inteiro quando pedido. */
 export function fitProjection(
   corners: MapCorners,
@@ -206,10 +218,7 @@ export function fitProjection(
   height: number,
   { maxZoom, padding = MAP_PADDING }: FitOptions,
 ): GeoProjection {
-  const extent: [[number, number], [number, number]] = [
-    [padding, padding],
-    [Math.max(width - padding, padding + 1), Math.max(height - padding, padding + 1)],
-  ];
+  const extent = extentOf(width, height, padding);
   const projection = geoMercator().fitExtent(extent, corners);
 
   if (maxZoom === undefined) {

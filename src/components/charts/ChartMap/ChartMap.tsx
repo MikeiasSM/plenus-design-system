@@ -43,12 +43,16 @@ import {
   projectedBounds,
   projectedParts,
   regionsOf,
+  zoomCeiling,
   type ChartMapFeature,
   type ChartMapFeatureCollection,
   type MapCorners,
   type MapRegion,
 } from './mapGeometry';
 import { CALLOUT_GAP, calloutWidth, planLabels, type LabelCandidate, type LabelPlan } from './mapLabels';
+import { ChartMapZoomControls, zoomAnnouncement, zoomHint } from './ChartMapZoomControls';
+import { centerView, clampView, initialView, isInitialView, projectionOf, sameView, viewFrame, ZOOM_STEP, zoomView, type ChartMapView } from './mapView';
+import { useMapGestures } from './useMapGestures';
 import { buildColorScale, type ChartColorScale, type ColorScale } from '../scales/colorScale';
 import type { Point, Ring } from './polylabel';
 import chartStyles from '../core/Chart.module.css';
@@ -98,13 +102,19 @@ export type ChartMapMark = ({ kind: 'region' } & ChartMapRegion) | ({ kind: 'mar
 
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
+export type { ChartMapView };
+
 export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cor de tema que abre a paleta das categorias e dos marcadores, como nos demais gráficos. */
   accent?: string;
+  /** Espécies de marca que viram botão e avisam `onMarkClick`. Por padrão, todas; as demais ficam só como desenho. */
+  clickableMarks?: readonly ChartMapMark['kind'][];
   colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
   /** Faixas ocultas de inicio, no modo nao controlado, pelo indice. */
   defaultHiddenClasses?: readonly number[];
+  /** Vista de inicio, no modo nao controlado. Sem ela, o enquadramento inicial. */
+  defaultView?: ChartMapView;
   /** Categorias e series de marcadores ocultas de inicio, pelo `id`, no modo nao controlado. */
   defaultHidden?: readonly string[];
   /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
@@ -165,6 +175,8 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   onRegionClick?: (region: ChartMapRegion) => void;
   /** Com ele, as regioes viram botoes, e o clique escolhe a regiao ou, na escolhida, a desfaz. */
   onSelectedRegionChange?: (id: string | null) => void;
+  /** A vista nova, a cada aproximação, afastamento ou arraste. */
+  onViewChange?: (view: ChartMapView) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   regionLabels?: MarkVisibility;
@@ -185,6 +197,10 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   subdivisions?: ChartMapFeatureCollection;
   title: string;
   valueLabel?: string;
+  /** Vista controlada: o centro e a escala, com 1 no enquadramento inicial. A escala vai de 1 a 100 vezes o mapa inteiro. */
+  view?: ChartMapView;
+  /** Liga zoom e arraste: botões, Ctrl ou ⌘ com a rolagem, dois dedos, e `+`, `-`, `0` e Shift com as setas no teclado. */
+  zoomable?: boolean;
 }
 
 interface RegionEntry {
@@ -221,6 +237,9 @@ const SIDE_LEGEND_MAX = 240;
 /** Espessura da divisa em relacao a borda da regiao. */
 const SUBDIVISION_RATIO = 0.6;
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
+const ALL_MARK_KINDS: readonly ChartMapMark['kind'][] = ['region', 'marker'];
+/** Folga alem da area, em px, em que o desenho ainda e recortado: a borda da regiao no limite nao aparece como linha. */
+const CLIP_MARGIN = 16;
 
 const defaultPercent = (ratio: number) => formatPercent(ratio, { decimals: 1 });
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
@@ -231,6 +250,8 @@ function strokeWidthFor(count: number) {
 }
 
 interface MapLayout {
+  /** Largura da area onde o mapa e enquadrado: a do desenho menos a coluna dos rotulos fora da regiao. */
+  drawingWidth: number;
   height: number;
   plan: LabelPlan;
   projection: GeoProjection;
@@ -256,14 +277,57 @@ interface LayoutInput {
   width: number;
 }
 
+interface LabelInput {
+  callouts: boolean;
+  /** So as regioes que cabem inteiras na area recebem rotulo: a que passa dela nao tem onde pousar o seu. */
+  cropped: boolean;
+  drawingWidth: number;
+  font: LabelFont;
+  height: number;
+  projection: GeoProjection;
+  target: readonly MapRegion[];
+  valueOf: (region: MapRegion) => string | undefined;
+}
+
+const NO_LABELS: LabelPlan = { callouts: [], inside: [] };
+
+function planRegionLabels({ callouts, cropped, drawingWidth, font, height, projection, target, valueOf }: LabelInput): LabelPlan {
+  const visible = cropped
+    ? target.filter((region) => {
+        const [[left, top], [right, bottom]] = projectedBounds(region, projection);
+        return left >= 0 && top >= 0 && right <= drawingWidth && bottom <= height;
+      })
+    : target;
+  const candidates = visible.map((region): LabelCandidate => {
+    let parts: Ring[][] | undefined;
+
+    return {
+      bounds: projectedBounds(region, projection),
+      id: region.id,
+      get parts() {
+        parts ??= projectedParts(region, projection);
+        return parts;
+      },
+      title: region.label,
+      value: valueOf(region),
+    };
+  });
+
+  return planLabels(candidates, {
+    callouts,
+    calloutStep: font.lineHeight,
+    height,
+    lineHeight: font.size + 1,
+    measure: (text) => measureLabel(text, font),
+    right: drawingWidth,
+  });
+}
+
 /**
  * Enquadra e rotula. A altura e a que a geometria pede na largura, ate a maxima, sem faixa vazia. Quando algum rotulo
  * vai para a coluna, o desenho cede a largura dela e e enquadrado e rotulado de novo.
  */
 function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight, target, valueOf, width }: LayoutInput): MapLayout {
-  const measure = (text: string) => measureLabel(text, font);
-  const lineHeight = font.size + 1;
-
   const corners = frame?.corners ?? cornersOf(target);
   const padding = frame?.padding ?? MAP_PADDING;
   const maxZoom = frame ? MAX_MARKER_ZOOM : target.length === all.length ? undefined : MAX_FOCUS_ZOOM;
@@ -273,45 +337,11 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
       ? maxHeight
       : Math.round(Math.min(maxHeight, Math.max(MIN_HEIGHT, naturalHeight(corners, drawingWidth, padding))));
     const projection = fitProjection(corners, all, drawingWidth, height, { maxZoom, padding });
+    const plan = labels
+      ? planRegionLabels({ callouts: withCallouts, cropped: frame !== undefined, drawingWidth, font, height, projection, target, valueOf })
+      : NO_LABELS;
 
-    if (!labels) {
-      return { height, plan: { callouts: [], inside: [] }, projection };
-    }
-
-    // Enquadrado pelos marcadores, a regiao que passa da area nao tem onde pousar o rotulo.
-    const visible = frame
-      ? target.filter((region) => {
-          const [[left, top], [right, bottom]] = projectedBounds(region, projection);
-          return left >= 0 && top >= 0 && right <= drawingWidth && bottom <= height;
-        })
-      : target;
-    const candidates = visible.map((region): LabelCandidate => {
-      let parts: Ring[][] | undefined;
-
-      return {
-        bounds: projectedBounds(region, projection),
-        id: region.id,
-        get parts() {
-          parts ??= projectedParts(region, projection);
-          return parts;
-        },
-        title: region.label,
-        value: valueOf(region),
-      };
-    });
-
-    return {
-      height,
-      plan: planLabels(candidates, {
-        callouts: withCallouts,
-        calloutStep: font.lineHeight,
-        height,
-        lineHeight,
-        measure,
-        right: drawingWidth,
-      }),
-      projection,
-    };
+    return { drawingWidth, height, plan, projection };
   };
 
   const first = pass(width);
@@ -320,10 +350,19 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
     return first;
   }
 
+  const measure = (text: string) => measureLabel(text, font);
   const gutter = Math.ceil(Math.max(...first.plan.callouts.map((label) => calloutWidth(label, measure))) + CALLOUT_GAP + 4);
 
   // A coluna so fica enquanto o mapa ainda cabe ao lado dela: sem isso, o mapa fica por conta do rotulo.
   return width - gutter < CHART_MIN_PLOT.width ? pass(width, false) : pass(Math.max(width - gutter, width / 2));
+}
+
+function isKeyboardFocus(element: Element) {
+  try {
+    return element.matches(':focus-visible');
+  } catch {
+    return true;
+  }
 }
 
 function isDimmed(key: string | undefined, highlightedKey: string | null) {
@@ -337,12 +376,14 @@ function isDimmed(key: string | undefined, highlightedKey: string | null) {
  */
 export function ChartMap({
   accent,
+  clickableMarks = ALL_MARK_KINDS,
   colorScale = DEFAULT_SCALE,
   data = [],
   defaultHidden,
   defaultHiddenClasses,
   defaultHiddenSeries,
   defaultSelectedRegion,
+  defaultView,
   emptyMessage = 'Sem dados',
   featureIdKey = 'id',
   featureLabelKey,
@@ -374,6 +415,7 @@ export function ChartMap({
   onMarkerClick,
   onRegionClick,
   onSelectedRegionChange,
+  onViewChange,
   palette,
   regionLabels = 'visible',
   selectedRegion,
@@ -386,11 +428,14 @@ export function ChartMap({
   subdivisions,
   title,
   valueLabel = 'Valor',
+  view,
+  zoomable = false,
   ...root
 }: ChartMapProps) {
   const titleId = useId();
   const summaryId = useId();
   const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;
+  const clipId = `${useId().replace(/[^\w-]/g, '')}-clip`;
   const outer = useChartMetrics();
   const plot = useChartMetrics();
   const touch = useTouchPin();
@@ -569,12 +614,14 @@ export function ChartMap({
 
   const labelsOn = regionLabels !== 'hidden';
   const valuesOn = showDataLabels !== 'hidden' && scale.numeric;
-  const layout = useMemo(() => {
+  const valueOf = useMemo(() => {
+    const valueTexts = new Map(entries.map((entry) => [entry.region.id, entry.valueText]));
+    return (region: MapRegion) => (valuesOn ? valueTexts.get(region.id) : undefined);
+  }, [entries, valuesOn]);
+  const baseLayout = useMemo(() => {
     if (width === 0 || empty || maxHeight === 0) {
       return undefined;
     }
-
-    const valueTexts = new Map(entries.map((entry) => [entry.region.id, entry.valueText]));
 
     return layoutMap({
       all: regions,
@@ -585,29 +632,113 @@ export function ChartMap({
       frame: markerFrame,
       maxHeight,
       target: inPlay,
-      valueOf: (region) => (valuesOn ? valueTexts.get(region.id) : undefined),
+      valueOf,
       width,
     });
-  }, [empty, entries, fillHeight, inPlay, labelsOn, markerFrame, maxHeight, plot.font, regions, smallRegionLabels, valuesOn, width]);
+  }, [empty, fillHeight, inPlay, labelsOn, markerFrame, maxHeight, plot.font, regions, smallRegionLabels, valueOf, width]);
+
+  const markerPositions = useMemo(
+    () => [...validPoints].map((point): Point => [point.longitude, point.latitude]),
+    [validPoints],
+  );
+  const viewport = useMemo(
+    () =>
+      zoomable && baseLayout
+        ? viewFrame({
+            base: baseLayout.projection,
+            ceiling: zoomCeiling(regions, baseLayout.drawingWidth, baseLayout.height, markerFrame?.padding),
+            content: cornersOf(regions, markerPositions),
+            height: baseLayout.height,
+            width: baseLayout.drawingWidth,
+          })
+        : undefined,
+    [baseLayout, markerFrame, markerPositions, regions, zoomable],
+  );
+  const [internalView, setInternalView] = useState(defaultView ?? null);
+  const [viewChanged, setViewChanged] = useState(false);
+  const requestedView = view ?? internalView;
+  const [requestedLongitude, requestedLatitude] = requestedView?.center ?? [0, 0];
+  const requestedScale = requestedView?.scale;
+  const activeView = useMemo(
+    () =>
+      viewport &&
+      (requestedScale === undefined
+        ? initialView(viewport)
+        : clampView(viewport, { center: [requestedLongitude, requestedLatitude], scale: requestedScale })),
+    [requestedLatitude, requestedLongitude, requestedScale, viewport],
+  );
+  const moved = viewport !== undefined && activeView !== undefined && !isInitialView(viewport, activeView);
+
+  function commitView(next: ChartMapView) {
+    if (!viewport || !activeView || sameView(viewport, next, activeView)) {
+      return;
+    }
+
+    if (view === undefined) {
+      setInternalView(next);
+    }
+    setViewChanged(true);
+    onViewChange?.(next);
+  }
+
+  const gestures = useMapGestures({ frame: viewport, onChange: commitView, svgRef, view: activeView, visible: !tableView });
+
+  // Com a vista deslocada, o mapa e reenquadrado e rotulado so com o que cabe: a coluna de rotulos fica de fora.
+  const layout = useMemo(() => {
+    if (!baseLayout || !viewport || !activeView || !moved) {
+      return baseLayout;
+    }
+
+    const projection = projectionOf(viewport, activeView);
+    const plan =
+      labelsOn && !gestures.dragging
+        ? planRegionLabels({
+            callouts: false,
+            cropped: true,
+            drawingWidth: baseLayout.drawingWidth,
+            font: plot.font,
+            height: baseLayout.height,
+            projection,
+            target: inPlay,
+            valueOf,
+          })
+        : NO_LABELS;
+
+    return { ...baseLayout, plan, projection };
+  }, [activeView, baseLayout, gestures.dragging, inPlay, labelsOn, moved, plot.font, valueOf, viewport]);
   const projection = layout?.projection;
   const plotHeight = layout?.height ?? 0;
+  const drawingWidth = layout?.drawingWidth ?? 0;
+  // O caminho recorta na area e pula a regiao que ficou toda fora dela: com a vista aproximada, as coordenadas iriam longe.
+  const pathProjection = useMemo(
+    () =>
+      moved && viewport && projection
+        ? projectionOf(viewport, activeView).clipExtent([[-CLIP_MARGIN, -CLIP_MARGIN], [drawingWidth + CLIP_MARGIN, plotHeight + CLIP_MARGIN]])
+        : projection,
+    [activeView, drawingWidth, moved, plotHeight, projection, viewport],
+  );
   const paths = useMemo(() => {
-    if (!projection) {
+    if (!projection || !pathProjection) {
       return new Map<string, string>();
     }
 
-    const path = geoPath(projection);
-    return new Map(regions.map((region) => [region.id, path(region.shape) ?? '']));
-  }, [projection, regions]);
+    const path = geoPath(pathProjection);
+    const isOutside = (region: MapRegion) => {
+      const [[left, top], [right, bottom]] = projectedBounds(region, projection);
+      return right < -CLIP_MARGIN || left > drawingWidth + CLIP_MARGIN || bottom < -CLIP_MARGIN || top > plotHeight + CLIP_MARGIN;
+    };
+
+    return new Map(regions.map((region) => [region.id, moved && isOutside(region) ? '' : (path(region.shape) ?? '')]));
+  }, [drawingWidth, moved, pathProjection, plotHeight, projection, regions]);
 
   // Um caminho so para a malha toda: com milhares de feicoes, um elemento por feicao pesaria.
   const subdivisionOutlines = useMemo(() => (subdivisions ? outlinesOf(subdivisions) : []), [subdivisions]);
   const subdivisionPath = useMemo(
     () =>
-      projection && subdivisionOutlines.length > 0
-        ? geoPath(projection)({ type: 'FeatureCollection', features: subdivisionOutlines })
+      pathProjection && subdivisionOutlines.length > 0
+        ? geoPath(pathProjection)({ type: 'FeatureCollection', features: subdivisionOutlines })
         : null,
-    [projection, subdivisionOutlines],
+    [pathProjection, subdivisionOutlines],
   );
 
   const placedMarkers: PlacedMarker[] = projection
@@ -637,14 +768,14 @@ export function ChartMap({
     : [];
 
   const clickRegion =
-    onMarkClick || onRegionClick
+    clickableMarks.includes('region') && (onMarkClick || onRegionClick)
       ? (region: ChartMapRegion) => {
           onMarkClick?.({ kind: 'region', ...region });
           onRegionClick?.(region);
         }
       : undefined;
   const clickMarker =
-    onMarkClick || onMarkerClick
+    clickableMarks.includes('marker') && (onMarkClick || onMarkerClick)
       ? (marker: ChartMapMarkerEvent) => {
           onMarkClick?.({ kind: 'marker', ...marker });
           onMarkerClick?.(marker);
@@ -733,18 +864,33 @@ export function ChartMap({
     onSelectedRegionChange?.(id);
   }
 
+  /** O centro da marca na area de desenho, mesmo fora da vista. */
+  function anchorOf(mark: string): Point {
+    const entry = entryOfMark(mark);
+    const marker = markerOfMark(mark);
+
+    return entry && projection ? geoPath(projection).centroid(entry.region.shape) : marker ? [marker.x, marker.y] : [0, 0];
+  }
+
+  /** A marca focada pelo teclado fora da vista leva a vista ate ela. */
+  function revealMark(mark: string | null, target: Element) {
+    if (!viewport || !activeView || !mark || !isKeyboardFocus(target)) {
+      return;
+    }
+
+    const [x, y] = anchorOf(mark);
+
+    if (Number.isFinite(x) && Number.isFinite(y) && (x < 0 || x > viewport.width || y < 0 || y > viewport.height)) {
+      commitView(centerView(viewport, activeView, [x, y]));
+    }
+  }
+
   /** A marca vizinha na direcao da seta, pelo centro de cada uma, como no artefato do componente. */
   function neighbor(from: string, [dx, dy]: readonly [number, number]) {
     if (!projection) {
       return undefined;
     }
 
-    const path = geoPath(projection);
-    const anchorOf = (mark: string): Point => {
-      const entry = entryOfMark(mark);
-      const marker = markerOfMark(mark);
-      return entry ? path.centroid(entry.region.shape) : marker ? [marker.x, marker.y] : [0, 0];
-    };
     const [x0, y0] = anchorOf(from);
     let best: string | undefined;
     let bestScore = Infinity;
@@ -776,7 +922,8 @@ export function ChartMap({
       ArrowUp: [0, -1],
     };
 
-    if (!mark || !marks.includes(mark)) {
+    // Com o mapa aproximado, Shift com a seta arrasta a vista em vez de percorrer as marcas.
+    if (!mark || !marks.includes(mark) || (zoomable && event.shiftKey)) {
       return;
     }
 
@@ -808,6 +955,7 @@ export function ChartMap({
       setFocusedMark(mark);
       setTabStopMark(mark);
       announceHover(mark);
+      revealMark(mark, event.target as Element);
     },
     onKeyDown: handleKeyDown,
     onMouseOut: () => hover(null),
@@ -871,7 +1019,10 @@ export function ChartMap({
   const summary = (() => {
     const count = plural(entries.length, 'região', 'regiões');
     const missing = noDataCount > 0 ? ` ${noDataCount} sem dado.` : '';
-    const hint = interactive ? ' Use as setas para percorrer as marcas.' : '';
+    const hint = [
+      interactive ? ' Use as setas para percorrer as marcas.' : '',
+      zoomable ? ' Use + e - para aproximar e afastar, 0 para voltar ao enquadramento e Shift com as setas para arrastar.' : '',
+    ].join('');
 
     if (!scale.numeric || ranked.length === 0) {
       return `Mapa de ${count}.${missing}${hint}`;
@@ -887,35 +1038,47 @@ export function ChartMap({
     return `${styles.label} ${onHoverOnly ? styles.labelOnHover : ''} ${activeRegionId === id ? styles.labelActive : ''}`;
   }
 
+  const clip = moved ? `url(#${clipId})` : undefined;
+  const zoomClass = zoomable ? `${styles.zoomable} ${gestures.dragging ? styles.dragging : ''}` : '';
+
   const svg = projection && (
     <svg
       aria-describedby={summaryId}
       aria-labelledby={titleId}
-      className={`${styles.canvas} ${fillHeight ? styles.canvasFill : ''}`}
+      className={`${styles.canvas} ${fillHeight ? styles.canvasFill : ''} ${zoomClass}`}
       height={plotHeight}
       ref={svgRef}
       role={interactive ? 'group' : 'img'}
+      tabIndex={zoomable && !interactive ? 0 : undefined}
       viewBox={`0 0 ${width} ${plotHeight}`}
       width={width}
+      {...(viewport ? gestures.props : undefined)}
     >
       <defs>
         <NoDataHatch id={hatchId} />
+        {zoomable && (
+          <clipPath id={clipId}>
+            <rect height={plotHeight} width={drawingWidth} />
+          </clipPath>
+        )}
       </defs>
 
-      <g aria-hidden="true" className={styles.passThrough}>
+      <g aria-hidden="true" className={styles.passThrough} clipPath={clip}>
         {contextShapes}
       </g>
 
-      <g {...markHandlers}>{regionShapes}</g>
+      <g clipPath={clip} {...markHandlers}>
+        {regionShapes}
+      </g>
 
       {subdivisionPath && (
-        <g aria-hidden="true" className={styles.passThrough}>
+        <g aria-hidden="true" className={styles.passThrough} clipPath={clip}>
           <path className={styles.subdivision} d={subdivisionPath} strokeWidth={Math.min(strokeWidth, strokeWidthFor(subdivisionOutlines.length)) * SUBDIVISION_RATIO} />
           {regionBorders}
         </g>
       )}
 
-      <g aria-hidden="true" className={styles.passThrough}>
+      <g aria-hidden="true" className={styles.passThrough} clipPath={clip}>
         {selectedIndex >= 0 && (
           <path className={styles.selectedOutline} d={paths.get(entries[selectedIndex].region.id)} />
         )}
@@ -923,7 +1086,7 @@ export function ChartMap({
         {focusedEntry && <path className={styles.focusOutline} d={paths.get(focusedEntry.region.id)} />}
       </g>
 
-      <g {...markHandlers}>
+      <g clipPath={clip} {...markHandlers}>
         {placedMarkers.map((marker) => (
           <circle
             aria-label={describeMarker(marker)}
@@ -949,7 +1112,7 @@ export function ChartMap({
         )}
       </g>
 
-      <g aria-hidden="true" className={styles.passThrough}>
+      <g aria-hidden="true" className={styles.passThrough} clipPath={clip}>
         {labelPlan.inside.map((label) => (
           <text className={labelClass(label.id, regionLabels === 'onHover')} key={label.id} x={label.x} y={label.y}>
             <tspan dominantBaseline="central" x={label.x} y={label.value ? label.y - lineHeight / 2 : label.y}>
@@ -1116,8 +1279,30 @@ export function ChartMap({
             valueLabel={valueLabel}
           />
         ) : (
-          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''}`} ref={plot.ref} {...touch.props}>
+          <div className={`${styles.plot} ${fillHeight ? styles.plotFill : ''} ${zoomable ? styles.plotZoomable : ''}`} ref={plot.ref} {...touch.props}>
             {svg && (showTooltip ? <ChartTooltip {...tooltip}>{svg}</ChartTooltip> : svg)}
+            {viewport && activeView && (
+              <>
+                {(outer.width === 0 || outer.width >= TABLE_TOGGLE_MIN_WIDTH) && (
+                  <ChartMapZoomControls
+                    canReset={moved}
+                    canZoomIn={activeView.scale < viewport.maxScale}
+                    canZoomOut={activeView.scale > 1}
+                    onReset={() => commitView(initialView(viewport))}
+                    onZoomIn={() => commitView(zoomView(viewport, activeView, ZOOM_STEP, [viewport.width / 2, viewport.height / 2]))}
+                    onZoomOut={() => commitView(zoomView(viewport, activeView, 1 / ZOOM_STEP, [viewport.width / 2, viewport.height / 2]))}
+                  />
+                )}
+                <span className={styles.visuallyHidden} role="status">
+                  {zoomAnnouncement(activeView.scale, viewChanged && !moved)}
+                </span>
+                {gestures.hint && (
+                  <span aria-hidden="true" className={styles.zoomHint}>
+                    {zoomHint()}
+                  </span>
+                )}
+              </>
+            )}
           </div>
         )}
 
