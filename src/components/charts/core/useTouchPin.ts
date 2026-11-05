@@ -30,7 +30,7 @@ function dispatchMouse(type: 'mousemove' | 'mouseout' | 'mouseover', target: Ele
  * entao o toque despacha esses eventos na marca tocada e os mantem ate outro toque, no lugar dos que o navegador
  * gera do toque, que sao descartados. Tocar numa marca a fixa; em outra, troca; fora do desenho, ou rolar, solta. O
  * primeiro toque so fixa: o clique segue no toque na marca ja fixada. O dedo na marca nao a foca, que o foco avisaria
- * a marca de novo. A rolagem fica intacta: nada muda o `touch-action`. Mouse e caneta nao passam por aqui.
+ * a marca de novo. A rolagem fica intacta: nada aqui muda o `touch-action`. Mouse e caneta nao passam por aqui.
  */
 export function useTouchPin() {
   const [pinned, setPinned] = useState<Element | null>(null);

@@ -7,7 +7,8 @@ import {
   PointBands,
   PointCursor,
   areaPath,
-  seriesInScale,
+  axisOf,
+  stackByAxis,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -19,6 +20,8 @@ import {
   useMarkNavigation,
   useSeriesToggle,
   useTweenedNumbers,
+  useValueScales,
+  valueAxisDomains,
   valueLabelRoom,
   valueLabelsFor,
   type AxisLabelAngle,
@@ -32,12 +35,13 @@ import {
   type MarkVisibility,
   type ChartPoint,
   type ChartRootProps,
+  type ChartValueAxis,
   type ChartCategoryHover,
   type ChartMarkClick,
   type MarkPosition,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { domainOf, linearScale, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
+import { domainOf, mergeDomains, pointScale, stackDiverging, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartArea.module.css';
@@ -59,6 +63,8 @@ function alturaDoZero(faixas: readonly (ChartBand | null)[], base: number) {
 }
 
 export interface ChartAreaSeries extends SeriesAppearance {
+  /** Eixo de valor da serie. Com alguma a direita, o eixo da direita ganha escala propria. */
+  axis?: ChartValueAxis;
   label: string;
   values: readonly (number | null)[];
 }
@@ -72,7 +78,9 @@ export interface ChartAreaProps extends Omit<ChartRootProps, 'hidden'> {
   /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
+  formatRightValue?: (value: number) => string;
+  /** Formato dos valores no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   /**
@@ -91,6 +99,8 @@ export interface ChartAreaProps extends Omit<ChartRootProps, 'hidden'> {
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
+  /** O mesmo para o eixo da direita. */
+  minRightTickStep?: number;
   /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
@@ -117,6 +127,7 @@ export interface ChartAreaProps extends Omit<ChartRootProps, 'hidden'> {
   /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
+  /** Empilha so as series do mesmo eixo: cada eixo tem a sua pilha. */
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
@@ -125,6 +136,7 @@ export interface ChartAreaProps extends Omit<ChartRootProps, 'hidden'> {
   /** Linhas horizontais de referência e a linha do zero. */
   showGrid?: boolean;
   yAxis?: AxisVisibility;
+  /** Padrao: escondido; visivel quando alguma serie esta a direita. */
   yAxisRight?: AxisVisibility;
   /** Titulo do eixo de valor da direita. */
   yAxisRightTitle?: string;
@@ -140,6 +152,7 @@ export function ChartArea({
   defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
+  formatRightValue,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
@@ -147,6 +160,7 @@ export function ChartArea({
   hidden,
   hiddenSeries,
   labelAngle = 'auto',
+  minRightTickStep,
   minTickStep,
   legend = 'bottom',
   legendAlign,
@@ -168,7 +182,7 @@ export function ChartArea({
   xAxisTitle,
   showGrid = true,
   yAxis = 'visible',
-  yAxisRight = 'hidden',
+  yAxisRight,
   yAxisRightTitle,
   yAxisTitle,
   ...root
@@ -195,24 +209,27 @@ export function ChartArea({
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
-  const dominio = useMemo(() => {
-    const naEscala = seriesInScale(series, isOutOfScale);
-    const visivel = (ordem: number) => (naEscala.includes(series[ordem]) ? 1 : 0);
+  const eixos = useMemo(() => series.map(axisOf), [series]);
+  const temEixoDireito = eixos.includes('right');
+  const formatarDireita = formatRightValue ?? formatValue;
+  const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
+  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
 
-    if (stacked) {
-      return domainOf(
-        categories.flatMap((_, indice) =>
-          stackDiverging(series.map((serie, ordem) => (serie.values[indice] ?? 0) * visivel(ordem))).flat(),
-        ),
-      );
-    }
-
-    return mergeDomains(
-      naEscala.map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero })),
-    );
-  }, [categories, includeZero, isOutOfScale, series, stacked]);
-
-  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
+  const dominios = useMemo(
+    () =>
+      valueAxisDomains({
+        alignZero: stacked || includeZero,
+        axes: eixos,
+        domainOfSeries: (grupo) =>
+          stacked
+            ? domainOf(categories.flatMap((_, indice) => stackDiverging(grupo.map((serie) => serie.values[indice] ?? 0)).flat()))
+            : mergeDomains(grupo.map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero }))),
+        isOutOfScale,
+        series,
+      }),
+    [categories, eixos, includeZero, isOutOfScale, series, stacked],
+  );
+  const [dominioEsquerda, dominioDireita] = dominios;
 
   const entradasDaLegenda = series.map((serie, indice) => ({
     color: cores[indice],
@@ -227,13 +244,13 @@ export function ChartArea({
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: rotulosDeValor,
-    rightLabels: rotulosDeValor,
+    leftLabels: valueLabelsFor(dominioEsquerda, alturaDoDesenho, formatValue, minTickStep),
+    rightLabels: valueLabelsFor(dominioDireita, alturaDoDesenho, formatarDireita, passoDireito),
     topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
-    yAxisRight,
+    yAxisRight: visibilidadeDireita,
   });
 
   const escalaCategorias = useMemo(
@@ -266,25 +283,28 @@ export function ChartArea({
     showDots === 'onHover' ||
     showDataLabels === 'onHover';
 
-  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
-  // duas, as marcas exibiriam valores quebrados durante a transicao.
-  const escalaAlvo = useMemo(
-    () => linearScale({ domain: dominio, range: [plot.height, 0] }),
-    [dominio, plot.height],
-  );
+  const {
+    left: escalaEsquerda,
+    right: escalaDireita,
+    targetLeft: alvoEsquerda,
+    targetRight: alvoDireita,
+  } = useValueScales(dominios, plot.height, 0);
 
-  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+  const escalaDa = (indice: number) => (eixos[indice] === 'right' ? escalaDireita : escalaEsquerda);
+  const formatoDa = (indice: number) => (eixos[indice] === 'right' ? formatarDireita : formatValue);
 
-  const escalaValores = useMemo(
-    () => linearScale({ domain: { min: minimo, max: maximo }, nice: false, range: [plot.height, 0] }),
-    [maximo, minimo, plot.height],
-  );
+  const marcasEsquerda = ticksFor(alvoEsquerda, plot.height, undefined, minTickStep);
+  const marcasDireita = ticksFor(alvoDireita, plot.height, undefined, passoDireito);
 
-  const marcasDeValor = ticksFor(escalaAlvo, plot.height, undefined, minTickStep);
   // Sem o zero no dominio, a area desce ate o limite do eixo, e nao ate um zero fora do desenho.
-  const base = escalaValores(Math.min(Math.max(0, minimo), maximo));
+  const baseDa = (indice: number) => {
+    const escala = escalaDa(indice);
+    const [minimo = 0, maximo = 0] = escala.domain();
+
+    return escala(Math.min(Math.max(0, minimo), maximo));
+  };
   const pilhas = categories.map((_, indice) =>
-    stackDiverging(series.map((serie, ordem) => (serie.values[indice] ?? 0) * presenca(ordem))),
+    stackByAxis(series.map((serie, ordem) => (serie.values[indice] ?? 0) * presenca(ordem)), eixos),
   );
 
   const faixasPorSerie = series.map((serie, indiceSerie) =>
@@ -299,8 +319,8 @@ export function ChartArea({
 
       return {
         x: escalaCategorias(categoria) ?? 0,
-        y0: stacked ? escalaValores(de) : base,
-        y1: stacked ? escalaValores(ate) : escalaValores(valor),
+        y0: stacked ? escalaDa(indiceSerie)(de) : baseDa(indiceSerie),
+        y1: stacked ? escalaDa(indiceSerie)(ate) : escalaDa(indiceSerie)(valor),
       };
     }),
   );
@@ -334,10 +354,8 @@ export function ChartArea({
   }));
   const posicoesCategoria = marcasCategoria.map((marca) => marca.position);
 
-  const marcasValor: AxisTick[] = marcasDeValor.map((valor) => ({
-    label: formatValue(valor),
-    position: escalaValores(valor),
-  }));
+  const marcasDeValor = (valores: readonly number[], escala: (valor: number) => number, formatar: (valor: number) => string): AxisTick[] =>
+    valores.map((valor) => ({ label: formatar(valor), position: escala(valor) }));
 
   return (
     <CartesianFrame
@@ -350,8 +368,8 @@ export function ChartArea({
         showGrid
           ? [
               {
-                baseline: escalaValores(0),
-                lines: marcasDeValor.map((valor) => escalaValores(valor)),
+                baseline: escalaEsquerda(0),
+                lines: marcasEsquerda.map((valor) => escalaEsquerda(valor)),
                 orientation: 'horizontal',
               },
             ]
@@ -370,7 +388,7 @@ export function ChartArea({
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor))} title={title} />
       }
       title={title}
       tooltip={
@@ -381,16 +399,21 @@ export function ChartArea({
               format: formatTooltipValue ?? formatValue,
               index: categoriaEmFoco,
               isHidden,
-              series,
-              showTotal: stacked,
+              series: series.map((serie, indice) => ({ ...serie, format: eixos[indice] === 'right' ? formatarDireita : undefined })),
+              showTotal: stacked && !temEixoDireito,
             })
           : undefined
       }
       tooltipAnchor={pontos.tooltipAnchor}
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, title: xAxisTitle, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: marcasValor, title: yAxisTitle, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: marcasValor, title: yAxisRightTitle, visibility: yAxisRight }}
+      yAxis={{ hideLine: true, ticks: marcasDeValor(marcasEsquerda, escalaEsquerda, formatValue), title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{
+        hideLine: true,
+        ticks: marcasDeValor(marcasDireita, escalaDireita, formatarDireita),
+        title: yAxisRightTitle,
+        visibility: visibilidadeDireita,
+      }}
     >
       {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
@@ -401,7 +424,7 @@ export function ChartArea({
       {!stacked && (
         <defs>
           {series.map((serie, indice) => {
-            const zero = alturaDoZero(faixasPorSerie[indice], base);
+            const zero = alturaDoZero(faixasPorSerie[indice], baseDa(indice));
 
             return (
               <linearGradient id={`${gradienteId}-${indice}`} key={indice} x1="0" x2="0" y1="0" y2="1">
@@ -448,7 +471,7 @@ export function ChartArea({
                 return null;
               }
 
-              const descricao = `${serie.label}, ${categoria}: ${formatValue(serie.values[indice] ?? 0)}`;
+              const descricao = `${serie.label}, ${categoria}: ${formatoDa(indiceSerie)(serie.values[indice] ?? 0)}`;
 
               const classeDoPonto = markShown(visibilidadeDosPontos, indiceSerie === serieEmFoco) || isolada(faixas, indice) ? chartStyles.dotVisible : chartStyles.dot;
 
@@ -487,7 +510,7 @@ export function ChartArea({
                     x={faixa.x + dx}
                     y={below ? faixa.y1 + font.lineHeight + 2 : faixa.y1 - 10}
                   >
-                    {formatValue(serie.values[indice] ?? 0)}
+                    {formatoDa(indiceSerie)(serie.values[indice] ?? 0)}
                   </text>
                 );
               })}

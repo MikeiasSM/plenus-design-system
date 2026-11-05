@@ -108,6 +108,33 @@ const BAIRROS_DE_MANAUS: ChartMapMarkerSeries[] = [
     ).map(([id, label, latitude, longitude, value]) => ({ id, label, latitude, longitude, value })),
   },
 ];
+/** Cinquenta e quatro pontos num raio de uns 12 km da capital paulista e cinco longe dela: de longe, o aglomerado vira uma mancha. */
+
+const CLIENTES_ESPARSOS: ChartMapMarkerSeries[] = [
+  {
+    id: 'clientes',
+    label: 'Clientes',
+    points: [
+      ...Array.from({ length: 54 }, (_, indice) => {
+        const angulo = indice * 2.39996;
+        const distancia = 0.015 * Math.sqrt(indice + 1);
+        return {
+          id: `sp-${indice}`,
+          label: `Cliente ${indice + 1} da capital paulista`,
+          latitude: -23.55 + distancia * Math.sin(angulo),
+          longitude: -46.63 + distancia * Math.cos(angulo),
+          value: 10 + ((indice * 37) % 90),
+        };
+      }),
+      ...(
+        [
+          ['manaus', 'Manaus', -3.12, -60.02, 80], ['recife', 'Recife', -8.05, -34.88, 60], ['porto-alegre', 'Porto Alegre', -30.03, -51.23, 70],
+          ['brasilia', 'Brasília', -15.79, -47.88, 90], ['fortaleza', 'Fortaleza', -3.73, -38.52, 50],
+        ] as const
+      ).map(([id, label, latitude, longitude, value]) => ({ id, label, latitude, longitude, value })),
+    ],
+  },
+];
 const AMAZONAS = { ...MALHA_DAS_UFS, features: MALHA_DAS_UFS.features.filter((feicao) => feicao.id === 'AM') };
 const IDS_DOS_BAIRROS = BAIRROS_DE_MANAUS[0].points.map((bairro) => bairro.id);
 
@@ -772,6 +799,39 @@ export const pagina: Pagina = {
     },
     {
       largo: true,
+      titulo: 'Marcadores esparsos com aglomerado',
+      descricao:
+        'Cinquenta e quatro clientes concentrados na capital paulista e cinco bem longe: no enquadramento do país o aglomerado vira uma mancha. Com zoomable, os botões, Ctrl ou ⌘ com a rolagem, a pinça com dois dedos, o arraste e as teclas + - 0 aproximam até separar os pontos, e o raio deles segue em pixels.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartMap
+            colorScale={{ type: 'none' }}
+            featureNameKey="properties.nome"
+            geometry={MALHA_DAS_UFS}
+            height={440}
+            markers={CLIENTES_ESPARSOS}
+            markerMaxSize={10}
+            markerValueLabel="Pedidos"
+            regionLabels="hidden"
+            title="Clientes por localização"
+            zoomable
+          />
+        </div>
+      ),
+      codigo: `<ChartMap
+  title="Clientes por localização"
+  geometry={malhaDasUfs}
+  featureNameKey="properties.nome"
+  colorScale={{ type: 'none' }}
+  markers={[{ id: 'clientes', label: 'Clientes', points: clientes }]}
+  markerValueLabel="Pedidos"
+  markerMaxSize={10}
+  regionLabels="hidden"
+  zoomable
+/>`,
+    },
+    {
+      largo: true,
       titulo: 'Municípios do Nordeste',
       descricao:
         'Os 1.794 municípios, carregados sob demanda, em sete quantis: a concentração nas capitais apagaria a escala linear. As outras UFs ficam como contexto. Clicar num município desce para a UF dele, e a página troca a geometria. Geografia, área e população: IBGE, referência 2025; vendas simuladas.',
@@ -946,6 +1006,11 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'subdivisions', tipo: 'ChartMapFeatureCollection', descricao: 'Contorno por dentro das regiões, como as divisas das UFs numa visão por macrorregião. Mesma projeção da geometria; traço fino, sem preenchimento, rótulo nem interação, fora da tabela e da legenda. A borda da região segue por cima.' },
     { nome: 'focus', tipo: 'readonly string[]', descricao: 'Ids que o enquadramento abraça, com teto de aproximação; o resto fica como contexto.' },
     { nome: 'focusMarkers', tipo: 'readonly string[]', descricao: 'Ids de marcador que o enquadramento abraça, com margem do maior raio e teto de 100 vezes a aproximação do mapa inteiro. As regiões seguem desenhadas e interativas; com focus, o enquadramento abraça as regiões e esses marcadores.' },
+    { nome: 'zoomable', tipo: 'boolean', padrao: 'false', descricao: <>Liga zoom e arraste, sobre a projeção do mapa. Botões Aproximar, Afastar e Voltar ao enquadramento (saem abaixo de 200px); Ctrl ou ⌘ com a rolagem, ancorado no cursor; arraste com o botão pressionado; dois dedos aproximam e arrastam, e um dedo segue rolando a página; no teclado, <code>+</code>, <code>-</code>, <code>0</code> e Shift com as setas. A área do mapa passa a usar <code>touch-action: pan-x pan-y</code>. A marca focada por teclado fora da vista leva a vista até ela.</> },
+    { nome: 'view', tipo: 'ChartMapView', descricao: <><code>{'{ center: [longitude, latitude], scale }'}</code>, no modo controlado. <code>scale</code> 1 é o enquadramento inicial (o de <code>focus</code> e <code>focusMarkers</code>), no mínimo; o máximo é 100 vezes o mapa inteiro.</> },
+    { nome: 'defaultView', tipo: 'ChartMapView', descricao: 'A vista de início, no modo não controlado. Sem ela, o enquadramento inicial.' },
+    { nome: 'onViewChange', tipo: '(view: ChartMapView) => void', descricao: 'A vista nova, a cada aproximação, afastamento ou arraste.' },
+    { nome: 'clickableMarks', tipo: "readonly ('region' | 'marker')[]", padrao: "['region', 'marker']", descricao: <>Espécies que viram botão e avisam <code>onMarkClick</code>. As demais seguem como desenho, fora do Tab. Vale também para <code>onRegionClick</code> e <code>onMarkerClick</code>.</> },
     { nome: 'selectedRegion', tipo: 'string | null', descricao: 'Região com contorno de seleção, no modo controlado.' },
     { nome: 'defaultSelectedRegion', tipo: 'string | null', descricao: 'Região escolhida de início, no modo não controlado. Com ela, as regiões viram botões.' },
     { nome: 'onSelectedRegionChange', tipo: '(id: string | null) => void', descricao: 'O clique escolhe a região, ou desfaz a escolha na já escolhida. Com ela, as regiões viram botões.' },

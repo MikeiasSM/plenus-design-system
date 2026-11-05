@@ -332,4 +332,27 @@ describe('ChartSankey', () => {
     expect(screen.queryByRole('button', { name: /→/ })).toBeNull();
     expect(screen.getByRole('button', { name: 'Receita' })).toBeInTheDocument();
   });
+
+  it('com clickableMarks, so a especie listada vira botao e chama onMarkClick; os nos seguem desenhados', () => {
+    fixarTamanho();
+    const aoClicar = vi.fn();
+    render(<ChartSankey clickableMarks={['flow']} flows={caixa} onMarkClick={aoClicar} title="Caixa" />);
+
+    expect(screen.queryByRole('button', { name: 'Custos' })).toBeNull();
+    expect(screen.getAllByRole('graphics-symbol', { name: /Custos/ }).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole('button', { name: /^Receita → Custos/ }));
+    expect(aoClicar).toHaveBeenCalledTimes(1);
+    expect(aoClicar).toHaveBeenCalledWith({ kind: 'flow', ...caixa.find((fluxo) => fluxo.target === 'Custos') });
+  });
+
+  it('com clickableMarks so de nos, as ligacoes deixam de ser botoes', () => {
+    fixarTamanho();
+    const aoClicar = vi.fn();
+    render(<ChartSankey clickableMarks={['node']} flows={caixa} onMarkClick={aoClicar} title="Caixa" />);
+
+    expect(screen.queryByRole('button', { name: /→/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Custos' }));
+    expect(aoClicar).toHaveBeenCalledWith({ kind: 'node', label: 'Custos', value: 600 });
+  });
 });

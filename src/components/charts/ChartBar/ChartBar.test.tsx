@@ -568,4 +568,80 @@ describe('ChartBar', () => {
       expect(alturaDaBarra()).toBeLessThan(semTitulo);
     });
   });
+
+  describe('eixo por série', () => {
+    const duasEscalas: ChartBarSeries[] = [
+      { label: 'Faturamento', values: [600, 1000] },
+      { axis: 'right', label: 'Conversão', values: [6, 10] },
+    ];
+
+    it('forma a escala da direita só pelas séries da direita', () => {
+      render(<ChartBar categories={periodos} series={duasEscalas} title="Faturamento" />);
+
+      // O maior valor de cada série ocupa a mesma altura: o topo da escala que é dela.
+      expect(caixaDe(barras()[1]).altura).toBeCloseTo(caixaDe(barras()[3]).altura);
+      expect(caixaDe(barras()[0]).altura).toBeCloseTo(caixaDe(barras()[2]).altura);
+    });
+
+    it('mostra o eixo da direita no formato próprio, e o balão e a descrição de cada série no do eixo dela', () => {
+      render(
+        <ChartBar
+          categories={periodos}
+          formatRightValue={(valor) => `${valor}%`}
+          formatValue={(valor) => `R$ ${valor}`}
+          series={duasEscalas}
+          title="Faturamento"
+        />,
+      );
+
+      expect(rotulosDoEixo()).toContain('10%');
+      expect(barras()[2].getAttribute('aria-label')).toBe('Conversão, 08/2026: 6%');
+
+      const barra = document.querySelector('figure svg path[aria-label^="Faturamento, 08/2026"]')!;
+      fireEvent.pointerMove(barra, { clientX: 10, clientY: 10 });
+      fireEvent.mouseEnter(barra);
+
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('R$ 600');
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('6%');
+    });
+
+    it('empilha só entre séries do mesmo eixo, com uma pilha por eixo lado a lado na faixa', () => {
+      render(
+        <ChartBar
+          categories={['jan']}
+          series={[
+            { label: 'A', values: [600] },
+            { label: 'B', values: [400] },
+            { axis: 'right', label: 'C', values: [6] },
+          ]}
+          stacked
+          title="Pilhas"
+        />,
+      );
+      const [a, b, c] = barras().map(caixaDe);
+
+      expect(a.altura + b.altura).toBeCloseTo(c.altura);
+      expect(c.x).toBeGreaterThan(a.x + a.largura - 1);
+    });
+
+    it('ignora axis na horizontal e avisa uma vez no console', () => {
+      const aviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { rerender } = render(<ChartBar categories={periodos} orientation="horizontal" series={duasEscalas} title="Faturamento" />);
+
+      rerender(<ChartBar categories={periodos} orientation="horizontal" series={duasEscalas} title="Faturamento" />);
+
+      expect(aviso).toHaveBeenCalledTimes(1);
+      expect(caixaDe(barras()[1]).largura).toBeGreaterThan(caixaDe(barras()[3]).largura * 10);
+      aviso.mockRestore();
+    });
+
+    it('não muda nada sem série à direita', () => {
+      const { container, rerender } = render(<ChartBar categories={periodos} series={dre} title="DRE" />);
+      const semEixo = container.innerHTML;
+
+      rerender(<ChartBar categories={periodos} series={dre.map((item) => ({ ...item, axis: 'left' as const }))} title="DRE" />);
+
+      expect(container.innerHTML).toBe(semEixo);
+    });
+  });
 });

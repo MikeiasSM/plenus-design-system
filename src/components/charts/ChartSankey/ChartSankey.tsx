@@ -56,6 +56,8 @@ export type ChartSankeyMark =
 
 export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
+  /** Espécies de marca que viram botão com `onMarkClick`. Sem ela, todas. */
+  clickableMarks?: readonly ChartSankeyMark['kind'][];
   /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
   cyclicMessage?: string;
   emptyMessage?: string;
@@ -152,8 +154,11 @@ function temCiclo(flows: readonly ChartSankeyFlow[]) {
   return [...saidas.keys()].some(alcanca);
 }
 
+const TODAS_AS_MARCAS: readonly ChartSankeyMark['kind'][] = ['flow', 'node'];
+
 export function ChartSankey({
   accent,
+  clickableMarks = TODAS_AS_MARCAS,
   cyclicMessage = 'O fluxo volta sobre si mesmo e não pode ser desenhado',
   emptyMessage = 'Sem dados no período',
   flowColor = 'source',
@@ -269,14 +274,14 @@ export function ChartSankey({
   }
 
   const aoClicarNaLigacao =
-    onMarkClick || onFlowClick
+    clickableMarks.includes('flow') && (onMarkClick || onFlowClick)
       ? (column: number) => {
           onMarkClick?.(marcaDaLigacao(column));
           onFlowClick?.(flows[grafo.links[column].index]);
         }
       : undefined;
   const aoClicarNoNo =
-    onMarkClick || onNodeClick
+    clickableMarks.includes('node') && (onMarkClick || onNodeClick)
       ? (column: number) => {
           onMarkClick?.(marcaDoNo(column));
           onNodeClick?.({ label: grafo.nodes[column].label, value: grafo.nodes[column].value });

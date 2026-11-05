@@ -46,6 +46,11 @@
   position: relative;
 }
 
+/* Com zoom, um dedo continua rolando a pagina e dois dedos movem o mapa: a pinca do navegador cederia o lugar. */
+.plotZoomable {
+  touch-action: pan-x pan-y;
+}
+
 /* Em `fill` a figura ocupa a altura imposta; a base de 160px so vale sem altura imposta. */
 .figureFill {
   height: 100%;
@@ -83,6 +88,46 @@
 .canvasFill {
   position: absolute;
   inset: 0;
+}
+
+.zoomable {
+  cursor: grab;
+}
+
+.zoomable:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: -2px;
+}
+
+.dragging,
+.dragging .clickable {
+  cursor: grabbing;
+}
+
+.zoomControls {
+  position: absolute;
+  top: var(--pl-space-2);
+  right: var(--pl-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+}
+
+.zoomHint {
+  position: absolute;
+  top: var(--pl-space-2);
+  left: 50%;
+  max-width: calc(100% - 64px);
+  padding: var(--pl-space-1) var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-2);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .empty {

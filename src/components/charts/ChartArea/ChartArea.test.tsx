@@ -164,4 +164,90 @@ describe('ChartArea', () => {
     expect(textos.some((texto) => texto === '0,5')).toBe(false);
     expect(screen.getByText('Unidades')).toHaveAttribute('aria-hidden', 'true');
   });
+
+  describe('eixo por série', () => {
+    const duasEscalas: ChartAreaSeries[] = [
+      { label: 'Faturamento', values: [600, 800, 1000] },
+      { axis: 'right', label: 'Conversão', values: [6, 8, 10] },
+    ];
+    const alturasDosPontos = () =>
+      [...document.querySelectorAll('circle')].map((ponto) => Number(ponto.getAttribute('cy')));
+    const rotulos = () => [...document.querySelectorAll('text')].map((no) => no.textContent);
+
+    it('forma a escala da direita só pelas séries da direita', () => {
+      render(<ChartArea categories={meses} series={duasEscalas} title="Faturamento" />);
+      const ys = alturasDosPontos();
+
+      expect(ys[2]).toBeCloseTo(ys[5]);
+      expect(ys[3]).toBeCloseTo(ys[0]);
+    });
+
+    it('mostra o eixo da direita no formato próprio assim que há série nele', () => {
+      render(
+        <ChartArea
+          categories={meses}
+          formatRightValue={(valor) => `${valor}%`}
+          formatValue={(valor) => `R$ ${valor}`}
+          series={duasEscalas}
+          title="Faturamento"
+        />,
+      );
+
+      expect(rotulos()).toContain('10%');
+      expect(rotulos()).toContain('R$ 1000');
+      expect(document.querySelectorAll('circle')[3].getAttribute('aria-label')).toBe('Conversão, 04/26: 6%');
+    });
+
+    it('formata o balão de cada série pelo eixo dela', () => {
+      render(
+        <ChartArea
+          categories={meses}
+          formatRightValue={(valor) => `${valor}%`}
+          formatTooltipValue={(valor) => `R$ ${valor}`}
+          series={duasEscalas}
+          title="Faturamento"
+        />,
+      );
+      const faixa = document.querySelectorAll(`.${chartStyles.hoverBand}`)[0];
+
+      fireEvent.pointerMove(faixa, { clientX: 10, clientY: 10 });
+      fireEvent.mouseEnter(faixa);
+
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('R$ 600');
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('6%');
+    });
+
+    it('empilha só entre séries do mesmo eixo, cada eixo com a sua pilha', () => {
+      render(
+        <ChartArea
+          categories={meses}
+          series={[
+            { label: 'A', values: [600, 800, 1000] },
+            { label: 'B', values: [400, 200, 0] },
+            { axis: 'right', label: 'C', values: [6, 8, 10] },
+          ]}
+          stacked
+          title="Pilhas"
+        />,
+      );
+      const ys = alturasDosPontos();
+
+      // A pilha da esquerda soma 1000 em todo mês; a da direita não se soma a ela e chega a 10.
+      expect(ys[3]).toBeCloseTo(ys[4]);
+      expect(ys[4]).toBeCloseTo(ys[5]);
+      expect(ys[8]).toBeCloseTo(ys[5]);
+      expect(ys[6]).toBeCloseTo(ys[0]);
+    });
+
+    it('não muda nada sem série à direita', () => {
+      const { container, rerender } = render(<ChartArea categories={meses} series={series} title="Receita" />);
+      const semEixo = container.innerHTML;
+
+      rerender(
+        <ChartArea categories={meses} series={series.map((item) => ({ ...item, axis: 'left' as const }))} title="Receita" />,
+      );
+
+      expect(container.innerHTML).toBe(semEixo);
+    });
+  });
 });

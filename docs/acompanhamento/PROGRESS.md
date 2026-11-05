@@ -605,7 +605,7 @@ Ao integrar, o `useChartMetrics` deixou de medir so uma vez a area que monta dep
 - Rotulos por nivel: nome na regiao, sigla na UF, nenhum no municipio. O componente calcula o centro visual de cada regiao (polylabel, na maior parte da regiao, para ilhas nao deslocarem o rotulo) e confere que os quatro cantos cabem dentro dela; sem espaco para o valor, fica so a sigla; sem espaco nem para ela, o rotulo vai para uma coluna junto ao desenho, com linha guia. O total do nivel aparece sob o titulo, com as razoes recalculadas sobre os totais.
 - A tabela, com busca, e a leitura acessivel e o unico caminho para regioes de poucos pixels.
 - Ao abrir uma regiao pequena, como o DF, o enquadramento tem teto de zoom e as vizinhas entram em cinza como contexto: sozinho, o DF ocupava o palco e as bordas retas pareciam corte. Com um valor so, a escala vira uma cor e uma entrada na legenda; com menos valores distintos que cores, as classes diminuem.
-- Dependencia: `d3-geo`, do nucleo do D3 e so de calculo, coerente com a fronteira de D3 desta secao. `d3-zoom` nao entra, por tocar o DOM; zoom fica para depois.
+- Dependencia: `d3-geo`, do nucleo do D3 e so de calculo, coerente com a fronteira de D3 desta secao. `d3-zoom` nao entra, por tocar o DOM. O zoom entrou na 0.6.1, pedido pelo Painel, como transformacao da propria projecao, sem `d3-zoom`.
 
 Os tokens das escalas (`--pl-chart-sequential-1..7`, `--pl-chart-diverging-*`, `--pl-chart-no-data`) entram com o componente, na ordem "mais escuro = maior" nos dois temas.
 

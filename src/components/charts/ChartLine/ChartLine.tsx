@@ -6,7 +6,7 @@ import {
   categoryTooltip,
   PointBands,
   PointCursor,
-  seriesInScale,
+  axisOf,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -17,7 +17,8 @@ import {
   useHoveredBand,
   useMarkNavigation,
   useSeriesToggle,
-  useTweenedNumbers,
+  useValueScales,
+  valueAxisDomains,
   valueLabelRoom,
   valueLabelsFor,
   type AxisLabelAngle,
@@ -30,12 +31,13 @@ import {
   type ChartPoint,
   type MarkVisibility,
   type ChartRootProps,
+  type ChartValueAxis,
   type ChartCategoryHover,
   type ChartMarkClick,
   type MarkPosition,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { domainOf, linearScale, mergeDomains, pointScale, ticksFor } from '../scales';
+import { domainOf, mergeDomains, pointScale, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartLine.module.css';
@@ -49,6 +51,8 @@ function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
 
 
 export interface ChartLineSeries extends SeriesAppearance {
+  /** Eixo de valor da serie. Com alguma a direita, o eixo da direita ganha escala propria. */
+  axis?: ChartValueAxis;
   label: string;
   values: readonly (number | null)[];
 }
@@ -62,7 +66,9 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
+  formatRightValue?: (value: number) => string;
+  /** Formato dos valores no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   /**
@@ -81,6 +87,8 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
+  /** O mesmo para o eixo da direita. */
+  minRightTickStep?: number;
   /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
@@ -114,6 +122,7 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   /** Linhas horizontais de referência e a linha do zero. */
   showGrid?: boolean;
   yAxis?: AxisVisibility;
+  /** Padrao: escondido; visivel quando alguma serie esta a direita. */
   yAxisRight?: AxisVisibility;
   /** Titulo do eixo de valor da direita. */
   yAxisRightTitle?: string;
@@ -128,6 +137,7 @@ export function ChartLine({
   defaultHidden,
   defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
+  formatRightValue,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
@@ -135,6 +145,7 @@ export function ChartLine({
   hidden,
   hiddenSeries,
   labelAngle = 'auto',
+  minRightTickStep,
   minTickStep,
   legend = 'bottom',
   legendAlign,
@@ -155,7 +166,7 @@ export function ChartLine({
   xAxisTitle,
   showGrid = true,
   yAxis = 'visible',
-  yAxisRight = 'hidden',
+  yAxisRight,
   yAxisRightTitle,
   yAxisTitle,
   ...root
@@ -176,20 +187,25 @@ export function ChartLine({
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
-  const dominio = useMemo(
-    () =>
-      mergeDomains(
-        seriesInScale(series, isOutOfScale).map((serie) =>
-          domainOf(
-            serie.values.filter((valor) => valor !== null),
-            { includeZero },
-          ),
-        ),
-      ),
-    [includeZero, isOutOfScale, series],
-  );
+  const eixos = useMemo(() => series.map(axisOf), [series]);
+  const temEixoDireito = eixos.includes('right');
+  const formatarDireita = formatRightValue ?? formatValue;
+  const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
+  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
 
-  const rotulosDeValor = valueLabelsFor(dominio, alturaDoDesenho, formatValue, minTickStep);
+  const dominios = useMemo(
+    () =>
+      valueAxisDomains({
+        alignZero: includeZero,
+        axes: eixos,
+        domainOfSeries: (grupo) =>
+          mergeDomains(grupo.map((serie) => domainOf(serie.values.filter((valor) => valor !== null), { includeZero }))),
+        isOutOfScale,
+        series,
+      }),
+    [eixos, includeZero, isOutOfScale, series],
+  );
+  const [dominioEsquerda, dominioDireita] = dominios;
 
   const entradasDaLegenda = series.map((serie, indice) => ({
     color: cores[indice],
@@ -204,13 +220,13 @@ export function ChartLine({
     font,
     height: alturaDoDesenho,
     labelAngle,
-    leftLabels: rotulosDeValor,
-    rightLabels: rotulosDeValor,
+    leftLabels: valueLabelsFor(dominioEsquerda, alturaDoDesenho, formatValue, minTickStep),
+    rightLabels: valueLabelsFor(dominioDireita, alturaDoDesenho, formatarDireita, passoDireito),
     topRoom: showDataLabels === 'hidden' ? 0 : valueLabelRoom(font),
     width,
     xAxis,
     yAxis,
-    yAxisRight,
+    yAxisRight: visibilidadeDireita,
   });
 
   const escalaCategorias = useMemo(
@@ -243,23 +259,20 @@ export function ChartLine({
     showDots === 'onHover' ||
     showDataLabels === 'onHover';
 
-  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
-  // duas, as marcas exibiriam valores quebrados durante a transicao.
-  const escalaAlvo = useMemo(
-    () => linearScale({ domain: dominio, range: [plot.height, 0] }),
-    [dominio, plot.height],
-  );
+  const {
+    left: escalaEsquerda,
+    right: escalaDireita,
+    targetLeft: alvoEsquerda,
+    targetRight: alvoDireita,
+  } = useValueScales(dominios, plot.height, 0);
 
-  const [minimo, maximo] = useTweenedNumbers(escalaAlvo.domain());
+  const escalaDa = (indice: number) => (eixos[indice] === 'right' ? escalaDireita : escalaEsquerda);
+  const formatoDa = (indice: number) => (eixos[indice] === 'right' ? formatarDireita : formatValue);
 
-  const escalaValores = useMemo(
-    () => linearScale({ domain: { min: minimo, max: maximo }, nice: false, range: [plot.height, 0] }),
-    [maximo, minimo, plot.height],
-  );
+  const marcasEsquerda = ticksFor(alvoEsquerda, plot.height, undefined, minTickStep);
+  const marcasDireita = ticksFor(alvoDireita, plot.height, undefined, passoDireito);
 
-  const marcasDeValor = ticksFor(escalaAlvo, plot.height, undefined, minTickStep);
-
-  const pontosPorSerie = series.map((serie) =>
+  const pontosPorSerie = series.map((serie, indiceSerie) =>
     categories.map<ChartPoint | null>((categoria, indice) => {
       const valor = serie.values[indice];
 
@@ -267,7 +280,7 @@ export function ChartLine({
         return null;
       }
 
-      return { x: escalaCategorias(categoria) ?? 0, y: escalaValores(valor) };
+      return { x: escalaCategorias(categoria) ?? 0, y: escalaDa(indiceSerie)(valor) };
     }),
   );
 
@@ -296,10 +309,8 @@ export function ChartLine({
   }));
   const posicoesCategoria = marcasCategoria.map((marca) => marca.position);
 
-  const marcasValor: AxisTick[] = marcasDeValor.map((valor) => ({
-    label: formatValue(valor),
-    position: escalaValores(valor),
-  }));
+  const marcasDeValor = (valores: readonly number[], escala: (valor: number) => number, formatar: (valor: number) => string): AxisTick[] =>
+    valores.map((valor) => ({ label: formatar(valor), position: escala(valor) }));
 
   return (
     <CartesianFrame
@@ -314,8 +325,8 @@ export function ChartLine({
         showGrid
           ? [
               {
-                baseline: escalaValores(0),
-                lines: marcasDeValor.map((valor) => escalaValores(valor)),
+                baseline: escalaEsquerda(0),
+                lines: marcasEsquerda.map((valor) => escalaEsquerda(valor)),
                 orientation: 'horizontal',
               },
             ]
@@ -332,7 +343,7 @@ export function ChartLine({
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor) => formatValue(valor))} title={title} />
+        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor))} title={title} />
       }
       title={title}
       tooltip={
@@ -343,15 +354,20 @@ export function ChartLine({
               format: formatTooltipValue ?? formatValue,
               index: categoriaEmFoco,
               isHidden,
-              series,
+              series: series.map((serie, indice) => ({ ...serie, format: eixos[indice] === 'right' ? formatarDireita : undefined })),
             })
           : undefined
       }
       tooltipAnchor={pontos.tooltipAnchor}
       width={width}
       xAxis={{ labelRotation: rotation, ticks: marcasCategoria, title: xAxisTitle, visibility: xAxis }}
-      yAxis={{ hideLine: true, ticks: marcasValor, title: yAxisTitle, visibility: yAxis }}
-      yAxisRight={{ hideLine: true, ticks: marcasValor, title: yAxisRightTitle, visibility: yAxisRight }}
+      yAxis={{ hideLine: true, ticks: marcasDeValor(marcasEsquerda, escalaEsquerda, formatValue), title: yAxisTitle, visibility: yAxis }}
+      yAxisRight={{
+        hideLine: true,
+        ticks: marcasDeValor(marcasDireita, escalaDireita, formatarDireita),
+        title: yAxisRightTitle,
+        visibility: visibilidadeDireita,
+      }}
     >
       {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
@@ -379,7 +395,7 @@ export function ChartLine({
                 return null;
               }
 
-              const descricao = `${serie.label}, ${categories[indice]}: ${formatValue(serie.values[indice] ?? 0)}`;
+              const descricao = `${serie.label}, ${categories[indice]}: ${formatoDa(indiceSerie)(serie.values[indice] ?? 0)}`;
 
               const classeDoPonto = markShown(visibilidadeDosPontos, indiceSerie === serieEmFoco) || isolado(pontosPorSerie[indiceSerie], indice) ? chartStyles.dotVisible : chartStyles.dot;
 
@@ -416,7 +432,7 @@ export function ChartLine({
                     x={ponto.x + dx}
                     y={below ? ponto.y + font.lineHeight + 2 : ponto.y - 10}
                   >
-                    {formatValue(serie.values[indice] ?? 0)}
+                    {formatoDa(indiceSerie)(serie.values[indice] ?? 0)}
                   </text>
                 );
               })}

@@ -8,7 +8,7 @@ import {
   CartesianFrame,
   NO_BAR_SLOT,
   barSlots,
-  seriesInScale,
+  axisOf,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -18,6 +18,8 @@ import {
   useSeriesToggle,
   useMarkNavigation,
   useTweenedNumbers,
+  useValueScales,
+  valueAxisDomains,
   valueLabelRoom,
   valueLabelsFor,
   type AxisLabelAngle,
@@ -32,9 +34,10 @@ import {
   type MarkVisibility,
   type ChartPoint,
   type ChartRootProps,
+  type ChartValueAxis,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
-import { alignZeros, bandScale, domainOf, linearScale, mergeDomains, ticksFor, type NumericRange } from '../scales';
+import { bandScale, domainOf, mergeDomains, ticksFor } from '../scales';
 import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartCombo.module.css';
@@ -49,11 +52,7 @@ function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
 
 export type ChartComboKind = 'bar' | 'line';
 
-/**
- * Eixo de valor a que a serie pertence. A escolha e sempre do produto: o
- * grafico nunca parte a escala por conta propria.
- */
-export type ChartComboAxis = 'left' | 'right';
+export type ChartComboAxis = ChartValueAxis;
 
 export interface ChartComboSeries extends SeriesAppearance {
   axis?: ChartComboAxis;
@@ -130,34 +129,9 @@ export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   yAxisTitle?: string;
 }
 
-function eixoDa(serie: ChartComboSeries): ChartComboAxis {
-  return serie.axis ?? 'left';
-}
-
 /** A serie decide a visibilidade do proprio rotulo; sem ela, vale a do grafico. */
 function rotuloDaSerie(serie: ChartComboSeries, doGrafico: MarkVisibility) {
   return serie.showDataLabels ?? doGrafico;
-}
-
-/** Dominio de um eixo: as series que pertencem a ele e entram na escala. */
-function dominioDoEixo(
-  series: readonly ChartComboSeries[],
-  axis: ChartComboAxis,
-  oculta: (label: string) => boolean,
-) {
-  return mergeDomains(
-    seriesInScale(
-      series.filter((serie) => eixoDa(serie) === axis),
-      oculta,
-    ).map((serie) => domainOf(serie.values.filter((valor) => valor !== null))),
-  );
-}
-
-/** Dominio com os limites arredondados que o eixo mostraria sozinho. */
-function arredondado(dominio: NumericRange): NumericRange {
-  const [min = 0, max = 0] = linearScale({ domain: dominio, range: [0, 1] }).domain();
-
-  return { max, min };
 }
 
 /**
@@ -238,7 +212,8 @@ export function ChartCombo({
   });
 
   const formatarDireita = formatRightValue ?? formatValue;
-  const temEixoDireito = series.some((serie) => eixoDa(serie) === 'right');
+  const eixos = useMemo(() => series.map(axisOf), [series]);
+  const temEixoDireito = eixos.includes('right');
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
@@ -249,13 +224,17 @@ export function ChartCombo({
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
 
   // Com serie a direita, o zero fica na mesma altura nos dois eixos: as barras crescem da mesma base.
-  const [dominioEsquerda, dominioDireita] = useMemo(() => {
-    const esquerda = arredondado(dominioDoEixo(series, 'left', isOutOfScale));
-
-    return temEixoDireito
-      ? alignZeros(esquerda, arredondado(dominioDoEixo(series, 'right', isOutOfScale)))
-      : [esquerda, esquerda];
-  }, [isOutOfScale, series, temEixoDireito]);
+  const dominios = useMemo(
+    () =>
+      valueAxisDomains({
+        axes: eixos,
+        domainOfSeries: (grupo) => mergeDomains(grupo.map((serie) => domainOf(serie.values.filter((valor) => valor !== null)))),
+        isOutOfScale,
+        series,
+      }),
+    [eixos, isOutOfScale, series],
+  );
+  const [dominioEsquerda, dominioDireita] = dominios;
 
   // Uma segunda escala sem eixo para le-la e o duplo eixo que engana. Havendo
   // serie a direita, o eixo aparece sem ninguem pedir.
@@ -290,39 +269,17 @@ export function ChartCombo({
     [categories, plot.width],
   );
 
-  // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
-  // duas, as marcas exibiriam valores quebrados durante a transicao.
-  const alvoEsquerda = useMemo(
-    () => linearScale({ domain: dominioEsquerda, nice: false, range: [plot.height, 0] }),
-    [dominioEsquerda, plot.height],
-  );
-
-  const alvoDireita = useMemo(
-    () => linearScale({ domain: dominioDireita, nice: false, range: [plot.height, 0] }),
-    [dominioDireita, plot.height],
-  );
-
-  // Os dois dominios caminham numa animacao so, e por isso chegam juntos.
-  const [minEsquerda, maxEsquerda, minDireita, maxDireita] = useTweenedNumbers([
-    ...alvoEsquerda.domain(),
-    ...alvoDireita.domain(),
-  ]);
-
-  const escalaEsquerda = useMemo(
-    () =>
-      linearScale({ domain: { min: minEsquerda, max: maxEsquerda }, nice: false, range: [plot.height, 0] }),
-    [maxEsquerda, minEsquerda, plot.height],
-  );
-
-  const escalaDireita = useMemo(
-    () => linearScale({ domain: { min: minDireita, max: maxDireita }, nice: false, range: [plot.height, 0] }),
-    [maxDireita, minDireita, plot.height],
-  );
+  const {
+    left: escalaEsquerda,
+    right: escalaDireita,
+    targetLeft: alvoEsquerda,
+    targetRight: alvoDireita,
+  } = useValueScales(dominios, plot.height, 0);
 
   const escalaDa = (serie: ChartComboSeries) =>
-    eixoDa(serie) === 'right' ? escalaDireita : escalaEsquerda;
+    axisOf(serie) === 'right' ? escalaDireita : escalaEsquerda;
   const formatoDa = (serie: ChartComboSeries) =>
-    eixoDa(serie) === 'right' ? formatarDireita : formatValue;
+    axisOf(serie) === 'right' ? formatarDireita : formatValue;
 
   const marcasEsquerda = ticksFor(alvoEsquerda, plot.height, undefined, minTickStep);
   const marcasDireita = ticksFor(alvoDireita, plot.height, undefined, minRightTickStep);
@@ -386,7 +343,7 @@ export function ChartCombo({
               format: formatTooltipValue ?? formatValue,
               index: faixaEmFoco,
               isHidden,
-              series: series.map((serie) => ({ ...serie, format: eixoDa(serie) === 'right' ? formatarDireita : undefined })),
+              series: series.map((serie) => ({ ...serie, format: axisOf(serie) === 'right' ? formatarDireita : undefined })),
             })
           : undefined
       }

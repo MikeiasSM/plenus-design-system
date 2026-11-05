@@ -177,4 +177,84 @@ describe('ChartLine', () => {
     expect(textos.some((texto) => texto === '0,5')).toBe(false);
     expect(screen.getByText('Unidades')).toHaveAttribute('aria-hidden', 'true');
   });
+
+  describe('eixo por série', () => {
+    const duasEscalas: ChartLineSeries[] = [
+      { label: 'Faturamento', values: [600, 800, 1000] },
+      { axis: 'right', label: 'Conversão', values: [6, 8, 10] },
+    ];
+    const alturasDosPontos = () => marcadores().map((ponto) => Number(ponto.getAttribute('cy')));
+    const rotulos = () => [...document.querySelectorAll('text')].map((no) => no.textContent);
+
+    it('forma a escala da direita só pelas séries da direita', () => {
+      render(<ChartLine categories={meses} series={duasEscalas} title="Faturamento" />);
+      const ys = alturasDosPontos();
+
+      // O maior valor de cada série encosta no topo da escala que é dela.
+      expect(ys[2]).toBeCloseTo(ys[5]);
+      expect(ys[3]).toBeCloseTo(ys[0]);
+    });
+
+    it('mostra o eixo da direita no formato próprio assim que há série nele', () => {
+      render(
+        <ChartLine
+          categories={meses}
+          formatRightValue={(valor) => `${valor}%`}
+          formatValue={(valor) => `R$ ${valor}`}
+          series={duasEscalas}
+          title="Faturamento"
+        />,
+      );
+
+      expect(rotulos()).toContain('10%');
+      expect(rotulos()).toContain('R$ 1000');
+      expect(marcadores()[3].getAttribute('aria-label')).toBe('Conversão, 04/26: 6%');
+      expect(marcadores()[0].getAttribute('aria-label')).toBe('Faturamento, 04/26: R$ 600');
+    });
+
+    it('formata o balão de cada série pelo eixo dela', () => {
+      render(
+        <ChartLine
+          categories={meses}
+          formatRightValue={(valor) => `${valor}%`}
+          formatTooltipValue={(valor) => `R$ ${valor}`}
+          series={duasEscalas}
+          title="Faturamento"
+        />,
+      );
+      const faixa = document.querySelectorAll(`.${chartStyles.hoverBand}`)[0];
+
+      fireEvent.pointerMove(faixa, { clientX: 10, clientY: 10 });
+      fireEvent.mouseEnter(faixa);
+
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('R$ 600');
+      expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('6%');
+    });
+
+    it('não muda nada sem série à direita: o eixo direito segue escondido ou espelhando o esquerdo', () => {
+      const { container, rerender } = render(<ChartLine categories={meses} series={series} title="Receita" />);
+      const semEixo = container.innerHTML;
+
+      rerender(
+        <ChartLine
+          categories={meses}
+          formatRightValue={(valor) => `${valor}%`}
+          series={series.map((item) => ({ ...item, axis: 'left' as const }))}
+          title="Receita"
+        />,
+      );
+      expect(container.innerHTML).toBe(semEixo);
+
+      rerender(
+        <ChartLine
+          categories={meses}
+          formatValue={(valor) => `R$ ${valor}`}
+          series={[duasEscalas[0]]}
+          title="Receita"
+          yAxisRight="visible"
+        />,
+      );
+      expect(rotulos().filter((rotulo) => rotulo === 'R$ 1000')).toHaveLength(2);
+    });
+  });
 });

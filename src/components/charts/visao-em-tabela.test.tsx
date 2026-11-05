@@ -101,6 +101,22 @@ describe('o conteúdo da tabela', () => {
     expect(linhas()).toEqual(['ReceitaCusto', 'janR$ 1000R$ 500', 'fevR$ 2000R$ 250']);
   });
 
+  it.each(graficos.filter(([nome]) => ['ChartBar', 'ChartLine', 'ChartArea'].includes(nome)))(
+    '%s: a coluna da série à direita sai no formato do eixo dela',
+    (_, montar) => {
+      render(
+        montar({
+          formatRightValue: (valor: number) => `${valor}%`,
+          formatValue: (valor: number) => `R$ ${valor}`,
+          series: [{ label: 'Receita', values: [1000, 2000] }, { axis: 'right', label: 'Margem', values: [5, 8] }],
+        }),
+      );
+      abrir();
+
+      expect(linhas()).toEqual(['ReceitaMargem', 'janR$ 10005%', 'fevR$ 20008%']);
+    },
+  );
+
   it('cartesiano: o valor ausente fica em branco, e a série desligada na legenda continua na tabela', () => {
     render(
       <ChartLine

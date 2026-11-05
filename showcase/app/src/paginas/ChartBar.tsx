@@ -4,6 +4,7 @@ import {
   ChartBar,
   ChartTooltip,
   formatCurrency,
+  formatPercent,
   resolveSeriesColors,
   type AxisVisibility,
   type ChartBarOrientation,
@@ -15,6 +16,7 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import {
   COMPOSICAO,
+  CONVERSAO,
   FATURAMENTO,
   FORMAS_DE_PAGAMENTO,
   MESES,
@@ -333,6 +335,34 @@ export const pagina: Pagina = {
 />`,
     },
     {
+      titulo: 'Faturamento e conversão em eixos separados',
+      descricao: 'Cada série declara o seu eixo, e as barras dividem a faixa. Só na vertical: na horizontal, axis é ignorado e o console avisa em desenvolvimento.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartBar
+            categories={MESES}
+            formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
+            formatValue={formatarCompacto}
+            series={[
+              { label: 'Faturamento', values: FATURAMENTO },
+              { axis: 'right', label: 'Conversão', values: CONVERSAO },
+            ]}
+            title="Faturamento e conversão"
+          />
+        </div>
+      ),
+      codigo: `<ChartBar
+  title="Faturamento e conversão"
+  categories={meses}
+  series={[
+    { label: 'Faturamento', values: faturamento },
+    { label: 'Conversão', values: conversao, axis: 'right' },
+  ]}
+  formatValue={formatarCompacto}
+  formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
+/>`,
+    },
+    {
       titulo: 'Nomes longos na horizontal',
       descricao: 'A coluna de nomes tem teto: o excedente vira reticências, e o nome inteiro segue no balão e no rótulo da marca. O rótulo de dado da ponta tem a sua reserva.',
       Previa: () => (
@@ -507,19 +537,22 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
     { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo, uma faixa cada.' },
-    { nome: 'series', tipo: 'readonly ChartBarSeries[]', descricao: <><code>{'{ label, values, color?, intent? }'}</code>, uma por série.</> },
+    { nome: 'series', tipo: 'readonly ChartBarSeries[]', descricao: <><code>{'{ label, values, axis?, color?, intent? }'}</code>, uma por série. <code>axis</code> padrão <code>'left'</code>; com série em <code>'right'</code>, o eixo da direita ganha escala própria e fica visível. Só na vertical.</> },
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Barras em pé ou deitadas.' },
-    { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as séries; sinais mistos divergem a partir do zero.' },
+    { nome: 'stacked', tipo: 'boolean', padrao: 'false', descricao: 'Empilha as séries; sinais mistos divergem a partir do zero. Só entre séries do mesmo eixo: cada eixo tem a sua pilha, lado a lado na faixa.' },
     { nome: 'showDataLabels', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'hidden'", descricao: 'Valor além da ponta; empilhada, o total da categoria. Em onHover, os da série da barra sob o ponteiro.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo, dos rótulos e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },
+    { nome: 'formatRightValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato do eixo da direita, dos rótulos e do balão das séries dele.' },
+    { nome: 'minRightTickStep', tipo: "number", descricao: 'O mesmo passo mínimo, para o eixo da direita.' },
+    { nome: 'yAxisRightTitle', tipo: "string", descricao: 'Título do eixo de valor da direita, só na vertical.' },
     { nome: 'accent', tipo: 'string', descricao: 'Cor de tema que abre a paleta categórica.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '260', descricao: 'Altura do desenho; fill a toma do contêiner.' },
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
     { nome: 'xAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo de baixo.' },
     { nome: 'yAxis', tipo: VISIBILIDADE, padrao: "'visible'", descricao: 'Eixo da esquerda.' },
-    { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita, espelho da esquerda.' },
+    { nome: 'yAxisRight', tipo: VISIBILIDADE, padrao: "'hidden'", descricao: 'Eixo da direita: espelho da esquerda, ou escala própria das séries com axis \'right\', e então visível por padrão.' },
     { nome: 'labelAngle', tipo: "0 | 45 | 90 | 'auto'", padrao: "'auto'", descricao: 'Ângulo dos rótulos do eixo de baixo.' },
     { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
     { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
