@@ -6,6 +6,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+## [0.6.1] — 2026-11-04
+
 ### Adicionado
 
 - `ChartMap`: zoom e arraste com `zoomable`, desligado por padrão. A vista fica no trio `view`, `defaultView` e `onViewChange`, com o tipo `ChartMapView` (`{ center: [longitude, latitude], scale }`). A escala 1 é o enquadramento de `focus` e `focusMarkers`, e o teto é o mesmo do `focusMarkers`, 100 vezes o mapa inteiro.
