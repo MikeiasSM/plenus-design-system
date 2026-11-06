@@ -288,7 +288,7 @@ export const pagina: Pagina = {
     { nome: 'formatY', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do eixo Y e das descrições.' },
     { nome: 'formatZ', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do tamanho nas descrições.' },
     { nome: 'includeZero', tipo: "boolean | 'x' | 'y'", padrao: 'true', descricao: 'Eixos cujo domínio inclui o zero.' },
-    { nome: 'xAxisTitle', tipo: 'string', descricao: 'Título do eixo X, embaixo do desenho. Separado de xLabel, que nomeia a medida no balão. O espaço sai da área de desenho.' },
+    { nome: 'xAxisTitle', tipo: 'string', descricao: 'Título do eixo X, embaixo do desenho. Separado de xLabel, que nomeia a medida no balão. O espaço sai da área de desenho; com o eixo em onHover, o título aparece e some com ele.' },
     { nome: 'yAxisTitle', tipo: 'string', descricao: 'Título do eixo Y, à esquerda do desenho. Separado de yLabel.' },
     { nome: 'yAxisRightTitle', tipo: 'string', descricao: 'Título do eixo Y da direita.' },
     { nome: 'minXTickStep', tipo: 'number', descricao: 'Passo mínimo entre as marcas do eixo X, na unidade do dado.' },

@@ -90,7 +90,17 @@ function EixoDinamico({ axis, length, orientation, revealed }: EixoProps) {
     return eixo;
   }
 
-  return <g className={`${styles.dynamicAxis} ${revealed ? styles.dynamicAxisRevealed : ''}`}>{eixo}</g>;
+  return <Revelavel revealed={revealed}>{eixo}</Revelavel>;
+}
+
+/** O que aparece com o eixo `onHover` enquanto o desenho encolhe para abrir a calha, e some na hora de sair. */
+function Revelavel({ children, revealed }: { children: ReactNode; revealed: boolean }) {
+  return <g className={`${styles.dynamicAxis} ${revealed ? styles.dynamicAxisRevealed : ''}`}>{children}</g>;
+}
+
+/** O titulo do eixo `onHover` aparece e some junto com ele; nos outros modos, fica sempre. */
+function TituloDoEixo({ axis, children, revealed }: { axis: CartesianAxis; children: ReactNode; revealed: boolean }) {
+  return axis.visibility === 'onHover' ? <Revelavel revealed={revealed}>{children}</Revelavel> : children;
 }
 
 /**
@@ -188,29 +198,35 @@ export function CartesianFrame({
         )}
 
         {font && xAxis.title && (
-          <AxisTitle
-            font={font}
-            length={plot.width}
-            rotation={0}
-            text={xAxis.title}
-            x={plot.width / 2}
-            y={xAxis.position === 'top' ? font.lineHeight / 2 - margins.top : plot.height + margins.bottom - font.lineHeight / 2}
-          />
+          <TituloDoEixo axis={xAxis} revealed={revealed}>
+            <AxisTitle
+              font={font}
+              length={plot.width}
+              rotation={0}
+              text={xAxis.title}
+              x={plot.width / 2}
+              y={xAxis.position === 'top' ? font.lineHeight / 2 - margins.top : plot.height + margins.bottom - font.lineHeight / 2}
+            />
+          </TituloDoEixo>
         )}
 
         {font && yAxis.title && (
-          <AxisTitle font={font} length={plot.height} rotation={-90} text={yAxis.title} x={font.lineHeight / 2 - margins.left} y={plot.height / 2} />
+          <TituloDoEixo axis={yAxis} revealed={revealed}>
+            <AxisTitle font={font} length={plot.height} rotation={-90} text={yAxis.title} x={font.lineHeight / 2 - margins.left} y={plot.height / 2} />
+          </TituloDoEixo>
         )}
 
         {font && yAxisRight?.title && (
-          <AxisTitle
-            font={font}
-            length={plot.height}
-            rotation={90}
-            text={yAxisRight.title}
-            x={plot.width + margins.right - font.lineHeight / 2}
-            y={plot.height / 2}
-          />
+          <TituloDoEixo axis={yAxisRight} revealed={revealed}>
+            <AxisTitle
+              font={font}
+              length={plot.height}
+              rotation={90}
+              text={yAxisRight.title}
+              x={plot.width + margins.right - font.lineHeight / 2}
+              y={plot.height / 2}
+            />
+          </TituloDoEixo>
         )}
       </g>
     </ChartFrame>

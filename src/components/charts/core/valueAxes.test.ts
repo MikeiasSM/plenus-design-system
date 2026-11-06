@@ -1,5 +1,5 @@
 import { domainOf, mergeDomains } from '../scales';
-import { stackByAxis, valueAxisDomains, type ChartValueAxis } from './valueAxes';
+import { rightAxisVisibility, stackByAxis, valueAxisDomains, type ChartValueAxis } from './valueAxes';
 
 const series = [
   { label: 'Faturamento', values: [600, 1000] },
@@ -43,5 +43,17 @@ describe('stackByAxis', () => {
       [600, 1000],
       [6, 10],
     ]);
+  });
+});
+
+describe('visibilidade do eixo direito', () => {
+  it('sem escolha do produto, segue o eixo esquerdo quando ha serie a direita', () => {
+    expect(rightAxisVisibility(undefined, true, 'onHover')).toBe('onHover');
+    expect(rightAxisVisibility(undefined, true, 'visible')).toBe('visible');
+  });
+
+  it('sem serie a direita, nao aparece; a escolha do produto vale sempre', () => {
+    expect(rightAxisVisibility(undefined, false, 'visible')).toBe('hidden');
+    expect(rightAxisVisibility('visible', true, 'onHover')).toBe('visible');
   });
 });

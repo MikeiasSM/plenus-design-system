@@ -9,6 +9,7 @@ import {
   NO_BAR_SLOT,
   barSlots,
   axisOf,
+  rightAxisVisibility,
   isDevelopment,
   stackByAxis,
   useCartesianLayout,
@@ -221,7 +222,7 @@ export function ChartBar({
   const temEixoDireito = eixos.includes('right');
   const formatarDireita = formatRightValue ?? formatValue;
   const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
-  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
+  const visibilidadeDireita = rightAxisVisibility(yAxisRight, temEixoDireito, yAxis);
   const ignoraEixo = !vertical && series.some((serie) => serie.axis === 'right');
 
   useEffect(() => {

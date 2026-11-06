@@ -195,6 +195,13 @@ describe('ChartLine', () => {
       expect(ys[3]).toBeCloseTo(ys[0]);
     });
 
+    it('sem yAxisRight, o eixo da direita segue o onHover do esquerdo e recolhe com ele', () => {
+      render(<ChartLine categories={meses} series={duasEscalas} title="Faturamento" xAxis="onHover" yAxis="onHover" />);
+
+      // Eixo de baixo, esquerdo e direito: os tres sao dinamicos, nenhum reserva calha em repouso.
+      expect(document.querySelectorAll(`.${chartStyles.dynamicAxis}`)).toHaveLength(3);
+    });
+
     it('mostra o eixo da direita no formato próprio assim que há série nele', () => {
       render(
         <ChartLine
