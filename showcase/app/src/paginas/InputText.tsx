@@ -82,7 +82,7 @@ const playground = definirPlayground({
       {
         nivel: 'atencao',
         titulo: 'Contorno em repouso 1,33:1',
-        detalhe: 'Exceção aceita, registrada no PROGRESS. No hover e no foco a borda chega a 3,03:1 e 5,57:1.',
+        detalhe: 'Exceção aceita, registrada na conferência de contraste. No hover e no foco a borda chega a 3,03:1 e 5,57:1.',
       },
     ];
 

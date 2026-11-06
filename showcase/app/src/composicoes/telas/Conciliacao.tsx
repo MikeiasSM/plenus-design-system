@@ -26,7 +26,7 @@ const ETAPAS = [
   { key: 'revisao', label: 'Revisão', titulo: 'Revise e conclua', explicacao: 'Veja o resultado antes de fechar o período.' },
 ];
 
-const CONTAS = ['Banco do Brasil · ag. 3412, c/c 55871-4', 'Sicredi · ag. 0930, c/c 10234-0'].map((conta) => ({ label: conta, value: conta }));
+const CONTAS = ['Banco Horizonte · ag. 1020, c/c 40213-7', 'Coop. Vale Verde · ag. 0745, c/c 88120-3'].map((conta) => ({ label: conta, value: conta }));
 const PERIODOS = ['Outubro de 2026', 'Setembro de 2026'].map((periodo) => ({ label: periodo, value: periodo }));
 
 const PARES: Record<ParDoLancamento, { rotulo: string; tom: 'success' | 'warning' | 'neutral' }> = {

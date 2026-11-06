@@ -6,7 +6,7 @@ A divisão de responsabilidades entre os documentos é:
 
 - `COMPONENTS.md` define **como** um componente é criado, composto, testado e nomeado.
 - Este catálogo define **quais** componentes existem e **o que** cada um representa.
-- `PROGRESS.md` acompanha o **estado** de cada implementação e não é normativo.
+- `CHANGELOG.md` registra o que cada versão publicada entregou e não é normativo.
 - A API de cada componente é definida pelo código, exposta por `src/index.ts` e demonstrada no Showcase.
 
 Um componente entra neste catálogo mediante decisão de produto ou arquitetural aprovada. Estar previsto aqui não determina prioridade nem prazo.
@@ -18,7 +18,7 @@ Cada componente registra uma situação, em dois valores:
 - **Disponível** — implementado e exportado pela API pública.
 - **Previsto** — pertence ao escopo e ainda não foi implementado.
 
-A situação indica a existência do componente, não a cobertura integral do papel descrito. O andamento detalhado pertence ao `PROGRESS.md`.
+A situação indica a existência do componente, não a cobertura integral do papel descrito. O que cada versão entregou está no `CHANGELOG.md`.
 
 ## 2. Ações
 

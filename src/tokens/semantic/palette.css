@@ -15,7 +15,7 @@
   --pl-palette-80: var(--pl-brand-orange-80);
   --pl-palette-90: var(--pl-brand-orange-90);
   --pl-palette-100: var(--pl-brand-orange-100);
-  /* O branco sobre o laranja mede 3,03:1: excecao aceita, registrada em `PROGRESS.md`. */
+  /* O branco sobre o laranja mede 3,03:1: excecao aceita, registrada em `scripts/check-contraste.mjs`. */
   --pl-palette-on-solid: var(--pl-neutral-white);
   --pl-palette-on-40: var(--pl-neutral-black);
   --pl-palette-strong-light: var(--pl-brand-orange-70);

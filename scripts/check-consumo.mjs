@@ -63,7 +63,7 @@ function App() {
         <AppShell.Rail label="Modulos">
           <AppShell.RailItem current href="/vendas" icon="V" label="Vendas" />
         </AppShell.Rail>
-        <AppShell.Panel brand="Painel" label="Vendas">
+        <AppShell.Panel brand="Gestor" label="Vendas">
           <AppShell.PanelItem current href="/pedidos" label="Pedidos" />
         </AppShell.Panel>
       </AppShell.Navigation>

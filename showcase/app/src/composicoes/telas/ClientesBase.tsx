@@ -94,15 +94,15 @@ export function ClientesBase() {
           </PageHeader.Actions>
         </PageHeader>
         <Coluna className="grade grade-painel" largura="total">
-          <Metrica descricao="Cadastros de cliente ativos hoje." titulo="Clientes Ativos" valor={2602} />
+          <Metrica descricao="Cadastros de cliente ativos hoje." titulo="Clientes Ativos" valor={1984} />
           <Metrica descricao="Cadastros criados no período, inclusive os importados em lote." titulo="Novos Clientes" valor={18} />
-          <Metrica descricao="Sem documento, endereço completo ou telefone: 12,3% dos ativos." titulo="Cadastros Incompletos" valor={319} />
-          <Metrica descricao="Clientes ativos sem rota definida: 98,5% do total." titulo="Sem rota" valor={2562} />
+          <Metrica descricao="Sem documento, endereço completo ou telefone: 12,0% dos ativos." titulo="Cadastros Incompletos" valor={238} />
+          <Metrica descricao="Clientes ativos sem rota definida: 61,0% do total." titulo="Sem rota" valor={1210} />
           <div className="painel-metade">
             <Barras altura={260} dados={CLIENTES_POR_ESTADO} descricao="Clientes ativos por estado." titulo="Clientes por Estado" />
           </div>
           <div className="painel-metade">
-            <Barras altura={260} dados={CLIENTES_POR_BAIRRO} descricao="Em Luís Eduardo Magalhães. Outros 136 bairros somam 379 clientes." titulo="Clientes por Bairro" />
+            <Barras altura={260} dados={CLIENTES_POR_BAIRRO} descricao="Em Santa Aurora. Outros 94 bairros somam 410 clientes." titulo="Clientes por Bairro" />
           </div>
           <div className="painel-metade">
             <Card>

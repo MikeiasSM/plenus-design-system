@@ -120,7 +120,7 @@ export function Pedido() {
             <Card.Body>
               <Definicoes
                 itens={[
-                  ['Endereço', 'Av. Barreiras, 2210, Centro, Luís Eduardo Magalhães, BA'],
+                  ['Endereço', 'Av. das Palmeiras, 2210, Centro, Santa Aurora, GO'],
                   ['Transportadora', 'Rota Sul Transportes'],
                   ['Previsão', formatDate(new Date(2026, 10, 7))],
                 ]}

@@ -23,22 +23,22 @@ export const COMPOSICAO: ChartBarSeries[] = [
   { label: 'Assinaturas', values: ASSINATURAS },
 ];
 
-/** Formas de pagamento por mês, com quantidade e valor, como no relatório real. */
+/** Formas de pagamento por mês, com quantidade e valor. Dados fictícios. */
 export const FORMAS_DE_PAGAMENTO = [
   {
     label: 'Prazo',
-    quantidades: [418, 402, 390, 455, 430, 441],
-    valores: [164352.89, 158020.4, 149330.1, 180224.7, 170110.5, 174880.2],
+    quantidades: [362, 348, 371, 395, 380, 402],
+    valores: [138420.5, 131870.2, 142310.9, 151260.4, 146930.7, 155840.3],
   },
   {
-    label: 'C/ Sicredi 930-0',
-    quantidades: [30, 28, 34, 41, 36, 39],
-    valores: [11837.73, 10920.5, 13240.8, 16110.2, 14005.6, 15320.9],
+    label: 'Cartão Vale Verde',
+    quantidades: [41, 37, 44, 48, 45, 50],
+    valores: [9820.4, 9015.7, 10640.2, 11980.5, 11210.9, 12475.3],
   },
   {
     label: 'Outros',
-    quantidades: [22, 19, 25, 30, 27, 24],
-    valores: [8632.09, 7410.3, 9880.4, 11720.6, 10240.8, 9115.4],
+    quantidades: [18, 21, 17, 26, 23, 20],
+    valores: [6240.8, 7105.2, 5980.6, 8870.3, 8015.4, 7320.9],
   },
 ];
 
