@@ -54,9 +54,10 @@
   gap: var(--pl-space-1) var(--pl-space-4);
 }
 
-/* A separação é do título: sem ele, a grade começa no respiro do balão. */
-.grid:not(:first-child) {
-  margin-top: var(--pl-space-2);
+/* A separação é do título, a mesma do respiro do balão: sem título, o corpo começa direto no respiro. */
+.grid:not(:first-child),
+.body:not(:first-child) {
+  margin-top: var(--pl-space-3);
 }
 
 .label {

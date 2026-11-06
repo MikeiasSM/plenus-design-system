@@ -9,6 +9,7 @@ import {
   NO_BAR_SLOT,
   barSlots,
   axisOf,
+  rightAxisVisibility,
   useCartesianLayout,
   chartHeight,
   linePath,
@@ -238,7 +239,7 @@ export function ChartCombo({
 
   // Uma segunda escala sem eixo para le-la e o duplo eixo que engana. Havendo
   // serie a direita, o eixo aparece sem ninguem pedir.
-  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
+  const visibilidadeDireita = rightAxisVisibility(yAxisRight, temEixoDireito, yAxis);
 
   const entradasDaLegenda = series.map((serie, indice) => ({
     color: cores[indice],

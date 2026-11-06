@@ -36,6 +36,18 @@ describe('titulos e reserva dos eixos', () => {
     expect(comTitulos.margins.right - base.margins.right).toBeCloseTo(linha);
   });
 
+  it('o titulo do eixo onHover entra e sai com ele: recolhido, o desenho ocupa tambem a sala do titulo', () => {
+    const titulos = { x: 'Mês', y: 'R$', yRight: '%' };
+    const eixos = { xAxis: 'onHover', yAxis: 'onHover', yAxisRight: 'onHover' } as const;
+    const recolhido = layout({ ...eixos, axisTitles: titulos });
+    const revelado = layout({ ...eixos, axisTitles: titulos, revealed: true });
+    const linha = fonte.lineHeight + CHART_LABEL_OFFSET;
+
+    expect(recolhido).toEqual(layout(eixos));
+    expect(revelado.margins.left - layout({ ...eixos, revealed: true }).margins.left).toBeCloseTo(linha);
+    expect(revelado.margins.right - layout({ ...eixos, revealed: true }).margins.right).toBeCloseTo(linha);
+  });
+
   it('com o eixo de baixo em cima, o titulo dele tambem sobe', () => {
     const base = layout({ xAxisPosition: 'top' });
     const comTitulo = layout({ axisTitles: { x: 'Mês' }, xAxisPosition: 'top' });

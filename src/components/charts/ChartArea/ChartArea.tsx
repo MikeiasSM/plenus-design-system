@@ -8,6 +8,7 @@ import {
   PointCursor,
   areaPath,
   axisOf,
+  rightAxisVisibility,
   stackByAxis,
   useCartesianLayout,
   chartHeight,
@@ -213,7 +214,7 @@ export function ChartArea({
   const temEixoDireito = eixos.includes('right');
   const formatarDireita = formatRightValue ?? formatValue;
   const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
-  const visibilidadeDireita = yAxisRight ?? (temEixoDireito ? 'visible' : 'hidden');
+  const visibilidadeDireita = rightAxisVisibility(yAxisRight, temEixoDireito, yAxis);
 
   const dominios = useMemo(
     () =>

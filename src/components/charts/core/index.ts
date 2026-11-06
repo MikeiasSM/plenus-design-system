@@ -80,7 +80,7 @@ export { seriesInScale, useSeriesToggle } from './useSeriesToggle';
 export type { SeriesToggle, UseSeriesToggleOptions } from './useSeriesToggle';
 export { useSliceRing } from './useSliceRing';
 export type { SliceRing, UseSliceRingOptions } from './useSliceRing';
-export { axisOf, stackByAxis, valueAxisDomains } from './valueAxes';
+export { axisOf, rightAxisVisibility, stackByAxis, valueAxisDomains } from './valueAxes';
 export type { ChartValueAxis, ValueAxisDomainsOptions } from './valueAxes';
 export { useValueScales } from './useValueScales';
 export { useTweenedNumbers } from './useTweenedNumbers';

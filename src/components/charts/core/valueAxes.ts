@@ -1,4 +1,5 @@
 import { alignZeros, linearScale, stackDiverging, type NumericRange } from '../scales';
+import type { AxisVisibility } from './cartesianLayout';
 import { seriesInScale } from './useSeriesToggle';
 
 /**
@@ -9,6 +10,11 @@ export type ChartValueAxis = 'left' | 'right';
 
 export function axisOf(serie: { axis?: ChartValueAxis }): ChartValueAxis {
   return serie.axis ?? 'left';
+}
+
+/** Sem escolha do produto, o eixo direito se mostra como o esquerdo, e so existe com serie a direita. */
+export function rightAxisVisibility(chosen: AxisVisibility | undefined, hasRightSeries: boolean, left: AxisVisibility): AxisVisibility {
+  return chosen ?? (hasRightSeries ? left : 'hidden');
 }
 
 /** Dominio com os limites arredondados que o eixo mostraria sozinho. */

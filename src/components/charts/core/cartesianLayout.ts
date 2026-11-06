@@ -89,6 +89,11 @@ function ocupa(visibility: AxisVisibility, revealed: boolean) {
   return visibility === 'visible' || (visibility === 'onHover' && revealed);
 }
 
+/** O titulo acompanha o eixo `onHover`: surge e some com ele. Nos outros modos, fica sempre. */
+function comTitulo(title: string | undefined, visibility: AxisVisibility, revealed: boolean) {
+  return Boolean(title) && (visibility !== 'onHover' || revealed);
+}
+
 function calha(ocupada: boolean, labels: readonly string[], font: LabelFont) {
   return ocupada ? widestLabel(labels, font) + CHART_LABEL_OFFSET : 0;
 }
@@ -163,9 +168,9 @@ export function cartesianLayout({
 
   const left = Math.max(calha(ocupa(yAxis, revealed), leftLabels, font), CHART_EDGE_GAP);
   const right = Math.max(calha(ocupa(yAxisRight, revealed), rightLabels, font), CHART_EDGE_GAP, rightRoom);
-  const salaX = axisTitles.x ? axisTitleRoom(font) : 0;
-  const salaY = axisTitles.y ? axisTitleRoom(font) : 0;
-  const salaYDireita = axisTitles.yRight ? axisTitleRoom(font) : 0;
+  const salaX = comTitulo(axisTitles.x, xAxis, revealed) ? axisTitleRoom(font) : 0;
+  const salaY = comTitulo(axisTitles.y, yAxis, revealed) ? axisTitleRoom(font) : 0;
+  const salaYDireita = comTitulo(axisTitles.yRight, yAxisRight, revealed) ? axisTitleRoom(font) : 0;
   const plotWidth = Math.max(width - left - right - salaY - salaYDireita, 0);
 
   const rotation =

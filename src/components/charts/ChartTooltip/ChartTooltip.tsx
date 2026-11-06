@@ -338,7 +338,9 @@ function Balao({
       {title !== undefined && <p className={styles.title}>{title}</p>}
       {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
 
-      {content ?? (
+      {content !== undefined ? (
+        <div className={styles.body}>{content}</div>
+      ) : (
         <div className={styles.grid} style={{ gridTemplateColumns: celulas }}>
           {rows.map((linha, indiceDaLinha) => (
             <Fragment key={indiceDaLinha}>
