@@ -9,7 +9,8 @@ import type { Plugin } from 'vite';
  */
 
 const pastaDosModulos = resolve(import.meta.dirname, '../src/icons').replaceAll('\\', '/');
-const suite = readFileSync(resolve(import.meta.dirname, '../src/components/icons/suite.tsx'), 'utf8');
+// Fim de linha normalizado: no Windows, o git entrega o arquivo com CRLF, e a expressao abaixo nao acharia icone algum.
+const suite = readFileSync(resolve(import.meta.dirname, '../src/components/icons/suite.tsx'), 'utf8').replaceAll('\r\n', '\n');
 const componentes = [...suite.matchAll(/^export function (Icon\w+)\(props: IconProps\) \{\n[^\n]+\n\}$/gm)];
 const fontePorNome = new Map(componentes.map(([fonte, nome]) => [nome, fonte]));
 
