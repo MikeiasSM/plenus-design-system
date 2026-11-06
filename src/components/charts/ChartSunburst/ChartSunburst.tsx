@@ -264,6 +264,7 @@ export function ChartSunburst({
   // O arco guardado deixa de existir quando a arvore e remontada, num
   // redimensionamento por exemplo. Sem conferir, o foco perdido apagaria tudo.
   const foco = emFoco && arcos.includes(emFoco) ? emFoco : null;
+  const grupoEmFoco = foco?.ancestors().find((arco) => arco.depth === 1)?.data.label;
 
   /**
    * Acende o arco sob o ponteiro e os que o originaram. O caminho ate a raiz e
@@ -350,7 +351,7 @@ export function ChartSunburst({
       emptyMessage={emptyMessage}
       fillHeight={fillHeight}
       height={alturaDoDesenho}
-      legend={entradasDaLegenda}
+      legend={entradasDaLegenda.map((entrada) => ({ ...entrada, active: entrada.label === grupoEmFoco }))}
       legendAlign={legendAlign}
       legendPosition={removed.has('legend') ? 'none' : legend}
       onHighlightSeries={realcarGrupo}

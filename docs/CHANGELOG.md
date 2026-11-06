@@ -2,9 +2,38 @@
 
 Mudanças de cada versão publicada de `@plenustech/design-system`, da mais recente para a mais antiga.
 
-A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
+A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]
 
-## [Não publicado]
+## [0.6.2] — 2026-11-06
+
+### Adicionado
+
+- `CardMetric.Trend`: máscara das comparações. Cada produto escolhe quais partes aparecem, em que ordem e com que texto entre elas.
+  - `mask`, uma linha da comparação por linha do texto, com as partes `{change}`, `{magnitude}`, `{icon}`, `{label}`, `{value}` e `{description}`. A parte ausente leva o separador junto, e o trecho entre `[ ]` aparece inteiro ou não aparece. Parte desconhecida fica de fora, com aviso em desenvolvimento.
+  - `layout`: `'stack'`, o padrão, faz cada linha fluir; `'table'` alinha a primeira linha em colunas entre as comparações. Cada um tem a sua máscara padrão.
+  - `badgeMask`, a máscara do selo, `{icon}{magnitude}` por padrão; `tonedParts`, as partes no tom da comparação, variação, ícone e rótulo por padrão; e `tooltipMaxWidth`.
+  - O texto quebra livre e os números nunca quebram. A máscara é só visual: o nome acessível continua sendo a frase inteira, na ordem da lib.
+  - Os tipos `CardMetricTrendLayout` e `CardMetricTrendPart` são exportados.
+- `CardMetricComparison`: `description`, a explicação da comparação, que quebra livre no balão e entra no nome acessível.
+- `ChartTooltip`: `content`, conteúdo próprio no lugar da grade de `rows`, que passa a ser opcional; e `maxWidth`, 360 px por padrão.
+- `IconTrendUp` e `IconTrendDown`, linhas de tendência desenhadas pela lib, fora do Bootstrap Icons.
+- `ChartPie`, `ChartDonut`, `ChartSunburst` e `ChartRadial`: a marca sob o ponteiro ou o foco acende a entrada dela na legenda, que ganha `data-active`, um fundo e o tom de texto principal. As demais recuam, com a amostra apagada e o texto terciário. No `ChartSunburst`, acende o grupo de onde o arco vem; a fatia agrupada acende "Outros".
+- `groupSmallSlices` e o tipo `GroupSmallSlicesOptions` exportados: a regra com que o `ChartPie` e o `ChartDonut` reúnem as fatias pequenas, para o balão próprio listar as mesmas fatias do desenho. Sem opções, vale o padrão dos dois, "Outros" abaixo de 2%.
+
+### Alterado
+
+- `CardMetric.Trend`: o balão de comparações passa a ser, por padrão, a variação, o ícone e o rótulo no tom de cada comparação, com a diferença e a explicação embaixo e um traço entre as comparações, tudo em `caption`. O selo e o balão trocam as setas pelas linhas de tendência.
+- `ChartPie`, `ChartDonut` e `ChartRadial`: a marca fora do realce recua para a opacidade de 0,35, a mesma do `ChartSunburst`. Em 0,82, o realce mal se via.
+- `ChartTooltip`: o lado em que o balão abriu vale enquanto couber. Antes ele trocava de lado a cada marca, porque a largura mudava com o conteúdo.
+- Legenda dos gráficos: com o ponteiro, o balão segue o cursor, como sobre o desenho, e o `anchor` do `onHover` é o ponto do ponteiro. A âncora na caixa da entrada fica para o foco pelo teclado.
+- Pacote: os mapas de fonte não levam mais o código-fonte. O erro no consumidor continua apontando arquivo e linha.
+
+### Corrigido
+
+- Legenda dos gráficos: o espaço entre duas entradas não apaga mais o realce. A saída passa a ser medida na lista, e a marca deixa de piscar com o ponteiro descendo a legenda.
+- Com `height="fill"` e a legenda ao lado, o corpo encolhe até a altura imposta e a legenda que não cabe rola, com um respiro até a barra de rolagem. Antes, ela empurrava o gráfico para fora do contêiner.
+- `ChartTooltip` envolvendo o gráfico inteiro não segura mais a altura: com `height="fill"`, o gráfico encontra a altura do contêiner do produto.
+- Os tokens de tipografia lidos pelos gráficos e pelo `CardMetric.Value` são resolvidos em pixels. Um token redefinido em `rem`, `calc()` ou `clamp()` dava um tamanho errado ou caía no padrão.
 
 ## [0.6.1] — 2026-11-04
 

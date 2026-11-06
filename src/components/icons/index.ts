@@ -47,6 +47,8 @@ export {
   IconStructure,
   IconTablet,
   IconTrash,
+  IconTrendDown,
+  IconTrendUp,
   IconUndo,
   IconUpload,
 } from './icons';

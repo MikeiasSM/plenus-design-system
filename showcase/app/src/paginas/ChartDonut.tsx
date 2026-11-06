@@ -3,6 +3,7 @@ import {
   ChartDonut,
   ChartTooltip,
   formatCurrency,
+  groupSmallSlices,
   resolveSeriesColors,
   type ChartDonutSlice,
   type ChartHoverDetails,
@@ -163,17 +164,19 @@ const SITUACAO_DO_ESTOQUE: ChartDonutSlice[] = [
   { label: 'Saudável', value: 307 },
   { label: 'Atenção', value: 84 },
   { label: 'Descontinuado', value: 4 },
+  { label: 'Em trânsito', value: 3 },
 ];
 
 function Distribuicao() {
   const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
-  const cores = resolveSeriesColors(SITUACAO_DO_ESTOQUE);
+  const desenhadas = groupSmallSlices(SITUACAO_DO_ESTOQUE);
+  const cores = resolveSeriesColors(desenhadas);
 
   return (
     <div style={{ width: '100%' }}>
       <ChartTooltip
         anchor={alvo?.details?.anchor}
-        rows={alvo ? SITUACAO_DO_ESTOQUE.map((item, indice) => ({
+        rows={alvo ? desenhadas.map((item, indice) => ({
           color: cores[indice],
           emphasis: item.label === alvo.slice.label,
           label: item.label,
@@ -187,7 +190,6 @@ function Distribuicao() {
           onHover={(slice, details) => setAlvo(slice && { details, slice })}
           showTooltip={false}
           slices={SITUACAO_DO_ESTOQUE}
-          smallSliceThreshold={0}
           title="Situação do estoque"
         />
       </ChartTooltip>
@@ -248,7 +250,7 @@ export const pagina: Pagina = {
   exemplos: [
     {
       titulo: 'Decomposição por encaixe',
-      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o texto do centro e, por fim, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
+      descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o texto do centro e, por fim, só a forma, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda. Com quinze grupos, a legenda ao lado não cabe na altura da caixa e rola, sem empurrar o anel para fora.',
       largo: true,
       Previa: DecomposicaoDoDonut,
       codigo: `<div style={{ height: 240, overflow: 'hidden', resize: 'both' }}>
@@ -366,16 +368,18 @@ const linhas = fatia?.grouped ?? (fatia ? [fatia] : []);
     {
       titulo: 'Distribuição com a fatia em destaque',
       descricao:
-        'O balão é do produto: aqui ele lista todas as fatias, destaca a que está sob o ponteiro ou na entrada da legenda e soma o total. Pela legenda, o anchor do segundo argumento prende o balão ao lado da entrada; pela fatia, ele segue o ponteiro.',
+        'O balão é do produto: aqui ele lista as fatias como o anel as desenha, já com Outros, por groupSmallSlices, a mesma regra do componente. Destaca a que está sob o ponteiro ou na entrada da legenda e soma o total. Pela legenda, o anchor do segundo argumento é o ponteiro, ou a entrada no foco pelo teclado; pela fatia, o balão segue o ponteiro.',
       Previa: Distribuicao,
       codigo: `const [alvo, setAlvo] = useState<{ details?: ChartHoverDetails; slice: ChartDonutSlice } | null>(null);
-const cores = resolveSeriesColors(situacao);
+// As fatias como o anel as desenha: groupSmallSlices é a regra do componente, com os mesmos padrões.
+const desenhadas = groupSmallSlices(situacao);
+const cores = resolveSeriesColors(desenhadas);
 
 <ChartTooltip
   title="Distribuição"
   anchor={alvo?.details?.anchor}
   showTotal
-  rows={alvo ? situacao.map((item, indice) => ({
+  rows={alvo ? desenhadas.map((item, indice) => ({
     color: cores[indice],
     emphasis: item.label === alvo.slice.label,
     label: item.label,
@@ -386,7 +390,6 @@ const cores = resolveSeriesColors(situacao);
     showTooltip={false}
     title="Situação do estoque"
     slices={situacao}
-    smallSliceThreshold={0}
     onHover={(slice, details) => setAlvo(slice && { details, slice })}
   />
 </ChartTooltip>`,
@@ -434,7 +437,7 @@ const cores = resolveSeriesColors(situacao);
     { nome: 'showCenter', tipo: 'boolean', padrao: 'true', descricao: 'Valor no centro do anel.' },
     { nome: 'centerLabel', tipo: 'string', padrao: "'Total'", descricao: 'Texto sob o valor do centro, trocado pelo rótulo da fatia sob o ponteiro.' },
     { nome: 'showLegendValues', tipo: 'boolean', padrao: 'true', descricao: 'Percentual em cada entrada da legenda.' },
-    { nome: 'smallSliceThreshold', tipo: 'number', padrao: '0.02', descricao: 'Fração do total abaixo da qual a fatia é reunida.' },
+    { nome: 'smallSliceThreshold', tipo: 'number', padrao: '0.02', descricao: <>Fração do total abaixo da qual a fatia é reunida. A regra é exportada como <code>groupSmallSlices</code>, para o balão próprio listar as fatias desenhadas.</> },
     { nome: 'otherLabel', tipo: 'string', padrao: "'Outros'", descricao: 'Rótulo da fatia que reúne as pequenas.' },
     { nome: 'formatValue', tipo: '(value: number) => string', padrao: 'formatNumber', descricao: 'Formato do centro e das descrições.' },
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', padrao: 'formatValue', descricao: 'Formato dos valores no balão: o eixo pode sair compacto e o balão, exato.' },

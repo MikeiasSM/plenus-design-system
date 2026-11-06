@@ -1,10 +1,12 @@
-import type { SyntheticEvent } from 'react';
+import type { PointerEvent, SyntheticEvent } from 'react';
 import type { ChartAnchorPoint } from './useMarkNavigation';
 import styles from './Chart.module.css';
 
 export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
 
 export interface ChartLegendEntry {
+  /** Entrada da marca sob o ponteiro ou o foco no desenho: ela se destaca e as demais recuam. */
+  active?: boolean;
   color: string;
   hidden?: boolean;
   label: string;
@@ -28,17 +30,21 @@ export interface ChartLegendProps {
   entries: readonly ChartLegendEntry[];
   /** Entrada sob o ponteiro ou o foco, com o ponto da janela onde ancorar o balao, para o grafico destacar o que ela representa; `null` ao sair. */
   onHighlight?: (label: string | null, anchor?: ChartAnchorPoint) => void;
+  /** Ponteiro andando sobre a legenda, para o balao acompanha-lo como acompanha o desenho; `null` ao sair. */
+  onPointerAt?: (point: ChartAnchorPoint | null) => void;
   onToggle?: (label: string) => void;
   position: ChartLegendPosition;
   swatch?: ChartLegendSwatch;
 }
 
-/** Ponta direita da entrada, a meia altura, com a caixa dela: o balao encosta na entrada, sem cobrir a coluna da legenda. */
+/** Ponta direita da entrada, a meia altura, com a caixa dela: no foco, que nao tem ponteiro, o balao encosta na entrada. */
 function anchorOf(event: SyntheticEvent<HTMLElement>) {
   const box = event.currentTarget.getBoundingClientRect();
 
   return { height: box.height, width: box.width, x: box.right, y: box.top + box.height / 2 };
 }
+
+const pointOf = (event: PointerEvent<HTMLElement>) => ({ x: event.clientX, y: event.clientY });
 
 /**
  * Legenda do grafico. Quando existe um alvo para o clique, cada entrada vira um
@@ -48,6 +54,7 @@ export function ChartLegend({
   align = 'center',
   entries,
   onHighlight,
+  onPointerAt,
   onToggle,
   position,
   swatch = 'square',
@@ -55,7 +62,17 @@ export function ChartLegend({
   const lateral = position === 'left' || position === 'right';
 
   return (
-    <ul className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}>
+    // A saida e da lista, e nao da entrada: o ponteiro que cruza o espaco entre duas entradas mantem o realce.
+    <ul
+      className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}
+      onPointerLeave={
+        onHighlight &&
+        (() => {
+          onHighlight(null);
+          onPointerAt?.(null);
+        })
+      }
+    >
       {entries.map((entrada, indice) => {
         const conteudo = (
           <>
@@ -72,11 +89,12 @@ export function ChartLegend({
         return (
           <li
             className={styles.legendItem}
+            data-active={entrada.active || undefined}
             key={indice}
             onBlur={onHighlight && (() => onHighlight(null))}
             onFocus={onHighlight && ((evento) => onHighlight(entrada.label, anchorOf(evento)))}
-            onPointerEnter={onHighlight && ((evento) => onHighlight(entrada.label, anchorOf(evento)))}
-            onPointerLeave={onHighlight && (() => onHighlight(null))}
+            onPointerEnter={onHighlight && ((evento) => onHighlight(entrada.label, pointOf(evento)))}
+            onPointerMove={onPointerAt && ((evento) => onPointerAt(pointOf(evento)))}
           >
             {onToggle ? (
               <button

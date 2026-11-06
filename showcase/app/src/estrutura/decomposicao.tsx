@@ -98,9 +98,15 @@ export const DecomposicaoDoPie = () => (
   </ConteinerRedimensavel>
 );
 
+const GRUPOS_DE_PRODUTO = [
+  'Bebidas', 'Mercearia', 'Limpeza', 'Higiene', 'Frios', 'Laticínios', 'Padaria', 'Hortifrúti',
+  'Açougue', 'Congelados', 'Pet', 'Utilidades', 'Bazar', 'Papelaria', 'Eletro',
+].map((label, indice) => ({ label, value: 150 - indice * 8 }));
+
+// Quinze grupos e a legenda ao lado: na altura da caixa a lista não cabe, e rola em vez de empurrar o anel para fora.
 export const DecomposicaoDoDonut = () => (
   <ConteinerRedimensavel>
-    <ChartDonut height="fill" legend="right" slices={DESPESAS_POR_TIPO} title="Estrutura de despesas" />
+    <ChartDonut height="fill" legend="right" slices={GRUPOS_DE_PRODUTO} title="Vendas por grupo de produto" />
   </ConteinerRedimensavel>
 );
 

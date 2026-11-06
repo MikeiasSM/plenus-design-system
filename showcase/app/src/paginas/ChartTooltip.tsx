@@ -231,6 +231,16 @@ function Modos() {
         </dd>
         <dt><code>emphasis</code></dt>
         <dd>Realça a linha, como a de maior valor ou a do nó sob o ponteiro; as demais continuam legíveis.</dd>
+        <dt><code>content</code></dt>
+        <dd>
+          Conteúdo próprio no lugar da grade de linhas, para leituras que não são tabela, como o balão de comparações do{' '}
+          <code>CardMetric.Trend</code>. Posição, portal e fechamento continuam os do balão.
+        </dd>
+        <dt>Lado e posição</dt>
+        <dd>
+          Junto do ponteiro, sobre o desenho e sobre a legenda. O lado em que o balão abriu vale enquanto couber, então ele
+          não troca de lado a cada marca. No foco pelo teclado, encosta na marca ou na entrada da legenda.
+        </dd>
         <dt>Cor da linha</dt>
         <dd>
           Para o marcador bater com a marca desenhada, a cor sai de <code>resolveSeriesColors</code>, o mesmo utilitário que o
@@ -318,8 +328,8 @@ export const pagina: Pagina = {
     { garantia: 'Total por coluna', como: 'Cada coluna é totalizada pelo próprio operador, ou fica de fora.', teste: 'ChartTooltip.test.tsx' },
   ],
   api: [
-    { nome: 'children', tipo: 'ReactNode', descricao: 'A área que o ponteiro percorre, em geral o gráfico.' },
-    { nome: 'rows', tipo: 'readonly ChartTooltipRow[]', descricao: <><code>{'{ label, values, color?, emphasis? }'}</code>, uma por medida.</> },
+    { nome: 'children', tipo: 'ReactNode', descricao: <>A área que o ponteiro percorre, em geral o gráfico. Envolvendo o gráfico inteiro, ela não entra no leiaute, e <code>height="fill"</code> continua tomando a altura do contêiner.</> },
+    { nome: 'rows', tipo: 'readonly ChartTooltipRow[]', descricao: <><code>{'{ label, values, color?, emphasis?, format? }'}</code>, uma por medida.</> },
     { nome: 'columns', tipo: 'readonly ChartTooltipColumn[]', descricao: <><code>{'{ format?, total? }'}</code> por coluna. Sem ela, uma por valor, em <code>formatNumber</code>.</> },
     {
       nome: 'computed',
@@ -327,6 +337,8 @@ export const pagina: Pagina = {
       padrao: 'percentual',
       descricao: <><code>{'{ column?, compute?, format? }'}</code> da coluna calculada; <code>none</code> a dispensa.</>,
     },
+    { nome: 'content', tipo: 'ReactNode', descricao: 'Conteúdo próprio do balão, no lugar da grade de rows.' },
+    { nome: 'maxWidth', tipo: 'number', padrao: '360', descricao: 'Largura máxima do balão, em pixels. Nunca passa da janela.' },
     { nome: 'showTotal', tipo: 'boolean', padrao: 'false', descricao: 'Linha de total, com o operador de cada coluna.' },
     { nome: 'totalLabel', tipo: 'string', padrao: "'Total'", descricao: 'Rótulo da linha de total.' },
     { nome: 'title', tipo: 'string', descricao: 'Título do balão, como a categoria sob o ponteiro.' },

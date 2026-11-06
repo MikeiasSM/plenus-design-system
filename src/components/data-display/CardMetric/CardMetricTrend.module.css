@@ -11,3 +11,115 @@
   outline: none;
   box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
 }
+
+/* Partes de uma comparacao. Os numeros nunca quebram; rotulo e explicacao quebram livres, sem reticencias.
+   No balao, os numeros vao na mono, que alinha os digitos entre as comparacoes; o selo segue na fonte do Badge. */
+.change,
+.magnitude,
+.value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+:is(.stack, .table) :is(.change, .magnitude, .value) {
+  font-family: var(--pl-font-mono);
+}
+
+/* No selo, o Badge ja separa o icone; no balao, a mascara cola o icone ao numero, e o respiro vem daqui. */
+:is(.stack, .table) .icon {
+  margin-inline: 2px;
+}
+
+.change {
+  font-weight: var(--pl-type-label-weight);
+}
+
+.icon {
+  display: inline-flex;
+  vertical-align: -1px;
+}
+
+.value {
+  color: var(--pl-color-text-secondary);
+}
+
+.description {
+  color: var(--pl-color-text-tertiary);
+}
+
+.separator {
+  color: var(--pl-color-text-tertiary);
+  white-space: pre-wrap;
+}
+
+/* Tons de texto dos estados, medidos contra a superficie nos dois temas. */
+.success {
+  color: var(--pl-color-on-success-container);
+}
+
+.danger {
+  color: var(--pl-color-danger-text);
+}
+
+/* Bloco: cada linha da mascara flui; a primeira no texto principal, as seguintes em tom de apoio. */
+.stack {
+  display: grid;
+  gap: var(--pl-space-2);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.comparison {
+  display: grid;
+  gap: 2px;
+}
+
+.comparison + .comparison {
+  padding-top: var(--pl-space-2);
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.lead {
+  color: var(--pl-color-text);
+  text-wrap: pretty;
+}
+
+.line {
+  color: var(--pl-color-text-secondary);
+  text-wrap: pretty;
+}
+
+/* Tabela: a primeira linha em colunas alinhadas entre as comparacoes; as seguintes ocupam a largura inteira. */
+.table {
+  display: grid;
+  align-items: start;
+  column-gap: var(--pl-space-3);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.textCell {
+  min-width: 0;
+  color: var(--pl-color-text);
+  text-wrap: pretty;
+}
+
+.numberCell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tableLine {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  color: var(--pl-color-text-secondary);
+  text-wrap: pretty;
+}
+
+.rowDivider {
+  grid-column: 1 / -1;
+  margin: var(--pl-space-2) 0;
+  border-top: 1px solid var(--pl-color-border);
+}

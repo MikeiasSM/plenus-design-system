@@ -9,8 +9,9 @@
 }
 
 /* Realcar um anel, pelo ponteiro, pelo foco ou pela legenda, esmaece os demais. */
+/* A mesma recuada dos arcos do ChartSunburst: a marca sob o ponteiro se destaca sem disputar com as outras. */
 .fillDim {
-  opacity: 0.82;
+  opacity: 0.35;
 }
 
 .center {

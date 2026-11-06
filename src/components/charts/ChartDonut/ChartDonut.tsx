@@ -58,7 +58,7 @@ export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   onMarkClick?: (slice: ChartSlice) => void;
   /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Rotulo da fatia que reune as pequenas. */
+  /** Rotulo da fatia que reune as pequenas. `Outros` por padrao. */
   otherLabel?: string;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -71,7 +71,7 @@ export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   slices: readonly ChartSlice[];
-  /** Fracao do total abaixo da qual a fatia entra no agrupamento. */
+  /** Fracao do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrao. A regra e o `groupSmallSlices`. */
   smallSliceThreshold?: number;
   /** Espessura do anel, como fracao do raio. */
   thickness?: number;
@@ -98,7 +98,7 @@ export function ChartDonut({
   onHoverSlice,
   onMarkClick,
   onSliceClick,
-  otherLabel = 'Outros',
+  otherLabel,
   palette,
   showCenter = true,
   showLegendValues = true,
@@ -106,7 +106,7 @@ export function ChartDonut({
   showTooltip = true,
   sliceRadius,
   slices,
-  smallSliceThreshold = 0.02,
+  smallSliceThreshold,
   thickness = 0.38,
   title,
   ...root
@@ -143,6 +143,7 @@ export function ChartDonut({
   });
 
   const entradasDaLegenda = anel.slices.map((fatia, indice) => ({
+    active: anel.focused === indice,
     color: anel.colors[indice],
     hidden: anel.isHidden(fatia.label),
     label: fatia.label,

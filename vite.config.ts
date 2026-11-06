@@ -13,7 +13,7 @@ const marcaModulosDoCliente: Plugin = {
 export default defineConfig({
   plugins: [iconesPorModulo, react(), marcaModulosDoCliente],
   build: {
-    // Depurar a biblioteca dentro do consumidor, em vez de ler o minificado.
+    // O erro no consumidor aponta arquivo e linha da fonte; o mapa nao leva o codigo, que fica fora do pacote.
     sourcemap: true,
     // Um .css por modulo: `finaliza-pacote` monta deles as folhas por componente e a folha inteira.
     cssCodeSplit: true,
@@ -30,7 +30,7 @@ export default defineConfig({
       external: ['react', 'react-dom', 'react/jsx-runtime', /^@react-aria\//, /^@internationalized\//, /^d3-/],
       // Um modulo por arquivo: num arquivo so, o empacotador do consumidor poe na primeira visita tudo o que
       // qualquer tela carregada sob demanda usa da biblioteca.
-      output: { preserveModules: true, preserveModulesRoot: 'src', exports: 'named' },
+      output: { preserveModules: true, preserveModulesRoot: 'src', exports: 'named', sourcemapExcludeSources: true },
     },
   },
   test: {

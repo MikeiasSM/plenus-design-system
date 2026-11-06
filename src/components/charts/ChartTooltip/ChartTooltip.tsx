@@ -48,9 +48,13 @@ export interface ChartTooltipProps {
   columns?: readonly ChartTooltipColumn[];
   /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
   computed?: ChartTooltipComputed | 'none';
+  /** Conteudo proprio do balao, no lugar da grade de `rows`, para leituras que nao sao tabela. */
+  content?: ReactNode;
+  /** Largura maxima do balao, em pixels. 360 por padrao; nunca passa da janela. */
+  maxWidth?: number;
   /** Elemento que recebe o balão. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
   portalContainer?: HTMLElement | null;
-  rows: readonly ChartTooltipRow[];
+  rows?: readonly ChartTooltipRow[];
   showTotal?: boolean;
   subtitle?: string;
   title?: string;
@@ -96,19 +100,38 @@ function totalizar(operador: ChartTooltipTotal, valores: readonly number[]) {
   return somar(valores);
 }
 
+type Lado = 'direita' | 'esquerda';
+
+interface Encaixe extends Ponto {
+  lado?: Lado;
+}
+
+/** O lado em que o balao ja abriu vale enquanto couber: trocar a cada marca, so porque a largura mudou, desorienta. */
+function escolherLado(preferido: Lado | undefined, cabe: Record<Lado, boolean>): Lado {
+  if (preferido && cabe[preferido]) {
+    return preferido;
+  }
+
+  return cabe.direita ? 'direita' : 'esquerda';
+}
+
 /**
  * Canto do balao a partir do ponteiro. Ele abre para baixo e para a direita
  * enquanto couber, e vira para o lado oposto ao encostar na borda.
  */
-function encaixar({ touch, x, y }: Ponto, largura: number, altura: number): Ponto {
+function encaixar({ touch, x, y }: Ponto, largura: number, altura: number, preferido?: Lado): Encaixe {
   const afastamento = touch ? TOOLTIP_OFFSET_TOUCH : TOOLTIP_OFFSET;
-  const cabeADireita = x + TOOLTIP_OFFSET + largura <= larguraDaJanela() - MARGEM;
+  const lado = escolherLado(preferido, {
+    direita: x + TOOLTIP_OFFSET + largura <= larguraDaJanela() - MARGEM,
+    esquerda: x - TOOLTIP_OFFSET - largura >= MARGEM,
+  });
   const cabeAbaixo = y + afastamento + altura <= window.innerHeight - MARGEM;
   const cabeAcima = y - afastamento - altura >= MARGEM;
   const abaixo = touch ? !cabeAcima && cabeAbaixo : cabeAbaixo;
 
   return {
-    x: cabeADireita ? x + TOOLTIP_OFFSET : Math.max(x - TOOLTIP_OFFSET - largura, MARGEM),
+    lado,
+    x: lado === 'direita' ? x + TOOLTIP_OFFSET : Math.max(x - TOOLTIP_OFFSET - largura, MARGEM),
     y: abaixo ? y + afastamento : Math.max(y - afastamento - altura, MARGEM),
   };
 }
@@ -122,18 +145,17 @@ function dentroDaJanela(valor: number, tamanho: number, limite: number) {
  * direita da caixa, alinhado ao topo; sem espaco, vai para a esquerda; sem espaco dos dois lados, desce abaixo
  * da caixa, alinhado a esquerda, ou sobe acima dela.
  */
-function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: number, altura: number): Ponto {
+function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: number, altura: number, preferido?: Lado): Encaixe {
   const topo = y - height / 2;
   const aDireita = x + ESPACO_DA_CAIXA;
   const aEsquerda = x - width - ESPACO_DA_CAIXA - largura;
   const alinhadoAoTopo = dentroDaJanela(topo, altura, window.innerHeight);
+  const cabe = { direita: aDireita + largura <= larguraDaJanela() - MARGEM, esquerda: aEsquerda >= MARGEM };
 
-  if (aDireita + largura <= larguraDaJanela() - MARGEM) {
-    return { x: aDireita, y: alinhadoAoTopo };
-  }
+  if (cabe.direita || cabe.esquerda) {
+    const lado = escolherLado(preferido, cabe);
 
-  if (aEsquerda >= MARGEM) {
-    return { x: aEsquerda, y: alinhadoAoTopo };
+    return { lado, x: lado === 'direita' ? aDireita : aEsquerda, y: alinhadoAoTopo };
   }
 
   const abaixo = topo + height + ESPACO_DA_CAIXA;
@@ -159,8 +181,10 @@ export function ChartTooltip({
   children,
   columns,
   computed,
+  content,
+  maxWidth,
   portalContainer,
-  rows,
+  rows = [],
   showTotal = false,
   subtitle,
   title,
@@ -172,7 +196,7 @@ export function ChartTooltip({
   const [ancoraDispensada, setAncoraDispensada] = useState<ChartAnchorPoint | null>(null);
   const ancora = anchor !== undefined && anchor !== ancoraDispensada ? anchor : null;
   const ponto = ancora ?? ponteiro;
-  const visivel = ponto !== null && rows.length > 0;
+  const visivel = ponto !== null && (content !== undefined || rows.length > 0);
 
   // Sai por qualquer motivo que nao seja o ponteiro andando pela area: rolagem,
   // tecla ou a janela mudando de tamanho deixam o balao preso a um lugar que o
@@ -231,6 +255,8 @@ export function ChartTooltip({
           <Balao
             columns={columns}
             computed={computed}
+            content={content}
+            maxWidth={maxWidth}
             ponteiro={ponto}
             rows={rows}
             showTotal={showTotal}
@@ -244,11 +270,13 @@ export function ChartTooltip({
   );
 }
 
-type BalaoProps = Omit<ChartTooltipProps, 'children'> & { ponteiro: ChartAnchorPoint };
+type BalaoProps = Omit<ChartTooltipProps, 'children' | 'rows'> & { ponteiro: ChartAnchorPoint; rows: readonly ChartTooltipRow[] };
 
 function Balao({
   columns,
   computed,
+  content,
+  maxWidth,
   ponteiro,
   rows,
   showTotal,
@@ -258,6 +286,7 @@ function Balao({
 }: BalaoProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [medida, setMedida] = useState({ altura: 0, largura: 0 });
+  const ladoAberto = useRef<Lado | undefined>(undefined);
 
   // A medida entra antes da pintura, entao o balao ja nasce no lugar certo.
   useLayoutEffect(() => {
@@ -287,64 +316,77 @@ function Balao({
   const formatarCalculada = calculada?.format ?? ((valor: number) => formatPercent(valor, { decimals: 2 }));
 
   const { height, width } = ponteiro;
-  const { x, y } =
+  // Sem medida ainda, o lado nao e decidido: o primeiro desenho, de largura zero, caberia em qualquer um.
+  const preferido = medida.largura > 0 ? ladoAberto.current : undefined;
+  const { lado, x, y } =
     height !== undefined && width !== undefined
-      ? encostar({ ...ponteiro, height, width }, medida.largura, medida.altura)
-      : encaixar(ponteiro, medida.largura, medida.altura);
+      ? encostar({ ...ponteiro, height, width }, medida.largura, medida.altura, preferido)
+      : encaixar(ponteiro, medida.largura, medida.altura, preferido);
+
+  if (medida.largura > 0 && lado) {
+    ladoAberto.current = lado;
+  }
   const celulas = `1fr ${'auto '.repeat(colunas.length + (calculada ? 1 : 0))}`.trim();
 
   return (
-    <div aria-hidden="true" className={styles.tooltip} ref={ref} style={{ left: x, top: y }}>
+    <div
+      aria-hidden="true"
+      className={styles.tooltip}
+      ref={ref}
+      style={{ left: x, maxWidth: maxWidth === undefined ? undefined : `min(${maxWidth}px, calc(100% - 16px))`, top: y }}
+    >
       {title !== undefined && <p className={styles.title}>{title}</p>}
       {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
 
-      <div className={styles.grid} style={{ gridTemplateColumns: celulas }}>
-        {rows.map((linha, indiceDaLinha) => (
-          <Fragment key={indiceDaLinha}>
-            <span className={`${styles.label} ${linha.emphasis ? styles.emphasis : ''}`}>
-              {linha.color !== undefined && (
-                <span className={styles.swatch} style={{ background: linha.color }} />
+      {content ?? (
+        <div className={styles.grid} style={{ gridTemplateColumns: celulas }}>
+          {rows.map((linha, indiceDaLinha) => (
+            <Fragment key={indiceDaLinha}>
+              <span className={`${styles.label} ${linha.emphasis ? styles.emphasis : ''}`}>
+                {linha.color !== undefined && (
+                  <span className={styles.swatch} style={{ background: linha.color }} />
+                )}
+                <span className={styles.labelText}>{linha.label}</span>
+              </span>
+
+              {colunas.map((coluna, indice) => (
+                <span className={`${styles.value} ${linha.emphasis ? styles.emphasis : ''}`} key={indice}>
+                  {(linha.format ?? coluna.format ?? formatNumber)(linha.values[indice] ?? 0)}
+                </span>
+              ))}
+
+              {calculada && (
+                <span className={`${styles.computed} ${linha.emphasis ? styles.emphasis : ''}`}>
+                  {formatarCalculada(calcular(linha.values[colunaBase] ?? 0, baseDoTotal))}
+                </span>
               )}
-              <span className={styles.labelText}>{linha.label}</span>
-            </span>
+            </Fragment>
+          ))}
 
-            {colunas.map((coluna, indice) => (
-              <span className={`${styles.value} ${linha.emphasis ? styles.emphasis : ''}`} key={indice}>
-                {(linha.format ?? coluna.format ?? formatNumber)(linha.values[indice] ?? 0)}
-              </span>
-            ))}
+          {showTotal && (
+            <>
+              <span className={styles.rule} />
+              <span className={`${styles.label} ${styles.totalLabel}`}>{totalLabel}</span>
 
-            {calculada && (
-              <span className={`${styles.computed} ${linha.emphasis ? styles.emphasis : ''}`}>
-                {formatarCalculada(calcular(linha.values[colunaBase] ?? 0, baseDoTotal))}
-              </span>
-            )}
-          </Fragment>
-        ))}
+              {colunas.map((coluna, indice) => (
+                <span className={`${styles.value} ${styles.totalValue}`} key={indice}>
+                  {coluna.total === 'none'
+                    ? ''
+                    : (coluna.format ?? formatNumber)(
+                        totalizar(coluna.total ?? 'sum', rows.map((linha) => linha.values[indice] ?? 0)),
+                      )}
+                </span>
+              ))}
 
-        {showTotal && (
-          <>
-            <span className={styles.rule} />
-            <span className={`${styles.label} ${styles.totalLabel}`}>{totalLabel}</span>
-
-            {colunas.map((coluna, indice) => (
-              <span className={`${styles.value} ${styles.totalValue}`} key={indice}>
-                {coluna.total === 'none'
-                  ? ''
-                  : (coluna.format ?? formatNumber)(
-                      totalizar(coluna.total ?? 'sum', rows.map((linha) => linha.values[indice] ?? 0)),
-                    )}
-              </span>
-            ))}
-
-            {calculada && (
-              <span className={`${styles.computed} ${styles.totalValue}`}>
-                {calculada.total === false ? '' : formatarCalculada(calcular(baseDoTotal, baseDoTotal))}
-              </span>
-            )}
-          </>
-        )}
-      </div>
+              {calculada && (
+                <span className={`${styles.computed} ${styles.totalValue}`}>
+                  {calculada.total === false ? '' : formatarCalculada(calcular(baseDoTotal, baseDoTotal))}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
