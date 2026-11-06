@@ -4,6 +4,14 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]
 
+## [0.6.3] — 2026-11-06
+
+### Corrigido
+
+- `ChartLine`, `ChartArea`, `ChartBar` e `ChartCombo`: com série no eixo direito e sem `yAxisRight`, o eixo direito ficava sempre visível, mesmo com `yAxis="onHover"`, e a calha dele seguia reservada sem o ponteiro. Sem valor, o eixo direito passa a seguir o `yAxis`.
+- Gráficos cartesianos: o título de um eixo em `onHover` aparece e some junto com ele, e a sala do título entra no recolhimento. Antes, o título ficava à vista e a sala reservada, e o desenho não ocupava o espaço todo sem o ponteiro. Com o eixo `visible` ou `hidden`, nada muda.
+- `ChartTooltip`: o conteúdo próprio (`content`), como o balão de comparações do `CardMetric.Trend`, encostava no título. O corpo do balão, em grade ou próprio, fica a 12 px do título, o mesmo respiro da borda.
+
 ## [0.6.2] — 2026-11-06
 
 ### Adicionado
