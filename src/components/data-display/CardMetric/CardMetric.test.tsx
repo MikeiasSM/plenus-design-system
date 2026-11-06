@@ -8,7 +8,7 @@ function montar(props: Partial<CardMetricProps> = {}) {
   return render(
     <CardMetric {...props}>
       <Card.Header
-        badge={<button type="button">Explicar com IA</button>}
+        badge={<button type="button">Ajuda</button>}
         title="Faturamento"
         trailing={<CardMetric.Trend comparisons={[{ change: 0.124, label: 'vs. mês anterior' }]} />}
       />
@@ -31,7 +31,7 @@ describe('CardMetric', () => {
     const onActivate = vi.fn();
     montar({ onActivate });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Explicar com IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ajuda' }));
     expect(onActivate).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Abrir detalhes de Faturamento' }));
@@ -113,6 +113,84 @@ describe('CardMetric', () => {
     fireEvent.focus(tendencia);
 
     expect(screen.getByText('Comparações')).toBeInTheDocument();
+  });
+
+  describe('Trend com mascara', () => {
+    const moedaCompacta = (valor: number) => `R$ ${Math.round(valor / 1000)} k`;
+    const comparacoes = [
+      { change: 0.124, label: 'vs. mês anterior', value: 168000, formatValue: moedaCompacta },
+      { change: -0.05, description: 'Revisada em março.', label: 'vs. meta' },
+      { change: 0.018, label: 'vs. média', polarity: 'neutral' as const },
+    ];
+
+    function abrir(props: Partial<Parameters<typeof CardMetric.Trend>[0]> = {}) {
+      render(
+        <CardMetric>
+          <CardMetric.Trend comparisons={comparacoes} {...props} />
+        </CardMetric>,
+      );
+      fireEvent.focus(screen.getByRole('button'));
+
+      return document.querySelector('[aria-hidden="true"][style*="left"]') as HTMLElement;
+    }
+
+    it('sem mascara, mostra a variacao, o icone e o rotulo, e embaixo a diferenca e a explicacao', () => {
+      const balao = abrir();
+
+      expect(balao).toHaveTextContent('+12,4% vs. mês anterior');
+      expect(balao).toHaveTextContent('+R$ 168 k');
+      expect(balao).toHaveTextContent('-5,0% vs. meta');
+      expect(balao).toHaveTextContent('Revisada em março.');
+      // Sem diferença, o separador sai junto: a linha da meta e so a explicacao.
+      expect(balao.textContent).not.toMatch(/·\s*Revisada/);
+    });
+
+    it('pinta no tom so as partes pedidas, e a neutra fica sem tom', () => {
+      const balao = abrir({ tonedParts: ['change'] });
+      const classeDe = (texto: string) => [...balao.querySelectorAll('span')].find((no) => no.textContent === texto)?.className ?? '';
+
+      expect(classeDe('+12,4%')).toMatch(/success/);
+      expect(classeDe('-5,0%')).toMatch(/danger/);
+      expect(classeDe('+1,8%')).not.toMatch(/success|danger/);
+      expect(classeDe('vs. mês anterior')).not.toMatch(/success/);
+    });
+
+    it('segue a mascara do produto, na ordem dela', () => {
+      const balao = abrir({ mask: '{label}: {change}' });
+
+      expect(balao).toHaveTextContent('vs. mês anterior: +12,4%');
+      expect(balao).not.toHaveTextContent('R$ 168 k');
+    });
+
+    it('em tabela, alinha a primeira linha em colunas e leva a explicacao para baixo', () => {
+      const balao = abrir({ layout: 'table' });
+      const grade = balao.querySelector('[class*="table"]') as HTMLElement;
+
+      expect(grade.style.gridTemplateColumns).toBe('minmax(0, 1fr) auto auto');
+      expect(balao).toHaveTextContent('Revisada em março.');
+    });
+
+    it('o selo segue a propria mascara, e o nome acessivel continua sendo a frase inteira', () => {
+      render(
+        <CardMetric>
+          <CardMetric.Trend badgeMask="{value}" comparisons={comparacoes} />
+        </CardMetric>,
+      );
+      const botao = screen.getByRole('button');
+
+      expect(botao).toHaveTextContent('+R$ 168 k');
+      expect(botao).toHaveAccessibleName(
+        'Tendência: Alta de 12,4% (+R$ 168 k), favorável, vs. mês anterior; Queda de 5,0%, desfavorável, vs. meta. Revisada em março.; Alta de 1,8%, vs. média',
+      );
+    });
+
+    it('avisa em desenvolvimento a parte que nao existe', () => {
+      const aviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      abrir({ mask: '{change} {periodo}' });
+
+      expect(aviso).toHaveBeenCalledWith(expect.stringContaining('{periodo}'));
+      aviso.mockRestore();
+    });
   });
 
   it('o valor compacto diz o valor exato no nome e no balao', () => {

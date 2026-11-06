@@ -6,6 +6,8 @@ export interface CardMetricComparison {
   label: string;
   /** Fracao, a unidade do `formatPercent`: 0.124 e 12,4%. */
   change?: number;
+  /** Explicacao da comparacao, como o que entra no calculo. Quebra livre no balao e entra no nome acessivel. */
+  description?: string;
   /** Diferenca absoluta, mostrada no balao. */
   value?: number;
   formatValue?: (value: number) => string;

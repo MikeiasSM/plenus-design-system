@@ -30,7 +30,7 @@ function Example({ accountMode, nestedMode, withItems = true, ...props }: Exampl
             </AppShell.Account>
           }
           accountMode={accountMode}
-          brand="Painel"
+          brand="Gestor"
           label="Vendas"
           nestedMode={nestedMode}
         >
@@ -73,7 +73,7 @@ describe('AppShell', () => {
     render(<Example />);
 
     const submenu = screen.getByRole('navigation', { name: 'Vendas' });
-    expect(within(submenu).getByText('Painel')).toBeInTheDocument();
+    expect(within(submenu).getByText('Gestor')).toBeInTheDocument();
     expect(within(submenu).getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
   });
 

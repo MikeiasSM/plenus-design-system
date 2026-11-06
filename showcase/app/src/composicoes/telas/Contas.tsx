@@ -10,7 +10,7 @@ const PASSOS = [
   { key: 'conciliar', label: 'Concilie', description: 'O sistema sugere os pares.' },
 ];
 
-const PRIMEIRA_CONTA = { id: 'bb', apelido: 'Conta principal', banco: 'Banco do Brasil', agencia: '3412', conta: '55871-4' };
+const PRIMEIRA_CONTA = { id: 'horizonte', apelido: 'Conta principal', banco: 'Banco Horizonte', agencia: '1020', conta: '40213-7' };
 
 export function Contas() {
   const [contas, setContas] = useState<(typeof PRIMEIRA_CONTA)[]>([]);
@@ -37,7 +37,7 @@ export function Contas() {
                     <Button onClick={() => setContas([PRIMEIRA_CONTA])}>Registrar a primeira conta</Button>
                   </>
                 }
-                description="Com uma conta registrada, o Painel confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
+                description="Com uma conta registrada, o sistema confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
                 icon={<IconBank />}
                 title="Nenhuma conta bancária registrada"
               />

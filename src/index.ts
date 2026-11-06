@@ -49,6 +49,8 @@ export {
   IconStructure,
   IconTablet,
   IconTrash,
+  IconTrendDown,
+  IconTrendUp,
   IconUndo,
   IconUpload,
 } from './components/icons';
@@ -231,6 +233,8 @@ export type {
   CardMetricProps,
   CardMetricSegment,
   CardMetricTone,
+  CardMetricTrendLayout,
+  CardMetricTrendPart,
   CardMetricTrendProps,
   CardMetricValueProps,
 } from './components/data-display/CardMetric';
@@ -435,6 +439,8 @@ export type {
 } from './components/charts/ChartScatter';
 export { ChartPie } from './components/charts/ChartPie';
 export type { ChartPieProps, ChartPieSlice } from './components/charts/ChartPie';
+export { groupSmallSlices } from './components/charts/core/slices';
+export type { GroupSmallSlicesOptions } from './components/charts/core/slices';
 export { ChartDonut } from './components/charts/ChartDonut';
 export type { ChartDonutProps, ChartDonutSlice } from './components/charts/ChartDonut';
 export { ChartRadial } from './components/charts/ChartRadial';

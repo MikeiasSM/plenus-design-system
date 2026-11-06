@@ -16,7 +16,7 @@ function Marca() {
 function MarcaDoSubmenu() {
   return (
     <span className="moldura-marca-texto">
-      <strong>Painel</strong>
+      <strong>Gestor</strong>
       <span>by Plenustech</span>
     </span>
   );

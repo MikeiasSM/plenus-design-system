@@ -20,7 +20,29 @@ const TITULOS = [
 ];
 const COMPARACOES = [
   { label: 'vs. mês anterior', change: 0.124, value: 168000, formatValue: moedaCompacta },
-  { label: 'vs. mesmo mês do ano anterior', change: -0.031, value: -48600, formatValue: moedaCompacta },
+  {
+    label: 'vs. mesmo mês do ano anterior',
+    description: 'Considera só as lojas abertas nos dois períodos.',
+    change: -0.031,
+    value: -48600,
+    formatValue: moedaCompacta,
+  },
+  { label: 'vs. média do trimestre', change: 0.018, polarity: 'neutral' as const },
+];
+const COMPARACOES_EXPLICADAS = [
+  ...COMPARACOES,
+  {
+    label: 'vs. meta do orçamento',
+    description: 'Revisada em março, sem as filiais inauguradas no semestre.',
+    change: -0.152,
+    value: -231400,
+    formatValue: moedaCompacta,
+  },
+];
+const MASCARAS = [
+  { titulo: 'Bloco, a máscara padrão', layout: 'stack' as const, mask: undefined, badgeMask: undefined },
+  { titulo: 'Tabela', layout: 'table' as const, mask: undefined, badgeMask: undefined },
+  { titulo: 'Frase única', layout: 'stack' as const, mask: '{value}{icon} {label} [({description})]', badgeMask: '{icon}{value}' },
 ];
 
 const ESTADOS = ['normal', 'loading', 'updating', 'error'] as const;
@@ -190,7 +212,32 @@ function Modos() {
         </Linha>
         <p className="note">
           Os cartões de uma linha têm a mesma altura, e o valor fica ancorado no rodapé. O gráfico ocupa o que sobra; a
-          tendência vai no cabeçalho ou junto do valor, como o produto montar.
+          tendência vai no cabeçalho ou junto do valor, como o produto montar. No balão da tendência do faturamento, cada
+          comparação leva o próprio tom, favorável, desfavorável ou neutra, e a explicação quebra livre abaixo dela.
+        </p>
+      </div>
+      <div className="subsection">
+        <h3>Máscara da tendência</h3>
+        <Linha>
+          {MASCARAS.map(({ badgeMask, layout, mask, titulo }) => (
+            <CardMetric key={titulo}>
+              <Card.Header
+                description={mask ?? `layout="${layout}"`}
+                title={titulo}
+                trailing={<CardMetric.Trend badgeMask={badgeMask} comparisons={COMPARACOES_EXPLICADAS} layout={layout} mask={mask} />}
+              />
+              <CardMetric.Body>
+                <CardMetric.Value formatTooltipValue={moeda} formatValue={moedaCompacta} value={1523400.5} />
+              </CardMetric.Body>
+            </CardMetric>
+          ))}
+        </Linha>
+        <p className="note">
+          A máscara diz quais partes de cada comparação aparecem e em que ordem: <code>{'{change}'}</code>,{' '}
+          <code>{'{magnitude}'}</code>, <code>{'{icon}'}</code>, <code>{'{label}'}</code>, <code>{'{value}'}</code> e{' '}
+          <code>{'{description}'}</code>. Cada linha do texto é uma linha da comparação. A parte ausente leva o separador junto,
+          e o trecho entre colchetes aparece inteiro ou não aparece. O <code>layout</code> decide a geometria: em bloco cada linha
+          flui; em tabela a primeira linha vira colunas alinhadas. Passe o ponteiro ou o foco no selo para abrir o balão.
         </p>
       </div>
       <div className="subsection">
@@ -199,17 +246,17 @@ function Modos() {
           <CardMetric>
             <Card.Header description="Saldo atual em caixa e nas contas bancárias." title="Caixa e Banco Agora" />
             <CardMetric.Body>
-              <CardMetric.Value formatTooltipValue={moeda} formatValue={moedaCompacta} value={51346.19} />
+              <CardMetric.Value formatTooltipValue={moeda} formatValue={moedaCompacta} value={46871.75} />
               <CardMetric.Bar
                 formatValue={moeda}
                 orientation="vertical"
                 palette={{ base: '#67BD50' }}
                 paletteOrder="byValue"
                 segments={[
-                  { label: 'C C SICREDI - 930-0', value: 47269.82 },
-                  { label: 'C C BCO BRASIL - 11.212-7', value: 2636.48 },
-                  { label: 'DINHEIRO (CAIXA)', value: 1218.69 },
-                  { label: 'DINHEIRO (RETAGUARDA)', value: 221.2 },
+                  { label: 'Conta Banco Horizonte', value: 38420.5 },
+                  { label: 'Conta Coop. Vale Verde', value: 6215.3 },
+                  { label: 'Caixa da loja', value: 1840.75 },
+                  { label: 'Caixa da retaguarda', value: 395.2 },
                 ]}
                 smallSegmentThreshold={0.05}
                 title="Composição do saldo"
@@ -236,6 +283,8 @@ export const pagina: Pagina = {
     { garantia: 'Nome da ativação', como: '"Abrir detalhes de" e o título do Card.Header.', teste: 'CardMetric.test.tsx' },
     { garantia: 'Estados', como: <>Carregando e atualizando marcam <code>aria-busy</code>; o erro vira alerta no lugar do valor.</>, teste: 'CardMetric.test.tsx' },
     { garantia: 'Tendência lida como frase', como: '"Alta de 12,4%, vs. mês anterior", com todas as comparações.', teste: 'CardMetric.test.tsx' },
+    { garantia: 'Máscara só visual', como: 'O nome acessível continua sendo a frase inteira, na ordem da lib, mesmo com partes escondidas.', teste: 'CardMetric.test.tsx' },
+    { garantia: 'Separador com a parte', como: 'Parte ausente leva o separador junto; parte desconhecida é avisada em desenvolvimento.', teste: 'trendMask.test.ts' },
     { garantia: 'Cor pela polaridade', como: <>Sinal e <code>polarity</code> decidem o tom; <code>tone</code> e <code>direction</code> o forçam.</>, teste: 'comparisonTone.test.ts' },
     { garantia: 'Barra como imagem nomeada', como: 'Cada segmento e o total no nome, uma parada de Tab que abre o balão.', teste: 'CardMetricBar.test.tsx' },
     { garantia: 'Negativo fora de Outros', como: 'Só os positivos pequenos se reúnem no balão.', teste: 'CardMetricBar.test.tsx' },
@@ -256,6 +305,17 @@ export const pagina: Pagina = {
     { nome: 'CardMetric.Value formatTooltipValue', tipo: '(value: number) => string', descricao: 'Valor exato no balão e na impressão.' },
     { nome: 'CardMetric.Trend comparisons', tipo: 'CardMetricComparison[]', descricao: 'Obrigatório. O selo mostra a primeira; o balão, todas. change é fração.' },
     { nome: 'CardMetric.Trend formatPercent', tipo: '(ratio: number) => string', descricao: 'Formato do percentual. Padrão: uma casa decimal.' },
+    { nome: 'CardMetric.Trend layout', tipo: "'stack' | 'table'", padrao: "'stack'", descricao: 'Em bloco, cada linha da máscara flui; em tabela, a primeira linha vira colunas alinhadas entre as comparações.' },
+    {
+      nome: 'CardMetric.Trend mask',
+      tipo: 'string',
+      padrao: "bloco: '{change}{icon} {label}\\n{value} · {description}'; tabela: '{label} {value} {icon}{change}\\n{description}'",
+      descricao: 'Partes de cada comparação no balão e a ordem delas, uma linha da comparação por linha do texto. [ ] marca o trecho que aparece inteiro ou não aparece.',
+    },
+    { nome: 'CardMetric.Trend badgeMask', tipo: 'string', padrao: "'{icon}{magnitude}'", descricao: 'Partes do selo, que mostra a primeira comparação.' },
+    { nome: 'CardMetric.Trend tonedParts', tipo: 'CardMetricTrendPart[]', padrao: "['change', 'icon', 'label']", descricao: 'Partes pintadas no tom da comparação.' },
+    { nome: 'CardMetric.Trend tooltipMaxWidth', tipo: 'number', padrao: '360', descricao: 'Largura máxima do balão, em pixels.' },
+    { nome: 'CardMetricComparison description', tipo: 'string', descricao: 'Explicação da comparação. Quebra livre no balão e entra no nome acessível.' },
     { nome: 'CardMetric.Bar segments', tipo: 'CardMetricSegment[]', descricao: 'Obrigatório. Negativos ocupam a magnitude, tracejados.' },
     { nome: 'CardMetric.Bar title', tipo: 'string', descricao: 'Obrigatório. Nomeia a imagem e o balão.' },
     { nome: 'CardMetric.Bar total', tipo: 'number', descricao: 'Total do balão. Padrão: a soma com sinal.' },

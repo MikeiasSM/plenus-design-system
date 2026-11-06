@@ -1,66 +1,96 @@
-import type { ComponentPropsWithRef } from 'react';
+import { useEffect, useMemo, type ComponentPropsWithRef } from 'react';
 import { ChartTooltip } from '../../charts/ChartTooltip';
-import { IconArrowDown, IconArrowUp } from '../../icons';
-import { formatNumber, formatPercent as formatRatio } from '../../../utils/formatters';
+import { formatPercent as formatRatio } from '../../../utils/formatters';
+import { isDevelopment } from '../../../utils/isDevelopment';
 import { Badge } from '../Badge';
 import { comparisonTone, type CardMetricComparison } from './comparisonTone';
+import { knownChange, signedValue, TrendComparisons, TrendLine, type CardMetricTrendLayout } from './CardMetricTrendParts';
+import { parseTrendMask, unknownTrendParts, type CardMetricTrendPart } from './trendMask';
 import { useAnchoredTooltip } from './useAnchoredTooltip';
 import { useCardMetric } from './CardMetricContext';
 import styles from './CardMetricTrend.module.css';
 
 export interface CardMetricTrendProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
+  /** Mascara do selo, que mostra a primeira comparacao. `{icon}{magnitude}` por padrao. */
+  badgeMask?: string;
   /** O selo mostra a primeira; o balao, todas. */
   comparisons: readonly CardMetricComparison[];
   formatPercent?: (ratio: number) => string;
+  /** Arranjo do balao: `stack` faz cada linha da mascara fluir; `table` alinha a primeira linha em colunas. */
+  layout?: CardMetricTrendLayout;
+  /** Partes de cada comparacao no balao, uma linha da comparacao por linha do texto. O padrao depende do `layout`. */
+  mask?: string;
+  /** Partes pintadas no tom da comparacao. Variacao, icone e rotulo por padrao. */
+  tonedParts?: readonly CardMetricTrendPart[];
+  /** Largura maxima do balao, em pixels. 360 por padrao. */
+  tooltipMaxWidth?: number;
 }
+
+const DEFAULT_MASK: Record<CardMetricTrendLayout, string> = {
+  stack: '{change}{icon} {label}\n{value} · {description}',
+  table: '{label} {value} {icon}{change}\n{description}',
+};
+const DEFAULT_TONED_PARTS: readonly CardMetricTrendPart[] = ['change', 'icon', 'label'];
 
 const WORD = { down: 'Queda', flat: 'Estável', up: 'Alta' } as const;
 const MEANING = { danger: ', desfavorável', neutral: '', success: ', favorável' } as const;
 
-const knownChange = (comparison: CardMetricComparison) => Number.isFinite(comparison.change);
-
 const percentWithDecimal = (ratio: number) => formatRatio(ratio, { decimals: 1 });
 
 export function CardMetricTrend({
+  badgeMask = '{icon}{magnitude}',
   className,
   comparisons,
   formatPercent = percentWithDecimal,
+  layout = 'stack',
+  mask = DEFAULT_MASK[layout],
   onBlur,
   onClick,
   onFocus,
   onKeyDown,
+  tonedParts = DEFAULT_TONED_PARTS,
+  tooltipMaxWidth,
   ...props
 }: CardMetricTrendProps) {
   const { error, loading } = useCardMetric('CardMetric.Trend');
   const tooltip = useAnchoredTooltip();
+  const lines = useMemo(() => parseTrendMask(mask), [mask]);
+  const badgeLines = useMemo(() => parseTrendMask(badgeMask), [badgeMask]);
+
+  useEffect(() => {
+    const unknown = unknownTrendParts([...lines, ...badgeLines]);
+
+    if (unknown.length > 0 && isDevelopment()) {
+      console.warn(`CardMetric.Trend: a máscara cita partes que não existem (${unknown.map((part) => `{${part}}`).join(', ')}) e elas ficam de fora.`);
+    }
+  }, [badgeLines, lines]);
+
   const [first] = comparisons;
 
   if (loading || error || !first) {
     return null;
   }
 
-  const { direction, tone } = comparisonTone(first);
-  const magnitude = (comparison: CardMetricComparison) =>
-    knownChange(comparison) ? formatPercent(Math.abs(comparison.change as number)) : '—';
-  const signed = (ratio: number) => (ratio > 0 ? '+' : '') + formatPercent(ratio);
-  const difference = (comparison: CardMetricComparison) =>
-    comparison.value === undefined ? '' : ` (${signedValue(comparison.value, comparison.formatValue)})`;
+  // A mascara e so visual: o nome acessivel e a frase completa, na mesma ordem, com todas as partes.
   const phrase = (comparison: CardMetricComparison) => {
-    const { direction: way, tone: sense } = comparisonTone(comparison);
-    const change = knownChange(comparison) ? `${WORD[way]} de ${magnitude(comparison)}` : 'Sem variação calculada';
-    return `${change}${difference(comparison)}${MEANING[sense]}, ${comparison.label}`;
+    const { direction, tone } = comparisonTone(comparison);
+    const change = knownChange(comparison)
+      ? `${WORD[direction]} de ${formatPercent(Math.abs(comparison.change as number))}`
+      : 'Sem variação calculada';
+    const difference = comparison.value === undefined ? '' : ` (${signedValue(comparison.value, comparison.formatValue)})`;
+    const description = comparison.description ? `. ${comparison.description}` : '';
+
+    return `${change}${difference}${MEANING[tone]}, ${comparison.label}${description}`;
   };
-  const rows = comparisons.map((comparison) => ({
-    label:
-      comparison.value === undefined
-        ? comparison.label
-        : `${comparison.label} · ${signedValue(comparison.value, comparison.formatValue)}`,
-    values: [knownChange(comparison) ? (comparison.change as number) : Number.NaN],
-  }));
-  const Arrow = direction === 'up' ? IconArrowUp : direction === 'down' ? IconArrowDown : null;
+  const options = { formatPercent, iconSize: 12, tonedParts };
 
   return (
-    <ChartTooltip anchor={tooltip.anchor} columns={[{ format: signed }]} computed="none" rows={rows} title="Comparações">
+    <ChartTooltip
+      anchor={tooltip.anchor}
+      content={<TrendComparisons comparisons={comparisons} layout={layout} lines={lines} options={options} />}
+      maxWidth={tooltipMaxWidth}
+      title="Comparações"
+    >
       <button
         {...props}
         {...tooltip.triggerProps({ onBlur, onClick, onFocus, onKeyDown })}
@@ -68,15 +98,12 @@ export function CardMetricTrend({
         className={[styles.trend, className].filter(Boolean).join(' ')}
         type="button"
       >
-        <Badge tone={tone}>
-          {Arrow && <Arrow aria-hidden="true" size={12} />}
-          {magnitude(first)}
+        <Badge tone={comparisonTone(first).tone}>
+          {badgeLines.map((line, index) => (
+            <TrendLine comparison={first} key={index} line={line} options={{ ...options, tonedParts: [] }} />
+          ))}
         </Badge>
       </button>
     </ChartTooltip>
   );
-}
-
-function signedValue(value: number, format: (value: number) => string = formatNumber) {
-  return (value > 0 ? '+' : '') + format(value);
 }

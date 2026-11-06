@@ -23,7 +23,7 @@ export const CLIENTES = [
   'Retífica Santa Cruz',
   'Pneus & Cia Centro',
   'Fazenda São Jorge',
-  'Auto Center Mimoso',
+  'Auto Center Aurora',
 ];
 
 export const VENDEDORES = ['Ana Ribeiro', 'Rui Teixeira', 'Marcos Lima', 'Paula Nogueira'];
@@ -103,8 +103,8 @@ export const PRODUTOS = [
 ];
 
 export const DEPOSITOS = [
-  { id: 'matriz', nome: 'Matriz · Centro de distribuição', tipo: 'Principal', local: 'Luís Eduardo Magalhães, BA', responsavel: 'Marcos Lima', itens: 2840, ocupacao: 82 },
-  { id: 'centro', nome: 'Loja Centro', tipo: 'Loja', local: 'Av. Barreiras, 1200', responsavel: 'Paula Nogueira', itens: 960, ocupacao: 54 },
+  { id: 'matriz', nome: 'Matriz · Centro de distribuição', tipo: 'Principal', local: 'Santa Aurora, GO', responsavel: 'Marcos Lima', itens: 2840, ocupacao: 82 },
+  { id: 'centro', nome: 'Loja Centro', tipo: 'Loja', local: 'Av. das Palmeiras, 1200', responsavel: 'Paula Nogueira', itens: 960, ocupacao: 54 },
   { id: 'rodovia', nome: 'Loja Rodovia', tipo: 'Loja', local: 'BR-242, km 5', responsavel: 'Rui Teixeira', itens: 1210, ocupacao: 67 },
   { id: 'avarias', nome: 'Depósito de avarias', tipo: 'Avarias', local: 'Matriz, galpão 2', responsavel: 'Marcos Lima', itens: 74, ocupacao: 18 },
   { id: 'transito', nome: 'Mercadoria em trânsito', tipo: 'Virtual', local: 'Sem endereço físico', responsavel: 'Ana Ribeiro', itens: 312, ocupacao: 0 },
@@ -113,7 +113,7 @@ export const DEPOSITOS = [
 export type ParDoLancamento = 'ok' | 'sugerido' | 'sem';
 
 export const LANCAMENTOS: { id: string; data: Date; descricao: string; par: ParDoLancamento; referencia: string; valor: number }[] = [
-  { id: '1', data: diasAtras(0), descricao: 'TED recebida · Auto Center Mimoso', valor: 2840, par: 'ok', referencia: 'Pedido #48198' },
+  { id: '1', data: diasAtras(0), descricao: 'TED recebida · Auto Center Aurora', valor: 2840, par: 'ok', referencia: 'Pedido #48198' },
   { id: '2', data: diasAtras(0), descricao: 'Boleto compensado · Transportes Rota Sul', valor: 6210.4, par: 'sugerido', referencia: 'Pedido #48187' },
   { id: '3', data: diasAtras(1), descricao: 'Tarifa mensal de manutenção', valor: -49.9, par: 'sem', referencia: '' },
   { id: '4', data: diasAtras(1), descricao: 'Pix · Posto Estrela do Oeste', valor: 1380, par: 'sugerido', referencia: 'Pedido #48176' },
@@ -122,20 +122,20 @@ export const LANCAMENTOS: { id: string; data: Date; descricao: string; par: ParD
   { id: '7', data: diasAtras(3), descricao: 'Depósito em dinheiro', valor: 1500, par: 'sem', referencia: '' },
 ];
 
-/** Números da Base de Clientes: capturas da instalação de demonstração do Painel. */
+/** Números fictícios da Base de Clientes: os totais por estado, tipo e conceito somam os 1.984 ativos. */
 export const CLIENTES_POR_ESTADO = [
-  ['BA', 1640], ['PR', 172], ['GO', 144], ['SP', 102], ['TO', 73], ['PI', 72], ['RS', 68], ['MG', 54],
+  ['GO', 812], ['MT', 344], ['TO', 231], ['BA', 198], ['MS', 141], ['PA', 96], ['MG', 87], ['DF', 75],
 ] as const;
 export const CLIENTES_POR_BAIRRO = [
-  ['Centro', 169], ['Jardim Paraíso', 92], ['Zona Rural', 77], ['Santa Cruz', 69], ['Jardim das Acácias', 59], ['Mimoso I', 40],
+  ['Centro', 214], ['Vila Nova', 133], ['Zona Rural', 118], ['Jardim América', 97], ['São José', 82], ['Bela Vista', 61],
 ] as const;
 export const CLIENTES_POR_TIPO = [
-  { label: 'Jurídica', value: 1379 },
-  { label: 'Física', value: 677 },
-  { label: 'Produtor Rural', value: 546 },
+  { label: 'Jurídica', value: 1012 },
+  { label: 'Física', value: 731 },
+  { label: 'Produtor Rural', value: 241 },
 ];
 export const CLIENTES_POR_CONCEITO = [
-  ['Verifica limite e atraso', 1630], ['Verifica somente atraso', 921], ['Bloquear venda', 19], ['Consumidor (à vista)', 15], ['Liberar venda incondicional', 14],
+  ['Limite e atraso', 1215], ['Somente atraso', 702], ['Venda bloqueada', 31], ['Só à vista', 22], ['Venda liberada', 14],
 ] as const;
 
 export const GRUPOS_DE_CONFIGURACAO: readonly {

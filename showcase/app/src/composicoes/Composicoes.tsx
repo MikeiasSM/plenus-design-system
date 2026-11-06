@@ -14,8 +14,7 @@ function IndiceDasComposicoes() {
       </div>
       <p className="page-lead">
         Telas completas montadas só com os componentes da biblioteca, dentro de um <code>AppShell</code>. Os dados são de exemplo e ficam no
-        Showcase. Cada tela traz a regra de composição, os componentes que usa e a estrutura. A fonte da regra é{' '}
-        <code>docs/acompanhamento/appshell/APPSHELL.md</code>.
+        Showcase. Cada tela traz a regra de composição, os componentes que usa e a estrutura.
       </p>
       <div className="overview-grid">
         {telas.map((tela) => (

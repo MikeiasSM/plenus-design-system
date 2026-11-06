@@ -19,7 +19,7 @@ const pendencias = [
     rota: 'pedidos',
     urgente: true,
   },
-  { id: 'conciliar', titulo: 'Lançamentos para conciliar', detalhe: 'Extrato de outubro, Banco do Brasil', quantidade: LANCAMENTOS.length, rota: 'conciliacao' },
+  { id: 'conciliar', titulo: 'Lançamentos para conciliar', detalhe: 'Extrato de outubro, Banco Horizonte', quantidade: LANCAMENTOS.length, rota: 'conciliacao' },
   {
     id: 'estoque',
     titulo: 'Produtos abaixo do estoque mínimo',

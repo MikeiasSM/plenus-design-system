@@ -6,7 +6,7 @@ const tokens = (color: string, options?: Parameters<typeof createPalette>[1]) =>
 
 const ramp = (color: string) => Array.from({ length: 10 }, (_, index) => tokens(color)[`--pl-palette-${(index + 1) * 10}`]);
 
-const PAINEL = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
+const BRAND_COLORS = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
 
 describe('createPalette', () => {
   it('marks the scope and keeps the declared color as the fill', () => {
@@ -17,7 +17,7 @@ describe('createPalette', () => {
   });
 
   it('builds a ramp that only gets darker, whatever the starting color', () => {
-    for (const color of [...PAINEL, '#1C1F2A']) {
+    for (const color of [...BRAND_COLORS, '#1C1F2A']) {
       const lightness = ramp(color).map((tone) => toOklch(tone).L);
 
       lightness.slice(1).forEach((value, index) => expect(value).toBeLessThan(lightness[index]));
@@ -30,8 +30,8 @@ describe('createPalette', () => {
     }
   });
 
-  it('measures every role of the Painel colors in both themes', () => {
-    for (const color of PAINEL) {
+  it('measures every role of the brand colors in both themes', () => {
+    for (const color of BRAND_COLORS) {
       const palette = tokens(color);
 
       expect(contrast(palette['--pl-palette-on-solid'], palette['--pl-palette-solid'])).toBeGreaterThanOrEqual(3);

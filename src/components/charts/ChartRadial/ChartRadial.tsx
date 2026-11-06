@@ -227,6 +227,7 @@ export function ChartRadial({
   const textoDoCentro = emFocoLegivel ? emFocoLegivel.label : (centerLabel ?? destaque?.label);
   const valorDoCentroPedido = showCenter && primeiroVisivel ? formatValue(primeiroVisivel.value) : undefined;
   const entradasDaLegenda = tracks.map((anel, indice) => ({
+    active: emFocoLegivel === anel,
     color: cores[indice],
     hidden: isHidden(anel.label),
     label: anel.label,

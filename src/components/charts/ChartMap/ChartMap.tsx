@@ -885,7 +885,7 @@ export function ChartMap({
     }
   }
 
-  /** A marca vizinha na direcao da seta, pelo centro de cada uma, como no artefato do componente. */
+  /** A marca vizinha na direcao da seta, pelo centro de cada uma. */
   function neighbor(from: string, [dx, dy]: readonly [number, number]) {
     if (!projection) {
       return undefined;

@@ -66,7 +66,7 @@ const playground = definirPlayground({
         detalhe: `${ALTURAS[valores.size as ButtonSize]}px de altura, acima dos 24px da WCAG 2.5.8.`,
       },
       variante === 'primary'
-        ? { nivel: 'atencao', titulo: `Contraste ${CONTRASTES.primary}`, detalhe: 'Abaixo de 4,5:1. Exceção aceita, registrada no PROGRESS.' }
+        ? { nivel: 'atencao', titulo: `Contraste ${CONTRASTES.primary}`, detalhe: 'Abaixo de 4,5:1. Exceção aceita, registrada na conferência de contraste.' }
         : { nivel: 'ok', titulo: `Contraste ${CONTRASTES[variante]}`, detalhe: 'O texto sobre o fundo passa AA.' },
     ];
 

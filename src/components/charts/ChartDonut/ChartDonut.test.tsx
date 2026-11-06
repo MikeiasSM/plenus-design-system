@@ -203,12 +203,12 @@ describe('ChartDonut: legenda e costura', () => {
     const aoPassar = vi.fn();
     render(<ChartDonut onHover={aoPassar} palette={{ base: '#00A3A3' }} slices={custos} title="Custos" />);
 
-    fireEvent.pointerEnter(entradaDe(/CMV/));
+    fireEvent.focus(entradaDe(/CMV/));
     expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { height: 20, width: 60, x: 160, y: 60 }, color: fatias()[1].getAttribute('fill') });
 
-    fireEvent.pointerLeave(entradaDe(/CMV/));
-    fireEvent.pointerEnter(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
-    fireEvent.pointerLeave(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
+    fireEvent.blur(entradaDe(/CMV/));
+    fireEvent.focus(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
+    fireEvent.blur(screen.getByRole('button', { name: /Devoluções/ }).closest('li')!);
     expect(aoPassar.mock.calls.map(([fatia]) => fatia?.label ?? null)).toEqual(['CMV', null, 'Devoluções de vendas', null]);
   });
 
@@ -238,19 +238,40 @@ describe('ChartDonut: legenda e costura', () => {
     expect(aoPassar.mock.calls.map(([fatia]) => fatia?.label ?? null)).toEqual(['Devoluções de vendas', 'CMV']);
   });
 
-  it('abre o balao integrado ao lado da entrada da legenda', () => {
+  it('no foco, abre o balao integrado ao lado da entrada da legenda', () => {
     posicionarLegenda();
     render(<ChartDonut slices={custos} title="Custos" />);
 
-    fireEvent.pointerEnter(entradaDe(/CMV/));
+    fireEvent.focus(entradaDe(/CMV/));
 
     const balao = document.querySelector<HTMLElement>('[class*="tooltip"]')!;
     expect(balao).toHaveTextContent('CMV');
     expect(balao.style.left).toBe('168px');
     expect(balao.style.top).toBe('50px');
 
-    fireEvent.pointerLeave(entradaDe(/CMV/));
+    fireEvent.blur(entradaDe(/CMV/));
     expect(document.querySelector('[class*="tooltip"]')).toBeNull();
+  });
+
+  it('com o ponteiro na legenda, o balao acompanha o cursor, como sobre o desenho', () => {
+    const aoPassar = vi.fn();
+    render(<ChartDonut onHover={aoPassar} slices={custos} title="Custos" />);
+    const entrada = entradaDe(/CMV/);
+    // O jsdom nao tem PointerEvent, e sem ele as coordenadas se perdem: o evento sai como MouseEvent.
+    const ponteiro = (tipo: string, x: number, y: number) =>
+      act(() => {
+        entrada.dispatchEvent(new MouseEvent(tipo, { bubbles: true, clientX: x, clientY: y }));
+      });
+
+    ponteiro('pointerover', 100, 40);
+    expect(aoPassar).toHaveBeenLastCalledWith(custos[1], { anchor: { x: 100, y: 40 }, color: fatias()[1].getAttribute('fill') });
+
+    const balao = () => document.querySelector<HTMLElement>('[class*="tooltip"]')!;
+    expect(balao().style.left).toBe('116px');
+
+    ponteiro('pointermove', 130, 44);
+    expect(balao().style.left).toBe('146px');
+    expect(balao().style.top).toBe('60px');
   });
 
   it('serie escondida nao realca, nao avisa e nao abre balao', () => {

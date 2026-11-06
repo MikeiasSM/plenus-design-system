@@ -164,13 +164,13 @@ describe('ChartRadial: legenda', () => {
     render(<ChartRadial onHover={aoPassar} onMarkClick={vi.fn()} title="Metas" tracks={metas} />);
     const entrada = document.querySelectorAll('li')[1];
 
-    fireEvent.pointerEnter(entrada);
+    fireEvent.focus(entrada);
     expect(aoPassar).toHaveBeenLastCalledWith(metas[1], {
       anchor: { height: 20, width: 60, x: 160, y: 60 },
       color: arcos()[1].getAttribute('fill'),
     });
 
-    fireEvent.pointerLeave(entrada);
+    fireEvent.blur(entrada);
     expect(aoPassar).toHaveBeenLastCalledWith(null);
 
     act(() => screen.getByRole('button', { name: 'Vendas: 72' }).focus());

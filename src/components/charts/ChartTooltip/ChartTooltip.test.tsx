@@ -3,9 +3,9 @@ import { Dialog } from '../../overlays/Dialog';
 import { ChartTooltip, type ChartTooltipRow } from './ChartTooltip';
 
 const distribuicao: ChartTooltipRow[] = [
-  { color: 'var(--pl-chart-series-1)', emphasis: true, label: 'Prazo', values: [418, 164352.89] },
-  { color: 'var(--pl-chart-series-2)', label: 'C/ Sicredi 930-0', values: [30, 11837.73] },
-  { color: 'var(--pl-chart-series-3)', label: 'Outros', values: [22, 8632.09] },
+  { color: 'var(--pl-chart-series-1)', emphasis: true, label: 'Prazo', values: [362, 138420.5] },
+  { color: 'var(--pl-chart-series-2)', label: 'Cartão Vale Verde', values: [41, 9820.4] },
+  { color: 'var(--pl-chart-series-3)', label: 'Outros', values: [18, 6240.8] },
 ];
 
 /**
@@ -85,9 +85,9 @@ describe('ChartTooltip', () => {
     montar();
     abrir();
 
-    // 164.352,89 de 184.822,71 da 88,92%. Pela coluna de quantidade daria 88,94%.
-    expect(celulas()).toContain('88,92%');
-    expect(celulas()).toContain('6,40%');
+    // 138.420,50 de 154.481,70 da 89,60%. Pela coluna de quantidade daria 85,99%.
+    expect(celulas()).toContain('89,60%');
+    expect(celulas()).toContain('6,36%');
   });
 
   it('aceita outro calculo no lugar do percentual', () => {
@@ -96,7 +96,7 @@ describe('ChartTooltip', () => {
     });
     abrir();
 
-    expect(celulas()).toContain('836');
+    expect(celulas()).toContain('724');
   });
 
   it('dispensa a coluna calculada quando ela nao serve', () => {
@@ -113,9 +113,9 @@ describe('ChartTooltip', () => {
     });
     abrir();
 
-    // Media de 418, 30 e 22; soma dos valores.
-    expect(celulas()).toContain('156,667');
-    expect(celulas()).toContain('184822.71');
+    // Media de 362, 41 e 18; soma dos valores.
+    expect(celulas()).toContain('140,333');
+    expect(celulas()).toContain('154481.70');
   });
 
   it('nao totaliza a coluna que pediu para ficar de fora', () => {
@@ -294,5 +294,41 @@ describe('ChartTooltip', () => {
     // 800 + 16 + 200 = 1016 cabe em 1024 (innerWidth), mas nao em 1007 - 8.
     expect(balao()).toHaveStyle({ left: '584px' });
     Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  });
+
+  it('mantem o lado em que abriu enquanto couber, em vez de trocar a cada posicao', () => {
+    const medida = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ height: 80, width: 200 } as DOMRect);
+    const linhas = [{ label: 'Receita', values: [10] }];
+    const { rerender } = render(
+      <ChartTooltip anchor={{ x: 900, y: 100 }} rows={linhas}>
+        <svg />
+      </ChartTooltip>,
+    );
+    const balao = () => document.querySelector<HTMLElement>('[class*="tooltip"]')!;
+
+    // Perto da borda direita, so cabe a esquerda do ponto.
+    expect(balao().style.left).toBe('684px');
+
+    rerender(
+      <ChartTooltip anchor={{ x: 700, y: 100 }} rows={linhas}>
+        <svg />
+      </ChartTooltip>,
+    );
+
+    // Ja caberia a direita, mas segue a esquerda, onde abriu.
+    expect(balao().style.left).toBe('484px');
+    medida.mockRestore();
+  });
+
+  it('aceita conteudo proprio no lugar das linhas e uma largura maxima', () => {
+    render(
+      <ChartTooltip anchor={{ x: 10, y: 10 }} content={<p>Leitura própria</p>} maxWidth={480}>
+        <svg />
+      </ChartTooltip>,
+    );
+    const balao = document.querySelector<HTMLElement>('[class*="tooltip"]')!;
+
+    expect(balao).toHaveTextContent('Leitura própria');
+    expect(balao.style.maxWidth).toBe('min(480px, calc(100% - 16px))');
   });
 });

@@ -71,8 +71,8 @@ const PARES = [
 ];
 
 /**
- * Reprovacoes aceitas por decisao visual do mantenedor, registradas em
- * `PROGRESS.md`. Uma reprovacao fora desta lista derruba o script.
+ * Reprovacoes aceitas como excecao visual. Esta lista e o registro delas: uma
+ * reprovacao fora daqui derruba o script.
  *
  * O halo de foco em `primary-container` nao entra aqui: ele e decorativo, e o
  * sinal acessivel do foco e a troca da borda, nao o halo.
@@ -288,7 +288,7 @@ if (naoMedidos.length > 0) {
 if (reprovados.length > 0) {
   console.error('\nReprovacoes nao declaradas:');
   console.error(reprovados.map((item) => `  - ${item}`).join('\n'));
-  console.error('\nCorrija o token ou registre a excecao em PROGRESS.md e neste script.');
+  console.error('\nCorrija o token ou registre a excecao na lista ACEITAS deste script.');
   process.exit(1);
 }
 

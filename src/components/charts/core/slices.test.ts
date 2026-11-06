@@ -19,6 +19,12 @@ describe('agrupamento de fatias pequenas', () => {
     expect(reunidas[1].value).toBe(60);
   });
 
+  it('sem opcoes, segue o padrao do ChartPie e do ChartDonut: Outros abaixo de 2%', () => {
+    const reunidas = groupSmallSlices([{ label: 'CMV', value: 980 }, { label: 'Frete', value: 10 }, { label: 'Taxas', value: 10 }]);
+
+    expect(reunidas.map((fatia) => fatia.label)).toEqual(['CMV', 'Outros']);
+  });
+
   it('mantem a fatia reunida no lugar da primeira pequena, preservando a ordem', () => {
     const reunidas = groupSmallSlices(
       [{ label: 'Frete', value: 20 }, { label: 'CMV', value: 940 }, { label: 'Devoluções', value: 20 }],

@@ -153,15 +153,56 @@ describe('ChartPie: legenda e costura', () => {
     render(<ChartPie onHover={aoPassar} slices={composicao} title="Receita" />);
     const entrada = screen.getByRole('button', { name: /Produtos/ }).closest('li')!;
 
-    fireEvent.pointerEnter(entrada);
+    fireEvent.focus(entrada);
 
     expect(fatias()[0].getAttribute('class')).toMatch(/sliceDim/);
     expect(fatias()[1].getAttribute('class')).not.toMatch(/sliceDim/);
     expect(aoPassar).toHaveBeenLastCalledWith(composicao[1], { anchor: { height: 0, width: 0, x: 0, y: 0 }, color: fatias()[1].getAttribute('fill') });
     expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Produtos');
 
-    fireEvent.pointerLeave(entrada);
+    fireEvent.blur(entrada);
     expect(aoPassar).toHaveBeenLastCalledWith(null);
     expect(fatias()[0].getAttribute('class')).not.toMatch(/sliceDim/);
+  });
+
+  it('o espaco entre duas entradas da legenda mantem o realce, e sair da legenda o desfaz', () => {
+    const aoPassar = vi.fn();
+    render(<ChartPie onHover={aoPassar} slices={composicao} title="Receita" />);
+    const entrada = screen.getByRole('button', { name: /Produtos/ }).closest('li')!;
+    const lista = entrada.closest('ul')!;
+
+    fireEvent.pointerEnter(entrada);
+    // O jsdom nao tem PointerEvent, e sem ele o `relatedTarget` se perde: o evento sai como MouseEvent.
+    entrada.dispatchEvent(new MouseEvent('pointerout', { bubbles: true, relatedTarget: lista }));
+
+    expect(aoPassar).not.toHaveBeenLastCalledWith(null);
+    expect(fatias()[0].getAttribute('class')).toMatch(/sliceDim/);
+
+    lista.dispatchEvent(new MouseEvent('pointerout', { bubbles: true, relatedTarget: document.body }));
+    expect(aoPassar).toHaveBeenLastCalledWith(null);
+  });
+
+  it('a fatia sob o ponteiro acende a entrada dela na legenda', () => {
+    render(<ChartPie slices={composicao} title="Receita" />);
+    const entrada = (nome: RegExp) => screen.getByRole('button', { name: nome }).closest('li')!;
+
+    fireEvent.mouseEnter(fatias()[1]);
+    expect(entrada(/Produtos/)).toHaveAttribute('data-active');
+    expect(entrada(/Serviços/)).not.toHaveAttribute('data-active');
+
+    fireEvent.mouseLeave(fatias()[1]);
+    expect(entrada(/Produtos/)).not.toHaveAttribute('data-active');
+  });
+
+  it('a fatia Outros acende a entrada Outros', () => {
+    const pequenas = [
+      { label: 'Serviços', value: 96 },
+      { label: 'Frete', value: 1 },
+      { label: 'Taxas', value: 1 },
+    ];
+    render(<ChartPie slices={pequenas} title="Receita" />);
+
+    fireEvent.mouseEnter(fatias()[1]);
+    expect(screen.getByRole('button', { name: /Outros/ }).closest('li')).toHaveAttribute('data-active');
   });
 });

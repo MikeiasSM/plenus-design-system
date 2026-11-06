@@ -14,6 +14,7 @@ import { IconChartBar } from '../../icons';
 import { TABLE_TOGGLE_MIN_WIDTH } from './decomposition';
 import { useChartMetrics } from './useChartMetrics';
 import { useTouchPin } from './useTouchPin';
+import type { ChartAnchorPoint } from './useMarkNavigation';
 import styles from './Chart.module.css';
 
 export interface ChartRootProps extends Omit<ComponentPropsWithRef<'figure'>, 'children' | 'title'> {
@@ -108,6 +109,8 @@ export function ChartFrame({
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
   const toque = useTouchPin();
+  // Sobre a legenda, o balao segue o ponteiro, como sobre o desenho; a ancora da marca fica para o teclado.
+  const [ponteiroNaLegenda, setPonteiroNaLegenda] = useState<ChartAnchorPoint | null>(null);
   // O botao divide a linha com o titulo: vale a largura do corpo, que a legenda ao lado nao estreita como a do desenho.
   const corpo = useChartMetrics();
   const alternavel = table !== undefined && showTableToggle && !empty && (corpo.width === 0 || corpo.width >= TABLE_TOGGLE_MIN_WIDTH);
@@ -124,6 +127,7 @@ export function ChartFrame({
       align={legendAlign}
       entries={legend}
       onHighlight={onHighlightSeries}
+      onPointerAt={onHighlightSeries && setPonteiroNaLegenda}
       onToggle={onToggleSeries}
       position={legendPosition}
       swatch={swatch}
@@ -187,7 +191,7 @@ export function ChartFrame({
           ) : mostraTabela ? (
             table
           ) : width === 0 || height === 0 ? null : tooltip ? (
-            <ChartTooltip anchor={tooltipAnchor} {...tooltip}>{desenho}</ChartTooltip>
+            <ChartTooltip anchor={ponteiroNaLegenda ?? tooltipAnchor} {...tooltip}>{desenho}</ChartTooltip>
           ) : (
             desenho
           )}

@@ -93,6 +93,17 @@ describe('ChartSunburst', () => {
     expect(apagado(de('Administrativas'))).toBe(true);
   });
 
+  it('o arco sob o ponteiro acende na legenda o grupo de onde ele vem', () => {
+    render(<ChartSunburst nodes={despesas} title="Despesas" />);
+    const de = (rotulo: string) => arcos().find((no) => no.getAttribute('aria-label')?.startsWith(`${rotulo}:`))!;
+    const entrada = (nome: string) => screen.getByRole('button', { name: nome }).closest('li');
+
+    fireEvent.mouseEnter(de('Pessoal'));
+
+    expect(entrada('Operacionais')).toHaveAttribute('data-active');
+    expect(entrada('Administrativas')).not.toHaveAttribute('data-active');
+  });
+
   it('acende so ate o nivel do arco focado, sem incluir os filhos dele', () => {
     render(<ChartSunburst nodes={despesas} title="Despesas" />);
     const apagado = (no: Element) => no.getAttribute('class')?.includes('arcDim') ?? false;
@@ -219,7 +230,7 @@ describe('ChartSunburst: legenda e costura', () => {
     const aoPassar = vi.fn();
     render(<ChartSunburst nodes={despesas} onHover={aoPassar} palette={{ base: '#00A3A3' }} title="Despesas" />);
 
-    fireEvent.pointerEnter(entrada(/Administrativas/));
+    fireEvent.focus(entrada(/Administrativas/));
 
     const grupo = arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Administrativas'))!;
     expect(aoPassar).toHaveBeenLastCalledWith(
@@ -230,7 +241,7 @@ describe('ChartSunburst: legenda e costura', () => {
     expect(arcos().find((arco) => arco.getAttribute('aria-label')?.startsWith('Pessoal'))!.getAttribute('class')).toMatch(/arcDim/);
     expect(document.querySelector('[class*="tooltip"]')).toHaveTextContent('Administrativas');
 
-    fireEvent.pointerLeave(entrada(/Administrativas/));
+    fireEvent.blur(entrada(/Administrativas/));
     expect(aoPassar).toHaveBeenLastCalledWith(null);
     expect(document.querySelector('[class*="tooltip"]')).toBeNull();
   });

@@ -3,9 +3,9 @@ import { Button, Checkbox, InputText, Switch, Tabs, createPalette } from '@plenu
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const PRONTAS = ['orange', 'blue', 'purple'];
-const TEMAS_DO_PAINEL = ['herdado', 'claro', 'escuro'];
+const TEMAS = ['herdado', 'claro', 'escuro'];
 const TEMA_NO_ATRIBUTO: Record<string, string | undefined> = { claro: 'light', escuro: 'dark' };
-const CORES_DO_PAINEL = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
+const CORES_DE_MARCA = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
 
 const ABAS = [
   { key: 'resumo', label: 'Resumo', content: null },
@@ -52,7 +52,7 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'paleta', opcoes: [...PRONTAS, 'propria'] },
     { tipo: 'texto', nome: 'cor' },
     { tipo: 'booleano', nome: 'textoBranco' },
-    { tipo: 'opcoes', nome: 'tema', opcoes: TEMAS_DO_PAINEL },
+    { tipo: 'opcoes', nome: 'tema', opcoes: TEMAS },
   ],
   renderizar: (valores) => {
     const resultado = escopo(valores.paleta, valores.cor, valores.textoBranco);
@@ -115,10 +115,10 @@ const playground = definirPlayground({
   },
 });
 
-function CoresDoPainel() {
+function CoresDeMarca() {
   return (
     <div className="stack" style={{ width: '100%' }}>
-      {CORES_DO_PAINEL.map((cor) => (
+      {CORES_DE_MARCA.map((cor) => (
         <div className="row" key={cor} {...createPalette(cor)}>
           <code style={{ minWidth: 72 }}>{cor}</code>
           <Button size="sm">Salvar</Button>
@@ -149,9 +149,9 @@ export const pagina: Pagina = {
       codigo: '<Button>Laranja</Button>\n<div data-palette="blue">\n  <Button>Azul</Button>\n</div>',
     },
     {
-      titulo: 'As cores da personalização do Painel',
+      titulo: 'Cores de marca de um produto',
       descricao: 'Cada uma por createPalette: o texto sobre a cor é o branco ou o grafite, o que medir mais.',
-      Previa: CoresDoPainel,
+      Previa: CoresDeMarca,
       codigo: "<div {...createPalette('#FCB52F')}>\n  <Button size=\"sm\">Salvar</Button>\n</div>",
       largo: true,
     },

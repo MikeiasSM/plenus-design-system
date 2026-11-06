@@ -5,6 +5,12 @@
   width: 100%;
 }
 
+/* Envolvendo o grafico inteiro, a area sai do leiaute: a figura volta a ser filha do conteiner do produto e o
+   `height="fill"` encontra a altura dele. */
+.area:has(> figure) {
+  display: contents;
+}
+
 .tooltip {
   position: fixed;
   z-index: var(--pl-z-tooltip);

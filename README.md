@@ -267,11 +267,8 @@ plenus-design-system/
 │   ├── COMPONENTS-CATALOG.md
 │   ├── CONTRIBUTING.md
 │   ├── CHANGELOG.md
-│   ├── acompanhamento/
-│   │   └── PROGRESS.md
 │   └── roadmap/
 │       └── X.Y.0.md
-├── .claude/CLAUDE.md         diretrizes operacionais de código
 ├── LICENSE
 └── README.md
 ```
@@ -317,10 +314,9 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 - [TOKENS-REFERENCE-COLORS.md](docs/TOKENS-REFERENCE-COLORS.md) e [TOKENS-REFERENCE-TYPOGRAPHY.md](docs/TOKENS-REFERENCE-TYPOGRAPHY.md) — referência de cores, paletas e tipografia.
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
 - [CHANGELOG.md](docs/CHANGELOG.md) — mudanças de cada versão publicada.
-- [PROGRESS.md](docs/acompanhamento/PROGRESS.md) — estado da implementação e decisões tomadas.
 - [roadmap/](docs/roadmap/) — o que cada versão menor planeja levar.
 
-Os documentos normativos ficam na raiz de `docs/`; o acompanhamento, em `docs/acompanhamento/`; o roadmap de cada versão menor, em `docs/roadmap/`.
+Os documentos normativos ficam na raiz de `docs/`; o roadmap de cada versão menor, em `docs/roadmap/`.
 
 ## Licença
 

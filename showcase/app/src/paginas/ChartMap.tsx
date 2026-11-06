@@ -26,7 +26,7 @@ import { DecomposicaoDoMap } from '../estrutura/decomposicao';
 const porUf = (valores: Record<string, number | null>): ChartMapRegionDatum[] =>
   Object.entries(valores).map(([id, value]) => ({ id, value }));
 
-/** Vendas simuladas da base de teste do mantenedor; Roraima e Amapá ficam sem dado. */
+/** Vendas simuladas; Roraima e Amapá ficam sem dado. */
 const VENDAS = porUf({
   SP: 1794832000, MG: 925625000, RJ: 768099000, BA: 564275000, RS: 519635000, PR: 496949000, CE: 454588000,
   PE: 439363000, SC: 388279000, MA: 337032000, GO: 330591000, PA: 328312000, ES: 180612000, PB: 174164000,

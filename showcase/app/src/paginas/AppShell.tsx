@@ -61,7 +61,7 @@ function Marca() {
 function MarcaDoSubmenu() {
   return (
     <span style={{ display: 'grid', lineHeight: 1.15 }}>
-      <strong style={{ fontFamily: 'var(--pl-font-heading)', fontSize: 17 }}>Painel</strong>
+      <strong style={{ fontFamily: 'var(--pl-font-heading)', fontSize: 17 }}>Gestor</strong>
       <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 11 }}>by Plenustech</span>
     </span>
   );

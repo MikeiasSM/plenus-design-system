@@ -8,26 +8,29 @@ export interface ChartSlice extends SeriesAppearance {
 }
 
 export interface GroupSmallSlicesOptions {
-  label: string;
-  threshold: number;
+  /** Rotulo da fatia que reune as pequenas. `Outros` por padrao, como no `ChartPie` e no `ChartDonut`. */
+  label?: string;
+  /** Fracao do total abaixo da qual a fatia entra no agrupamento. 0,02 por padrao. */
+  threshold?: number;
 }
 
-/**
- * Reune as fatias pequenas numa so. Abaixo de um limiar a fatia deixa de ser
- * legivel no anel e ainda ocupa uma linha da legenda; o agrupamento e a regra
- * de percentual minimo da referencia.
- *
- * A fatia reunida entra no lugar da primeira pequena, para que a ordem das
- * demais, que a legenda repete, permaneca a mesma.
- */
 /** Valor que a fatia ocupa no anel. Invalido tem o destino do ausente; um so desligava o agrupamento. */
 function ocupacao(fatia: ChartSlice) {
   return Number.isFinite(fatia.value) ? Math.max(fatia.value, 0) : 0;
 }
 
+/**
+ * Reune as fatias pequenas numa so. Abaixo de um limiar a fatia deixa de ser
+ * legivel no anel e ainda ocupa uma linha da legenda; o agrupamento e a regra
+ * de percentual minimo da referencia. E a regra que o `ChartPie` e o `ChartDonut`
+ * desenham, exportada para o balao proprio listar as mesmas fatias.
+ *
+ * A fatia reunida entra no lugar da primeira pequena, para que a ordem das
+ * demais, que a legenda repete, permaneca a mesma.
+ */
 export function groupSmallSlices(
   slices: readonly ChartSlice[],
-  { label, threshold }: GroupSmallSlicesOptions,
+  { label = 'Outros', threshold = 0.02 }: GroupSmallSlicesOptions = {},
 ): readonly ChartSlice[] {
   const total = slices.reduce((soma, fatia) => soma + ocupacao(fatia), 0);
 

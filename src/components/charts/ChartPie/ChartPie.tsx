@@ -57,7 +57,7 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   onMarkClick?: (slice: ChartSlice) => void;
   /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Rotulo da fatia que reune as pequenas. */
+  /** Rotulo da fatia que reune as pequenas. `Outros` por padrao. */
   otherLabel?: string;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -70,7 +70,7 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   slices: readonly ChartSlice[];
-  /** Fracao do total abaixo da qual a fatia entra no agrupamento. */
+  /** Fracao do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrao. A regra e o `groupSmallSlices`. */
   smallSliceThreshold?: number;
   title: string;
 }
@@ -94,7 +94,7 @@ export function ChartPie({
   onHoverSlice,
   onMarkClick,
   onSliceClick,
-  otherLabel = 'Outros',
+  otherLabel,
   palette,
   showDataLabels = false,
   showLegendValues = false,
@@ -102,7 +102,7 @@ export function ChartPie({
   showTooltip = true,
   sliceRadius,
   slices,
-  smallSliceThreshold = 0.02,
+  smallSliceThreshold,
   title,
   ...root
 }: ChartPieProps) {
@@ -138,6 +138,7 @@ export function ChartPie({
   });
 
   const entradasDaLegenda = anel.slices.map((fatia, indice) => ({
+    active: anel.focused === indice,
     color: anel.colors[indice],
     hidden: anel.isHidden(fatia.label),
     label: fatia.label,

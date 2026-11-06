@@ -16,9 +16,9 @@ export interface UseSliceRingOptions {
   onMarkClick?: (slice: ChartSlice) => void;
   /** Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda vem o detalhe. */
   onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  otherLabel: string;
+  otherLabel?: string;
   slices: readonly ChartSlice[];
-  smallSliceThreshold: number;
+  smallSliceThreshold?: number;
 }
 
 export interface SliceRing {

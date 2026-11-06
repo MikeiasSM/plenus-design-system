@@ -36,6 +36,28 @@ const PADRAO: LabelFont = {
 /** Proporcao entre a largura media de um caractere e o corpo da fonte. */
 const LARGURA_POR_CARACTERE = 0.58;
 
+const PIXELS = /^-?\d*\.?\d+px$/;
+
+/**
+ * Medida de um token de tipografia em pixels. O valor em `px` e lido direto; `rem`, `calc()` ou `clamp()` sao
+ * resolvidos pelo navegador numa sonda dentro do elemento, onde valem a fonte e a janela de quem usa o token.
+ */
+function pixelsOf(node: Element, value: string, property: 'font-size' | 'line-height') {
+  if (value === '' || PIXELS.test(value)) {
+    return Number.parseFloat(value);
+  }
+
+  const sonda = document.createElement('span');
+  sonda.style.setProperty('position', 'absolute');
+  sonda.style.setProperty('visibility', 'hidden');
+  sonda.style.setProperty(property, value);
+  node.appendChild(sonda);
+  const pixels = Number.parseFloat(getComputedStyle(sonda).getPropertyValue(property));
+  sonda.remove();
+
+  return pixels;
+}
+
 /**
  * Fonte dos rotulos, lida dos tokens no proprio elemento do grafico. Ler do
  * elemento evita repetir em JavaScript um valor que ja pertence ao CSS.
@@ -48,16 +70,17 @@ export function labelFontOf(node: Element | null): LabelFont {
   const estilo = getComputedStyle(node);
   const family = estilo.getPropertyValue('--pl-font-body').trim() || estilo.fontFamily || PADRAO.family;
   const headingFamily = estilo.getPropertyValue('--pl-font-heading').trim() || family;
-  const size = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-size')) || PADRAO.size;
-  const lineHeight = Number.parseFloat(estilo.getPropertyValue('--pl-type-caption-line-height'));
-  const token = (nome: string) => Number.parseFloat(estilo.getPropertyValue(`--pl-type-${nome}`));
+  const token = (nome: string) => estilo.getPropertyValue(`--pl-type-${nome}`).trim();
+  const medida = (nome: string, property: 'font-size' | 'line-height') => pixelsOf(node, token(nome), property);
+  const size = medida('caption-size', 'font-size') || PADRAO.size;
+  const lineHeight = medida('caption-line-height', 'line-height');
   const centerSteps = DEGRAUS_DO_CENTRO.map((degrau) => ({
     display: degrau.display,
-    lineHeight: token(`${degrau.papel}-line-height`) || degrau.lineHeight,
-    size: token(`${degrau.papel}-size`) || degrau.size,
+    lineHeight: medida(`${degrau.papel}-line-height`, 'line-height') || degrau.lineHeight,
+    size: medida(`${degrau.papel}-size`, 'font-size') || degrau.size,
   }));
 
-  const labelWeight = token('label-weight') || PADRAO.labelWeight;
+  const labelWeight = Number.parseFloat(token('label-weight')) || PADRAO.labelWeight;
 
   return { centerSteps, family, headingFamily, labelWeight, lineHeight: lineHeight || size * 1.34, size };
 }
