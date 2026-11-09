@@ -251,6 +251,7 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
 | `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
 | `PageHeader` | Cabeçalho de página: título, descrição, selos de situação e ações. | Disponível |
+| `LinkList` | Lista de links em que cada item leva a uma página, em linhas ou em grade. | Disponível |
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
 
@@ -263,6 +264,8 @@ O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h
 O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`) e o corpo (`PageBody`), a única área da página que rola. O `AppShell` guarda o estado da navegação, porque os botões de abrir o submenu e a gaveta ficam na barra da página.
 
 A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo; com o submenu recolhido, o avatar no trilho a abre. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. A `Sidebar` funciona dentro do `AppShell`. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido como no `Breadcrumb`.
+
+A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido como no `Breadcrumb`, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
 
 ## 9. Sobreposições
 

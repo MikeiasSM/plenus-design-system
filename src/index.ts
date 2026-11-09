@@ -151,6 +151,8 @@ export type {
   PageHeaderSearchProps,
   PageHeaderTitleProps,
 } from './components/navigation/PageHeader';
+export { LinkList } from './components/navigation/LinkList';
+export type { LinkListItemProps, LinkListLayout, LinkListProps, LinkListTone } from './components/navigation/LinkList';
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { AppShell } from './components/navigation/AppShell';

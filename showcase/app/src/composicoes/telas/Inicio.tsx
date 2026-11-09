@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardMetric, ChartBar, Columns, PageHeader, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
+import { Badge, Button, Card, CardMetric, ChartBar, Columns, IconClock, IconExclamationTriangle, LinkList, PageHeader, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DIAS_DO_GRAFICO, LANCAMENTOS, PEDIDOS, PEDIDOS_POR_DIA, PRODUTOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -52,27 +52,19 @@ export function Inicio() {
             <Card>
               <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
               <Card.Body flush>
-                <Table label="Pendências" size="sm">
-                  <Table.Header>
-                    <Table.Column id="pendencia">Pendência</Table.Column>
-                    <Table.Column align="end" id="quantidade" width="90px">Itens</Table.Column>
-                  </Table.Header>
-                  <Table.Body items={pendencias}>
-                    {(pendencia) => (
-                      <Table.Row id={pendencia.id}>
-                        <Table.Cell>
-                          <a href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}>
-                            {pendencia.titulo}
-                          </a>
-                          <span className="detalhe-da-linha">{pendencia.detalhe}</span>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>
-                        </Table.Cell>
-                      </Table.Row>
-                    )}
-                  </Table.Body>
-                </Table>
+                <LinkList aria-label="Pendências">
+                  {pendencias.map((pendencia) => (
+                    <LinkList.Item
+                      description={pendencia.detalhe}
+                      href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}
+                      icon={pendencia.urgente ? <IconExclamationTriangle /> : <IconClock />}
+                      key={pendencia.id}
+                      title={pendencia.titulo}
+                      tone={pendencia.urgente ? 'danger' : 'neutral'}
+                      trailing={<Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>}
+                    />
+                  ))}
+                </LinkList>
               </Card.Body>
             </Card>
             <Card>

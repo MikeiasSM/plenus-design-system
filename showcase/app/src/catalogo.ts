@@ -128,6 +128,7 @@ export const familias: readonly Familia[] = [
       componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
       componente('AppShell', 'Moldura de tela em camadas: a navegação da Sidebar e a página.'),
       componente('Sidebar', 'Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular.'),
+      componente('LinkList', 'Lista de links em que cada item leva a uma página, em linhas ou em grade.'),
     ],
   },
   {

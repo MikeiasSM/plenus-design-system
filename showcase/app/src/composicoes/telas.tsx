@@ -40,7 +40,7 @@ export const telas: readonly Tela[] = [
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'LinkList', 'Table', 'Badge', 'Button'],
     nota: (
       <>
         Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
@@ -58,7 +58,11 @@ export const telas: readonly Tela[] = [
       <Columns.Main>
         <Card>
           <Card.Header title="O que pede ação hoje" description="…" />
-          <Card.Body flush><Table label="Pendências">…</Table></Card.Body>
+          <Card.Body flush>
+            <LinkList>
+              <LinkList.Item title="Pedidos atrasados" description="…" tone="danger" trailing={<Badge tone="danger">4</Badge>} />
+            </LinkList>
+          </Card.Body>
         </Card>
       </Columns.Main>
       <Columns.Aside><CardMetric>…</CardMetric></Columns.Aside>
@@ -301,11 +305,12 @@ export const telas: readonly Tela[] = [
     modulo: 'configuracoes',
     item: 'configuracoes',
     Componente: Configuracoes,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'InputText', 'Card', 'Table', 'Badge', 'EmptyState'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'InputText', 'Card', 'LinkList', 'EmptyState'],
     nota: (
       <>
-        Largura larga. A busca ocupa o lado direito do cabeçalho em <code>PageHeader.Search</code>; o campo é do produto e leva o próprio nome
-        acessível. O estado urgente (certificado vencendo) usa o tom de perigo.
+        Largura larga. Cada grupo é um cartão com a <code>LinkList</code> em grade: o título é a configuração e a descrição, o estado. A busca
+        ocupa o lado direito do cabeçalho em <code>PageHeader.Search</code>; o campo é do produto e leva o próprio nome acessível. O item em
+        alerta (certificado vencendo) usa <code>tone=&quot;danger&quot;</code>.
       </>
     ),
     codigo: `<PageHeader maxWidth="1120px">
@@ -313,7 +318,15 @@ export const telas: readonly Tela[] = [
   <PageHeader.Search>
     <InputText aria-label="Buscar configuração" icon={<IconSearch />} type="search" />
   </PageHeader.Search>
-</PageHeader>`,
+</PageHeader>
+<Card>
+  <Card.Header title="Empresa" />
+  <Card.Body flush>
+    <LinkList layout="grid">
+      <LinkList.Item title="Dados da empresa" description="Razão social, CNPJ e logotipo" />
+    </LinkList>
+  </Card.Body>
+</Card>`,
   },
   {
     id: 'configuracao-anotada',

@@ -12,7 +12,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Columns`: conteúdo principal com uma coluna ao lado. O `Columns.Aside` é a coluna de complemento, em um terço da largura. O `Columns.Index` é o índice "Nesta página": marca a seção à vista enquanto a página rola, e escolher um link rola até a seção e leva o foco para ela, sem alterar o endereço.
 - As duas medem a própria largura: abaixo de 900px passam a uma coluna, o `Columns.Aside` desce para baixo do conteúdo e o `Columns.Index` some.
 - `Sidebar`: a navegação da aplicação, que sai do `AppShell` com todas as formas que ele já tinha. São o trilho de módulos (`Sidebar.Rail`, `Sidebar.RailItem` e `Sidebar.RailAccount`), o submenu (`Sidebar.Panel`) com grupos (`Sidebar.Group`) e itens com ícone, contagem, link externo e terceiro nível no lugar ou em pilha (`Sidebar.Item`), a conta (`Sidebar.Account`), o recolher e a gaveta no celular. Funciona dentro do `AppShell`, que guarda o estado.
-- Showcase: família Predefinições, com a página de cada componente, e página da `Sidebar` com todas as formas de navegação; a do `AppShell` passa a mostrar a moldura. As composições passam a usar `AnnotatedSection`, `Columns` e `Sidebar`.
+- `LinkList`: lista de links em que cada item leva a uma página, com ícone, título, descrição e complemento ao fim, em linhas (`layout="list"`, com a seta) ou em grade (`layout="grid"`). `tone="danger"` marca o item que pede atenção.
+- Showcase: família Predefinições, com a página de cada componente, e páginas da `Sidebar`, com todas as formas de navegação, e da `LinkList`; a do `AppShell` passa a mostrar a moldura. As composições passam a usar `AnnotatedSection`, `Columns`, `Sidebar` e `LinkList`.
 
 ### Alterado
 

@@ -1,0 +1,91 @@
+.root {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pl-font-body);
+}
+
+.root[data-layout='grid'] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
+  gap: 2px;
+}
+
+.root[data-layout='list'] .item + .item {
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-3);
+  padding: var(--pl-space-3) var(--pl-space-4);
+  color: var(--pl-color-text);
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--pl-color-surface-subtle);
+}
+
+/* Anel de foco proprio, por dentro da linha: um anel de fora seria cortado pelo cartao. */
+.link:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: -2px;
+}
+
+.root[data-layout='grid'] .link {
+  display: block;
+  padding: var(--pl-space-2) var(--pl-space-3);
+  border-radius: var(--pl-radius-md);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pl-control-height-sm);
+  height: var(--pl-control-height-sm);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-primary-strong);
+}
+
+.link[data-tone='danger'] .icon {
+  background: var(--pl-color-danger-container);
+  color: var(--pl-color-danger);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-weight: var(--pl-type-label-weight);
+  color: var(--pl-color-text);
+}
+
+.description {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  color: var(--pl-color-text-secondary);
+}
+
+.root[data-layout='grid'] .link[data-tone='danger'] .description {
+  color: var(--pl-color-danger);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.trailing {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chevron {
+  color: var(--pl-color-text-tertiary);
+}
