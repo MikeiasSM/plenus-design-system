@@ -40,20 +40,22 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'headingLevel', opcoes: NIVEIS },
   ],
   renderizar: (valores, registrar) => (
-    <AnnotatedSection
-      action={
-        valores.action ? (
-          <Button onClick={() => registrar('Adicionar limite: onClick')} size="sm" variant="ghost">
-            Adicionar limite
-          </Button>
-        ) : undefined
-      }
-      description={valores.description || undefined}
-      headingLevel={Number(valores.headingLevel) as NonNullable<AnnotatedSectionProps['headingLevel']>}
-      title={valores.title}
-    >
-      <CartaoDeAjustes />
-    </AnnotatedSection>
+    <div style={{ width: '100%' }}>
+      <AnnotatedSection
+        action={
+          valores.action ? (
+            <Button onClick={() => registrar('Adicionar limite: onClick')} size="sm" variant="ghost">
+              Adicionar limite
+            </Button>
+          ) : undefined
+        }
+        description={valores.description || undefined}
+        headingLevel={Number(valores.headingLevel) as NonNullable<AnnotatedSectionProps['headingLevel']>}
+        title={valores.title}
+      >
+        <CartaoDeAjustes />
+      </AnnotatedSection>
+    </div>
   ),
   codigo: (valores) =>
     gerarJsx(
