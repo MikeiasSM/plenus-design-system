@@ -108,6 +108,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
 | `CodeBlock` | Trecho de código para leitura, com cópia, numeração e destaque de linhas. | Disponível |
 | `Timeline` | Histórico de estados de um registro, com datas e o estado atual destacado. | Disponível |
+| `ActivityFeed` | Registro do que aconteceu, do mais recente ao mais antigo, com comentários. | Disponível |
 | `SortableList` | Lista reordenável por arrasto ou teclado, com seleção de um item. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Disponível |
@@ -135,6 +136,8 @@ A fronteira entre `Badge` e `Tag` é o controle. O `Badge` só rotula um estado 
 O `CodeBlock` exibe código e não o edita: um editor de documento mantém a própria superfície de edição e usa o `CodeBlock` para mostrar o bloco. O realce de sintaxe é léxico e do próprio Design System, para Java, JavaScript, TypeScript, JSX, TSX, SQL, JSON, Shell e Delphi: ele colore o que ajuda a ler o trecho, sem analisar a linguagem como uma IDE. Uma linguagem fora dessa lista aparece numa cor só, com o rótulo que o produto informar.
 
 A `Timeline` mostra por onde um registro passou — criado, enviado, aprovado — com a data de cada estado. A fronteira com `Steps` é o tempo: as etapas indicam onde se está num processo a cumprir, e a pessoa pode navegar entre elas; a linha do tempo registra o que já aconteceu e não é navegável.
+
+O `ActivityFeed` registra o que aconteceu, do mais recente ao mais antigo: quem fez o quê, quando, e os comentários deixados no caminho. A fronteira com a `Timeline` é o estado: a linha do tempo mostra por quais estados um registro passou e destaca o atual; o feed lista acontecimentos, sem estado atual, e cada um pode trazer um comentário citado. Cada `ActivityFeed.Item` recebe o texto do acontecimento, o momento em `time`, com `dateTime` para a data legível por máquina, e o comentário em `comment`, quando houver. A ordem é a que o produto passar.
 
 A `SortableList` existe para a ordem: as seções de um documento, as colunas de um relatório. Arrastar reordena, e pelo teclado `Alt` com as setas faz o mesmo, com o anúncio da nova posição. A fronteira com a `List` é a tarefa: na `List` a pessoa escolhe itens; na `SortableList`, ela os ordena. Como cada linha pode trazer ações próprias, a marcação é de grade, com uma célula por linha, e não de `listbox`, que não admite controles dentro das opções.
 

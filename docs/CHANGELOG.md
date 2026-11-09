@@ -13,7 +13,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - As duas medem a própria largura: abaixo de 900px passam a uma coluna, o `Columns.Aside` desce para baixo do conteúdo e o `Columns.Index` some.
 - `Sidebar`: a navegação da aplicação, que sai do `AppShell` com todas as formas que ele já tinha. São o trilho de módulos (`Sidebar.Rail`, `Sidebar.RailItem` e `Sidebar.RailAccount`), o submenu (`Sidebar.Panel`) com grupos (`Sidebar.Group`) e itens com ícone, contagem, link externo e terceiro nível no lugar ou em pilha (`Sidebar.Item`), a conta (`Sidebar.Account`), o recolher e a gaveta no celular. Funciona dentro do `AppShell`, que guarda o estado.
 - `LinkList`: lista de links em que cada item leva a uma página, com ícone, título, descrição e complemento ao fim, em linhas (`layout="list"`, com a seta) ou em grade (`layout="grid"`). `tone="danger"` marca o item que pede atenção.
-- Showcase: família Predefinições, com a página de cada componente, e páginas da `Sidebar`, com todas as formas de navegação, e da `LinkList`; a do `AppShell` passa a mostrar a moldura. As composições passam a usar `AnnotatedSection`, `Columns`, `Sidebar` e `LinkList`.
+- `ActivityFeed`: registro do que aconteceu, do mais recente ao mais antigo. Cada `ActivityFeed.Item` traz o acontecimento, o momento (`time`, com `dateTime` legível por máquina) e, quando houver, um comentário citado (`comment`). Diferente da `Timeline`, não tem estado atual.
+- Showcase: família Predefinições, com a página de cada componente, e páginas da `Sidebar`, com todas as formas de navegação, da `LinkList` e do `ActivityFeed`; a do `AppShell` passa a mostrar a moldura. As composições passam a usar `AnnotatedSection`, `Columns`, `Sidebar`, `LinkList` e `ActivityFeed`.
 
 ### Alterado
 

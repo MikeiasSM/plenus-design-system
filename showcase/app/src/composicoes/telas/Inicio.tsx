@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardMetric, ChartBar, Columns, IconClock, IconExclamationTriangle, LinkList, PageHeader, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
+import { ActivityFeed, Badge, Button, Card, CardMetric, ChartBar, Columns, IconClock, IconExclamationTriangle, LinkList, PageHeader, formatCurrency, formatPercent } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DIAS_DO_GRAFICO, LANCAMENTOS, PEDIDOS, PEDIDOS_POR_DIA, PRODUTOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -94,21 +94,14 @@ export function Inicio() {
             </CardMetric>
             <Card>
               <Card.Header headingLevel={2} title="Atividade recente" />
-              <Card.Body flush>
-                <Table label="Atividade recente" size="sm">
-                  <Table.Header>
-                    <Table.Column id="evento">Evento</Table.Column>
-                    <Table.Column align="end" id="quando" width="90px">Quando</Table.Column>
-                  </Table.Header>
-                  <Table.Body items={atividades}>
-                    {(atividade) => (
-                      <Table.Row id={atividade.id}>
-                        <Table.Cell>{atividade.texto}</Table.Cell>
-                        <Table.Cell>{atividade.quando}</Table.Cell>
-                      </Table.Row>
-                    )}
-                  </Table.Body>
-                </Table>
+              <Card.Body>
+                <ActivityFeed aria-label="Atividade recente">
+                  {atividades.map((atividade) => (
+                    <ActivityFeed.Item key={atividade.id} time={atividade.quando}>
+                      {atividade.texto}
+                    </ActivityFeed.Item>
+                  ))}
+                </ActivityFeed>
               </Card.Body>
               <Card.Footer>
                 <Button size="sm" variant="ghost">Ver tudo</Button>

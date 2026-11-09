@@ -258,6 +258,8 @@ export { SortableList } from './components/data-display/SortableList';
 export type { SortableListItem, SortableListProps } from './components/data-display/SortableList';
 export { Timeline } from './components/data-display/Timeline';
 export type { TimelineItem, TimelineProps, TimelineSize } from './components/data-display/Timeline';
+export { ActivityFeed } from './components/data-display/ActivityFeed';
+export type { ActivityFeedItemProps, ActivityFeedProps } from './components/data-display/ActivityFeed';
 export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {

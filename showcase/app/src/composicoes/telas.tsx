@@ -40,11 +40,12 @@ export const telas: readonly Tela[] = [
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'LinkList', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'LinkList', 'ActivityFeed', 'Badge', 'Button'],
     nota: (
       <>
         Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
-        pelo <code>Columns</code> (<code>Columns.Main</code> e <code>Columns.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria.
+        pelo <code>Columns</code> (<code>Columns.Main</code> e <code>Columns.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria. A atividade
+        recente é um <code>ActivityFeed</code>: o acontecimento e, abaixo, o momento.
       </>
     ),
     codigo: `<AppShell.Page>
@@ -65,7 +66,17 @@ export const telas: readonly Tela[] = [
           </Card.Body>
         </Card>
       </Columns.Main>
-      <Columns.Aside><CardMetric>…</CardMetric></Columns.Aside>
+      <Columns.Aside>
+        <CardMetric>…</CardMetric>
+        <Card>
+          <Card.Header title="Atividade recente" />
+          <Card.Body>
+            <ActivityFeed aria-label="Atividade recente">
+              <ActivityFeed.Item time="há 12 min">Rui Teixeira aprovou o pedido #48209</ActivityFeed.Item>
+            </ActivityFeed>
+          </Card.Body>
+        </Card>
+      </Columns.Aside>
     </Columns>
   </AppShell.PageBody>
 </AppShell.Page>`,
