@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { InputCurrency, type InputTextSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const MOEDAS = ['BRL', 'USD', 'EUR'] as const;
 const TAMANHOS = ['sm', 'md'] as const;
@@ -126,6 +127,16 @@ function Modos() {
           <InputCurrency error="Informe o valor do pedido." label="Com erro" />
           <InputCurrency defaultValue={2500} disabled label="Desabilitado" />
         </div>
+        <VerCodigo
+          codigo={`<InputCurrency label="Valor inteiro" defaultValue={165789} />
+<InputCurrency
+  label="Com ajuda"
+  hint="A vírgula determina os centavos."
+  placeholder="0,00"
+/>
+<InputCurrency label="Com erro" error="Informe o valor do pedido." />
+<InputCurrency label="Desabilitado" defaultValue={2500} disabled />`}
+        />
       </div>
     </div>
   );

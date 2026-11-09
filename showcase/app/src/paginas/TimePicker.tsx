@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, TimePicker, type TimePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -114,16 +115,26 @@ function AberturaControlada() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<TimePicker label="Médio" />
+<TimePicker label="Pequeno" size="sm" />
+<TimePicker label="Com ajuda" hint="Horário de Brasília." />
+<TimePicker label="Com erro" error="Informe a hora." />
+<TimePicker label="Obrigatório" required />
+<TimePicker label="Desabilitado" value="09:30" disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <TimePicker label="Médio" />
-      <TimePicker label="Pequeno" size="sm" />
-      <TimePicker hint="Horário de Brasília." label="Com ajuda" />
-      <TimePicker error="Informe a hora." label="Com erro" />
-      <TimePicker label="Obrigatório" required />
-      <TimePicker disabled label="Desabilitado" value="09:30" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <TimePicker label="Médio" />
+        <TimePicker label="Pequeno" size="sm" />
+        <TimePicker hint="Horário de Brasília." label="Com ajuda" />
+        <TimePicker error="Informe a hora." label="Com erro" />
+        <TimePicker label="Obrigatório" required />
+        <TimePicker disabled label="Desabilitado" value="09:30" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

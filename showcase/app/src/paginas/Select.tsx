@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, ComboBox, Select, type SelectSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { ESTADOS } from '../dadosDeExemplo';
 
 const PERIODICIDADES = [
@@ -173,16 +174,26 @@ function Envio() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Select label="Médio" options={periodicidades} />
+<Select label="Pequeno" options={periodicidades} size="sm" />
+<Select label="Com valor" options={periodicidades} defaultValue="anual" />
+<Select label="Com ajuda" options={periodicidades} hint="A lista responde à digitação." />
+<Select label="Com erro" options={periodicidades} error="Escolha uma opção." />
+<Select label="Desabilitado" options={periodicidades} defaultValue="anual" disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <Select label="Médio" options={PERIODICIDADES} />
-      <Select label="Pequeno" options={PERIODICIDADES} size="sm" />
-      <Select defaultValue="anual" label="Com valor" options={PERIODICIDADES} />
-      <Select hint="A lista responde à digitação." label="Com ajuda" options={PERIODICIDADES} />
-      <Select error="Escolha uma opção." label="Com erro" options={PERIODICIDADES} />
-      <Select defaultValue="anual" disabled label="Desabilitado" options={PERIODICIDADES} />
-    </div>
+    <>
+      <div className="demo-grid">
+        <Select label="Médio" options={PERIODICIDADES} />
+        <Select label="Pequeno" options={PERIODICIDADES} size="sm" />
+        <Select defaultValue="anual" label="Com valor" options={PERIODICIDADES} />
+        <Select hint="A lista responde à digitação." label="Com ajuda" options={PERIODICIDADES} />
+        <Select error="Escolha uma opção." label="Com erro" options={PERIODICIDADES} />
+        <Select defaultValue="anual" disabled label="Desabilitado" options={PERIODICIDADES} />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -274,6 +285,7 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Select para escolha única numa lista curta, como campo de formulário.',
+    codigo: '<Select label="Periodicidade" options={periodicidades} defaultValue="mensal" />',
   },
   evite: {
     Previa: () => (
@@ -283,6 +295,8 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Vinte e sete estados num Select, sem busca. Lista longa, com busca ou mais de uma escolha pede o ComboBox, como o de baixo.',
+    codigo:
+      '<Select label="Estado" options={estados} />\n<ComboBox label="Estado" options={estados} placeholder="Digite para filtrar" />',
   },
   Variantes,
   Modos,

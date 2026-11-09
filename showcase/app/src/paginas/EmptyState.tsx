@@ -8,6 +8,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const TONS = ['neutral', 'danger'] as const;
@@ -75,6 +76,35 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<EmptyState
+  size="sm"
+  title="Nenhum estado encontrado"
+  description="Tente outro termo de busca."
+/>
+
+<EmptyState
+  size="md"
+  title="Nenhum registro encontrado"
+  description="Não há registros para exibir. Se houver busca ou filtros aplicados, experimente ajustá-los."
+  actions={<Button variant="secondary">Limpar filtros</Button>}
+/>
+
+<EmptyState
+  size="lg"
+  icon={<IconPlusCircle />}
+  title="Nenhuma coleção ainda"
+  description="Coleções agrupam seções e documentos e definem quem pode ver cada um."
+  actions={<Button size="lg">Criar coleção</Button>}
+/>`;
+
+const CODIGO_DA_FALHA = `<EmptyState
+  tone="danger"
+  icon={<IconClose />}
+  title="Não foi possível carregar os registros"
+  description="A conexão com o servidor falhou. Seus dados estão seguros; tente de novo em instantes."
+  actions={<Button variant="secondary" onClick={recarregar}>Tentar de novo</Button>}
+/>`;
+
 function Variantes() {
   return (
     <div className="stack">
@@ -91,6 +121,7 @@ function Variantes() {
         size="lg"
         title="Nenhuma coleção ainda"
       />
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
       <p className="note">
         O pequeno serve a listas, painéis e gráficos, sem os cartões; o médio, a tabelas e cartões; o grande, a uma
         página inteira.
@@ -115,6 +146,7 @@ function Modos() {
           No tom <code>danger</code> o bloco sai com <code>role=&quot;alert&quot;</code> e sem os cartões, porque a falha
           não é conteúdo a caminho.
         </p>
+        <VerCodigo codigo={CODIGO_DA_FALHA} />
       </div>
       <div className="subsection">
         <h3>Movimento</h3>
@@ -187,6 +219,8 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'No lugar de uma lista que não carregou, EmptyState em tom de erro: diz por que o conteúdo não está ali e o que fazer.',
+    codigo:
+      '<EmptyState\n  tone="danger"\n  size="sm"\n  icon={<IconClose />}\n  title="Não foi possível carregar os registros"\n  actions={<Button variant="secondary" onClick={recarregar}>Tentar de novo</Button>}\n/>',
   },
   evite: {
     Previa: () => (
@@ -195,6 +229,7 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'EmptyState para a falha ao salvar um formulário. Ela acompanha um conteúdo que continua ali: é Alert.',
+    codigo: '<EmptyState tone="danger" size="sm" title="Não foi possível salvar" />',
   },
   Variantes,
   Modos,

@@ -14,6 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { DecomposicaoDoHeatmap } from '../estrutura/decomposicao';
 
 const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -199,6 +200,7 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartHeatmap cells={[]} title="Atendimentos por horário" />
         <p className="note">Sem células, o gráfico anuncia a ausência em vez de desenhar uma grade vazia.</p>
+        <VerCodigo codigo={'<ChartHeatmap title="Atendimentos por horário" cells={[]} />'} />
       </div>
     </div>
   );

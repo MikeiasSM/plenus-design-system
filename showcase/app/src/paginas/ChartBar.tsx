@@ -14,6 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import {
   COMPOSICAO,
   CONVERSAO,
@@ -212,6 +213,12 @@ function SeriesControladas() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ChartBar title="Composição do faturamento" categories={meses} series={series} orientation="vertical" />
+<ChartBar title="Composição do faturamento" categories={meses} series={series} orientation="horizontal" />
+
+<ChartBar title="Composição do faturamento" categories={meses} series={series} stacked={false} />
+<ChartBar title="Composição do faturamento" categories={meses} series={series} stacked />`;
+
 function Variantes() {
   const combinacoes = [
     { orientation: 'vertical', stacked: false },
@@ -221,23 +228,48 @@ function Variantes() {
   ] as const;
 
   return (
-    <div className="demo-grid">
-      {combinacoes.map(({ orientation, stacked }) => (
-        <div className="demo-box" key={`${orientation}-${stacked}`}>
-          <ChartBar
-            categories={MESES.slice(0, 4)}
-            formatValue={formatarCompacto}
-            height={200}
-            orientation={orientation}
-            series={COMPOSICAO.slice(0, 2)}
-            stacked={stacked}
-            title={`${orientation}${stacked ? ', stacked' : ''}`}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {combinacoes.map(({ orientation, stacked }) => (
+          <div className="demo-box" key={`${orientation}-${stacked}`}>
+            <ChartBar
+              categories={MESES.slice(0, 4)}
+              formatValue={formatarCompacto}
+              height={200}
+              orientation={orientation}
+              series={COMPOSICAO.slice(0, 2)}
+              stacked={stacked}
+              title={`${orientation}${stacked ? ', stacked' : ''}`}
+            />
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
+
+const CODIGO_DAS_SERIES_CONTROLADAS = `<ChartBar
+  title="Composição do faturamento"
+  categories={meses}
+  series={series}
+  hidden={ocultas}
+  onHiddenChange={setOcultas}
+  formatValue={formatarCompacto}
+/>
+<Button variant="secondary" size="sm" disabled={ocultas.length === 0} onClick={() => setOcultas([])}>
+  Mostrar todas
+</Button>`;
+
+const CODIGO_DA_ALTURA_DO_CONTEINER = `<div style={{ height: 320 }}>
+  <ChartBar
+    title="Faturamento mensal"
+    categories={meses}
+    series={[{ label: 'Faturamento', values: faturamento }]}
+    height="fill"
+    formatValue={formatarCompacto}
+  />
+</div>`;
 
 function Modos() {
   return (
@@ -267,6 +299,7 @@ function Modos() {
           Sem <code>hidden</code> o componente guarda o que está oculto; com ele, obedece ao produto. Nos dois casos
           avisa a mudança por <code>onHiddenChange</code>. A série recolhe em movimento e as demais repartem a faixa.
         </p>
+        <VerCodigo codigo={CODIGO_DAS_SERIES_CONTROLADAS} />
       </div>
       <div className="subsection">
         <h3>Altura do contêiner</h3>
@@ -282,6 +315,7 @@ function Modos() {
         <p className="note">
           Com <code>height=&quot;fill&quot;</code> a altura vem de quem envolve. Arraste o canto inferior da caixa.
         </p>
+        <VerCodigo codigo={CODIGO_DA_ALTURA_DO_CONTEINER} />
       </div>
       <div className="subsection">
         <h3>Sem dados</h3>
@@ -289,6 +323,7 @@ function Modos() {
         <p className="note">
           Sem dados, o gráfico anuncia a ausência com <code>emptyMessage</code> em vez de desenhar eixos vazios.
         </p>
+        <VerCodigo codigo={'<ChartBar title="Faturamento por vendedor" categories={[]} series={[]} />'} />
       </div>
     </div>
   );
@@ -500,6 +535,18 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
       </div>
     ),
     texto: 'Receita e despesa com intent: a cor diz o que a barra significa, igual para todo usuário.',
+    codigo: `<ChartBar
+  title="Resultado"
+  categories={['08/2026', '09/2026']}
+  series={[
+    { label: 'Receita', values: [300000, 210000], intent: 'positive' },
+    { label: 'Deduções', values: [179000, 96000], intent: 'warning' },
+    { label: 'Despesas', values: [50200, 8000], intent: 'negative' },
+  ]}
+  accent="#49619C"
+  height={180}
+  formatValue={formatarCompacto}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -515,6 +562,18 @@ const cores = resolveSeriesColors(formas.map(() => ({})));
       </div>
     ),
     texto: 'As mesmas séries na paleta categórica: a cor de tema pinta a receita e o sentido muda a cada usuário.',
+    codigo: `<ChartBar
+  title="Resultado"
+  categories={['08/2026', '09/2026']}
+  series={[
+    { label: 'Receita', values: [300000, 210000] },
+    { label: 'Deduções', values: [179000, 96000] },
+    { label: 'Despesas', values: [50200, 8000] },
+  ]}
+  accent="#49619C"
+  height={180}
+  formatValue={formatarCompacto}
+/>`,
   },
   Variantes,
   Modos,

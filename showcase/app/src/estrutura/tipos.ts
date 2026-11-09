@@ -39,6 +39,8 @@ export interface Exemplo {
 }
 
 export interface FacaOuEvite {
+  /** O codigo que reproduz a previa, atras do "Ver codigo", como nos exemplos de uso. */
+  codigo: string;
   Previa: ComponentType;
   texto: ReactNode;
 }

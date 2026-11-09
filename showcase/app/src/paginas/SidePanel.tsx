@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Button, Checkbox, SidePanel, type SidePanelSide, type SidePanelSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const LADOS = ['right', 'left'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
@@ -181,6 +182,10 @@ function ConfirmacaoNoPainel() {
   );
 }
 
+const CODIGO_DO_TAMANHO = `<SidePanel open={aberto} onOpenChange={setAberto} size="sm" title="Filtros">…</SidePanel>
+<SidePanel open={aberto} onOpenChange={setAberto} size="md" title="Filtros">…</SidePanel>
+<SidePanel open={aberto} onOpenChange={setAberto} size="lg" title="Filtros">…</SidePanel>`;
+
 function Variantes() {
   const [tamanho, setTamanho] = useState<SidePanelSize>('md');
 
@@ -197,6 +202,7 @@ function Variantes() {
         </div>
       </div>
       <Linha aberto alternar={() => undefined} lado="right" onOpenChange={() => undefined} tamanho={tamanho} titulo="Filtros" />
+      <VerCodigo codigo={CODIGO_DO_TAMANHO} />
     </div>
   );
 }
@@ -240,6 +246,8 @@ export const pagina: Pagina = {
   faca: {
     Previa: FiltrosFechados,
     texto: 'SidePanel para filtros, detalhes ou ajuda que acompanham a página sem tirar o usuário dela.',
+    codigo:
+      '<div style={{ display: \'flex\' }}>\n  <Pagina />\n  <SidePanel\n    open={aberto}\n    onOpenChange={setAberto}\n    size="sm"\n    title="Filtros"\n    footer={<Button onClick={aplicar}>Aplicar filtros</Button>}\n  >\n    <Checkbox defaultChecked label="Somente ativos" />\n    <Checkbox label="Com pendência" />\n    <Checkbox label="Criados este mês" />\n  </SidePanel>\n</div>',
   },
   evite: {
     Previa: ConfirmacaoNoPainel,
@@ -248,6 +256,8 @@ export const pagina: Pagina = {
         Uma decisão que precisa de resposta. Quem interrompe o fluxo é <code>Dialog</code>; um painel que bloqueia a página é <code>Drawer</code>.
       </>
     ),
+    codigo:
+      '<div style={{ display: \'flex\' }}>\n  <Pagina />\n  <SidePanel\n    open={aberto}\n    onOpenChange={setAberto}\n    size="sm"\n    title="Excluir clientes?"\n    footer={<Button onClick={excluir}>Excluir</Button>}\n  >\n    <p>Os 3 clientes selecionados serão excluídos.</p>\n  </SidePanel>\n</div>',
   },
   Variantes,
   Modos,

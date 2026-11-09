@@ -1,6 +1,7 @@
 import { Alert, Button, EmptyState, IconClose, InputText, type AlertTone } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TONS = ['info', 'success', 'warning', 'danger'] as const;
 
@@ -50,15 +51,23 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<Alert tone="info" title="Sincronização agendada">Executa todos os dias às 3h.</Alert>
+<Alert tone="success" title="Registro salvo">As alterações já estão disponíveis.</Alert>
+<Alert tone="warning" title="Espaço quase esgotado">Restam 8% do armazenamento.</Alert>
+<Alert tone="danger" title="Falha no envio">Tente novamente em alguns instantes.</Alert>`;
+
 function Variantes() {
   return (
-    <div className="stack">
-      {TONS.map((tom) => (
-        <Alert key={tom} title={EXEMPLOS_DE_TOM[tom].titulo} tone={tom}>
-          {EXEMPLOS_DE_TOM[tom].texto}
-        </Alert>
-      ))}
-    </div>
+    <>
+      <div className="stack">
+        {TONS.map((tom) => (
+          <Alert key={tom} title={EXEMPLOS_DE_TOM[tom].titulo} tone={tom}>
+            {EXEMPLOS_DE_TOM[tom].texto}
+          </Alert>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -125,6 +134,7 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Alert para a falha de uma operação, junto do conteúdo de que fala, como ao salvar um formulário.',
+    codigo: '<Alert tone="danger" title="Não foi possível salvar">Tente novamente em alguns instantes.</Alert>',
   },
   evite: {
     Previa: () => (
@@ -139,6 +149,13 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Alert no lugar de uma lista que não carregou. Ali o conteúdo faltou: é EmptyState em tom de erro.',
+    codigo: `<EmptyState
+  tone="danger"
+  size="sm"
+  icon={<IconClose />}
+  title="Não foi possível carregar os registros"
+  actions={<Button variant="secondary">Tentar de novo</Button>}
+/>`,
   },
   Variantes,
   Modos,

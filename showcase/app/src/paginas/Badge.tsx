@@ -1,6 +1,7 @@
 import { Badge, Card, type BadgeSize, type BadgeTone, type BadgeVariant } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TONS = ['neutral', 'info', 'success', 'warning', 'danger'] as const;
 const VARIANTES = ['status', 'brand'] as const;
@@ -61,38 +62,54 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<Badge tone="neutral">Status</Badge>
+<Badge tone="info">Status</Badge>
+<Badge tone="success">Status</Badge>
+<Badge tone="warning">Status</Badge>
+<Badge tone="danger">Status</Badge>
+<Badge variant="brand">Status</Badge>
+
+<Badge dot>Status</Badge>
+<Badge outline>Status</Badge>
+<Badge dot outline>Status</Badge>
+
+<Badge>12</Badge>`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>tone</span>
-        <span>padrão</span>
-        <span>dot</span>
-        <span>outline</span>
-        <span>outline e dot</span>
-        <span>contagem</span>
-      </div>
-      {LINHAS.map(({ rotulo, props }) => (
-        <div className="matrix-row" key={rotulo}>
-          <code>{rotulo}</code>
-          <span>
-            <Badge {...props}>Status</Badge>
-          </span>
-          <span>
-            <Badge dot {...props}>Status</Badge>
-          </span>
-          <span>
-            <Badge outline {...props}>Status</Badge>
-          </span>
-          <span>
-            <Badge dot outline {...props}>Status</Badge>
-          </span>
-          <span>
-            <Badge {...props}>12</Badge>
-          </span>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>tone</span>
+          <span>padrão</span>
+          <span>dot</span>
+          <span>outline</span>
+          <span>outline e dot</span>
+          <span>contagem</span>
         </div>
-      ))}
-    </div>
+        {LINHAS.map(({ rotulo, props }) => (
+          <div className="matrix-row" key={rotulo}>
+            <code>{rotulo}</code>
+            <span>
+              <Badge {...props}>Status</Badge>
+            </span>
+            <span>
+              <Badge dot {...props}>Status</Badge>
+            </span>
+            <span>
+              <Badge outline {...props}>Status</Badge>
+            </span>
+            <span>
+              <Badge dot outline {...props}>Status</Badge>
+            </span>
+            <span>
+              <Badge {...props}>12</Badge>
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -144,10 +161,13 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Badge para rotular um estado ou uma categoria. Ele não responde a nada.',
+    codigo: `<Badge tone="success" dot>Ativo</Badge>
+<Badge tone="info">Financeiro</Badge>`,
   },
   evite: {
     Previa: () => <Badge variant="brand">Situação: ativo ✕</Badge>,
     texto: 'Badge imitando filtro removível: o ✕ não faz nada. O que se remove ou se liga e desliga é Tag.',
+    codigo: '<Badge variant="brand">Situação: ativo ✕</Badge>',
   },
   Variantes,
   garantias: [

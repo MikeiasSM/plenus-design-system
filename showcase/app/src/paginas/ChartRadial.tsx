@@ -6,6 +6,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { OPCOES_DE_ACCENT, accentDa } from '../dadosDosGraficos';
 import { DecomposicaoDoRadial } from '../estrutura/decomposicao';
 
@@ -131,6 +132,9 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartRadial title="Metas do trimestre" tracks={[]} />
         <p className="note">Sem anéis, o gráfico anuncia a ausência em vez de desenhar pistas vazias.</p>
+        <VerCodigo
+          codigo={`<ChartRadial title="Metas do trimestre" tracks={[]} />`}
+        />
       </div>
     </div>
   );

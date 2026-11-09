@@ -1,6 +1,7 @@
 import { Textarea, type TextareaSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 
@@ -96,12 +97,18 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<Textarea label='size="md"' placeholder="Descreva a ocorrência" size="md" />
+<Textarea label='size="sm", rows={2}' placeholder="Nota rápida" size="sm" rows={2} />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <Textarea label='size="md"' placeholder="Descreva a ocorrência" />
-      <Textarea label='size="sm", rows={2}' placeholder="Nota rápida" rows={2} size="sm" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <Textarea label='size="md"' placeholder="Descreva a ocorrência" />
+        <Textarea label='size="sm", rows={2}' placeholder="Nota rápida" rows={2} size="sm" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -116,6 +123,11 @@ function Modos() {
           <Textarea defaultValue="Somente leitura" disabled label="Desabilitado" />
         </div>
         <p className="note">O redimensionamento é só vertical e some quando o campo está desabilitado.</p>
+        <VerCodigo
+          codigo={`<Textarea label="Com ajuda" hint="Fica visível só para a equipe." />
+<Textarea label="Com erro" error="Campo obrigatório." />
+<Textarea label="Desabilitado" defaultValue="Somente leitura" disabled />`}
+        />
       </div>
       <div className="subsection">
         <h3>Contador de caracteres</h3>

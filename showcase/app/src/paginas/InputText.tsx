@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IconSearch, InputText, type InputTextSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const TIPOS = ['text', 'search', 'email', 'tel', 'url'] as const;
@@ -194,23 +195,32 @@ function MascaraControladaCrua() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<InputText label='size="sm"' placeholder="Nome do módulo" size="sm" />
+<InputText label='size="md"' placeholder="Nome do módulo" size="md" />
+<InputText label='size="lg"' placeholder="Nome do módulo" size="lg" />
+
+<InputText label='size="md", com icon' icon={<IconSearch />} placeholder="Pesquisar" size="md" type="search" />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {TAMANHOS.map((tamanho) => (
-        <InputText key={tamanho} label={`size="${tamanho}"`} placeholder="Nome do módulo" size={tamanho} />
-      ))}
-      {TAMANHOS.map((tamanho) => (
-        <InputText
-          icon={<IconSearch />}
-          key={tamanho}
-          label={`size="${tamanho}", com icon`}
-          placeholder="Pesquisar"
-          size={tamanho}
-          type="search"
-        />
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {TAMANHOS.map((tamanho) => (
+          <InputText key={tamanho} label={`size="${tamanho}"`} placeholder="Nome do módulo" size={tamanho} />
+        ))}
+        {TAMANHOS.map((tamanho) => (
+          <InputText
+            icon={<IconSearch />}
+            key={tamanho}
+            label={`size="${tamanho}", com icon`}
+            placeholder="Pesquisar"
+            size={tamanho}
+            type="search"
+          />
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -225,6 +235,12 @@ function Modos() {
           <InputText label="Obrigatório" required />
           <InputText defaultValue="Somente leitura" disabled label="Desabilitado" />
         </div>
+        <VerCodigo
+          codigo={`<InputText label="Com ajuda" hint="Aparece no relatório mensal." />
+<InputText label="Com erro" error="Campo obrigatório." />
+<InputText label="Obrigatório" required />
+<InputText label="Desabilitado" defaultValue="Somente leitura" disabled />`}
+        />
       </div>
       <div className="subsection">
         <h3>Contador de caracteres</h3>
@@ -236,6 +252,10 @@ function Modos() {
           Conta em unidades UTF-16, a mesma medida do maxLength nativo: o número bate com o ponto em que o navegador corta, e
           um emoji conta 2. Controlado ou não, o contador acompanha o valor e volta ao inicial no reset do formulário.
         </p>
+        <VerCodigo
+          codigo={`<InputText label="Com limite" defaultValue="Texto inicial" maxLength={80} showCharacterCount />
+<InputText label="Sem limite" defaultValue="Texto inicial" showCharacterCount />`}
+        />
       </div>
       <div className="subsection">
         <h3>Número e dinheiro</h3>

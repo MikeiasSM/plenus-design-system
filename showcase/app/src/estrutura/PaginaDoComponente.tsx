@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from 'react';
-import { Badge, Button, Card, CodeBlock, EmptyState, Table } from '@plenustech/design-system';
+import type { ReactNode } from 'react';
+import { Badge, Card, CodeBlock, EmptyState, Table } from '@plenustech/design-system';
 import type { ComponenteDoCatalogo } from '../catalogo';
 import { Playground } from './Playground';
 import type { Exemplo, FacaOuEvite, Garantia, LinhaDaApi, Pagina, Tecla } from './tipos';
+import { useVerCodigo } from './VerCodigo';
 
 interface Secao {
   conteudo: ReactNode;
@@ -12,7 +13,7 @@ interface Secao {
 }
 
 function CartaoDeExemplo({ exemplo }: { exemplo: Exemplo }) {
-  const [aberto, setAberto] = useState(false);
+  const { bloco, botao } = useVerCodigo(exemplo.codigo, 'example-code');
   const { Previa } = exemplo;
 
   return (
@@ -23,16 +24,15 @@ function CartaoDeExemplo({ exemplo }: { exemplo: Exemplo }) {
       <div className="example-body">
         <h3>{exemplo.titulo}</h3>
         <p>{exemplo.descricao}</p>
-        <Button aria-expanded={aberto} onClick={() => setAberto(!aberto)} size="sm" variant="ghost">
-          {aberto ? 'Ocultar código' : 'Ver código'}
-        </Button>
+        {botao}
       </div>
-      {aberto && <CodeBlock className="example-code" code={exemplo.codigo} syntax="tsx" />}
+      {bloco}
     </article>
   );
 }
 
 function Quadro({ item, tipo }: { item: FacaOuEvite; tipo: 'faca' | 'evite' }) {
+  const { bloco, botao } = useVerCodigo(item.codigo, 'example-code');
   const { Previa } = item;
 
   return (
@@ -41,7 +41,11 @@ function Quadro({ item, tipo }: { item: FacaOuEvite; tipo: 'faca' | 'evite' }) {
       <div className="dodont-preview">
         <Previa />
       </div>
-      <p className="dodont-text">{item.texto}</p>
+      <div className="dodont-body">
+        <p>{item.texto}</p>
+        {botao}
+      </div>
+      {bloco}
     </article>
   );
 }

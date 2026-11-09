@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef, MouseEvent } from 'react';
 import { Breadcrumb, type BreadcrumbItem } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const CAMINHO: BreadcrumbItem[] = [
   { label: 'Início', href: '/' },
@@ -67,6 +68,12 @@ function Modos() {
           Um item do meio sem <code>href</code> nem <code>linkProps</code> vira texto: uma seção que não tem página
           própria.
         </p>
+        <VerCodigo
+          codigo={`<Breadcrumb
+  as={Link}
+  items={[{ label: 'Início', href: '/' }, { label: 'Relatórios' }, { label: 'Fechamento de março' }]}
+/>`}
+        />
       </div>
       <div className="subsection">
         <h3>Roteador</h3>

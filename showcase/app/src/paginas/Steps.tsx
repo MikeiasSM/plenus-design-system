@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Steps, type StepItem } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const ETAPAS_DO_EMAIL: StepItem[] = [
   { key: 'conta', label: 'Conta', description: 'Remetente e nome' },
@@ -129,6 +130,13 @@ function Variantes() {
             <code>current=&quot;{chave}&quot;</code>
           </h3>
           <Steps current={chave} items={ETAPAS_DO_EMAIL} label={`Etapas do e-mail, em ${chave}`} />
+          <VerCodigo
+            codigo={`<Steps
+  label="Etapas do e-mail"
+  items={etapas}
+  current="${chave}"
+/>`}
+          />
         </div>
       ))}
     </div>
@@ -177,6 +185,11 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Steps para um processo em sequência, em que as etapas anteriores contam como concluídas.',
+    codigo: `<Steps
+  label="Etapas do e-mail"
+  items={etapas}
+  current="servidor"
+/>`,
   },
   evite: {
     Previa: () => (
@@ -193,6 +206,15 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Steps para seções equivalentes, sem ordem: o Perfil não está "concluído". Painéis equivalentes são Tabs.',
+    codigo: `<Steps
+  label="Preferências"
+  items={[
+    { key: 'perfil', label: 'Perfil' },
+    { key: 'notificacoes', label: 'Notificações' },
+    { key: 'seguranca', label: 'Segurança' },
+  ]}
+  current="notificacoes"
+/>`,
   },
   Variantes,
   Modos,

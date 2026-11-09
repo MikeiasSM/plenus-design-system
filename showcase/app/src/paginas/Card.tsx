@@ -1,6 +1,7 @@
 import { Badge, Button, Card, type CardHeadingLevel, type CardSize, type CardTrailingWhenNarrow } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const NIVEIS = ['2', '3', '4', '5', '6'] as const;
 const TAMANHOS = ['md', 'sm'] as const;
@@ -108,6 +109,11 @@ function Modos() {
           O <code>section</code> só ganha <code>aria-labelledby</code> enquanto houver <code>Card.Header</code>. Se o cabeçalho
           sair da tela, o nome sai junto, em vez de apontar para um id que não existe.
         </p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Body>Somente conteúdo, sem nome de região.</Card.Body>
+</Card>`}
+        />
       </div>
       <div className="subsection">
         <h3>Corpo sem respiro</h3>
@@ -121,6 +127,14 @@ function Modos() {
           Com <code>flush</code>, o cabeçalho se separa do corpo por uma linha. É o modo para envolver uma Table, que não desenha
           contorno próprio.
         </p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Header title="Arquivos" description="O corpo encosta nas bordas." />
+  <Card.Body flush>
+    <p>Uma tabela ou uma lista entraria aqui, de borda a borda.</p>
+  </Card.Body>
+</Card>`}
+        />
       </div>
       <div className="subsection">
         <h3>Nome vindo de fora</h3>
@@ -131,6 +145,12 @@ function Modos() {
         <p className="note">
           O <code>aria-labelledby</code> do consumidor vence o título do cabeçalho.
         </p>
+        <VerCodigo
+          codigo={`<h4 id="resumo-de-fora">Resumo do mês</h4>
+<Card aria-labelledby="resumo-de-fora">
+  <Card.Body>Faturamento, conversão e pedidos.</Card.Body>
+</Card>`}
+        />
       </div>
     </div>
   );

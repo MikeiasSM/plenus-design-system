@@ -14,6 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
@@ -95,6 +96,24 @@ const playground = definirPlayground({
 
 const PESSOAS = ['Ana Ribeiro', 'Bruno Costa', 'Carla Mendes'];
 
+const CODIGO_DAS_VARIANTES = `<ButtonIcon icon={<IconSearch />} label="Buscar, primary" variant="primary" />
+<ButtonIcon icon={<IconSearch />} label="Buscar, secondary" variant="secondary" />
+<ButtonIcon icon={<IconSearch />} label="Buscar, soft" variant="soft" />
+<ButtonIcon icon={<IconSearch />} label="Buscar, ghost" variant="ghost" />
+<ButtonIcon icon={<IconSearch />} label="Buscar, danger" variant="danger" />
+<ButtonIcon icon={<IconSearch />} label="Buscar, dangerGhost" variant="dangerGhost" />`;
+
+const CODIGO_DOS_TAMANHOS = `<ButtonIcon icon={<IconSearch />} label="Buscar, sm" size="sm" />
+<Button size="sm" variant="secondary">sm · 28px</Button>
+
+<ButtonIcon icon={<IconSearch />} label="Buscar, md" size="md" />
+<Button size="md" variant="secondary">md · 42px</Button>
+
+<ButtonIcon icon={<IconSearch />} label="Buscar, lg" size="lg" />
+<Button size="lg" variant="secondary">lg · 48px</Button>`;
+
+const CODIGO_DESABILITADO = '<ButtonIcon disabled icon={<IconSearch />} label="Buscar" />';
+
 function Variantes() {
   return (
     <div className="stack">
@@ -105,6 +124,7 @@ function Variantes() {
             <ButtonIcon icon={<IconSearch />} key={variante} label={`Buscar, ${variante}`} variant={variante} />
           ))}
         </div>
+        <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
       </div>
       <div className="subsection">
         <h3>Tamanhos, na altura do Button</h3>
@@ -119,6 +139,7 @@ function Variantes() {
           ))}
         </div>
         <p className="note">Quadrado na altura do Button de cada tamanho, para alinhar com ele e com o InputText numa barra.</p>
+        <VerCodigo codigo={CODIGO_DOS_TAMANHOS} />
       </div>
       <div className="subsection">
         <h3>Desabilitado</h3>
@@ -127,6 +148,7 @@ function Variantes() {
             <ButtonIcon disabled icon={<IconSearch />} key={variante} label={`Buscar, ${variante}`} variant={variante} />
           ))}
         </div>
+        <VerCodigo codigo={CODIGO_DESABILITADO} />
       </div>
     </div>
   );
@@ -214,10 +236,16 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Ícone sozinho quando o texto não cabe ou repetiria o contexto, como o fechar. Havendo espaço, Button com texto.',
+    codigo: `<ButtonIcon icon={<IconClose />} label="Fechar" variant="ghost" />
+<Button>
+  <IconPlusCircle />
+  Novo registro
+</Button>`,
   },
   evite: {
     Previa: () => <ButtonIcon icon={<IconPlusCircle />} label="Novo registro" variant="primary" />,
     texto: 'A ação principal só em ícone, com espaço de sobra: a pessoa precisa adivinhar o que ele faz.',
+    codigo: '<ButtonIcon icon={<IconPlusCircle />} label="Novo registro" variant="primary" />',
   },
   Variantes,
   Modos,

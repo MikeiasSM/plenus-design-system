@@ -12,6 +12,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoDonut } from '../estrutura/decomposicao';
 
@@ -197,22 +198,29 @@ function Distribuicao() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ChartDonut title="Receita" slices={receita} thickness={0.22} legend="none" />
+<ChartDonut title="Receita" slices={receita} thickness={0.38} legend="none" />
+<ChartDonut title="Receita" slices={receita} thickness={0.6} legend="none" />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {[0.22, 0.38, 0.6].map((espessura) => (
-        <div className="demo-box" key={espessura}>
-          <ChartDonut
-            formatValue={formatarCompacto}
-            height={180}
-            legend="none"
-            slices={RECEITA}
-            thickness={espessura}
-            title={`thickness ${espessura}`}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {[0.22, 0.38, 0.6].map((espessura) => (
+          <div className="demo-box" key={espessura}>
+            <ChartDonut
+              formatValue={formatarCompacto}
+              height={180}
+              legend="none"
+              slices={RECEITA}
+              thickness={espessura}
+              title={`thickness ${espessura}`}
+            />
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -240,6 +248,7 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartDonut slices={[]} title="Estrutura de custos" />
         <p className="note">Sem fatia positiva, o gráfico anuncia a ausência em vez de desenhar um anel vazio.</p>
+        <VerCodigo codigo={'<ChartDonut title="Estrutura de custos" slices={[]} />'} />
       </div>
     </div>
   );
@@ -402,6 +411,7 @@ const cores = resolveSeriesColors(desenhadas);
       </div>
     ),
     texto: 'O anel abriga o valor que importa no centro, aqui o total da receita.',
+    codigo: '<ChartDonut title="Receita" slices={receita} legend="none" height={180} formatValue={formatarCompacto} />',
   },
   evite: {
     Previa: () => (
@@ -410,6 +420,7 @@ const cores = resolveSeriesColors(desenhadas);
       </div>
     ),
     texto: 'Anel sem valor no centro: é o centro que separa o anel da pizza. Sem ele, ChartPie.',
+    codigo: '<ChartDonut title="Receita" slices={receita} showCenter={false} legend="none" height={180} formatValue={formatarCompacto} />',
   },
   Variantes,
   Modos,

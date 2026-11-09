@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { Field, InputText, type FieldSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const LIMITE_DO_ARQUIVO = 5 * 1024 * 1024;
 
@@ -251,6 +252,19 @@ export const pagina: Pagina = {
   faca: {
     Previa: () => <Comprovante />,
     texto: 'Field em volta de um controle que o Design System não entrega: máscara de documento, arquivo, endereço.',
+    codigo: `<Field label="Comprovante" hint="PDF ou imagem, até 5 MB." error={erro}>
+  {({ className, id, describedBy, invalid }) => (
+    <input
+      className={className}
+      id={id}
+      aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
+      type="file"
+      accept=".pdf,image/*"
+      onChange={escolher}
+    />
+  )}
+</Field>`,
   },
   evite: {
     Previa: () => (
@@ -259,6 +273,9 @@ export const pagina: Pagina = {
       </Field>
     ),
     texto: 'Envolver um campo do catálogo: ele já tem o seu Field por dentro. Use o label, o hint e o error dele.',
+    codigo: `<Field label="E-mail">
+  {({ id }) => <InputText id={id} />}
+</Field>`,
   },
   Modos,
   garantias: [

@@ -1,6 +1,7 @@
 import { CodeBlock, type CodeSyntax } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const SINTAXES = ['java', 'javascript', 'jsx', 'typescript', 'tsx', 'sql', 'json', 'shell', 'delphi', 'nenhuma'] as const;
 
@@ -152,13 +153,26 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<CodeBlock code={trechoJava} copyable={false} syntax="java" />
+<CodeBlock code={trechoJavascript} copyable={false} syntax="javascript" />
+<CodeBlock code={trechoJsx} copyable={false} syntax="jsx" />
+<CodeBlock code={trechoTypescript} copyable={false} syntax="typescript" />
+<CodeBlock code={trechoTsx} copyable={false} syntax="tsx" />
+<CodeBlock code={trechoSql} copyable={false} syntax="sql" />
+<CodeBlock code={trechoJson} copyable={false} syntax="json" />
+<CodeBlock code={trechoShell} copyable={false} syntax="shell" />
+<CodeBlock code={trechoDelphi} copyable={false} syntax="delphi" />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {(Object.keys(TRECHOS) as CodeSyntax[]).map((sintaxe) => (
-        <CodeBlock code={TRECHOS[sintaxe]} copyable={false} key={sintaxe} syntax={sintaxe} />
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {(Object.keys(TRECHOS) as CodeSyntax[]).map((sintaxe) => (
+          <CodeBlock code={TRECHOS[sintaxe]} copyable={false} key={sintaxe} syntax={sintaxe} />
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -172,6 +186,15 @@ function Modos() {
           Os números são gerados pelo CSS e não entram na seleção, na cópia nem na leitura. A linha destacada é{' '}
           <code>&lt;mark&gt;</code>, com borda à esquerda: a ênfase não depende só da cor e chega ao leitor de tela.
         </p>
+        <VerCodigo
+          codigo={`<CodeBlock
+  code={licenca}
+  fileName="Licenca.java"
+  syntax="java"
+  lineNumbers
+  highlightedLines={[6, 7]}
+/>`}
+        />
       </div>
       <div className="subsection">
         <h3>Com quebra de linha, sem cabeçalho</h3>
@@ -180,6 +203,14 @@ function Modos() {
           Sem <code>fileName</code>, sem rótulo e sem cópia, o cabeçalho não aparece. Com <code>wrap</code>, a linha longa quebra
           e o bloco não precisa de foco.
         </p>
+        <VerCodigo
+          codigo={`<CodeBlock
+  code="npm install @plenustech/design-system && npm run build"
+  syntax="shell"
+  copyable={false}
+  wrap
+/>`}
+        />
       </div>
       <div className="subsection">
         <h3>Linguagem fora do realce</h3>
@@ -187,6 +218,7 @@ function Modos() {
         <p className="note">
           Sem <code>syntax</code>, o código sai numa cor só; <code>language</code> dá o rótulo que o produto quiser.
         </p>
+        <VerCodigo codigo={'<CodeBlock code="fun soma(a: Int, b: Int) = a + b" language="Kotlin" />'} />
       </div>
     </div>
   );

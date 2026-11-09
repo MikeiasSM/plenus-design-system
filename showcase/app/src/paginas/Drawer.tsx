@@ -13,6 +13,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const LADOS = ['right', 'left'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
@@ -312,6 +313,13 @@ function ConfirmacaoEmDrawer() {
   );
 }
 
+const CODIGO_DO_TAMANHO = `<Drawer open={aberto} onOpenChange={setAberto} size="sm" title="Detalhes">…</Drawer>
+<Drawer open={aberto} onOpenChange={setAberto} size="md" title="Detalhes">…</Drawer>
+<Drawer open={aberto} onOpenChange={setAberto} size="lg" title="Detalhes">…</Drawer>`;
+
+const CODIGO_DO_LADO = `<Drawer open={aberto} onOpenChange={setAberto} side="right" title="Detalhes">…</Drawer>
+<Drawer open={aberto} onOpenChange={setAberto} side="left" title="Detalhes">…</Drawer>`;
+
 function Variantes() {
   const [aberta, setAberta] = useState<{ side: DrawerSide; size: DrawerSize } | null>(null);
 
@@ -326,6 +334,7 @@ function Variantes() {
             </Button>
           ))}
         </div>
+        <VerCodigo codigo={CODIGO_DO_TAMANHO} />
       </div>
       <div className="subsection">
         <h3>side</h3>
@@ -336,6 +345,7 @@ function Variantes() {
             </Button>
           ))}
         </div>
+        <VerCodigo codigo={CODIGO_DO_LADO} />
       </div>
       <Drawer
         description={aberta ? `Largura máxima de ${LARGURAS[aberta.size]}, presa à ${aberta.side === 'left' ? 'esquerda' : 'direita'}.` : undefined}
@@ -416,6 +426,8 @@ export const pagina: Pagina = {
   faca: {
     Previa: EdicaoDeUsuario,
     texto: 'Drawer para editar ou detalhar um item ao lado da página, inclusive com conteúdo longo.',
+    codigo:
+      '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  title="Editar usuário"\n  description="As mudanças valem no próximo acesso."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={salvar}>Salvar</Button>\n  </>}\n>\n  <InputText defaultValue="Ana Prado" label="Nome" />\n  <InputText defaultValue="ana@plenustech.com" label="E-mail" />\n</Drawer>',
   },
   evite: {
     Previa: ConfirmacaoEmDrawer,
@@ -425,6 +437,8 @@ export const pagina: Pagina = {
         fica ao lado sem bloquear a página não é Drawer: é o SidePanel.
       </>
     ),
+    codigo:
+      '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  size="sm"\n  title="Excluir usuário?"\n  footer={<Button variant="danger" onClick={excluir}>Excluir</Button>}\n>\n  Esta ação não pode ser desfeita.\n</Drawer>',
   },
   Variantes,
   Modos,

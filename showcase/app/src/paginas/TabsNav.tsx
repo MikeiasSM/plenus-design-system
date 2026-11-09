@@ -118,6 +118,16 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'TabsNav quando cada aba é uma página, com endereço próprio.',
+    codigo: `<TabsNav
+  as={Link}
+  label="Sistema"
+  current="papeis"
+  items={[
+    { key: 'usuarios', label: 'Usuários', linkProps: { to: '/sistema/usuarios' } },
+    { key: 'papeis', label: 'Papéis', linkProps: { to: '/sistema/papeis' } },
+    { key: 'tokens', label: 'Tokens', linkProps: { to: '/sistema/tokens' } },
+  ]}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -129,6 +139,14 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Tabs para trocar de página: a aba de painel não muda o endereço, e voltar no navegador sai da tela.',
+    codigo: `<Tabs
+  label="Sistema"
+  items={[
+    { key: 'usuarios', label: 'Usuários', content: 'Tela de Usuários' },
+    { key: 'papeis', label: 'Papéis', content: 'Tela de Papéis' },
+    { key: 'tokens', label: 'Tokens', content: 'Tela de Tokens' },
+  ]}
+/>`,
   },
   Modos,
   teclado: [

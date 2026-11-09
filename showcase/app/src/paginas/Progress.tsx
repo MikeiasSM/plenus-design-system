@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Progress, Spinner, type ProgressSize } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md'] as const;
 const ALTURAS: Record<ProgressSize, number> = { sm: 4, md: 8 };
@@ -82,6 +83,15 @@ function Envio() {
   );
 }
 
+const CODIGO_POR_TAMANHO: Record<ProgressSize, string> = {
+  sm: `<Progress label="Envio" size="sm" value={40} />
+<Progress label="Importação" showValue size="sm" value={82} />
+<Progress label="Processando" size="sm" />`,
+  md: `<Progress label="Envio" size="md" value={40} />
+<Progress label="Importação" showValue size="md" value={82} />
+<Progress label="Processando" size="md" />`,
+};
+
 function Variantes() {
   return (
     <div>
@@ -95,6 +105,7 @@ function Variantes() {
             <Progress label="Importação" showValue size={tamanho} value={82} />
             <Progress label="Processando" size={tamanho} />
           </div>
+          <VerCodigo codigo={CODIGO_POR_TAMANHO[tamanho]} />
         </div>
       ))}
     </div>
@@ -154,10 +165,12 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Progress quando se sabe quanto falta, como no envio de um arquivo.',
+    codigo: '<Progress label="Envio do arquivo" value={60} showValue />',
   },
   evite: {
     Previa: () => <Spinner label="Enviando arquivo" />,
     texto: 'Spinner num envio de que se conhece o percentual: ele diz só que há atividade, não quanto falta.',
+    codigo: '<Spinner label="Enviando arquivo" />',
   },
   Variantes,
   Modos,
