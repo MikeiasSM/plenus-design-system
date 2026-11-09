@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import {
+  AnnotatedSection,
   Avatar,
   Badge,
   Button,
@@ -10,11 +11,12 @@ import {
   IconPlus,
   InputNumber,
   PageHeader,
+  Sidebar,
   Switch,
   Table,
 } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
-import { Anotacao, Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
+import { Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
 
 export type Arranjo = 'anotado' | 'empilhado' | 'indice';
 
@@ -200,38 +202,18 @@ function CartaoComTitulo({ secao }: { secao: Secao }) {
   );
 }
 
-/** A lista "Nesta página", presa ao lado das seções enquanto a folha rola. */
-function NestaPagina() {
-  return (
-    <nav aria-label="Nesta página" className="nesta-pagina">
-      <span className="detalhe-da-linha">Nesta página</span>
-      {SECOES.map(({ id, titulo }) => (
-        <a
-          href={`#secao-${id}`}
-          key={id}
-          onClick={(evento) => {
-            evento.preventDefault();
-            document.getElementById(`secao-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-        >
-          {titulo}
-        </a>
-      ))}
-    </nav>
-  );
-}
-
 function Secoes({ arranjo }: { arranjo: Arranjo }) {
   if (arranjo === 'anotado') {
-    return (
-      <div className="anotado">
-        {SECOES.map((secao) => (
-          <Anotacao acao={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined} explicacao={secao.explicacao} key={secao.id} titulo={secao.titulo}>
-            {secao.corpo}
-          </Anotacao>
-        ))}
-      </div>
-    );
+    return SECOES.map((secao) => (
+      <AnnotatedSection
+        action={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined}
+        description={secao.explicacao}
+        key={secao.id}
+        title={secao.titulo}
+      >
+        <Card>{secao.corpo}</Card>
+      </AnnotatedSection>
+    ));
   }
 
   const empilhadas = (
@@ -243,10 +225,10 @@ function Secoes({ arranjo }: { arranjo: Arranjo }) {
   );
 
   return arranjo === 'indice' ? (
-    <div className="com-indice">
-      {empilhadas}
-      <NestaPagina />
-    </div>
+    <Sidebar>
+      <Sidebar.Main>{empilhadas}</Sidebar.Main>
+      <Sidebar.Index items={SECOES.map(({ id, titulo }) => ({ id: `secao-${id}`, label: titulo }))} />
+    </Sidebar>
   ) : (
     empilhadas
   );

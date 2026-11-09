@@ -143,7 +143,6 @@
 }
 
 .grade-uma,
-.grade-duas,
 .grade-painel,
 .grade-cartoes {
   grid-template-columns: minmax(0, 1fr);
@@ -262,52 +261,8 @@
   white-space: nowrap;
 }
 
-/* ---- Arranjos da seção de configuração ----------------------------------------- */
-
-.anotado {
-  display: grid;
-  gap: var(--pl-space-6);
-}
-
-.anotado-linha {
-  display: grid;
-  gap: var(--pl-space-3);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.anotado-nota h2 {
-  margin: 0 0 var(--pl-space-1);
-  font-family: var(--pl-font-heading);
-  font-size: var(--pl-type-title-size);
-  line-height: var(--pl-type-title-line-height);
-}
-
-.anotado-nota p {
-  margin: 0 0 var(--pl-space-3);
-  color: var(--pl-color-text-secondary);
-}
-
-.com-indice {
-  display: grid;
-  gap: var(--pl-space-5);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.nesta-pagina {
-  display: none;
-  position: sticky;
-  top: var(--pl-space-4);
-  gap: var(--pl-space-1);
-}
-
 /* Larguras medidas pela folha da página, não pela janela. Ficam por último para vencer as regras de base. */
 @container (min-width: 820px) {
-  .grade-duas {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  }
-
   .grade-cartoes {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
@@ -318,17 +273,5 @@
 
   .painel-metade {
     grid-column: span 2;
-  }
-
-  .anotado-linha {
-    grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr);
-  }
-
-  .com-indice {
-    grid-template-columns: minmax(0, 1fr) 168px;
-  }
-
-  .nesta-pagina {
-    display: grid;
   }
 }

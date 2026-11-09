@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardMetric, ChartBar, PageHeader, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
+import { Badge, Button, Card, CardMetric, ChartBar, PageHeader, Sidebar, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DIAS_DO_GRAFICO, LANCAMENTOS, PEDIDOS, PEDIDOS_POR_DIA, PRODUTOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -46,82 +46,84 @@ export function Inicio() {
         <PageHeader.Title>Bom dia, Suporte</PageHeader.Title>
         <PageHeader.Description>{urgentes} pendências são urgentes hoje. As demais podem esperar o fim do dia.</PageHeader.Description>
       </PageHeader>
-      <Coluna className="grade grade-duas" largura={1120}>
-        <div className="grade-coluna">
-          <Card>
-            <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
-            <Card.Body flush>
-              <Table label="Pendências" size="sm">
-                <Table.Header>
-                  <Table.Column id="pendencia">Pendência</Table.Column>
-                  <Table.Column align="end" id="quantidade" width="90px">Itens</Table.Column>
-                </Table.Header>
-                <Table.Body items={pendencias}>
-                  {(pendencia) => (
-                    <Table.Row id={pendencia.id}>
-                      <Table.Cell>
-                        <a href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}>
-                          {pendencia.titulo}
-                        </a>
-                        <span className="detalhe-da-linha">{pendencia.detalhe}</span>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>
-                      </Table.Cell>
-                    </Table.Row>
-                  )}
-                </Table.Body>
-              </Table>
-            </Card.Body>
-          </Card>
-          <Card>
-            <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." headingLevel={2} title="Pedidos por dia" />
-            <Card.Body>
-              <ChartBar
-                categories={DIAS_DO_GRAFICO}
-                height={200}
-                hideTitle
-                legend="none"
-                series={[{ label: 'Pedidos', values: PEDIDOS_POR_DIA }]}
-                title="Pedidos por dia nos últimos 14 dias"
-              />
-            </Card.Body>
-          </Card>
-        </div>
-        <div className="grade-coluna">
-          <CardMetric>
-            <Card.Header description="Novembro, até hoje." headingLevel={2} title="Vendas do mês" />
-            <CardMetric.Body>
-              <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} value={412380} />
-              <CardMetric.Trend
-                comparisons={[{ label: 'vs. outubro', change: 0.082, value: 31240, formatValue: (valor) => formatCurrency(valor, { compact: 'symbol' }) }]}
-                formatPercent={(razao) => formatPercent(razao, { decimals: 1 })}
-              />
-            </CardMetric.Body>
-          </CardMetric>
-          <Card>
-            <Card.Header headingLevel={2} title="Atividade recente" />
-            <Card.Body flush>
-              <Table label="Atividade recente" size="sm">
-                <Table.Header>
-                  <Table.Column id="evento">Evento</Table.Column>
-                  <Table.Column align="end" id="quando" width="90px">Quando</Table.Column>
-                </Table.Header>
-                <Table.Body items={atividades}>
-                  {(atividade) => (
-                    <Table.Row id={atividade.id}>
-                      <Table.Cell>{atividade.texto}</Table.Cell>
-                      <Table.Cell>{atividade.quando}</Table.Cell>
-                    </Table.Row>
-                  )}
-                </Table.Body>
-              </Table>
-            </Card.Body>
-            <Card.Footer>
-              <Button size="sm" variant="ghost">Ver tudo</Button>
-            </Card.Footer>
-          </Card>
-        </div>
+      <Coluna largura={1120}>
+        <Sidebar>
+          <Sidebar.Main className="grade-coluna">
+            <Card>
+              <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
+              <Card.Body flush>
+                <Table label="Pendências" size="sm">
+                  <Table.Header>
+                    <Table.Column id="pendencia">Pendência</Table.Column>
+                    <Table.Column align="end" id="quantidade" width="90px">Itens</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={pendencias}>
+                    {(pendencia) => (
+                      <Table.Row id={pendencia.id}>
+                        <Table.Cell>
+                          <a href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}>
+                            {pendencia.titulo}
+                          </a>
+                          <span className="detalhe-da-linha">{pendencia.detalhe}</span>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
+              </Card.Body>
+            </Card>
+            <Card>
+              <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." headingLevel={2} title="Pedidos por dia" />
+              <Card.Body>
+                <ChartBar
+                  categories={DIAS_DO_GRAFICO}
+                  height={200}
+                  hideTitle
+                  legend="none"
+                  series={[{ label: 'Pedidos', values: PEDIDOS_POR_DIA }]}
+                  title="Pedidos por dia nos últimos 14 dias"
+                />
+              </Card.Body>
+            </Card>
+          </Sidebar.Main>
+          <Sidebar.Aside className="grade-coluna">
+            <CardMetric>
+              <Card.Header description="Novembro, até hoje." headingLevel={2} title="Vendas do mês" />
+              <CardMetric.Body>
+                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} value={412380} />
+                <CardMetric.Trend
+                  comparisons={[{ label: 'vs. outubro', change: 0.082, value: 31240, formatValue: (valor) => formatCurrency(valor, { compact: 'symbol' }) }]}
+                  formatPercent={(razao) => formatPercent(razao, { decimals: 1 })}
+                />
+              </CardMetric.Body>
+            </CardMetric>
+            <Card>
+              <Card.Header headingLevel={2} title="Atividade recente" />
+              <Card.Body flush>
+                <Table label="Atividade recente" size="sm">
+                  <Table.Header>
+                    <Table.Column id="evento">Evento</Table.Column>
+                    <Table.Column align="end" id="quando" width="90px">Quando</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={atividades}>
+                    {(atividade) => (
+                      <Table.Row id={atividade.id}>
+                        <Table.Cell>{atividade.texto}</Table.Cell>
+                        <Table.Cell>{atividade.quando}</Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
+              </Card.Body>
+              <Card.Footer>
+                <Button size="sm" variant="ghost">Ver tudo</Button>
+              </Card.Footer>
+            </Card>
+          </Sidebar.Aside>
+        </Sidebar>
       </Coluna>
     </Pagina>
   );

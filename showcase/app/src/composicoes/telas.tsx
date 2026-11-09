@@ -40,11 +40,11 @@ export const telas: readonly Tela[] = [
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
-    componentes: ['AppShell', 'PageHeader', 'Card', 'CardMetric', 'ChartBar', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'PageHeader', 'Sidebar', 'Card', 'CardMetric', 'ChartBar', 'Table', 'Badge', 'Button'],
     nota: (
       <>
-        Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. A grade
-        passa a uma coluna quando a <strong>folha</strong> fica abaixo de 820px; a medida é de container query, não da janela.
+        Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
+        pelo <code>Sidebar</code> (<code>Sidebar.Main</code> e <code>Sidebar.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria.
       </>
     ),
     codigo: `<AppShell.Page>
@@ -54,13 +54,15 @@ export const telas: readonly Tela[] = [
       <PageHeader.Title>Bom dia, Suporte</PageHeader.Title>
       <PageHeader.Description>2 pendências são urgentes hoje.</PageHeader.Description>
     </PageHeader>
-    <div className="duas-colunas">
-      <Card>
-        <Card.Header title="O que pede ação hoje" description="…" />
-        <Card.Body flush><Table label="Pendências">…</Table></Card.Body>
-      </Card>
-      <CardMetric>…</CardMetric>
-    </div>
+    <Sidebar>
+      <Sidebar.Main>
+        <Card>
+          <Card.Header title="O que pede ação hoje" description="…" />
+          <Card.Body flush><Table label="Pendências">…</Table></Card.Body>
+        </Card>
+      </Sidebar.Main>
+      <Sidebar.Aside><CardMetric>…</CardMetric></Sidebar.Aside>
+    </Sidebar>
   </AppShell.PageBody>
 </AppShell.Page>`,
   },
@@ -103,11 +105,12 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'pedido',
     Componente: Pedido,
-    componentes: ['AppShell', 'PageHeader', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button'],
+    componentes: ['AppShell', 'PageHeader', 'Sidebar', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button'],
     nota: (
       <>
         Largura larga. A ação principal vai por último no cabeçalho, com até duas secundárias antes dela; o excedente cabe num{' '}
-        <code>Menu</code>. O voltar é um link da aplicação, nomeado por <code>label</code>.
+        <code>Menu</code>. O voltar é um link da aplicação, nomeado por <code>label</code>. Itens e dados de apoio dividem a largura pelo{' '}
+        <code>Sidebar</code>, com o resumo em <code>Sidebar.Aside</code>.
       </>
     ),
     codigo: `<PageHeader maxWidth="1120px">
@@ -120,7 +123,11 @@ export const telas: readonly Tela[] = [
     <Button variant="secondary">Editar</Button>
     <Button>Aprovar pedido</Button>
   </PageHeader.Actions>
-</PageHeader>`,
+</PageHeader>
+<Sidebar>
+  <Sidebar.Main>…itens do pedido…</Sidebar.Main>
+  <Sidebar.Aside>…cliente e totais…</Sidebar.Aside>
+</Sidebar>`,
   },
   {
     id: 'novo-pedido',
@@ -129,7 +136,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'novo-pedido',
     Componente: NovoPedido,
-    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea'],
+    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'Sidebar', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea'],
     nota: (
       <>
         Formulário inteiro usa <code>SaveBar</code> no lugar do salvar por cartão. Ela é a primeira coisa do corpo da página, para se prender
@@ -144,9 +151,10 @@ export const telas: readonly Tela[] = [
     onSave={salvar}
   />
   <PageHeader maxWidth="1120px">…</PageHeader>
-  <form>
-    <Card>…</Card>
-  </form>
+  <Sidebar>
+    <Sidebar.Main><Card>…</Card></Sidebar.Main>
+    <Sidebar.Aside><Card>…</Card></Sidebar.Aside>
+  </Sidebar>
 </AppShell.PageBody>`,
   },
   {
@@ -175,28 +183,27 @@ export const telas: readonly Tela[] = [
   {
     id: 'novo-cliente',
     nome: 'Formulário anotado',
-    resumo: 'Cadastro longo por assunto: título e explicação no trilho à esquerda, o cartão à direita.',
+    resumo: 'Cadastro longo por assunto, em AnnotatedSection: título e explicação no trilho à esquerda, o cartão à direita.',
     modulo: 'clientes',
     item: 'novo-cliente',
     Componente: NovoCliente,
-    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea'],
+    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea'],
     nota: (
       <>
-        O arranjo anotado é o primeiro na prioridade e o padrão na dúvida. Abaixo de 820px de folha, o trilho vira título acima do cartão.
+        O arranjo anotado é o primeiro na prioridade e o padrão na dúvida, feito pela <code>AnnotatedSection</code>. Abaixo de 900px de largura própria, o trilho vira título acima do cartão.
         O rascunho aparece na <code>SaveBar</code>, com os rótulos trocados para Cancelar e Salvar cliente.
       </>
     ),
-    codigo: `<div className="anotado-linha">
-  <div className="anotado-nota">
-    <h2>Identificação</h2>
-    <p>Como o cliente aparece nos pedidos e nas notas fiscais.</p>
-  </div>
-  <Card aria-label="Identificação">
+    codigo: `<AnnotatedSection
+  title="Identificação"
+  description="Como o cliente aparece nos pedidos e nas notas fiscais."
+>
+  <Card>
     <Card.Body>
       <InputText label="CNPJ" required />
     </Card.Body>
   </Card>
-</div>`,
+</AnnotatedSection>`,
   },
   {
     id: 'depositos',
@@ -311,29 +318,31 @@ export const telas: readonly Tela[] = [
   {
     id: 'configuracao-anotada',
     nome: 'Seção de configuração, anotada',
-    resumo: 'Arranjo anotado (trilho), 1120px: o primeiro na prioridade. Título e explicação à esquerda, o cartão linha a linha.',
+    resumo: 'AnnotatedSection, 1120px: o primeiro arranjo na prioridade. Título e explicação à esquerda, o cartão linha a linha.',
     modulo: 'configuracoes',
     item: 'configuracao-anotada',
     Componente: configuracao('anotado'),
-    componentes: SECAO_DE_CONFIGURACAO,
+    componentes: ['AnnotatedSection', ...SECAO_DE_CONFIGURACAO],
     nota: (
       <>
         Na dúvida, o anotado. Cada cartão de ajustes tem Descartar e Salvar, ativos só com alteração pendente, e a situação (“Alterações não
         salvas”, “Salvo agora”). A ação destrutiva fica num cartão próprio, no fim, com botão no tom de perigo.
       </>
     ),
-    codigo: `<Card>
-  <Card.Body>
-    <FieldRow label="Desconto máximo (%)" description="Acima dele, o pedido é recusado.">
-      {({ id, describedBy }) => <InputNumber id={id} aria-describedby={describedBy} />}
-    </FieldRow>
-  </Card.Body>
-  <Card.Footer>
-    <span>Alterações não salvas</span>
-    <Button variant="secondary" disabled={!alterado}>Descartar</Button>
-    <Button disabled={!alterado}>Salvar</Button>
-  </Card.Footer>
-</Card>`,
+    codigo: `<AnnotatedSection title="Limites" description="Até onde o vendedor concede sozinho.">
+  <Card>
+    <Card.Body>
+      <FieldRow label="Desconto máximo (%)" description="Acima dele, o pedido é recusado.">
+        {({ id, describedBy }) => <InputNumber id={id} aria-describedby={describedBy} />}
+      </FieldRow>
+    </Card.Body>
+    <Card.Footer>
+      <span>Alterações não salvas</span>
+      <Button variant="secondary" disabled={!alterado}>Descartar</Button>
+      <Button disabled={!alterado}>Salvar</Button>
+    </Card.Footer>
+  </Card>
+</AnnotatedSection>`,
   },
   {
     id: 'configuracao-empilhada',
@@ -358,22 +367,20 @@ export const telas: readonly Tela[] = [
   {
     id: 'configuracao-com-indice',
     nome: 'Seção de configuração, com índice',
-    resumo: 'Arranjo com índice, 1000px: cartões em coluna e a lista Nesta página ao lado, acompanhando a rolagem.',
+    resumo: 'Sidebar.Index, 1000px: cartões em coluna e a lista Nesta página ao lado, marcando a seção à vista.',
     modulo: 'configuracoes',
     item: 'configuracao-anotada',
     Componente: configuracao('indice'),
-    componentes: [...SECAO_DE_CONFIGURACAO, 'nav "Nesta página"'],
+    componentes: ['Sidebar', ...SECAO_DE_CONFIGURACAO],
     nota: (
       <>
-        Vale para a seção longa. O índice lateral some abaixo de 820px de folha e a lista vira coluna única. A biblioteca ainda não tem o índice:
-        aqui ele é uma lista de links presa ao lado, sem marcar a seção atual.
+        Vale para a seção longa. O <code>Sidebar.Index</code> fica preso ao lado e marca a seção à vista; escolher um link rola até ela sem mudar o endereço. Abaixo de
+        900px de largura própria, o índice some e as seções seguem em coluna única.
       </>
     ),
-    codigo: `<div className="com-indice">
-  <div className="coluna-de-cartoes">{secoes}</div>
-  <nav aria-label="Nesta página">
-    <a href="#secao-limites">Limites</a>
-  </nav>
-</div>`,
+    codigo: `<Sidebar>
+  <Sidebar.Main>{secoes}</Sidebar.Main>
+  <Sidebar.Index items={[{ id: 'secao-limites', label: 'Limites' }]} />
+</Sidebar>`,
   },
 ];
