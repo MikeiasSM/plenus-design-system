@@ -241,6 +241,28 @@ function Modos() {
         </p>
       </div>
       <div className="subsection">
+        <h3>Vários indicadores num cartão</h3>
+        <div style={{ maxWidth: 320 }}>
+          <CardMetric>
+            <Card.Header title="Como o negócio está" />
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Vendas do mês" value={412380} />
+              <CardMetric.Trend comparisons={[{ change: 0.082, label: 'vs. mês anterior' }]} />
+            </CardMetric.Body>
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Ticket médio" value={187.4} />
+            </CardMetric.Body>
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Contas a receber vencidas" value={38950} />
+            </CardMetric.Body>
+          </CardMetric>
+        </div>
+        <p className="note">
+          Cada indicador é um <code>CardMetric.Body</code> com o próprio <code>CardMetric.Value</code>, nomeado pelo{' '}
+          <code>label</code>. Os corpos se empilham do topo, separados por uma linha.
+        </p>
+      </div>
+      <div className="subsection">
         <h3>Barra vertical</h3>
         <div style={{ maxWidth: 320 }}>
           <CardMetric>

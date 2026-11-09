@@ -36,7 +36,7 @@ export const telas: readonly Tela[] = [
   {
     id: 'inicio',
     nome: 'Tela inicial',
-    resumo: 'O que pede ação hoje, o ritmo dos pedidos e o resumo do negócio, em duas colunas.',
+    resumo: 'O que pede ação hoje, o ritmo dos pedidos e os indicadores do negócio, em duas colunas.',
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
@@ -45,7 +45,8 @@ export const telas: readonly Tela[] = [
       <>
         Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
         pelo <code>Columns</code> (<code>Columns.Main</code> e <code>Columns.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria. A atividade
-        recente é um <code>ActivityFeed</code>: o acontecimento e, abaixo, o momento.
+        recente é um <code>ActivityFeed</code>: o acontecimento e, abaixo, o momento. Os indicadores do negócio ficam num só <code>CardMetric</code>, com um
+        <code>CardMetric.Body</code> por indicador.
       </>
     ),
     codigo: `<AppShell.Page>
@@ -67,7 +68,16 @@ export const telas: readonly Tela[] = [
         </Card>
       </Columns.Main>
       <Columns.Aside>
-        <CardMetric>…</CardMetric>
+        <CardMetric>
+          <Card.Header title="Como o negócio está" />
+          <CardMetric.Body>
+            <CardMetric.Value label="Vendas do mês" value={412380} />
+            <CardMetric.Trend comparisons={comparacoes} />
+          </CardMetric.Body>
+          <CardMetric.Body>
+            <CardMetric.Value label="Ticket médio" value={187.4} />
+          </CardMetric.Body>
+        </CardMetric>
         <Card>
           <Card.Header title="Atividade recente" />
           <Card.Body>

@@ -83,13 +83,19 @@ export function Inicio() {
           </Columns.Main>
           <Columns.Aside className="grade-coluna">
             <CardMetric>
-              <Card.Header description="Novembro, até hoje." headingLevel={2} title="Vendas do mês" />
+              <Card.Header description="Novembro, até hoje." headingLevel={2} title="Como o negócio está" />
               <CardMetric.Body>
-                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} value={412380} />
+                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Vendas do mês" value={412380} />
                 <CardMetric.Trend
                   comparisons={[{ label: 'vs. outubro', change: 0.082, value: 31240, formatValue: (valor) => formatCurrency(valor, { compact: 'symbol' }) }]}
                   formatPercent={(razao) => formatPercent(razao, { decimals: 1 })}
                 />
+              </CardMetric.Body>
+              <CardMetric.Body>
+                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Ticket médio" value={187.4} />
+              </CardMetric.Body>
+              <CardMetric.Body>
+                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Contas a receber vencidas" value={38950} />
               </CardMetric.Body>
             </CardMetric>
             <Card>

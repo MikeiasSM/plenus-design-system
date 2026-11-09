@@ -230,6 +230,25 @@ describe('CardMetric', () => {
     expect(onActivate).toHaveBeenCalledTimes(1);
   });
 
+  it('varios indicadores no mesmo cartao mostram cada valor com seu rotulo', () => {
+    render(
+      <CardMetric>
+        <Card.Header title="Como o negócio está" />
+        <CardMetric.Body>
+          <CardMetric.Value label="Vendas do mês" value={412380} />
+        </CardMetric.Body>
+        <CardMetric.Body>
+          <CardMetric.Value label="Ticket médio" value={187} />
+        </CardMetric.Body>
+      </CardMetric>,
+    );
+
+    expect(screen.getByText('Vendas do mês')).toBeInTheDocument();
+    expect(screen.getByText('Ticket médio')).toBeInTheDocument();
+    expect(screen.getByText(/412\.380/)).toBeInTheDocument();
+    expect(screen.getByText(/187/)).toBeInTheDocument();
+  });
+
   it('as partes so existem dentro da moldura', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
