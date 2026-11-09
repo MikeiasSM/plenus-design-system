@@ -4,6 +4,15 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]
 
+## [Não publicado]
+
+### Adicionado
+
+- `AnnotatedSection`: seção com título e explicação num trilho à esquerda e o conteúdo à direita, para telas de configuração e formulários por assunto. O título nomeia a seção e sai em `h2` (`headingLevel` para outro nível); `description` e `action` ficam abaixo dele. Seções vizinhas se separam por uma linha.
+- `Sidebar`: conteúdo principal com uma coluna ao lado. O `Sidebar.Aside` é a coluna de complemento, em um terço da largura. O `Sidebar.Index` é o índice "Nesta página": marca a seção à vista enquanto a página rola, e escolher um link rola até a seção e leva o foco para ela, sem alterar o endereço.
+- As duas medem a própria largura: abaixo de 900px passam a uma coluna, o `Sidebar.Aside` desce para baixo do conteúdo e o `Sidebar.Index` some.
+- Showcase: família Predefinições, com a página de cada componente. As composições de configuração, de cadastro e de pedidos passam a usá-los.
+
 ## [0.6.3] — 2026-11-06
 
 ### Corrigido

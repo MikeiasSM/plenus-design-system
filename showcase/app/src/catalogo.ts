@@ -148,4 +148,11 @@ export const familias: readonly Familia[] = [
     nome: 'Ícones',
     componentes: [componente('Icon', 'Biblioteca oficial de ícones do Design System.', { importa: 'IconSearch' })],
   },
+  {
+    nome: 'Predefinições',
+    componentes: [
+      componente('AnnotatedSection', 'Seção com título e explicação num trilho à esquerda e o conteúdo à direita.'),
+      componente('Sidebar', 'Conteúdo principal com uma coluna lateral ou com o índice da página.'),
+    ],
+  },
 ];

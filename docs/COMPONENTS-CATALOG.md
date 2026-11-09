@@ -300,7 +300,20 @@ A biblioteca tem duas entradas. O ponto de entrada principal traz os ícones de 
 
 Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 
-## 11. Fora do escopo
+## 11. Predefinições
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `AnnotatedSection` | Seção com título e explicação num trilho à esquerda e o conteúdo à direita. | Disponível |
+| `Sidebar` | Conteúdo principal com uma coluna lateral ou com o índice da página. | Disponível |
+
+As predefinições são arranjos de página prontos, montados com os demais componentes, para o produto partir deles em vez de refazer o leiaute em cada tela. Elas arranjam o conteúdo sem impô-lo: o que vai em cada parte é do produto. Cada uma mede a própria largura, e não a da janela, e abaixo de 900px, o `--pl-bp-sm`, passa a uma coluna.
+
+A `AnnotatedSection` serve às telas de configuração e aos formulários por assunto. O título nomeia a seção, que é uma região da página, e sai em `h2`, com `headingLevel` para outro nível; a explicação e uma ação opcional ficam abaixo dele. Seções vizinhas se separam por uma linha. Em uma coluna, o trilho fica acima do conteúdo.
+
+O `Sidebar` é a coluna lateral do conteúdo, não a navegação da aplicação, que é o `AppShell`. Ao lado do `Sidebar.Main` vai uma de duas partes. O `Sidebar.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Sidebar.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
+
+## 12. Fora do escopo
 
 O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 

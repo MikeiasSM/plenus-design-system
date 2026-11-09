@@ -483,3 +483,13 @@ export type {
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { ChartPalette, SeriesAppearance, SeriesIntent } from './components/charts/palette';
 export type { ChartColorCategory, ChartColorScale } from './components/charts/scales';
+export { AnnotatedSection } from './components/presets/AnnotatedSection';
+export type { AnnotatedSectionProps } from './components/presets/AnnotatedSection';
+export { Sidebar } from './components/presets/Sidebar';
+export type {
+  SidebarAsideProps,
+  SidebarIndexItem,
+  SidebarIndexProps,
+  SidebarMainProps,
+  SidebarProps,
+} from './components/presets/Sidebar';

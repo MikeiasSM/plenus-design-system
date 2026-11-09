@@ -1,0 +1,58 @@
+.annotatedSection {
+  container-type: inline-size;
+  padding-block: var(--pl-space-5);
+}
+
+.annotatedSection:first-child {
+  padding-top: var(--pl-space-1);
+}
+
+.annotatedSection + .annotatedSection {
+  border-top: 1px solid var(--pl-color-border);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--pl-space-3) var(--pl-space-6);
+  align-items: start;
+}
+
+.note {
+  display: grid;
+  gap: var(--pl-space-1);
+  align-content: start;
+}
+
+.title {
+  margin: 0;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-title-size);
+  font-weight: var(--pl-type-title-weight);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.description {
+  margin: 0;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.action {
+  justify-self: start;
+  margin-top: var(--pl-space-2);
+}
+
+.content {
+  min-width: 0;
+}
+
+/* 900px e o --pl-bp-sm; variavel CSS nao entra em @container. */
+@container (min-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+  }
+}
