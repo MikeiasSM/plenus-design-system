@@ -333,6 +333,17 @@ const cores = resolveSeriesColors([{}, {}]);
       </div>
     ),
     texto: 'Uma categoria com duas leituras de naturezas diferentes: o volume em barra, a taxa em linha, com o eixo declarado.',
+    codigo: `<ChartCombo
+  title="Faturamento e conversão"
+  categories={meses}
+  series={[
+    { kind: 'bar', label: 'Faturamento', values: faturamento },
+    { kind: 'line', label: 'Conversão', values: conversao, axis: 'right' },
+  ]}
+  height={180}
+  formatValue={formatarCompacto}
+  formatRightValue={(valor) => formatPercent(valor / 100, { decimals: 1 })}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -350,6 +361,16 @@ const cores = resolveSeriesColors([{}, {}]);
       </div>
     ),
     texto: 'Um único tipo de marca: com só barras ou só linhas, ChartBar e ChartLine são os componentes certos.',
+    codigo: `<ChartCombo
+  title="Faturamento e produtos"
+  categories={meses}
+  series={[
+    { kind: 'bar', label: 'Faturamento', values: faturamento },
+    { kind: 'bar', label: 'Produtos', values: produtos },
+  ]}
+  height={180}
+  formatValue={formatarCompacto}
+/>`,
   },
   Modos,
   teclado: [

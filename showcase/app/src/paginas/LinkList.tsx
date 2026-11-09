@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef, MouseEvent } from 'react';
 import { Badge, Card, IconClock, IconExclamationTriangle, IconFile, LinkList, type LinkListLayout, type LinkListTone } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 /** Faz o papel do link do roteador: aqui, um href de verdade trocaria a página do Showcase. */
 function LinkDaDemonstracao(props: ComponentPropsWithoutRef<'a'>) {
@@ -93,6 +94,37 @@ function Modos() {
         <p className="note">
           Em linhas, a seta ao fim e a divisória entre os itens. Em grade, as células se ajustam à largura e não levam seta.
         </p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Body flush>
+    <LinkList as={Link} aria-label="Em linhas">
+      <LinkList.Item
+        href="/a"
+        icon={<IconClock />}
+        title="Pedidos aguardando aprovação"
+        description="Parados na fila do gerente"
+        trailing={<Badge>3</Badge>}
+      />
+      <LinkList.Item
+        href="/b"
+        icon={<IconFile />}
+        title="Lançamentos para conciliar"
+        description="Extrato de outubro"
+        trailing={<Badge>112</Badge>}
+      />
+    </LinkList>
+  </Card.Body>
+</Card>
+<Card>
+  <Card.Body>
+    <LinkList as={Link} aria-label="Em grade" layout="grid">
+      <LinkList.Item href="/a" title="Dados da empresa" description="Razão social, CNPJ e logotipo" />
+      <LinkList.Item href="/b" title="Usuários e permissões" description="12 usuários, 4 perfis" />
+      <LinkList.Item href="/c" title="Filiais" description="Matriz e 4 lojas" />
+    </LinkList>
+  </Card.Body>
+</Card>`}
+        />
       </div>
       <div className="subsection">
         <h3>Tom</h3>
@@ -114,6 +146,23 @@ function Modos() {
         <p className="note">
           <code>tone=&quot;danger&quot;</code> pinta o ícone e a descrição; o nome acessível continua sendo o texto do item.
         </p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Body flush>
+    <LinkList as={Link} aria-label="Tom">
+      <LinkList.Item href="/a" icon={<IconFile />} title="Estoque baixo" description="Reponha antes de faltar" />
+      <LinkList.Item
+        href="/b"
+        icon={<IconExclamationTriangle />}
+        title="Certificado digital vence em 18 dias"
+        description="Renove para não parar a emissão"
+        tone="danger"
+        trailing={<Badge tone="danger">1</Badge>}
+      />
+    </LinkList>
+  </Card.Body>
+</Card>`}
+        />
       </div>
     </>
   );
@@ -176,6 +225,10 @@ export const pagina: Pagina = {
       </LinkList>
     ),
     texto: 'LinkList para os destinos de uma tela: cada item leva a uma página.',
+    codigo: `<LinkList as={Link} aria-label="Destinos">
+  <LinkList.Item href="/pedidos" title="Pedidos" description="Onde cada pendência se resolve" />
+  <LinkList.Item href="/configuracoes" title="Configurações" description="Ajustes da empresa" />
+</LinkList>`,
   },
   evite: {
     Previa: () => (
@@ -185,6 +238,10 @@ export const pagina: Pagina = {
       </LinkList>
     ),
     texto: 'LinkList para escolher itens, que é o papel da List, ou para ações que não navegam, que continuam sendo botão.',
+    codigo: `<LinkList as={Link} aria-label="Ações">
+  <LinkList.Item href="#" title="Excluir pedido" />
+  <LinkList.Item href="#" title="Aprovar todos" />
+</LinkList>`,
   },
   Modos,
   teclado: [

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Avatar, Button, Skeleton, type SkeletonShape } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const FORMAS = ['line', 'circle', 'block'] as const;
 
@@ -100,16 +101,23 @@ function Cartao() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Skeleton shape="line" />
+<Skeleton shape="circle" />
+<Skeleton shape="block" />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {FORMAS.map((forma) => (
-        <div className="demo-box stack" key={forma}>
-          <Skeleton shape={forma} />
-          <code>{forma}</code>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {FORMAS.map((forma) => (
+          <div className="demo-box stack" key={forma}>
+            <Skeleton shape={forma} />
+            <code>{forma}</code>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

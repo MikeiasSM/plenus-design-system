@@ -10,6 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const PERIODOS = [
   { label: 'Dia', value: 'dia' },
@@ -102,43 +103,62 @@ function PeriodoDoPainel() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<SegmentedControl label="Período" items={periodos} size="sm" />
+<SegmentedControl label="Período" items={periodos} size="md" />
+<SegmentedControl label="Período" items={periodos} size="lg" />
+
+<SegmentedControl label="Forma de exibição" items={visoes} />
+<SegmentedControl label="Forma de exibição" items={visoes} iconOnly />
+
+<SegmentedControl
+  label="Período"
+  items={[
+    { label: 'Dia', value: 'dia' },
+    { label: 'Semana', value: 'semana', disabled: true },
+  ]}
+/>
+<SegmentedControl label="Período" items={periodos} disabled />`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>size</span>
-        <span>texto</span>
-        <span>ícone e texto</span>
-        <span>iconOnly</span>
-        <span>item desabilitado</span>
-        <span>disabled</span>
-      </div>
-      {TAMANHOS.map((tamanho) => (
-        <div className="matrix-row" key={tamanho}>
-          <code>{tamanho}</code>
-          <span>
-            <SegmentedControl defaultValue="dia" items={PERIODOS.slice(0, 2)} label="Período" size={tamanho} />
-          </span>
-          <span>
-            <SegmentedControl defaultValue="grafico" items={VISOES.slice(0, 2)} label="Forma de exibição" size={tamanho} />
-          </span>
-          <span>
-            <SegmentedControl defaultValue="grafico" iconOnly items={VISOES} label="Forma de exibição" size={tamanho} />
-          </span>
-          <span>
-            <SegmentedControl
-              defaultValue="dia"
-              items={[PERIODOS[0], { ...PERIODOS[1], disabled: true }]}
-              label="Período"
-              size={tamanho}
-            />
-          </span>
-          <span>
-            <SegmentedControl defaultValue="dia" disabled items={PERIODOS.slice(0, 2)} label="Período" size={tamanho} />
-          </span>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>size</span>
+          <span>texto</span>
+          <span>ícone e texto</span>
+          <span>iconOnly</span>
+          <span>item desabilitado</span>
+          <span>disabled</span>
         </div>
-      ))}
-    </div>
+        {TAMANHOS.map((tamanho) => (
+          <div className="matrix-row" key={tamanho}>
+            <code>{tamanho}</code>
+            <span>
+              <SegmentedControl defaultValue="dia" items={PERIODOS.slice(0, 2)} label="Período" size={tamanho} />
+            </span>
+            <span>
+              <SegmentedControl defaultValue="grafico" items={VISOES.slice(0, 2)} label="Forma de exibição" size={tamanho} />
+            </span>
+            <span>
+              <SegmentedControl defaultValue="grafico" iconOnly items={VISOES} label="Forma de exibição" size={tamanho} />
+            </span>
+            <span>
+              <SegmentedControl
+                defaultValue="dia"
+                items={[PERIODOS[0], { ...PERIODOS[1], disabled: true }]}
+                label="Período"
+                size={tamanho}
+              />
+            </span>
+            <span>
+              <SegmentedControl defaultValue="dia" disabled items={PERIODOS.slice(0, 2)} label="Período" size={tamanho} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -204,6 +224,7 @@ export const pagina: Pagina = {
   faca: {
     Previa: () => <SegmentedControl defaultValue="dia" items={PERIODOS.slice(0, 3)} label="Período" />,
     texto: 'Poucas opções curtas que mudam o que a tela mostra, como o período de um painel.',
+    codigo: '<SegmentedControl label="Período" items={periodos} defaultValue="dia" />',
   },
   evite: {
     Previa: () => (
@@ -213,6 +234,8 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Mais de cinco opções, ou opções longas, num trilho que não cabe. A escolha é um Select, como o de baixo. Para trocar um painel de conteúdo, Tabs.',
+    codigo:
+      '<SegmentedControl label="Período" items={periodos} size="sm" defaultValue="dia" />\n<Select label="Período" options={periodos} defaultValue="dia" />',
   },
   Variantes,
   Modos,

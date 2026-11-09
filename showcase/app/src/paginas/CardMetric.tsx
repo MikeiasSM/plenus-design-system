@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Card, CardMetric, formatCurrency, type CardTrailingWhenNarrow } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const moeda = (valor: number) => formatCurrency(valor);
 const moedaCompacta = (valor: number) => formatCurrency(valor, { compact: 'symbol' });
@@ -172,6 +173,135 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DA_LINHA_DE_CARTOES = `<CardMetric onActivate={abrirFaturamento}>
+  <Card.Header
+    title="Faturamento"
+    description="Vendas faturadas no período"
+    trailing={<CardMetric.Trend comparisons={comparacoes} />}
+  />
+  <CardMetric.Body>
+    <CardMetric.Value
+      value={1523400.5}
+      formatValue={moedaCompacta}
+      formatTooltipValue={moeda}
+    />
+  </CardMetric.Body>
+</CardMetric>
+
+<CardMetric>
+  <Card.Header title="Prazo médio de recebimento" description="Dias entre a venda e o recebimento" />
+  <CardMetric.Body>
+    <CardMetric.Value value={38} formatValue={(dias) => \`\${dias} dias\`} />
+    <CardMetric.Trend
+      comparisons={[{ label: 'vs. mês anterior', change: -0.08, polarity: 'lowerIsBetter' }]}
+    />
+  </CardMetric.Body>
+</CardMetric>
+
+<CardMetric onActivate={abrirContasAReceber}>
+  <Card.Header
+    title="Contas a receber"
+    trailing={
+      <CardMetric.Trend
+        comparisons={[{ label: 'vs. mês anterior', change: 0.052, polarity: 'lowerIsBetter' }]}
+      />
+    }
+  />
+  <CardMetric.Body>
+    <CardMetric.Value
+      value={1043000}
+      label="Total em aberto"
+      formatValue={moedaCompacta}
+      formatTooltipValue={moeda}
+    />
+    <CardMetric.Bar title="Situação dos títulos" segments={titulos} formatValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>
+
+<CardMetric onActivate={abrirTicketMedio}>
+  <Card.Header title="Ticket médio" description="Por venda, nos últimos 30 dias" />
+  <CardMetric.Body orientation="horizontal">
+    <CardMetric.Value value={187.4} formatValue={moeda} />
+    <CardMetric.Chart
+      title="Ticket médio diário"
+      categories={dias}
+      values={ticket}
+      formatValue={moeda}
+      showTooltip
+    />
+  </CardMetric.Body>
+</CardMetric>`;
+
+const CODIGO_DA_MASCARA = `<CardMetric>
+  <Card.Header
+    title="Bloco, a máscara padrão"
+    description='layout="stack"'
+    trailing={<CardMetric.Trend comparisons={comparacoes} layout="stack" />}
+  />
+  <CardMetric.Body>
+    <CardMetric.Value value={1523400.5} formatValue={moedaCompacta} formatTooltipValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>
+
+<CardMetric>
+  <Card.Header
+    title="Tabela"
+    description='layout="table"'
+    trailing={<CardMetric.Trend comparisons={comparacoes} layout="table" />}
+  />
+  <CardMetric.Body>
+    <CardMetric.Value value={1523400.5} formatValue={moedaCompacta} formatTooltipValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>
+
+<CardMetric>
+  <Card.Header
+    title="Frase única"
+    description="{value}{icon} {label} [({description})]"
+    trailing={
+      <CardMetric.Trend
+        comparisons={comparacoes}
+        layout="stack"
+        mask="{value}{icon} {label} [({description})]"
+        badgeMask="{icon}{value}"
+      />
+    }
+  />
+  <CardMetric.Body>
+    <CardMetric.Value value={1523400.5} formatValue={moedaCompacta} formatTooltipValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>`;
+
+const CODIGO_DA_BARRA_VERTICAL = `<CardMetric>
+  <Card.Header title="Caixa e Banco Agora" description="Saldo atual em caixa e nas contas bancárias." />
+  <CardMetric.Body>
+    <CardMetric.Value value={46871.75} formatValue={moedaCompacta} formatTooltipValue={moeda} />
+    <CardMetric.Bar
+      title="Composição do saldo"
+      segments={saldos}
+      orientation="vertical"
+      formatValue={moeda}
+      palette={{ base: '#67BD50' }}
+      paletteOrder="byValue"
+      smallSegmentThreshold={0.05}
+    />
+  </CardMetric.Body>
+</CardMetric>`;
+
+const CODIGO_DE_VARIOS_INDICADORES = `<CardMetric>
+  <Card.Header title="Como o negócio está" />
+  <CardMetric.Body>
+    <CardMetric.Value value={412380} label="Vendas do mês" formatValue={moeda} />
+    <CardMetric.Trend comparisons={[{ label: 'vs. mês anterior', change: 0.082 }]} />
+  </CardMetric.Body>
+  <CardMetric.Body>
+    <CardMetric.Value value={187.4} label="Ticket médio" formatValue={moeda} />
+  </CardMetric.Body>
+  <CardMetric.Body>
+    <CardMetric.Value value={38950} label="Contas a receber vencidas" formatValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>`;
+
 function Modos() {
   return (
     <div className="stack">
@@ -215,6 +345,7 @@ function Modos() {
           tendência vai no cabeçalho ou junto do valor, como o produto montar. No balão da tendência do faturamento, cada
           comparação leva o próprio tom, favorável, desfavorável ou neutra, e a explicação quebra livre abaixo dela.
         </p>
+        <VerCodigo codigo={CODIGO_DA_LINHA_DE_CARTOES} />
       </div>
       <div className="subsection">
         <h3>Máscara da tendência</h3>
@@ -239,6 +370,7 @@ function Modos() {
           e o trecho entre colchetes aparece inteiro ou não aparece. O <code>layout</code> decide a geometria: em bloco cada linha
           flui; em tabela a primeira linha vira colunas alinhadas. Passe o ponteiro ou o foco no selo para abrir o balão.
         </p>
+        <VerCodigo codigo={CODIGO_DA_MASCARA} />
       </div>
       <div className="subsection">
         <h3>Vários indicadores num cartão</h3>
@@ -261,6 +393,7 @@ function Modos() {
           Cada indicador é um <code>CardMetric.Body</code> com o próprio <code>CardMetric.Value</code>, nomeado pelo{' '}
           <code>label</code>. Os corpos se empilham do topo, separados por uma linha.
         </p>
+        <VerCodigo codigo={CODIGO_DE_VARIOS_INDICADORES} />
       </div>
       <div className="subsection">
         <h3>Barra vertical</h3>
@@ -286,6 +419,7 @@ function Modos() {
             </CardMetric.Body>
           </CardMetric>
         </div>
+        <VerCodigo codigo={CODIGO_DA_BARRA_VERTICAL} />
       </div>
     </div>
   );

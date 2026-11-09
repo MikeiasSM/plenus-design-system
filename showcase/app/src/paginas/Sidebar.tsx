@@ -340,6 +340,39 @@ export const pagina: Pagina = {
   faca: {
     Previa: AplicacaoRecolhida,
     texto: 'Sidebar dentro do AppShell, com os módulos, os links e a conta vindos do produto.',
+    codigo: `<AppShell defaultOpen={false}>
+  <Sidebar>
+    <Sidebar.Rail
+      brand={<Marca />}
+      footer={
+        <>
+          <Sidebar.RailItem icon={<IconSliders />} label="Configurações" />
+          <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
+            <Avatar name="Roman Mecânica" size="sm" />
+          </Sidebar.RailAccount>
+        </>
+      }
+    >
+      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
+      …
+    </Sidebar.Rail>
+    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+      <Sidebar.Group label="Operação">
+        <Sidebar.Item
+          current
+          icon={<IconFile />}
+          label="Pedidos"
+          trailing={<Badge size="sm">12</Badge>}
+        />
+        …
+      </Sidebar.Group>
+    </Sidebar.Panel>
+  </Sidebar>
+  <AppShell.Page>
+    <AppShell.PageBar>…</AppShell.PageBar>
+    <AppShell.PageBody>…</AppShell.PageBody>
+  </AppShell.Page>
+</AppShell>`,
   },
   evite: {
     Previa: ModuloSemSubmenu,
@@ -349,6 +382,10 @@ export const pagina: Pagina = {
         conteúdo da página, o componente é o <code>Columns</code>.
       </>
     ),
+    codigo: `<Sidebar>
+  <Sidebar.Rail>…</Sidebar.Rail>
+  <Sidebar.Panel label="Vendas">…</Sidebar.Panel>
+</Sidebar>`,
   },
   Modos,
   teclado: [

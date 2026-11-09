@@ -191,6 +191,22 @@ export const pagina: Pagina = {
   faca: {
     Previa: MolduraRecolhida,
     texto: 'AppShell uma vez, na raiz da aplicação, com a Sidebar e a página como filhos.',
+    codigo: `<AppShell defaultOpen={false}>
+  <Sidebar>
+    <Sidebar.Rail brand={<Marca />}>
+      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
+      …
+    </Sidebar.Rail>
+    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+      <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
+      …
+    </Sidebar.Panel>
+  </Sidebar>
+  <AppShell.Page>
+    <AppShell.PageBar>…</AppShell.PageBar>
+    <AppShell.PageBody>…</AppShell.PageBody>
+  </AppShell.Page>
+</AppShell>`,
   },
   evite: {
     Previa: MolduraPadrao,
@@ -199,6 +215,22 @@ export const pagina: Pagina = {
         Rolar a página inteira. A moldura ocupa a janela: só o <code>AppShell.PageBody</code>, a lista do submenu e os painéis laterais rolam.
       </>
     ),
+    codigo: `<AppShell>
+  <Sidebar>
+    <Sidebar.Rail brand={<Marca />}>
+      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
+      …
+    </Sidebar.Rail>
+    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+      <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
+      …
+    </Sidebar.Panel>
+  </Sidebar>
+  <AppShell.Page>
+    <AppShell.PageBar>…</AppShell.PageBar>
+    <AppShell.PageBody>…</AppShell.PageBody>
+  </AppShell.Page>
+</AppShell>`,
   },
   Modos,
   teclado: [

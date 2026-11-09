@@ -1,5 +1,6 @@
 import { Alert, Button, ToastProvider, ToastRegion, showToast, useToast, type ToastOptions, type ToastTone } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TONS = ['info', 'success', 'warning', 'danger'] as const;
 const DURACOES = ['padrão', '3000', '10000', 'null'] as const;
@@ -78,38 +79,62 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `showToast({
+  tone: 'success',
+  title: 'Versão publicada',
+  description: 'As alterações já estão no ar.',
+});
+
+showToast({ tone: 'info', title: 'Sincronização agendada para as 3h' });
+
+showToast({
+  tone: 'warning',
+  title: 'Espaço quase esgotado',
+  description: 'Restam 8% do armazenamento.',
+});
+
+showToast({
+  tone: 'danger',
+  title: 'Falha ao salvar',
+  description: 'A conexão falhou. O item continua na fila.',
+  action: { label: 'Tentar de novo', onClick: salvar },
+});`;
+
 function Variantes() {
   return (
-    <div className="demo-row">
-      <Button
-        onClick={() => showToast({ description: 'As alterações já estão no ar.', title: 'Versão publicada', tone: 'success' })}
-        variant="secondary"
-      >
-        Sucesso
-      </Button>
-      <Button onClick={() => showToast({ title: 'Sincronização agendada para as 3h' })} variant="secondary">
-        Informação
-      </Button>
-      <Button
-        onClick={() => showToast({ description: 'Restam 8% do armazenamento.', title: 'Espaço quase esgotado', tone: 'warning' })}
-        variant="secondary"
-      >
-        Aviso
-      </Button>
-      <Button
-        onClick={() =>
-          showToast({
-            action: { label: 'Tentar de novo', onClick: () => showToast({ title: 'Salvo na segunda tentativa', tone: 'success' }) },
-            description: 'A conexão falhou. O item continua na fila.',
-            title: 'Falha ao salvar',
-            tone: 'danger',
-          })
-        }
-        variant="secondary"
-      >
-        Erro com ação
-      </Button>
-    </div>
+    <>
+      <div className="demo-row">
+        <Button
+          onClick={() => showToast({ description: 'As alterações já estão no ar.', title: 'Versão publicada', tone: 'success' })}
+          variant="secondary"
+        >
+          Sucesso
+        </Button>
+        <Button onClick={() => showToast({ title: 'Sincronização agendada para as 3h' })} variant="secondary">
+          Informação
+        </Button>
+        <Button
+          onClick={() => showToast({ description: 'Restam 8% do armazenamento.', title: 'Espaço quase esgotado', tone: 'warning' })}
+          variant="secondary"
+        >
+          Aviso
+        </Button>
+        <Button
+          onClick={() =>
+            showToast({
+              action: { label: 'Tentar de novo', onClick: () => showToast({ title: 'Salvo na segunda tentativa', tone: 'success' }) },
+              description: 'A conexão falhou. O item continua na fila.',
+              title: 'Falha ao salvar',
+              tone: 'danger',
+            })
+          }
+          variant="secondary"
+        >
+          Erro com ação
+        </Button>
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -246,6 +271,7 @@ export const pagina: Pagina = {
       </Button>
     ),
     texto: 'Toast para algo que acabou de acontecer — salvo, publicado, falhou — e não precisa ficar na tela.',
+    codigo: "showToast({ tone: 'success', title: 'Versão publicada' });",
   },
   evite: {
     Previa: () => (
@@ -254,6 +280,9 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Toast para uma situação que continua, como o espaço quase esgotado: ela pede um Alert junto do conteúdo, até mudar.',
+    codigo: `<Alert title="Espaço quase esgotado" tone="warning">
+  Restam 8% do armazenamento.
+</Alert>`,
   },
   Variantes,
   Modos,

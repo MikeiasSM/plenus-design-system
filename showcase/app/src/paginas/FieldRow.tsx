@@ -1,6 +1,7 @@
 import { Button, Card, FieldRow, InputNumber, Select, Switch } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const CONTROLES = ['Switch', 'InputNumber', 'Select', 'Button'] as const;
 type Controle = (typeof CONTROLES)[number];
@@ -103,6 +104,28 @@ function Modos() {
           </Card.Body>
         </Card>
         <p className="note">Linhas seguidas se separam por uma linha fina. O corpo do cartão vai sem respiro (<code>flush</code>): a linha já traz o dela.</p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Body flush>
+    <FieldRow
+      label="Avisar o aprovador por e-mail"
+      description="Assim que o pedido entra na fila."
+    >
+      {({ describedBy, id }) => (
+        <Switch id={id} aria-describedby={describedBy} defaultChecked />
+      )}
+    </FieldRow>
+    <FieldRow
+      label="Resumo diário para a gerência"
+      description="Às 18h, os pedidos aprovados e recusados no dia."
+    >
+      {({ describedBy, id }) => (
+        <Switch id={id} aria-describedby={describedBy} />
+      )}
+    </FieldRow>
+  </Card.Body>
+</Card>`}
+        />
       </div>
       <div className="subsection">
         <h3>Largura estreita</h3>
@@ -119,6 +142,25 @@ function Modos() {
           A medida é a da linha, não a da janela. Com menos de 560px por dentro da linha, todo controle desce para sob a
           explicação, e as linhas de uma lista descem juntas. Acima disso, desce só o controle que não cabe ao lado de 260px de texto.
         </p>
+        <VerCodigo
+          codigo={`<Card>
+  <Card.Body flush>
+    <FieldRow
+      label="Frequência dos avisos"
+      description="Quando o pedido muda de situação."
+    >
+      {({ describedBy, id }) => (
+        <Select
+          id={id}
+          aria-describedby={describedBy}
+          options={periodos}
+          defaultValue="diario"
+        />
+      )}
+    </FieldRow>
+  </Card.Body>
+</Card>`}
+        />
       </div>
     </div>
   );

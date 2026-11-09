@@ -1,6 +1,7 @@
 import { Card, NumberedList, Steps, type NumberedListLayout } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const PASSOS = [
   { titulo: 'Registre a conta', descricao: 'Banco, agência e número.' },
@@ -52,6 +53,18 @@ function Modos() {
         </NumberedList>
       </div>
       <p className="note">Em lista, os passos descem um abaixo do outro. Em grade, viram ladrilhos que se ajustam à largura.</p>
+      <VerCodigo
+        codigo={`<NumberedList aria-label="Em lista">
+  <NumberedList.Item title="Registre a conta" description="Banco, agência e número." />
+  <NumberedList.Item title="Envie o extrato" description="Arquivo OFX do internet banking." />
+  <NumberedList.Item title="Concilie" description="O sistema sugere os pares." />
+</NumberedList>
+<NumberedList aria-label="Em grade" layout="grid">
+  <NumberedList.Item title="Registre a conta" description="Banco, agência e número." />
+  <NumberedList.Item title="Envie o extrato" description="Arquivo OFX do internet banking." />
+  <NumberedList.Item title="Concilie" description="O sistema sugere os pares." />
+</NumberedList>`}
+      />
     </div>
   );
 }
@@ -100,6 +113,10 @@ export const pagina: Pagina = {
       </NumberedList>
     ),
     texto: 'NumberedList para explicar uma sequência, sem marcar onde a pessoa está.',
+    codigo: `<NumberedList aria-label="Como funciona">
+  <NumberedList.Item title="Registre a conta" description="Banco, agência e número." />
+  <NumberedList.Item title="Concilie" description="O sistema sugere os pares." />
+</NumberedList>`,
   },
   evite: {
     Previa: () => (
@@ -112,6 +129,13 @@ export const pagina: Pagina = {
       />
     ),
     texto: 'NumberedList para mostrar em que etapa de um processo a pessoa está: isso é o Steps, que tem etapa atual.',
+    codigo: `<Steps
+  label="Progresso"
+  items={[
+    { key: 'dados', label: 'Dados' },
+    { key: 'revisao', label: 'Revisão' },
+  ]}
+/>`,
   },
   Modos,
   teclado: [{ teclas: ['Tab'], acao: 'A lista é estática e não tem teclado próprio: o foco passa direto pelo que houver dentro dos itens.' }],

@@ -153,6 +153,17 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'ActivityFeed para o registro do que aconteceu, do mais recente ao mais antigo.',
+    codigo: `<ActivityFeed aria-label="Atividade recente">
+  <ActivityFeed.Item time="há 12 min" dateTime="2026-11-09T09:48">
+    Rui Teixeira aprovou o pedido #48209
+  </ActivityFeed.Item>
+  <ActivityFeed.Item time="há 1 h" dateTime="2026-11-09T09:00">
+    Importação de 112 lançamentos concluída
+  </ActivityFeed.Item>
+  <ActivityFeed.Item time="ontem" dateTime="2026-11-08T17:30">
+    Marcos Lima ajustou o estoque de 3 produtos
+  </ActivityFeed.Item>
+</ActivityFeed>`,
   },
   evite: {
     Previa: () => (
@@ -169,6 +180,15 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'ActivityFeed para os estados de um registro com o atual em destaque: isso é a Timeline.',
+    codigo: `<Timeline
+  label="Estados do documento"
+  current="revisao"
+  items={[
+    { key: 'rascunho', label: 'Rascunho', date: '12/10/2026' },
+    { key: 'revisao', label: 'Aguardando revisão', date: '14/10/2026' },
+    { key: 'publicado', label: 'Publicado' },
+  ]}
+/>`,
   },
   Modos,
   teclado: [{ teclas: ['Tab'], acao: 'A lista é estática e não recebe foco; links dentro do texto do acontecimento são alcançados com Tab.' }],

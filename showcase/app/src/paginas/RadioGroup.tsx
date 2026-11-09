@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Radio, RadioGroup } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const PAGAMENTOS = [
   { label: 'Pix', value: 'pix' },
@@ -119,30 +120,58 @@ function Obrigatorio() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<RadioGroup label="Padrão" defaultValue="mensal">
+  <Radio label="Mensal" value="mensal" />
+  <Radio label="Anual" value="anual" />
+</RadioGroup>
+
+<RadioGroup label="Com ajuda" hint="Pode mudar depois.">
+  <Radio label="Mensal" value="mensal" />
+  <Radio label="Anual" value="anual" />
+</RadioGroup>
+
+<RadioGroup label="Com erro" error="Escolha uma opção." required>
+  <Radio label="Mensal" value="mensal" />
+  <Radio label="Anual" value="anual" />
+</RadioGroup>
+
+<RadioGroup label="Desabilitado" defaultValue="anual" disabled>
+  <Radio label="Mensal" value="mensal" />
+  <Radio label="Anual" value="anual" />
+</RadioGroup>
+
+<RadioGroup label="Uma opção desabilitada" defaultValue="mensal">
+  <Radio label="Mensal" value="mensal" />
+  <Radio label="Anual" value="anual" disabled />
+</RadioGroup>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <RadioGroup defaultValue="mensal" label="Padrão">
-        <Radio label="Mensal" value="mensal" />
-        <Radio label="Anual" value="anual" />
-      </RadioGroup>
-      <RadioGroup hint="Pode mudar depois." label="Com ajuda">
-        <Radio label="Mensal" value="mensal" />
-        <Radio label="Anual" value="anual" />
-      </RadioGroup>
-      <RadioGroup error="Escolha uma opção." label="Com erro" required>
-        <Radio label="Mensal" value="mensal" />
-        <Radio label="Anual" value="anual" />
-      </RadioGroup>
-      <RadioGroup defaultValue="anual" disabled label="Desabilitado">
-        <Radio label="Mensal" value="mensal" />
-        <Radio label="Anual" value="anual" />
-      </RadioGroup>
-      <RadioGroup defaultValue="mensal" label="Uma opção desabilitada">
-        <Radio label="Mensal" value="mensal" />
-        <Radio disabled label="Anual" value="anual" />
-      </RadioGroup>
-    </div>
+    <>
+      <div className="demo-grid">
+        <RadioGroup defaultValue="mensal" label="Padrão">
+          <Radio label="Mensal" value="mensal" />
+          <Radio label="Anual" value="anual" />
+        </RadioGroup>
+        <RadioGroup hint="Pode mudar depois." label="Com ajuda">
+          <Radio label="Mensal" value="mensal" />
+          <Radio label="Anual" value="anual" />
+        </RadioGroup>
+        <RadioGroup error="Escolha uma opção." label="Com erro" required>
+          <Radio label="Mensal" value="mensal" />
+          <Radio label="Anual" value="anual" />
+        </RadioGroup>
+        <RadioGroup defaultValue="anual" disabled label="Desabilitado">
+          <Radio label="Mensal" value="mensal" />
+          <Radio label="Anual" value="anual" />
+        </RadioGroup>
+        <RadioGroup defaultValue="mensal" label="Uma opção desabilitada">
+          <Radio label="Mensal" value="mensal" />
+          <Radio disabled label="Anual" value="anual" />
+        </RadioGroup>
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -195,6 +224,8 @@ export const pagina: Pagina = {
       </RadioGroup>
     ),
     texto: 'RadioGroup para a pergunta de um formulário, com legenda, ajuda e erro.',
+    codigo:
+      '<RadioGroup label="Forma de pagamento" defaultValue="pix">\n  <Radio label="Pix" value="pix" />\n  <Radio label="Boleto" value="boleto" />\n</RadioGroup>',
   },
   evite: {
     Previa: () => (
@@ -204,6 +235,8 @@ export const pagina: Pagina = {
       </RadioGroup>
     ),
     texto: 'Rádios para mudar o que a tela mostra. Poucas opções curtas que trocam a visão, como lista ou cartões, são um SegmentedControl.',
+    codigo:
+      '<RadioGroup label="Exibir como" defaultValue="lista">\n  <Radio label="Lista" value="lista" />\n  <Radio label="Cartões" value="cartoes" />\n</RadioGroup>',
   },
   Variantes,
   Modos,

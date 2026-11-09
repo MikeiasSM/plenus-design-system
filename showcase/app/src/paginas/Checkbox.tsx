@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Checkbox } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const playground = definirPlayground({
   inicial: { label: 'Aceito os termos de uso', hint: '', error: '', indeterminate: false, disabled: false },
@@ -112,17 +113,28 @@ function Aceite() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Checkbox label="Desmarcado" />
+<Checkbox label="Marcado" defaultChecked />
+<Checkbox label="Indeterminado" indeterminate />
+<Checkbox label="Com ajuda" hint="No máximo um por semana." />
+<Checkbox label="Com erro" error="Campo obrigatório." />
+<Checkbox label="Desabilitado" disabled />
+<Checkbox label="Desabilitado e marcado" defaultChecked disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <Checkbox label="Desmarcado" />
-      <Checkbox defaultChecked label="Marcado" />
-      <Checkbox indeterminate label="Indeterminado" />
-      <Checkbox hint="No máximo um por semana." label="Com ajuda" />
-      <Checkbox error="Campo obrigatório." label="Com erro" />
-      <Checkbox disabled label="Desabilitado" />
-      <Checkbox defaultChecked disabled label="Desabilitado e marcado" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <Checkbox label="Desmarcado" />
+        <Checkbox defaultChecked label="Marcado" />
+        <Checkbox indeterminate label="Indeterminado" />
+        <Checkbox hint="No máximo um por semana." label="Com ajuda" />
+        <Checkbox error="Campo obrigatório." label="Com erro" />
+        <Checkbox disabled label="Desabilitado" />
+        <Checkbox defaultChecked disabled label="Desabilitado e marcado" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

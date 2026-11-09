@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { InputPassword } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const AUTOCOMPLETES = ['current-password', 'new-password'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
@@ -180,6 +181,12 @@ function Modos() {
           <InputPassword label="Sem revelação" showToggle={false} />
           <InputPassword defaultValue="segredo" disabled label="Desabilitado" />
         </div>
+        <VerCodigo
+          codigo={`<InputPassword label="Com ajuda" hint="Use uma senha segura." />
+<InputPassword label="Com erro" error="Senha obrigatória." />
+<InputPassword label="Sem revelação" showToggle={false} />
+<InputPassword label="Desabilitado" defaultValue="segredo" disabled />`}
+        />
       </div>
     </div>
   );

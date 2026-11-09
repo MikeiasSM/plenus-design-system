@@ -6,6 +6,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const MB = 1024 ** 2;
 
@@ -167,12 +168,29 @@ const ESTADOS: FileUploadItem[] = [
   { error: 'A conexão caiu.', id: '3', name: 'apresentacao.mp4', size: 1.2 * 1024 * MB, status: 'error' },
 ];
 
+const CODIGO_DAS_VARIANTES = `<FileUpload
+  label="Um arquivo"
+  accept=".pdf,image/*"
+  maxSize={5 * 1024 ** 2}
+  onFilesSelected={receber}
+/>
+<FileUpload
+  label="Galeria"
+  accept="image/*"
+  maxSize={10 * 1024 ** 2}
+  multiple
+  onFilesSelected={receber}
+/>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <FileUpload accept=".pdf,image/*" label="Um arquivo" maxSize={5 * MB} onFilesSelected={() => undefined} />
-      <FileUpload accept="image/*" label="Galeria" maxSize={10 * MB} multiple onFilesSelected={() => undefined} />
-    </div>
+    <>
+      <div className="demo-grid">
+        <FileUpload accept=".pdf,image/*" label="Um arquivo" maxSize={5 * MB} onFilesSelected={() => undefined} />
+        <FileUpload accept="image/*" label="Galeria" maxSize={10 * MB} multiple onFilesSelected={() => undefined} />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -186,6 +204,16 @@ function Modos() {
           <FileUpload accept=".pdf" disabled label="Desabilitado" onFilesSelected={() => undefined} />
         </div>
         <p className="note">Arrastar por cima troca o tracejado por linha cheia na cor principal. Solto na zona desabilitada, o arquivo é ignorado.</p>
+        <VerCodigo
+          codigo={`<FileUpload
+  label="Com erro"
+  accept="video/*"
+  maxSize={200 * 1024 ** 2}
+  error="O arquivo passa de 200 MB."
+  onFilesSelected={receber}
+/>
+<FileUpload label="Desabilitado" accept=".pdf" disabled onFilesSelected={receber} />`}
+        />
       </div>
       <div className="subsection">
         <h3>Estados de cada envio</h3>
@@ -203,6 +231,16 @@ function Modos() {
           Subindo: Progress e cancelar. Enviado: remover. Com erro: a mensagem do produto, tentar de novo quando houver onRetry, e
           remover. Cada ação só aparece com o callback dela.
         </p>
+        <VerCodigo
+          codigo={`<FileUpload
+  label="Arquivos"
+  items={envios}
+  onFilesSelected={receber}
+  onCancel={cancelar}
+  onRetry={reenviar}
+  onRemove={remover}
+/>`}
+        />
       </div>
     </div>
   );
@@ -227,6 +265,12 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Declare accept e maxSize: a zona escreve o que aceita e o motivo de cada recusa sai sozinho.',
+    codigo: `<FileUpload
+  label="Comprovante"
+  accept=".pdf,image/*"
+  maxSize={5 * 1024 ** 2}
+  onFilesSelected={receber}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -235,6 +279,11 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Escrever a restrição só no hint: o campo aceita qualquer arquivo e a recusa fica por conta do servidor.',
+    codigo: `<FileUpload
+  label="Comprovante"
+  hint="Só PDF, até 5 MB."
+  onFilesSelected={receber}
+/>`,
   },
   Variantes,
   Modos,

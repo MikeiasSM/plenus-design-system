@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Button, Checkbox, InputText, Popover, PortalProvider, type PopoverPlacement } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const POSICOES = ['top', 'top start', 'top end', 'bottom', 'bottom start', 'bottom end', 'left', 'right'] as const;
 
@@ -180,6 +181,15 @@ function NaPosicao({ placement }: { placement: PopoverPlacement }) {
   );
 }
 
+const CODIGO_DAS_POSICOES = `<Popover placement="top" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="top">…</Popover>
+<Popover placement="top start" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="top start">…</Popover>
+<Popover placement="top end" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="top end">…</Popover>
+<Popover placement="bottom" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="bottom">…</Popover>
+<Popover placement="bottom start" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="bottom start">…</Popover>
+<Popover placement="bottom end" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="bottom end">…</Popover>
+<Popover placement="left" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="left">…</Popover>
+<Popover placement="right" open={aberto} onOpenChange={setAberto} triggerRef={gatilho} aria-label="right">…</Popover>`;
+
 function Variantes() {
   return (
     <>
@@ -188,6 +198,7 @@ function Variantes() {
           <NaPosicao key={posicao} placement={posicao} />
         ))}
       </div>
+      <VerCodigo codigo={CODIGO_DAS_POSICOES} />
       <p className="note">Quando falta espaço do lado pedido, o painel inverte e acompanha a rolagem.</p>
     </>
   );

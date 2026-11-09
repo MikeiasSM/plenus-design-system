@@ -13,6 +13,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { COMPOSICAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoArea } from '../estrutura/decomposicao';
 
@@ -151,25 +152,34 @@ function LeituraEmpilhada() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ChartArea title="Composição do faturamento" categories={meses} series={series} curve="smooth" />
+<ChartArea title="Composição do faturamento" categories={meses} series={series} curve="straight" />
+
+<ChartArea title="Composição do faturamento" categories={meses} series={series} stacked={false} />
+<ChartArea title="Composição do faturamento" categories={meses} series={series} stacked />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {[false, true].map((stacked) =>
-        (['smooth', 'straight'] as const).map((curve) => (
-          <div className="demo-box" key={`${stacked}-${curve}`}>
-            <ChartArea
-              categories={MESES}
-              curve={curve}
-              formatValue={formatarCompacto}
-              height={200}
-              series={COMPOSICAO.slice(0, 2)}
-              stacked={stacked}
-              title={`${curve}${stacked ? ', stacked' : ''}`}
-            />
-          </div>
-        )),
-      )}
-    </div>
+    <>
+      <div className="demo-grid">
+        {[false, true].map((stacked) =>
+          (['smooth', 'straight'] as const).map((curve) => (
+            <div className="demo-box" key={`${stacked}-${curve}`}>
+              <ChartArea
+                categories={MESES}
+                curve={curve}
+                formatValue={formatarCompacto}
+                height={200}
+                series={COMPOSICAO.slice(0, 2)}
+                stacked={stacked}
+                title={`${curve}${stacked ? ', stacked' : ''}`}
+              />
+            </div>
+          )),
+        )}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -199,6 +209,7 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartArea categories={[]} series={[]} title="Volume faturado" />
         <p className="note">Sem dados, o gráfico anuncia a ausência em vez de desenhar eixos vazios.</p>
+        <VerCodigo codigo={'<ChartArea title="Volume faturado" categories={[]} series={[]} />'} />
       </div>
     </div>
   );

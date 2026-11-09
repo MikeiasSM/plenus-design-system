@@ -13,6 +13,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
 
 const TAMANHOS = ['sm', 'md', 'lg', 'xl'] as const;
@@ -283,27 +284,35 @@ function EdicaoLongaEmDialog() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Dialog open={aberto} onOpenChange={setAberto} size="sm" title="Tamanho sm">…</Dialog>
+<Dialog open={aberto} onOpenChange={setAberto} size="md" title="Tamanho md">…</Dialog>
+<Dialog open={aberto} onOpenChange={setAberto} size="lg" title="Tamanho lg">…</Dialog>
+<Dialog open={aberto} onOpenChange={setAberto} size="xl" title="Tamanho xl">…</Dialog>`;
+
 function Variantes() {
   const [tamanho, setTamanho] = useState<DialogSize | null>(null);
 
   return (
-    <div className="demo-row">
-      {TAMANHOS.map((opcao) => (
-        <Button key={opcao} onClick={() => setTamanho(opcao)} variant="secondary">
-          {opcao} · {LARGURAS[opcao]}
-        </Button>
-      ))}
-      <Dialog
-        description={`Largura máxima de ${LARGURAS[tamanho ?? 'md']}.`}
-        footer={<Button onClick={() => setTamanho(null)}>Fechar</Button>}
-        onOpenChange={() => setTamanho(null)}
-        open={tamanho !== null}
-        size={tamanho ?? 'md'}
-        title={`Tamanho ${tamanho ?? 'md'}`}
-      >
-        A altura acompanha o conteúdo até o limite da tela; daí em diante só o corpo rola.
-      </Dialog>
-    </div>
+    <>
+      <div className="demo-row">
+        {TAMANHOS.map((opcao) => (
+          <Button key={opcao} onClick={() => setTamanho(opcao)} variant="secondary">
+            {opcao} · {LARGURAS[opcao]}
+          </Button>
+        ))}
+        <Dialog
+          description={`Largura máxima de ${LARGURAS[tamanho ?? 'md']}.`}
+          footer={<Button onClick={() => setTamanho(null)}>Fechar</Button>}
+          onOpenChange={() => setTamanho(null)}
+          open={tamanho !== null}
+          size={tamanho ?? 'md'}
+          title={`Tamanho ${tamanho ?? 'md'}`}
+        >
+          A altura acompanha o conteúdo até o limite da tela; daí em diante só o corpo rola.
+        </Dialog>
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -380,10 +389,37 @@ export const pagina: Pagina = {
   faca: {
     Previa: ConfirmacaoDeExclusao,
     texto: 'Dialog para interromper o fluxo com uma decisão ou um formulário curto.',
+    codigo: `<Button variant="danger" onClick={abrir}>Excluir módulo</Button>
+<Dialog
+  open={aberto}
+  onOpenChange={setAberto}
+  role="alertdialog"
+  size="sm"
+  icon={<IconExclamationTriangle />}
+  title="Excluir módulo"
+  description="O módulo e todos os seus registros serão removidos."
+  footer={
+    <>
+      <Button variant="secondary" onClick={fechar}>Cancelar</Button>
+      <Button variant="danger" onClick={excluir}>Excluir</Button>
+    </>
+  }
+>
+  Esta ação não pode ser desfeita.
+</Dialog>`,
   },
   evite: {
     Previa: EdicaoLongaEmDialog,
     texto: 'Editar ou detalhar um item com conteúdo longo num Dialog. Isso é Drawer, que abre ao lado da página.',
+    codigo: `<Button variant="secondary" onClick={abrir}>Editar usuário</Button>
+<Dialog open={aberto} onOpenChange={setAberto} size="lg" title="Editar usuário">
+  <InputText label="Nome" defaultValue="Ana Prado" />
+  <InputText label="E-mail" defaultValue="ana@plenustech.com" />
+  <InputText label="Equipe" defaultValue="Financeiro" />
+  <InputText label="Cargo" defaultValue="Analista" />
+  <InputText label="Telefone" defaultValue="(11) 4000-1234" />
+  <InputText label="Cidade" defaultValue="São Paulo" />
+</Dialog>`,
   },
   Variantes,
   Modos,

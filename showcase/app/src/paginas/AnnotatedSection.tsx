@@ -2,6 +2,7 @@ import { AnnotatedSection, Button, Card, FieldRow, InputNumber, InputText, Selec
 import type { AnnotatedSectionProps } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const NIVEIS = ['2', '3', '4', '5', '6'] as const;
 
@@ -90,6 +91,11 @@ function Modos() {
           Com 900px ou mais de largura própria, o título e a explicação ficam num trilho de 200 a 300px à esquerda, e o conteúdo ocupa o resto.
           900px é o <code>--pl-bp-sm</code>.
         </p>
+        <VerCodigo
+          codigo={`<AnnotatedSection title="Avisos" description="Quem fica sabendo de cada pedido em aprovação.">
+  <Card>…</Card>
+</AnnotatedSection>`}
+        />
       </div>
       <div className="subsection">
         <h3>Uma coluna</h3>
@@ -102,6 +108,11 @@ function Modos() {
           A medida é a da própria seção, e não a da janela: abaixo de 900px, o trilho sobe para acima do conteúdo, e a ação segue abaixo da
           explicação.
         </p>
+        <VerCodigo
+          codigo={`<AnnotatedSection title="Avisos" description="Quem fica sabendo de cada pedido em aprovação.">
+  <Card>…</Card>
+</AnnotatedSection>`}
+        />
       </div>
       <div className="subsection">
         <h3>Seções vizinhas</h3>
@@ -114,6 +125,14 @@ function Modos() {
           </AnnotatedSection>
         </div>
         <p className="note">Seções irmãs se separam por uma linha fina, e a primeira dispensa o respiro de cima.</p>
+        <VerCodigo
+          codigo={`<AnnotatedSection title="Limites" description="Até onde o vendedor concede sozinho.">
+  <Card>…</Card>
+</AnnotatedSection>
+<AnnotatedSection title="Avisos" description="Quem fica sabendo de cada pedido em aprovação.">
+  <Card>…</Card>
+</AnnotatedSection>`}
+        />
       </div>
     </div>
   );
@@ -202,6 +221,9 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Uma seção por assunto, com um título que diga o que ela ajusta e o conteúdo em um cartão.',
+    codigo: `<AnnotatedSection title="Limites" description="Até onde o vendedor concede sozinho.">
+  <Card>…</Card>
+</AnnotatedSection>`,
   },
   evite: {
     Previa: () => (
@@ -215,6 +237,12 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Repetir o título no cabeçalho do cartão. Quem nomeia a seção é o título dela; o cartão leva só o conteúdo.',
+    codigo: `<AnnotatedSection title="Limites">
+  <Card>
+    <Card.Header title="Limites" />
+    <Card.Body>Conteúdo</Card.Body>
+  </Card>
+</AnnotatedSection>`,
   },
   Modos,
   teclado: [{ teclas: ['Tab'], acao: 'A seção não é interativa: o foco segue direto para a ação e para os controles do conteúdo.' }],

@@ -1,6 +1,7 @@
 import { Button, Spinner, type SpinnerSize } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const MEDIDAS: Record<SpinnerSize, number> = { sm: 14, md: 20, lg: 28 };
@@ -28,18 +29,25 @@ const playground = definirPlayground({
   ],
 });
 
+const CODIGO_DOS_TAMANHOS = `<Spinner label="Carregando" size="sm" />
+<Spinner label="Carregando" size="md" />
+<Spinner label="Carregando" size="lg" />`;
+
 function Variantes() {
   return (
-    <div className="demo-row">
-      {TAMANHOS.map((tamanho) => (
-        <div className="demo-box stack" key={tamanho} style={{ justifyItems: 'center' }}>
-          <Spinner label="Carregando" size={tamanho} />
-          <code>
-            {tamanho} · {MEDIDAS[tamanho]}px
-          </code>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-row">
+        {TAMANHOS.map((tamanho) => (
+          <div className="demo-box stack" key={tamanho} style={{ justifyItems: 'center' }}>
+            <Spinner label="Carregando" size={tamanho} />
+            <code>
+              {tamanho} · {MEDIDAS[tamanho]}px
+            </code>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DOS_TAMANHOS} />
+    </>
   );
 }
 

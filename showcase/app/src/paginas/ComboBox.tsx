@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, ComboBox, IconFile, IconStructure, Select, type ComboBoxSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { ESTADOS, RESULTADOS_DO_ACERVO } from '../dadosDeExemplo';
 
 const REGISTROS = Array.from({ length: 10000 }, (_, indice) => ({
@@ -192,16 +193,26 @@ function AberturaControlada() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ComboBox label="Médio" placeholder="Digite para filtrar" options={estados} />
+<ComboBox label="Pequeno" size="sm" placeholder="Digite para filtrar" options={estados} />
+<ComboBox label="Com valor" defaultValue="sp" options={estados} />
+<ComboBox label="Múltipla" selectionMode="multiple" defaultValue={['sp', 'rj', 'mg']} options={estados} />
+<ComboBox label="Com erro" error="Informe o estado." options={estados} />
+<ComboBox label="Desabilitado" defaultValue="sp" disabled options={estados} />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <ComboBox label="Médio" options={ESTADOS} placeholder="Digite para filtrar" />
-      <ComboBox label="Pequeno" options={ESTADOS} placeholder="Digite para filtrar" size="sm" />
-      <ComboBox defaultValue="sp" label="Com valor" options={ESTADOS} />
-      <ComboBox defaultValue={['sp', 'rj', 'mg']} label="Múltipla" options={ESTADOS} selectionMode="multiple" />
-      <ComboBox error="Informe o estado." label="Com erro" options={ESTADOS} />
-      <ComboBox defaultValue="sp" disabled label="Desabilitado" options={ESTADOS} />
-    </div>
+    <>
+      <div className="demo-grid">
+        <ComboBox label="Médio" options={ESTADOS} placeholder="Digite para filtrar" />
+        <ComboBox label="Pequeno" options={ESTADOS} placeholder="Digite para filtrar" size="sm" />
+        <ComboBox defaultValue="sp" label="Com valor" options={ESTADOS} />
+        <ComboBox defaultValue={['sp', 'rj', 'mg']} label="Múltipla" options={ESTADOS} selectionMode="multiple" />
+        <ComboBox error="Informe o estado." label="Com erro" options={ESTADOS} />
+        <ComboBox defaultValue="sp" disabled label="Desabilitado" options={ESTADOS} />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -314,6 +325,11 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'ComboBox quando a lista é longa, precisa de busca ou admite mais de uma escolha.',
+    codigo: `<ComboBox
+  label="Estado"
+  placeholder="Digite para filtrar"
+  options={estados}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -335,6 +351,20 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Busca para duas opções. Escolha única numa lista curta é o Select, como o de baixo: escolha pelo papel.',
+    codigo: `<ComboBox
+  label="Status"
+  options={[
+    { label: 'Ativo', value: 'ativo' },
+    { label: 'Inativo', value: 'inativo' },
+  ]}
+/>
+<Select
+  label="Status"
+  options={[
+    { label: 'Ativo', value: 'ativo' },
+    { label: 'Inativo', value: 'inativo' },
+  ]}
+/>`,
   },
   Variantes,
   Modos,

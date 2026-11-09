@@ -14,6 +14,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { COMPOSICAO, CONVERSAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, PRODUTOS, SERVICOS, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoLine } from '../estrutura/decomposicao';
 
@@ -167,6 +168,12 @@ function PontoMaisProximo() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ChartLine title="Evolução do faturamento" categories={meses} series={series} curve="smooth" />
+<ChartLine title="Evolução do faturamento" categories={meses} series={series} curve="straight" />
+
+<ChartLine title="Evolução do faturamento" categories={meses} series={series} showDots="onHover" />
+<ChartLine title="Evolução do faturamento" categories={meses} series={series} showDots="visible" />`;
+
 function Variantes() {
   const combinacoes = [
     { curve: 'smooth', showDots: 'onHover' },
@@ -176,21 +183,24 @@ function Variantes() {
   ] as const;
 
   return (
-    <div className="demo-grid">
-      {combinacoes.map(({ curve, showDots }) => (
-        <div className="demo-box" key={`${curve}-${showDots}`}>
-          <ChartLine
-            categories={MESES}
-            curve={curve}
-            formatValue={formatarCompacto}
-            height={200}
-            series={COMPOSICAO.slice(0, 2)}
-            showDots={showDots}
-            title={`${curve}${showDots === 'visible' ? ', showDots visible' : ''}`}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {combinacoes.map(({ curve, showDots }) => (
+          <div className="demo-box" key={`${curve}-${showDots}`}>
+            <ChartLine
+              categories={MESES}
+              curve={curve}
+              formatValue={formatarCompacto}
+              height={200}
+              series={COMPOSICAO.slice(0, 2)}
+              showDots={showDots}
+              title={`${curve}${showDots === 'visible' ? ', showDots visible' : ''}`}
+            />
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -221,6 +231,7 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartLine categories={[]} series={[]} title="Evolução do faturamento" />
         <p className="note">Sem dados, o gráfico anuncia a ausência em vez de desenhar eixos vazios.</p>
+        <VerCodigo codigo={'<ChartLine title="Evolução do faturamento" categories={[]} series={[]} />'} />
       </div>
     </div>
   );

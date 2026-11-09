@@ -8,6 +8,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoSankey } from '../estrutura/decomposicao';
 
@@ -194,6 +195,15 @@ function Modos() {
           Um diagrama de fluxo é acíclico. O ciclo, e também o autolaço, é anunciado com <code>cyclicMessage</code> em vez
           de derrubar a página ou descartar ligações pelas costas.
         </p>
+        <VerCodigo
+          codigo={`<ChartSankey
+  title="Propostas devolvidas"
+  flows={[
+    { source: 'Em análise', target: 'Devolvido', value: 40 },
+    { source: 'Devolvido', target: 'Em análise', value: 25 },
+  ]}
+/>`}
+        />
       </div>
     </div>
   );

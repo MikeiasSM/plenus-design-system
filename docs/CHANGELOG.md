@@ -22,6 +22,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Alterado
 
 - `AppShell`: a navegação passa à `Sidebar`, e o `AppShell` fica com a moldura e o estado. Os nomes antigos continuam aceitos, marcados como obsoletos, até a versão menor seguinte. Troque `AppShell.Navigation` por `Sidebar`, `AppShell.PanelGroup` por `Sidebar.Group`, `AppShell.PanelItem` por `Sidebar.Item`, e `AppShell.Rail`, `RailItem`, `RailAccount`, `Panel` e `Account` pelas partes de mesmo nome da `Sidebar`. Os tipos trocam o prefixo `AppShell` por `Sidebar`, com `AppShellNavigationProps` virando `SidebarProps`, `AppShellPanelGroupProps` virando `SidebarGroupProps` e `AppShellPanelItemProps` virando `SidebarItemProps`.
+- Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
 ## [0.6.3] — 2026-11-06
 

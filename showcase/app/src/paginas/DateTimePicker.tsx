@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, DateTimePicker, formatDate, formatTime, type DateTimePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -134,16 +135,26 @@ function AberturaControlada() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<DateTimePicker label="Médio" />
+<DateTimePicker label="Pequeno" size="sm" />
+<DateTimePicker label="Com ajuda" hint="Horário de Brasília." />
+<DateTimePicker label="Com erro" error="Informe data e hora." />
+<DateTimePicker label="Obrigatório" required />
+<DateTimePicker label="Desabilitado" value="2026-03-09T18:40" disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <DateTimePicker label="Médio" />
-      <DateTimePicker label="Pequeno" size="sm" />
-      <DateTimePicker hint="Horário de Brasília." label="Com ajuda" />
-      <DateTimePicker error="Informe data e hora." label="Com erro" />
-      <DateTimePicker label="Obrigatório" required />
-      <DateTimePicker disabled label="Desabilitado" value="2026-03-09T18:40" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <DateTimePicker label="Médio" />
+        <DateTimePicker label="Pequeno" size="sm" />
+        <DateTimePicker hint="Horário de Brasília." label="Com ajuda" />
+        <DateTimePicker error="Informe data e hora." label="Com erro" />
+        <DateTimePicker label="Obrigatório" required />
+        <DateTimePicker disabled label="Desabilitado" value="2026-03-09T18:40" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

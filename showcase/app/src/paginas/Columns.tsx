@@ -1,6 +1,7 @@
 import { Badge, Card, Columns } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const PARTES = ['coluna lateral', 'índice'] as const;
 
@@ -106,6 +107,17 @@ function Modos() {
           Com 900px ou mais de largura própria, a coluna lateral ocupa um terço, e o conteúdo principal, dois. 900px é o{' '}
           <code>--pl-bp-sm</code>.
         </p>
+        <VerCodigo
+          codigo={`<Columns>
+  <Columns.Main>
+    <Card>…Itens do pedido…</Card>
+    <Card>…Entrega…</Card>
+  </Columns.Main>
+  <Columns.Aside>
+    <Card>…Resumo…</Card>
+  </Columns.Aside>
+</Columns>`}
+        />
       </div>
       <div className="subsection">
         <h3>Uma coluna</h3>
@@ -115,6 +127,17 @@ function Modos() {
         <p className="note">
           A medida é a do próprio Columns, e não a da janela: abaixo de 900px, a coluna lateral desce para baixo do conteúdo e o índice some.
         </p>
+        <VerCodigo
+          codigo={`<Columns>
+  <Columns.Main>
+    <Card>…Itens do pedido…</Card>
+    <Card>…Entrega…</Card>
+  </Columns.Main>
+  <Columns.Aside>
+    <Card>…Resumo…</Card>
+  </Columns.Aside>
+</Columns>`}
+        />
       </div>
       <div className="subsection">
         <h3>Índice acompanhando a rolagem</h3>
@@ -123,6 +146,16 @@ function Modos() {
           O índice acompanha a rolagem do corpo da página, não a da janela: a seção que cruza a linha, um pouco abaixo do topo do índice, fica
           marcada. Em uma coluna, o índice some.
         </p>
+        <VerCodigo
+          codigo={`<Columns>
+  <Columns.Main>
+    <Card id="geral">…</Card>
+    <Card id="equipe">…</Card>
+    <Card id="avisos">…</Card>
+  </Columns.Main>
+  <Columns.Index items={secoes} />
+</Columns>`}
+        />
       </div>
     </div>
   );
@@ -151,6 +184,15 @@ export const pagina: Pagina = {
   faca: {
     Previa: PrincipalComLateral,
     texto: 'Uma coluna lateral para o que complementa o conteúdo, como um resumo, ou o índice para uma página longa em seções.',
+    codigo: `<Columns>
+  <Columns.Main>
+    <Card>…Itens do pedido…</Card>
+    <Card>…Entrega…</Card>
+  </Columns.Main>
+  <Columns.Aside>
+    <Card>…Resumo…</Card>
+  </Columns.Aside>
+</Columns>`,
   },
   evite: {
     Previa: () => (
@@ -170,6 +212,14 @@ export const pagina: Pagina = {
         Usar a coluna lateral como navegação da aplicação. Isso é da <code>Sidebar</code>; o <code>Columns</code> arranja o conteúdo da página.
       </>
     ),
+    codigo: `<Columns>
+  <Columns.Main>
+    <Card>…Itens do pedido…</Card>
+  </Columns.Main>
+  <Columns.Aside>
+    <Card>…Menu da aplicação…</Card>
+  </Columns.Aside>
+</Columns>`,
   },
   Modos,
   teclado: [

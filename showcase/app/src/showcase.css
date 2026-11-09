@@ -651,16 +651,35 @@ body {
   color: var(--pl-color-danger-text);
 }
 
-.dodont-text {
-  margin: 0;
+.dodont-body {
+  display: grid;
+  justify-items: start;
+  gap: var(--pl-space-2);
   padding: var(--pl-space-3) var(--pl-space-4);
   border-top: 1px solid var(--pl-color-border);
+}
+
+.dodont-body p {
+  margin: 0;
   color: var(--pl-color-text-secondary);
   font-size: var(--pl-type-caption-size);
   line-height: var(--pl-type-body-line-height);
 }
 
 /* ---- Variantes e modos -------------------------------------------------- */
+
+/* O "Ver codigo" de cada demonstracao de Modos e Variantes: o botao a esquerda, o codigo aberto na largura toda. */
+.ver-codigo {
+  display: grid;
+  justify-items: start;
+  gap: var(--pl-space-2);
+  margin-top: var(--pl-space-2);
+}
+
+.ver-codigo-bloco {
+  justify-self: stretch;
+  min-width: 0;
+}
 
 .matrix {
   overflow-x: auto;

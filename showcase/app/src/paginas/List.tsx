@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { List, Select, type ListItem, type ListSelectionMode } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { ESTADOS } from '../dadosDeExemplo';
 
 const REGISTROS = Array.from({ length: 10000 }, (_, indice) => ({
@@ -154,24 +155,52 @@ function SelecaoMultipla() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<List items={estados} label="Estados, none" selectionMode="none">
+  <List.SelectAll />
+  <List.Options height={180} />
+</List>
+
+<List
+  defaultValue={[estados[1]]}
+  items={estados}
+  label="Estados, single"
+  selectionMode="single"
+>
+  <List.SelectAll />
+  <List.Options height={180} />
+</List>
+
+<List
+  defaultValue={[estados[1]]}
+  items={estados}
+  label="Estados, multiple"
+  selectionMode="multiple"
+>
+  <List.SelectAll />
+  <List.Options height={180} />
+</List>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {(['none', 'single', 'multiple'] as const).map((modo) => (
-        <div className="stack" key={modo}>
-          <code>{modo}</code>
-          <List
-            defaultValue={modo === 'none' ? undefined : [ESTADOS[1]]}
-            items={ESTADOS.slice(0, 6)}
-            label={`Estados, ${modo}`}
-            selectionMode={modo}
-          >
-            <List.SelectAll />
-            <List.Options height={180} />
-          </List>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {(['none', 'single', 'multiple'] as const).map((modo) => (
+          <div className="stack" key={modo}>
+            <code>{modo}</code>
+            <List
+              defaultValue={modo === 'none' ? undefined : [ESTADOS[1]]}
+              items={ESTADOS.slice(0, 6)}
+              label={`Estados, ${modo}`}
+              selectionMode={modo}
+            >
+              <List.SelectAll />
+              <List.Options height={180} />
+            </List>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -268,6 +297,8 @@ export const pagina: Pagina = {
       </List>
     ),
     texto: 'List quando a listagem ocupa espaço na tela e permanece visível, e selecionar é a própria tarefa.',
+    codigo:
+      '<List items={estados} label="Estados atendidos" selectionMode="multiple">\n  <List.Search placeholder="Buscar estado" />\n  <List.Options height={160} />\n</List>',
   },
   evite: {
     Previa: () => (
@@ -292,6 +323,8 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Uma List como campo de formulário, para escolha única numa lista curta. Esse papel é do Select, como o de baixo.',
+    codigo:
+      '<List items={periodicidades} label="Periodicidade" selectionMode="single">\n  <List.Options />\n</List>\n<Select label="Periodicidade" options={periodicidades} />',
   },
   Variantes,
   Modos,

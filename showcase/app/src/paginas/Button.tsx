@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, IconPlusCircle, type ButtonSize, type ButtonVariant } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerSoft', 'dangerGhost'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
@@ -105,36 +106,54 @@ function Envio() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Button variant="primary">Salvar</Button>
+<Button variant="secondary">Salvar</Button>
+<Button variant="soft">Salvar</Button>
+<Button variant="ghost">Salvar</Button>
+<Button variant="danger">Salvar</Button>
+<Button variant="dangerSoft">Salvar</Button>
+<Button variant="dangerGhost">Salvar</Button>
+
+<Button size="sm">Salvar</Button>
+<Button size="md">Salvar</Button>
+<Button size="lg">Salvar</Button>
+
+<Button disabled>Salvar</Button>
+<Button loading>Salvar</Button>`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>variant</span>
-        {TAMANHOS.map((tamanho) => (
-          <span key={tamanho}>
-            {tamanho} · {ALTURAS[tamanho]}px
-          </span>
-        ))}
-        <span>disabled</span>
-        <span>loading</span>
-      </div>
-      {VARIANTES.map((variante) => (
-        <div className="matrix-row" key={variante}>
-          <code>{variante}</code>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>variant</span>
           {TAMANHOS.map((tamanho) => (
             <span key={tamanho}>
-              <Button size={tamanho} variant={variante}>Salvar</Button>
+              {tamanho} · {ALTURAS[tamanho]}px
             </span>
           ))}
-          <span>
-            <Button disabled variant={variante}>Salvar</Button>
-          </span>
-          <span>
-            <Button loading variant={variante}>Salvar</Button>
-          </span>
+          <span>disabled</span>
+          <span>loading</span>
         </div>
-      ))}
-    </div>
+        {VARIANTES.map((variante) => (
+          <div className="matrix-row" key={variante}>
+            <code>{variante}</code>
+            {TAMANHOS.map((tamanho) => (
+              <span key={tamanho}>
+                <Button size={tamanho} variant={variante}>Salvar</Button>
+              </span>
+            ))}
+            <span>
+              <Button disabled variant={variante}>Salvar</Button>
+            </span>
+            <span>
+              <Button loading variant={variante}>Salvar</Button>
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -214,6 +233,7 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Uma ação principal por área, com o verbo do que acontece. As demais em secondary ou ghost.',
+    codigo: '<Button variant="secondary">Cancelar</Button>\n<Button>Salvar alterações</Button>',
   },
   evite: {
     Previa: () => (
@@ -224,6 +244,7 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Três ações principais disputando atenção, e um "OK" que não diz nada. Sem espaço para texto, ButtonIcon; muitas ações secundárias, Menu.',
+    codigo: '<Button>OK</Button>\n<Button>Salvar</Button>\n<Button>Enviar</Button>',
   },
   Variantes,
   Modos,

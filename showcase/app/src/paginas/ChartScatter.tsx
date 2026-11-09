@@ -8,6 +8,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES } from '../dadosDosGraficos';
 import { DecomposicaoDoScatter } from '../estrutura/decomposicao';
 
@@ -159,6 +160,9 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartScatter series={[]} title="Prazo médio por margem" />
         <p className="note">Sem pontos, o gráfico anuncia a ausência em vez de desenhar eixos vazios.</p>
+        <VerCodigo
+          codigo={`<ChartScatter title="Prazo médio por margem" series={[]} />`}
+        />
       </div>
     </div>
   );

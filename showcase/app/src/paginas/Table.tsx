@@ -15,6 +15,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 interface Membro {
   email: string;
@@ -347,7 +348,32 @@ function ArquivosSemDados({ carregando }: { carregando: boolean }) {
   );
 }
 
-function TabelaCurta({ titulo, ...props }: Partial<ComponentProps<typeof Table>> & { titulo: string }) {
+function codigoDaTabelaCurta(titulo: string, atributos: readonly string[]) {
+  const abertura = atributos.length
+    ? ['<Table', `  label="${titulo}"`, '  rows={vendas}', ...atributos.map((atributo) => `  ${atributo}`), '>'].join('\n')
+    : `<Table label="${titulo}" rows={vendas}>`;
+
+  return `${abertura}
+  <Table.Header>
+    <Table.Column id="pedido">Pedido</Table.Column>
+    <Table.Column id="valor" numeric>Valor</Table.Column>
+  </Table.Header>
+  <Table.Body items={vendas}>
+    {(venda) => (
+      <Table.Row id={venda.id} label={\`Selecionar \${venda.pedido}\`}>
+        <Table.Cell>{venda.pedido}</Table.Cell>
+        <Table.Cell>{venda.valor}</Table.Cell>
+      </Table.Row>
+    )}
+  </Table.Body>
+</Table>`;
+}
+
+function TabelaCurta({
+  atributos = [],
+  titulo,
+  ...props
+}: Partial<ComponentProps<typeof Table>> & { atributos?: readonly string[]; titulo: string }) {
   return (
     <div className="subsection">
       <h3>{titulo}</h3>
@@ -369,6 +395,7 @@ function TabelaCurta({ titulo, ...props }: Partial<ComponentProps<typeof Table>>
           </Table>
         </Card.Body>
       </Card>
+      <VerCodigo codigo={codigoDaTabelaCurta(titulo, atributos)} />
     </div>
   );
 }
@@ -396,11 +423,27 @@ function Variantes() {
   return (
     <div className="demo-grid">
       <TabelaCurta titulo="md, com divisor" />
-      <TabelaCurta size="sm" titulo="sm" />
-      <TabelaCurta divider={false} striped titulo="striped, sem divisor" />
-      <TabelaCurta defaultSelectedIds={['v1', 'v2']} selectionMode="multiple" titulo="checkbox" />
-      <TabelaCurta defaultSelectedIds={['v1']} selectionMode="single" titulo="radio" />
-      <TabelaCurta defaultSelectedIds={['v1']} selectionControl="toggle" selectionMode="single" titulo="toggle" />
+      <TabelaCurta atributos={['size="sm"']} size="sm" titulo="sm" />
+      <TabelaCurta atributos={['striped', 'divider={false}']} divider={false} striped titulo="striped, sem divisor" />
+      <TabelaCurta
+        atributos={['selectionMode="multiple"', "defaultSelectedIds={['v1', 'v2']}"]}
+        defaultSelectedIds={['v1', 'v2']}
+        selectionMode="multiple"
+        titulo="checkbox"
+      />
+      <TabelaCurta
+        atributos={['selectionMode="single"', "defaultSelectedIds={['v1']}"]}
+        defaultSelectedIds={['v1']}
+        selectionMode="single"
+        titulo="radio"
+      />
+      <TabelaCurta
+        atributos={['selectionMode="single"', 'selectionControl="toggle"', "defaultSelectedIds={['v1']}"]}
+        defaultSelectedIds={['v1']}
+        selectionControl="toggle"
+        selectionMode="single"
+        titulo="toggle"
+      />
     </div>
   );
 }
@@ -597,6 +640,24 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'A tabela dentro de um contêiner com borda, normalmente um Card com o corpo flush.',
+    codigo: `<Card>
+  <Card.Body flush>
+    <Table label="Pedidos">
+      <Table.Header>
+        <Table.Column id="pedido">Pedido</Table.Column>
+        <Table.Column id="cliente">Cliente</Table.Column>
+      </Table.Header>
+      <Table.Body items={vendas}>
+        {(venda) => (
+          <Table.Row id={venda.id}>
+            <Table.Cell>{venda.pedido}</Table.Cell>
+            <Table.Cell>{venda.cliente}</Table.Cell>
+          </Table.Row>
+        )}
+      </Table.Body>
+    </Table>
+  </Card.Body>
+</Card>`,
   },
   evite: {
     Previa: () => (
@@ -605,6 +666,20 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'A tabela solta na página: ela não desenha contorno, e a faixa do cabeçalho fica sem linha em cima.',
+    codigo: `<Table label="Pedidos">
+  <Table.Header>
+    <Table.Column id="pedido">Pedido</Table.Column>
+    <Table.Column id="cliente">Cliente</Table.Column>
+  </Table.Header>
+  <Table.Body items={vendas}>
+    {(venda) => (
+      <Table.Row id={venda.id}>
+        <Table.Cell>{venda.pedido}</Table.Cell>
+        <Table.Cell>{venda.cliente}</Table.Cell>
+      </Table.Row>
+    )}
+  </Table.Body>
+</Table>`,
   },
   Variantes,
   Modos,
