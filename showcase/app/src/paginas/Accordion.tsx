@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Accordion, Button, type AccordionIconPosition, type AccordionItem } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const POSICOES = ['right', 'left'] as const;
 
@@ -95,6 +96,13 @@ function Variantes() {
               divider={divisor}
               iconPosition={posicao}
               items={perguntas}
+            />
+            <VerCodigo
+              codigo={`<Accordion
+  items={perguntas}
+  defaultExpandedKeys={['prazo']}
+  iconPosition="${posicao}"${divisor ? '' : '\n  divider={false}'}
+/>`}
             />
           </div>
         )),

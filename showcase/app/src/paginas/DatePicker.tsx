@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, DatePicker, formatDate, type DatePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -149,16 +150,26 @@ function AberturaControlada() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<DatePicker label="Médio" />
+<DatePicker label="Pequeno" size="sm" />
+<DatePicker label="Com ajuda" hint="Digite ou escolha no calendário." />
+<DatePicker label="Com erro" error="Informe o vencimento." />
+<DatePicker label="Obrigatório" required />
+<DatePicker label="Desabilitado" value="2026-03-09" disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <DatePicker label="Médio" />
-      <DatePicker label="Pequeno" size="sm" />
-      <DatePicker hint="Digite ou escolha no calendário." label="Com ajuda" />
-      <DatePicker error="Informe o vencimento." label="Com erro" />
-      <DatePicker label="Obrigatório" required />
-      <DatePicker disabled label="Desabilitado" value="2026-03-09" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <DatePicker label="Médio" />
+        <DatePicker label="Pequeno" size="sm" />
+        <DatePicker hint="Digite ou escolha no calendário." label="Com ajuda" />
+        <DatePicker error="Informe o vencimento." label="Com erro" />
+        <DatePicker label="Obrigatório" required />
+        <DatePicker disabled label="Desabilitado" value="2026-03-09" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

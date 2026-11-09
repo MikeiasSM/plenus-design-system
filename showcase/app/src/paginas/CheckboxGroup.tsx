@@ -9,6 +9,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const CANAIS = [
   { label: 'Web', value: 'web' },
@@ -149,31 +150,60 @@ function Obrigatorio() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<CheckboxGroup label="Padrão" defaultValue={['web']}>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+</CheckboxGroup>
+
+<CheckboxGroup label="Com ajuda" hint="Pode mudar depois.">
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+</CheckboxGroup>
+
+<CheckboxGroup label="Com erro" error="Escolha ao menos um canal." required>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+</CheckboxGroup>
+
+<CheckboxGroup label="Desabilitado" defaultValue={['email']} disabled>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+</CheckboxGroup>
+
+<CheckboxGroup label="Horizontal" orientation="horizontal" defaultValue={['web']}>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+  <Checkbox label="SMS" value="sms" />
+</CheckboxGroup>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <CheckboxGroup defaultValue={['web']} label="Padrão">
-        <Checkbox label="Web" value="web" />
-        <Checkbox label="E-mail" value="email" />
-      </CheckboxGroup>
-      <CheckboxGroup hint="Pode mudar depois." label="Com ajuda">
-        <Checkbox label="Web" value="web" />
-        <Checkbox label="E-mail" value="email" />
-      </CheckboxGroup>
-      <CheckboxGroup error="Escolha ao menos um canal." label="Com erro" required>
-        <Checkbox label="Web" value="web" />
-        <Checkbox label="E-mail" value="email" />
-      </CheckboxGroup>
-      <CheckboxGroup defaultValue={['email']} disabled label="Desabilitado">
-        <Checkbox label="Web" value="web" />
-        <Checkbox label="E-mail" value="email" />
-      </CheckboxGroup>
-      <CheckboxGroup defaultValue={['web']} label="Horizontal" orientation="horizontal">
-        <Checkbox label="Web" value="web" />
-        <Checkbox label="E-mail" value="email" />
-        <Checkbox label="SMS" value="sms" />
-      </CheckboxGroup>
-    </div>
+    <>
+      <div className="demo-grid">
+        <CheckboxGroup defaultValue={['web']} label="Padrão">
+          <Checkbox label="Web" value="web" />
+          <Checkbox label="E-mail" value="email" />
+        </CheckboxGroup>
+        <CheckboxGroup hint="Pode mudar depois." label="Com ajuda">
+          <Checkbox label="Web" value="web" />
+          <Checkbox label="E-mail" value="email" />
+        </CheckboxGroup>
+        <CheckboxGroup error="Escolha ao menos um canal." label="Com erro" required>
+          <Checkbox label="Web" value="web" />
+          <Checkbox label="E-mail" value="email" />
+        </CheckboxGroup>
+        <CheckboxGroup defaultValue={['email']} disabled label="Desabilitado">
+          <Checkbox label="Web" value="web" />
+          <Checkbox label="E-mail" value="email" />
+        </CheckboxGroup>
+        <CheckboxGroup defaultValue={['web']} label="Horizontal" orientation="horizontal">
+          <Checkbox label="Web" value="web" />
+          <Checkbox label="E-mail" value="email" />
+          <Checkbox label="SMS" value="sms" />
+        </CheckboxGroup>
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -227,6 +257,11 @@ export const pagina: Pagina = {
       </CheckboxGroup>
     ),
     texto: 'CheckboxGroup para uma pergunta que aceita várias respostas, com uma legenda que diz qual é.',
+    codigo: `<CheckboxGroup label="Canais de aviso" defaultValue={['web', 'email']}>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+  <Checkbox label="SMS" value="sms" />
+</CheckboxGroup>`,
   },
   evite: {
     Previa: () => (
@@ -236,6 +271,10 @@ export const pagina: Pagina = {
       </RadioGroup>
     ),
     texto: 'Usar o grupo de caixas quando só uma resposta vale. Escolha única é RadioGroup; uma escolha sim ou não é um Checkbox solto.',
+    codigo: `<RadioGroup label="Canal de aviso" defaultValue="web">
+  <Radio label="Web" value="web" />
+  <Radio label="E-mail" value="email" />
+</RadioGroup>`,
   },
   Variantes,
   Modos,

@@ -9,6 +9,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { DESPESAS, OPCOES_DE_ACCENT, TOTAL_DE_DESPESAS, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoSunburst } from '../estrutura/decomposicao';
 
@@ -142,6 +143,9 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartSunburst nodes={[]} title="Estrutura de despesas" />
         <p className="note">Sem nós, o gráfico anuncia a ausência em vez de desenhar anéis vazios.</p>
+        <VerCodigo
+          codigo={`<ChartSunburst title="Estrutura de despesas" nodes={[]} />`}
+        />
       </div>
     </div>
   );

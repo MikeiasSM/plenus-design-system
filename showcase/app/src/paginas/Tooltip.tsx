@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button, ButtonIcon, IconSearch, Tooltip, type TooltipPlacement } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const POSICOES = ['top', 'bottom', 'left', 'right'] as const;
 const ABERTURAS = ['não controlado', 'true', 'false'] as const;
@@ -103,6 +104,19 @@ function CelulaInvalida() {
   );
 }
 
+const CODIGO_DAS_POSICOES = `<Tooltip content='placement="top"' placement="top">
+  <Button variant="secondary">top</Button>
+</Tooltip>
+<Tooltip content='placement="bottom"' placement="bottom">
+  <Button variant="secondary">bottom</Button>
+</Tooltip>
+<Tooltip content='placement="left"' placement="left">
+  <Button variant="secondary">left</Button>
+</Tooltip>
+<Tooltip content='placement="right"' placement="right">
+  <Button variant="secondary">right</Button>
+</Tooltip>`;
+
 function Variantes() {
   return (
     <>
@@ -113,6 +127,7 @@ function Variantes() {
           </Tooltip>
         ))}
       </div>
+      <VerCodigo codigo={CODIGO_DAS_POSICOES} />
       <p className="note">Passe o ponteiro ou chegue pelo Tab. Sem espaço do lado pedido, o balão inverte.</p>
     </>
   );
@@ -210,6 +225,9 @@ export const pagina: Pagina = {
       </Tooltip>
     ),
     texto: 'Uma frase curta que descreve um elemento.',
+    codigo: `<Tooltip content="Salva sem fechar a tela">
+  <Button>Salvar</Button>
+</Tooltip>`,
   },
   evite: {
     Previa: () => (
@@ -218,6 +236,9 @@ export const pagina: Pagina = {
       </Tooltip>
     ),
     texto: 'Várias medidas num balão. Leitura de medidas sob o ponteiro, em grade, é o ChartTooltip.',
+    codigo: `<Tooltip content="Receita R$ 12.400 · Despesa R$ 8.150 · Saldo R$ 4.250 · Margem 34%">
+  <Button variant="secondary">Março</Button>
+</Tooltip>`,
   },
   Variantes,
   Modos,

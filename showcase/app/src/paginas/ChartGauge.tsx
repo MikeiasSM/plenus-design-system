@@ -20,6 +20,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 import { DecomposicaoDoGauge } from '../estrutura/decomposicao';
 
@@ -548,28 +549,43 @@ const DEMONSTRACAO = {
   value: 87.4,
 } as const;
 
+const CODIGO_DAS_VARIANTES = `<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} indicator="fill" />
+<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} indicator="needle" />
+<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} indicator="fillAndNeedle" />
+
+<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} segmentStyle="track" />
+<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} segmentStyle="rim" colorBySegment />
+<ChartGauge title="SLA de atendimento" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} segmentStyle="hidden" colorBySegment />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {(['fill', 'needle', 'fillAndNeedle'] as const).map((indicator) => (
-        <div className="demo-box" key={indicator}>
-          <ChartGauge {...DEMONSTRACAO} height={180} indicator={indicator} title={`indicator="${indicator}"`} />
-        </div>
-      ))}
-      {(['track', 'rim', 'hidden'] as const).map((segmentStyle) => (
-        <div className="demo-box" key={segmentStyle}>
-          <ChartGauge
-            {...DEMONSTRACAO}
-            colorBySegment={segmentStyle !== 'track'}
-            height={180}
-            segmentStyle={segmentStyle}
-            title={`segmentStyle="${segmentStyle}"`}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {(['fill', 'needle', 'fillAndNeedle'] as const).map((indicator) => (
+          <div className="demo-box" key={indicator}>
+            <ChartGauge {...DEMONSTRACAO} height={180} indicator={indicator} title={`indicator="${indicator}"`} />
+          </div>
+        ))}
+        {(['track', 'rim', 'hidden'] as const).map((segmentStyle) => (
+          <div className="demo-box" key={segmentStyle}>
+            <ChartGauge
+              {...DEMONSTRACAO}
+              colorBySegment={segmentStyle !== 'track'}
+              height={180}
+              segmentStyle={segmentStyle}
+              title={`segmentStyle="${segmentStyle}"`}
+            />
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
+
+const CODIGO_DOS_ESTADOS = `<ChartGauge title="Acima do máximo" value={112} max={100} segments={faixasDoSla} target={{ value: 95 }} height={180} />
+<ChartGauge title="Carregando" value={87.4} max={100} segments={faixasDoSla} target={{ value: 95 }} loading height={180} />
+<ChartGauge title="Sem dado" value={null} max={100} segments={faixasDoSla} target={{ value: 95 }} height={180} />`;
 
 function Modos() {
   return (
@@ -613,6 +629,7 @@ function Modos() {
         Carregando, o trilho pulsa, sem pulsar com movimento reduzido. Sem dado, a escala continua legível e o desenho
         vira <code>role=&quot;img&quot;</code>: um medidor sem valor não existe.
       </p>
+      <VerCodigo codigo={CODIGO_DOS_ESTADOS} />
     </div>
   );
 }
@@ -907,6 +924,21 @@ const comum = {
     ),
     texto:
       'Em que faixa um valor cai, numa escala com significado — crítico, atenção, bom — ou que começa abaixo de zero. Isso é ChartGauge.',
+    codigo: `<ChartGauge
+  title="SLA de atendimento"
+  value={87.4}
+  max={100}
+  formatValue={(valor) => \`\${formatNumber(valor)}%\`}
+  segments={[
+    { to: 80, intent: 'negative', label: 'Crítico' },
+    { to: 90, intent: 'warning', label: 'Atenção' },
+    { intent: 'positive', label: 'Bom' },
+  ]}
+  segmentStyle="rim"
+  colorBySegment
+  target={{ value: 95 }}
+  height={180}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -923,6 +955,14 @@ const comum = {
     ),
     texto:
       'Quanto da meta foi atingido, de zero até 100%, sem faixas: o anel de progresso é ChartRadial, mesmo em meia-lua. Várias medidas contra a meta, também.',
+    codigo: `<ChartRadial
+  title="Atingimento da meta"
+  tracks={[{ label: 'Meta mensal', value: 64, max: 100 }]}
+  startAngle={-90}
+  endAngle={90}
+  height={180}
+  formatValue={(valor) => formatPercent(valor / 100)}
+/>`,
   },
   Variantes,
   Modos,

@@ -10,6 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import {
   COMPOSICAO,
   DESPESAS,
@@ -308,6 +309,15 @@ export const pagina: Pagina = {
   faca: {
     Previa: ForaDoGrafico,
     texto: 'Várias medidas em grade, como apoio visual ao ponteiro. A leitura acessível continua na marca e no texto da página.',
+    codigo: `<ChartTooltip
+  title="Faturamento por mês"
+  columns={[{ format: formatCurrency }]}
+  rows={meses.map((mes, indice) => ({ label: mes, values: [faturamento[indice]] }))}
+  showTotal
+>
+  <p>Faturamento do semestre</p>
+  <strong>{formatCurrency(total)}</strong>
+</ChartTooltip>`,
   },
   evite: {
     Previa: () => (
@@ -316,6 +326,9 @@ export const pagina: Pagina = {
       </ChartTooltip>
     ),
     texto: 'Uma frase curta que descreve um elemento: isso é Tooltip, que nomeia o elemento para o leitor de tela. O ChartTooltip é decorativo.',
+    codigo: `<ChartTooltip rows={[{ label: 'Excluir o registro selecionado', values: [] }]}>
+  <div>Excluir</div>
+</ChartTooltip>`,
   },
   Modos,
   teclado: [{ teclas: ['Qualquer tecla'], acao: 'Fecha o balão, que não recebe foco nem é anunciado.' }],

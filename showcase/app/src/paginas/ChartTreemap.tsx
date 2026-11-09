@@ -10,6 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { DESPESAS, OPCOES_DE_ACCENT, TOTAL_DE_DESPESAS, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoTreemap } from '../estrutura/decomposicao';
 
@@ -189,6 +190,9 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartTreemap nodes={[]} title="Estrutura de despesas" />
         <p className="note">Sem nenhum valor positivo, o gráfico anuncia a ausência em vez de desenhar um mapa vazio.</p>
+        <VerCodigo
+          codigo={`<ChartTreemap title="Estrutura de despesas" nodes={[]} />`}
+        />
       </div>
     </div>
   );

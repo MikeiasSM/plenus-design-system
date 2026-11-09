@@ -19,6 +19,7 @@ import {
 } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const ORIENTACOES = ['horizontal', 'vertical'] as const;
 const APARENCIAS = ['floating', 'flat'] as const;
@@ -242,35 +243,53 @@ function BarraDeAcoesFixa() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Toolbar label="Alinhamento" appearance="floating">
+  <Toolbar.Group>
+    <ButtonIcon icon={<IconBold />} label="Negrito" size="sm" variant="ghost" />
+    <ButtonIcon icon={<IconItalic />} label="Itálico" size="sm" variant="ghost" />
+  </Toolbar.Group>
+  <Toolbar.Group>
+    <ButtonIcon icon={<IconAlignLeft />} label="Alinhar à esquerda" size="sm" variant="ghost" />
+    <ButtonIcon icon={<IconAlignCenter />} label="Centralizar" size="sm" variant="ghost" />
+  </Toolbar.Group>
+</Toolbar>
+<Toolbar label="Alinhamento" appearance="flat">…</Toolbar>
+
+<Toolbar label="Alinhamento" orientation="horizontal">…</Toolbar>
+<Toolbar label="Alinhamento" orientation="vertical">…</Toolbar>`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>appearance</span>
-        {ORIENTACOES.map((orientacao) => (
-          <span key={orientacao}>{orientacao}</span>
-        ))}
-      </div>
-      {APARENCIAS.map((aparencia) => (
-        <div className="matrix-row" key={aparencia}>
-          <code>{aparencia}</code>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>appearance</span>
           {ORIENTACOES.map((orientacao) => (
-            <span key={orientacao}>
-              <Toolbar appearance={aparencia} label={`Alinhamento, ${aparencia}, ${orientacao}`} orientation={orientacao}>
-                <Toolbar.Group>
-                  <ButtonIcon icon={NEGRITO} label="Negrito" size="sm" variant="ghost" />
-                  <ButtonIcon icon={ITALICO} label="Itálico" size="sm" variant="ghost" />
-                </Toolbar.Group>
-                <Toolbar.Group>
-                  <ButtonIcon icon={<IconAlignLeft />} label="Alinhar à esquerda" size="sm" variant="ghost" />
-                  <ButtonIcon icon={<IconAlignCenter />} label="Centralizar" size="sm" variant="ghost" />
-                </Toolbar.Group>
-              </Toolbar>
-            </span>
+            <span key={orientacao}>{orientacao}</span>
           ))}
         </div>
-      ))}
-    </div>
+        {APARENCIAS.map((aparencia) => (
+          <div className="matrix-row" key={aparencia}>
+            <code>{aparencia}</code>
+            {ORIENTACOES.map((orientacao) => (
+              <span key={orientacao}>
+                <Toolbar appearance={aparencia} label={`Alinhamento, ${aparencia}, ${orientacao}`} orientation={orientacao}>
+                  <Toolbar.Group>
+                    <ButtonIcon icon={NEGRITO} label="Negrito" size="sm" variant="ghost" />
+                    <ButtonIcon icon={ITALICO} label="Itálico" size="sm" variant="ghost" />
+                  </Toolbar.Group>
+                  <Toolbar.Group>
+                    <ButtonIcon icon={<IconAlignLeft />} label="Alinhar à esquerda" size="sm" variant="ghost" />
+                    <ButtonIcon icon={<IconAlignCenter />} label="Centralizar" size="sm" variant="ghost" />
+                  </Toolbar.Group>
+                </Toolbar>
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -346,6 +365,16 @@ export const pagina: Pagina = {
       </Toolbar>
     ),
     texto: 'Ações do mesmo objeto, agrupadas pelo que fazem. A barra se chama pelo que controla.',
+    codigo: `<Toolbar label="Formatação">
+  <Toolbar.Group>
+    <ButtonIcon icon={<IconBold />} label="Negrito" size="sm" variant="ghost" />
+    <ButtonIcon icon={<IconItalic />} label="Itálico" size="sm" variant="ghost" />
+  </Toolbar.Group>
+  <Toolbar.Group label="Alinhamento">
+    <ButtonIcon icon={<IconAlignLeft />} label="Alinhar à esquerda" size="sm" variant="ghost" />
+    <ButtonIcon icon={<IconAlignCenter />} label="Centralizar" size="sm" variant="ghost" />
+  </Toolbar.Group>
+</Toolbar>`,
   },
   evite: {
     Previa: () => (
@@ -356,6 +385,11 @@ export const pagina: Pagina = {
       </Toolbar>
     ),
     texto: 'Usar a barra para navegar entre páginas. Navegação é Tabs ou links num nav; a barra é para ações.',
+    codigo: `<Toolbar label="Navegação" appearance="flat">
+  <Button size="sm" variant="ghost">Início</Button>
+  <Button size="sm" variant="ghost">Pedidos</Button>
+  <Button size="sm" variant="ghost">Relatórios</Button>
+</Toolbar>`,
   },
   Variantes,
   Modos,

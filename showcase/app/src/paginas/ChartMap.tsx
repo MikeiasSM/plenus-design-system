@@ -17,6 +17,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 import { MALHA_DAS_UFS } from '../dadosDoMapa';
 import { DecomposicaoDoMap } from '../estrutura/decomposicao';
@@ -574,6 +575,23 @@ function RegioesComEstados() {
   );
 }
 
+const CODIGO_DA_LARGURA_DE_CELULAR = `<ChartMap
+  title="Vendas por UF"
+  geometry={malhaDasUfs}
+  featureNameKey="properties.nome"
+  data={vendasPorUf}
+  valueLabel="Vendas"
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
+  legend="right"
+/>`;
+
+const CODIGO_DO_MAPA_SEM_DADOS = `<ChartMap
+  title="Vendas por UF"
+  geometry={malhaDasUfs}
+  featureNameKey="properties.nome"
+  data={[]}
+/>`;
+
 function Modos() {
   return (
     <div className="stack">
@@ -622,11 +640,13 @@ function Modos() {
           <ChartMap {...MALHA} data={VENDAS} formatValue={moedaCompacta} legend="right" title="Vendas por UF" valueLabel="Vendas" />
         </div>
         <p className="note">Em 358px a legenda lateral desce para baixo e a altura encolhe até a proporção do país.</p>
+        <VerCodigo codigo={CODIGO_DA_LARGURA_DE_CELULAR} />
       </div>
       <div className="subsection">
         <h3>Sem dados</h3>
         <ChartMap {...MALHA} data={[]} title="Vendas por UF" />
         <p className="note">Sem valor em região alguma, o gráfico anuncia a ausência com <code>emptyMessage</code>.</p>
+        <VerCodigo codigo={CODIGO_DO_MAPA_SEM_DADOS} />
       </div>
     </div>
   );
@@ -939,6 +959,17 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
       />
     ),
     texto: 'Valor concentrado em poucas regiões, como vendas e densidade: quantis ou logarítmica distribuem a cor.',
+    codigo: `<ChartMap
+  title="Vendas por UF, por quintis"
+  geometry={malhaDasUfs}
+  featureNameKey="properties.nome"
+  data={vendasPorUf}
+  colorScale={{ type: 'classes', method: 'quantile' }}
+  formatValue={(valor) => formatCurrency(valor, { compact: true })}
+  regionLabels="hidden"
+  legend="none"
+  height={300}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -951,6 +982,15 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
       />
     ),
     texto: 'Mapa sem legenda: a cor sozinha não diz o que a região é. A legenda nomeia a escala e é o controle dela.',
+    codigo: `<ChartMap
+  title="Regionais"
+  geometry={malhaDasUfs}
+  featureNameKey="properties.nome"
+  data={regionalPorUf}
+  colorScale={{ type: 'categorical', categories: regionais }}
+  legend="none"
+  height={300}
+/>`,
   },
   Modos,
   teclado: [

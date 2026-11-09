@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SegmentedControl, Tabs, type TabItem, type TabsOrientation } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const ORIENTACOES = ['horizontal', 'vertical'] as const;
 
@@ -85,6 +86,7 @@ function Variantes() {
       <div className="subsection">
         <h3><code>horizontal</code></h3>
         <Tabs items={ABAS_DO_MODULO} label="Configurações do módulo" />
+        <VerCodigo codigo={'<Tabs label="Configurações do módulo" items={abas} />'} />
       </div>
       <div className="subsection">
         <h3><code>vertical</code></h3>
@@ -93,6 +95,13 @@ function Variantes() {
           A lista vira coluna ao lado do painel e as setas passam a ser cima e baixo. Vale a partir de cerca de seis seções,
           ou antes se algum rótulo passar de duas palavras.
         </p>
+        <VerCodigo
+          codigo={`<Tabs
+  label="Preferências da conta"
+  items={abas}
+  orientation="vertical"
+/>`}
+        />
       </div>
     </div>
   );
@@ -159,6 +168,14 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Tabs quando cada aba troca o conteúdo que ela controla: painéis diferentes, lado a lado.',
+    codigo: `<Tabs
+  label="Preferências da conta"
+  items={[
+    { key: 'perfil', label: 'Perfil', content: <Perfil /> },
+    { key: 'notificacoes', label: 'Notificações', content: <Notificacoes /> },
+    { key: 'seguranca', label: 'Segurança', content: <Seguranca /> },
+  ]}
+/>`,
   },
   evite: {
     Previa: () => (
@@ -173,6 +190,15 @@ export const pagina: Pagina = {
       />
     ),
     texto: 'Tabs para mudar o período de um mesmo gráfico. Ali muda um valor, não o painel: é SegmentedControl.',
+    codigo: `<SegmentedControl
+  label="Período"
+  items={[
+    { label: 'Dia', value: 'dia' },
+    { label: 'Semana', value: 'semana' },
+    { label: 'Mês', value: 'mes' },
+  ]}
+  defaultValue="semana"
+/>`,
   },
   Variantes,
   Modos,

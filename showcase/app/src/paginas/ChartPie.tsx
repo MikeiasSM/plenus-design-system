@@ -10,6 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { DESPESAS_POR_TIPO, OPCOES_DE_ACCENT, RECEITA, accentDa, formatarCompacto, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoPie } from '../estrutura/decomposicao';
 
@@ -158,6 +159,9 @@ function Modos() {
         <h3>Sem dados</h3>
         <ChartPie slices={[]} title="Composição da receita" />
         <p className="note">Sem fatia positiva, o gráfico anuncia a ausência em vez de desenhar uma pizza vazia.</p>
+        <VerCodigo
+          codigo={`<ChartPie title="Composição da receita" slices={[]} />`}
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Switch } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const playground = definirPlayground({
   inicial: { label: 'Notificações por e-mail', hint: '', error: '', defaultChecked: false, disabled: false },
@@ -68,16 +69,26 @@ function Densidade() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Switch label="Desligado" />
+<Switch label="Ligado" defaultChecked />
+<Switch label="Com ajuda" hint="Acompanha a preferência do sistema." />
+<Switch label="Com erro" error="Não foi possível salvar." />
+<Switch label="Desabilitado" disabled />
+<Switch label="Desabilitado e ligado" defaultChecked disabled />`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <Switch label="Desligado" />
-      <Switch defaultChecked label="Ligado" />
-      <Switch hint="Acompanha a preferência do sistema." label="Com ajuda" />
-      <Switch error="Não foi possível salvar." label="Com erro" />
-      <Switch disabled label="Desabilitado" />
-      <Switch defaultChecked disabled label="Desabilitado e ligado" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <Switch label="Desligado" />
+        <Switch defaultChecked label="Ligado" />
+        <Switch hint="Acompanha a preferência do sistema." label="Com ajuda" />
+        <Switch error="Não foi possível salvar." label="Com erro" />
+        <Switch disabled label="Desabilitado" />
+        <Switch defaultChecked disabled label="Desabilitado e ligado" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

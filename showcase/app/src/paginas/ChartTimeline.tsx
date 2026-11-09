@@ -25,6 +25,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx, type Atributo } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 import { accentDa, OPCOES_DE_ACCENT, VISIBILIDADES } from '../dadosDosGraficos';
 import { DecomposicaoDoTimeline } from '../estrutura/decomposicao';
 
@@ -663,27 +664,82 @@ const DIA_CURTO: ChartTimelineProps = {
   rowSummary: undefined,
 };
 
+const CODIGO_DAS_VARIANTES = `<ChartTimeline
+  density="md"
+  legend="none"
+  title='density="md"'
+  timeScale="dayHours"
+  domain={[0, 24]}
+  rows={dias}
+  series={series}
+  segments={intervalos}
+  rowBands={jornadas}
+  markers={batidas}
+  bands={adicionalNoturno}
+/>
+
+<ChartTimeline
+  density="sm"
+  legend="none"
+  title='density="sm"'
+  timeScale="dayHours"
+  domain={[0, 24]}
+  rows={dias}
+  series={series}
+  segments={intervalos}
+  rowBands={jornadas}
+  markers={batidas}
+  bands={adicionalNoturno}
+/>
+
+<ChartTimeline
+  overlap="stack"
+  legend="none"
+  title='overlap="stack"'
+  domain={[inicio, fim]}
+  rows={plantonistas}
+  series={series}
+  segments={plantoes}
+  bands={finsDeSemana}
+  referenceLines={[{ time: agora, label: 'Agora' }]}
+/>
+
+<ChartTimeline
+  overlap="overlay"
+  legend="none"
+  title='overlap="overlay"'
+  domain={[inicio, fim]}
+  rows={plantonistas}
+  series={series}
+  segments={plantoes}
+  bands={finsDeSemana}
+  referenceLines={[{ time: agora, label: 'Agora' }]}
+/>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      {(['md', 'sm'] as const).map((density) => (
-        <div className="demo-box" key={density}>
-          <ChartTimeline {...DIA_CURTO} density={density} legend="none" title={`density="${density}"`} />
-        </div>
-      ))}
-      {(['stack', 'overlay'] as const).map((overlap) => (
-        <div className="demo-box" key={overlap}>
-          <ChartTimeline
-            {...PLANTOES}
-            legend="none"
-            overlap={overlap}
-            rowSummary={undefined}
-            rows={PLANTOES.rows.slice(0, 3)}
-            title={`overlap="${overlap}"`}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="demo-grid">
+        {(['md', 'sm'] as const).map((density) => (
+          <div className="demo-box" key={density}>
+            <ChartTimeline {...DIA_CURTO} density={density} legend="none" title={`density="${density}"`} />
+          </div>
+        ))}
+        {(['stack', 'overlay'] as const).map((overlap) => (
+          <div className="demo-box" key={overlap}>
+            <ChartTimeline
+              {...PLANTOES}
+              legend="none"
+              overlap={overlap}
+              rowSummary={undefined}
+              rows={PLANTOES.rows.slice(0, 3)}
+              title={`overlap="${overlap}"`}
+            />
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -732,6 +788,22 @@ function Modos() {
         <p className="note">
           Em 358px o resumo desce para baixo do dia e o desenho rola de lado, com os dias fixos.
         </p>
+        <VerCodigo
+          codigo={`<ChartTimeline
+  title="Jornada de trabalho, 01/10 a 12/10/2026"
+  timeScale="dayHours"
+  domain={[0, 24]}
+  rows={dias}
+  series={series}
+  segments={intervalos}
+  rowBands={jornadas}
+  markers={batidas}
+  bands={adicionalNoturno}
+  rowSummary={resumoDoDia}
+  density="sm"
+  legend="none"
+/>`}
+        />
       </div>
       <div className="subsection">
         <h3>Estados, juntando os iguais</h3>
@@ -740,11 +812,31 @@ function Modos() {
           As mesmas leituras do exemplo de disponibilidade, com <code>mergeConsecutive</code> ligado: cada estado vira
           uma região contínua.
         </p>
+        <VerCodigo
+          codigo={`<ChartTimeline
+  title="Disponibilidade dos serviços em 18/10/2026"
+  timeScale="dayHours"
+  domain={[0, 15]}
+  rows={servicos}
+  series={series}
+  states={leituras}
+  statesEnd={agora}
+  bands={[{ series: 'Janela de manutenção', start: 2, end: 4 }]}
+  referenceLines={[{ time: agora, label: 'Agora 14h32' }]}
+  rowSummary={disponibilidade}
+  showSegmentLabels="hidden"
+  density="sm"
+  legend="bottom"
+/>`}
+        />
       </div>
       <div className="subsection">
         <h3>Sem dados</h3>
         <ChartTimeline rows={[]} series={SERIES_DA_JORNADA} title="Jornada de trabalho" />
         <p className="note">Sem intervalos, faixas ou instantes, o gráfico anuncia a ausência com <code>emptyMessage</code>.</p>
+        <VerCodigo
+          codigo={`<ChartTimeline title="Jornada de trabalho" rows={[]} series={series} />`}
+        />
       </div>
     </div>
   );
@@ -963,6 +1055,19 @@ const dias = jornadaDoMes(mes);
     ),
     texto:
       'Quanto tempo, quando e ao mesmo tempo que o quê: a posição e a largura da barra são o dado. Isso é ChartTimeline.',
+    codigo: `<ChartTimeline
+  title="Jornada de trabalho"
+  timeScale="dayHours"
+  domain={[0, 24]}
+  rows={dias}
+  series={series}
+  segments={intervalos}
+  rowBands={jornadas}
+  markers={batidas}
+  bands={adicionalNoturno}
+  density="sm"
+  legend="none"
+/>`,
   },
   evite: {
     Previa: () => (
@@ -972,6 +1077,17 @@ const dias = jornadaDoMes(mes);
     ),
     texto:
       'Os passos de um registro num eixo de tempo: a barra sugere uma duração que ninguém vai ler. Por onde o registro passou é Timeline.',
+    codigo: `<ChartTimeline
+  title="Histórico do pedido 4512"
+  rows={[{ key: 'pedido', label: 'Pedido 4512' }]}
+  series={[{ label: 'Rascunho' }, { label: 'Aguardando revisão' }, { label: 'Publicado' }]}
+  states={[
+    { row: 'pedido', state: 'Rascunho', time: new Date(2026, 9, 12, 9, 14) },
+    { row: 'pedido', state: 'Aguardando revisão', time: new Date(2026, 9, 14, 16, 2) },
+    { row: 'pedido', state: 'Publicado', time: new Date(2026, 9, 15, 10, 40) },
+  ]}
+  legend="none"
+/>`,
   },
   Variantes,
   Modos,

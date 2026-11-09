@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import { Badge, Button, InputText, Menu, PageHeader, IconMore, IconSearch } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const LARGURAS = ['total', '760px', '1120px'] as const;
 const ACOES = ['nenhuma', 'principal', 'principal e secundária', 'com menu de mais ações'] as const;
@@ -113,6 +114,32 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DE_MAIS_DE_DUAS_ACOES = `<PageHeader>
+  <PageHeader.Title>Pedido 1042</PageHeader.Title>
+  <PageHeader.Actions>
+    <Menu label="Mais ações" items={maisAcoes}>
+      <Button aria-label="Mais ações" variant="secondary">
+        <IconMore />
+      </Button>
+    </Menu>
+    <Button variant="secondary">Imprimir</Button>
+    <Button>Aprovar pedido</Button>
+  </PageHeader.Actions>
+</PageHeader>`;
+
+const CODIGO_DA_LARGURA_ESTREITA = `<PageHeader>
+  <PageHeader.Back as={Link} href="/pedidos" label="Voltar para Pedidos" />
+  <PageHeader.Title>Pedido 1042</PageHeader.Title>
+  <PageHeader.Badges>
+    <Badge tone="success">Pago</Badge>
+  </PageHeader.Badges>
+  <PageHeader.Description>Itens, entrega e pagamento do pedido de Ana Ribeiro.</PageHeader.Description>
+  <PageHeader.Actions>
+    <Button variant="secondary">Imprimir</Button>
+    <Button>Aprovar pedido</Button>
+  </PageHeader.Actions>
+</PageHeader>`;
+
 function Modos() {
   return (
     <div className="stack">
@@ -134,6 +161,7 @@ function Modos() {
           A ação principal vai por último, à direita, com até duas secundárias antes dela. O que passar disso cabe num{' '}
           <code>Menu</code> de “Mais ações”. O sistema não impõe o limite; a composição o facilita.
         </p>
+        <VerCodigo codigo={CODIGO_DE_MAIS_DE_DUAS_ACOES} />
       </div>
       <div className="subsection">
         <h3>Largura estreita</h3>
@@ -154,6 +182,7 @@ function Modos() {
         <p className="note">
           A medida é a do próprio cabeçalho, e não a da janela: abaixo de 640px, as ações e a busca descem para sob o texto.
         </p>
+        <VerCodigo codigo={CODIGO_DA_LARGURA_ESTREITA} />
       </div>
     </div>
   );

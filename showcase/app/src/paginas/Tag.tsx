@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Badge, Button, Tag, type TagSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md'] as const;
 const FILTROS = ['Situação: ativo', 'Perfil: editor', 'Criado em 2026'];
@@ -141,38 +142,51 @@ function EscolhaDePapeis() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<Tag size="sm">Editor</Tag>
+<Tag size="md">Editor</Tag>
+
+<Tag onRemove={remover}>Editor</Tag>
+
+<Tag selected={false} onSelectedChange={alternar}>Editor</Tag>
+<Tag selected onSelectedChange={alternar}>Editor</Tag>
+
+<Tag disabled onRemove={remover}>Editor</Tag>`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>size</span>
-        <span>texto</span>
-        <span>removível</span>
-        <span>de alternar</span>
-        <span>selecionada</span>
-        <span>disabled</span>
-      </div>
-      {TAMANHOS.map((tamanho) => (
-        <div className="matrix-row" key={tamanho}>
-          <code>{tamanho}</code>
-          <span>
-            <Tag size={tamanho}>Editor</Tag>
-          </span>
-          <span>
-            <Tag onRemove={() => undefined} size={tamanho}>Editor</Tag>
-          </span>
-          <span>
-            <Tag onSelectedChange={() => undefined} selected={false} size={tamanho}>Editor</Tag>
-          </span>
-          <span>
-            <Tag onSelectedChange={() => undefined} selected size={tamanho}>Editor</Tag>
-          </span>
-          <span>
-            <Tag disabled onRemove={() => undefined} size={tamanho}>Editor</Tag>
-          </span>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>size</span>
+          <span>texto</span>
+          <span>removível</span>
+          <span>de alternar</span>
+          <span>selecionada</span>
+          <span>disabled</span>
         </div>
-      ))}
-    </div>
+        {TAMANHOS.map((tamanho) => (
+          <div className="matrix-row" key={tamanho}>
+            <code>{tamanho}</code>
+            <span>
+              <Tag size={tamanho}>Editor</Tag>
+            </span>
+            <span>
+              <Tag onRemove={() => undefined} size={tamanho}>Editor</Tag>
+            </span>
+            <span>
+              <Tag onSelectedChange={() => undefined} selected={false} size={tamanho}>Editor</Tag>
+            </span>
+            <span>
+              <Tag onSelectedChange={() => undefined} selected size={tamanho}>Editor</Tag>
+            </span>
+            <span>
+              <Tag disabled onRemove={() => undefined} size={tamanho}>Editor</Tag>
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -224,6 +238,8 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Tag para o que é operado: removida, como o filtro ativo, ou ligada e desligada, como o papel escolhido.',
+    codigo: `<Tag onRemove={remover}>Situação: ativo</Tag>
+<Tag selected onSelectedChange={alternar}>editor</Tag>`,
   },
   evite: {
     Previa: () => (
@@ -233,6 +249,8 @@ export const pagina: Pagina = {
       </>
     ),
     texto: 'Tag sem controle para rotular um estado. Isso é papel do Badge, à direita.',
+    codigo: `<Tag>Ativo</Tag>
+<Badge dot tone="success">Ativo</Badge>`,
   },
   Variantes,
   Modos,

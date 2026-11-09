@@ -6,6 +6,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const FLUXO_DE_PUBLICACAO: TimelineItem[] = [
   { key: 'rascunho', label: 'Rascunho', description: 'Criado por Ana Lima', date: '12/10/2026 09:14' },
@@ -96,6 +97,9 @@ function Variantes() {
           <div style={{ width: 280 }}>
             <Timeline current="revisao" items={FLUXO_DE_PUBLICACAO} label={`Fluxo de publicação, ${tamanho}`} size={tamanho} />
           </div>
+          <VerCodigo
+            codigo={`<Timeline label="Fluxo de publicação" items={estados} current="revisao" size="${tamanho}" />`}
+          />
         </div>
       ))}
       {CHAVES.map((chave) => (
@@ -106,6 +110,7 @@ function Variantes() {
           <div style={{ width: 280 }}>
             <Timeline current={chave} items={FLUXO_DE_PUBLICACAO} label={`Fluxo de publicação, em ${chave}`} />
           </div>
+          <VerCodigo codigo={`<Timeline label="Fluxo de publicação" items={estados} current="${chave}" />`} />
         </div>
       ))}
     </div>
@@ -160,6 +165,7 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Timeline para acompanhar os estados por que algo passa, sem que a pessoa navegue entre eles.',
+    codigo: '<Timeline label="Fluxo de publicação" items={estados} current="revisao" />',
   },
   evite: {
     Previa: () => (
@@ -176,6 +182,15 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Timeline para as etapas de um formulário que a pessoa preenche: isso é o Steps, que é navegação.',
+    codigo: `<Steps
+  label="Etapas do e-mail"
+  items={[
+    { key: 'conta', label: 'Conta' },
+    { key: 'servidor', label: 'Servidor' },
+    { key: 'teste', label: 'Teste' },
+  ]}
+  current="servidor"
+/>`,
   },
   Variantes,
   Modos,

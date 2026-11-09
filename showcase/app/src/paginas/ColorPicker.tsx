@@ -6,6 +6,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const CORES = [
   { color: '#3F4143', label: 'Grafite', value: 'grafite' },
@@ -100,34 +101,45 @@ function CorDoDestaque() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ColorPicker label="Cor" size="sm" defaultValue="azul" options={cores} />
+<ColorPicker label="Cor" size="md" defaultValue="azul" options={cores} />
+<ColorPicker label="Cor" size="lg" defaultValue="azul" options={cores} />
+
+<ColorPicker label="Cor" defaultOption={{}} defaultValue={null} options={cores} />
+<ColorPicker label="Cor" defaultValue="branco" options={brancoEPreto} />
+<ColorPicker label="Cor" defaultValue="vermelho" disabled options={cores} />`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>size</span>
-        <span>cores</span>
-        <span>com padrão escolhido</span>
-        <span>branco e preto</span>
-        <span>disabled</span>
-      </div>
-      {TAMANHOS.map((tamanho) => (
-        <div className="matrix-row" key={tamanho}>
-          <code>{tamanho}</code>
-          <span>
-            <ColorPicker defaultValue="azul" label="Cor" options={CORES.slice(0, 4)} size={tamanho} />
-          </span>
-          <span>
-            <ColorPicker defaultOption={{}} defaultValue={null} label="Cor" options={CORES.slice(0, 3)} size={tamanho} />
-          </span>
-          <span>
-            <ColorPicker defaultValue="branco" label="Cor" options={EXTREMOS} size={tamanho} />
-          </span>
-          <span>
-            <ColorPicker defaultValue="vermelho" disabled label="Cor" options={CORES.slice(0, 3)} size={tamanho} />
-          </span>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>size</span>
+          <span>cores</span>
+          <span>com padrão escolhido</span>
+          <span>branco e preto</span>
+          <span>disabled</span>
         </div>
-      ))}
-    </div>
+        {TAMANHOS.map((tamanho) => (
+          <div className="matrix-row" key={tamanho}>
+            <code>{tamanho}</code>
+            <span>
+              <ColorPicker defaultValue="azul" label="Cor" options={CORES.slice(0, 4)} size={tamanho} />
+            </span>
+            <span>
+              <ColorPicker defaultOption={{}} defaultValue={null} label="Cor" options={CORES.slice(0, 3)} size={tamanho} />
+            </span>
+            <span>
+              <ColorPicker defaultValue="branco" label="Cor" options={EXTREMOS} size={tamanho} />
+            </span>
+            <span>
+              <ColorPicker defaultValue="vermelho" disabled label="Cor" options={CORES.slice(0, 3)} size={tamanho} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -177,6 +189,12 @@ export const pagina: Pagina = {
   faca: {
     Previa: () => <ColorPicker defaultOption={{}} defaultValue="azul" label="Cor do texto" options={CORES.slice(0, 5)} />,
     texto: 'Uma paleta curta, com o nome de cada cor e a opção de voltar ao padrão.',
+    codigo: `<ColorPicker
+  label="Cor do texto"
+  defaultOption={{}}
+  options={cores}
+  defaultValue="azul"
+/>`,
   },
   evite: {
     Previa: () => (
@@ -187,6 +205,7 @@ export const pagina: Pagina = {
       />
     ),
     texto: 'Uma lista de nomes, que obriga a ler e imaginar a cor. Cor se escolhe vendo; o ColorPicker é para paletas curtas e definidas, não para cor livre.',
+    codigo: '<Select label="Cor do texto" options={nomesDeCores} defaultValue="azul" />',
   },
   Variantes,
   Modos,

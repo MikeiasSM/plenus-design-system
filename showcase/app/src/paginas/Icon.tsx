@@ -19,6 +19,7 @@ import {
 } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 // Todos os icones exportados pelo pacote: um icone novo entra na grade sem editar esta pagina.
 const ICONES = Object.fromEntries(
@@ -170,6 +171,23 @@ const CAMINHOS = [
   },
 ];
 
+const CODIGO_DA_SUITE = `<IconStar />
+<IconStarFill />
+<IconBell />
+…`;
+
+const CODIGO_DOS_DE_INTERFACE = `<IconCalendar size={20} />
+<IconCheck size={20} />
+<IconClose size={20} />
+<IconSearch size={20} />
+…`;
+
+const CODIGO_DE_TAMANHO_E_COR = `<span style={{ fontSize: 12 }}><IconCalendar /> 12px</span>
+<span style={{ fontSize: 16 }}><IconCalendar /> 16px</span>
+<span style={{ fontSize: 24 }}><IconCalendar /> 24px</span>
+<span style={{ color: 'var(--pl-color-danger)' }}><IconClose size={20} /></span>
+<span style={{ color: 'var(--pl-color-success)' }}><IconArrowUp size={20} /></span>`;
+
 function Variantes() {
   return (
     <div className="stack">
@@ -213,6 +231,7 @@ function Variantes() {
           os importados.
         </p>
         <SuiteCompleta />
+        <VerCodigo codigo={CODIGO_DA_SUITE} />
       </div>
       <div className="subsection">
         <h3>Nomes que diferem entre os dois conjuntos</h3>
@@ -257,6 +276,7 @@ function Variantes() {
           Os caminhos vêm do Bootstrap Icons, sob licença MIT. Estes são os de interface, nomeados pelo significado; onde
           existe variante preenchida e ela lê bem no tamanho de interface, é a preenchida que vale.
         </p>
+        <VerCodigo codigo={CODIGO_DOS_DE_INTERFACE} />
       </div>
       <div className="subsection">
         <h3>Tamanho e cor</h3>
@@ -271,6 +291,7 @@ function Variantes() {
           Sem medida declarada, o ícone acompanha o tamanho do texto ao redor, em <code>1em</code>. A cor vem sempre de{' '}
           <code>currentColor</code>: ele herda a cor de onde está em vez de fixar a própria.
         </p>
+        <VerCodigo codigo={CODIGO_DE_TAMANHO_E_COR} />
       </div>
     </div>
   );
@@ -344,6 +365,7 @@ export const pagina: Pagina = {
       </span>
     ),
     texto: 'Sem label quando o texto ao lado já diz o mesmo: o ícone sai da leitura.',
+    codigo: '<IconCalendar /> Vence em 12/11',
   },
   evite: {
     Previa: () => (
@@ -352,6 +374,7 @@ export const pagina: Pagina = {
       </span>
     ),
     texto: 'Nomear o ícone que acompanha texto: o leitor de tela ouve "Calendário" antes de cada data, sem ganho algum.',
+    codigo: '<IconCalendar label="Calendário" /> Vence em 12/11',
   },
   Variantes,
   Modos,

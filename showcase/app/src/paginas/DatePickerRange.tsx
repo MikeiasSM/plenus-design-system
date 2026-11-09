@@ -8,6 +8,7 @@ import {
   type DateRangeShortcut,
 } from '@plenustech/design-system';
 import type { Pagina } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const ATALHOS_DO_PRODUTO: readonly DateRangeShortcut[] = [
   {
@@ -81,14 +82,26 @@ function Envio() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<DatePickerRange label="Médio" />
+<DatePickerRange label="Pequeno" size="sm" />
+<DatePickerRange label="Com erro" error="Informe o período." />
+<DatePickerRange
+  label="Desabilitado"
+  defaultValue={{ start: '2026-03-09', end: '2026-03-13' }}
+  disabled
+/>`;
+
 function Variantes() {
   return (
-    <div className="demo-grid">
-      <DatePickerRange label="Médio" />
-      <DatePickerRange label="Pequeno" size="sm" />
-      <DatePickerRange error="Informe o período." label="Com erro" />
-      <DatePickerRange defaultValue={{ start: '2026-03-09', end: '2026-03-13' }} disabled label="Desabilitado" />
-    </div>
+    <>
+      <div className="demo-grid">
+        <DatePickerRange label="Médio" />
+        <DatePickerRange label="Pequeno" size="sm" />
+        <DatePickerRange error="Informe o período." label="Com erro" />
+        <DatePickerRange defaultValue={{ start: '2026-03-09', end: '2026-03-13' }} disabled label="Desabilitado" />
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

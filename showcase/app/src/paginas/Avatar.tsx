@@ -1,6 +1,7 @@
 import { Avatar, type AvatarSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const MEDIDAS: Record<AvatarSize, number> = { sm: 32, md: 40, lg: 56 };
@@ -66,19 +67,26 @@ const playground = definirPlayground({
   },
 });
 
+const CODIGO_DAS_VARIANTES = `<Avatar name="Maria Costa" size="sm" />
+<Avatar name="Maria Costa" size="md" />
+<Avatar name="Maria Costa" size="lg" />`;
+
 function Variantes() {
   return (
-    <div className="demo-row">
-      {TAMANHOS.map((tamanho) => (
-        <div className="cell-person" key={tamanho}>
-          <Avatar name="Maria Costa" size={tamanho} />
-          <div>
-            <b>{tamanho}</b>
-            <span>{MEDIDAS[tamanho]}px</span>
+    <>
+      <div className="demo-row">
+        {TAMANHOS.map((tamanho) => (
+          <div className="cell-person" key={tamanho}>
+            <Avatar name="Maria Costa" size={tamanho} />
+            <div>
+              <b>{tamanho}</b>
+              <span>{MEDIDAS[tamanho]}px</span>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 

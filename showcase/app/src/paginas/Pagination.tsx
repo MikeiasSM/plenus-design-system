@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pagination } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 function PaginacaoDoPlayground({
   disabled,
@@ -137,6 +138,7 @@ function Variantes() {
             <code>siblings={vizinhos}</code>
           </h3>
           <Pagination onPageChange={() => undefined} page={10} pageCount={20} siblings={vizinhos} />
+          <VerCodigo codigo={`<Pagination page={10} pageCount={20} siblings={${vizinhos}} onPageChange={setPagina} />`} />
         </div>
       ))}
       <p className="note">

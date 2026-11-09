@@ -10,6 +10,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 interface Bloco {
   id: string;
@@ -137,18 +138,64 @@ const playground = definirPlayground({
 });
 
 function Variantes() {
-  const variantes: { opcoes: OpcoesDaEstrutura; titulo: string }[] = [
-    { titulo: 'Só títulos', opcoes: { acoes: false, aninhado: false, icones: false, trechos: false } },
-    { titulo: 'Com trecho e ícone', opcoes: { acoes: false, aninhado: false, icones: true, trechos: true } },
-    { titulo: 'Aninhada, com ações', opcoes: { acoes: true, aninhado: true, icones: true, trechos: true } },
+  const variantes: { codigo: string; opcoes: OpcoesDaEstrutura; titulo: string }[] = [
+    {
+      titulo: 'Só títulos',
+      opcoes: { acoes: false, aninhado: false, icones: false, trechos: false },
+      codigo: `<SortableList
+  label="Estrutura, só títulos"
+  items={blocos.map((bloco) => ({
+    key: bloco.id,
+    title: bloco.tipo,
+  }))}
+  selectedKey={escolhido}
+  onSelectedKeyChange={setEscolhido}
+  onReorder={reordenar}
+/>`,
+    },
+    {
+      titulo: 'Com trecho e ícone',
+      opcoes: { acoes: false, aninhado: false, icones: true, trechos: true },
+      codigo: `<SortableList
+  label="Estrutura, com trecho e ícone"
+  items={blocos.map((bloco) => ({
+    key: bloco.id,
+    title: bloco.tipo,
+    excerpt: bloco.trecho,
+    icon: bloco.icone,
+  }))}
+  selectedKey={escolhido}
+  onSelectedKeyChange={setEscolhido}
+  onReorder={reordenar}
+/>`,
+    },
+    {
+      titulo: 'Aninhada, com ações',
+      opcoes: { acoes: true, aninhado: true, icones: true, trechos: true },
+      codigo: `<SortableList
+  label="Estrutura, aninhada, com ações"
+  items={blocos.map((bloco) => ({
+    key: bloco.id,
+    title: bloco.tipo,
+    excerpt: bloco.trecho,
+    icon: bloco.icone,
+    level: bloco.nivel,
+    actions: <ButtonIcon icon={<IconTrash />} label={\`Excluir \${bloco.tipo}\`} size="sm" variant="dangerGhost" onClick={() => excluir(bloco.id)} />,
+  }))}
+  selectedKey={escolhido}
+  onSelectedKeyChange={setEscolhido}
+  onReorder={reordenar}
+/>`,
+    },
   ];
 
   return (
     <div>
-      {variantes.map(({ opcoes, titulo }) => (
+      {variantes.map(({ codigo, opcoes, titulo }) => (
         <div className="subsection" key={titulo}>
           <h3>{titulo}</h3>
           <EstruturaDoDocumento label={`Estrutura, ${titulo.toLowerCase()}`} opcoes={opcoes} />
+          <VerCodigo codigo={codigo} />
         </div>
       ))}
     </div>

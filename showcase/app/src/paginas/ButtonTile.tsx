@@ -18,6 +18,7 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TAMANHOS = ['sm', 'md'] as const;
 const SELECOES = ['ausente', 'false', 'true'] as const;
@@ -182,34 +183,44 @@ function PreviaPorDispositivo() {
   );
 }
 
+const CODIGO_DAS_VARIANTES = `<ButtonTile icon={<IconFile />} label="Arquivo" size="sm" />
+<ButtonTile icon={<IconFile />} label="Arquivo" size="md" />
+
+<ButtonTile icon={<IconCheckCircle />} label="Concluído" selected />
+<ButtonTile disabled icon={<IconUpload />} label="Enviar" />
+<ButtonTile icon={<IconStructure />} label="Sumário com os títulos de todas as seções" />`;
+
 function Variantes() {
   return (
-    <div className="matrix">
-      <div className="matrix-row matrix-head">
-        <span>size</span>
-        <span>comum</span>
-        <span>selected</span>
-        <span>disabled</span>
-        <span>duas linhas</span>
-      </div>
-      {TAMANHOS.map((tamanho) => (
-        <div className="matrix-row" key={tamanho}>
-          <code>{tamanho}</code>
-          <span>
-            <ButtonTile icon={<IconFile />} label="Arquivo" size={tamanho} />
-          </span>
-          <span>
-            <ButtonTile icon={<IconCheckCircle />} label="Concluído" selected size={tamanho} />
-          </span>
-          <span>
-            <ButtonTile disabled icon={<IconUpload />} label="Enviar" size={tamanho} />
-          </span>
-          <span style={{ width: tamanho === 'sm' ? 88 : 112 }}>
-            <ButtonTile icon={<IconStructure />} label="Sumário com os títulos de todas as seções" size={tamanho} />
-          </span>
+    <>
+      <div className="matrix">
+        <div className="matrix-row matrix-head">
+          <span>size</span>
+          <span>comum</span>
+          <span>selected</span>
+          <span>disabled</span>
+          <span>duas linhas</span>
         </div>
-      ))}
-    </div>
+        {TAMANHOS.map((tamanho) => (
+          <div className="matrix-row" key={tamanho}>
+            <code>{tamanho}</code>
+            <span>
+              <ButtonTile icon={<IconFile />} label="Arquivo" size={tamanho} />
+            </span>
+            <span>
+              <ButtonTile icon={<IconCheckCircle />} label="Concluído" selected size={tamanho} />
+            </span>
+            <span>
+              <ButtonTile disabled icon={<IconUpload />} label="Enviar" size={tamanho} />
+            </span>
+            <span style={{ width: tamanho === 'sm' ? 88 : 112 }}>
+              <ButtonTile icon={<IconStructure />} label="Sumário com os títulos de todas as seções" size={tamanho} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <VerCodigo codigo={CODIGO_DAS_VARIANTES} />
+    </>
   );
 }
 
@@ -278,10 +289,14 @@ export const pagina: Pagina = {
       </div>
     ),
     texto: 'Ladrilhos numa grade de opções do mesmo tipo, com rótulos curtos que dizem o que se insere.',
+    codigo: `<ButtonTile icon={<IconFile />} label="Arquivo" />
+<ButtonTile icon={<IconChartBar />} label="Gráfico" />
+<ButtonTile icon={<IconCalendar />} label="Data" />`,
   },
   evite: {
     Previa: () => <ButtonTile icon={<IconCheckCircle />} label="Salvar alterações" />,
     texto: 'Ladrilho como botão de ação de formulário. Para uma ação isolada, Button; só ícone, ButtonIcon.',
+    codigo: '<ButtonTile icon={<IconCheckCircle />} label="Salvar alterações" />',
   },
   Variantes,
   Modos,

@@ -13,6 +13,7 @@ import {
   type AppShellNestedMode,
 } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
+import { VerCodigo } from '../estrutura/VerCodigo';
 
 const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
 const MODOS_DA_CONTA = ['inline', 'cover'] as const;
@@ -302,6 +303,22 @@ export const pagina: Pagina = {
   faca: {
     Previa: MolduraRecolhida,
     texto: 'AppShell uma vez, na raiz da aplicação, com os módulos, os links e a conta vindos do produto.',
+    codigo: `<AppShell defaultOpen={false}>
+  <AppShell.Navigation>
+    <AppShell.Rail brand={<Marca />}>
+      <AppShell.RailItem current icon={<IconChartBar />} label="Vendas" />
+      …
+    </AppShell.Rail>
+    <AppShell.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+      <AppShell.PanelItem current icon={<IconFile />} label="Pedidos" />
+      …
+    </AppShell.Panel>
+  </AppShell.Navigation>
+  <AppShell.Page>
+    <AppShell.PageBar>…</AppShell.PageBar>
+    <AppShell.PageBody>…</AppShell.PageBody>
+  </AppShell.Page>
+</AppShell>`,
   },
   evite: {
     Previa: ModuloSemSubmenu,
@@ -311,6 +328,19 @@ export const pagina: Pagina = {
         painéis laterais rolam.
       </>
     ),
+    codigo: `<AppShell>
+  <AppShell.Navigation>
+    <AppShell.Rail brand={<Marca />}>
+      <AppShell.RailItem current icon={<IconStructure />} label="Início" />
+      …
+    </AppShell.Rail>
+    <AppShell.Panel label="Início" account={<MinhaConta />} />
+  </AppShell.Navigation>
+  <AppShell.Page>
+    <AppShell.PageBar>…</AppShell.PageBar>
+    <AppShell.PageBody>…</AppShell.PageBody>
+  </AppShell.Page>
+</AppShell>`,
   },
   Modos,
   teclado: [
