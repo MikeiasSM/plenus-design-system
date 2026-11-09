@@ -261,6 +261,8 @@ export { Timeline } from './components/data-display/Timeline';
 export type { TimelineItem, TimelineProps, TimelineSize } from './components/data-display/Timeline';
 export { ActivityFeed } from './components/data-display/ActivityFeed';
 export type { ActivityFeedItemProps, ActivityFeedProps } from './components/data-display/ActivityFeed';
+export { NumberedList } from './components/data-display/NumberedList';
+export type { NumberedListItemProps, NumberedListLayout, NumberedListProps } from './components/data-display/NumberedList';
 export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {

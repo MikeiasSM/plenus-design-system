@@ -77,6 +77,7 @@ export const familias: readonly Familia[] = [
       componente('CodeBlock', 'Trecho de código para leitura, com cópia, numeração e destaque de linhas.'),
       componente('Timeline', 'Histórico de estados de um registro, com datas e o estado atual destacado.'),
       componente('ActivityFeed', 'Registro do que aconteceu, do mais recente ao mais antigo, com comentários.'),
+      componente('NumberedList', 'Sequência numerada de passos que explica como algo funciona, sem etapa atual.'),
       componente('SortableList', 'Lista reordenável por arrasto ou teclado, com seleção de um item.'),
       componente('Table', 'Tabela básica, em HTML semântico.'),
       componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.'),

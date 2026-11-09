@@ -309,11 +309,12 @@ export const telas: readonly Tela[] = [
     modulo: 'financeiro',
     item: 'contas',
     Componente: Contas,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'EmptyState', 'Steps', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'EmptyState', 'NumberedList', 'Table', 'Badge', 'Button'],
     nota: (
       <>
         O vazio da primeira vez não é erro: <code>EmptyState</code> com título que diz o que falta, descrição que diz o ganho e duas ações, a
-        secundária antes da principal. Registrar a conta troca o vazio pela tabela.
+        secundária antes da principal. Os passos seguintes ficam no mesmo cartão, numa <code>NumberedList</code> em grade: explicam, sem etapa
+        atual. Registrar a conta troca o vazio pela tabela.
       </>
     ),
     codigo: `<Card>
@@ -324,6 +325,11 @@ export const telas: readonly Tela[] = [
       description="Com uma conta registrada, …"
       actions={<><Button variant="secondary">Importar</Button><Button>Registrar a primeira conta</Button></>}
     />
+  </Card.Body>
+  <Card.Body>
+    <NumberedList layout="grid" aria-label="Como funciona">
+      <NumberedList.Item title="Registre a conta" description="Banco, agência e número." />
+    </NumberedList>
   </Card.Body>
 </Card>`,
   },

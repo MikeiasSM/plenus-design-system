@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import { Badge, Button, Card, EmptyState, PageHeader, Steps, Table } from '@plenustech/design-system';
+import { Badge, Button, Card, EmptyState, NumberedList, PageHeader, Table } from '@plenustech/design-system';
 import { IconPlusLg, IconUpload } from '@plenustech/design-system/icons';
 import { IconBank } from '@plenustech/design-system/icons';
 import { Coluna, Pagina } from '../Pagina';
-
-const PASSOS = [
-  { key: 'registrar', label: 'Registre a conta', description: 'Banco, agência e número.' },
-  { key: 'enviar', label: 'Envie o extrato', description: 'Arquivo OFX do internet banking.' },
-  { key: 'conciliar', label: 'Concilie', description: 'O sistema sugere os pares.' },
-];
 
 const PRIMEIRA_CONTA = { id: 'horizonte', apelido: 'Conta principal', banco: 'Banco Horizonte', agencia: '1020', conta: '40213-7' };
 
@@ -29,19 +23,28 @@ export function Contas() {
       <Coluna className="grade grade-uma" largura={1120}>
         <Card>
           {contas.length === 0 ? (
-            <Card.Body>
-              <EmptyState
-                actions={
-                  <>
-                    <Button variant="secondary"><IconUpload />Importar de uma planilha</Button>
-                    <Button onClick={() => setContas([PRIMEIRA_CONTA])}>Registrar a primeira conta</Button>
-                  </>
-                }
-                description="Com uma conta registrada, o sistema confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
-                icon={<IconBank />}
-                title="Nenhuma conta bancária registrada"
-              />
-            </Card.Body>
+            <>
+              <Card.Body>
+                <EmptyState
+                  actions={
+                    <>
+                      <Button variant="secondary"><IconUpload />Importar de uma planilha</Button>
+                      <Button onClick={() => setContas([PRIMEIRA_CONTA])}>Registrar a primeira conta</Button>
+                    </>
+                  }
+                  description="Com uma conta registrada, o sistema confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
+                  icon={<IconBank />}
+                  title="Nenhuma conta bancária registrada"
+                />
+              </Card.Body>
+              <Card.Body>
+                <NumberedList aria-label="Como funciona" layout="grid">
+                  <NumberedList.Item description="Banco, agência e número." title="Registre a conta" />
+                  <NumberedList.Item description="Arquivo OFX do internet banking." title="Envie o extrato" />
+                  <NumberedList.Item description="O sistema sugere os pares." title="Concilie" />
+                </NumberedList>
+              </Card.Body>
+            </>
           ) : (
             <Card.Body flush>
               <Table label="Contas bancárias">
@@ -65,14 +68,6 @@ export function Contas() {
             </Card.Body>
           )}
         </Card>
-        {contas.length === 0 && (
-          <Card>
-            <Card.Header description="O que acontece depois que a primeira conta existe." headingLevel={2} title="Como funciona" />
-            <Card.Body>
-              <Steps items={PASSOS} label="Como funciona" />
-            </Card.Body>
-          </Card>
-        )}
       </Coluna>
     </Pagina>
   );
