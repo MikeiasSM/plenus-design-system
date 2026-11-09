@@ -10,7 +10,6 @@ import {
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VerCodigo } from '../estrutura/VerCodigo';
 import {
   COMPOSICAO,
   DESPESAS,

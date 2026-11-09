@@ -13,7 +13,6 @@ import {
   type AppShellNestedMode,
 } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VerCodigo } from '../estrutura/VerCodigo';
 
 const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
 const MODOS_DA_CONTA = ['inline', 'cover'] as const;

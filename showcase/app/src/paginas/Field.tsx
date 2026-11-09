@@ -2,7 +2,6 @@ import { useState, type ChangeEvent } from 'react';
 import { Field, InputText, type FieldSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
-import { VerCodigo } from '../estrutura/VerCodigo';
 
 const LIMITE_DO_ARQUIVO = 5 * 1024 * 1024;
 
