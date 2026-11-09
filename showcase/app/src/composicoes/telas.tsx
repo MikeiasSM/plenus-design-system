@@ -202,23 +202,31 @@ export const telas: readonly Tela[] = [
     modulo: 'clientes',
     item: 'novo-cliente',
     Componente: NovoCliente,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SaveBar', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea', 'Button'],
     nota: (
       <>
         O arranjo anotado é o primeiro na prioridade e o padrão na dúvida, feito pela <code>AnnotatedSection</code>. Abaixo de 900px de largura própria, o trilho vira título acima do cartão.
-        O rascunho aparece na <code>SaveBar</code>, com os rótulos trocados para Cancelar e Salvar cliente.
+        O rascunho é salvo sozinho, e a situação dele vive no <code>AppShell.PageFooter</code>, o rodapé fixo, com Cancelar e Salvar cliente à direita.
       </>
     ),
-    codigo: `<AnnotatedSection
-  title="Identificação"
-  description="Como o cliente aparece nos pedidos e nas notas fiscais."
->
-  <Card>
-    <Card.Body>
-      <InputText label="CNPJ" required />
-    </Card.Body>
-  </Card>
-</AnnotatedSection>`,
+    codigo: `<AppShell.Page>
+  <AppShell.PageBody>
+    <AnnotatedSection
+      title="Identificação"
+      description="Como o cliente aparece nos pedidos e nas notas fiscais."
+    >
+      <Card>
+        <Card.Body>
+          <InputText label="CNPJ" required />
+        </Card.Body>
+      </Card>
+    </AnnotatedSection>
+  </AppShell.PageBody>
+  <AppShell.PageFooter status="Rascunho salvo às 14:32">
+    <Button variant="secondary">Cancelar</Button>
+    <Button>Salvar cliente</Button>
+  </AppShell.PageFooter>
+</AppShell.Page>`,
   },
   {
     id: 'depositos',

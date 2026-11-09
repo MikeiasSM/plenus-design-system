@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconSidebar } from '../../icons';
 import { useAppShell } from './AppShell.context';
@@ -52,4 +52,21 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
 /** Corpo da página: a única área que rola. Mede a largura da folha para as regras de container do produto. */
 export function AppShellPageBody({ className, ...props }: ComponentPropsWithRef<'div'>) {
   return <div {...props} className={[styles.pageBody, className].filter(Boolean).join(' ')} />;
+}
+
+export interface AppShellPageFooterProps extends ComponentPropsWithRef<'div'> {
+  /** A situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. */
+  status?: ReactNode;
+}
+
+/** Rodapé fixo da página, sempre à vista, fora da área que rola. A situação fica à esquerda e as ações (`children`), à direita. */
+export function AppShellPageFooter({ children, className, status, ...props }: AppShellPageFooterProps) {
+  return (
+    <div {...props} className={[styles.pageFooter, className].filter(Boolean).join(' ')}>
+      <div className={styles.pageFooterStatus} role="status">
+        {status}
+      </div>
+      <div className={styles.pageFooterActions}>{children}</div>
+    </div>
+  );
 }

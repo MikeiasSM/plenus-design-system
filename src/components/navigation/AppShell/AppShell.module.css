@@ -60,3 +60,30 @@
 .pageBody:hover {
   scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
 }
+
+.pageFooter {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-2) var(--pl-space-3);
+  padding: var(--pl-space-3) var(--pl-space-4);
+  border-top: 1px solid var(--pl-color-border);
+  background: var(--pl-color-surface);
+}
+
+.pageFooterStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  margin-inline-end: auto;
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.pageFooterActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2);
+}

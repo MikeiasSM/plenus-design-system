@@ -1,3 +1,4 @@
+import { createRef } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { Sidebar } from '../Sidebar';
 import { AppShell, type AppShellProps } from './AppShell';
@@ -99,5 +100,43 @@ describe('AppShell', () => {
     const submenu = screen.getByRole('navigation', { name: 'Vendas' });
     expect(within(submenu).getByText('Operação')).toBeInTheDocument();
     expect(within(submenu).getByRole('link', { name: 'Pedidos' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  describe('rodapé da página', () => {
+    it('fica depois do corpo, fora dele', () => {
+      render(
+        <AppShell.Page>
+          <AppShell.PageBody>Conteúdo</AppShell.PageBody>
+          <AppShell.PageFooter>Ações</AppShell.PageFooter>
+        </AppShell.Page>,
+      );
+
+      const footer = screen.getByText('Ações').closest('div')!.parentElement!;
+      const body = screen.getByText('Conteúdo');
+      expect(body.contains(footer)).toBe(false);
+      expect(body.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('mantém a região de status mesmo sem situação e mostra a situação quando dada', () => {
+      const { rerender } = render(<AppShell.PageFooter />);
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+
+      rerender(<AppShell.PageFooter status="Rascunho salvo" />);
+      expect(screen.getByRole('status')).toHaveTextContent('Rascunho salvo');
+    });
+
+    it('renderiza as ações e repassa props, className e ref ao rodapé', () => {
+      const ref = createRef<HTMLDivElement>();
+      render(
+        <AppShell.PageFooter className="extra" data-testid="rodape" ref={ref}>
+          <button type="button">Salvar</button>
+        </AppShell.PageFooter>,
+      );
+
+      const footer = screen.getByTestId('rodape');
+      expect(within(footer).getByRole('button', { name: 'Salvar' })).toBeInTheDocument();
+      expect(footer).toHaveClass('extra');
+      expect(ref.current).toBe(footer);
+    });
   });
 });

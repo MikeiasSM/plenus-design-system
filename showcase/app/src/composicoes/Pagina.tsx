@@ -12,16 +12,19 @@ export function larguraCss(largura: LarguraDaColuna) {
 interface PaginaProps {
   caminho: readonly string[];
   children: ReactNode;
+  /** O rodapé fixo, depois do corpo. */
+  rodape?: ReactNode;
 }
 
-/** A folha da página: a barra com o caminho e o corpo, a única área que rola. */
-export function Pagina({ caminho, children }: PaginaProps) {
+/** A folha da página: a barra com o caminho, o corpo, a única área que rola, e o rodapé, quando há. */
+export function Pagina({ caminho, children, rodape }: PaginaProps) {
   return (
     <AppShell.Page>
       <AppShell.PageBar>
         <Breadcrumb items={caminho.map((label) => ({ label }))} />
       </AppShell.PageBar>
       <AppShell.PageBody>{children}</AppShell.PageBody>
+      {rodape}
     </AppShell.Page>
   );
 }

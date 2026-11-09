@@ -13,7 +13,7 @@ import type {
 
 export { AppShell } from './AppShell';
 export type { AppShellProps } from './AppShell';
-export type { AppShellPageProps } from './AppShellPage';
+export type { AppShellPageFooterProps, AppShellPageProps } from './AppShellPage';
 
 /** @deprecated Use `SidebarAccountProps`. Aceito ate a versao menor seguinte. */
 export type AppShellAccountProps = SidebarAccountProps;

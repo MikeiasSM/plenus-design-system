@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AnnotatedSection,
+  AppShell,
   Badge,
+  Button,
   Card,
+  IconCheck,
   InputCurrency,
   InputText,
   PageHeader,
-  SaveBar,
   SegmentedControl,
   Select,
+  showToast,
   Switch,
   Textarea,
 } from '@plenustech/design-system';
@@ -62,33 +65,73 @@ const VAZIO: Cliente = {
 
 const opcoes = (valores: readonly string[]) => valores.map((valor) => ({ label: valor, value: valor }));
 
+type Rascunho = { estado: 'vazio' } | { estado: 'salvando' } | { estado: 'salvo'; hora: string };
+
+const horaAgora = () => new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
 export function NovoCliente() {
-  const [cliente, setCliente] = useState<Cliente>({ ...VAZIO, razao: 'Auto Peças Boa Viagem Ltda', documento: '12.345.678/0001-95' });
-  const alterado = JSON.stringify(cliente) !== JSON.stringify(VAZIO);
+  const [cliente, setCliente] = useState<Cliente>(VAZIO);
+  const [rascunho, setRascunho] = useState<Rascunho>({ estado: 'vazio' });
+  const [erroDaRazao, setErroDaRazao] = useState<string>();
+  const esperaDoRascunho = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pessoaJuridica = cliente.tipo === 'PJ';
 
+  useEffect(() => () => clearTimeout(esperaDoRascunho.current), []);
+
+  function alterar(proximo: Cliente) {
+    setCliente(proximo);
+    setRascunho({ estado: 'salvando' });
+    clearTimeout(esperaDoRascunho.current);
+    esperaDoRascunho.current = setTimeout(() => setRascunho({ estado: 'salvo', hora: horaAgora() }), 600);
+  }
+
   const texto = (campo: keyof Cliente) => ({
-    onValueChange: (valor: string) => setCliente({ ...cliente, [campo]: valor }),
+    onValueChange: (valor: string) => alterar({ ...cliente, [campo]: valor }),
     value: cliente[campo] as string,
   });
 
+  function salvarCliente() {
+    if (!cliente.razao.trim()) {
+      setErroDaRazao(`Informe ${pessoaJuridica ? 'a razão social' : 'o nome completo'}.`);
+      return;
+    }
+    showToast({ title: 'Cliente salvo', description: `${cliente.razao} entrou na Base de Clientes.`, tone: 'success' });
+    setErroDaRazao(undefined);
+    clearTimeout(esperaDoRascunho.current);
+    setCliente(VAZIO);
+    setRascunho({ estado: 'vazio' });
+  }
+
+  const situacao = {
+    vazio: 'Nenhuma alteração ainda',
+    salvando: 'Salvando rascunho…',
+    salvo: rascunho.estado === 'salvo' ? (
+      <>
+        <IconCheck size={14} style={{ color: 'var(--pl-color-success)' }} />
+        Rascunho salvo às {rascunho.hora}
+      </>
+    ) : null,
+  }[rascunho.estado];
+
   return (
-    <Pagina caminho={['Clientes', 'Novo cliente']}>
-      <SaveBar
-        discardLabel="Cancelar"
-        message="Rascunho com alterações não salvas"
-        onDiscard={() => setCliente(VAZIO)}
-        onSave={() => setCliente(VAZIO)}
-        open={alterado}
-        saveLabel="Salvar cliente"
-      />
+    <Pagina
+      caminho={['Clientes', 'Novo cliente']}
+      rodape={
+        <AppShell.PageFooter status={situacao}>
+          <Button onClick={() => { window.location.hash = `${CAMINHO_DAS_COMPOSICOES}/clientes-base`; }} variant="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={salvarCliente} variant="primary">Salvar cliente</Button>
+        </AppShell.PageFooter>
+      }
+    >
       <PageHeader maxWidth="1120px">
         <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} label="Voltar para Base de Clientes" />
         <PageHeader.Title>Novo cliente</PageHeader.Title>
         <PageHeader.Badges>
           <Badge tone="neutral">Rascunho</Badge>
         </PageHeader.Badges>
-        <PageHeader.Description>Cadastro completo, por assunto.</PageHeader.Description>
+        <PageHeader.Description>Cadastro completo, por assunto. O rascunho é salvo sozinho.</PageHeader.Description>
       </PageHeader>
       <Coluna largura={1120}>
         <AnnotatedSection description="Como o cliente aparece nos pedidos e nas notas fiscais." title="Identificação">
@@ -98,11 +141,11 @@ export function NovoCliente() {
               <SegmentedControl
                 items={[{ label: 'Jurídica', value: 'PJ' }, { label: 'Física', value: 'PF' }]}
                 label="Tipo de pessoa"
-                onValueChange={(tipo) => setCliente({ ...cliente, tipo })}
+                onValueChange={(tipo) => alterar({ ...cliente, tipo })}
                 value={cliente.tipo}
               />
               <InputText inputMode="numeric" label={pessoaJuridica ? 'CNPJ' : 'CPF'} required {...texto('documento')} />
-              <InputText label={pessoaJuridica ? 'Razão social' : 'Nome completo'} required {...texto('razao')} />
+              <InputText error={erroDaRazao} label={pessoaJuridica ? 'Razão social' : 'Nome completo'} required {...texto('razao')} />
             </div>
             </Card.Body>
           </Card>
@@ -128,7 +171,7 @@ export function NovoCliente() {
               <InputText label="Número" {...texto('numero')} />
               <InputText label="Bairro" {...texto('bairro')} />
               <InputText label="Cidade" {...texto('cidade')} />
-              <Select label="UF" onValueChange={(uf) => setCliente({ ...cliente, uf })} options={opcoes(['BA', 'GO', 'MG', 'PR', 'SP'])} value={cliente.uf} />
+              <Select label="UF" onValueChange={(uf) => alterar({ ...cliente, uf })} options={opcoes(['BA', 'GO', 'MG', 'PR', 'SP'])} value={cliente.uf} />
             </div>
             </Card.Body>
           </Card>
@@ -137,15 +180,15 @@ export function NovoCliente() {
           <Card>
             <Card.Body>
             <div className="campos campos-2">
-              <InputCurrency label="Limite de crédito" onValueChange={(limite) => setCliente({ ...cliente, limite })} value={cliente.limite} />
-              <Select label="Prazo padrão" onValueChange={(prazo) => setCliente({ ...cliente, prazo })} options={opcoes(['À vista', '14 dias', '28 dias', '28/56 dias'])} value={cliente.prazo} />
-              <Select label="Tabela de preço" onValueChange={(tabela) => setCliente({ ...cliente, tabela })} options={opcoes(['Varejo', 'Atacado', 'Frotista'])} value={cliente.tabela} />
-              <Select label="Vendedor responsável" onValueChange={(vendedor) => setCliente({ ...cliente, vendedor })} options={opcoes(VENDEDORES)} value={cliente.vendedor} />
+              <InputCurrency label="Limite de crédito" onValueChange={(limite) => alterar({ ...cliente, limite })} value={cliente.limite} />
+              <Select label="Prazo padrão" onValueChange={(prazo) => alterar({ ...cliente, prazo })} options={opcoes(['À vista', '14 dias', '28 dias', '28/56 dias'])} value={cliente.prazo} />
+              <Select label="Tabela de preço" onValueChange={(tabela) => alterar({ ...cliente, tabela })} options={opcoes(['Varejo', 'Atacado', 'Frotista'])} value={cliente.tabela} />
+              <Select label="Vendedor responsável" onValueChange={(vendedor) => alterar({ ...cliente, vendedor })} options={opcoes(VENDEDORES)} value={cliente.vendedor} />
               <Switch
                 checked={cliente.bloquear}
                 hint="Recomendado"
                 label="Bloquear venda com atraso"
-                onCheckedChange={(bloquear) => setCliente({ ...cliente, bloquear })}
+                onCheckedChange={(bloquear) => alterar({ ...cliente, bloquear })}
               />
             </div>
             </Card.Body>

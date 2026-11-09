@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { AppShell, Button, IconChartBar, IconFile, IconStructure, Sidebar } from '@plenustech/design-system';
+import { useState, type ReactNode } from 'react';
+import { AppShell, Button, IconChartBar, IconFile, IconCheck, IconStructure, Sidebar } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 interface MolduraProps {
@@ -7,10 +7,11 @@ interface MolduraProps {
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   registrar?: (evento: string) => void;
+  rodape?: ReactNode;
 }
 
 /** Uma moldura pequena: só a navegação mínima da `Sidebar` para dar o que a página ocupar. */
-function Moldura({ defaultOpen, onOpenChange, open, registrar }: MolduraProps) {
+function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape }: MolduraProps) {
   return (
     <div style={{ height: 360, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
       <AppShell
@@ -43,6 +44,7 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar }: MolduraProps) {
               <p style={{ color: 'var(--pl-color-text-secondary)' }}>Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.</p>
             </div>
           </AppShell.PageBody>
+          {rodape}
         </AppShell.Page>
       </AppShell>
     </div>
@@ -71,6 +73,41 @@ const playground = definirPlayground({
       { nivel: 'ok', titulo: 'Barra da página', detalhe: 'Com o submenu recolhido, a barra traz o botão de abrir, e o foco troca de botão com o recolher.' },
     ] satisfies Verificacao[],
 });
+
+function MolduraComRodape() {
+  const [salvo, setSalvo] = useState<string>();
+  const [salvando, setSalvando] = useState(false);
+
+  function alterar() {
+    setSalvando(true);
+    setTimeout(() => {
+      setSalvando(false);
+      setSalvo(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+    }, 600);
+  }
+
+  const situacao = salvando ? (
+    'Salvando rascunho…'
+  ) : salvo ? (
+    <>
+      <IconCheck size={14} style={{ color: 'var(--pl-color-success)' }} />
+      Rascunho salvo às {salvo}
+    </>
+  ) : (
+    'Nenhuma alteração ainda'
+  );
+
+  return (
+    <Moldura
+      rodape={
+        <AppShell.PageFooter status={situacao}>
+          <Button size="sm" variant="secondary">Cancelar</Button>
+          <Button onClick={alterar} size="sm">Salvar cliente</Button>
+        </AppShell.PageFooter>
+      }
+    />
+  );
+}
 
 function MolduraPadrao() {
   return <Moldura />;
@@ -109,6 +146,11 @@ function Modos() {
       </dd>
       <dt><code>AppShell.PageBody</code></dt>
       <dd>A única área da página que rola. Mede a largura da folha para as regras de container do produto.</dd>
+      <dt><code>AppShell.PageFooter</code></dt>
+      <dd>
+        Rodapé fixo, sempre à vista, fora da área que rola: a situação à esquerda (<code>status</code>, anunciada ao leitor de tela) e as ações à direita.
+        A fronteira com a <code>SaveBar</code> é o momento: a <code>SaveBar</code> aparece quando há alteração por salvar; o rodapé fica sempre lá.
+      </dd>
       <dt>Nomes antigos</dt>
       <dd>
         A navegação passou à <code>Sidebar</code>. <code>AppShell.Navigation</code>, <code>.Rail</code>, <code>.RailItem</code>,{' '}
@@ -129,6 +171,14 @@ export const pagina: Pagina = {
       Previa: MolduraPadrao,
       codigo:
         '<AppShell>\n  <Sidebar>\n    <Sidebar.Rail>…</Sidebar.Rail>\n    <Sidebar.Panel label="Vendas">…</Sidebar.Panel>\n  </Sidebar>\n  <AppShell.Page>\n    <AppShell.PageBar>…</AppShell.PageBar>\n    <AppShell.PageBody>…</AppShell.PageBody>\n  </AppShell.Page>\n</AppShell>',
+    },
+    {
+      titulo: 'Rodapé fixo',
+      descricao: 'A situação do rascunho à esquerda e as ações à direita. Clique em Salvar cliente para ver a situação mudar.',
+      largo: true,
+      Previa: MolduraComRodape,
+      codigo:
+        '<AppShell.Page>\n  <AppShell.PageBody>…</AppShell.PageBody>\n  <AppShell.PageFooter status="Rascunho salvo às 14:32">\n    <Button variant="secondary">Cancelar</Button>\n    <Button>Salvar cliente</Button>\n  </AppShell.PageFooter>\n</AppShell.Page>',
     },
     {
       titulo: 'Estado controlado',
@@ -167,7 +217,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: (
     <>
-      Peças da moldura: <code>AppShell</code>, <code>.Page</code>, <code>.PageBar</code> e <code>.PageBody</code>. A navegação é a{' '}
+      Peças da moldura: <code>AppShell</code>, <code>.Page</code>, <code>.PageBar</code>, <code>.PageBody</code> e <code>.PageFooter</code>. A navegação é a{' '}
       <code>Sidebar</code>; os nomes antigos dela no <code>AppShell</code> são aliases obsoletos. O ref e as propriedades nativas vão ao elemento raiz de
       cada peça.
     </>
@@ -177,5 +227,6 @@ export const pagina: Pagina = {
     { nome: 'AppShell.Page', tipo: "ComponentPropsWithRef<'main'>", descricao: 'Folha da página: ocupa o que sobra ao lado da navegação.' },
     { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
     { nome: 'AppShell.PageBody', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Corpo da página, a única área que rola.' },
+    { nome: 'AppShell.PageFooter · status', tipo: 'ReactNode', descricao: 'Situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. Os filhos são as ações, à direita.' },
   ],
 };

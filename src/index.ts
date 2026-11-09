@@ -174,6 +174,7 @@ export type {
   AppShellAccountProps,
   AppShellNavigationProps,
   AppShellNestedMode,
+  AppShellPageFooterProps,
   AppShellPageProps,
   AppShellPanelGroupProps,
   AppShellPanelItemProps,

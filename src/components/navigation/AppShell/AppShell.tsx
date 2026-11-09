@@ -3,7 +3,7 @@ import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { Sidebar } from '../Sidebar';
 import { AppShellContext, type AppShellPanelKind } from './AppShell.context';
-import { AppShellPage, AppShellPageBar, AppShellPageBody } from './AppShellPage';
+import { AppShellPage, AppShellPageBar, AppShellPageBody, AppShellPageFooter } from './AppShellPage';
 import styles from './AppShell.module.css';
 
 export interface AppShellProps extends ComponentPropsWithRef<'div'> {
@@ -98,6 +98,7 @@ export const AppShell = Object.assign(AppShellRoot, {
   Page: AppShellPage,
   PageBar: AppShellPageBar,
   PageBody: AppShellPageBody,
+  PageFooter: AppShellPageFooter,
   /** @deprecated Use `Sidebar.Panel`. Aceito ate a versao menor seguinte. */
   Panel: Sidebar.Panel,
   /** @deprecated Use `Sidebar.Group`. Aceito ate a versao menor seguinte. */
