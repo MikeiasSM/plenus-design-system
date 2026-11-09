@@ -1,0 +1,125 @@
+/* Medidas do modelo (APPSHELL.md): trilho 56px, botao do trilho 38px. */
+
+.navigation {
+  display: flex;
+  flex: none;
+  min-height: 0;
+  margin-right: var(--pl-shell-gap);
+}
+
+.menu {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+/* A gaveta do celular se ajusta ao trilho e ao submenu e usa o fundo da aplicação. */
+.menuSurface.menuSurface {
+  width: auto;
+  max-width: 100%;
+  padding: var(--pl-shell-gap);
+  background: var(--pl-color-background);
+}
+
+.menu .rail {
+  margin-right: 0;
+}
+
+.rail {
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 56px;
+  min-height: 0;
+  padding: 10px 0 8px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.brand {
+  display: grid;
+  flex: none;
+  place-items: center;
+  margin-bottom: 8px;
+}
+
+.railGroup {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railFooter {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.railItem,
+.railAccount {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-md);
+  background: none;
+  color: var(--pl-color-text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+.railItem:hover {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-primary-strong);
+}
+
+.railItem[aria-current='page'] {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}
+
+.railAccount {
+  width: 34px;
+  height: 34px;
+  margin-top: 6px;
+  font-size: inherit;
+}
+
+.railAccountAvatar {
+  display: grid;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.railItem:focus-visible,
+.railAccount:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .railItem,
+  .railAccount {
+    transition: none;
+  }
+}

@@ -1,13 +1,13 @@
 import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type MouseEvent } from 'react';
-import styles from './Sidebar.module.css';
+import styles from './Columns.module.css';
 
-export interface SidebarIndexItem {
+export interface ColumnsIndexItem {
   id: string;
   label: string;
 }
 
-export interface SidebarIndexProps extends Omit<ComponentPropsWithRef<'nav'>, 'children'> {
-  items: readonly SidebarIndexItem[];
+export interface ColumnsIndexProps extends Omit<ComponentPropsWithRef<'nav'>, 'children'> {
+  items: readonly ColumnsIndexItem[];
   /** Nome visível do índice. */
   label?: string;
 }
@@ -15,7 +15,7 @@ export interface SidebarIndexProps extends Omit<ComponentPropsWithRef<'nav'>, 'c
 // A seção à vista é a última cujo topo passou desta folga abaixo do topo do índice, preso no alto da área que rola.
 const REFERENCE_OFFSET = 64;
 
-export function SidebarIndex({ className, items, label = 'Nesta página', ...props }: SidebarIndexProps) {
+export function ColumnsIndex({ className, items, label = 'Nesta página', ...props }: ColumnsIndexProps) {
   const labelId = useId();
   const labelRef = useRef<HTMLSpanElement>(null);
   const [current, setCurrent] = useState(items[0]?.id);

@@ -4,11 +4,11 @@ import {
   Button,
   ButtonIcon,
   Card,
+  Columns,
   InputNumber,
   PageHeader,
   SaveBar,
   Select,
-  Sidebar,
   Table,
   Textarea,
   formatCurrency,
@@ -88,8 +88,8 @@ export function NovoPedido() {
         <PageHeader.Description>Preencha o cliente e os itens. As alterações aguardam a barra de salvar.</PageHeader.Description>
       </PageHeader>
       <Coluna largura={1120}>
-        <Sidebar>
-          <Sidebar.Main className="grade-coluna">
+        <Columns>
+          <Columns.Main className="grade-coluna">
             <Card>
               <Card.Header description="Quem compra e quem vende." headingLevel={2} title="Cliente" />
               <Card.Body>
@@ -159,8 +159,8 @@ export function NovoPedido() {
                 </Table>
               </Card.Body>
             </Card>
-          </Sidebar.Main>
-          <Sidebar.Aside className="grade-coluna">
+          </Columns.Main>
+          <Columns.Aside className="grade-coluna">
             <Card>
               <Card.Header headingLevel={2} title="Resumo" />
               <Card.Body>
@@ -191,8 +191,8 @@ export function NovoPedido() {
                 />
               </Card.Body>
             </Card>
-          </Sidebar.Aside>
-        </Sidebar>
+          </Columns.Aside>
+        </Columns>
       </Coluna>
     </Pagina>
   );

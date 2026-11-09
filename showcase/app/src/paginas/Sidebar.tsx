@@ -1,130 +1,305 @@
-import { Badge, Card, Sidebar } from '@plenustech/design-system';
-import { gerarJsx } from '../estrutura/codigo';
+import { useState, type ReactNode } from 'react';
+import {
+  AppShell,
+  Avatar,
+  Badge,
+  IconChartBar,
+  IconClock,
+  IconFile,
+  IconFilter,
+  IconSliders,
+  IconStar,
+  IconStructure,
+  Sidebar,
+  type SidebarAccountMode,
+  type SidebarNestedMode,
+} from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const PARTES = ['coluna lateral', 'índice'] as const;
+const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
+const MODOS_DA_CONTA = ['inline', 'cover'] as const;
 
-const pilha = { display: 'grid', gap: 16 } as const;
+interface GrupoDoModulo {
+  itens: readonly string[];
+  titulo: string;
+}
 
-function CartaoDeTexto({ id, titulo }: { id?: string; titulo: string }) {
+interface Modulo {
+  grupos: readonly GrupoDoModulo[];
+  icone: ReactNode;
+  nome: string;
+}
+
+const MODULOS: readonly Modulo[] = [
+  { nome: 'Início', icone: <IconStructure size={20} />, grupos: [] },
+  {
+    nome: 'Vendas',
+    icone: <IconChartBar size={20} />,
+    grupos: [
+      { titulo: 'Operação', itens: ['Visão geral', 'Pedidos', 'Painéis'] },
+      { titulo: 'Apoio', itens: ['Relatórios', 'Documentação'] },
+    ],
+  },
+  { nome: 'Clientes', icone: <IconFile size={20} />, grupos: [{ titulo: 'Cadastros', itens: ['Base de clientes', 'Segmentos'] }] },
+  { nome: 'Financeiro', icone: <IconFilter size={20} />, grupos: [{ titulo: 'Contas', itens: ['Contas', 'Conciliação'] }] },
+];
+
+const PAINEIS = ['Geral', 'Por vendedor', 'Por região'];
+
+interface AplicacaoProps {
+  accountMode?: SidebarAccountMode;
+  defaultOpen?: boolean;
+  initialModule?: string;
+  nestedMode?: SidebarNestedMode;
+  registrar?: (evento: string) => void;
+}
+
+function Marca() {
   return (
-    <Card id={id}>
-      <Card.Header headingLevel={3} title={titulo} />
-      <Card.Body>Doze pessoas com acesso, três delas administradoras. Cada uma vê só o que a carteira permite.</Card.Body>
-    </Card>
+    <span
+      style={{
+        display: 'grid',
+        placeItems: 'center',
+        width: 36,
+        height: 36,
+        borderRadius: 'var(--pl-radius-md)',
+        background: 'var(--pl-color-primary)',
+        color: 'var(--pl-color-on-primary)',
+      }}
+    >
+      <IconChartBar size={20} />
+    </span>
   );
 }
 
-function ResumoLateral() {
+function MarcaDoSubmenu() {
   return (
-    <Card>
-      <Card.Header badge={<Badge tone="success">Pago</Badge>} headingLevel={3} title="Resumo" />
-      <Card.Body>Total de R$ 1.280,00 em 3 itens, com entrega prevista para sexta-feira.</Card.Body>
-    </Card>
+    <span style={{ display: 'grid', lineHeight: 1.15 }}>
+      <strong style={{ fontFamily: 'var(--pl-font-heading)', fontSize: 17 }}>Gestor</strong>
+      <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 11 }}>by Plenustech</span>
+    </span>
   );
 }
 
-function PrincipalComLateral() {
-  return (
-    <div style={{ width: '100%' }}>
-      <Sidebar>
-        <Sidebar.Main style={pilha}>
-          <CartaoDeTexto titulo="Itens do pedido" />
-          <CartaoDeTexto titulo="Entrega" />
-        </Sidebar.Main>
-        <Sidebar.Aside>
-          <ResumoLateral />
-        </Sidebar.Aside>
-      </Sidebar>
-    </div>
-  );
-}
+/** Uma aplicação pequena: módulos, grupos, itens, terceiro nível e conta. A navegação é estado local; a biblioteca não faz roteamento. */
+function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedMode, registrar }: AplicacaoProps) {
+  const [moduloAtual, setModuloAtual] = useState(initialModule);
+  const [itemAtual, setItemAtual] = useState('Pedidos');
+  const modulo = MODULOS.find((m) => m.nome === moduloAtual) ?? MODULOS[1];
 
-function PrincipalComIndice({ prefixo, rotulo }: { prefixo: string; rotulo?: string }) {
-  const secoes = [
-    { id: `${prefixo}-geral`, label: 'Geral' },
-    { id: `${prefixo}-equipe`, label: 'Equipe' },
-    { id: `${prefixo}-avisos`, label: 'Avisos' },
-  ];
+  function irPara(item: string) {
+    setItemAtual(item);
+    registrar?.(`navegar: ${modulo.nome} › ${item}`);
+  }
 
-  return (
-    <div style={{ width: '100%' }}>
-      <Sidebar>
-        <Sidebar.Main style={pilha}>
-          {secoes.map(({ id, label }) => (
-            <CartaoDeTexto id={id} key={id} titulo={label} />
+  function renderizarItem(item: string) {
+    if (item === 'Painéis') {
+      return (
+        <Sidebar.Item defaultExpanded={nestedMode === 'stack' ? undefined : true} icon={<IconChartBar size={18} />} key={item} label={item}>
+          {PAINEIS.map((painel) => (
+            <Sidebar.Item current={itemAtual === painel} key={painel} label={painel} onClick={() => irPara(painel)} />
           ))}
-        </Sidebar.Main>
-        <Sidebar.Index items={secoes} label={rotulo || undefined} />
-      </Sidebar>
+        </Sidebar.Item>
+      );
+    }
+
+    if (item === 'Documentação') {
+      return <Sidebar.Item external href="https://exemplo.com/ajuda" icon={<IconFile size={18} />} key={item} label={item} />;
+    }
+
+    return (
+      <Sidebar.Item
+        current={itemAtual === item}
+        icon={<IconFile size={18} />}
+        key={item}
+        label={item}
+        onClick={() => irPara(item)}
+        trailing={item === 'Pedidos' ? <Badge size="sm">12</Badge> : undefined}
+      />
+    );
+  }
+
+  return (
+    <div style={{ height: 480, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
+      <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
+        <Sidebar>
+          <Sidebar.Rail
+            brand={<Marca />}
+            footer={
+              <>
+                <Sidebar.RailItem icon={<IconSliders size={20} />} label="Configurações" />
+                <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
+                  <Avatar name="Roman Mecânica" size="sm" />
+                </Sidebar.RailAccount>
+              </>
+            }
+          >
+            {MODULOS.map((m) => (
+              <Sidebar.RailItem
+                current={m.nome === modulo.nome}
+                icon={m.icone}
+                key={m.nome}
+                label={m.nome}
+                onClick={() => {
+                  setModuloAtual(m.nome);
+                  setItemAtual(m.grupos[0]?.itens[0] ?? m.nome);
+                }}
+              />
+            ))}
+          </Sidebar.Rail>
+          <Sidebar.Panel
+            account={
+              <Sidebar.Account avatar={<Avatar name="Roman Mecânica" />} description="Roman Mecânica Ltda" name="Suporte">
+                <Sidebar.Item icon={<IconStar size={18} />} label="Favoritos" />
+                <Sidebar.Item icon={<IconClock size={18} />} label="Atividade recente" />
+                <Sidebar.Item icon={<IconSliders size={18} />} label="Preferências" />
+              </Sidebar.Account>
+            }
+            accountMode={accountMode}
+            brand={<MarcaDoSubmenu />}
+            label={modulo.nome}
+            nestedMode={nestedMode}
+          >
+            {modulo.grupos.map((grupo) => (
+              <Sidebar.Group key={grupo.titulo} label={grupo.titulo}>
+                {grupo.itens.map(renderizarItem)}
+              </Sidebar.Group>
+            ))}
+          </Sidebar.Panel>
+        </Sidebar>
+        <AppShell.Page>
+          <AppShell.PageBar>
+            <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
+              {modulo.nome} › <span style={{ color: 'var(--pl-color-text)' }}>{itemAtual}</span>
+            </span>
+          </AppShell.PageBar>
+          <AppShell.PageBody>
+            <div style={{ padding: 18 }}>
+              <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>{itemAtual}</h3>
+              <p style={{ color: 'var(--pl-color-text-secondary)' }}>A navegação à esquerda é a Sidebar; este corpo é da página.</p>
+            </div>
+          </AppShell.PageBody>
+        </AppShell.Page>
+      </AppShell>
     </div>
   );
 }
 
 const playground = definirPlayground({
-  inicial: {
-    parte: 'coluna lateral' as (typeof PARTES)[number],
-    label: 'Nesta página',
-  },
+  inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true },
   controles: [
-    { tipo: 'opcoes', nome: 'parte', opcoes: PARTES },
-    { tipo: 'texto', nome: 'label' },
+    { tipo: 'opcoes', nome: 'nestedMode', opcoes: MODOS_DO_TERCEIRO_NIVEL },
+    { tipo: 'opcoes', nome: 'accountMode', opcoes: MODOS_DA_CONTA },
+    { tipo: 'booleano', nome: 'defaultOpen' },
   ],
-  renderizar: (valores) =>
-    valores.parte === 'índice' ? <PrincipalComIndice prefixo="jogo" rotulo={valores.label} /> : <PrincipalComLateral />,
+  renderizar: (valores, registrar) => (
+    <Aplicacao
+      accountMode={valores.accountMode as SidebarAccountMode}
+      defaultOpen={Boolean(valores.defaultOpen)}
+      key={`${valores.nestedMode}-${valores.accountMode}-${valores.defaultOpen}`}
+      nestedMode={valores.nestedMode as SidebarNestedMode}
+      registrar={registrar}
+    />
+  ),
   codigo: (valores) =>
-    valores.parte === 'índice'
-      ? gerarJsx(
-          'Sidebar',
-          [],
-          `<Sidebar.Main>…</Sidebar.Main>\n${gerarJsx('Sidebar.Index', [
-            ['items', [{ id: 'geral', label: 'Geral' }]],
-            ['label', valores.label, 'Nesta página'],
-          ])}`,
-        )
-      : gerarJsx('Sidebar', [], '<Sidebar.Main>…</Sidebar.Main>\n<Sidebar.Aside>…</Sidebar.Aside>'),
+    [
+      `<AppShell${valores.defaultOpen ? '' : ' defaultOpen={false}'}>`,
+      '  <Sidebar>',
+      '    <Sidebar.Rail brand={<Marca />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>',
+      '      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" href="/vendas" as={Link} />',
+      '    </Sidebar.Rail>',
+      '    <Sidebar.Panel',
+      '      label="Vendas"',
+      '      brand={<Marca />}',
+      ...(valores.nestedMode === 'stack' ? ['      nestedMode="stack"'] : []),
+      ...(valores.accountMode === 'cover' ? ['      accountMode="cover"'] : []),
+      '      account={<Sidebar.Account avatar={<Avatar name="Suporte" />} name="Suporte" description="Empresa">',
+      '        <Sidebar.Item icon={<IconStar />} label="Favoritos" />',
+      '      </Sidebar.Account>}',
+      '    >',
+      '      <Sidebar.Group label="Operação">',
+      '        <Sidebar.Item current icon={<IconFile />} label="Pedidos" href="/pedidos" as={Link} trailing={<Badge size="sm">12</Badge>} />',
+      '        <Sidebar.Item icon={<IconChartBar />} label="Painéis">',
+      '          <Sidebar.Item label="Geral" href="/paineis" as={Link} />',
+      '        </Sidebar.Item>',
+      '      </Sidebar.Group>',
+      '    </Sidebar.Panel>',
+      '  </Sidebar>',
+      '  <AppShell.Page>…</AppShell.Page>',
+      '</AppShell>',
+    ].join('\n'),
   verificar: (valores) => {
-    if (valores.parte === 'coluna lateral') {
-      return [{ nivel: 'ok', titulo: 'Complemento', detalhe: 'O Sidebar.Aside é um aside, a coluna de complemento do conteúdo.' }] satisfies Verificacao[];
+    const verificacoes: Verificacao[] = [
+      { nivel: 'ok', titulo: 'Navegações nomeadas', detalhe: 'O trilho é <nav> "Módulos"; o submenu, <nav> com o nome do módulo; a conta, <nav> "Conta".' },
+      { nivel: 'ok', titulo: 'Página atual', detalhe: 'aria-current="page" no módulo e no item atuais.' },
+      { nivel: 'ok', titulo: 'Recolher', detalhe: 'aria-expanded e aria-controls no botão; recolhido, o submenu fica inerte e o foco vai ao botão de abrir.' },
+    ];
+
+    if (valores.nestedMode === 'stack') {
+      verificacoes.push({ nivel: 'ok', titulo: 'Pilha', detalhe: 'Entrar leva o foco ao caminho de volta; voltar o devolve ao item.' });
     }
 
-    return [
-      valores.label.trim()
-        ? { nivel: 'ok', titulo: 'Índice nomeado', detalhe: `A navegação se chama "${valores.label.trim()}".` }
-        : { nivel: 'ok', titulo: 'Nome padrão', detalhe: 'Sem label, a navegação se chama "Nesta página".' },
-    ] satisfies Verificacao[];
+    return verificacoes;
   },
 });
 
+function AplicacaoPadrao() {
+  return <Aplicacao />;
+}
+
+/** A coluna do Faça e do Evite é estreita: recolhido, o submenu não espreme a página. */
+function AplicacaoRecolhida() {
+  return <Aplicacao defaultOpen={false} />;
+}
+
+function AplicacaoEmPilha() {
+  return <Aplicacao nestedMode="stack" />;
+}
+
+function AplicacaoComContaCobrindo() {
+  return <Aplicacao accountMode="cover" />;
+}
+
+function ModuloSemSubmenu() {
+  return <Aplicacao initialModule="Início" />;
+}
+
 function Modos() {
   return (
-    <div className="stack">
-      <div className="subsection">
-        <h3>Duas colunas</h3>
-        <PrincipalComLateral />
-        <p className="note">
-          Com 900px ou mais de largura própria, a coluna lateral ocupa um terço, e o conteúdo principal, dois. 900px é o{' '}
-          <code>--pl-bp-sm</code>.
-        </p>
-      </div>
-      <div className="subsection">
-        <h3>Uma coluna</h3>
-        <div style={{ maxWidth: 420 }}>
-          <PrincipalComLateral />
-        </div>
-        <p className="note">
-          A medida é a do próprio Sidebar, e não a da janela: abaixo de 900px, a coluna lateral desce para baixo do conteúdo e o índice some.
-        </p>
-      </div>
-      <div className="subsection">
-        <h3>Índice acompanhando a rolagem</h3>
-        <PrincipalComIndice prefixo="modo" />
-        <p className="note">
-          O índice acompanha a rolagem do corpo da página, não a da janela: a seção que cruza a linha, um pouco abaixo do topo do índice, fica
-          marcada. Em uma coluna, o índice some.
-        </p>
-      </div>
-    </div>
+    <dl className="modes">
+      <dt>Trilho</dt>
+      <dd>
+        Os módulos, só com ícone e dica, com a marca no topo e um grupo fixo no pé: um item de sistema, como Configurações, e o{' '}
+        <code>Sidebar.RailAccount</code>.
+      </dd>
+      <dt>Submenu</dt>
+      <dd>
+        A lista do módulo, em grupos com título (<code>Sidebar.Group</code>). Cada item (<code>Sidebar.Item</code>) leva ícone, o atual marcado, um
+        complemento ao fim da linha, como uma contagem em <code>trailing</code>, ou <code>external</code> para o link que sai da aplicação.
+      </dd>
+      <dt>Recolher e abrir</dt>
+      <dd>
+        <code>defaultOpen</code>, no <code>AppShell</code>, define o início. Aberto empurra a página; recolhido devolve a largura e o botão de abrir
+        aparece na barra da página. O módulo atual no trilho também alterna o submenu.
+      </dd>
+      <dt><code>nestedMode</code></dt>
+      <dd>
+        <code>expand</code> abre os filhos no lugar, com recuo e linha-guia; <code>stack</code> troca a lista pelo nível de baixo, com o caminho de volta.
+        Mais fundo que três níveis, o restante vai para o <code>TabsNav</code> na página.
+      </dd>
+      <dt>Conta e <code>accountMode</code></dt>
+      <dd>
+        Abre dentro do submenu, pelo bloco do rodapé. <code>inline</code> cresce acima do rodapé e encolhe a lista; <code>cover</code> ocupa o lugar da
+        lista. Com o submenu recolhido, o avatar do trilho abre o submenu já na conta.
+      </dd>
+      <dt>Módulo sem submenu</dt>
+      <dd>O <code>Sidebar.Panel</code> vem sem itens: a página encosta no trilho, e o submenu fica só como lugar da conta.</dd>
+      <dt>Gaveta no celular</dt>
+      <dd>
+        Abaixo de 900px, o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página.
+        A prévia acima mede a janela do navegador, e não a própria largura: estreite a janela para ver a gaveta.
+      </dd>
+    </dl>
   );
 }
 
@@ -132,71 +307,106 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
-      titulo: 'Coluna lateral',
-      descricao: 'Cartões no conteúdo principal e um resumo na coluna de complemento.',
+      titulo: 'Navegação completa',
+      descricao:
+        'Trilho com marca e rodapé, submenu em grupos, contagem, link externo, terceiro nível expandido no lugar e conta. Clique no módulo atual para recolher.',
       largo: true,
-      Previa: PrincipalComLateral,
+      Previa: AplicacaoPadrao,
       codigo:
-        '<Sidebar>\n  <Sidebar.Main>\n    <Card>…Itens do pedido…</Card>\n    <Card>…Entrega…</Card>\n  </Sidebar.Main>\n  <Sidebar.Aside>\n    <Card>…Resumo…</Card>\n  </Sidebar.Aside>\n</Sidebar>',
+        '<AppShell>\n  <Sidebar>\n    <Sidebar.Rail brand={<Marca />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>\n      <Sidebar.RailItem current as={Link} href="/vendas" icon={<IconChartBar />} label="Vendas" />\n    </Sidebar.Rail>\n    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>\n      <Sidebar.Group label="Operação">\n        <Sidebar.Item current as={Link} href="/pedidos" icon={<IconFile />} label="Pedidos" trailing={<Badge size="sm">12</Badge>} />\n        <Sidebar.Item icon={<IconChartBar />} label="Painéis">\n          <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />\n        </Sidebar.Item>\n      </Sidebar.Group>\n      <Sidebar.Group label="Apoio">\n        <Sidebar.Item external href="https://exemplo.com/ajuda" icon={<IconFile />} label="Documentação" />\n      </Sidebar.Group>\n    </Sidebar.Panel>\n  </Sidebar>\n  <AppShell.Page>…</AppShell.Page>\n</AppShell>',
     },
     {
-      titulo: 'Índice da página',
-      descricao: 'Seções com id e um índice que leva a cada uma.',
+      titulo: 'Terceiro nível em pilha',
+      descricao: 'nestedMode="stack": o painel troca pelo nível de baixo, com o nome do módulo como caminho de volta.',
       largo: true,
-      Previa: () => <PrincipalComIndice prefixo="exemplo" />,
-      codigo:
-        "<Sidebar>\n  <Sidebar.Main>\n    <Card id=\"geral\">…</Card>\n    <Card id=\"equipe\">…</Card>\n    <Card id=\"avisos\">…</Card>\n  </Sidebar.Main>\n  <Sidebar.Index\n    items={[\n      { id: 'geral', label: 'Geral' },\n      { id: 'equipe', label: 'Equipe' },\n      { id: 'avisos', label: 'Avisos' },\n    ]}\n  />\n</Sidebar>",
+      Previa: AplicacaoEmPilha,
+      codigo: '<Sidebar.Panel label="Vendas" nestedMode="stack">\n  <Sidebar.Item label="Painéis">\n    <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />\n  </Sidebar.Item>\n</Sidebar.Panel>',
+    },
+    {
+      titulo: 'Conta cobrindo a lista',
+      descricao: 'accountMode="cover": o cartão da conta ocupa o lugar da lista do módulo, com o cabeçalho da conta.',
+      largo: true,
+      Previa: AplicacaoComContaCobrindo,
+      codigo: '<Sidebar.Panel label="Vendas" accountMode="cover" account={<MinhaConta />}>…</Sidebar.Panel>',
+    },
+    {
+      titulo: 'Módulo sem submenu',
+      descricao: 'O Sidebar.Panel sem itens: a página encosta no trilho, não há botão de abrir o submenu, e o avatar do trilho abre a conta.',
+      largo: true,
+      Previa: ModuloSemSubmenu,
+      codigo: '<Sidebar.Panel account={<MinhaConta />} label="Início" />',
     },
   ],
   faca: {
-    Previa: PrincipalComLateral,
-    texto: 'Uma coluna lateral para o que complementa o conteúdo, como um resumo, ou o índice para uma página longa em seções.',
+    Previa: AplicacaoRecolhida,
+    texto: 'Sidebar dentro do AppShell, com os módulos, os links e a conta vindos do produto.',
   },
   evite: {
-    Previa: () => (
-      <div style={{ width: '100%' }}>
-        <Sidebar>
-          <Sidebar.Main style={pilha}>
-            <CartaoDeTexto titulo="Itens do pedido" />
-          </Sidebar.Main>
-          <Sidebar.Aside>
-            <CartaoDeTexto titulo="Menu da aplicação" />
-          </Sidebar.Aside>
-        </Sidebar>
-      </div>
-    ),
+    Previa: ModuloSemSubmenu,
     texto: (
       <>
-        Usar a coluna lateral como navegação da aplicação. Isso é do <code>AppShell</code>; o <code>Sidebar</code> arranja o conteúdo da página.
+        Usar a <code>Sidebar</code> fora do <code>AppShell</code>: o estado da navegação é dele, e as peças avisam quando faltam. Para arranjar o
+        conteúdo da página, o componente é o <code>Columns</code>.
       </>
     ),
   },
   Modos,
   teclado: [
-    { teclas: ['Tab', 'Shift+Tab'], acao: 'Percorre os links do índice, na ordem das seções.' },
-    { teclas: ['Enter'], acao: 'Rola até a seção, leva o foco para ela e não altera o endereço.' },
+    { teclas: ['Tab', 'Shift+Tab'], acao: 'Percorre trilho, submenu, conta e página; o submenu recolhido não recebe foco.' },
+    { teclas: ['Enter', 'Espaço'], acao: 'Aciona o módulo, o item, o recolher ou o bloco da conta.' },
+    { teclas: ['Esc'], acao: 'Fecha a conta aberta, devolvendo o foco ao bloco; no celular, fecha a gaveta.' },
   ],
   garantias: [
-    { garantia: 'Coluna lateral', como: <><code>Sidebar.Aside</code> é um <code>aside</code>, e <code>Sidebar.Main</code> leva o conteúdo.</>, teste: 'Sidebar.test.tsx' },
-    { garantia: 'Índice nomeado', como: <>A <code>nav</code> se chama “Nesta página”, ou pelo <code>label</code>.</>, teste: 'Sidebar.test.tsx' },
-    { garantia: 'Links por id', como: <>Cada link aponta para <code>#id</code> da seção; o primeiro começa marcado.</>, teste: 'Sidebar.test.tsx' },
-    { garantia: 'Rolar e focar', como: <>Escolher um link rola até a seção, leva o foco para ela e não altera o endereço.</>, teste: 'Sidebar.test.tsx' },
-    { garantia: 'Menos movimento', como: <>Com <code>prefers-reduced-motion</code>, a rolagem é sem animação.</>, teste: 'Sidebar.test.tsx' },
-    { garantia: 'Seção à vista', como: <>A seção que cruza a linha de referência fica com <code>aria-current</code>.</>, teste: 'Sidebar.test.tsx' },
+    {
+      garantia: 'Navegações nomeadas',
+      como: <>Trilho e submenu em <code>nav</code> com nome; <code>aria-current=&quot;page&quot;</code> no módulo e no item atuais.</>,
+      teste: 'Sidebar.test.tsx',
+    },
+    {
+      garantia: 'Link da aplicação e externo',
+      como: 'O link é o componente recebido em as; o externo abre em outra aba, com rel noopener noreferrer.',
+      teste: 'Sidebar.test.tsx',
+    },
+    {
+      garantia: 'Alternar pelo módulo atual',
+      como: 'Clicar no módulo atual alterna o submenu sem navegar; os demais módulos navegam.',
+      teste: 'Sidebar.test.tsx',
+    },
+    { garantia: 'Terceiro nível', como: 'Expandido no lugar com aria-expanded/aria-controls, ou em pilha com foco no caminho de volta.', teste: 'Sidebar.test.tsx' },
+    {
+      garantia: 'Conta',
+      como: 'Abre acima do rodapé; Escape ou escolher uma opção fecha e devolve o foco ao bloco. O avatar do trilho só existe com o submenu recolhido.',
+      teste: 'Sidebar.test.tsx',
+    },
+    { garantia: 'Celular', como: 'Gaveta modal com a mecânica do Drawer; escolher um item ou um módulo sem submenu a fecha.', teste: 'Sidebar.test.tsx' },
+    {
+      garantia: 'Recolher e abrir',
+      como: 'O botão de recolher do submenu e o de abrir da barra da página trocam o foco entre si; recolhido, o submenu fica inerte.',
+      teste: 'AppShell.test.tsx',
+    },
   ],
   notaDaApi: (
     <>
-      <code>Sidebar</code> e <code>Sidebar.Main</code> recebem as propriedades nativas de <code>div</code>; <code>Sidebar.Aside</code>, as de{' '}
-      <code>aside</code>; <code>Sidebar.Index</code>, as de <code>nav</code>. Todos recebem o ref. Ao lado do <code>Sidebar.Main</code> vai o{' '}
-      <code>Sidebar.Aside</code> ou o <code>Sidebar.Index</code>.
+      Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
+      <code>.Item</code> e <code>.Account</code>. O estado fica no <code>AppShell</code>. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
+      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça.
     </>
   ),
   api: [
-    { nome: 'Sidebar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'A raiz, que mede a própria largura.' },
-    { nome: 'Sidebar.Main', tipo: "ComponentPropsWithRef<'div'>", descricao: 'O conteúdo principal.' },
-    { nome: 'Sidebar.Aside', tipo: "ComponentPropsWithRef<'aside'>", descricao: 'A coluna de complemento, como um resumo.' },
-    { nome: 'Sidebar.Index', tipo: 'items: readonly SidebarIndexItem[]; label?: string', descricao: 'O índice da página: um link por seção, pelo id dela.' },
-    { nome: 'SidebarIndexItem', tipo: '{ id: string; label: string }', descricao: 'Uma seção do índice: o id do elemento e o texto do link.' },
-    { nome: 'label', tipo: 'string', padrao: "'Nesta página'", descricao: 'Nome visível do índice.' },
+    { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
+    { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
+    { nome: 'Sidebar.RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
+    { nome: 'Sidebar.RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
+    { nome: 'Sidebar.Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },
+    { nome: 'Sidebar.Panel · nestedMode', tipo: "SidebarNestedMode: 'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
+    { nome: 'Sidebar.Panel · accountMode', tipo: "SidebarAccountMode: 'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
+    { nome: 'Sidebar.Group · label', tipo: 'string', descricao: 'Título que reúne itens.' },
+    {
+      nome: 'Sidebar.Item · label / icon / current / external / trailing',
+      tipo: 'string · ReactNode · boolean · boolean · ReactNode',
+      descricao: 'Item do submenu. Com children, abre o terceiro nível; external abre em outra aba; trailing é o complemento ao fim da linha.',
+    },
+    { nome: 'Sidebar.Item · expanded / defaultExpanded / onExpandedChange', tipo: 'boolean · boolean · (expanded: boolean) => void', descricao: 'Filhos abertos. Na pilha, defaultExpanded entra no nível no início.' },
+    { nome: 'Sidebar.Account · avatar / name / description / label', tipo: 'ReactNode · string · string · string', padrao: "label: 'Conta'", descricao: 'Bloco da conta no rodapé; os filhos são as opções (Sidebar.Item).' },
   ],
 };

@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CardMetric, ChartBar, PageHeader, Sidebar, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
+import { Badge, Button, Card, CardMetric, ChartBar, Columns, PageHeader, Table, formatCurrency, formatPercent } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DIAS_DO_GRAFICO, LANCAMENTOS, PEDIDOS, PEDIDOS_POR_DIA, PRODUTOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -47,8 +47,8 @@ export function Inicio() {
         <PageHeader.Description>{urgentes} pendências são urgentes hoje. As demais podem esperar o fim do dia.</PageHeader.Description>
       </PageHeader>
       <Coluna largura={1120}>
-        <Sidebar>
-          <Sidebar.Main className="grade-coluna">
+        <Columns>
+          <Columns.Main className="grade-coluna">
             <Card>
               <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
               <Card.Body flush>
@@ -88,8 +88,8 @@ export function Inicio() {
                 />
               </Card.Body>
             </Card>
-          </Sidebar.Main>
-          <Sidebar.Aside className="grade-coluna">
+          </Columns.Main>
+          <Columns.Aside className="grade-coluna">
             <CardMetric>
               <Card.Header description="Novembro, até hoje." headingLevel={2} title="Vendas do mês" />
               <CardMetric.Body>
@@ -122,8 +122,8 @@ export function Inicio() {
                 <Button size="sm" variant="ghost">Ver tudo</Button>
               </Card.Footer>
             </Card>
-          </Sidebar.Aside>
-        </Sidebar>
+          </Columns.Aside>
+        </Columns>
       </Coluna>
     </Pagina>
   );

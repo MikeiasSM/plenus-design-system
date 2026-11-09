@@ -28,7 +28,7 @@ export function useAppShell() {
   const context = useContext(AppShellContext);
 
   if (!context) {
-    throw new Error('As peças do AppShell só funcionam dentro de <AppShell>.');
+    throw new Error('As peças do AppShell e da Sidebar só funcionam dentro de <AppShell>.');
   }
 
   return context;

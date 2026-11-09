@@ -1,13 +1,13 @@
 import { useEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { IconChevronUp } from '../../icons';
-import { useAppShell } from './AppShell.context';
-import { AppShellItemScopeContext, useAppShellPanel } from './AppShellPanel.context';
-import styles from './AppShellPanel.module.css';
+import { useAppShell } from '../AppShell/AppShell.context';
+import { SidebarItemScopeContext, useSidebarPanel } from './SidebarPanel.context';
+import styles from './SidebarPanel.module.css';
 
-export interface AppShellAccountProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
+export interface SidebarAccountProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** O avatar do usuário. */
   avatar: ReactNode;
-  /** As opções da conta, do produto: `AppShell.PanelItem`. */
+  /** As opções da conta, do produto: `Sidebar.Item`. */
   children: ReactNode;
   /** Segunda linha do bloco, como a empresa. */
   description?: string;
@@ -16,8 +16,8 @@ export interface AppShellAccountProps extends Omit<ComponentPropsWithRef<'div'>,
   name: string;
 }
 
-/** Rodapé do submenu: o bloco da conta e o cartão com as opções, que abre acima dele. Vai em `AppShell.Panel`, na propriedade `account`. */
-export function AppShellAccount({
+/** Rodapé do submenu: o bloco da conta e o cartão com as opções, que abre acima dele. Vai em `Sidebar.Panel`, na propriedade `account`. */
+export function SidebarAccount({
   avatar,
   children,
   className,
@@ -26,9 +26,9 @@ export function AppShellAccount({
   name,
   onKeyDown,
   ...props
-}: AppShellAccountProps) {
+}: SidebarAccountProps) {
   const { accountId, accountOpen, setAccountOpen } = useAppShell();
-  const { accountMode } = useAppShellPanel();
+  const { accountMode } = useSidebarPanel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(accountOpen);
@@ -77,7 +77,7 @@ export function AppShellAccount({
             </div>
           )}
           <ul className={styles.items}>
-            <AppShellItemScopeContext value="account">{children}</AppShellItemScopeContext>
+            <SidebarItemScopeContext value="account">{children}</SidebarItemScopeContext>
           </ul>
         </nav>
       </div>

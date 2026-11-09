@@ -1,6 +1,6 @@
 import { createRef } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { Sidebar } from './Sidebar';
+import { Columns } from './Columns';
 
 const items = [
   { id: 'geral', label: 'Geral' },
@@ -9,23 +9,23 @@ const items = [
 
 function renderIndex(label?: string) {
   return render(
-    <Sidebar>
-      <Sidebar.Main>
+    <Columns>
+      <Columns.Main>
         <section id="geral">Geral</section>
         <section id="equipe">Equipe</section>
-      </Sidebar.Main>
-      <Sidebar.Index items={items} label={label} />
-    </Sidebar>,
+      </Columns.Main>
+      <Columns.Index items={items} label={label} />
+    </Columns>,
   );
 }
 
-describe('Sidebar', () => {
+describe('Columns', () => {
   it('mostra o conteudo principal e a coluna lateral como aside', () => {
     render(
-      <Sidebar>
-        <Sidebar.Main>Principal</Sidebar.Main>
-        <Sidebar.Aside>Resumo</Sidebar.Aside>
-      </Sidebar>,
+      <Columns>
+        <Columns.Main>Principal</Columns.Main>
+        <Columns.Aside>Resumo</Columns.Aside>
+      </Columns>,
     );
 
     expect(screen.getByText('Principal')).toBeInTheDocument();
@@ -35,9 +35,9 @@ describe('Sidebar', () => {
   it('entrega propriedades nativas, className e ref a raiz', () => {
     const ref = createRef<HTMLDivElement>();
     render(
-      <Sidebar className="extra" data-testid="raiz" ref={ref}>
-        <Sidebar.Main>Principal</Sidebar.Main>
-      </Sidebar>,
+      <Columns className="extra" data-testid="raiz" ref={ref}>
+        <Columns.Main>Principal</Columns.Main>
+      </Columns>,
     );
 
     expect(screen.getByTestId('raiz')).toHaveClass('extra');
@@ -51,7 +51,7 @@ function mockTops(tops: Record<string, number>) {
   });
 }
 
-describe('Sidebar.Index', () => {
+describe('Columns.Index', () => {
   const scrollIntoView = vi.fn();
 
   beforeEach(() => {

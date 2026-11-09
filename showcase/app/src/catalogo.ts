@@ -126,7 +126,8 @@ export const familias: readonly Familia[] = [
       componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
       componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
-      componente('AppShell', 'Moldura de tela em camadas: trilho de módulos, submenu do módulo e página.'),
+      componente('AppShell', 'Moldura de tela em camadas: a navegação da Sidebar e a página.'),
+      componente('Sidebar', 'Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular.'),
     ],
   },
   {
@@ -152,7 +153,7 @@ export const familias: readonly Familia[] = [
     nome: 'Predefinições',
     componentes: [
       componente('AnnotatedSection', 'Seção com título e explicação num trilho à esquerda e o conteúdo à direita.'),
-      componente('Sidebar', 'Conteúdo principal com uma coluna lateral ou com o índice da página.'),
+      componente('Columns', 'Conteúdo principal com uma coluna lateral ou com o índice da página.'),
     ],
   },
 ];

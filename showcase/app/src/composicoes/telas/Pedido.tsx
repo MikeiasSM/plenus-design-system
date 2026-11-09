@@ -1,4 +1,4 @@
-import { Badge, Button, Card, IconMore, IconPencil, Menu, PageHeader, Sidebar, Table, Textarea, Timeline, formatCurrency, formatDate } from '@plenustech/design-system';
+import { Badge, Button, Card, Columns, IconMore, IconPencil, Menu, PageHeader, Table, Textarea, Timeline, formatCurrency, formatDate } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DESCONTO, FRETE, ITENS_DO_PEDIDO, PEDIDOS, SUBTOTAL, TOTAL } from '../dados';
 import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
@@ -56,8 +56,8 @@ export function Pedido() {
         </PageHeader.Actions>
       </PageHeader>
       <Coluna largura={1120}>
-        <Sidebar>
-          <Sidebar.Main className="grade-coluna">
+        <Columns>
+          <Columns.Main className="grade-coluna">
             <Card>
               <Card.Header description="Pagamento por boleto em 28 dias." headingLevel={2} title="Itens do pedido" />
               <Card.Body flush>
@@ -101,8 +101,8 @@ export function Pedido() {
                 <Button size="sm" variant="secondary">Comentar</Button>
               </Card.Footer>
             </Card>
-          </Sidebar.Main>
-          <Sidebar.Aside className="grade-coluna">
+          </Columns.Main>
+          <Columns.Aside className="grade-coluna">
             <Card>
               <Card.Header headingLevel={2} title="Cliente" trailing={<Button size="sm" variant="ghost">Ver base</Button>} />
               <Card.Body>
@@ -128,8 +128,8 @@ export function Pedido() {
                 />
               </Card.Body>
             </Card>
-          </Sidebar.Aside>
-        </Sidebar>
+          </Columns.Aside>
+        </Columns>
       </Coluna>
     </Pagina>
   );

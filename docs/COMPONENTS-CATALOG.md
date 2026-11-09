@@ -248,7 +248,8 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
 | `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
-| `AppShell` | Moldura de tela em camadas: trilho de módulos, submenu do módulo e página. | Disponível |
+| `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
+| `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
 | `PageHeader` | Cabeçalho de página: título, descrição, selos de situação e ações. | Disponível |
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
@@ -259,7 +260,9 @@ A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens po
 
 O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h1`, e a linha que o separa do conteúdo vai de borda a borda do elemento que o contém. Voltar é um link da aplicação, recebido como no `Breadcrumb`; a trilha do caminho continua sendo o `Breadcrumb`, e o cabeçalho de um cartão, o `Card.Header`. A ação principal fica à direita, com até duas secundárias antes dela, e o excedente num `Menu`; o sistema não impõe o limite. Fixar ou compactar ao rolar é do produto.
 
-O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura. O terceiro nível do submenu tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido como no `Breadcrumb`.
+O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`) e o corpo (`PageBody`), a única área da página que rola. O `AppShell` guarda o estado da navegação, porque os botões de abrir o submenu e a gaveta ficam na barra da página.
+
+A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo; com o submenu recolhido, o avatar no trilho a abre. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. A `Sidebar` funciona dentro do `AppShell`. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido como no `Breadcrumb`.
 
 ## 9. Sobreposições
 
@@ -305,13 +308,13 @@ Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `AnnotatedSection` | Seção com título e explicação num trilho à esquerda e o conteúdo à direita. | Disponível |
-| `Sidebar` | Conteúdo principal com uma coluna lateral ou com o índice da página. | Disponível |
+| `Columns` | Conteúdo principal com uma coluna lateral ou com o índice da página. | Disponível |
 
 As predefinições são arranjos de página prontos, montados com os demais componentes, para o produto partir deles em vez de refazer o leiaute em cada tela. Elas arranjam o conteúdo sem impô-lo: o que vai em cada parte é do produto. Cada uma mede a própria largura, e não a da janela, e abaixo de 900px, o `--pl-bp-sm`, passa a uma coluna.
 
 A `AnnotatedSection` serve às telas de configuração e aos formulários por assunto. O título nomeia a seção, que é uma região da página, e sai em `h2`, com `headingLevel` para outro nível; a explicação e uma ação opcional ficam abaixo dele. Seções vizinhas se separam por uma linha. Em uma coluna, o trilho fica acima do conteúdo.
 
-O `Sidebar` é a coluna lateral do conteúdo, não a navegação da aplicação, que é o `AppShell`. Ao lado do `Sidebar.Main` vai uma de duas partes. O `Sidebar.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Sidebar.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
+O `Columns` arranja o conteúdo da página em duas colunas e não é a navegação da aplicação, que é a `Sidebar`. Ao lado do `Columns.Main` vai uma de duas partes. O `Columns.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Columns.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
 
 ## 12. Fora do escopo
 

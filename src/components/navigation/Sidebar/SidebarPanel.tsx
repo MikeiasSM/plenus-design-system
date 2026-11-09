@@ -11,37 +11,37 @@ import {
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { IconChevronLeft, IconChevronRight, IconClose, IconExternalLink, IconSidebar } from '../../icons';
-import { useAppShell } from './AppShell.context';
+import { useAppShell } from '../AppShell/AppShell.context';
 import {
-  AppShellItemScopeContext,
-  AppShellPanelContext,
-  useAppShellItemScope,
-  useAppShellPanel,
-  type AppShellAccountMode,
-  type AppShellNestedMode,
-} from './AppShellPanel.context';
-import { ShellAction, type ShellActionProps } from './ShellAction';
-import shellStyles from './AppShell.module.css';
-import styles from './AppShellPanel.module.css';
+  SidebarItemScopeContext,
+  SidebarPanelContext,
+  useSidebarItemScope,
+  useSidebarPanel,
+  type SidebarAccountMode,
+  type SidebarNestedMode,
+} from './SidebarPanel.context';
+import { SidebarAction, type SidebarActionProps } from './SidebarAction';
+import shellStyles from '../AppShell/AppShell.module.css';
+import styles from './SidebarPanel.module.css';
 
-export interface AppShellPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
-  /** A conta do usuário no rodapé: um `AppShell.Account`. */
+export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
+  /** A conta do usuário no rodapé: um `Sidebar.Account`. */
   account?: ReactNode;
   /**
    * Onde a conta abre. `inline` cresce acima do rodapé e encolhe a lista do módulo;
    * `cover` ocupa o lugar da lista.
    */
-  accountMode?: AppShellAccountMode;
+  accountMode?: SidebarAccountMode;
   /** A marca do produto, no cabeçalho, na altura da marca do trilho. */
   brand?: ReactNode;
   /** Nome do módulo: nomeia a navegação e é o caminho de volta na pilha. */
   label: string;
   /** Terceiro nível: `expand` abre os filhos no lugar; `stack` troca a lista pelo nível de baixo. */
-  nestedMode?: AppShellNestedMode;
+  nestedMode?: SidebarNestedMode;
 }
 
 /** Submenu do módulo, direto na base, entre o trilho e a página. Sem filhos, serve só de lugar da conta. */
-export function AppShellPanel({
+export function SidebarPanel({
   account,
   accountMode = 'inline',
   brand,
@@ -50,7 +50,7 @@ export function AppShellPanel({
   label,
   nestedMode = 'expand',
   ...props
-}: AppShellPanelProps) {
+}: SidebarPanelProps) {
   const { accountOpen, collapsePanel, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useAppShell();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
@@ -69,7 +69,7 @@ export function AppShellPanel({
   }
 
   return (
-    <AppShellPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId }}>
+    <SidebarPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId }}>
       <div
         {...props}
         className={[styles.panel, className].filter(Boolean).join(' ')}
@@ -113,18 +113,18 @@ export function AppShellPanel({
           {account}
         </div>
       </div>
-    </AppShellPanelContext>
+    </SidebarPanelContext>
   );
 }
 
-export interface AppShellPanelGroupProps extends ComponentPropsWithRef<'li'> {
+export interface SidebarGroupProps extends ComponentPropsWithRef<'li'> {
   label: string;
 }
 
 /** Título que reúne itens afins. */
-export function AppShellPanelGroup({ children, className, label, ...props }: AppShellPanelGroupProps) {
-  const { enteredId } = useAppShellPanel();
-  const scope = useAppShellItemScope();
+export function SidebarGroup({ children, className, label, ...props }: SidebarGroupProps) {
+  const { enteredId } = useSidebarPanel();
+  const scope = useSidebarItemScope();
   const titleId = useId();
 
   return (
@@ -139,7 +139,7 @@ export function AppShellPanelGroup({ children, className, label, ...props }: App
   );
 }
 
-export interface AppShellPanelItemProps extends Omit<ShellActionProps, 'aria-label' | 'children'> {
+export interface SidebarItemProps extends Omit<SidebarActionProps, 'aria-label' | 'children'> {
   /** Os itens do terceiro nível. Com eles, o item abre os filhos em vez de navegar. */
   children?: ReactNode;
   /** Item da página atual. */
@@ -157,11 +157,11 @@ export interface AppShellPanelItemProps extends Omit<ShellActionProps, 'aria-lab
   trailing?: ReactNode;
 }
 
-export function AppShellPanelItem({ children, ...props }: AppShellPanelItemProps) {
-  const { nestedMode } = useAppShellPanel();
+export function SidebarItem({ children, ...props }: SidebarItemProps) {
+  const { nestedMode } = useSidebarPanel();
 
   if (children === undefined) {
-    return <AppShellPanelLeaf {...props} />;
+    return <SidebarLeaf {...props} />;
   }
 
   return nestedMode === 'stack' ? (
@@ -175,7 +175,7 @@ function joinClasses(...names: (string | false | undefined)[]) {
   return names.filter(Boolean).join(' ');
 }
 
-function ItemContent({ icon, label, trailing }: Pick<AppShellPanelItemProps, 'icon' | 'label' | 'trailing'>) {
+function ItemContent({ icon, label, trailing }: Pick<SidebarItemProps, 'icon' | 'label' | 'trailing'>) {
   return (
     <>
       {icon && <span className={styles.icon}>{icon}</span>}
@@ -185,7 +185,7 @@ function ItemContent({ icon, label, trailing }: Pick<AppShellPanelItemProps, 'ic
   );
 }
 
-function AppShellPanelLeaf({
+function SidebarLeaf({
   className,
   current = false,
   defaultExpanded: _defaultExpanded,
@@ -197,10 +197,10 @@ function AppShellPanelLeaf({
   onExpandedChange: _onExpandedChange,
   trailing,
   ...props
-}: AppShellPanelItemProps) {
+}: SidebarItemProps) {
   const { narrow, setMenuOpen } = useAppShell();
-  const { enteredId } = useAppShellPanel();
-  const scope = useAppShellItemScope();
+  const { enteredId } = useSidebarPanel();
+  const scope = useSidebarItemScope();
   const isLink = props.href !== undefined || props.linkProps !== undefined;
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
@@ -217,7 +217,7 @@ function AppShellPanelLeaf({
 
   return (
     <li>
-      <ShellAction
+      <SidebarAction
         {...props}
         {...(external && isLink ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         aria-current={current ? 'page' : undefined}
@@ -226,7 +226,7 @@ function AppShellPanelLeaf({
       >
         <ItemContent icon={icon} label={label} trailing={trailing} />
         {external && <IconExternalLink className={styles.external} size={15} />}
-      </ShellAction>
+      </SidebarAction>
     </li>
   );
 }
@@ -244,7 +244,7 @@ function ExpandedBranch({
   onExpandedChange,
   trailing,
   ...props
-}: AppShellPanelItemProps) {
+}: SidebarItemProps) {
   const [expanded, setExpanded] = useOpenState({
     defaultOpen: defaultExpanded,
     onOpenChange: onExpandedChange,
@@ -254,7 +254,7 @@ function ExpandedBranch({
 
   return (
     <li className={styles.branch} data-expanded={expanded}>
-      <ShellAction
+      <SidebarAction
         {...props}
         aria-controls={listId}
         aria-expanded={expanded}
@@ -268,10 +268,10 @@ function ExpandedBranch({
       >
         <ItemContent icon={icon} label={label} trailing={trailing} />
         <IconChevronRight className={styles.chevron} size={15} />
-      </ShellAction>
+      </SidebarAction>
       <div className={styles.nestedWrap} inert={!expanded}>
         <ul className={styles.nested} id={listId}>
-          <AppShellItemScopeContext value="nested">{children}</AppShellItemScopeContext>
+          <SidebarItemScopeContext value="nested">{children}</SidebarItemScopeContext>
         </ul>
       </div>
     </li>
@@ -291,9 +291,9 @@ function StackedBranch({
   onExpandedChange: _onExpandedChange,
   trailing,
   ...props
-}: AppShellPanelItemProps) {
-  const { enteredId, label: panelLabel, setEnteredId } = useAppShellPanel();
-  const scope = useAppShellItemScope();
+}: SidebarItemProps) {
+  const { enteredId, label: panelLabel, setEnteredId } = useSidebarPanel();
+  const scope = useSidebarItemScope();
   const id = useId();
   const entered = enteredId === id;
   const wasEntered = useRef(entered);
@@ -327,7 +327,7 @@ function StackedBranch({
         </button>
         <span className={styles.groupTitle}>{label}</span>
         <ul className={styles.items}>
-          <AppShellItemScopeContext value="nested">{children}</AppShellItemScopeContext>
+          <SidebarItemScopeContext value="nested">{children}</SidebarItemScopeContext>
         </ul>
       </li>
     );
@@ -335,7 +335,7 @@ function StackedBranch({
 
   return (
     <li className={styles.branch}>
-      <ShellAction
+      <SidebarAction
         {...props}
         className={joinClasses(styles.item, className)}
         onClick={(event) => {
@@ -348,9 +348,9 @@ function StackedBranch({
       >
         <ItemContent icon={icon} label={label} trailing={trailing} />
         <IconChevronRight className={styles.chevron} size={15} />
-      </ShellAction>
+      </SidebarAction>
       <ul className={styles.nested} hidden>
-        <AppShellItemScopeContext value="nested">{children}</AppShellItemScopeContext>
+        <SidebarItemScopeContext value="nested">{children}</SidebarItemScopeContext>
       </ul>
     </li>
   );

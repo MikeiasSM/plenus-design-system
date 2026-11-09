@@ -1,9 +1,12 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Drawer } from '../../overlays/Drawer';
-import { useAppShell } from './AppShell.context';
-import styles from './AppShell.module.css';
+import { useAppShell } from '../AppShell/AppShell.context';
+import { SidebarAccount } from './SidebarAccount';
+import { SidebarGroup, SidebarItem, SidebarPanel } from './SidebarPanel';
+import { SidebarRail, SidebarRailAccount, SidebarRailItem } from './SidebarRail';
+import styles from './Sidebar.module.css';
 
-export interface AppShellNavigationProps {
+export interface SidebarProps {
   /** O trilho e o submenu. */
   children: ReactNode;
   /** Nome da gaveta no celular. */
@@ -11,7 +14,7 @@ export interface AppShellNavigationProps {
 }
 
 /** Reúne trilho e submenu. Em largura estreita, os dois passam juntos a uma gaveta com a interação do `Drawer`. */
-export function AppShellNavigation({ children, menuLabel = 'Menu' }: AppShellNavigationProps) {
+function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
   const { menuOpen, narrow, panelKind, setMenuOpen } = useAppShell();
   const previousPanelKind = useRef(panelKind);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,3 +47,13 @@ export function AppShellNavigation({ children, menuLabel = 'Menu' }: AppShellNav
     </Drawer>
   );
 }
+
+export const Sidebar = Object.assign(SidebarRoot, {
+  Account: SidebarAccount,
+  Group: SidebarGroup,
+  Item: SidebarItem,
+  Panel: SidebarPanel,
+  Rail: SidebarRail,
+  RailAccount: SidebarRailAccount,
+  RailItem: SidebarRailItem,
+});

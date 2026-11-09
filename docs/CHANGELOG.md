@@ -9,9 +9,14 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Adicionado
 
 - `AnnotatedSection`: seção com título e explicação num trilho à esquerda e o conteúdo à direita, para telas de configuração e formulários por assunto. O título nomeia a seção e sai em `h2` (`headingLevel` para outro nível); `description` e `action` ficam abaixo dele. Seções vizinhas se separam por uma linha.
-- `Sidebar`: conteúdo principal com uma coluna ao lado. O `Sidebar.Aside` é a coluna de complemento, em um terço da largura. O `Sidebar.Index` é o índice "Nesta página": marca a seção à vista enquanto a página rola, e escolher um link rola até a seção e leva o foco para ela, sem alterar o endereço.
-- As duas medem a própria largura: abaixo de 900px passam a uma coluna, o `Sidebar.Aside` desce para baixo do conteúdo e o `Sidebar.Index` some.
-- Showcase: família Predefinições, com a página de cada componente. As composições de configuração, de cadastro e de pedidos passam a usá-los.
+- `Columns`: conteúdo principal com uma coluna ao lado. O `Columns.Aside` é a coluna de complemento, em um terço da largura. O `Columns.Index` é o índice "Nesta página": marca a seção à vista enquanto a página rola, e escolher um link rola até a seção e leva o foco para ela, sem alterar o endereço.
+- As duas medem a própria largura: abaixo de 900px passam a uma coluna, o `Columns.Aside` desce para baixo do conteúdo e o `Columns.Index` some.
+- `Sidebar`: a navegação da aplicação, que sai do `AppShell` com todas as formas que ele já tinha. São o trilho de módulos (`Sidebar.Rail`, `Sidebar.RailItem` e `Sidebar.RailAccount`), o submenu (`Sidebar.Panel`) com grupos (`Sidebar.Group`) e itens com ícone, contagem, link externo e terceiro nível no lugar ou em pilha (`Sidebar.Item`), a conta (`Sidebar.Account`), o recolher e a gaveta no celular. Funciona dentro do `AppShell`, que guarda o estado.
+- Showcase: família Predefinições, com a página de cada componente, e página da `Sidebar` com todas as formas de navegação; a do `AppShell` passa a mostrar a moldura. As composições passam a usar `AnnotatedSection`, `Columns` e `Sidebar`.
+
+### Alterado
+
+- `AppShell`: a navegação passa à `Sidebar`, e o `AppShell` fica com a moldura e o estado. Os nomes antigos continuam aceitos, marcados como obsoletos, até a versão menor seguinte. Troque `AppShell.Navigation` por `Sidebar`, `AppShell.PanelGroup` por `Sidebar.Group`, `AppShell.PanelItem` por `Sidebar.Item`, e `AppShell.Rail`, `RailItem`, `RailAccount`, `Panel` e `Account` pelas partes de mesmo nome da `Sidebar`. Os tipos trocam o prefixo `AppShell` por `Sidebar`, com `AppShellNavigationProps` virando `SidebarProps`, `AppShellPanelGroupProps` virando `SidebarGroupProps` e `AppShellPanelItemProps` virando `SidebarItemProps`.
 
 ## [0.6.3] — 2026-11-06
 

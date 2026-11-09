@@ -30,7 +30,7 @@ const configuracao = (arranjo: 'anotado' | 'empilhado' | 'indice') => function A
   return <ConfiguracaoSecao arranjo={arranjo} />;
 };
 
-const SECAO_DE_CONFIGURACAO = ['AppShell', 'PageHeader', 'Card', 'FieldRow', 'InputNumber', 'Switch', 'Table', 'Avatar', 'ButtonIcon', 'Button'];
+const SECAO_DE_CONFIGURACAO = ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'FieldRow', 'InputNumber', 'Switch', 'Table', 'Avatar', 'ButtonIcon', 'Button'];
 
 export const telas: readonly Tela[] = [
   {
@@ -40,11 +40,11 @@ export const telas: readonly Tela[] = [
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
-    componentes: ['AppShell', 'PageHeader', 'Sidebar', 'Card', 'CardMetric', 'ChartBar', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'Table', 'Badge', 'Button'],
     nota: (
       <>
         Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
-        pelo <code>Sidebar</code> (<code>Sidebar.Main</code> e <code>Sidebar.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria.
+        pelo <code>Columns</code> (<code>Columns.Main</code> e <code>Columns.Aside</code>), que passa a uma coluna abaixo de 900px de largura própria.
       </>
     ),
     codigo: `<AppShell.Page>
@@ -54,15 +54,15 @@ export const telas: readonly Tela[] = [
       <PageHeader.Title>Bom dia, Suporte</PageHeader.Title>
       <PageHeader.Description>2 pendências são urgentes hoje.</PageHeader.Description>
     </PageHeader>
-    <Sidebar>
-      <Sidebar.Main>
+    <Columns>
+      <Columns.Main>
         <Card>
           <Card.Header title="O que pede ação hoje" description="…" />
           <Card.Body flush><Table label="Pendências">…</Table></Card.Body>
         </Card>
-      </Sidebar.Main>
-      <Sidebar.Aside><CardMetric>…</CardMetric></Sidebar.Aside>
-    </Sidebar>
+      </Columns.Main>
+      <Columns.Aside><CardMetric>…</CardMetric></Columns.Aside>
+    </Columns>
   </AppShell.PageBody>
 </AppShell.Page>`,
   },
@@ -73,7 +73,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'pedidos',
     Componente: Pedidos,
-    componentes: ['AppShell', 'PageHeader', 'Card', 'Tabs', 'InputText', 'Button', 'SidePanel', 'Select', 'Table', 'Pagination', 'EmptyState', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Tabs', 'InputText', 'Button', 'SidePanel', 'Select', 'Table', 'Pagination', 'EmptyState', 'Badge'],
     nota: (
       <>
         Índice usa a largura total. O <code>SidePanel</code> é irmão da página dentro do <code>AppShell</code>, não peça dele: abre ao lado,
@@ -81,7 +81,7 @@ export const telas: readonly Tela[] = [
       </>
     ),
     codigo: `<AppShell>
-  <AppShell.Navigation>…</AppShell.Navigation>
+  <Sidebar>…</Sidebar>
   <AppShell.Page>
     <AppShell.PageBar>…</AppShell.PageBar>
     <AppShell.PageBody>
@@ -105,12 +105,12 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'pedido',
     Componente: Pedido,
-    componentes: ['AppShell', 'PageHeader', 'Sidebar', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button'],
     nota: (
       <>
         Largura larga. A ação principal vai por último no cabeçalho, com até duas secundárias antes dela; o excedente cabe num{' '}
         <code>Menu</code>. O voltar é um link da aplicação, nomeado por <code>label</code>. Itens e dados de apoio dividem a largura pelo{' '}
-        <code>Sidebar</code>, com o resumo em <code>Sidebar.Aside</code>.
+        <code>Columns</code>, com o resumo em <code>Columns.Aside</code>.
       </>
     ),
     codigo: `<PageHeader maxWidth="1120px">
@@ -124,10 +124,10 @@ export const telas: readonly Tela[] = [
     <Button>Aprovar pedido</Button>
   </PageHeader.Actions>
 </PageHeader>
-<Sidebar>
-  <Sidebar.Main>…itens do pedido…</Sidebar.Main>
-  <Sidebar.Aside>…cliente e totais…</Sidebar.Aside>
-</Sidebar>`,
+<Columns>
+  <Columns.Main>…itens do pedido…</Columns.Main>
+  <Columns.Aside>…cliente e totais…</Columns.Aside>
+</Columns>`,
   },
   {
     id: 'novo-pedido',
@@ -136,7 +136,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'novo-pedido',
     Componente: NovoPedido,
-    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'Sidebar', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SaveBar', 'Columns', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea'],
     nota: (
       <>
         Formulário inteiro usa <code>SaveBar</code> no lugar do salvar por cartão. Ela é a primeira coisa do corpo da página, para se prender
@@ -151,10 +151,10 @@ export const telas: readonly Tela[] = [
     onSave={salvar}
   />
   <PageHeader maxWidth="1120px">…</PageHeader>
-  <Sidebar>
-    <Sidebar.Main><Card>…</Card></Sidebar.Main>
-    <Sidebar.Aside><Card>…</Card></Sidebar.Aside>
-  </Sidebar>
+  <Columns>
+    <Columns.Main><Card>…</Card></Columns.Main>
+    <Columns.Aside><Card>…</Card></Columns.Aside>
+  </Columns>
 </AppShell.PageBody>`,
   },
   {
@@ -164,7 +164,7 @@ export const telas: readonly Tela[] = [
     modulo: 'clientes',
     item: 'clientes-base',
     Componente: ClientesBase,
-    componentes: ['AppShell', 'PageHeader', 'SidePanel', 'Select', 'CardMetric', 'Card', 'ChartBar', 'ChartDonut', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SidePanel', 'Select', 'CardMetric', 'Card', 'ChartBar', 'ChartDonut', 'Badge'],
     nota: (
       <>
         Painel de dados usa a largura total. A ação que abre os filtros é a principal do cabeçalho, e o período escolhido volta como selo. Com o painel lateral aberto, a folha cede
@@ -172,7 +172,7 @@ export const telas: readonly Tela[] = [
       </>
     ),
     codigo: `<AppShell>
-  <AppShell.Navigation>…</AppShell.Navigation>
+  <Sidebar>…</Sidebar>
   <AppShell.Page>…<CardMetric>…</CardMetric>…<ChartBar orientation="horizontal" />…</AppShell.Page>
   <SidePanel title="Filtros" footer={<Button>Aplicar filtros</Button>}>
     <Select label="Empresa" … />
@@ -187,7 +187,7 @@ export const telas: readonly Tela[] = [
     modulo: 'clientes',
     item: 'novo-cliente',
     Componente: NovoCliente,
-    componentes: ['AppShell', 'PageHeader', 'SaveBar', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SaveBar', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea'],
     nota: (
       <>
         O arranjo anotado é o primeiro na prioridade e o padrão na dúvida, feito pela <code>AnnotatedSection</code>. Abaixo de 900px de largura própria, o trilho vira título acima do cartão.
@@ -212,7 +212,7 @@ export const telas: readonly Tela[] = [
     modulo: 'estoque',
     item: 'depositos',
     Componente: Depositos,
-    componentes: ['AppShell', 'PageHeader', 'SegmentedControl', 'Card', 'Progress', 'Badge', 'Table'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SegmentedControl', 'Card', 'Progress', 'Badge', 'Table'],
     nota: (
       <>
         Poucos registros e nenhuma ordenação pedem cartões; a tabela fica a um clique. A troca de forma de exibição vive no cabeçalho, ao lado da
@@ -231,7 +231,7 @@ export const telas: readonly Tela[] = [
     modulo: 'estoque',
     item: 'produtos',
     Componente: Produtos,
-    componentes: ['AppShell', 'PageHeader', 'Alert', 'Card', 'Table', 'Dialog', 'InputText', 'InputCurrency', 'InputNumber', 'Select', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Alert', 'Card', 'Table', 'Dialog', 'InputText', 'InputCurrency', 'InputNumber', 'Select', 'Badge'],
     nota: (
       <>
         Quando o cadastro cabe em três campos, o <code>Dialog</code> evita a viagem a uma página. O item criado entra no topo e leva o selo Novo.
@@ -250,7 +250,7 @@ export const telas: readonly Tela[] = [
     modulo: 'financeiro',
     item: 'conciliacao',
     Componente: Conciliacao,
-    componentes: ['AppShell', 'PageHeader', 'Card', 'Steps', 'Select', 'FileUpload', 'Table', 'Alert', 'EmptyState', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Steps', 'Select', 'FileUpload', 'Table', 'Alert', 'EmptyState', 'Button'],
     nota: (
       <>
         Etapa usa a coluna estreita, 760px. <code>Steps</code> só deixa voltar a etapas concluídas; avançar é pelo botão Próximo, que fica
@@ -276,7 +276,7 @@ export const telas: readonly Tela[] = [
     modulo: 'financeiro',
     item: 'contas',
     Componente: Contas,
-    componentes: ['AppShell', 'PageHeader', 'Card', 'EmptyState', 'Steps', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'EmptyState', 'Steps', 'Table', 'Badge', 'Button'],
     nota: (
       <>
         O vazio da primeira vez não é erro: <code>EmptyState</code> com título que diz o que falta, descrição que diz o ganho e duas ações, a
@@ -301,7 +301,7 @@ export const telas: readonly Tela[] = [
     modulo: 'configuracoes',
     item: 'configuracoes',
     Componente: Configuracoes,
-    componentes: ['AppShell', 'PageHeader', 'InputText', 'Card', 'Table', 'Badge', 'EmptyState'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'InputText', 'Card', 'Table', 'Badge', 'EmptyState'],
     nota: (
       <>
         Largura larga. A busca ocupa o lado direito do cabeçalho em <code>PageHeader.Search</code>; o campo é do produto e leva o próprio nome
@@ -367,20 +367,20 @@ export const telas: readonly Tela[] = [
   {
     id: 'configuracao-com-indice',
     nome: 'Seção de configuração, com índice',
-    resumo: 'Sidebar.Index, 1000px: cartões em coluna e a lista Nesta página ao lado, marcando a seção à vista.',
+    resumo: 'Columns.Index, 1000px: cartões em coluna e a lista Nesta página ao lado, marcando a seção à vista.',
     modulo: 'configuracoes',
     item: 'configuracao-anotada',
     Componente: configuracao('indice'),
-    componentes: ['Sidebar', ...SECAO_DE_CONFIGURACAO],
+    componentes: ['Columns', ...SECAO_DE_CONFIGURACAO],
     nota: (
       <>
-        Vale para a seção longa. O <code>Sidebar.Index</code> fica preso ao lado e marca a seção à vista; escolher um link rola até ela sem mudar o endereço. Abaixo de
+        Vale para a seção longa. O <code>Columns.Index</code> fica preso ao lado e marca a seção à vista; escolher um link rola até ela sem mudar o endereço. Abaixo de
         900px de largura própria, o índice some e as seções seguem em coluna única.
       </>
     ),
-    codigo: `<Sidebar>
-  <Sidebar.Main>{secoes}</Sidebar.Main>
-  <Sidebar.Index items={[{ id: 'secao-limites', label: 'Limites' }]} />
-</Sidebar>`,
+    codigo: `<Columns>
+  <Columns.Main>{secoes}</Columns.Main>
+  <Columns.Index items={[{ id: 'secao-limites', label: 'Limites' }]} />
+</Columns>`,
   },
 ];

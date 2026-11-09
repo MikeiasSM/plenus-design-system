@@ -6,12 +6,12 @@ import {
   Button,
   ButtonIcon,
   Card,
+  Columns,
   FieldRow,
   IconClose,
   IconPlus,
   InputNumber,
   PageHeader,
-  Sidebar,
   Switch,
   Table,
 } from '@plenustech/design-system';
@@ -225,10 +225,10 @@ function Secoes({ arranjo }: { arranjo: Arranjo }) {
   );
 
   return arranjo === 'indice' ? (
-    <Sidebar>
-      <Sidebar.Main>{empilhadas}</Sidebar.Main>
-      <Sidebar.Index items={SECOES.map(({ id, titulo }) => ({ id: `secao-${id}`, label: titulo }))} />
-    </Sidebar>
+    <Columns>
+      <Columns.Main>{empilhadas}</Columns.Main>
+      <Columns.Index items={SECOES.map(({ id, titulo }) => ({ id: `secao-${id}`, label: titulo }))} />
+    </Columns>
   ) : (
     empilhadas
   );

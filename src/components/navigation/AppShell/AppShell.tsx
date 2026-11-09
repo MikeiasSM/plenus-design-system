@@ -1,12 +1,9 @@
 import { useEffect, useId, useRef, useState, type ComponentPropsWithRef } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { Sidebar } from '../Sidebar';
 import { AppShellContext, type AppShellPanelKind } from './AppShell.context';
-import { AppShellAccount } from './AppShellAccount';
-import { AppShellNavigation } from './AppShellNavigation';
 import { AppShellPage, AppShellPageBar, AppShellPageBody } from './AppShellPage';
-import { AppShellPanel, AppShellPanelGroup, AppShellPanelItem } from './AppShellPanel';
-import { AppShellRail, AppShellRailAccount, AppShellRailItem } from './AppShellRail';
 import styles from './AppShell.module.css';
 
 export interface AppShellProps extends ComponentPropsWithRef<'div'> {
@@ -17,7 +14,7 @@ export interface AppShellProps extends ComponentPropsWithRef<'div'> {
   open?: boolean;
 }
 
-/** Moldura da aplicação em camadas: trilho de módulos, submenu do módulo e página. Ocupa o espaço que o pai lhe dá. */
+/** Moldura da aplicação: guarda o estado da navegação (`Sidebar`) e abriga a página. Ocupa o espaço que o pai lhe dá. */
 function AppShellRoot({ children, className, defaultOpen = true, onOpenChange, open: controlledOpen, ...props }: AppShellProps) {
   const narrow = useNarrowViewport();
   const [submenuOpen, setSubmenuOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
@@ -94,15 +91,23 @@ function AppShellRoot({ children, className, defaultOpen = true, onOpenChange, o
 }
 
 export const AppShell = Object.assign(AppShellRoot, {
-  Account: AppShellAccount,
-  Navigation: AppShellNavigation,
+  /** @deprecated Use `Sidebar.Account`. Aceito ate a versao menor seguinte. */
+  Account: Sidebar.Account,
+  /** @deprecated Use `Sidebar`. Aceito ate a versao menor seguinte. */
+  Navigation: Sidebar,
   Page: AppShellPage,
   PageBar: AppShellPageBar,
   PageBody: AppShellPageBody,
-  Panel: AppShellPanel,
-  PanelGroup: AppShellPanelGroup,
-  PanelItem: AppShellPanelItem,
-  Rail: AppShellRail,
-  RailAccount: AppShellRailAccount,
-  RailItem: AppShellRailItem,
+  /** @deprecated Use `Sidebar.Panel`. Aceito ate a versao menor seguinte. */
+  Panel: Sidebar.Panel,
+  /** @deprecated Use `Sidebar.Group`. Aceito ate a versao menor seguinte. */
+  PanelGroup: Sidebar.Group,
+  /** @deprecated Use `Sidebar.Item`. Aceito ate a versao menor seguinte. */
+  PanelItem: Sidebar.Item,
+  /** @deprecated Use `Sidebar.Rail`. Aceito ate a versao menor seguinte. */
+  Rail: Sidebar.Rail,
+  /** @deprecated Use `Sidebar.RailAccount`. Aceito ate a versao menor seguinte. */
+  RailAccount: Sidebar.RailAccount,
+  /** @deprecated Use `Sidebar.RailItem`. Aceito ate a versao menor seguinte. */
+  RailItem: Sidebar.RailItem,
 });

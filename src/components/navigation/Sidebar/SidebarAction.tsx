@@ -1,6 +1,6 @@
 import type { ComponentPropsWithRef, ElementType } from 'react';
 
-export interface ShellActionProps extends ComponentPropsWithRef<'button'> {
+export interface SidebarActionProps extends ComponentPropsWithRef<'button'> {
   /** Componente de link da aplicação, para não acoplar o sistema a um roteador. */
   as?: ElementType;
   href?: string;
@@ -9,7 +9,7 @@ export interface ShellActionProps extends ComponentPropsWithRef<'button'> {
 }
 
 /** Link da aplicação quando há endereço; botão quando a peça só aciona algo. */
-export function ShellAction({ as: Link = 'a', href, linkProps, type = 'button', ...props }: ShellActionProps) {
+export function SidebarAction({ as: Link = 'a', href, linkProps, type = 'button', ...props }: SidebarActionProps) {
   if (href === undefined && linkProps === undefined) {
     return <button type={type} {...props} />;
   }

@@ -154,6 +154,19 @@ export type {
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { AppShell } from './components/navigation/AppShell';
+export { Sidebar } from './components/navigation/Sidebar';
+export type {
+  SidebarAccountMode,
+  SidebarAccountProps,
+  SidebarGroupProps,
+  SidebarItemProps,
+  SidebarNestedMode,
+  SidebarPanelProps,
+  SidebarProps,
+  SidebarRailAccountProps,
+  SidebarRailItemProps,
+  SidebarRailProps,
+} from './components/navigation/Sidebar';
 export type {
   AppShellAccountMode,
   AppShellAccountProps,
@@ -485,11 +498,11 @@ export type { ChartPalette, SeriesAppearance, SeriesIntent } from './components/
 export type { ChartColorCategory, ChartColorScale } from './components/charts/scales';
 export { AnnotatedSection } from './components/presets/AnnotatedSection';
 export type { AnnotatedSectionProps } from './components/presets/AnnotatedSection';
-export { Sidebar } from './components/presets/Sidebar';
+export { Columns } from './components/presets/Columns';
 export type {
-  SidebarAsideProps,
-  SidebarIndexItem,
-  SidebarIndexProps,
-  SidebarMainProps,
-  SidebarProps,
-} from './components/presets/Sidebar';
+  ColumnsAsideProps,
+  ColumnsIndexItem,
+  ColumnsIndexProps,
+  ColumnsMainProps,
+  ColumnsProps,
+} from './components/presets/Columns';

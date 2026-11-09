@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AppShell, Avatar, IconClock, IconStar, IconStructure } from '@plenustech/design-system';
+import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar } from '@plenustech/design-system';
 import { IconPerson, IconShieldCheck } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES, MODULOS, MODULO_DE_CONFIGURACOES, type Modulo } from './menu';
 
@@ -24,17 +24,17 @@ function MarcaDoSubmenu() {
 
 function ContaDoUsuario() {
   return (
-    <AppShell.Account avatar={<Avatar name="Suporte" />} description="Roman Mecânica Ltda" name="Suporte">
-      <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
-      <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
-      <AppShell.PanelItem icon={<IconShieldCheck size={18} />} label="Administração" />
-      <AppShell.PanelItem icon={<IconPerson size={18} />} label="Meu perfil" />
-    </AppShell.Account>
+    <Sidebar.Account avatar={<Avatar name="Suporte" />} description="Roman Mecânica Ltda" name="Suporte">
+      <Sidebar.Item icon={<IconStar size={18} />} label="Favoritos" />
+      <Sidebar.Item icon={<IconClock size={18} />} label="Atividade recente" />
+      <Sidebar.Item icon={<IconShieldCheck size={18} />} label="Administração" />
+      <Sidebar.Item icon={<IconPerson size={18} />} label="Meu perfil" />
+    </Sidebar.Account>
   );
 }
 
 function ItemDoModulo({ atual, modulo }: { atual: boolean; modulo: Modulo }) {
-  return <AppShell.RailItem current={atual} href={hrefDe(modulo.grupos[0].itens[0].rota)} icon={modulo.icone} label={modulo.nome} />;
+  return <Sidebar.RailItem current={atual} href={hrefDe(modulo.grupos[0].itens[0].rota)} icon={modulo.icone} label={modulo.nome} />;
 }
 
 interface MolduraProps {
@@ -50,26 +50,26 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
 
   return (
     <AppShell>
-      <AppShell.Navigation>
-        <AppShell.Rail
+      <Sidebar>
+        <Sidebar.Rail
           brand={<Marca />}
           footer={
             <>
               <ItemDoModulo atual={atual.id === MODULO_DE_CONFIGURACOES.id} modulo={MODULO_DE_CONFIGURACOES} />
-              <AppShell.RailAccount label="Conta: Suporte, Roman Mecânica">
+              <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
                 <Avatar name="Suporte" size="sm" />
-              </AppShell.RailAccount>
+              </Sidebar.RailAccount>
             </>
           }
         >
           {MODULOS.map((candidato) => (
             <ItemDoModulo atual={candidato.id === atual.id} key={candidato.id} modulo={candidato} />
           ))}
-        </AppShell.Rail>
-        <AppShell.Panel account={<ContaDoUsuario />} brand={<MarcaDoSubmenu />} label={atual.nome}>
+        </Sidebar.Rail>
+        <Sidebar.Panel account={<ContaDoUsuario />} brand={<MarcaDoSubmenu />} label={atual.nome}>
           {atual.grupos.map((grupo) => {
             const itens = grupo.itens.map((entrada) => (
-              <AppShell.PanelItem
+              <Sidebar.Item
                 current={entrada.rota === item}
                 href={hrefDe(entrada.rota)}
                 icon={entrada.icone}
@@ -79,15 +79,15 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
             ));
 
             return grupo.nome ? (
-              <AppShell.PanelGroup key={grupo.nome} label={grupo.nome}>
+              <Sidebar.Group key={grupo.nome} label={grupo.nome}>
                 {itens}
-              </AppShell.PanelGroup>
+              </Sidebar.Group>
             ) : (
               itens
             );
           })}
-        </AppShell.Panel>
-      </AppShell.Navigation>
+        </Sidebar.Panel>
+      </Sidebar>
       {children}
     </AppShell>
   );
