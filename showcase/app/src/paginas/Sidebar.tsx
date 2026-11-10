@@ -530,12 +530,16 @@ export const pagina: Pagina = {
     <>
       Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
       <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code> e <code>toggleSidebar</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
-      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code>, no <code>.Trigger</code> e no <code>SidebarProvider</code>.
+      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code> e no <code>SidebarProvider</code>.
     </>
   ),
   api: [
     { nome: 'SidebarProvider · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não. Não desenha nada: só reparte o estado com o que estiver dentro.' },
-    { nome: 'Sidebar.Trigger · className', tipo: 'string', descricao: 'Botão de abrir: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o que abrir.' },
+    {
+      nome: 'Sidebar.Trigger',
+      tipo: "Omit<ButtonIconProps, 'icon' | 'label'>",
+      descricao: 'Botão de abrir: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o que abrir. Aceita as propriedades do ButtonIcon, menos o ícone e o nome; o onClick roda antes, e preventDefault nele cancela a abertura.',
+    },
     { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile e toggleSidebar. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu.' },
     { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
     { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },

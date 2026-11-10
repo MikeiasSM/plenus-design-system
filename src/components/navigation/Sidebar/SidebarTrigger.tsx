@@ -1,28 +1,43 @@
-import { ButtonIcon } from '../../actions/ButtonIcon';
+import type { MouseEvent } from 'react';
+import { ButtonIcon, type ButtonIconProps } from '../../actions/ButtonIcon';
 import { IconSidebar } from '../../icons';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSidebarContext } from './Sidebar.context';
 import styles from './Sidebar.module.css';
 
-export interface SidebarTriggerProps {
-  className?: string;
-}
+/** As propriedades do `ButtonIcon`, menos o ícone e o nome, que são do botão de abrir. O ref e as nativas vão ao `<button>`. */
+export type SidebarTriggerProps = Omit<ButtonIconProps, 'icon' | 'label'>;
 
-/** O botão de abrir a navegação: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o que abrir. */
-export function SidebarTrigger({ className }: SidebarTriggerProps) {
+/**
+ * O botão de abrir a navegação: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o
+ * que abrir. O `onClick` do consumidor roda antes; `event.preventDefault()` nele cancela a abertura.
+ */
+export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant = 'ghost', ...props }: SidebarTriggerProps) {
   const { expandPanel, expandRef, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
+  const expandButtonRef = useMergedRefs(ref, expandRef);
   const classes = [styles.frameButton, className].filter(Boolean).join(' ');
+
+  function handleClick(event: MouseEvent<HTMLButtonElement>, open: () => void) {
+    onClick?.(event);
+
+    if (!event.defaultPrevented) {
+      open();
+    }
+  }
 
   if (narrow) {
     return (
       <ButtonIcon
+        {...props}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         className={classes}
         icon={<IconSidebar />}
         label="Abrir menu"
-        onClick={() => setMenuOpen(true)}
-        size="sm"
-        variant="ghost"
+        onClick={(event) => handleClick(event, () => setMenuOpen(true))}
+        ref={ref}
+        size={size}
+        variant={variant}
       />
     );
   }
@@ -30,15 +45,16 @@ export function SidebarTrigger({ className }: SidebarTriggerProps) {
   if (panelKind === 'items' && !submenuOpen) {
     return (
       <ButtonIcon
+        {...props}
         aria-controls={panelId}
         aria-expanded={false}
         className={classes}
         icon={<IconSidebar />}
         label="Abrir submenu"
-        onClick={expandPanel}
-        ref={expandRef}
-        size="sm"
-        variant="ghost"
+        onClick={(event) => handleClick(event, expandPanel)}
+        ref={expandButtonRef}
+        size={size}
+        variant={variant}
       />
     );
   }

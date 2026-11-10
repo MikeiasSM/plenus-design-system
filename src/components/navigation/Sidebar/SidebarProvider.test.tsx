@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { AppShell } from '../AppShell';
 import { Sidebar } from './Sidebar';
@@ -248,5 +248,59 @@ describe('SidebarProvider', () => {
       expect(screen.getByRole('navigation', { name: 'Vendas' })).not.toHaveAttribute('inert');
       warn.mockRestore();
     });
+  });
+});
+
+describe('Sidebar.Trigger', () => {
+  function CollapsedFrame({ onClick }: { onClick?: (event: MouseEvent<HTMLButtonElement>) => void }) {
+    const ref = useRef<HTMLButtonElement>(null);
+    const [refName, setRefName] = useState('');
+
+    return (
+      <SidebarProvider defaultOpen={false}>
+        <Navigation />
+        <Sidebar.Trigger className="minha-classe" data-origem="barra" onClick={onClick} ref={ref} />
+        <button onClick={() => setRefName(ref.current?.getAttribute('aria-label') ?? '')} type="button">
+          ler ref
+        </button>
+        <output data-testid="ref">{refName}</output>
+      </SidebarProvider>
+    );
+  }
+
+  it('leva o ref e as propriedades nativas ao botão, sem perder o manejo de foco', () => {
+    render(<CollapsedFrame />);
+
+    const trigger = screen.getByRole('button', { name: 'Abrir submenu' });
+    expect(trigger).toHaveAttribute('data-origem', 'barra');
+    expect(trigger).toHaveClass('minha-classe');
+    fireEvent.click(screen.getByRole('button', { name: 'ler ref' }));
+    expect(screen.getByTestId('ref')).toHaveTextContent('Abrir submenu');
+
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole('button', { name: 'Recolher submenu' }));
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toHaveFocus();
+  });
+
+  it('chama o onClick do consumidor, e preventDefault cancela a abertura', () => {
+    const onClick = vi.fn((event: MouseEvent<HTMLButtonElement>) => event.preventDefault());
+    render(<CollapsedFrame onClick={onClick} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir submenu' }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+
+  it('na largura estreita, também leva o ref e chama o onClick antes de abrir a gaveta', () => {
+    stubViewport(true);
+    const onClick = vi.fn();
+    render(<CollapsedFrame onClick={onClick} />);
+
+    const trigger = screen.getByRole('button', { name: 'Abrir menu' });
+    fireEvent.click(screen.getByRole('button', { name: 'ler ref' }));
+    expect(screen.getByTestId('ref')).toHaveTextContent('Abrir menu');
+    fireEvent.click(trigger);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 });
