@@ -38,7 +38,11 @@ interface MolduraProps {
   initialModule?: string;
   nestedMode?: AppShellNestedMode;
   registrar?: (evento: string) => void;
+  /** O uso errado do Evite: o pai não dá altura, a moldura cresce com o conteúdo e tudo rola junto. */
+  rolaAPaginaInteira?: boolean;
 }
+
+const PEDIDOS_EM_SEPARACAO = Array.from({ length: 14 }, (_, indice) => `Pedido ${1042 + indice} · aguardando separação`);
 
 function Marca() {
   return (
@@ -74,6 +78,7 @@ function Moldura({
   initialModule = 'Vendas',
   nestedMode,
   registrar,
+  rolaAPaginaInteira,
 }: MolduraProps) {
   const [moduloAtual, setModuloAtual] = useState(initialModule);
   const [itemAtual, setItemAtual] = useState('Pedidos');
@@ -84,74 +89,98 @@ function Moldura({
     registrar?.(`navegar: ${modulo.nome} › ${item}`);
   }
 
-  return (
-    <div style={{ height: 480, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
-      <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
-        <AppShell.Navigation>
-          <AppShell.Rail
-            brand={<Marca />}
-            footer={
-              <>
-                <AppShell.RailItem icon={<IconSliders size={20} />} label="Configurações" />
-                <AppShell.RailAccount label="Conta: Suporte, Roman Mecânica">
-                  <Avatar name="Roman Mecânica" size="sm" />
-                </AppShell.RailAccount>
-              </>
+  const moldura = (
+    <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
+      <AppShell.Navigation>
+        <AppShell.Rail
+          brand={<Marca />}
+          footer={
+            <>
+              <AppShell.RailItem icon={<IconSliders size={20} />} label="Configurações" />
+              <AppShell.RailAccount label="Conta: Suporte, Roman Mecânica">
+                <Avatar name="Roman Mecânica" size="sm" />
+              </AppShell.RailAccount>
+            </>
+          }
+        >
+          {MODULOS.map((m) => (
+            <AppShell.RailItem
+              current={m.nome === modulo.nome}
+              icon={m.icone}
+              key={m.nome}
+              label={m.nome}
+              onClick={() => {
+                setModuloAtual(m.nome);
+                setItemAtual(m.itens[0] ?? m.nome);
+              }}
+            />
+          ))}
+        </AppShell.Rail>
+        <AppShell.Panel
+            account={
+              <AppShell.Account avatar={<Avatar name="Roman Mecânica" />} description="Roman Mecânica Ltda" name="Suporte">
+                <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
+                <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
+                <AppShell.PanelItem icon={<IconSliders size={18} />} label="Preferências" />
+              </AppShell.Account>
             }
+            accountMode={accountMode}
+            brand={<MarcaDoSubmenu />}
+            label={modulo.nome}
+            nestedMode={nestedMode}
           >
-            {MODULOS.map((m) => (
-              <AppShell.RailItem
-                current={m.nome === modulo.nome}
-                icon={m.icone}
-                key={m.nome}
-                label={m.nome}
-                onClick={() => {
-                  setModuloAtual(m.nome);
-                  setItemAtual(m.itens[0] ?? m.nome);
-                }}
-              />
-            ))}
-          </AppShell.Rail>
-          <AppShell.Panel
-              account={
-                <AppShell.Account avatar={<Avatar name="Roman Mecânica" />} description="Roman Mecânica Ltda" name="Suporte">
-                  <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
-                  <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
-                  <AppShell.PanelItem icon={<IconSliders size={18} />} label="Preferências" />
-                </AppShell.Account>
-              }
-              accountMode={accountMode}
-              brand={<MarcaDoSubmenu />}
-              label={modulo.nome}
-              nestedMode={nestedMode}
-            >
-              {modulo.itens.map((item) =>
-                item === 'Painéis' ? (
-                  <AppShell.PanelItem defaultExpanded={nestedMode === 'stack' ? undefined : true} icon={<IconChartBar size={18} />} key={item} label={item}>
-                    {PAINEIS.map((painel) => (
-                      <AppShell.PanelItem current={itemAtual === painel} key={painel} label={painel} onClick={() => irPara(painel)} />
-                    ))}
-                  </AppShell.PanelItem>
-                ) : (
-                  <AppShell.PanelItem current={itemAtual === item} icon={<IconFile size={18} />} key={item} label={item} onClick={() => irPara(item)} />
-                ),
-              )}
-            </AppShell.Panel>
-        </AppShell.Navigation>
-        <AppShell.Page>
-          <AppShell.PageBar>
-            <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
-              {modulo.nome} › <span style={{ color: 'var(--pl-color-text)' }}>{itemAtual}</span>
-            </span>
-          </AppShell.PageBar>
-          <AppShell.PageBody>
-            <div style={{ padding: 18 }}>
-              <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>{itemAtual}</h3>
+            {modulo.itens.map((item) =>
+              item === 'Painéis' ? (
+                <AppShell.PanelItem defaultExpanded={nestedMode === 'stack' ? undefined : true} icon={<IconChartBar size={18} />} key={item} label={item}>
+                  {PAINEIS.map((painel) => (
+                    <AppShell.PanelItem current={itemAtual === painel} key={painel} label={painel} onClick={() => irPara(painel)} />
+                  ))}
+                </AppShell.PanelItem>
+              ) : (
+                <AppShell.PanelItem current={itemAtual === item} icon={<IconFile size={18} />} key={item} label={item} onClick={() => irPara(item)} />
+              ),
+            )}
+          </AppShell.Panel>
+      </AppShell.Navigation>
+      <AppShell.Page>
+        <AppShell.PageBar>
+          <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
+            {modulo.nome} › <span style={{ color: 'var(--pl-color-text)' }}>{itemAtual}</span>
+          </span>
+        </AppShell.PageBar>
+        <AppShell.PageBody>
+          <div style={{ padding: 18 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>{itemAtual}</h3>
+            {rolaAPaginaInteira ? (
+              <>
+                <p style={{ color: 'var(--pl-color-text-secondary)' }}>
+                  A página inteira rola: o trilho, o submenu e a barra saem de vista junto com o conteúdo.
+                </p>
+                {PEDIDOS_EM_SEPARACAO.map((pedido) => (
+                  <p key={pedido} style={{ margin: '8px 0' }}>{pedido}</p>
+                ))}
+              </>
+            ) : (
               <p style={{ color: 'var(--pl-color-text-secondary)' }}>Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.</p>
-            </div>
-          </AppShell.PageBody>
-        </AppShell.Page>
-      </AppShell>
+            )}
+          </div>
+        </AppShell.PageBody>
+      </AppShell.Page>
+    </AppShell>
+  );
+
+  return (
+    <div
+      style={{
+        height: 480,
+        overflow: rolaAPaginaInteira ? 'auto' : 'hidden',
+        border: '1px solid var(--pl-color-border)',
+        borderRadius: 'var(--pl-radius-md)',
+      }}
+      tabIndex={rolaAPaginaInteira ? 0 : undefined}
+    >
+      {/* Sem altura, o pai deixa a moldura crescer com o conteúdo, como numa página sem altura definida. */}
+      {rolaAPaginaInteira ? <div>{moldura}</div> : moldura}
     </div>
   );
 }
@@ -230,6 +259,11 @@ function MolduraEmPilha() {
 
 function MolduraComContaCobrindo() {
   return <Moldura accountMode="cover" />;
+}
+
+/** O Evite: a moldura num pai sem altura, rolando inteira com o conteúdo. */
+function MolduraRolandoInteira() {
+  return <Moldura defaultOpen={false} rolaAPaginaInteira />;
 }
 
 function ModuloSemSubmenu() {
@@ -320,26 +354,26 @@ export const pagina: Pagina = {
 </AppShell>`,
   },
   evite: {
-    Previa: ModuloSemSubmenu,
+    Previa: MolduraRolandoInteira,
     texto: (
       <>
         Rolar a página inteira. A moldura ocupa a janela: só o <code>AppShell.PageBody</code>, a lista do submenu e os
         painéis laterais rolam.
       </>
     ),
-    codigo: `<AppShell>
-  <AppShell.Navigation>
-    <AppShell.Rail brand={<Marca />}>
-      <AppShell.RailItem current icon={<IconStructure />} label="Início" />
-      …
-    </AppShell.Rail>
-    <AppShell.Panel label="Início" account={<MinhaConta />} />
-  </AppShell.Navigation>
-  <AppShell.Page>
-    <AppShell.PageBar>…</AppShell.PageBar>
-    <AppShell.PageBody>…</AppShell.PageBody>
-  </AppShell.Page>
-</AppShell>`,
+    codigo: `{/* Pai sem altura: a moldura cresce com o conteúdo e a página inteira rola. */}
+<div>
+  <AppShell defaultOpen={false}>
+    <AppShell.Navigation>
+      <AppShell.Rail brand={<Marca />}>…</AppShell.Rail>
+      <AppShell.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>…</AppShell.Panel>
+    </AppShell.Navigation>
+    <AppShell.Page>
+      <AppShell.PageBar>…</AppShell.PageBar>
+      <AppShell.PageBody>{pedidos}</AppShell.PageBody>
+    </AppShell.Page>
+  </AppShell>
+</div>`,
   },
   Modos,
   teclado: [

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ChartGauge,
-  ChartRadial,
   formatCurrency,
   formatNumber,
   formatPercent,
@@ -943,23 +942,21 @@ const comum = {
   evite: {
     Previa: () => (
       <div style={{ width: '100%' }}>
-        <ChartRadial
-          endAngle={90}
+        <ChartGauge
           formatValue={(valor) => formatPercent(valor / 100)}
           height={180}
-          startAngle={-90}
+          max={100}
           title="Atingimento da meta"
-          tracks={[{ label: 'Meta mensal', max: 100, value: 64 }]}
+          value={64}
         />
       </div>
     ),
     texto:
       'Quanto da meta foi atingido, de zero até 100%, sem faixas: o anel de progresso é ChartRadial, mesmo em meia-lua. Várias medidas contra a meta, também.',
-    codigo: `<ChartRadial
+    codigo: `<ChartGauge
   title="Atingimento da meta"
-  tracks={[{ label: 'Meta mensal', value: 64, max: 100 }]}
-  startAngle={-90}
-  endAngle={90}
+  value={64}
+  max={100}
   height={180}
   formatValue={(valor) => formatPercent(valor / 100)}
 />`,
