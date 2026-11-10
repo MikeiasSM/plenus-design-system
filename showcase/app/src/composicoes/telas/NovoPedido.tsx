@@ -121,7 +121,7 @@ export function NovoPedido() {
                   <Table.Column id="produto">Produto</Table.Column>
                   <Table.Column id="quantidade" width="120px">Quantidade</Table.Column>
                   <Table.Column hideBelow="md" id="total" numeric>Total</Table.Column>
-                  <Table.Column id="remover" width="56px"><span className="so-leitor">Remover</span></Table.Column>
+                  <Table.Column align="end" id="remover"><span className="so-leitor">Remover</span></Table.Column>
                 </Table.Header>
                 <Table.Body items={rascunho.itens.map((item) => ({ ...item, id: String(item.chave) }))}>
                   {(item) => (

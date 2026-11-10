@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -66,5 +68,23 @@ describe('Button', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
 
     expect(handleClick).toHaveBeenCalledOnce();
+  });
+});
+
+describe('icone do Button num espaco apertado', () => {
+  const ler = (caminho: string) => readFileSync(resolve(process.cwd(), caminho), 'utf8');
+  const bloco = (css: string, seletor: string) => css.slice(css.indexOf(`${seletor} {`), css.indexOf('}', css.indexOf(`${seletor} {`)));
+
+  it('o svg do botao nao encolhe, qualquer que seja o reset do hospedeiro', () => {
+    const regra = bloco(ler('src/components/actions/Button/Button.module.css'), '.button > svg');
+
+    expect(regra).toContain('flex-shrink: 0;');
+    expect(regra).toContain('max-width: none;');
+  });
+
+  it('o reset so poe teto percentual em imagem e video', () => {
+    const tetos = [...ler('src/styles/reset.css').matchAll(/([^{}]+)\{[^}]*max-width:\s*100%/g)].map((m) => m[1].replace(/\/\*[\s\S]*?\*\//g, '').trim());
+
+    expect(tetos).toEqual(['img, video']);
   });
 });
