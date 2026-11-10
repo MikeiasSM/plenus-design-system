@@ -275,14 +275,15 @@ export const pagina: Pagina = {
   },
   evite: {
     Previa: () => (
-      <div style={{ width: '100%' }}>
-        <Alert title="Espaço quase esgotado" tone="warning">Restam 8% do armazenamento.</Alert>
-      </div>
+      <Button
+        onClick={() => showToast({ title: 'Espaço quase esgotado', description: 'Restam 8% do armazenamento.', tone: 'warning' })}
+        variant="secondary"
+      >
+        Verificar espaço
+      </Button>
     ),
     texto: 'Toast para uma situação que continua, como o espaço quase esgotado: ela pede um Alert junto do conteúdo, até mudar.',
-    codigo: `<Alert title="Espaço quase esgotado" tone="warning">
-  Restam 8% do armazenamento.
-</Alert>`,
+    codigo: "showToast({ tone: 'warning', title: 'Espaço quase esgotado', description: 'Restam 8% do armazenamento.' });",
   },
   Variantes,
   Modos,

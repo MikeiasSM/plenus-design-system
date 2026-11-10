@@ -10,6 +10,10 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
+### Corrigido
+
+- Showcase: nos quadros Evite de `Tabs`, `Toast`, `Alert`, `CheckboxGroup`, `Timeline`, `ChartGauge` e `AppShell`, a prévia e o código mostram o uso que o texto desaconselha. Antes, mostravam a alternativa certa embaixo do "Evite".
+
 ## [0.6.3] — 2026-11-06
 
 ### Corrigido
