@@ -123,3 +123,9 @@
     transition: none;
   }
 }
+
+/* Recolher, abrir e fechar seguem o destaque dos itens. A classe dobrada vence o `ghost` do `ButtonIcon`. */
+.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-primary-strong);
+}

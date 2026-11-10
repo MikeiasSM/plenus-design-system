@@ -169,8 +169,9 @@ function Modos() {
     <dl className="modes">
       <dt><code>open</code>, <code>defaultOpen</code> e <code>onOpenChange</code></dt>
       <dd>
-        O submenu da <code>Sidebar</code>, cujo estado fica no <code>AppShell</code>. Aberto empurra a página; recolhido devolve a largura e o botão de
-        abrir aparece na barra da página.
+        O submenu da <code>Sidebar</code>. O <code>AppShell</code> monta por dentro o <code>SidebarProvider</code>, que guarda o estado. Aberto empurra a
+        página; recolhido devolve a largura e o botão de abrir aparece na barra da página. Com um <code>SidebarProvider</code> por fora, o{' '}
+        <code>AppShell</code> usa o dele e ignora estas propriedades.
       </dd>
       <dt><code>AppShell.PageBar</code></dt>
       <dd>
@@ -285,7 +286,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não.' },
+    { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não, repassado ao SidebarProvider que o AppShell monta. Ignorado quando já há um SidebarProvider por fora.' },
     { nome: 'AppShell.Page', tipo: "ComponentPropsWithRef<'main'>", descricao: 'Folha da página: ocupa o que sobra ao lado da navegação.' },
     { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
     { nome: 'AppShell.PageBody', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Corpo da página, a única área que rola.' },

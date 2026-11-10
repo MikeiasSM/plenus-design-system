@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { IconChevronUp } from '../../icons';
-import { useAppShell } from '../AppShell/AppShell.context';
+import { useSidebarContext } from './Sidebar.context';
 import { SidebarItemScopeContext, useSidebarPanel } from './SidebarPanel.context';
 import styles from './SidebarPanel.module.css';
 
@@ -27,7 +27,7 @@ export function SidebarAccount({
   onKeyDown,
   ...props
 }: SidebarAccountProps) {
-  const { accountId, accountOpen, setAccountOpen } = useAppShell();
+  const { accountId, accountOpen, setAccountOpen } = useSidebarContext();
   const { accountMode } = useSidebarPanel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);

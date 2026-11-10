@@ -1,7 +1,5 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react';
-import { ButtonIcon } from '../../actions/ButtonIcon';
-import { IconSidebar } from '../../icons';
-import { useAppShell } from './AppShell.context';
+import { Sidebar } from '../Sidebar';
 import styles from './AppShell.module.css';
 
 export type AppShellPageProps = ComponentPropsWithRef<'main'>;
@@ -13,37 +11,9 @@ export function AppShellPage({ className, ...props }: AppShellPageProps) {
 
 /** Barra de 46px no topo da página. Abre o submenu recolhido, ou a gaveta no celular, e leva o que o produto puser ao lado. */
 export function AppShellPageBar({ children, className, ...props }: ComponentPropsWithRef<'div'>) {
-  const { expandPanel, expandRef, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useAppShell();
-  const showsMenuButton = narrow;
-  const showsExpandButton = !narrow && panelKind === 'items' && !submenuOpen;
-
   return (
     <div {...props} className={[styles.pageBar, className].filter(Boolean).join(' ')}>
-      {showsMenuButton && (
-        <ButtonIcon
-          aria-expanded={menuOpen}
-          aria-haspopup="dialog"
-          className={styles.frameButton}
-          icon={<IconSidebar />}
-          label="Abrir menu"
-          onClick={() => setMenuOpen(true)}
-          size="sm"
-          variant="ghost"
-        />
-      )}
-      {showsExpandButton && (
-        <ButtonIcon
-          aria-controls={panelId}
-          aria-expanded={false}
-          className={styles.frameButton}
-          icon={<IconSidebar />}
-          label="Abrir submenu"
-          onClick={expandPanel}
-          ref={expandRef}
-          size="sm"
-          variant="ghost"
-        />
-      )}
+      <Sidebar.Trigger />
       {children}
     </div>
   );

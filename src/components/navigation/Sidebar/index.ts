@@ -1,5 +1,8 @@
 export { Sidebar } from './Sidebar';
 export type { SidebarProps } from './Sidebar';
+export { SidebarProvider, useSidebar } from './SidebarProvider';
+export type { SidebarProviderProps, UseSidebarResult } from './SidebarProvider';
+export type { SidebarTriggerProps } from './SidebarTrigger';
 export type { SidebarAccountProps } from './SidebarAccount';
 export type { SidebarGroupProps, SidebarItemProps, SidebarPanelProps } from './SidebarPanel';
 export type { SidebarAccountMode, SidebarNestedMode } from './SidebarPanel.context';

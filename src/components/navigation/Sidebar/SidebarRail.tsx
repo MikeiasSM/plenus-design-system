@@ -1,6 +1,6 @@
 import type { ComponentPropsWithRef, MouseEvent, ReactNode } from 'react';
 import { Tooltip } from '../../overlays/Tooltip';
-import { useAppShell } from '../AppShell/AppShell.context';
+import { useSidebarContext } from './Sidebar.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
 import styles from './Sidebar.module.css';
 
@@ -33,7 +33,7 @@ export interface SidebarRailItemProps extends Omit<SidebarActionProps, 'aria-lab
 }
 
 export function SidebarRailItem({ className, current = false, icon, label, onClick, ...props }: SidebarRailItemProps) {
-  const { collapsePanel, expandPanel, narrow, panelKind, setMenuOpen, submenuOpen } = useAppShell();
+  const { collapsePanel, expandPanel, narrow, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     onClick?.(event);
@@ -81,7 +81,7 @@ export interface SidebarRailAccountProps extends Omit<ComponentPropsWithRef<'but
 
 /** Avatar da conta no trilho. Só aparece com o submenu recolhido; abre o submenu já na conta. */
 export function SidebarRailAccount({ children, className, label, onClick, ...props }: SidebarRailAccountProps) {
-  const { accountId, isPanelVisible, openAccountFromRail, panelKind } = useAppShell();
+  const { accountId, isPanelVisible, openAccountFromRail, panelKind } = useSidebarContext();
 
   if (panelKind === 'none' || isPanelVisible(panelKind)) {
     return null;

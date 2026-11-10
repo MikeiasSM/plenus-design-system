@@ -11,7 +11,7 @@ import {
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { IconChevronLeft, IconChevronRight, IconClose, IconExternalLink, IconSidebar } from '../../icons';
-import { useAppShell } from '../AppShell/AppShell.context';
+import { useSidebarContext } from './Sidebar.context';
 import {
   SidebarItemScopeContext,
   SidebarPanelContext,
@@ -21,7 +21,7 @@ import {
   type SidebarNestedMode,
 } from './SidebarPanel.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
-import shellStyles from '../AppShell/AppShell.module.css';
+import frameStyles from './Sidebar.module.css';
 import styles from './SidebarPanel.module.css';
 
 export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
@@ -51,7 +51,7 @@ export function SidebarPanel({
   nestedMode = 'expand',
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useAppShell();
+  const { accountOpen, collapsePanel, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -84,7 +84,7 @@ export function SidebarPanel({
                 <div className={styles.brand}>{brand}</div>
                 {narrow ? (
                   <ButtonIcon
-                    className={shellStyles.frameButton}
+                    className={frameStyles.frameButton}
                     icon={<IconClose />}
                     label="Fechar menu"
                     onClick={() => setMenuOpen(false)}
@@ -95,7 +95,7 @@ export function SidebarPanel({
                   <ButtonIcon
                     aria-controls={panelId}
                     aria-expanded={submenuOpen}
-                    className={shellStyles.frameButton}
+                    className={frameStyles.frameButton}
                     icon={<IconSidebar />}
                     label="Recolher submenu"
                     onClick={collapsePanel}
@@ -198,7 +198,7 @@ function SidebarLeaf({
   trailing,
   ...props
 }: SidebarItemProps) {
-  const { narrow, setMenuOpen } = useAppShell();
+  const { narrow, setMenuOpen } = useSidebarContext();
   const { enteredId } = useSidebarPanel();
   const scope = useSidebarItemScope();
   const isLink = props.href !== undefined || props.linkProps !== undefined;

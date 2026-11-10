@@ -1,92 +1,50 @@
-import { useEffect, useId, useRef, useState, type ComponentPropsWithRef } from 'react';
-import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
-import { useOpenState } from '../../../hooks/useOpenState';
-import { Sidebar } from '../Sidebar';
-import { AppShellContext, type AppShellPanelKind } from './AppShell.context';
+import { useContext, useEffect, type ComponentPropsWithRef } from 'react';
+import { isDevelopment } from '../../../utils/isDevelopment';
+import { Sidebar, SidebarProvider } from '../Sidebar';
+import { SidebarContext } from '../Sidebar/Sidebar.context';
 import { AppShellPage, AppShellPageBar, AppShellPageBody, AppShellPageFooter } from './AppShellPage';
 import styles from './AppShell.module.css';
 
 export interface AppShellProps extends ComponentPropsWithRef<'div'> {
-  /** Submenu aberto no início, no modo não controlado. */
+  /**
+   * Submenu aberto no início, no modo não controlado (padrão `true`).
+   * Ignorado quando já existe um `SidebarProvider` por fora: o estado é o dele.
+   */
   defaultOpen?: boolean;
+  /** Ignorado quando já existe um `SidebarProvider` por fora. */
   onOpenChange?: (open: boolean) => void;
-  /** Submenu aberto, no modo controlado. Abrir empurra a página; recolher devolve a largura. */
+  /**
+   * Submenu aberto, no modo controlado. Abrir empurra a página; recolher devolve a largura.
+   * Ignorado quando já existe um `SidebarProvider` por fora.
+   */
   open?: boolean;
 }
 
-/** Moldura da aplicação: guarda o estado da navegação (`Sidebar`) e abriga a página. Ocupa o espaço que o pai lhe dá. */
-function AppShellRoot({ children, className, defaultOpen = true, onOpenChange, open: controlledOpen, ...props }: AppShellProps) {
-  const narrow = useNarrowViewport();
-  const [submenuOpen, setSubmenuOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [panelKind, setPanelKind] = useState<AppShellPanelKind>('none');
-  const collapseRef = useRef<HTMLButtonElement>(null);
-  const expandRef = useRef<HTMLButtonElement>(null);
-  const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
-  const panelId = useId();
-  const accountId = useId();
+/** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa o espaço que o pai lhe dá. */
+function AppShellRoot({ children, className, defaultOpen, onOpenChange, open, ...props }: AppShellProps) {
+  const outerSidebar = useContext(SidebarContext);
+  const ignoresStateProps = outerSidebar !== null && (defaultOpen !== undefined || onOpenChange !== undefined || open !== undefined);
 
-  const isPanelVisible = (kind: AppShellPanelKind) => (kind === 'items' ? narrow || submenuOpen : kind === 'account' && accountOpen);
-
-  // A gaveta é coisa do celular: ao voltar à largura, ela não fica aberta à espera.
   useEffect(() => {
-    if (!narrow) {
-      setMenuOpen(false);
+    if (ignoresStateProps && isDevelopment()) {
+      console.warn('AppShell: há um <SidebarProvider> por fora, que guarda o estado; `open`, `defaultOpen` e `onOpenChange` do AppShell são ignorados.');
     }
-  }, [narrow]);
+  }, [ignoresStateProps]);
 
-  // O botão que acionou some com a mudança: o foco vai ao botão que ocupa o lugar dele.
-  useEffect(() => {
-    const target = focusAfterChange.current === 'expand' ? expandRef.current : collapseRef.current;
+  const frame = (
+    <div {...props} className={[styles.appShell, className].filter(Boolean).join(' ')}>
+      {children}
+    </div>
+  );
 
-    if (focusAfterChange.current) {
-      target?.focus();
-      focusAfterChange.current = null;
-    }
-  }, [submenuOpen]);
-
-  function collapsePanel() {
-    focusAfterChange.current = 'expand';
-    setAccountOpen(false);
-    setSubmenuOpen(false);
-  }
-
-  function expandPanel() {
-    focusAfterChange.current = 'collapse';
-    setSubmenuOpen(true);
-  }
-
-  function openAccountFromRail() {
-    setSubmenuOpen(true);
-    setAccountOpen(true);
+  if (outerSidebar) {
+    return frame;
   }
 
   return (
-    <AppShellContext
-      value={{
-        accountId,
-        accountOpen,
-        collapsePanel,
-        collapseRef,
-        expandPanel,
-        expandRef,
-        isPanelVisible,
-        menuOpen,
-        narrow,
-        openAccountFromRail,
-        panelId,
-        panelKind,
-        setAccountOpen,
-        setMenuOpen,
-        setPanelKind,
-        submenuOpen,
-      }}
-    >
-      <div {...props} className={[styles.appShell, className].filter(Boolean).join(' ')}>
-        {children}
-      </div>
-    </AppShellContext>
+    <SidebarProvider defaultOpen={defaultOpen} onOpenChange={onOpenChange} open={open}>
+      {frame}
+    </SidebarProvider>
   );
 }
 

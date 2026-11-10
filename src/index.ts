@@ -156,7 +156,7 @@ export type { LinkListItemProps, LinkListLayout, LinkListProps, LinkListTone } f
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { AppShell } from './components/navigation/AppShell';
-export { Sidebar } from './components/navigation/Sidebar';
+export { Sidebar, SidebarProvider, useSidebar } from './components/navigation/Sidebar';
 export type {
   SidebarAccountMode,
   SidebarAccountProps,
@@ -165,9 +165,12 @@ export type {
   SidebarNestedMode,
   SidebarPanelProps,
   SidebarProps,
+  SidebarProviderProps,
   SidebarRailAccountProps,
   SidebarRailItemProps,
   SidebarRailProps,
+  SidebarTriggerProps,
+  UseSidebarResult,
 } from './components/navigation/Sidebar';
 export type {
   AppShellAccountMode,

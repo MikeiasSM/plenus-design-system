@@ -1,9 +1,10 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Drawer } from '../../overlays/Drawer';
-import { useAppShell } from '../AppShell/AppShell.context';
+import { useSidebarContext } from './Sidebar.context';
 import { SidebarAccount } from './SidebarAccount';
 import { SidebarGroup, SidebarItem, SidebarPanel } from './SidebarPanel';
 import { SidebarRail, SidebarRailAccount, SidebarRailItem } from './SidebarRail';
+import { SidebarTrigger } from './SidebarTrigger';
 import styles from './Sidebar.module.css';
 
 export interface SidebarProps {
@@ -15,7 +16,7 @@ export interface SidebarProps {
 
 /** Reúne trilho e submenu. Em largura estreita, os dois passam juntos a uma gaveta com a interação do `Drawer`. */
 function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
-  const { menuOpen, narrow, panelKind, setMenuOpen } = useAppShell();
+  const { menuOpen, narrow, panelKind, setMenuOpen } = useSidebarContext();
   const previousPanelKind = useRef(panelKind);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -56,4 +57,5 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Rail: SidebarRail,
   RailAccount: SidebarRailAccount,
   RailItem: SidebarRailItem,
+  Trigger: SidebarTrigger,
 });

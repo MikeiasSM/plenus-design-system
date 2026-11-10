@@ -1,0 +1,129 @@
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
+import { useOpenState } from '../../../hooks/useOpenState';
+import { SidebarContext, useSidebarContext, type SidebarPanelKind } from './Sidebar.context';
+
+export interface SidebarProviderProps {
+  children: ReactNode;
+  /** Submenu aberto no início, no modo não controlado. */
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Submenu aberto, no modo controlado. */
+  open?: boolean;
+}
+
+/** O que `useSidebar()` devolve: o estado público da navegação e os meios de mudá-lo. */
+export interface UseSidebarResult {
+  /** Largura estreita: o trilho e o submenu passam a uma gaveta. */
+  isMobile: boolean;
+  /** Submenu aberto, na largura larga. */
+  open: boolean;
+  /** Gaveta aberta, na largura estreita. */
+  openMobile: boolean;
+  /** Abre ou recolhe o submenu sem mexer no foco. Ao recolher, fecha a conta. */
+  setOpen: (open: boolean) => void;
+  setOpenMobile: (open: boolean) => void;
+  /** Na largura estreita alterna a gaveta; na larga, o submenu. */
+  toggleSidebar: () => void;
+}
+
+/** Guarda o estado da navegação (`Sidebar`) e o reparte com quem estiver dentro, sem desenhar nada. O `AppShell` monta um por dentro. */
+export function SidebarProvider({ children, defaultOpen = true, onOpenChange, open: controlledOpen }: SidebarProviderProps) {
+  const narrow = useNarrowViewport();
+  const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [panelKind, setPanelKind] = useState<SidebarPanelKind>('none');
+  const collapseRef = useRef<HTMLButtonElement>(null);
+  const expandRef = useRef<HTMLButtonElement>(null);
+  const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
+  const panelId = useId();
+  const accountId = useId();
+
+  const isPanelVisible = (kind: SidebarPanelKind) => (kind === 'items' ? narrow || submenuOpen : kind === 'account' && accountOpen);
+
+  // A gaveta é coisa do celular: ao voltar à largura, ela não fica aberta à espera.
+  useEffect(() => {
+    if (!narrow) {
+      setMenuOpen(false);
+    }
+  }, [narrow]);
+
+  // O botão que acionou some com a mudança: o foco vai ao botão que ocupa o lugar dele.
+  useEffect(() => {
+    const target = focusAfterChange.current === 'expand' ? expandRef.current : collapseRef.current;
+
+    if (focusAfterChange.current) {
+      target?.focus();
+      focusAfterChange.current = null;
+    }
+  }, [submenuOpen]);
+
+  function setSubmenuOpen(next: boolean) {
+    if (!next) {
+      setAccountOpen(false);
+    }
+    setSubmenuOpenState(next);
+  }
+
+  function collapsePanel() {
+    focusAfterChange.current = 'expand';
+    setSubmenuOpen(false);
+  }
+
+  function expandPanel() {
+    focusAfterChange.current = 'collapse';
+    setSubmenuOpen(true);
+  }
+
+  function openAccountFromRail() {
+    setSubmenuOpen(true);
+    setAccountOpen(true);
+  }
+
+  // O `setOpen` público descarta o foco pendente de um recolher ou expandir que o pai controlado ainda não aplicou.
+  function setOpenWithoutFocus(next: boolean) {
+    focusAfterChange.current = null;
+    setSubmenuOpen(next);
+  }
+
+  return (
+    <SidebarContext
+      value={{
+        accountId,
+        accountOpen,
+        collapsePanel,
+        collapseRef,
+        expandPanel,
+        expandRef,
+        isPanelVisible,
+        menuOpen,
+        narrow,
+        openAccountFromRail,
+        panelId,
+        panelKind,
+        setAccountOpen,
+        setMenuOpen,
+        setPanelKind,
+        setSubmenuOpen: setOpenWithoutFocus,
+        submenuOpen,
+      }}
+    >
+      {children}
+    </SidebarContext>
+  );
+}
+
+/** Lê e muda o estado da navegação. Só funciona dentro de `<SidebarProvider>` ou de `<AppShell>`. */
+export function useSidebar(): UseSidebarResult {
+  const { menuOpen, narrow, setMenuOpen, setSubmenuOpen, submenuOpen } = useSidebarContext();
+
+  return {
+    isMobile: narrow,
+    open: submenuOpen,
+    openMobile: menuOpen,
+    setOpen: setSubmenuOpen,
+    setOpenMobile: setMenuOpen,
+    toggleSidebar: () => (narrow ? setMenuOpen(!menuOpen) : setSubmenuOpen(!submenuOpen)),
+  };
+}

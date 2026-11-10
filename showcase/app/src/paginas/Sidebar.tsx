@@ -11,6 +11,7 @@ import {
   IconStar,
   IconStructure,
   Sidebar,
+  SidebarProvider,
   type SidebarAccountMode,
   type SidebarNestedMode,
 } from '@plenustech/design-system';
@@ -185,6 +186,70 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
   );
 }
 
+/** O trilho e o submenu mínimos das molduras próprias: dois módulos e uma lista. */
+function NavegacaoMinima() {
+  return (
+    <Sidebar>
+      <Sidebar.Rail brand={<Marca />}>
+        <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
+        <Sidebar.RailItem icon={<IconFile size={20} />} label="Clientes" />
+      </Sidebar.Rail>
+      <Sidebar.Panel brand={<MarcaDoSubmenu />} label="Vendas">
+        <Sidebar.Group label="Operação">
+          <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
+          <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
+        </Sidebar.Group>
+      </Sidebar.Panel>
+    </Sidebar>
+  );
+}
+
+const quadroDaPrevia = { height: 360, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' } as const;
+
+/** Uma moldura própria, sem o AppShell: o SidebarProvider guarda o estado e a barra do produto leva o Sidebar.Trigger. */
+function MolduraPropria() {
+  return (
+    <div style={quadroDaPrevia}>
+      <SidebarProvider>
+        <div style={{ display: 'flex', height: '100%', padding: 'var(--pl-shell-gap)', boxSizing: 'border-box', background: 'var(--pl-color-background)' }}>
+          <NavegacaoMinima />
+          <div style={{ flex: 1, minWidth: 0, background: 'var(--pl-color-surface)', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 46, padding: '0 8px', borderBottom: '1px solid var(--pl-color-border)' }}>
+              <Sidebar.Trigger />
+              <strong style={{ fontSize: 13 }}>Pedidos</strong>
+            </div>
+            <p style={{ margin: 0, padding: 18, color: 'var(--pl-color-text-secondary)' }}>A moldura e a barra são do produto; o estado é do SidebarProvider.</p>
+          </div>
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+}
+
+/** O Evite: a Sidebar como coluna de conteúdo, dentro do corpo de uma página. */
+function SidebarComoColuna() {
+  return (
+    <div style={quadroDaPrevia}>
+      <SidebarProvider>
+        <div style={{ display: 'flex', gap: 12, height: '100%', padding: 12, boxSizing: 'border-box' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
+            <p style={{ color: 'var(--pl-color-text-secondary)' }}>Conteúdo da página, dividido em colunas.</p>
+          </div>
+          <Sidebar>
+            <Sidebar.Panel label="Filtros">
+              <Sidebar.Group label="Situação">
+                <Sidebar.Item label="Abertos" />
+                <Sidebar.Item label="Fechados" />
+              </Sidebar.Group>
+            </Sidebar.Panel>
+          </Sidebar>
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+}
+
 const playground = definirPlayground({
   inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true },
   controles: [
@@ -279,7 +344,7 @@ function Modos() {
       </dd>
       <dt>Recolher e abrir</dt>
       <dd>
-        <code>defaultOpen</code>, no <code>AppShell</code>, define o início. Aberto empurra a página; recolhido devolve a largura e o botão de abrir
+        <code>defaultOpen</code>, no <code>AppShell</code> ou no <code>SidebarProvider</code>, define o início. Aberto empurra a página; recolhido devolve a largura e o botão de abrir
         aparece na barra da página. O módulo atual no trilho também alterna o submenu.
       </dd>
       <dt><code>nestedMode</code></dt>
@@ -296,7 +361,7 @@ function Modos() {
       <dd>O <code>Sidebar.Panel</code> vem sem itens: a página encosta no trilho, e o submenu fica só como lugar da conta.</dd>
       <dt>Gaveta no celular</dt>
       <dd>
-        Abaixo de 900px, o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página.
+        Abaixo de 900px, o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página (<code>Sidebar.Trigger</code>).
         A prévia acima mede a janela do navegador, e não a própria largura: estreite a janela para ver a gaveta.
       </dd>
     </dl>
@@ -328,6 +393,36 @@ export const pagina: Pagina = {
       largo: true,
       Previa: AplicacaoComContaCobrindo,
       codigo: '<Sidebar.Panel label="Vendas" accountMode="cover" account={<MinhaConta />}>…</Sidebar.Panel>',
+    },
+    {
+      titulo: 'Moldura própria',
+      descricao:
+        'Sem o AppShell: o SidebarProvider guarda o estado, e a barra do produto leva o Sidebar.Trigger, que abre o submenu recolhido (ou a gaveta no celular).',
+      largo: true,
+      Previa: MolduraPropria,
+      codigo: `<SidebarProvider>
+  <div style={{ display: 'flex', height: '100%' }}>
+    <Sidebar>
+      <Sidebar.Rail brand={<Marca />}>
+        <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
+        <Sidebar.RailItem icon={<IconFile />} label="Clientes" />
+      </Sidebar.Rail>
+      <Sidebar.Panel label="Vendas" brand={<Marca />}>
+        <Sidebar.Group label="Operação">
+          <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
+          <Sidebar.Item icon={<IconFile />} label="Relatórios" />
+        </Sidebar.Group>
+      </Sidebar.Panel>
+    </Sidebar>
+    <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', height: 46 }}>
+        <Sidebar.Trigger />
+        Pedidos
+      </div>
+      {conteudo}
+    </div>
+  </div>
+</SidebarProvider>`,
     },
     {
       titulo: 'Módulo sem submenu',
@@ -375,17 +470,26 @@ export const pagina: Pagina = {
 </AppShell>`,
   },
   evite: {
-    Previa: ModuloSemSubmenu,
+    Previa: SidebarComoColuna,
     texto: (
       <>
-        Usar a <code>Sidebar</code> fora do <code>AppShell</code>: o estado da navegação é dele, e as peças avisam quando faltam. Para arranjar o
-        conteúdo da página, o componente é o <code>Columns</code>.
+        Usar a <code>Sidebar</code> para dividir o conteúdo da página em colunas: ela é a navegação da aplicação. Para arranjar o conteúdo, o
+        componente é o <code>Columns</code>.
       </>
     ),
-    codigo: `<Sidebar>
-  <Sidebar.Rail>…</Sidebar.Rail>
-  <Sidebar.Panel label="Vendas">…</Sidebar.Panel>
-</Sidebar>`,
+    codigo: `<SidebarProvider>
+  <div style={{ display: 'flex', gap: 12 }}>
+    <div style={{ flex: 1 }}>{pedidos}</div>
+    <Sidebar>
+      <Sidebar.Panel label="Filtros">
+        <Sidebar.Group label="Situação">
+          <Sidebar.Item label="Abertos" />
+          <Sidebar.Item label="Fechados" />
+        </Sidebar.Group>
+      </Sidebar.Panel>
+    </Sidebar>
+  </div>
+</SidebarProvider>`,
   },
   Modos,
   teclado: [
@@ -425,11 +529,14 @@ export const pagina: Pagina = {
   notaDaApi: (
     <>
       Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
-      <code>.Item</code> e <code>.Account</code>. O estado fica no <code>AppShell</code>. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
-      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça.
+      <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code> e <code>toggleSidebar</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
+      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code>, no <code>.Trigger</code> e no <code>SidebarProvider</code>.
     </>
   ),
   api: [
+    { nome: 'SidebarProvider · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não. Não desenha nada: só reparte o estado com o que estiver dentro.' },
+    { nome: 'Sidebar.Trigger · className', tipo: 'string', descricao: 'Botão de abrir: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o que abrir.' },
+    { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile e toggleSidebar. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu.' },
     { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
     { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
     { nome: 'Sidebar.RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
