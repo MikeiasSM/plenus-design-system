@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Card, PageHeader, Progress, SegmentedControl, Table, formatNumber, formatPercent } from '@plenustech/design-system';
+import { Badge, Button, Card, Grid, PageHeader, Progress, SegmentedControl, Table, formatNumber, formatPercent, Text } from '@plenustech/design-system';
 import { IconGrid, IconPlusLg, IconTable } from '@plenustech/design-system/icons';
 import { DEPOSITOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -10,7 +10,7 @@ const tomDoTipo = (tipo: string) => (tipo === 'Principal' ? 'info' : 'neutral');
 
 function Cartoes() {
   return (
-    <div className="grade grade-cartoes">
+    <Grid minColumnWidth={300}>
       {DEPOSITOS.map((deposito) => (
         <Card key={deposito.id}>
           <Card.Header
@@ -23,13 +23,13 @@ function Cartoes() {
             <Progress label="Ocupação" showValue value={deposito.ocupacao} />
           </Card.Body>
           <Card.Footer>
-            <span className="detalhe-da-linha">
+            <Text as="div" tone="tertiary" variant="caption">
               {formatNumber(deposito.itens)} itens · {deposito.responsavel}
-            </span>
+            </Text>
           </Card.Footer>
         </Card>
       ))}
-    </div>
+    </Grid>
   );
 }
 

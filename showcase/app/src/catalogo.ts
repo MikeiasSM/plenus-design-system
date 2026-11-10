@@ -69,6 +69,7 @@ export const familias: readonly Familia[] = [
     nome: 'Dados',
     componentes: [
       componente('Avatar', 'Representação visual de uma pessoa ou entidade.'),
+      componente('AvatarItem', 'Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura.'),
       componente('Card', 'Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios.'),
       componente('CardMetric', 'Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe.'),
       componente('Badge', 'Rótulo curto de estado ou categoria.'),
@@ -79,6 +80,7 @@ export const familias: readonly Familia[] = [
       componente('ActivityFeed', 'Registro do que aconteceu, do mais recente ao mais antigo, com comentários.'),
       componente('NumberedList', 'Sequência numerada de passos que explica como algo funciona, sem etapa atual.'),
       componente('SortableList', 'Lista reordenável por arrasto ou teclado, com seleção de um item.'),
+      componente('DescriptionList', 'Pares de termo e descrição, empilhados ou em linha, com destaque para o total.'),
       componente('Table', 'Tabela básica, em HTML semântico.'),
       componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.'),
     ],
@@ -151,6 +153,21 @@ export const familias: readonly Familia[] = [
   {
     nome: 'Ícones',
     componentes: [componente('Icon', 'Biblioteca oficial de ícones do Design System.', { importa: 'IconSearch' })],
+  },
+  {
+    nome: 'Tipografia',
+    componentes: [
+      componente('Text', 'Texto com papel tipográfico e tom, em uma linha ou truncado.'),
+      componente('VisuallyHidden', 'Conteúdo só para o leitor de tela, fora da vista.'),
+    ],
+  },
+  {
+    nome: 'Leiaute',
+    componentes: [
+      componente('Stack', 'Pilha flex que espaça os filhos num eixo.'),
+      componente('Grid', 'Grade de colunas iguais que se ajusta à própria largura.'),
+      componente('Container', 'Coluna de conteúdo centrada, com largura máxima.'),
+    ],
   },
   {
     nome: 'Predefinições',

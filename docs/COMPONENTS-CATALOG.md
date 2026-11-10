@@ -101,6 +101,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
+| `AvatarItem` | Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura. | Disponível |
 | `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
 | `CardMetric` | Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
@@ -111,6 +112,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | `ActivityFeed` | Registro do que aconteceu, do mais recente ao mais antigo, com comentários. | Disponível |
 | `NumberedList` | Sequência numerada de passos que explica como algo funciona, sem etapa atual. | Disponível |
 | `SortableList` | Lista reordenável por arrasto ou teclado, com seleção de um item. | Disponível |
+| `DescriptionList` | Pares de termo e descrição, empilhados ou em linha, com destaque para o total. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Disponível |
 
@@ -143,6 +145,10 @@ O `ActivityFeed` registra o que aconteceu, do mais recente ao mais antigo: quem 
 A `NumberedList` explica uma sequência, como os passos de uma primeira vez: cada `NumberedList.Item` traz o número, o título e uma descrição opcional. Em `layout="list"`, o padrão, os passos descem um abaixo do outro; em `layout="grid"`, viram ladrilhos numa grade que se ajusta à largura. A fronteira com `Steps` é o estado: as etapas indicam onde se está num processo e podem navegar; a lista numerada só explica, sem etapa atual.
 
 A `SortableList` existe para a ordem: as seções de um documento, as colunas de um relatório. Arrastar reordena, e pelo teclado `Alt` com as setas faz o mesmo, com o anúncio da nova posição. A fronteira com a `List` é a tarefa: na `List` a pessoa escolhe itens; na `SortableList`, ela os ordena. Como cada linha pode trazer ações próprias, a marcação é de grade, com uma célula por linha, e não de `listbox`, que não admite controles dentro das opções.
+
+O `DescriptionList` mostra pares de termo e descrição na marcação semântica de lista de descrição, sem o produto repetir `dl`, `dt` e `dd`: cada `DescriptionList.Item` recebe o `term` e, como filhos, a descrição. Em `layout="stacked"`, o padrão, o termo fica em cima, em texto de apoio, e a descrição embaixo, como nos dados de um cliente ou de uma entrega; em `layout="inline"`, o termo fica à esquerda e a descrição à direita, na mesma linha, com algarismos tabulares, como nos totais de um pedido. O destaque de total é `emphasis` no item: a linha ganha um separador acima e o peso de rótulo, e é a forma de marcar o total de uma lista de valores.
+
+O `AvatarItem` é a linha de uma pessoa ou entidade: o `avatar`, normalmente um `Avatar`, à esquerda, o `title` e, abaixo dele, a `description` opcional. Texto longo vira reticências em vez de estourar a largura, e a linha mantém a altura do avatar. Serve a células de tabela, listas de membros e cabeçalhos de contato; o `AvatarItem` não é um controle e não responde a clique.
 
 ## 6. Gráficos
 
@@ -312,7 +318,30 @@ A biblioteca tem duas entradas. O ponto de entrada principal traz os ícones de 
 
 Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 
-## 11. Predefinições
+## 11. Tipografia
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `Text` | Texto com papel tipográfico e tom, em uma linha ou truncado. | Disponível |
+| `VisuallyHidden` | Conteúdo só para o leitor de tela, fora da vista. | Disponível |
+
+O `Text` aplica um papel tipográfico dos tokens (`body`, `label`, `caption`, `micro`, `title` ou `code`) e um tom (`default`, `secondary`, `tertiary` ou `danger`) a um trecho de texto, para o produto não repetir tamanho, entrelinha e cor em cada tela. Por padrão renderiza um `span`; `as` troca o elemento, como `p` ou `div`, quando o texto precisa de bloco. `truncate` mantém o texto numa linha e corta o excesso com reticências, e `numeric` usa algarismos tabulares. O `Text` não é título de página nem de seção: o nível de cabeçalho é de quem escreve a estrutura, como no `PageHeader` e no `Card.Header`.
+
+O `VisuallyHidden` tira o conteúdo da vista e o mantém na árvore de acessibilidade, para o leitor de tela ler o que a interface mostra só por ícone ou posição, como o rótulo de uma coluna de ações. Não serve para esconder o que ninguém deve ler: para isso, o conteúdo sai da página.
+
+## 12. Leiaute
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `Stack` | Pilha flex que espaça os filhos num eixo. | Disponível |
+| `Grid` | Grade de colunas iguais que se ajusta à própria largura. | Disponível |
+| `Container` | Coluna de conteúdo centrada, com largura máxima. | Disponível |
+
+Os componentes de leiaute arranjam o que o produto já tem, sem conteúdo nem aparência próprios, com os espaçamentos do `--pl-space-N`. A `Stack` espaça os filhos num eixo, na vertical por padrão e na horizontal com `direction="horizontal"`, com `gap`, `align`, `justify` e `wrap`. A `Grid` reparte a largura em colunas iguais e mede a si mesma, e não a janela: entram quantas colunas couberem, cada uma com ao menos `minColumnWidth`, e `columns` limita o máximo. O `Grid.Item` com `span` ocupa várias colunas, e numa grade com menos colunas que o `span` passa a ocupar a linha inteira. O `Container` centra a coluna de conteúdo com um `maxWidth` e o respiro lateral dos tokens; com o mesmo valor no `PageHeader`, os dois alinham na mesma borda. O respiro vertical é de quem usa o `Container`.
+
+As predefinições da seção seguinte arranjam a página; estes componentes arranjam um trecho dela. A fronteira com as predefinições é o conteúdo: as predefinições conhecem partes com papel próprio, como o trilho e a coluna lateral, e o leiaute só distribui.
+
+## 13. Predefinições
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -325,7 +354,7 @@ A `AnnotatedSection` serve às telas de configuração e aos formulários por as
 
 O `Columns` arranja o conteúdo da página em duas colunas e não é a navegação da aplicação, que é a `Sidebar`. Ao lado do `Columns.Main` vai uma de duas partes. O `Columns.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Columns.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
 
-## 12. Fora do escopo
+## 14. Fora do escopo
 
 O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 

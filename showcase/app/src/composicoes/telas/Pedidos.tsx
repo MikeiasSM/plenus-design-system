@@ -14,6 +14,7 @@ import {
   formatCurrency,
   formatDate,
   type TableSort,
+  Text,
 } from '@plenustech/design-system';
 import { IconDownload, IconFunnel, IconPlusLg, IconSearch } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
@@ -114,9 +115,9 @@ function ListaDePedidos({ busca, filtros, limparBuscaEFiltros, visao }: ListaPro
         </Table.Body>
       </Table>
       <Card.Footer>
-        <span className="detalhe-da-linha">
+        <Text as="div" tone="tertiary" variant="caption">
           {selecionados.length > 0 ? `${selecionados.length} selecionados` : `${filtrados.length} pedidos`}
-        </span>
+        </Text>
         <Pagination
           onPageChange={setPagina}
           page={Math.min(pagina, paginas)}

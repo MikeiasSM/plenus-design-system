@@ -30,7 +30,7 @@ const configuracao = (arranjo: 'anotado' | 'empilhado' | 'indice') => function A
   return <ConfiguracaoSecao arranjo={arranjo} />;
 };
 
-const SECAO_DE_CONFIGURACAO = ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'FieldRow', 'InputNumber', 'Switch', 'Table', 'Avatar', 'ButtonIcon', 'Button'];
+const SECAO_DE_CONFIGURACAO = ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'FieldRow', 'InputNumber', 'Switch', 'Table', 'Avatar', 'ButtonIcon', 'Button', 'Container', 'AvatarItem', 'Text', 'VisuallyHidden'];
 
 export const telas: readonly Tela[] = [
   {
@@ -40,7 +40,7 @@ export const telas: readonly Tela[] = [
     modulo: 'inicio',
     item: 'inicio',
     Componente: Inicio,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'LinkList', 'ActivityFeed', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'CardMetric', 'ChartBar', 'LinkList', 'ActivityFeed', 'Badge', 'Button', 'Container', 'Stack'],
     nota: (
       <>
         Largura larga, 1120px, com o cabeçalho acompanhando a coluna. Tudo em cartão: o cabeçalho do cartão leva título e explicação. Duas colunas
@@ -98,7 +98,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'pedidos',
     Componente: Pedidos,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Tabs', 'InputText', 'Button', 'SidePanel', 'Select', 'Table', 'Pagination', 'EmptyState', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Tabs', 'InputText', 'Button', 'SidePanel', 'Select', 'Table', 'Pagination', 'EmptyState', 'Badge', 'Container', 'Text'],
     nota: (
       <>
         Índice usa a largura total. O <code>SidePanel</code> é irmão da página dentro do <code>AppShell</code>, não peça dele: abre ao lado,
@@ -130,7 +130,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'pedido',
     Componente: Pedido,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Columns', 'Card', 'Table', 'Timeline', 'Textarea', 'Menu', 'Badge', 'Button', 'Container', 'Stack', 'DescriptionList'],
     nota: (
       <>
         Largura larga. A ação principal vai por último no cabeçalho, com até duas secundárias antes dela; o excedente cabe num{' '}
@@ -161,7 +161,7 @@ export const telas: readonly Tela[] = [
     modulo: 'vendas',
     item: 'novo-pedido',
     Componente: NovoPedido,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SaveBar', 'Columns', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SaveBar', 'Columns', 'Card', 'Select', 'InputNumber', 'Table', 'ButtonIcon', 'Textarea', 'Container', 'Stack', 'Grid', 'DescriptionList', 'VisuallyHidden'],
     nota: (
       <>
         Formulário inteiro usa <code>SaveBar</code> no lugar do salvar por cartão. Ela é a primeira coisa do corpo da página, para se prender
@@ -189,7 +189,7 @@ export const telas: readonly Tela[] = [
     modulo: 'clientes',
     item: 'clientes-base',
     Componente: ClientesBase,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SidePanel', 'Select', 'CardMetric', 'Card', 'ChartBar', 'ChartDonut', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SidePanel', 'Select', 'CardMetric', 'Card', 'ChartBar', 'ChartDonut', 'Badge', 'Container', 'Stack', 'Grid'],
     nota: (
       <>
         Painel de dados usa a largura total. A ação que abre os filtros é a principal do cabeçalho, e o período escolhido volta como selo. Com o painel lateral aberto, a folha cede
@@ -212,7 +212,7 @@ export const telas: readonly Tela[] = [
     modulo: 'clientes',
     item: 'novo-cliente',
     Componente: NovoCliente,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'AnnotatedSection', 'Card', 'SegmentedControl', 'InputText', 'InputCurrency', 'Select', 'Switch', 'Textarea', 'Button', 'Container', 'Grid'],
     nota: (
       <>
         O arranjo anotado é o primeiro na prioridade e o padrão na dúvida, feito pela <code>AnnotatedSection</code>. Abaixo de 900px de largura própria, o trilho vira título acima do cartão.
@@ -245,7 +245,7 @@ export const telas: readonly Tela[] = [
     modulo: 'estoque',
     item: 'depositos',
     Componente: Depositos,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SegmentedControl', 'Card', 'Progress', 'Badge', 'Table'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'SegmentedControl', 'Card', 'Progress', 'Badge', 'Table', 'Container', 'Grid', 'Text'],
     nota: (
       <>
         Poucos registros e nenhuma ordenação pedem cartões; a tabela fica a um clique. A troca de forma de exibição vive no cabeçalho, ao lado da
@@ -264,7 +264,7 @@ export const telas: readonly Tela[] = [
     modulo: 'estoque',
     item: 'produtos',
     Componente: Produtos,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Alert', 'Card', 'Table', 'Dialog', 'InputText', 'InputCurrency', 'InputNumber', 'Select', 'Badge'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Alert', 'Card', 'Table', 'Dialog', 'InputText', 'InputCurrency', 'InputNumber', 'Select', 'Badge', 'Container', 'Stack', 'Grid'],
     nota: (
       <>
         Quando o cadastro cabe em três campos, o <code>Dialog</code> evita a viagem a uma página. O item criado entra no topo e leva o selo Novo.
@@ -283,7 +283,7 @@ export const telas: readonly Tela[] = [
     modulo: 'financeiro',
     item: 'conciliacao',
     Componente: Conciliacao,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Steps', 'Select', 'FileUpload', 'Table', 'Alert', 'EmptyState', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'Steps', 'Select', 'FileUpload', 'Table', 'Alert', 'EmptyState', 'Button', 'Container', 'Grid'],
     nota: (
       <>
         Etapa usa a coluna estreita, 760px. <code>Steps</code> só deixa voltar a etapas concluídas; avançar é pelo botão Próximo, que fica
@@ -309,7 +309,7 @@ export const telas: readonly Tela[] = [
     modulo: 'financeiro',
     item: 'contas',
     Componente: Contas,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'EmptyState', 'NumberedList', 'Table', 'Badge', 'Button'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'Card', 'EmptyState', 'NumberedList', 'Table', 'Badge', 'Button', 'Container', 'Stack'],
     nota: (
       <>
         O vazio da primeira vez não é erro: <code>EmptyState</code> com título que diz o que falta, descrição que diz o ganho e duas ações, a
@@ -340,7 +340,7 @@ export const telas: readonly Tela[] = [
     modulo: 'configuracoes',
     item: 'configuracoes',
     Componente: Configuracoes,
-    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'InputText', 'Card', 'LinkList', 'EmptyState'],
+    componentes: ['AppShell', 'Sidebar', 'PageHeader', 'InputText', 'Card', 'LinkList', 'EmptyState', 'Container', 'Stack'],
     nota: (
       <>
         Largura larga. Cada grupo é um cartão com a <code>LinkList</code> em grade: o título é a configuração e a descrição, o estado. A busca
@@ -399,7 +399,7 @@ export const telas: readonly Tela[] = [
     modulo: 'configuracoes',
     item: 'configuracao-anotada',
     Componente: configuracao('empilhado'),
-    componentes: SECAO_DE_CONFIGURACAO,
+    componentes: [...SECAO_DE_CONFIGURACAO, 'Stack'],
     nota: (
       <>
         Coluna estreita, de ajuste. O título e a explicação passam para o <code>Card.Header</code>, com a ação local no <code>trailing</code>. O
@@ -419,7 +419,7 @@ export const telas: readonly Tela[] = [
     modulo: 'configuracoes',
     item: 'configuracao-anotada',
     Componente: configuracao('indice'),
-    componentes: ['Columns', ...SECAO_DE_CONFIGURACAO],
+    componentes: ['Columns', ...SECAO_DE_CONFIGURACAO, 'Stack'],
     nota: (
       <>
         Vale para a seção longa. O <code>Columns.Index</code> fica preso ao lado e marca a seção à vista; escolher um link rola até ela sem mudar o endereço. Abaixo de

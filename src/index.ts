@@ -221,6 +221,10 @@ export { Tag } from './components/data-display/Tag';
 export type { TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
+export { AvatarItem } from './components/data-display/AvatarItem';
+export type { AvatarItemProps } from './components/data-display/AvatarItem';
+export { DescriptionList } from './components/data-display/DescriptionList';
+export type { DescriptionListItemProps, DescriptionListLayout, DescriptionListProps } from './components/data-display/DescriptionList';
 export { List } from './components/data-display/List';
 export type {
   ListEmptyProps,
@@ -516,3 +520,13 @@ export type {
   ColumnsMainProps,
   ColumnsProps,
 } from './components/presets/Columns';
+export { Text } from './components/typography/Text';
+export type { TextProps, TextTone, TextVariant } from './components/typography/Text';
+export { VisuallyHidden } from './components/typography/VisuallyHidden';
+export type { VisuallyHiddenProps } from './components/typography/VisuallyHidden';
+export { Container } from './components/layout/Container';
+export type { ContainerProps } from './components/layout/Container';
+export { Grid } from './components/layout/Grid';
+export type { GridAlign, GridGap, GridItemProps, GridProps } from './components/layout/Grid';
+export { Stack } from './components/layout/Stack';
+export type { StackAlign, StackDirection, StackGap, StackJustify, StackProps } from './components/layout/Stack';

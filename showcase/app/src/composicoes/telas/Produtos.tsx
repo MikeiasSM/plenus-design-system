@@ -5,11 +5,13 @@ import {
   Button,
   Card,
   Dialog,
+  Grid,
   InputCurrency,
   InputNumber,
   InputText,
   PageHeader,
   Select,
+  Stack,
   Table,
   formatCurrency,
   formatNumber,
@@ -54,38 +56,40 @@ export function Produtos() {
           <Button onClick={() => setDialogoAberto(true)}><IconPlusLg />Novo produto</Button>
         </PageHeader.Actions>
       </PageHeader>
-      <Coluna className="grade grade-uma" largura={1120}>
-        <Alert title="Criar sem sair da lista" tone="info">
-          Novo produto abre um diálogo com os campos essenciais. O item entra no topo da tabela, marcado como novo.
-        </Alert>
-        <Card>
-          <Card.Body flush>
-            <Table label="Produtos">
-              <Table.Header>
-                <Table.Column id="id">Código</Table.Column>
-                <Table.Column id="descricao">Descrição</Table.Column>
-                <Table.Column hideBelow="md" id="unidade">Unidade</Table.Column>
-                <Table.Column id="preco" numeric>Preço</Table.Column>
-                <Table.Column id="estoque" numeric>Estoque</Table.Column>
-              </Table.Header>
-              <Table.Body items={produtos}>
-                {(produto) => (
-                  <Table.Row id={produto.id}>
-                    <Table.Cell>{produto.id}</Table.Cell>
-                    <Table.Cell>
-                      {produto.descricao} {produto.id === recemCriado && <Badge tone="info">Novo</Badge>}
-                    </Table.Cell>
-                    <Table.Cell>{produto.unidade}</Table.Cell>
-                    <Table.Cell>{formatCurrency(produto.preco)}</Table.Cell>
-                    <Table.Cell>
-                      {produto.estoque < produto.minimo && <Badge tone="danger">Abaixo do mínimo</Badge>} {formatNumber(produto.estoque)}
-                    </Table.Cell>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table>
-          </Card.Body>
-        </Card>
+      <Coluna largura={1120}>
+        <Stack>
+          <Alert title="Criar sem sair da lista" tone="info">
+            Novo produto abre um diálogo com os campos essenciais. O item entra no topo da tabela, marcado como novo.
+          </Alert>
+          <Card>
+            <Card.Body flush>
+              <Table label="Produtos">
+                <Table.Header>
+                  <Table.Column id="id">Código</Table.Column>
+                  <Table.Column id="descricao">Descrição</Table.Column>
+                  <Table.Column hideBelow="md" id="unidade">Unidade</Table.Column>
+                  <Table.Column id="preco" numeric>Preço</Table.Column>
+                  <Table.Column id="estoque" numeric>Estoque</Table.Column>
+                </Table.Header>
+                <Table.Body items={produtos}>
+                  {(produto) => (
+                    <Table.Row id={produto.id}>
+                      <Table.Cell>{produto.id}</Table.Cell>
+                      <Table.Cell>
+                        {produto.descricao} {produto.id === recemCriado && <Badge tone="info">Novo</Badge>}
+                      </Table.Cell>
+                      <Table.Cell>{produto.unidade}</Table.Cell>
+                      <Table.Cell>{formatCurrency(produto.preco)}</Table.Cell>
+                      <Table.Cell>
+                        {produto.estoque < produto.minimo && <Badge tone="danger">Abaixo do mínimo</Badge>} {formatNumber(produto.estoque)}
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
+                </Table.Body>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Stack>
       </Coluna>
       <Dialog
         description="Os campos essenciais. O código é gerado sozinho."
@@ -101,11 +105,11 @@ export function Produtos() {
       >
         <div className="stack">
           <InputText label="Descrição" onValueChange={(descricao) => setNovo({ ...novo, descricao })} required value={novo.descricao} />
-          <div className="campos campos-3">
+          <Grid columns={3} minColumnWidth={163}>
             <Select label="Unidade" onValueChange={(unidade) => setNovo({ ...novo, unidade })} options={UNIDADES} value={novo.unidade} />
             <InputCurrency label="Preço" onValueChange={(preco) => setNovo({ ...novo, preco: preco ?? 0 })} value={novo.preco} />
             <InputNumber label="Estoque inicial" onValueChange={(estoque) => setNovo({ ...novo, estoque: estoque ?? 0 })} value={novo.estoque} />
-          </div>
+          </Grid>
         </div>
       </Dialog>
     </Pagina>

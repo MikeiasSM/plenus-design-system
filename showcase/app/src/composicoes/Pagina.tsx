@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react';
-import { AppShell, Badge, Breadcrumb } from '@plenustech/design-system';
+import type { ReactNode } from 'react';
+import { AppShell, Badge, Breadcrumb, Container } from '@plenustech/design-system';
 import { SITUACOES, type SituacaoDoPedido } from './dados';
 
 /** Larguras da coluna de conteúdo: total, larga (1120), do índice (1000) e estreita (760). */
@@ -31,16 +31,15 @@ export function Pagina({ caminho, children, rodape }: PaginaProps) {
 
 interface ColunaProps {
   children: ReactNode;
-  className?: string;
   largura: LarguraDaColuna;
 }
 
-/** A coluna do conteúdo, centrada na largura da folha. O cabeçalho da página recebe a mesma largura. */
-export function Coluna({ children, className, largura }: ColunaProps) {
+/** A coluna do conteúdo, centrada na largura da folha. O cabeçalho da página recebe a mesma largura. O respiro vertical é daqui: o `Container` só cuida do lateral. */
+export function Coluna({ children, largura }: ColunaProps) {
   return (
-    <div className={['coluna', className].filter(Boolean).join(' ')} style={{ '--largura': larguraCss(largura) ?? '100%' } as CSSProperties}>
+    <Container maxWidth={larguraCss(largura)} style={{ paddingBlock: 'var(--pl-space-5)' }}>
       {children}
-    </div>
+    </Container>
   );
 }
 

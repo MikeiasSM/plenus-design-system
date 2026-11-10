@@ -1,4 +1,4 @@
-import { ActivityFeed, Badge, Button, Card, CardMetric, ChartBar, Columns, IconClock, IconExclamationTriangle, LinkList, PageHeader, formatCurrency, formatPercent } from '@plenustech/design-system';
+import { ActivityFeed, Badge, Button, Card, CardMetric, ChartBar, Columns, IconClock, IconExclamationTriangle, LinkList, PageHeader, formatCurrency, formatPercent, Stack } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { DIAS_DO_GRAFICO, LANCAMENTOS, PEDIDOS, PEDIDOS_POR_DIA, PRODUTOS } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -48,71 +48,75 @@ export function Inicio() {
       </PageHeader>
       <Coluna largura={1120}>
         <Columns>
-          <Columns.Main className="grade-coluna">
-            <Card>
-              <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
-              <Card.Body flush>
-                <LinkList aria-label="Pendências">
-                  {pendencias.map((pendencia) => (
-                    <LinkList.Item
-                      description={pendencia.detalhe}
-                      href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}
-                      icon={pendencia.urgente ? <IconExclamationTriangle /> : <IconClock />}
-                      key={pendencia.id}
-                      title={pendencia.titulo}
-                      tone={pendencia.urgente ? 'danger' : 'neutral'}
-                      trailing={<Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>}
-                    />
-                  ))}
-                </LinkList>
-              </Card.Body>
-            </Card>
-            <Card>
-              <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." headingLevel={2} title="Pedidos por dia" />
-              <Card.Body>
-                <ChartBar
-                  categories={DIAS_DO_GRAFICO}
-                  height={200}
-                  hideTitle
-                  legend="none"
-                  series={[{ label: 'Pedidos', values: PEDIDOS_POR_DIA }]}
-                  title="Pedidos por dia nos últimos 14 dias"
-                />
-              </Card.Body>
-            </Card>
+          <Columns.Main>
+            <Stack>
+              <Card>
+                <Card.Header description="Cada linha leva à tela onde a pendência se resolve." headingLevel={2} title="O que pede ação hoje" />
+                <Card.Body flush>
+                  <LinkList aria-label="Pendências">
+                    {pendencias.map((pendencia) => (
+                      <LinkList.Item
+                        description={pendencia.detalhe}
+                        href={`${CAMINHO_DAS_COMPOSICOES}/${pendencia.rota}`}
+                        icon={pendencia.urgente ? <IconExclamationTriangle /> : <IconClock />}
+                        key={pendencia.id}
+                        title={pendencia.titulo}
+                        tone={pendencia.urgente ? 'danger' : 'neutral'}
+                        trailing={<Badge tone={pendencia.urgente ? 'danger' : 'neutral'}>{pendencia.quantidade}</Badge>}
+                      />
+                    ))}
+                  </LinkList>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header description="Últimos 14 dias. O fim de semana pesa pouco." headingLevel={2} title="Pedidos por dia" />
+                <Card.Body>
+                  <ChartBar
+                    categories={DIAS_DO_GRAFICO}
+                    height={200}
+                    hideTitle
+                    legend="none"
+                    series={[{ label: 'Pedidos', values: PEDIDOS_POR_DIA }]}
+                    title="Pedidos por dia nos últimos 14 dias"
+                  />
+                </Card.Body>
+              </Card>
+            </Stack>
           </Columns.Main>
-          <Columns.Aside className="grade-coluna">
-            <CardMetric>
-              <Card.Header description="Novembro, até hoje." headingLevel={2} title="Como o negócio está" />
-              <CardMetric.Body>
-                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Vendas do mês" value={412380} />
-                <CardMetric.Trend
-                  comparisons={[{ label: 'vs. outubro', change: 0.082, value: 31240, formatValue: (valor) => formatCurrency(valor, { compact: 'symbol' }) }]}
-                  formatPercent={(razao) => formatPercent(razao, { decimals: 1 })}
-                />
-              </CardMetric.Body>
-              <CardMetric.Body>
-                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Ticket médio" value={187.4} />
-              </CardMetric.Body>
-              <CardMetric.Body>
-                <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Contas a receber vencidas" value={38950} />
-              </CardMetric.Body>
-            </CardMetric>
-            <Card>
-              <Card.Header headingLevel={2} title="Atividade recente" />
-              <Card.Body>
-                <ActivityFeed aria-label="Atividade recente">
-                  {atividades.map((atividade) => (
-                    <ActivityFeed.Item key={atividade.id} time={atividade.quando}>
-                      {atividade.texto}
-                    </ActivityFeed.Item>
-                  ))}
-                </ActivityFeed>
-              </Card.Body>
-              <Card.Footer>
-                <Button size="sm" variant="ghost">Ver tudo</Button>
-              </Card.Footer>
-            </Card>
+          <Columns.Aside>
+            <Stack>
+              <CardMetric>
+                <Card.Header description="Novembro, até hoje." headingLevel={2} title="Como o negócio está" />
+                <CardMetric.Body>
+                  <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Vendas do mês" value={412380} />
+                  <CardMetric.Trend
+                    comparisons={[{ label: 'vs. outubro', change: 0.082, value: 31240, formatValue: (valor) => formatCurrency(valor, { compact: 'symbol' }) }]}
+                    formatPercent={(razao) => formatPercent(razao, { decimals: 1 })}
+                  />
+                </CardMetric.Body>
+                <CardMetric.Body>
+                  <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Ticket médio" value={187.4} />
+                </CardMetric.Body>
+                <CardMetric.Body>
+                  <CardMetric.Value formatValue={(valor) => formatCurrency(valor)} label="Contas a receber vencidas" value={38950} />
+                </CardMetric.Body>
+              </CardMetric>
+              <Card>
+                <Card.Header headingLevel={2} title="Atividade recente" />
+                <Card.Body>
+                  <ActivityFeed aria-label="Atividade recente">
+                    {atividades.map((atividade) => (
+                      <ActivityFeed.Item key={atividade.id} time={atividade.quando}>
+                        {atividade.texto}
+                      </ActivityFeed.Item>
+                    ))}
+                  </ActivityFeed>
+                </Card.Body>
+                <Card.Footer>
+                  <Button size="sm" variant="ghost">Ver tudo</Button>
+                </Card.Footer>
+              </Card>
+            </Stack>
           </Columns.Aside>
         </Columns>
       </Coluna>

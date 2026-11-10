@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, EmptyState, InputText, LinkList, PageHeader } from '@plenustech/design-system';
+import { Card, EmptyState, InputText, LinkList, PageHeader, Stack } from '@plenustech/design-system';
 import { IconSearch } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { GRUPOS_DE_CONFIGURACAO } from '../dados';
@@ -32,26 +32,28 @@ export function Configuracoes() {
           />
         </PageHeader.Search>
       </PageHeader>
-      <Coluna className="grade grade-uma" largura={1120}>
-        {grupos.map((grupo) => (
-          <Card key={grupo.nome}>
-            <Card.Header headingLevel={2} title={grupo.nome} />
-            <Card.Body flush>
-              <LinkList aria-label={grupo.nome} layout="grid">
-                {grupo.itens.map(([nome, estado, alerta]) => (
-                  <LinkList.Item
-                    description={estado}
-                    href={`${CAMINHO_DAS_COMPOSICOES}/${nome === 'Descontos e aprovação' ? 'configuracao-anotada' : 'configuracoes'}`}
-                    key={nome}
-                    title={nome}
-                    tone={alerta ? 'danger' : 'neutral'}
-                  />
-                ))}
-              </LinkList>
-            </Card.Body>
-          </Card>
-        ))}
-        {grupos.length === 0 && <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />}
+      <Coluna largura={1120}>
+        <Stack>
+          {grupos.map((grupo) => (
+            <Card key={grupo.nome}>
+              <Card.Header headingLevel={2} title={grupo.nome} />
+              <Card.Body flush>
+                <LinkList aria-label={grupo.nome} layout="grid">
+                  {grupo.itens.map(([nome, estado, alerta]) => (
+                    <LinkList.Item
+                      description={estado}
+                      href={`${CAMINHO_DAS_COMPOSICOES}/${nome === 'Descontos e aprovação' ? 'configuracao-anotada' : 'configuracoes'}`}
+                      key={nome}
+                      title={nome}
+                      tone={alerta ? 'danger' : 'neutral'}
+                    />
+                  ))}
+                </LinkList>
+              </Card.Body>
+            </Card>
+          ))}
+          {grupos.length === 0 && <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />}
+        </Stack>
       </Coluna>
     </Pagina>
   );

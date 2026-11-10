@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Card, EmptyState, NumberedList, PageHeader, Table } from '@plenustech/design-system';
+import { Badge, Button, Card, EmptyState, NumberedList, PageHeader, Stack, Table } from '@plenustech/design-system';
 import { IconPlusLg, IconUpload } from '@plenustech/design-system/icons';
 import { IconBank } from '@plenustech/design-system/icons';
 import { Coluna, Pagina } from '../Pagina';
@@ -20,54 +20,56 @@ export function Contas() {
           </PageHeader.Actions>
         )}
       </PageHeader>
-      <Coluna className="grade grade-uma" largura={1120}>
-        <Card>
-          {contas.length === 0 ? (
-            <>
-              <Card.Body>
-                <EmptyState
-                  actions={
-                    <>
-                      <Button variant="secondary"><IconUpload />Importar de uma planilha</Button>
-                      <Button onClick={() => setContas([PRIMEIRA_CONTA])}>Registrar a primeira conta</Button>
-                    </>
-                  }
-                  description="Com uma conta registrada, o sistema confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
-                  icon={<IconBank />}
-                  title="Nenhuma conta bancária registrada"
-                />
+      <Coluna largura={1120}>
+        <Stack>
+          <Card>
+            {contas.length === 0 ? (
+              <>
+                <Card.Body>
+                  <EmptyState
+                    actions={
+                      <>
+                        <Button variant="secondary"><IconUpload />Importar de uma planilha</Button>
+                        <Button onClick={() => setContas([PRIMEIRA_CONTA])}>Registrar a primeira conta</Button>
+                      </>
+                    }
+                    description="Com uma conta registrada, o sistema confere o extrato com os pedidos e mostra o saldo no fluxo de caixa."
+                    icon={<IconBank />}
+                    title="Nenhuma conta bancária registrada"
+                  />
+                </Card.Body>
+                <Card.Body>
+                  <NumberedList aria-label="Como funciona" layout="grid">
+                    <NumberedList.Item description="Banco, agência e número." title="Registre a conta" />
+                    <NumberedList.Item description="Arquivo OFX do internet banking." title="Envie o extrato" />
+                    <NumberedList.Item description="O sistema sugere os pares." title="Concilie" />
+                  </NumberedList>
+                </Card.Body>
+              </>
+            ) : (
+              <Card.Body flush>
+                <Table label="Contas bancárias">
+                  <Table.Header>
+                    <Table.Column id="apelido">Conta</Table.Column>
+                    <Table.Column id="banco">Banco</Table.Column>
+                    <Table.Column hideBelow="sm" id="numero">Agência / conta</Table.Column>
+                    <Table.Column id="situacao">Situação</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={contas}>
+                    {(conta) => (
+                      <Table.Row id={conta.id}>
+                        <Table.Cell>{conta.apelido}</Table.Cell>
+                        <Table.Cell>{conta.banco}</Table.Cell>
+                        <Table.Cell>{conta.agencia} / {conta.conta}</Table.Cell>
+                        <Table.Cell><Badge tone="success">Ativa</Badge></Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
               </Card.Body>
-              <Card.Body>
-                <NumberedList aria-label="Como funciona" layout="grid">
-                  <NumberedList.Item description="Banco, agência e número." title="Registre a conta" />
-                  <NumberedList.Item description="Arquivo OFX do internet banking." title="Envie o extrato" />
-                  <NumberedList.Item description="O sistema sugere os pares." title="Concilie" />
-                </NumberedList>
-              </Card.Body>
-            </>
-          ) : (
-            <Card.Body flush>
-              <Table label="Contas bancárias">
-                <Table.Header>
-                  <Table.Column id="apelido">Conta</Table.Column>
-                  <Table.Column id="banco">Banco</Table.Column>
-                  <Table.Column hideBelow="sm" id="numero">Agência / conta</Table.Column>
-                  <Table.Column id="situacao">Situação</Table.Column>
-                </Table.Header>
-                <Table.Body items={contas}>
-                  {(conta) => (
-                    <Table.Row id={conta.id}>
-                      <Table.Cell>{conta.apelido}</Table.Cell>
-                      <Table.Cell>{conta.banco}</Table.Cell>
-                      <Table.Cell>{conta.agencia} / {conta.conta}</Table.Cell>
-                      <Table.Cell><Badge tone="success">Ativa</Badge></Table.Cell>
-                    </Table.Row>
-                  )}
-                </Table.Body>
-              </Table>
-            </Card.Body>
-          )}
-        </Card>
+            )}
+          </Card>
+        </Stack>
       </Coluna>
     </Pagina>
   );

@@ -1,0 +1,66 @@
+.root {
+  /* Zera só a margem de bloco, a que p e h1..h6 trazem de fábrica: a lateral fica com o contexto, como a
+     margin-inline-start: auto do filho único do Card.Footer. */
+  margin-block: 0;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-weight: var(--pl-type-body-weight);
+  color: var(--pl-color-text);
+}
+
+.root[data-variant='label'] {
+  font-size: var(--pl-type-label-size);
+  line-height: var(--pl-type-label-line-height);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.root[data-variant='caption'] {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-weight: var(--pl-type-caption-weight);
+}
+
+.root[data-variant='micro'] {
+  font-size: var(--pl-type-micro-size);
+  line-height: var(--pl-type-micro-line-height);
+  font-weight: var(--pl-type-micro-weight);
+}
+
+.root[data-variant='title'] {
+  font-family: var(--pl-font-heading);
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+  font-weight: var(--pl-type-title-weight);
+}
+
+.root[data-variant='code'] {
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-code-size);
+  line-height: var(--pl-type-code-line-height);
+  font-weight: var(--pl-type-code-weight);
+}
+
+.root[data-tone='secondary'] {
+  color: var(--pl-color-text-secondary);
+}
+
+.root[data-tone='tertiary'] {
+  color: var(--pl-color-text-tertiary);
+}
+
+.root[data-tone='danger'] {
+  color: var(--pl-color-danger-text);
+}
+
+.root[data-numeric] {
+  font-variant-numeric: tabular-nums;
+}
+
+.root[data-truncate] {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

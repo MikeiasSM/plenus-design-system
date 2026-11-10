@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Card,
+  Grid,
   IconCheck,
   InputCurrency,
   InputText,
@@ -137,7 +138,7 @@ export function NovoCliente() {
         <AnnotatedSection description="Como o cliente aparece nos pedidos e nas notas fiscais." title="Identificação">
           <Card>
             <Card.Body>
-            <div className="campos campos-2">
+            <Grid columns={2} minColumnWidth={252}>
               <SegmentedControl
                 items={[{ label: 'Jurídica', value: 'PJ' }, { label: 'Física', value: 'PF' }]}
                 label="Tipo de pessoa"
@@ -146,40 +147,40 @@ export function NovoCliente() {
               />
               <InputText inputMode="numeric" label={pessoaJuridica ? 'CNPJ' : 'CPF'} required {...texto('documento')} />
               <InputText error={erroDaRazao} label={pessoaJuridica ? 'Razão social' : 'Nome completo'} required {...texto('razao')} />
-            </div>
+            </Grid>
             </Card.Body>
           </Card>
         </AnnotatedSection>
         <AnnotatedSection description="Quem recebe orçamentos, boletos e avisos de entrega." title="Contato">
           <Card>
             <Card.Body>
-            <div className="campos campos-2">
+            <Grid columns={2} minColumnWidth={252}>
               <InputText label="E-mail" type="email" {...texto('email')} />
               <InputText inputMode="tel" label="Telefone" {...texto('telefone')} />
               <InputText label="Pessoa de contato" {...texto('contato')} />
               <InputText label="Cargo" {...texto('cargo')} />
-            </div>
+            </Grid>
             </Card.Body>
           </Card>
         </AnnotatedSection>
         <AnnotatedSection description="Usado na entrega e na emissão da nota fiscal." title="Endereço">
           <Card>
             <Card.Body>
-            <div className="campos campos-2">
+            <Grid columns={2} minColumnWidth={252}>
               <InputText inputMode="numeric" label="CEP" {...texto('cep')} />
               <InputText label="Logradouro" {...texto('logradouro')} />
               <InputText label="Número" {...texto('numero')} />
               <InputText label="Bairro" {...texto('bairro')} />
               <InputText label="Cidade" {...texto('cidade')} />
               <Select label="UF" onValueChange={(uf) => alterar({ ...cliente, uf })} options={opcoes(['BA', 'GO', 'MG', 'PR', 'SP'])} value={cliente.uf} />
-            </div>
+            </Grid>
             </Card.Body>
           </Card>
         </AnnotatedSection>
         <AnnotatedSection description="Limite, prazo e tabela de preço que valem para os próximos pedidos." title="Condições comerciais">
           <Card>
             <Card.Body>
-            <div className="campos campos-2">
+            <Grid columns={2} minColumnWidth={252}>
               <InputCurrency label="Limite de crédito" onValueChange={(limite) => alterar({ ...cliente, limite })} value={cliente.limite} />
               <Select label="Prazo padrão" onValueChange={(prazo) => alterar({ ...cliente, prazo })} options={opcoes(['À vista', '14 dias', '28 dias', '28/56 dias'])} value={cliente.prazo} />
               <Select label="Tabela de preço" onValueChange={(tabela) => alterar({ ...cliente, tabela })} options={opcoes(['Varejo', 'Atacado', 'Frotista'])} value={cliente.tabela} />
@@ -190,7 +191,7 @@ export function NovoCliente() {
                 label="Bloquear venda com atraso"
                 onCheckedChange={(bloquear) => alterar({ ...cliente, bloquear })}
               />
-            </div>
+            </Grid>
             </Card.Body>
           </Card>
         </AnnotatedSection>

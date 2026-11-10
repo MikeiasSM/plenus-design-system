@@ -6,6 +6,7 @@ import {
   Card,
   EmptyState,
   FileUpload,
+  Grid,
   PageHeader,
   Select,
   Steps,
@@ -92,10 +93,10 @@ export function Conciliacao() {
           <Card.Header description={atual.explicacao} headingLevel={2} title={atual.titulo} />
           <Card.Body>
             {etapa === 'conta' && (
-              <div className="campos campos-2">
+              <Grid columns={2} minColumnWidth={252}>
                 <Select label="Conta bancária" onValueChange={setConta} options={CONTAS} value={conta} />
                 <Select label="Período" onValueChange={setPeriodo} options={PERIODOS} value={periodo} />
-              </div>
+              </Grid>
             )}
             {etapa === 'extrato' && (
               <FileUpload

@@ -5,13 +5,17 @@ import {
   ButtonIcon,
   Card,
   Columns,
+  DescriptionList,
+  Grid,
   InputNumber,
   PageHeader,
   SaveBar,
   Select,
+  Stack,
   Table,
   Textarea,
   formatCurrency,
+  VisuallyHidden,
 } from '@plenustech/design-system';
 import { IconPlusLg, IconTrash } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
@@ -89,108 +93,112 @@ export function NovoPedido() {
       </PageHeader>
       <Coluna largura={1120}>
         <Columns>
-          <Columns.Main className="grade-coluna">
-            <Card>
-              <Card.Header description="Quem compra e quem vende." headingLevel={2} title="Cliente" />
-              <Card.Body>
-                <div className="campos campos-2">
-                  <Select
-                    label="Cliente"
-                    onValueChange={(cliente) => alterar({ cliente })}
-                    options={CLIENTES.map((nome) => ({ label: nome, value: nome }))}
-                    required
-                    value={rascunho.cliente}
-                  />
-                  <Select
-                    label="Vendedor"
-                    onValueChange={(vendedor) => alterar({ vendedor })}
-                    options={VENDEDORES.map((nome) => ({ label: nome, value: nome }))}
-                    value={rascunho.vendedor}
-                  />
-                </div>
-              </Card.Body>
-            </Card>
-            <Card>
-              <Card.Header
-                description="Produtos e quantidades do pedido."
-                headingLevel={2}
-                title="Itens"
-                trailing={<Button onClick={adicionarItem} size="sm" variant="secondary"><IconPlusLg />Adicionar item</Button>}
-              />
-              <Card.Body flush>
-                <Table label="Itens do pedido" size="sm">
-                  <Table.Header>
-                    <Table.Column id="produto">Produto</Table.Column>
-                    <Table.Column id="quantidade" width="120px">Quantidade</Table.Column>
-                    <Table.Column hideBelow="md" id="total" numeric>Total</Table.Column>
-                    <Table.Column id="remover" width="56px"><span className="so-leitor">Remover</span></Table.Column>
-                  </Table.Header>
-                  <Table.Body items={rascunho.itens.map((item) => ({ ...item, id: String(item.chave) }))}>
-                    {(item) => (
-                      <Table.Row id={item.id}>
-                        <Table.Cell>
-                          <Select
-                            aria-label="Produto"
-                            onValueChange={(produto) => alterarItem(item.chave, { produto })}
-                            options={PRODUTOS.map((produto) => ({ label: produto.descricao, value: produto.id }))}
-                            value={item.produto}
-                          />
-                        </Table.Cell>
-                        <Table.Cell>
-                          <InputNumber
-                            aria-label="Quantidade"
-                            onValueChange={(quantidade) => alterarItem(item.chave, { quantidade })}
-                            value={item.quantidade}
-                          />
-                        </Table.Cell>
-                        <Table.Cell>{formatCurrency(precoDe(item.produto) * (item.quantidade ?? 0))}</Table.Cell>
-                        <Table.Cell>
-                          <ButtonIcon
-                            icon={<IconTrash />}
-                            label="Remover item"
-                            onClick={() => alterar({ itens: rascunho.itens.filter((candidato) => candidato.chave !== item.chave) })}
-                            size="sm"
-                            variant="ghost"
-                          />
-                        </Table.Cell>
-                      </Table.Row>
-                    )}
-                  </Table.Body>
-                </Table>
-              </Card.Body>
-            </Card>
+          <Columns.Main>
+            <Stack>
+              <Card>
+                <Card.Header description="Quem compra e quem vende." headingLevel={2} title="Cliente" />
+                <Card.Body>
+                  <Grid columns={2} minColumnWidth={252}>
+                    <Select
+                      label="Cliente"
+                      onValueChange={(cliente) => alterar({ cliente })}
+                      options={CLIENTES.map((nome) => ({ label: nome, value: nome }))}
+                      required
+                      value={rascunho.cliente}
+                    />
+                    <Select
+                      label="Vendedor"
+                      onValueChange={(vendedor) => alterar({ vendedor })}
+                      options={VENDEDORES.map((nome) => ({ label: nome, value: nome }))}
+                      value={rascunho.vendedor}
+                    />
+                  </Grid>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header
+                  description="Produtos e quantidades do pedido."
+                  headingLevel={2}
+                  title="Itens"
+                  trailing={<Button onClick={adicionarItem} size="sm" variant="secondary"><IconPlusLg />Adicionar item</Button>}
+                />
+                <Card.Body flush>
+                  <Table label="Itens do pedido" size="sm">
+                    <Table.Header>
+                      <Table.Column id="produto">Produto</Table.Column>
+                      <Table.Column id="quantidade" width="120px">Quantidade</Table.Column>
+                      <Table.Column hideBelow="md" id="total" numeric>Total</Table.Column>
+                      <Table.Column id="remover" width="56px"><VisuallyHidden>Remover</VisuallyHidden></Table.Column>
+                    </Table.Header>
+                    <Table.Body items={rascunho.itens.map((item) => ({ ...item, id: String(item.chave) }))}>
+                      {(item) => (
+                        <Table.Row id={item.id}>
+                          <Table.Cell>
+                            <Select
+                              aria-label="Produto"
+                              onValueChange={(produto) => alterarItem(item.chave, { produto })}
+                              options={PRODUTOS.map((produto) => ({ label: produto.descricao, value: produto.id }))}
+                              value={item.produto}
+                            />
+                          </Table.Cell>
+                          <Table.Cell>
+                            <InputNumber
+                              aria-label="Quantidade"
+                              onValueChange={(quantidade) => alterarItem(item.chave, { quantidade })}
+                              value={item.quantidade}
+                            />
+                          </Table.Cell>
+                          <Table.Cell>{formatCurrency(precoDe(item.produto) * (item.quantidade ?? 0))}</Table.Cell>
+                          <Table.Cell>
+                            <ButtonIcon
+                              icon={<IconTrash />}
+                              label="Remover item"
+                              onClick={() => alterar({ itens: rascunho.itens.filter((candidato) => candidato.chave !== item.chave) })}
+                              size="sm"
+                              variant="ghost"
+                            />
+                          </Table.Cell>
+                        </Table.Row>
+                      )}
+                    </Table.Body>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Stack>
           </Columns.Main>
-          <Columns.Aside className="grade-coluna">
-            <Card>
-              <Card.Header headingLevel={2} title="Resumo" />
-              <Card.Body>
-                <InputNumber
-                  decimalScale={1}
-                  hint="Acima de 5% o pedido vai para aprovação."
-                  label="Desconto (%)"
-                  onValueChange={(valor) => alterar({ desconto: valor })}
-                  value={rascunho.desconto}
-                />
-              </Card.Body>
-              <Card.Footer>
-                <dl className="totais">
-                  <div><dt>Subtotal</dt><dd>{formatCurrency(subtotal)}</dd></div>
-                  <div><dt>Desconto</dt><dd>− {formatCurrency(desconto)}</dd></div>
-                  <div className="totais-total"><dt>Total</dt><dd>{formatCurrency(subtotal - desconto)}</dd></div>
-                </dl>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Header headingLevel={2} title="Observações" />
-              <Card.Body>
-                <Textarea
-                  label="Para a separação e a entrega"
-                  onValueChange={(observacoes) => alterar({ observacoes })}
-                  placeholder="Ex.: entregar pela manhã"
-                  value={rascunho.observacoes}
-                />
-              </Card.Body>
-            </Card>
+          <Columns.Aside>
+            <Stack>
+              <Card>
+                <Card.Header headingLevel={2} title="Resumo" />
+                <Card.Body>
+                  <InputNumber
+                    decimalScale={1}
+                    hint="Acima de 5% o pedido vai para aprovação."
+                    label="Desconto (%)"
+                    onValueChange={(valor) => alterar({ desconto: valor })}
+                    value={rascunho.desconto}
+                  />
+                </Card.Body>
+                <Card.Footer>
+                  <DescriptionList layout="inline">
+                    <DescriptionList.Item term="Subtotal">{formatCurrency(subtotal)}</DescriptionList.Item>
+                    <DescriptionList.Item term="Desconto">− {formatCurrency(desconto)}</DescriptionList.Item>
+                    <DescriptionList.Item emphasis term="Total">{formatCurrency(subtotal - desconto)}</DescriptionList.Item>
+                  </DescriptionList>
+                </Card.Footer>
+              </Card>
+              <Card>
+                <Card.Header headingLevel={2} title="Observações" />
+                <Card.Body>
+                  <Textarea
+                    label="Para a separação e a entrega"
+                    onValueChange={(observacoes) => alterar({ observacoes })}
+                    placeholder="Ex.: entregar pela manhã"
+                    value={rascunho.observacoes}
+                  />
+                </Card.Body>
+              </Card>
+            </Stack>
           </Columns.Aside>
         </Columns>
       </Coluna>

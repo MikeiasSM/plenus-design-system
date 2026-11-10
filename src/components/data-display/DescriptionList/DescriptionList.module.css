@@ -1,0 +1,52 @@
+.root {
+  display: grid;
+  gap: var(--pl-space-3);
+  margin: 0;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  color: var(--pl-color-text);
+}
+
+.root[data-layout='inline'] {
+  gap: var(--pl-space-1);
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.item {
+  min-width: 0;
+}
+
+/* O layout vem da raiz; o filho direto impede que ele vaze para uma lista aninhada na descrição. */
+.root[data-layout='inline'] > .item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+}
+
+.term {
+  color: var(--pl-color-text-secondary);
+}
+
+.root[data-layout='stacked'] > .item > .term {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.description {
+  margin: 0;
+  min-width: 0;
+}
+
+.root[data-layout='inline'] > .item > .description {
+  text-align: right;
+}
+
+/* O destaque marca a linha de total: separador acima e peso de rotulo. */
+.item[data-emphasis] {
+  padding-top: var(--pl-space-2);
+  border-top: 1px solid var(--pl-color-border);
+  font-weight: var(--pl-type-label-weight);
+}

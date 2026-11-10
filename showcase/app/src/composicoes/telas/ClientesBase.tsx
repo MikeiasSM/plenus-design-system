@@ -6,9 +6,11 @@ import {
   CardMetric,
   ChartBar,
   ChartDonut,
+  Grid,
   PageHeader,
   Select,
   SidePanel,
+  Stack,
   formatNumber,
 } from '@plenustech/design-system';
 import { IconDownload, IconFunnel } from '@plenustech/design-system/icons';
@@ -93,35 +95,34 @@ export function ClientesBase() {
             <Button variant="secondary"><IconDownload />Exportar</Button>
           </PageHeader.Actions>
         </PageHeader>
-        <Coluna className="grade grade-painel" largura="total">
-          <Metrica descricao="Cadastros de cliente ativos hoje." titulo="Clientes Ativos" valor={1984} />
-          <Metrica descricao="Cadastros criados no período, inclusive os importados em lote." titulo="Novos Clientes" valor={18} />
-          <Metrica descricao="Sem documento, endereço completo ou telefone: 12,0% dos ativos." titulo="Cadastros Incompletos" valor={238} />
-          <Metrica descricao="Clientes ativos sem rota definida: 61,0% do total." titulo="Sem rota" valor={1210} />
-          <div className="painel-metade">
-            <Barras altura={260} dados={CLIENTES_POR_ESTADO} descricao="Clientes ativos por estado." titulo="Clientes por Estado" />
-          </div>
-          <div className="painel-metade">
-            <Barras altura={260} dados={CLIENTES_POR_BAIRRO} descricao="Em Santa Aurora. Outros 94 bairros somam 410 clientes." titulo="Clientes por Bairro" />
-          </div>
-          <div className="painel-metade">
-            <Card>
-              <Card.Header description="Produtor rural tem precedência sobre o tipo." headingLevel={2} title="Clientes por Tipo de Pessoa" />
-              <Card.Body>
-                <ChartDonut
-                  centerLabel="Total"
-                  formatValue={formatarInteiro}
-                  height={220}
-                  hideTitle
-                  slices={CLIENTES_POR_TIPO}
-                  title="Clientes por tipo de pessoa"
-                />
-              </Card.Body>
-            </Card>
-          </div>
-          <div className="painel-metade">
-            <Barras altura={220} dados={CLIENTES_POR_CONCEITO} descricao="Clientes ativos pelo conceito do cadastro." titulo="Clientes por Conceito" />
-          </div>
+        <Coluna largura="total">
+          <Stack>
+            <Grid columns={4} minColumnWidth={180}>
+              <Metrica descricao="Cadastros de cliente ativos hoje." titulo="Clientes Ativos" valor={1984} />
+              <Metrica descricao="Cadastros criados no período, inclusive os importados em lote." titulo="Novos Clientes" valor={18} />
+              <Metrica descricao="Sem documento, endereço completo ou telefone: 12,0% dos ativos." titulo="Cadastros Incompletos" valor={238} />
+              <Metrica descricao="Clientes ativos sem rota definida: 61,0% do total." titulo="Sem rota" valor={1210} />
+            </Grid>
+            {/* A coluna de gráfico mede duas de indicador e o espaço entre elas: os gráficos ficam 2 a 2 quando os indicadores ficam 4 em linha. */}
+            <Grid columns={2} minColumnWidth="calc(2 * 180px + var(--pl-space-4))">
+              <Barras altura={260} dados={CLIENTES_POR_ESTADO} descricao="Clientes ativos por estado." titulo="Clientes por Estado" />
+              <Barras altura={260} dados={CLIENTES_POR_BAIRRO} descricao="Em Santa Aurora. Outros 94 bairros somam 410 clientes." titulo="Clientes por Bairro" />
+              <Card>
+                <Card.Header description="Produtor rural tem precedência sobre o tipo." headingLevel={2} title="Clientes por Tipo de Pessoa" />
+                <Card.Body>
+                  <ChartDonut
+                    centerLabel="Total"
+                    formatValue={formatarInteiro}
+                    height={220}
+                    hideTitle
+                    slices={CLIENTES_POR_TIPO}
+                    title="Clientes por tipo de pessoa"
+                  />
+                </Card.Body>
+              </Card>
+              <Barras altura={220} dados={CLIENTES_POR_CONCEITO} descricao="Clientes ativos pelo conceito do cadastro." titulo="Clientes por Conceito" />
+            </Grid>
+          </Stack>
         </Coluna>
       </Pagina>
       <SidePanel

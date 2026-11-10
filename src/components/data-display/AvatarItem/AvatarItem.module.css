@@ -1,0 +1,39 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-3);
+  min-width: 0;
+  font-family: var(--pl-font-body);
+}
+
+.avatar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Texto longo vira reticencias em vez de estourar a largura: a linha mantem a altura do avatar. */
+.title,
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-weight: var(--pl-type-label-weight);
+  color: var(--pl-color-text);
+}
+
+.description {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  color: var(--pl-color-text-tertiary);
+}

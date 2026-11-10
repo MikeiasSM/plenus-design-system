@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import {
   AnnotatedSection,
   Avatar,
+  AvatarItem,
   Badge,
   Button,
   ButtonIcon,
@@ -12,8 +13,11 @@ import {
   IconPlus,
   InputNumber,
   PageHeader,
+  Stack,
   Switch,
   Table,
+  Text,
+  VisuallyHidden,
 } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
 import { Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
@@ -33,7 +37,7 @@ interface RodapeProps {
 function RodapeDeSalvar({ alterado, descartar, salvar, salvo }: RodapeProps) {
   return (
     <Card.Footer>
-      <span className="detalhe-da-linha rodape-espaco">{alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}</span>
+      <Text as="div" className="rodape-espaco" tone="tertiary" variant="caption">{alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}</Text>
       <Button disabled={!alterado} onClick={descartar} size="sm" variant="secondary">Descartar</Button>
       <Button disabled={!alterado} onClick={salvar} size="sm">Salvar</Button>
     </Card.Footer>
@@ -99,19 +103,13 @@ function QuemAprova() {
         <Table.Header>
           <Table.Column id="nome">Aprovador</Table.Column>
           <Table.Column id="limite" numeric>Libera até</Table.Column>
-          <Table.Column id="remover" width="56px"><span className="so-leitor">Remover</span></Table.Column>
+          <Table.Column id="remover" width="56px"><VisuallyHidden>Remover</VisuallyHidden></Table.Column>
         </Table.Header>
         <Table.Body items={aprovadores}>
           {(aprovador) => (
             <Table.Row id={aprovador.id}>
               <Table.Cell>
-                <span className="pessoa">
-                  <Avatar name={aprovador.nome} size="sm" />
-                  <span>
-                    <strong>{aprovador.nome}</strong>
-                    <span className="detalhe-da-linha">{aprovador.papel}</span>
-                  </span>
-                </span>
+                <AvatarItem avatar={<Avatar name={aprovador.nome} size="sm" />} description={aprovador.papel} title={aprovador.nome} />
               </Table.Cell>
               <Table.Cell>{aprovador.limite}%</Table.Cell>
               <Table.Cell>
@@ -217,11 +215,11 @@ function Secoes({ arranjo }: { arranjo: Arranjo }) {
   }
 
   const empilhadas = (
-    <div className="grade-coluna">
+    <Stack>
       {SECOES.map((secao) => (
         <CartaoComTitulo key={secao.id} secao={secao} />
       ))}
-    </div>
+    </Stack>
   );
 
   return arranjo === 'indice' ? (
