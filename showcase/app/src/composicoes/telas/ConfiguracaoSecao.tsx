@@ -97,7 +97,7 @@ function QuemAprova() {
         <Table.Header>
           <Table.Column id="nome">Aprovador</Table.Column>
           <Table.Column id="limite" numeric>Libera até</Table.Column>
-          <Table.Column id="remover" width="56px"><span className="so-leitor">Remover</span></Table.Column>
+          <Table.Column align="end" id="remover"><span className="so-leitor">Remover</span></Table.Column>
         </Table.Header>
         <Table.Body items={aprovadores}>
           {(aprovador) => (

@@ -19,6 +19,13 @@
     box-shadow var(--pl-speed-2) var(--pl-ease);
 }
 
+/* O icone guarda a medida declarada, qualquer que seja o reset do hospedeiro: sem isto, um teto
+   percentual no svg o deixa encolher ate sumir quando o botao fica apertado. */
+.button > svg {
+  flex-shrink: 0;
+  max-width: none;
+}
+
 .button:not(:disabled):not([aria-disabled='true']):hover {
   box-shadow: 0 3px 8px color-mix(in srgb, var(--button-hover-shadow) 22%, transparent);
 }
