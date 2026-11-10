@@ -522,8 +522,8 @@ export type {
 } from './components/presets/Columns';
 export { Text } from './components/typography/Text';
 export type { TextProps, TextTone, TextVariant } from './components/typography/Text';
-export { VisuallyHidden } from './components/typography/VisuallyHidden';
-export type { VisuallyHiddenProps } from './components/typography/VisuallyHidden';
+export { VisuallyHidden } from './components/accessibility/VisuallyHidden';
+export type { VisuallyHiddenProps } from './components/accessibility/VisuallyHidden';
 export { Container } from './components/layout/Container';
 export type { ContainerProps } from './components/layout/Container';
 export { Grid } from './components/layout/Grid';

@@ -259,7 +259,6 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
 | `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
-| `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
 | `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
 | `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
 | `PageHeader` | Cabeçalho de página: título, descrição, selos de situação e ações. | Disponível |
@@ -323,13 +322,19 @@ Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Text` | Texto com papel tipográfico e tom, em uma linha ou truncado. | Disponível |
-| `VisuallyHidden` | Conteúdo só para o leitor de tela, fora da vista. | Disponível |
 
 O `Text` aplica um papel tipográfico dos tokens (`body`, `label`, `caption`, `micro`, `title` ou `code`) e um tom (`default`, `secondary`, `tertiary` ou `danger`) a um trecho de texto, para o produto não repetir tamanho, entrelinha e cor em cada tela. Por padrão renderiza um `span`; `as` troca o elemento, como `p` ou `div`, quando o texto precisa de bloco. `truncate` mantém o texto numa linha e corta o excesso com reticências, e `numeric` usa algarismos tabulares. O `Text` não é título de página nem de seção: o nível de cabeçalho é de quem escreve a estrutura, como no `PageHeader` e no `Card.Header`.
 
-O `VisuallyHidden` tira o conteúdo da vista e o mantém na árvore de acessibilidade, para o leitor de tela ler o que a interface mostra só por ícone ou posição, como o rótulo de uma coluna de ações. Não serve para esconder o que ninguém deve ler: para isso, o conteúdo sai da página.
+## 12. Acessibilidade
 
-## 12. Leiaute
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `VisuallyHidden` | Texto que só o leitor de tela lê, para dar nome ao que a tela mostra só por ícone, cor ou posição, como uma coluna de ações sem título. | Disponível |
+| `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
+
+Os componentes de acessibilidade existem para quem não usa a tela como ela é vista: quem ouve o leitor de tela ou navega só pelo teclado. O `VisuallyHidden` tira o conteúdo da vista e o mantém na árvore de acessibilidade, para o leitor de tela ler o que a interface mostra só por ícone ou posição, como o rótulo de uma coluna de ações. Não serve para esconder o que ninguém deve ler: para isso, o conteúdo sai da página. O `SkipLink` é o primeiro destino do Tab, que leva direto ao conteúdo principal, sem passar pela navegação.
+
+## 13. Leiaute
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -337,11 +342,11 @@ O `VisuallyHidden` tira o conteúdo da vista e o mantém na árvore de acessibil
 | `Grid` | Grade de colunas iguais que se ajusta à própria largura. | Disponível |
 | `Container` | Coluna de conteúdo centrada, com largura máxima. | Disponível |
 
-Os componentes de leiaute arranjam o que o produto já tem, sem conteúdo nem aparência próprios, com os espaçamentos do `--pl-space-N`. A `Stack` espaça os filhos num eixo, na vertical por padrão e na horizontal com `direction="horizontal"`, com `gap`, `align`, `justify` e `wrap`. A `Grid` reparte a largura em colunas iguais e mede a si mesma, e não a janela: entram quantas colunas couberem, cada uma com ao menos `minColumnWidth`, e `columns` limita o máximo. O `Grid.Item` com `span` ocupa várias colunas, e numa grade com menos colunas que o `span` passa a ocupar a linha inteira. O `Container` centra a coluna de conteúdo com um `maxWidth` e o respiro lateral dos tokens; com o mesmo valor no `PageHeader`, os dois alinham na mesma borda. O respiro vertical é de quem usa o `Container`.
+Os componentes de leiaute arranjam o que o produto já tem, sem conteúdo nem aparência próprios, com os espaçamentos do `--pl-space-N`. A `Stack` espaça os filhos num eixo, na vertical por padrão e na horizontal com `direction="horizontal"`, com `gap`, `align`, `justify` e `wrap`. A `Grid` reparte a largura em colunas iguais e mede a si mesma, e não a janela: entram quantas colunas couberem, cada uma com ao menos `minColumnWidth`, e `columns` limita o máximo. O `Grid.Item` com `span` ocupa várias colunas, e numa grade com menos colunas que o `span` passa a ocupar a linha inteira. Quando o número de colunas não é múltiplo do `span`, como itens de duas colunas numa grade que caiu para três, sobra espaço vazio na linha, como em toda grade CSS: para conteúdos de larguras diferentes, use uma `Grid` para cada grupo, como os indicadores numa e os gráficos noutra. O `Container` centra a coluna de conteúdo com um `maxWidth` e o respiro lateral dos tokens; com o mesmo valor no `PageHeader`, os dois alinham na mesma borda. O respiro vertical é de quem usa o `Container`.
 
 As predefinições da seção seguinte arranjam a página; estes componentes arranjam um trecho dela. A fronteira com as predefinições é o conteúdo: as predefinições conhecem partes com papel próprio, como o trilho e a coluna lateral, e o leiaute só distribui.
 
-## 13. Predefinições
+## 14. Predefinições
 
 | Componente | Papel | Situação |
 | --- | --- | --- |
@@ -354,7 +359,7 @@ A `AnnotatedSection` serve às telas de configuração e aos formulários por as
 
 O `Columns` arranja o conteúdo da página em duas colunas e não é a navegação da aplicação, que é a `Sidebar`. Ao lado do `Columns.Main` vai uma de duas partes. O `Columns.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Columns.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
 
-## 14. Fora do escopo
+## 15. Fora do escopo
 
 O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 

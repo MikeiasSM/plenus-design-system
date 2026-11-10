@@ -38,7 +38,7 @@ describe('VisuallyHidden', () => {
 
   // A regra inteira, declaração a declaração: a união da do useVisuallyHidden do React Aria com a do VisuallyHidden do Radix.
   it('tira o conteúdo da vista com a regra completa do React Aria e do Radix', () => {
-    const raiz = regrasDaFolha('src/components/typography/VisuallyHidden/VisuallyHidden.module.css').get('.root');
+    const raiz = regrasDaFolha('src/components/accessibility/VisuallyHidden/VisuallyHidden.module.css').get('.root');
 
     expect(raiz).toEqual({
       border: '0',

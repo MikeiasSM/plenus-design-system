@@ -129,7 +129,6 @@ export const familias: readonly Familia[] = [
       componente('Tabs', 'Alternância entre painéis de conteúdo.'),
       componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
-      componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
       componente('AppShell', 'Moldura de tela em camadas: a navegação da Sidebar e a página.'),
       componente('Sidebar', 'Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular.'),
       componente('LinkList', 'Lista de links em que cada item leva a uma página, em linhas ou em grade.'),
@@ -158,7 +157,13 @@ export const familias: readonly Familia[] = [
     nome: 'Tipografia',
     componentes: [
       componente('Text', 'Texto com papel tipográfico e tom, em uma linha ou truncado.'),
-      componente('VisuallyHidden', 'Conteúdo só para o leitor de tela, fora da vista.'),
+    ],
+  },
+  {
+    nome: 'Acessibilidade',
+    componentes: [
+      componente('VisuallyHidden', 'Acessibilidade: texto que só o leitor de tela lê, para dar nome ao que a tela mostra só por ícone, cor ou posição, como uma coluna de ações sem título.'),
+      componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
     ],
   },
   {

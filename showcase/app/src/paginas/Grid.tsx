@@ -258,7 +258,7 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Painel de quatro colunas',
-      descricao: 'Células de duas colunas entre as de uma.',
+      descricao: 'Células de duas colunas entre as de uma. Com menos de quatro colunas, as de duas podem deixar espaço vazio na linha: aí, uma Grid para cada grupo.',
       largo: true,
       Previa: Painel,
       codigo: `<Grid columns={4} minColumnWidth={120}>
@@ -334,6 +334,6 @@ export const pagina: Pagina = {
     { nome: 'gap', tipo: '1 | 2 | 3 | 4 | 5 | 6 | 7', padrao: '4', descricao: 'O passo de --pl-space-N entre as células.' },
     { nome: 'align', tipo: "'start' | 'center' | 'end' | 'stretch' | 'baseline'", descricao: 'Alinhamento vertical das células na linha.' },
     { nome: 'Grid.Item', tipo: "ComponentPropsWithRef<'div'> & { span?: number }", descricao: 'Célula que pode ocupar mais de uma coluna.' },
-    { nome: 'span', tipo: 'number', descricao: 'Colunas ocupadas, quando a grade tem esse tanto; com menos, a linha inteira.' },
+    { nome: 'span', tipo: 'number', descricao: 'Colunas ocupadas, quando a grade tem esse tanto; com menos, a linha inteira. Quando o número de colunas não é múltiplo do span, sobra espaço vazio na linha: para larguras diferentes, use uma Grid para cada grupo.' },
   ],
 };
