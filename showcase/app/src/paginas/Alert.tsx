@@ -1,4 +1,4 @@
-import { Alert, Button, EmptyState, IconClose, InputText, type AlertTone } from '@plenustech/design-system';
+import { Alert, InputText, type AlertTone } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -139,23 +139,11 @@ export const pagina: Pagina = {
   evite: {
     Previa: () => (
       <div style={{ width: '100%' }}>
-        <EmptyState
-          actions={<Button variant="secondary">Tentar de novo</Button>}
-          icon={<IconClose />}
-          size="sm"
-          title="Não foi possível carregar os registros"
-          tone="danger"
-        />
+        <Alert title="Não foi possível carregar os registros" tone="danger">Tente novamente em alguns instantes.</Alert>
       </div>
     ),
     texto: 'Alert no lugar de uma lista que não carregou. Ali o conteúdo faltou: é EmptyState em tom de erro.',
-    codigo: `<EmptyState
-  tone="danger"
-  size="sm"
-  icon={<IconClose />}
-  title="Não foi possível carregar os registros"
-  actions={<Button variant="secondary">Tentar de novo</Button>}
-/>`,
+    codigo: '<Alert tone="danger" title="Não foi possível carregar os registros">Tente novamente em alguns instantes.</Alert>',
   },
   Variantes,
   Modos,

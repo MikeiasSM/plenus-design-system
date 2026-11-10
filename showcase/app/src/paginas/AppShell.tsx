@@ -8,45 +8,73 @@ interface MolduraProps {
   open?: boolean;
   registrar?: (evento: string) => void;
   rodape?: ReactNode;
+  /** O uso errado do Evite: o pai não dá altura, a moldura cresce com o conteúdo e tudo rola junto. */
+  rolaAPaginaInteira?: boolean;
 }
 
+const PEDIDOS_EM_SEPARACAO = Array.from({ length: 14 }, (_, indice) => `Pedido ${1042 + indice} · aguardando separação`);
+
 /** Uma moldura pequena: só a navegação mínima da `Sidebar` para dar o que a página ocupar. */
-function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape }: MolduraProps) {
-  return (
-    <div style={{ height: 360, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
-      <AppShell
-        defaultOpen={defaultOpen}
-        onOpenChange={(aberto) => {
-          registrar?.(`onOpenChange: ${aberto}`);
-          onOpenChange?.(aberto);
-        }}
-        open={open}
-      >
-        <Sidebar>
-          <Sidebar.Rail>
-            <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
-            <Sidebar.RailItem icon={<IconStructure size={20} />} label="Início" />
-          </Sidebar.Rail>
-          <Sidebar.Panel label="Vendas">
-            <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
-            <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
-          </Sidebar.Panel>
-        </Sidebar>
-        <AppShell.Page>
-          <AppShell.PageBar>
-            <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
-              Vendas › <span style={{ color: 'var(--pl-color-text)' }}>Pedidos</span>
-            </span>
-          </AppShell.PageBar>
-          <AppShell.PageBody>
-            <div style={{ padding: 18 }}>
-              <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
+function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, rolaAPaginaInteira }: MolduraProps) {
+  const moldura = (
+    <AppShell
+      defaultOpen={defaultOpen}
+      onOpenChange={(aberto) => {
+        registrar?.(`onOpenChange: ${aberto}`);
+        onOpenChange?.(aberto);
+      }}
+      open={open}
+    >
+      <Sidebar>
+        <Sidebar.Rail>
+          <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
+          <Sidebar.RailItem icon={<IconStructure size={20} />} label="Início" />
+        </Sidebar.Rail>
+        <Sidebar.Panel label="Vendas">
+          <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
+          <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
+        </Sidebar.Panel>
+      </Sidebar>
+      <AppShell.Page>
+        <AppShell.PageBar>
+          <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
+            Vendas › <span style={{ color: 'var(--pl-color-text)' }}>Pedidos</span>
+          </span>
+        </AppShell.PageBar>
+        <AppShell.PageBody>
+          <div style={{ padding: 18 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
+            {rolaAPaginaInteira ? (
+              <>
+                <p style={{ color: 'var(--pl-color-text-secondary)' }}>
+                  A página inteira rola: a navegação e a barra saem de vista junto com o conteúdo.
+                </p>
+                {PEDIDOS_EM_SEPARACAO.map((pedido) => (
+                  <p key={pedido} style={{ margin: '8px 0' }}>{pedido}</p>
+                ))}
+              </>
+            ) : (
               <p style={{ color: 'var(--pl-color-text-secondary)' }}>Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.</p>
-            </div>
-          </AppShell.PageBody>
-          {rodape}
-        </AppShell.Page>
-      </AppShell>
+            )}
+          </div>
+        </AppShell.PageBody>
+        {rodape}
+      </AppShell.Page>
+    </AppShell>
+  );
+
+  return (
+    <div
+      style={{
+        height: 360,
+        overflow: rolaAPaginaInteira ? 'auto' : 'hidden',
+        border: '1px solid var(--pl-color-border)',
+        borderRadius: 'var(--pl-radius-md)',
+      }}
+      tabIndex={rolaAPaginaInteira ? 0 : undefined}
+    >
+      {/* Sem altura, o pai deixa a moldura crescer com o conteúdo, como numa página sem altura definida. */}
+      {rolaAPaginaInteira ? <div>{moldura}</div> : moldura}
     </div>
   );
 }
@@ -111,6 +139,11 @@ function MolduraComRodape() {
 
 function MolduraPadrao() {
   return <Moldura />;
+}
+
+/** O Evite: a moldura num pai sem altura, rolando inteira com o conteúdo. */
+function MolduraRolandoInteira() {
+  return <Moldura defaultOpen={false} rolaAPaginaInteira />;
 }
 
 /** A coluna do Faça e do Evite é estreita: recolhido, o submenu não espreme a página. */
@@ -209,28 +242,25 @@ export const pagina: Pagina = {
 </AppShell>`,
   },
   evite: {
-    Previa: MolduraPadrao,
+    Previa: MolduraRolandoInteira,
     texto: (
       <>
         Rolar a página inteira. A moldura ocupa a janela: só o <code>AppShell.PageBody</code>, a lista do submenu e os painéis laterais rolam.
       </>
     ),
-    codigo: `<AppShell>
-  <Sidebar>
-    <Sidebar.Rail brand={<Marca />}>
-      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
-      …
-    </Sidebar.Rail>
-    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
-      <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
-      …
-    </Sidebar.Panel>
-  </Sidebar>
-  <AppShell.Page>
-    <AppShell.PageBar>…</AppShell.PageBar>
-    <AppShell.PageBody>…</AppShell.PageBody>
-  </AppShell.Page>
-</AppShell>`,
+    codigo: `{/* Pai sem altura: a moldura cresce com o conteúdo e a página inteira rola. */}
+<div>
+  <AppShell defaultOpen={false}>
+    <Sidebar>
+      <Sidebar.Rail brand={<Marca />}>…</Sidebar.Rail>
+      <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>…</Sidebar.Panel>
+    </Sidebar>
+    <AppShell.Page>
+      <AppShell.PageBar>…</AppShell.PageBar>
+      <AppShell.PageBody>{pedidos}</AppShell.PageBody>
+    </AppShell.Page>
+  </AppShell>
+</div>`,
   },
   Modos,
   teclado: [

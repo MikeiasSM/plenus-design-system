@@ -3,8 +3,6 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
-  Radio,
-  RadioGroup,
   type CheckboxGroupOrientation,
 } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
@@ -265,16 +263,16 @@ export const pagina: Pagina = {
   },
   evite: {
     Previa: () => (
-      <RadioGroup defaultValue="web" label="Canal de aviso">
-        <Radio label="Web" value="web" />
-        <Radio label="E-mail" value="email" />
-      </RadioGroup>
+      <CheckboxGroup defaultValue={['web']} label="Canal de aviso">
+        <Checkbox label="Web" value="web" />
+        <Checkbox label="E-mail" value="email" />
+      </CheckboxGroup>
     ),
     texto: 'Usar o grupo de caixas quando só uma resposta vale. Escolha única é RadioGroup; uma escolha sim ou não é um Checkbox solto.',
-    codigo: `<RadioGroup label="Canal de aviso" defaultValue="web">
-  <Radio label="Web" value="web" />
-  <Radio label="E-mail" value="email" />
-</RadioGroup>`,
+    codigo: `<CheckboxGroup label="Canal de aviso" defaultValue={['web']}>
+  <Checkbox label="Web" value="web" />
+  <Checkbox label="E-mail" value="email" />
+</CheckboxGroup>`,
   },
   Variantes,
   Modos,

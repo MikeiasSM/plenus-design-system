@@ -1,5 +1,4 @@
 import {
-  Steps,
   Timeline,
   type TimelineItem,
   type TimelineProps,
@@ -12,6 +11,12 @@ const FLUXO_DE_PUBLICACAO: TimelineItem[] = [
   { key: 'rascunho', label: 'Rascunho', description: 'Criado por Ana Lima', date: '12/10/2026 09:14' },
   { key: 'revisao', label: 'Aguardando revisão', description: 'Com Bruno Reis', date: '14/10/2026 16:02' },
   { key: 'publicado', label: 'Publicado', description: 'Visível para todos os leitores' },
+];
+
+const ETAPAS_DO_FORMULARIO: TimelineItem[] = [
+  { key: 'conta', label: 'Conta' },
+  { key: 'servidor', label: 'Servidor' },
+  { key: 'teste', label: 'Teste' },
 ];
 
 const CHAVES = FLUXO_DE_PUBLICACAO.map((estado) => estado.key);
@@ -169,20 +174,12 @@ export const pagina: Pagina = {
   },
   evite: {
     Previa: () => (
-      <div style={{ width: '100%' }}>
-        <Steps
-          current="servidor"
-          items={[
-            { key: 'conta', label: 'Conta' },
-            { key: 'servidor', label: 'Servidor' },
-            { key: 'teste', label: 'Teste' },
-          ]}
-          label="Etapas do e-mail"
-        />
+      <div style={{ width: 260 }}>
+        <Timeline current="servidor" items={ETAPAS_DO_FORMULARIO} label="Etapas do e-mail" />
       </div>
     ),
     texto: 'Timeline para as etapas de um formulário que a pessoa preenche: isso é o Steps, que é navegação.',
-    codigo: `<Steps
+    codigo: `<Timeline
   label="Etapas do e-mail"
   items={[
     { key: 'conta', label: 'Conta' },

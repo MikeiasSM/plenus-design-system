@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SegmentedControl, Tabs, type TabItem, type TabsOrientation } from '@plenustech/design-system';
+import { Tabs, type TabItem, type TabsOrientation } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -11,6 +11,12 @@ const ABAS_DO_MODULO: TabItem[] = [
   { key: 'acesso', label: 'Acesso', content: 'Perfis e permissões que enxergam este módulo.' },
   { key: 'legado', label: 'Legado', content: 'Indisponível', disabled: true },
   { key: 'logs', label: 'Logs', content: 'Histórico de alterações dos últimos 90 dias.' },
+];
+
+const ABAS_DO_PERIODO: TabItem[] = [
+  { key: 'dia', label: 'Dia', content: 'Pedidos por dia, no mesmo gráfico.' },
+  { key: 'semana', label: 'Semana', content: 'Pedidos por semana, no mesmo gráfico.' },
+  { key: 'mes', label: 'Mês', content: 'Pedidos por mês, no mesmo gráfico.' },
 ];
 
 const ABAS_DA_CONTA: TabItem[] = [
@@ -179,25 +185,19 @@ export const pagina: Pagina = {
   },
   evite: {
     Previa: () => (
-      <SegmentedControl
-        defaultValue="semana"
-        items={[
-          { label: 'Dia', value: 'dia' },
-          { label: 'Semana', value: 'semana' },
-          { label: 'Mês', value: 'mes' },
-        ]}
-        label="Período"
-      />
+      <div style={{ width: '100%' }}>
+        <Tabs defaultSelectedKey="semana" items={ABAS_DO_PERIODO} label="Período" />
+      </div>
     ),
     texto: 'Tabs para mudar o período de um mesmo gráfico. Ali muda um valor, não o painel: é SegmentedControl.',
-    codigo: `<SegmentedControl
+    codigo: `<Tabs
   label="Período"
   items={[
-    { label: 'Dia', value: 'dia' },
-    { label: 'Semana', value: 'semana' },
-    { label: 'Mês', value: 'mes' },
+    { key: 'dia', label: 'Dia', content: <GraficoDePedidos periodo="dia" /> },
+    { key: 'semana', label: 'Semana', content: <GraficoDePedidos periodo="semana" /> },
+    { key: 'mes', label: 'Mês', content: <GraficoDePedidos periodo="mes" /> },
   ]}
-  defaultValue="semana"
+  defaultSelectedKey="semana"
 />`,
   },
   Variantes,
