@@ -33,7 +33,10 @@ h1, h2, h3, h4, h5, h6 {
 
 p, figure, blockquote { margin: 0; }
 ul, ol { margin: 0; padding: 0; }
-img, svg, video { display: block; max-width: 100%; }
+img, svg, video { display: block; }
+/* So a midia encolhe com o conteiner. Icone com teto percentual encolhe ate sumir
+   num espaco apertado, como o botao de uma coluna de tabela. */
+img, video { max-width: 100%; }
 
 a {
   color: var(--pl-color-primary-active);
