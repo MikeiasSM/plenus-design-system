@@ -130,8 +130,10 @@ function TooltipOnChild({
       hide();
     }),
     onKeyDown: chain(props.onKeyDown as (e: KeyboardEvent) => void, (event) => {
-      if (event.key === 'Escape') {
+      // Só com o balão aberto: o Escape fecha a dica e é consumido, para o painel ou o diálogo em volta ficar aberto.
+      if (event.key === 'Escape' && open && !event.defaultPrevented) {
         hide();
+        event.preventDefault();
       }
     }),
   });
@@ -169,19 +171,21 @@ function TooltipOnAnchor({
   const container = usePortalContainer(portalContainer);
 
   // O foco pode estar fora da âncora, como no editor que a contém; o Escape vale em qualquer ponto da página.
+  // Na captura, para fechar a dica antes de uma camada em volta, como o `SidePanel`, e marcar o evento como tratado.
   useEffect(() => {
     if (!open) {
       return;
     }
 
     function requestCloseOnEscape(event: globalThis.KeyboardEvent) {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        event.preventDefault();
         onOpenChange?.(false);
       }
     }
 
-    document.addEventListener('keydown', requestCloseOnEscape);
-    return () => document.removeEventListener('keydown', requestCloseOnEscape);
+    document.addEventListener('keydown', requestCloseOnEscape, true);
+    return () => document.removeEventListener('keydown', requestCloseOnEscape, true);
   }, [onOpenChange, open]);
 
   if (!open || !container) {
