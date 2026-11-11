@@ -1,4 +1,4 @@
-/* Fechada, a altura vai a zero pela linha da grade, sem medir o conteúdo. Presa ao topo da área de rolagem. */
+/* Fechada, a altura vai a zero pela linha da grade, sem medir o conteúdo. Presa ao topo da área de rolagem, ou ao pé em `placement="bottom"`. */
 .bar {
   position: sticky;
   top: 0;
@@ -6,6 +6,11 @@
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows var(--pl-speed-2) var(--pl-ease);
+}
+
+.bottom {
+  top: auto;
+  bottom: 0;
 }
 
 .open {
@@ -29,6 +34,12 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
+}
+
+/* No pé, a borda que separa a barra do conteúdo passa para cima. */
+.bottom .content {
+  border-top: 1px solid var(--pl-color-warning);
+  border-bottom: 0;
 }
 
 .message {

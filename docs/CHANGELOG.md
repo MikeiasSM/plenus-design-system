@@ -32,17 +32,21 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `AvatarItem`: avatar ao lado de um título e de uma descrição opcional, numa linha que não estoura a largura: o texto longo vira reticências e a linha mantém a altura do avatar.
 - `CardMetric`: vários indicadores num cartão, um `CardMetric.Body` por indicador, com o `label` do `Value` nomeando cada um. Os corpos seguidos se separam por uma linha e se empilham a partir do topo; o cartão de um indicador só não muda.
 - `AppShell.PageFooter`: rodapé fixo da página, sempre à vista, fora da área que rola, com a situação à esquerda (`status`, anunciada ao leitor de tela, como a do rascunho salvo sozinho) e as ações à direita. A `SaveBar` continua sendo o aviso de alteração por salvar.
+- `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 - Showcase: família Predefinições, com a página de cada componente, e páginas da `Sidebar`, com todas as formas de navegação, da `LinkList`, do `ActivityFeed` e da `SaveStatus`; a do `AppShell` passa a mostrar a moldura e o rodapé. As composições passam a usar `AnnotatedSection`, `Columns`, `Sidebar`, `LinkList`, `ActivityFeed` e o rodapé fixo, que leva o rascunho do Novo cliente; o Novo pedido continua com a `SaveBar`. A Tela inicial reúne três indicadores num `CardMetric`, e o vazio de Contas explica os passos com a `NumberedList`, no mesmo cartão. As composições passam a usar também `Stack`, `Grid`, `Container`, `Text`, `VisuallyHidden`, `DescriptionList` e `AvatarItem`, no lugar do leiaute e do texto que montavam à mão, e ainda `Table.Toolbar`, `SaveStatus` e o `start` do `Card.Footer`, no lugar da barra de busca, do texto de salvamento e do espaçador de rodapé que faziam em CSS próprio. O `SkipLink` passa da família Navegação para a nova Acessibilidade, ao lado do `VisuallyHidden`.
 
 ### Alterado
 
+- `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - `AppShell`: a navegação passa à `Sidebar`, e o `AppShell` fica com a moldura e monta por dentro o `SidebarProvider`, que guarda o estado; dentro de um `SidebarProvider` já montado, usa o estado dele. Os nomes antigos continuam aceitos, marcados como obsoletos, até a versão menor seguinte. Troque `AppShell.Navigation` por `Sidebar`, `AppShell.PanelGroup` por `Sidebar.Group`, `AppShell.PanelItem` por `Sidebar.Item`, e `AppShell.Rail`, `RailItem`, `RailAccount`, `Panel` e `Account` pelas partes de mesmo nome da `Sidebar`. Os tipos trocam o prefixo `AppShell` por `Sidebar`, com `AppShellNavigationProps` virando `SidebarProps`, `AppShellPanelGroupProps` virando `SidebarGroupProps` e `AppShellPanelItemProps` virando `SidebarItemProps`.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
 ### Corrigido
 
+- `Button` e `ButtonIcon`: o anel de foco deixa de sumir quando o ponteiro passa sobre o botão com foco de teclado.
 - `Button` e `ButtonIcon`: o ícone guarda a medida num espaço apertado, como a coluna de ações de uma tabela. Antes, encolhia até sumir, e o botão de ícone ficava sem ícone. Agora o botão mantém o tamanho e a tabela rola na horizontal.
 - `reset.css`: o teto `max-width: 100%` vale só para imagem e vídeo, como no Tailwind. No `svg`, deixava um ícone encolher até sumir.
+- `PageHeader`: o título com uma palavra longa sem espaço, como um código ou um e-mail, quebra dentro da própria caixa em vez de cobrir os selos. Na descrição e no contexto, a palavra longa também quebra, em vez de alargar o cabeçalho para fora da tela.
 - Showcase: a coluna "Remover" de Novo pedido e da seção de configuração perde a largura fixa de 56 px, que não cabia o botão, e alinha à direita, como na página da `Table`.
 - Showcase: nos quadros Evite de `Tabs`, `Toast`, `Alert`, `CheckboxGroup`, `Timeline`, `ChartGauge` e `AppShell`, a prévia e o código mostram o uso que o texto desaconselha. Antes, mostravam a alternativa certa embaixo do "Evite".
 

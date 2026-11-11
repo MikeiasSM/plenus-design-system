@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { ComponentPropsWithoutRef } from 'react';
 import { PageHeader } from './PageHeader';
 
@@ -90,5 +92,27 @@ describe('PageHeader', () => {
     );
 
     expect(screen.getByLabelText('Cabecalho do pedido')).toHaveClass('meu');
+  });
+});
+
+describe('palavra longa sem espaco no PageHeader', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/navigation/PageHeader/PageHeader.module.css'), 'utf8');
+
+  const bloco = (seletor: RegExp) => {
+    const inicio = css.search(seletor);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('o titulo quebra o codigo ou o e-mail dentro da propria caixa, sem cobrir os selos', () => {
+    const regra = bloco(/^\.title \{/m);
+
+    expect(regra).toContain('min-width: 0;');
+    expect(regra).toContain('overflow-wrap: break-word;');
+  });
+
+  it('descricao e contexto quebram a palavra longa sem alargar o cabecalho', () => {
+    expect(bloco(/^\.description,\r?\n\.context \{/m)).toContain('overflow-wrap: anywhere;');
   });
 });

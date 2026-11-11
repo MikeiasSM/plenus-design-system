@@ -10,12 +10,14 @@ export interface SaveBarProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   message?: string;
   onDiscard: () => void;
   onSave: () => void;
+  /** Lado da área de rolagem a que a barra se prende: no topo ou no pé. No pé, monte-a depois do conteúdo. */
+  placement?: 'top' | 'bottom';
   /** O salvamento em curso: o botão de salvar fica ocupado e o de descartar, desabilitado. */
   saving?: boolean;
   saveLabel?: string;
 }
 
-/** Barra de alterações não salvas do formulário inteiro. Prende-se ao topo da área de rolagem em que for montada. */
+/** Barra de alterações não salvas do formulário inteiro. Prende-se ao topo ou ao pé da área de rolagem em que for montada. */
 export function SaveBar({
   className,
   discardLabel = 'Descartar',
@@ -23,12 +25,17 @@ export function SaveBar({
   onDiscard,
   onSave,
   open,
+  placement = 'top',
   saveLabel = 'Salvar',
   saving = false,
   ...props
 }: SaveBarProps) {
   return (
-    <div {...props} className={[styles.bar, open && styles.open, className].filter(Boolean).join(' ')}>
+    <div
+      {...props}
+      className={[styles.bar, placement === 'bottom' && styles.bottom, open && styles.open, className].filter(Boolean).join(' ')}
+      data-placement={placement}
+    >
       <div aria-live="polite" className={styles.announcement} role="status">
         {open ? message : ''}
       </div>
