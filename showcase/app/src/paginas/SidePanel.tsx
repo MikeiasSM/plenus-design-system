@@ -89,8 +89,17 @@ function Linha({
   );
 }
 
+/** A mesma consulta do `SidePanel` (`useNarrowViewport`): abaixo de 900px (`--pl-bp-sm`), o painel vira gaveta. */
+const JANELA_ESTREITA = '(max-width: 899.98px)';
+
+/** Lida só na montagem. */
+function janelaEstreita() {
+  return typeof window.matchMedia === 'function' && window.matchMedia(JANELA_ESTREITA).matches;
+}
+
 function PainelDoPlayground({ registrar, valores }: { registrar: (evento: string) => void; valores: Record<string, string | number | boolean> }) {
-  const [aberto, setAberto] = useState(true);
+  // Em janela estreita o painel é uma gaveta modal: aberto na montagem, tomaria o foco de quem escolhe a largura da prévia.
+  const [aberto, setAberto] = useState(() => !janelaEstreita());
 
   return (
     <Linha
