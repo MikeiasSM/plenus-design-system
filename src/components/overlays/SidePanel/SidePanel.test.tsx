@@ -68,6 +68,59 @@ describe('SidePanel', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('fechado por fora, por um botão de dentro, devolve o foco a quem abriu', () => {
+    function Controlled() {
+      const [open, setOpen] = useState(false);
+
+      return (
+        <>
+          <button onClick={() => setOpen(true)} type="button">Filtros</button>
+          <SidePanel footer={<button onClick={() => setOpen(false)} type="button">Aplicar filtros</button>} onOpenChange={setOpen} open={open} title="Filtros do painel">
+            Corpo
+          </SidePanel>
+        </>
+      );
+    }
+    render(<Controlled />);
+    const trigger = screen.getByRole('button', { name: 'Filtros' });
+    trigger.focus();
+    fireEvent.click(trigger);
+
+    const apply = screen.getByRole('button', { name: 'Aplicar filtros' });
+    apply.focus();
+    fireEvent.click(apply);
+
+    expect(document.querySelector('aside')).toHaveAttribute('inert');
+    expect(trigger).toHaveFocus();
+  });
+
+  it('fechado por fora com o foco fora do painel, não move o foco', () => {
+    render(<WithTrigger />);
+    const trigger = screen.getByRole('button', { name: 'Filtros' });
+    fireEvent.click(trigger);
+    const outside = document.createElement('button');
+    document.body.append(outside);
+    outside.focus();
+
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(outside).toHaveFocus();
+    outside.remove();
+  });
+
+  it('o Escape que fecha o painel marca o evento como tratado', () => {
+    const seen: boolean[] = [];
+    const listen = (event: Event) => seen.push(event.defaultPrevented);
+    document.addEventListener('keydown', listen);
+    render(<SidePanel defaultOpen title="Filtros"><input aria-label="Empresa" /></SidePanel>);
+
+    fireEvent.keyDown(screen.getByLabelText('Empresa'), { key: 'Escape' });
+
+    document.removeEventListener('keydown', listen);
+    expect(seen).toEqual([true]);
+  });
+
   it('o rodapé fica à vista e a página continua alcançável', () => {
     render(<WithTrigger />);
     fireEvent.click(screen.getByRole('button', { name: 'Filtros' }));
