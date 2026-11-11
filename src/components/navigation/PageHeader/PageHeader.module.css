@@ -51,6 +51,9 @@
   font-weight: var(--pl-type-headline-medium-weight);
   line-height: var(--pl-type-headline-medium-line-height);
   text-wrap: balance;
+  /* Palavra sem ponto de quebra (código, e-mail, URL) quebra dentro da caixa em vez de cobrir os selos.
+     Com min-width: 0, a coluna já não segue o min-content: break-word basta e não o altera. */
+  overflow-wrap: break-word;
 }
 
 .badges {
@@ -68,6 +71,8 @@
   grid-column: 1 / 4;
   margin: 0;
   margin-block-start: var(--pl-space-1);
+  /* Sem min-width: 0, o min-content entra na grade: anywhere o reduz, e a palavra longa não alarga o cabeçalho nem espreme o título. */
+  overflow-wrap: anywhere;
 }
 
 .description {
