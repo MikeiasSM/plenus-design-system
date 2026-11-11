@@ -103,14 +103,14 @@ export function Produtos() {
         open={dialogoAberto}
         title="Novo produto"
       >
-        <div className="stack">
+        <Stack>
           <InputText label="Descrição" onValueChange={(descricao) => setNovo({ ...novo, descricao })} required value={novo.descricao} />
           <Grid columns={3} minColumnWidth={163}>
             <Select label="Unidade" onValueChange={(unidade) => setNovo({ ...novo, unidade })} options={UNIDADES} value={novo.unidade} />
             <InputCurrency label="Preço" onValueChange={(preco) => setNovo({ ...novo, preco: preco ?? 0 })} value={novo.preco} />
             <InputNumber label="Estoque inicial" onValueChange={(estoque) => setNovo({ ...novo, estoque: estoque ?? 0 })} value={novo.estoque} />
           </Grid>
-        </div>
+        </Stack>
       </Dialog>
     </Pagina>
   );

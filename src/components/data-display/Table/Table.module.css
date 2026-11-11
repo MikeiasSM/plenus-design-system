@@ -265,3 +265,18 @@
 .row:hover:not(.selected, .skeletonRow) {
   background: var(--pl-color-surface-subtle);
 }
+
+/* Barra acima da tabela. O respiro lateral e o da margem da tabela, para a busca alinhar com a primeira coluna: a
+   barra fica fora do envoltorio que declara --table-inline-padding, entao o passo e repetido aqui. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2);
+  padding: var(--pl-space-3) var(--pl-space-5);
+}
+
+/* O primeiro filho, em geral a busca, cresce ate um limite; os demais ficam ao lado. */
+.toolbar > :first-child {
+  flex: 1 1 220px;
+  max-width: 360px;
+}

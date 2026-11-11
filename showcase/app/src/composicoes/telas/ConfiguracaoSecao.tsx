@@ -13,10 +13,10 @@ import {
   IconPlus,
   InputNumber,
   PageHeader,
+  SaveStatus,
   Stack,
   Switch,
   Table,
-  Text,
   VisuallyHidden,
 } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
@@ -36,8 +36,13 @@ interface RodapeProps {
 /** Salvar por cartão: descartar e salvar ficam ativos só com alteração pendente, e a situação diz em que pé está. */
 function RodapeDeSalvar({ alterado, descartar, salvar, salvo }: RodapeProps) {
   return (
-    <Card.Footer>
-      <Text as="div" className="rodape-espaco" tone="tertiary" variant="caption">{alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}</Text>
+    <Card.Footer
+      start={
+        <SaveStatus status={alterado ? 'dirty' : salvo ? 'saved' : 'idle'}>
+          {alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}
+        </SaveStatus>
+      }
+    >
       <Button disabled={!alterado} onClick={descartar} size="sm" variant="secondary">Descartar</Button>
       <Button disabled={!alterado} onClick={salvar} size="sm">Salvar</Button>
     </Card.Footer>

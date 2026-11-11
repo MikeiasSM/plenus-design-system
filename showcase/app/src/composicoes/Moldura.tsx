@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar } from '@plenustech/design-system';
+import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar, Text } from '@plenustech/design-system';
 import { IconPerson, IconShieldCheck } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES, MODULOS, MODULO_DE_CONFIGURACOES, type Modulo } from './menu';
 
@@ -16,8 +16,8 @@ function Marca() {
 function MarcaDoSubmenu() {
   return (
     <span className="moldura-marca-texto">
-      <strong>Gestor</strong>
-      <span>by Plenustech</span>
+      <Text variant="title">Gestor</Text>
+      <Text tone="tertiary" variant="micro">by Plenustech</Text>
     </span>
   );
 }

@@ -9,6 +9,7 @@ import {
   Grid,
   PageHeader,
   Select,
+  Stack,
   Steps,
   Table,
   formatCurrency,
@@ -140,7 +141,7 @@ export function Conciliacao() {
               </Table>
             )}
             {etapa === 'revisao' && (
-              <div className="stack">
+              <Stack>
                 <p>
                   {conciliados} de {LANCAMENTOS.length} lançamentos conciliados em {periodo.toLowerCase()}, conta {conta}.
                 </p>
@@ -149,12 +150,10 @@ export function Conciliacao() {
                     Ficam na fila de ajuste e não travam a conclusão.
                   </Alert>
                 )}
-              </div>
+              </Stack>
             )}
           </Card.Body>
-          <Card.Footer>
-            <Button variant="ghost">Salvar e sair</Button>
-            <span className="rodape-espaco" />
+          <Card.Footer start={<Button variant="ghost">Salvar e sair</Button>}>
             <Button disabled={indice === 0} onClick={() => setEtapa(ETAPAS[indice - 1].key)} variant="secondary">Voltar</Button>
             <Button
               disabled={etapa === 'extrato' && extrato.length === 0}

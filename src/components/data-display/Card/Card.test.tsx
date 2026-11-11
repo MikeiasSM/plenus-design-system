@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { regrasDaFolha } from '../../../test/folha';
 import { Card } from './Card';
 
 describe('Card', () => {
@@ -151,6 +152,80 @@ describe('Card', () => {
       );
 
       expect(screen.getByRole('button', { name: '+14,6%' }).parentElement?.className).not.toMatch(/trailingHidden/);
+    });
+  });
+
+  describe('Card.Footer com start', () => {
+    it('poe o start a esquerda e os filhos num bloco a direita', () => {
+      render(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Salvo agora</span>}>
+            <button type="button">Voltar</button>
+            <button type="button">Proximo</button>
+          </Card.Footer>
+        </Card>,
+      );
+
+      const rodape = screen.getByTestId('rodape');
+      const [esquerda, direita] = Array.from(rodape.children);
+      expect(rodape.children).toHaveLength(2);
+      expect(esquerda).toHaveTextContent('Salvo agora');
+      expect(direita).toContainElement(screen.getByRole('button', { name: 'Voltar' }));
+      expect(direita).toContainElement(screen.getByRole('button', { name: 'Proximo' }));
+    });
+
+    it('sem start, os filhos continuam diretos no rodape', () => {
+      render(
+        <Card>
+          <Card.Footer data-testid="rodape">
+            <span>Atualizado</span>
+            <button type="button">Ver todos</button>
+          </Card.Footer>
+        </Card>,
+      );
+
+      const rodape = screen.getByTestId('rodape');
+      expect(rodape.children).toHaveLength(2);
+      expect(rodape.children[0].tagName).toBe('SPAN');
+      expect(rodape.children[1].tagName).toBe('BUTTON');
+    });
+
+    it('com so o start, dispensa os filhos e nao cria o bloco da direita', () => {
+      const { rerender } = render(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>} />
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').children).toHaveLength(1);
+      expect(screen.getByTestId('rodape')).toHaveTextContent('Situacao');
+
+      rerender(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>}>
+            {null}
+            {false}
+          </Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').children).toHaveLength(1);
+    });
+  });
+
+  describe('na folha de estilo do rodape', () => {
+    const regras = regrasDaFolha('src/components/data-display/Card/Card.module.css');
+
+    it('mantem o filho unico no fim da linha, sem especificidade', () => {
+      expect(regras.get(':where(.footer > :only-child)')).toEqual({ 'margin-inline-start': 'auto' });
+    });
+
+    it('o start cresce e fica no comeco, mesmo sendo filho unico', () => {
+      expect(regras.get('.footerStart')).toMatchObject({ flex: '1', 'margin-inline-start': '0' });
+    });
+
+    it('os filhos, com o start, ficam juntos no fim da linha', () => {
+      expect(regras.get('.footerEnd')).toMatchObject({ flex: 'none', 'margin-inline-start': 'auto' });
     });
   });
 });

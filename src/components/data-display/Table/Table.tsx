@@ -532,8 +532,27 @@ function TableCell({ align, children, hideBelow, numeric }: TableCellProps) {
   );
 }
 
+export interface TableToolbarProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
+  /** Nome do grupo, como "Ferramentas da tabela de pedidos". Sem ele, a barra não é anunciada como um conjunto. */
+  label: string;
+}
+
+/**
+ * Barra acima da tabela, com a busca e as ações dela. O primeiro filho, em geral o campo de busca, cresce até uma
+ * largura limitada; os demais ficam ao lado, e tudo quebra de linha quando falta espaço. É um grupo rotulado, e não
+ * `role="toolbar"`: esse papel pede navegação por setas entre os controles, que o campo de texto da busca impede.
+ */
+function TableToolbar({ children, className, label, ...props }: TableToolbarProps) {
+  return (
+    <div {...props} aria-label={label} className={[styles.toolbar, className].filter(Boolean).join(' ')} role="group">
+      {children}
+    </div>
+  );
+}
+
 Table.Header = TableHeader;
 Table.Column = TableColumn;
 Table.Body = TableBody;
 Table.Row = TableRow;
 Table.Cell = TableCell;
+Table.Toolbar = TableToolbar;

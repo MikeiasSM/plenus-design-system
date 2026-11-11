@@ -1,4 +1,6 @@
+import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { regrasDaFolha } from '../../../test/folha';
 import { Table } from './Table';
 import styles from './Table.module.css';
 
@@ -386,6 +388,51 @@ describe('Table', () => {
 
       expect(celula('Pago')).toHaveClass(styles.end!);
       expect(celula('Pago')).not.toHaveClass(styles.center!);
+    });
+  });
+
+  describe('Table.Toolbar', () => {
+    it('e um grupo rotulado, e nao uma toolbar', () => {
+      render(
+        <Table.Toolbar label="Ferramentas da tabela">
+          <input aria-label="Buscar" type="search" />
+          <button type="button">Filtros</button>
+        </Table.Toolbar>,
+      );
+
+      const grupo = screen.getByRole('group', { name: 'Ferramentas da tabela' });
+      expect(grupo.tagName).toBe('DIV');
+      expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
+      expect(grupo).toContainElement(screen.getByRole('searchbox', { name: 'Buscar' }));
+      expect(grupo).toContainElement(screen.getByRole('button', { name: 'Filtros' }));
+    });
+
+    it('entrega propriedades nativas, className e ref a raiz', () => {
+      const ref = createRef<HTMLDivElement>();
+      render(<Table.Toolbar className="extra" data-testid="barra" label="Ferramentas" ref={ref} />);
+
+      const barra = screen.getByTestId('barra');
+      expect(barra).toHaveClass('extra');
+      expect(ref.current).toBe(barra);
+    });
+
+    describe('na folha de estilo', () => {
+      const regras = regrasDaFolha('src/components/data-display/Table/Table.module.css');
+
+      it('quebra de linha e espaca os filhos', () => {
+        expect(regras.get('.toolbar')).toMatchObject({ display: 'flex', 'flex-wrap': 'wrap', gap: 'var(--pl-space-2)' });
+      });
+
+      it('alinha o respiro lateral com o da primeira coluna da tabela', () => {
+        const margemDaTabela = regras.get('.scroll')?.['--table-inline-padding'];
+
+        expect(margemDaTabela).toBeDefined();
+        expect(regras.get('.toolbar')?.padding).toBe('var(--pl-space-3) ' + margemDaTabela);
+      });
+
+      it('deixa o primeiro filho crescer ate um limite', () => {
+        expect(regras.get('.toolbar > :first-child')).toEqual({ flex: '1 1 220px', 'max-width': '360px' });
+      });
     });
   });
 });

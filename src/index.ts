@@ -111,6 +111,8 @@ export { FieldRow } from './components/forms/FieldRow';
 export type { FieldRowProps, FieldRowWiring } from './components/forms/FieldRow';
 export { SaveBar } from './components/forms/SaveBar';
 export type { SaveBarProps } from './components/forms/SaveBar';
+export { SaveStatus } from './components/forms/SaveStatus';
+export type { SaveStatusProps, SaveStatusValue } from './components/forms/SaveStatus';
 export { Alert } from './components/feedback/Alert';
 export type { AlertProps, AlertTone } from './components/feedback/Alert';
 export { Progress } from './components/feedback/Progress';
@@ -287,6 +289,7 @@ export type {
   TableSelectionMode,
   TableSize,
   TableSort,
+  TableToolbarProps,
 } from './components/data-display/Table';
 export {
   DataGrid,

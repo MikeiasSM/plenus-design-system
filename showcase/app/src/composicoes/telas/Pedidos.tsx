@@ -9,6 +9,7 @@ import {
   Pagination,
   Select,
   SidePanel,
+  Stack,
   Table,
   Tabs,
   formatCurrency,
@@ -160,7 +161,7 @@ export function Pedidos() {
                   label: `${rotulo} (${contar(chave)})`,
                   content: (
                     <>
-                      <div className="ferramentas">
+                      <Table.Toolbar label="Busca e filtros dos pedidos">
                         <InputText
                           aria-label="Buscar pedido"
                           icon={<IconSearch />}
@@ -174,7 +175,7 @@ export function Pedidos() {
                           Filtros
                           {ativos > 0 && <Badge tone="info">{ativos}</Badge>}
                         </Button>
-                      </div>
+                      </Table.Toolbar>
                       <ListaDePedidos busca={busca} filtros={filtros} limparBuscaEFiltros={limparBuscaEFiltros} visao={chave} />
                     </>
                   ),
@@ -198,7 +199,7 @@ export function Pedidos() {
         open={painelAberto}
         title="Filtros"
       >
-        <div className="stack">
+        <Stack>
           <Select
             label="Situação"
             onValueChange={(situacao) => setFiltros({ ...filtros, situacao })}
@@ -211,7 +212,7 @@ export function Pedidos() {
             options={[{ label: 'Todos', value: 'todos' }, ...VENDEDORES.map((nome) => ({ label: nome, value: nome }))]}
             value={filtros.vendedor}
           />
-        </div>
+        </Stack>
       </SidePanel>
     </>
   );

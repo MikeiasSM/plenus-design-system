@@ -55,6 +55,7 @@ export const familias: readonly Familia[] = [
       componente('FileUpload', 'Seleção de arquivos, por clique ou arrasto, com a lista dos envios.'),
       componente('FieldRow', 'Linha de ajuste: rótulo e explicação de um lado, o controle do outro.'),
       componente('SaveBar', 'Barra de alterações não salvas, com descartar e salvar.'),
+      componente('SaveStatus', 'Texto curto da situação do salvamento, com o indicador do estado.'),
     ],
   },
   {

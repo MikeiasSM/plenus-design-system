@@ -137,6 +137,25 @@
   margin-inline-start: auto;
 }
 
+/* Com `start`, o bloco da esquerda toma o espaço que sobra e o dos filhos fica no fim. Sozinho, o da esquerda também
+   é filho único: a classe, mais específica que o :where() acima, o mantém no começo da linha. */
+.footerStart {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--pl-space-4);
+  min-width: 0;
+  margin-inline-start: 0;
+}
+
+.footerEnd {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-4);
+  margin-inline-start: auto;
+}
+
 /* O corpo sem respiro encosta o conteudo no cabecalho, e a linha os separa: sem ela, a faixa do cabecalho de uma
    tabela comecava colada ao titulo do cartao. */
 .header:has(+ .bodyFlush) {

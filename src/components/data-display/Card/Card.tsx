@@ -1,4 +1,5 @@
 import {
+  Children,
   createContext,
   useCallback,
   useContext,
@@ -195,11 +196,29 @@ function CardBody({ className, flush = false, ...props }: CardBodyProps) {
 }
 
 export interface CardFooterProps extends ComponentPropsWithRef<'footer'> {
-  children: ReactNode;
+  /** O que fica no rodapé; com `start`, vai à direita e pode faltar. */
+  children?: ReactNode;
+  /** Conteúdo à esquerda do rodapé, como uma ação secundária ou a situação; os filhos ficam à direita. */
+  start?: ReactNode;
 }
 
-function CardFooter({ className, ...props }: CardFooterProps) {
-  return <footer {...props} className={join(styles.footer, className)} />;
+function CardFooter({ children, className, start, ...props }: CardFooterProps) {
+  // Com `start`, a esquerda e a direita viram dois blocos: o da esquerda toma o espaço que sobra e o dos filhos fica
+  // no fim da linha, e só existe quando há filho a mostrar. Sem ele, os filhos continuam diretos no rodapé, como antes.
+  const temFilhos = Children.toArray(children).length > 0;
+
+  return (
+    <footer {...props} className={join(styles.footer, className)}>
+      {start != null && start !== false ? (
+        <>
+          <div className={styles.footerStart}>{start}</div>
+          {temFilhos && <div className={styles.footerEnd}>{children}</div>}
+        </>
+      ) : (
+        children
+      )}
+    </footer>
+  );
 }
 
 Card.Header = CardHeader;

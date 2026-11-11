@@ -4,6 +4,9 @@ import {
   Badge,
   Button,
   Card,
+  IconFilter,
+  IconSearch,
+  InputText,
   Menu,
   Pagination,
   Progress,
@@ -492,6 +495,51 @@ function Modos() {
   );
 }
 
+function TabelaComBarra() {
+  const [busca, setBusca] = useState('');
+  const termo = busca.trim().toLowerCase();
+  const membros = equipe.filter((membro) => !termo || membro.nome.toLowerCase().includes(termo));
+
+  return (
+    <div style={{ width: '100%' }}>
+      <Card>
+        <Card.Body flush>
+          <Table.Toolbar label="Busca e filtros dos membros">
+            <InputText
+              aria-label="Buscar membro"
+              icon={<IconSearch />}
+              onValueChange={setBusca}
+              placeholder="Buscar por nome"
+              type="search"
+              value={busca}
+            />
+            <Button variant="secondary">
+              <IconFilter />
+              Filtros
+            </Button>
+          </Table.Toolbar>
+          <Table label="Membros da equipe" rows={membros}>
+            <Table.Header>
+              <Table.Column id="nome">Nome</Table.Column>
+              <Table.Column id="funcao">Função</Table.Column>
+              <Table.Column id="status">Status</Table.Column>
+            </Table.Header>
+            <Table.Body items={membros}>
+              {(membro) => (
+                <Table.Row id={membro.id}>
+                  <Table.Cell>{membro.nome}</Table.Cell>
+                  <Table.Cell>{membro.funcao}</Table.Cell>
+                  <Table.Cell>{membro.status}</Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        </Card.Body>
+      </Card>
+    </div>
+  );
+}
+
 function AjudaSobBarraDeFiltros() {
   return (
     <div className="stack" style={{ width: '100%' }}>
@@ -562,6 +610,34 @@ export const pagina: Pagina = {
     <span>{escolhidos.length} selecionados</span>
     <Pagination page={pagina} pageCount={5} onPageChange={setPagina} />
   </Card.Footer>
+</Card>`,
+    },
+    {
+      titulo: 'Busca e ações acima da tabela',
+      descricao:
+        'A Table.Toolbar guarda a busca, que cresce até um limite, e as ações ao lado dela. O respiro lateral é o da tabela, e a busca fica alinhada com a primeira coluna.',
+      largo: true,
+      Previa: TabelaComBarra,
+      codigo: `<Card>
+  <Card.Body flush>
+    <Table.Toolbar label="Busca e filtros dos membros">
+      <InputText
+        aria-label="Buscar membro"
+        icon={<IconSearch />}
+        type="search"
+        value={busca}
+        onValueChange={setBusca}
+        placeholder="Buscar por nome"
+      />
+      <Button variant="secondary">
+        <IconFilter />
+        Filtros
+      </Button>
+    </Table.Toolbar>
+    <Table label="Membros da equipe" rows={membros}>
+      …
+    </Table>
+  </Card.Body>
 </Card>`,
     },
     {
@@ -696,6 +772,8 @@ export const pagina: Pagina = {
     { garantia: 'Grupos de radio', como: 'Duas tabelas na mesma página não viram um grupo só.', teste: 'selecao.test.tsx' },
     { garantia: 'Carregamento', como: <><code>aria-busy</code>, mensagem por <code>role=&quot;status&quot;</code> e esqueleto com <code>aria-hidden</code>.</>, teste: 'Table.test.tsx' },
     { garantia: 'Vazio', como: 'Uma célula que ocupa todas as colunas.', teste: 'Table.test.tsx' },
+    { garantia: 'Barra de ferramentas', como: <>A <code>Table.Toolbar</code> é um grupo nomeado pelo <code>label</code>, sem <code>role=&quot;toolbar&quot;</code>, que pediria navegação por setas e impediria o uso do campo de busca.</>, teste: 'Table.test.tsx' },
+    { garantia: 'Alinhamento da barra', como: 'O respiro lateral da barra é o da margem da tabela, e o primeiro filho cresce até 360px, com os demais ao lado e quebra de linha.', teste: 'Table.test.tsx' },
   ],
   notaDaApi: 'A Table aceita também as propriedades nativas de <div> e o ref, no envoltório de rolagem.',
   api: [
@@ -730,6 +808,8 @@ export const pagina: Pagina = {
     { nome: 'Table.Row id', tipo: 'string', descricao: 'Obrigatório. Chave da linha e da seleção.' },
     { nome: 'Table.Row label', tipo: 'string', padrao: "'Selecionar linha'", descricao: 'Nome do controle de seleção da linha.' },
     { nome: 'Table.Row disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o controle de seleção.' },
+    { nome: 'Table.Toolbar label', tipo: 'string', descricao: 'Obrigatório. Nome do grupo, lido pelo leitor de tela.' },
+    { nome: 'Table.Toolbar children', tipo: 'ReactNode', descricao: 'A busca, que deve vir primeiro, e as ações. Fica acima da Table, dentro do mesmo contêiner, e aceita as propriedades nativas de div e o ref.' },
     { nome: 'Table.Cell align, numeric, hideBelow', tipo: 'TableAlign, boolean, TableBreakpoint', descricao: 'Os mesmos da coluna; sem valor próprio, seguem a coluna da mesma posição.' },
   ],
 };

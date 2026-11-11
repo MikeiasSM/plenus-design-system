@@ -1,4 +1,5 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react';
+import { LiveRegionContext } from '../../../hooks/useInsideLiveRegion';
 import { Sidebar } from '../Sidebar';
 import styles from './AppShell.module.css';
 
@@ -25,7 +26,10 @@ export function AppShellPageBody({ className, ...props }: ComponentPropsWithRef<
 }
 
 export interface AppShellPageFooterProps extends ComponentPropsWithRef<'div'> {
-  /** A situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. */
+  /**
+   * A situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. O espaço já é a
+   * região de status: a `SaveStatus` posta aqui não cria a dela.
+   */
   status?: ReactNode;
 }
 
@@ -34,7 +38,7 @@ export function AppShellPageFooter({ children, className, status, ...props }: Ap
   return (
     <div {...props} className={[styles.pageFooter, className].filter(Boolean).join(' ')}>
       <div className={styles.pageFooterStatus} role="status">
-        {status}
+        <LiveRegionContext.Provider value>{status}</LiveRegionContext.Provider>
       </div>
       <div className={styles.pageFooterActions}>{children}</div>
     </div>

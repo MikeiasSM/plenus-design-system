@@ -107,34 +107,4 @@
 
 .moldura-marca-texto {
   display: grid;
-  line-height: 1.15;
-}
-
-.moldura-marca-texto strong {
-  font-family: var(--pl-font-heading);
-  font-size: 17px;
-}
-
-.moldura-marca-texto span {
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-micro-size);
-}
-
-/* ---- Linhas e ferramentas -------------------------------------------------------- */
-
-.ferramentas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--pl-space-2);
-  padding: var(--pl-space-3) var(--pl-space-4);
-}
-
-.ferramentas > :first-child {
-  flex: 1 1 220px;
-  max-width: 360px;
-}
-
-/* Empurra o que vem depois para a direita do rodapé do cartão. */
-.rodape-espaco {
-  margin-right: auto;
 }

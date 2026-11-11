@@ -6,10 +6,10 @@ import {
   Button,
   Card,
   Grid,
-  IconCheck,
   InputCurrency,
   InputText,
   PageHeader,
+  SaveStatus,
   SegmentedControl,
   Select,
   showToast,
@@ -104,14 +104,9 @@ export function NovoCliente() {
   }
 
   const situacao = {
-    vazio: 'Nenhuma alteração ainda',
-    salvando: 'Salvando rascunho…',
-    salvo: rascunho.estado === 'salvo' ? (
-      <>
-        <IconCheck size={14} style={{ color: 'var(--pl-color-success)' }} />
-        Rascunho salvo às {rascunho.hora}
-      </>
-    ) : null,
+    vazio: <SaveStatus>Nenhuma alteração ainda</SaveStatus>,
+    salvando: <SaveStatus status="saving">Salvando rascunho…</SaveStatus>,
+    salvo: rascunho.estado === 'salvo' && <SaveStatus status="saved">Rascunho salvo às {rascunho.hora}</SaveStatus>,
   }[rascunho.estado];
 
   return (

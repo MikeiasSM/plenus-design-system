@@ -131,7 +131,7 @@ export function ClientesBase() {
         open={filtrosAbertos}
         title="Filtros"
       >
-        <div className="stack">
+        <Stack>
           <Select
             label="Empresa"
             onValueChange={setEmpresa}
@@ -146,7 +146,7 @@ export function ClientesBase() {
             required
             value={periodo}
           />
-        </div>
+        </Stack>
       </SidePanel>
     </>
   );

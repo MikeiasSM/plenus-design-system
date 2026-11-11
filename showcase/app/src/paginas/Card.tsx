@@ -248,6 +248,24 @@ export const pagina: Pagina = {
       codigo:
         '<Card>\n  <Card.Header title="Pedidos recentes" />\n  <Card.Body>Doze pedidos nos últimos sete dias.</Card.Body>\n  <Card.Footer>\n    <Button size="sm" variant="secondary">Ver todos</Button>\n  </Card.Footer>\n</Card>',
     },
+    {
+      titulo: 'Rodapé com conteúdo à esquerda',
+      descricao: 'O start leva uma ação ou a situação para a esquerda; os filhos ficam juntos, à direita.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 480 }}>
+          <Card>
+            <Card.Header title="Conciliação" />
+            <Card.Body>Confira os lançamentos do período antes de concluir.</Card.Body>
+            <Card.Footer start={<Button size="sm" variant="ghost">Salvar e sair</Button>}>
+              <Button size="sm" variant="secondary">Voltar</Button>
+              <Button size="sm">Próximo</Button>
+            </Card.Footer>
+          </Card>
+        </div>
+      ),
+      codigo:
+        '<Card>\n  <Card.Header title="Conciliação" />\n  <Card.Body>Confira os lançamentos do período antes de concluir.</Card.Body>\n  <Card.Footer start={<Button size="sm" variant="ghost">Salvar e sair</Button>}>\n    <Button size="sm" variant="secondary">Voltar</Button>\n    <Button size="sm">Próximo</Button>\n  </Card.Footer>\n</Card>',
+    },
   ],
   Modos,
   garantias: [
@@ -255,6 +273,7 @@ export const pagina: Pagina = {
     { garantia: 'Sem nome inventado', como: 'Sem cabeçalho, não há região; se ele sair, o nome sai junto.', teste: 'Card.test.tsx' },
     { garantia: 'Nome de fora', como: <>O <code>aria-labelledby</code> do consumidor prevalece.</>, teste: 'Card.test.tsx' },
     { garantia: 'Nível de título', como: <><code>headingLevel</code> escolhe de h2 a h6.</>, teste: 'Card.test.tsx' },
+    { garantia: 'Rodapé com start', como: <>O <code>start</code> fica à esquerda e os filhos num bloco à direita; sem ele, os filhos seguem diretos no rodapé, e o filho único vai ao fim.</>, teste: 'Card.test.tsx' },
   ],
   notaDaApi:
     'O Card e cada parte aceitam as propriedades nativas do próprio elemento, o ref e a className. As partes só existem dentro do Card.',
@@ -281,6 +300,7 @@ export const pagina: Pagina = {
     },
     { nome: 'Card.Body children', tipo: 'ReactNode', descricao: 'Obrigatório. O conteúdo.' },
     { nome: 'Card.Body flush', tipo: 'boolean', padrao: 'false', descricao: 'Encosta o conteúdo nas bordas.' },
-    { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Obrigatório. Rodapé, com os itens nas pontas; um filho só vai ao fim.' },
+    { nome: 'Card.Footer start', tipo: 'ReactNode', descricao: 'Conteúdo à esquerda do rodapé, como uma ação secundária ou a situação do salvamento. Os filhos ficam à direita.' },
+    { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Rodapé, com os itens nas pontas; um filho só vai ao fim. Com start, ficam juntos à direita e podem faltar.' },
   ],
 };
