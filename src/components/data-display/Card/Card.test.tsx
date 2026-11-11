@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Card } from './Card';
 
 describe('Card', () => {
@@ -152,5 +154,28 @@ describe('Card', () => {
 
       expect(screen.getByRole('button', { name: '+14,6%' }).parentElement?.className).not.toMatch(/trailingHidden/);
     });
+  });
+});
+
+describe('palavra longa sem espaco no Card.Header', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Card/Card.module.css'), 'utf8');
+
+  const bloco = (seletor: RegExp) => {
+    const inicio = css.search(seletor);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('a descricao quebra a palavra longa sem passar do cartao nem cobrir o trailing', () => {
+    const regra = bloco(/^\.description \{/m);
+
+    expect(regra).toContain('min-width: 0;');
+    expect(regra).toContain('overflow-wrap: break-word;');
+  });
+
+  it('no sm, o titulo continua cortado na terceira linha e a descricao na segunda', () => {
+    expect(bloco(/^\.headerSm \.title \{/m)).toContain('-webkit-line-clamp: 3;');
+    expect(bloco(/^\.headerSm \.description \{/m)).toContain('-webkit-line-clamp: 2;');
   });
 });
