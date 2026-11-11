@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
+import { SidePanel } from '../SidePanel';
 import { Tooltip } from './Tooltip';
 
 function focusByKeyboard(element: HTMLElement) {
@@ -59,6 +60,35 @@ describe('Tooltip', () => {
     focusByKeyboard(gatilho);
     fireEvent.keyDown(gatilho, { key: 'Escape' });
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('o Escape com o tooltip aberto o fecha e marca o evento; fechado, segue sem marca', () => {
+    render(<Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>);
+    const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+    expect(fireEvent.keyDown(gatilho, { key: 'Escape' })).toBe(true);
+
+    focusByKeyboard(gatilho);
+    expect(fireEvent.keyDown(gatilho, { key: 'Escape' })).toBe(false);
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('dentro de um SidePanel, o primeiro Escape fecha só o tooltip e o segundo fecha o painel', () => {
+    render(
+      <SidePanel defaultOpen title="Filtros">
+        <Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>
+      </SidePanel>,
+    );
+    const gatilho = screen.getByRole('button', { name: 'Salvar' });
+    focusByKeyboard(gatilho);
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.keyDown(gatilho, { key: 'Escape' });
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(document.querySelector('aside')).not.toHaveAttribute('inert');
+
+    fireEvent.keyDown(gatilho, { key: 'Escape' });
+    expect(document.querySelector('aside')).toHaveAttribute('inert');
   });
 
   it('espera o atraso antes de aparecer no hover', () => {
@@ -177,6 +207,22 @@ describe('Tooltip', () => {
 
       expect(mudou).toHaveBeenCalledWith(false);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    });
+
+    it('o Escape fecha, marca o evento e não fecha o SidePanel em volta', () => {
+      const mudou = vi.fn();
+      render(
+        <SidePanel defaultOpen title="Filtros">
+          <input aria-label="Empresa" />
+          <Celula onOpenChange={mudou} open />
+        </SidePanel>,
+      );
+
+      const notPrevented = fireEvent.keyDown(screen.getByLabelText('Empresa'), { key: 'Escape' });
+
+      expect(notPrevented).toBe(false);
+      expect(mudou).toHaveBeenCalledWith(false);
+      expect(document.querySelector('aside')).not.toHaveAttribute('inert');
     });
   });
 });

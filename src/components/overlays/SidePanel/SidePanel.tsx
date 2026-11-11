@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { ButtonIcon } from '../../actions/ButtonIcon';
@@ -50,31 +50,26 @@ export function SidePanel({
   const titleId = useId();
   const wasOpen = useRef(open);
   const previousFocus = useRef<HTMLElement | null>(null);
-  const returnFocus = useRef(false);
 
-  // Não modal: o foco vai ao painel ao abrir e volta a quem abriu quando o pedido de fechar veio de dentro dele.
-  useEffect(() => {
+  // Não modal: o foco vai ao painel ao abrir. Ao fechar, se ainda está dentro dele, volta a quem abriu, venha o
+  // fechamento do X, do Escape ou do produto. No layout, antes de o navegador soltar o foco do elemento que ficou inerte.
+  useLayoutEffect(() => {
     if (open && !wasOpen.current) {
       previousFocus.current = document.activeElement as HTMLElement | null;
       panelRef.current?.focus();
     }
-    if (!open && wasOpen.current && returnFocus.current) {
-      previousFocus.current?.focus();
+    if (!open && wasOpen.current && panelRef.current?.contains(document.activeElement) && previousFocus.current?.isConnected) {
+      previousFocus.current.focus();
     }
-    returnFocus.current = false;
     wasOpen.current = open;
   }, [open]);
-
-  function requestClose() {
-    returnFocus.current = Boolean(panelRef.current?.contains(document.activeElement));
-    setOpen(false);
-  }
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
     onKeyDown?.(event);
 
     if (event.key === 'Escape' && open && !event.defaultPrevented) {
-      requestClose();
+      event.preventDefault();
+      setOpen(false);
     }
   }
 
@@ -99,7 +94,7 @@ export function SidePanel({
       <div className={styles.inner} ref={panelRef} tabIndex={-1}>
         <header className={styles.header}>
           <h2 className={styles.title} id={titleId}>{title}</h2>
-          <ButtonIcon icon={<IconClose />} label="Fechar" onClick={requestClose} size="sm" variant="ghost" />
+          <ButtonIcon icon={<IconClose />} label="Fechar" onClick={() => setOpen(false)} size="sm" variant="ghost" />
         </header>
         <div className={styles.body}>{children}</div>
         {footer && <div className={styles.footer}>{footer}</div>}
