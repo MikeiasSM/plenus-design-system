@@ -92,13 +92,12 @@ function Linha({
 /** A mesma consulta do `SidePanel` (`useNarrowViewport`): abaixo de 900px (`--pl-bp-sm`), o painel vira gaveta. */
 const JANELA_ESTREITA = '(max-width: 899.98px)';
 
-/** Lida só na montagem. */
+/** Lida só na montagem. Em janela estreita o painel é uma gaveta modal: aberto na montagem, tomaria o foco, então as demonstrações começam fechadas. */
 function janelaEstreita() {
   return typeof window.matchMedia === 'function' && window.matchMedia(JANELA_ESTREITA).matches;
 }
 
 function PainelDoPlayground({ registrar, valores }: { registrar: (evento: string) => void; valores: Record<string, string | number | boolean> }) {
-  // Em janela estreita o painel é uma gaveta modal: aberto na montagem, tomaria o foco de quem escolhe a largura da prévia.
   const [aberto, setAberto] = useState(() => !janelaEstreita());
 
   return (
@@ -156,13 +155,13 @@ const playground = definirPlayground({
 });
 
 function ExemploDeFiltros() {
-  const [aberto, setAberto] = useState(true);
+  const [aberto, setAberto] = useState(() => !janelaEstreita());
 
   return <Linha aberto={aberto} alternar={() => setAberto(!aberto)} lado="right" onOpenChange={setAberto} tamanho="md" titulo="Filtros" />;
 }
 
 function ExemploAEsquerda() {
-  const [aberto, setAberto] = useState(true);
+  const [aberto, setAberto] = useState(() => !janelaEstreita());
 
   return <Linha aberto={aberto} alternar={() => setAberto(!aberto)} lado="left" onOpenChange={setAberto} rodape={false} tamanho="sm" titulo="Pastas" />;
 }
@@ -198,6 +197,7 @@ const CODIGO_DO_TAMANHO = `<SidePanel open={aberto} onOpenChange={setAberto} siz
 
 function Variantes() {
   const [tamanho, setTamanho] = useState<SidePanelSize>('md');
+  const [aberto, setAberto] = useState(() => !janelaEstreita());
 
   return (
     <div className="stack">
@@ -211,7 +211,7 @@ function Variantes() {
           ))}
         </div>
       </div>
-      <Linha aberto alternar={() => undefined} lado="right" onOpenChange={() => undefined} tamanho={tamanho} titulo="Filtros" />
+      <Linha aberto={aberto} alternar={() => setAberto(!aberto)} lado="right" onOpenChange={setAberto} tamanho={tamanho} titulo="Filtros" />
       <VerCodigo codigo={CODIGO_DO_TAMANHO} />
     </div>
   );
