@@ -88,3 +88,34 @@ describe('icone do Button num espaco apertado', () => {
     expect(tetos).toEqual(['img, video']);
   });
 });
+
+describe('hover do Button ghost', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/actions/Button/Button.module.css'), 'utf8');
+
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('nao tem sombra no hover, em nenhum tema: so tinge o fundo', () => {
+    expect(bloco('.ghost')).not.toContain('--button-hover-shadow');
+    expect(bloco(".ghost:not(:disabled):not([aria-disabled='true']):hover")).toMatch(/box-shadow: none;/);
+  });
+
+  it('com foco visivel e o ponteiro em cima, guarda o anel de foco em todas as variantes', () => {
+    const geral = ".button:not(:disabled):not([aria-disabled='true']):hover:focus-visible";
+
+    expect(bloco(geral)).toContain('box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);');
+    // Uma regra so, mais especifica que o hover de cada variante (inclusive o `none` do ghost).
+    expect(css.split(geral).length - 1).toBe(1);
+    expect(css).not.toContain(".ghost:not(:disabled):not([aria-disabled='true']):hover:focus-visible");
+  });
+
+  it('as outras variantes seguem com a sombra no hover', () => {
+    for (const variante of ['primary', 'secondary', 'soft', 'danger']) {
+      expect(css.slice(css.indexOf(`.${variante} {`), css.indexOf('}', css.indexOf(`.${variante} {`)))).toContain('--button-hover-shadow');
+    }
+  });
+});

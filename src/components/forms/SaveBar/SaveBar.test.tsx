@@ -49,6 +49,15 @@ describe('SaveBar', () => {
     expect(screen.getByRole('button', { name: 'Gravar' })).toBeInTheDocument();
   });
 
+  it('prende-se ao topo por padrao e ao pe com placement bottom', () => {
+    const { container, rerender } = barra();
+
+    expect(container.firstElementChild).toHaveAttribute('data-placement', 'top');
+
+    rerender(<SaveBar onDiscard={vi.fn()} onSave={vi.fn()} open placement="bottom" />);
+    expect(container.firstElementChild).toHaveAttribute('data-placement', 'bottom');
+  });
+
   it('enquanto salva, ocupa o salvar, desabilita o descartar e nao salva de novo', () => {
     const { onSave } = barra({ saving: true });
 

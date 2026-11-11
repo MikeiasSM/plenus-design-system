@@ -41,6 +41,12 @@
   box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
 }
 
+/* Com foco visível, o anel segue valendo sob o ponteiro: a sombra de hover (inclusive o `none` do ghost) o apagaria.
+   A especificidade maior vence as regras de hover de todas as variantes; o fundo de hover é mantido. */
+.button:not(:disabled):not([aria-disabled='true']):hover:focus-visible {
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+}
+
 .primary {
   --button-hover-shadow: var(--pl-color-primary);
   background: var(--pl-color-primary);
@@ -75,13 +81,14 @@
 }
 
 .ghost {
-  --button-hover-shadow: var(--pl-color-text-secondary);
   background: transparent;
   color: var(--pl-color-text-secondary);
 }
 
+/* O ghost só tinge o fundo no hover, sem sombra em nenhum tema. */
 .ghost:not(:disabled):not([aria-disabled='true']):hover {
   background: var(--pl-color-surface-muted);
+  box-shadow: none;
   color: var(--pl-color-text);
 }
 
