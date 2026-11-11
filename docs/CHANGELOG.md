@@ -6,6 +6,11 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Incompatível
+
+- `PageHeader.Back`: o voltar passa a ser um link acima do título, alinhado à borda do conteúdo, com a seta e o texto visível, e a 12 px do título. O cabeçalho com voltar fica mais alto, e o título passa a começar na borda, alinhado à descrição e ao contexto. O texto vem de `children`; sem ele, aparece o `label` inteiro, que segue como nome acessível e deve conter o texto visível. Para um texto curto, passe-o em `children` e mantenha o `label`: `<PageHeader.Back href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>`.
+- `PageHeader`: com ou sem voltar, o título, os selos e as ações se alinham pela primeira linha do título. Quando o título ocupa mais de uma linha, ele deixa de ficar centralizado na altura das ações, e os selos e a primeira fileira de ações ficam na altura da primeira linha dele. Sem busca, as ações que quebram em duas fileiras descem ao lado da descrição e do contexto, sem abrir espaço entre o título e a descrição; com busca, continuam na linha do título. Por isso a altura do cabeçalho muda: com ações numa fileira, fica 4 px mais baixo quando há descrição ou contexto e 2 px sem eles, e com ações em duas fileiras, mais baixo pelo espaço que deixa de existir entre o título e a descrição. Abaixo de 640 px de largura do cabeçalho, nada muda. Confira as telas e os testes visuais que dependem da altura do cabeçalho.
+
 ### Adicionado
 
 - `AnnotatedSection`: seção com título e explicação num trilho à esquerda e o conteúdo à direita, para telas de configuração e formulários por assunto. O título nomeia a seção e sai em `h2` (`headingLevel` para outro nível); `description` e `action` ficam abaixo dele. Seções vizinhas se separam por uma linha.

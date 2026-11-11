@@ -33,7 +33,7 @@ export function Pedido() {
   return (
     <Pagina caminho={['Vendas', 'Pedidos', `Pedido #${pedido.numero}`]}>
       <PageHeader maxWidth="1120px">
-        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} label="Voltar para Pedidos" />
+        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} label="Voltar para Pedidos">Pedidos</PageHeader.Back>
         <PageHeader.Title>Pedido #{pedido.numero}</PageHeader.Title>
         <PageHeader.Badges>
           <SeloDaSituacao situacao={pedido.situacao} />

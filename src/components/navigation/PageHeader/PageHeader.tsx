@@ -23,16 +23,21 @@ export function PageHeader({ children, className, maxWidth, ...props }: PageHead
 export interface PageHeaderBackProps extends ComponentPropsWithRef<'a'> {
   /** Componente de link da aplicação, para não acoplar o sistema a um roteador. */
   as?: ElementType;
-  /** Nome acessível do link, como `Voltar para Pedidos`: o botão só mostra a seta. */
+  /**
+   * Nome acessível do link (`aria-label`). Deve conter o texto visível (WCAG 2.5.3): com `children` "Pedidos",
+   * `label` "Voltar para Pedidos".
+   */
   label: string;
   /** Propriedades entregues inteiras ao componente de link, para o roteador que não usa `href`. */
   linkProps?: Record<string, unknown>;
 }
 
-function PageHeaderBack({ as: Link = 'a', className, label, linkProps, ...props }: PageHeaderBackProps) {
+/** Link de retorno acima do título, com a seta e o texto visível: `children`, ou o `label` quando não houver. */
+function PageHeaderBack({ as: Link = 'a', children, className, label, linkProps, ...props }: PageHeaderBackProps) {
   return (
     <Link {...props} {...linkProps} aria-label={label} className={join(styles.back, className)}>
-      <IconChevronLeft size={18} />
+      <IconChevronLeft className={styles.backIcon} size={16} />
+      {children ?? label}
     </Link>
   );
 }

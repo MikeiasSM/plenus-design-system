@@ -84,7 +84,7 @@ export function NovoPedido() {
     <Pagina caminho={['Vendas', 'Pedidos', 'Novo pedido']}>
       <SaveBar onDiscard={() => setRascunho(salvo)} onSave={salvar} open={alterado} saving={salvando} />
       <PageHeader maxWidth="1120px">
-        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} label="Voltar para Pedidos" />
+        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} label="Voltar para Pedidos">Pedidos</PageHeader.Back>
         <PageHeader.Title>Novo pedido</PageHeader.Title>
         <PageHeader.Badges>
           <Badge tone="neutral">Rascunho</Badge>

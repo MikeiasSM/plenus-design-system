@@ -122,7 +122,7 @@ export function NovoCliente() {
       }
     >
       <PageHeader maxWidth="1120px">
-        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} label="Voltar para Base de Clientes" />
+        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} label="Voltar para Base de Clientes">Base de Clientes</PageHeader.Back>
         <PageHeader.Title>Novo cliente</PageHeader.Title>
         <PageHeader.Badges>
           <Badge tone="neutral">Rascunho</Badge>

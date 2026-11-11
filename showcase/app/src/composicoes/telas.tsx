@@ -139,7 +139,7 @@ export const telas: readonly Tela[] = [
       </>
     ),
     codigo: `<PageHeader maxWidth="1120px">
-  <PageHeader.Back href="/pedidos" label="Voltar para Pedidos" />
+  <PageHeader.Back href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>
   <PageHeader.Title>Pedido #48211</PageHeader.Title>
   <PageHeader.Badges><Badge tone="warning">Aguardando aprovação</Badge></PageHeader.Badges>
   <PageHeader.Context>…</PageHeader.Context>
