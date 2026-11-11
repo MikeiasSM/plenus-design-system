@@ -136,9 +136,9 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
-      titulo: 'Formulário com alterações pendentes',
+      titulo: 'Presa ao topo',
       descricao:
-        'Edite o nome: a barra abre. Salvar leva 1,2 s; descartar volta ao valor salvo. Nos dois casos o foco volta ao campo, porque a barra fechada sai do foco.',
+        'Na posição padrão, a barra fica no topo da área de rolagem, com a borda embaixo. Edite o nome: a barra abre. Salvar leva 1,2 s; descartar volta ao valor salvo. Nos dois casos o foco volta ao campo, porque a barra fechada sai do foco.',
       largo: true,
       Previa: Formulario,
       codigo:
