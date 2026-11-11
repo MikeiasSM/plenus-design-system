@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
-import { InputText, SaveBar } from '@plenustech/design-system';
+import { InputText, SaveBar, Select, Textarea } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const playground = definirPlayground({
   inicial: {
     open: true,
+    placement: 'top',
     message: 'Alterações não salvas',
     discardLabel: 'Descartar',
     saveLabel: 'Salvar',
@@ -13,6 +14,7 @@ const playground = definirPlayground({
   },
   controles: [
     { tipo: 'booleano', nome: 'open' },
+    { tipo: 'opcoes', nome: 'placement', opcoes: ['top', 'bottom'] },
     { tipo: 'texto', nome: 'message' },
     { tipo: 'texto', nome: 'discardLabel' },
     { tipo: 'texto', nome: 'saveLabel' },
@@ -26,6 +28,7 @@ const playground = definirPlayground({
         onDiscard={() => registrar('onDiscard')}
         onSave={() => registrar('onSave')}
         open={valores.open}
+        placement={valores.placement === 'bottom' ? 'bottom' : 'top'}
         saveLabel={valores.saveLabel}
         saving={valores.saving}
       />
@@ -34,6 +37,7 @@ const playground = definirPlayground({
   codigo: (valores) =>
     gerarJsx('SaveBar', [
       ['open', expr('houveAlteracao')],
+      ['placement', valores.placement, 'top'],
       ['message', valores.message, 'Alterações não salvas'],
       ['discardLabel', valores.discardLabel, 'Descartar'],
       ['saveLabel', valores.saveLabel, 'Salvar'],
@@ -54,7 +58,7 @@ const playground = definirPlayground({
   },
 });
 
-function Formulario() {
+function Formulario({ placement = 'top' }: { placement?: 'top' | 'bottom' }) {
   const [nome, setNome] = useState('Ana Ribeiro');
   const [salvo, setSalvo] = useState('Ana Ribeiro');
   const [salvando, setSalvando] = useState(false);
@@ -77,10 +81,28 @@ function Formulario() {
 
   return (
     <div className="stack" style={{ maxHeight: 220, overflow: 'auto', width: '100%' }}>
-      <SaveBar onDiscard={descartar} onSave={salvar} open={nome !== salvo} saving={salvando} />
-      <div style={{ padding: 16 }}>
+      {placement === 'top' && <SaveBar onDiscard={descartar} onSave={salvar} open={nome !== salvo} saving={salvando} />}
+      <div className="stack" style={{ padding: 16 }}>
         <InputText label="Nome" ref={campo} onChange={(evento) => setNome(evento.currentTarget.value)} value={nome} />
+        <InputText label="Sobrenome" defaultValue="Ribeiro" />
+        <InputText label="E-mail" type="email" defaultValue="ana.ribeiro@exemplo.com.br" />
+        <InputText label="Telefone" type="tel" defaultValue="(11) 91234-5678" />
+        <InputText label="Cargo" defaultValue="Analista financeira" />
+        <Select
+          label="Departamento"
+          defaultValue="financeiro"
+          options={[
+            { label: 'Financeiro', value: 'financeiro' },
+            { label: 'Comercial', value: 'comercial' },
+            { label: 'Operações', value: 'operacoes' },
+          ]}
+        />
+        <InputText label="Cidade" defaultValue="São Paulo" />
+        <Textarea label="Observações" defaultValue="Prefere contato por e-mail, em horário comercial." />
       </div>
+      {placement === 'bottom' && (
+        <SaveBar onDiscard={descartar} onSave={salvar} open={nome !== salvo} placement="bottom" saving={salvando} />
+      )}
     </div>
   );
 }
@@ -93,10 +115,11 @@ function Modos() {
         Controlado pelo produto, que sabe se há alteração pendente: a barra não abre nem fecha sozinha. Ela permanece montada
         e desliza ao abrir; com <code>prefers-reduced-motion</code>, aparece sem transição.
       </dd>
-      <dt>Posição</dt>
+      <dt><code>placement</code></dt>
       <dd>
-        Fica presa ao topo da área de rolagem em que for montada (<code>position: sticky</code>). Onde montá-la é do
-        produto, em geral antes do conteúdo da página.
+        <code>top</code> (padrão) prende a barra ao topo da área de rolagem em que for montada, com a borda embaixo;{' '}
+        <code>bottom</code> a prende ao pé, com a borda em cima (<code>position: sticky</code> nos dois casos). Onde
+        montá-la é do produto: antes do conteúdo no topo, depois dele no pé.
       </dd>
       <dt>Foco ao fechar</dt>
       <dd>
@@ -119,7 +142,15 @@ export const pagina: Pagina = {
       largo: true,
       Previa: Formulario,
       codigo:
-        "const campo = useRef<HTMLInputElement>(null);\n\n<SaveBar\n  open={valor !== salvo}\n  saving={salvando}\n  onDiscard={() => {\n    setValor(salvo);\n    campo.current?.focus();\n  }}\n  onSave={salvar} // ao terminar, campo.current?.focus()\n/>\n<InputText label=\"Nome\" ref={campo} value={valor} onChange={...} />",
+        "const campo = useRef<HTMLInputElement>(null);\n\n<SaveBar\n  open={valor !== salvo}\n  saving={salvando}\n  onDiscard={() => {\n    setValor(salvo);\n    campo.current?.focus();\n  }}\n  onSave={salvar} // ao terminar, campo.current?.focus()\n/>\n<InputText label=\"Nome\" ref={campo} value={valor} onChange={...} />\n{/* demais campos do formulário */}",
+    },
+    {
+      titulo: 'Presa ao pé',
+      descricao: 'Com placement="bottom", a barra fica no pé da área de rolagem, com a borda em cima. Monte-a depois do conteúdo.',
+      largo: true,
+      Previa: () => <Formulario placement="bottom" />,
+      codigo:
+        '<InputText label="Nome" ref={campo} value={valor} onChange={...} />\n{/* demais campos do formulário */}\n<SaveBar\n  open={valor !== salvo}\n  placement="bottom"\n  saving={salvando}\n  onDiscard={descartar}\n  onSave={salvar}\n/>',
     },
   ],
   Modos,
@@ -131,6 +162,7 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref.',
   api: [
     { nome: 'open', tipo: 'boolean', descricao: 'Mostra a barra. Controlado pelo produto.' },
+    { nome: 'placement', tipo: "'top' | 'bottom'", padrao: "'top'", descricao: 'Lado da área de rolagem a que a barra se prende: topo (borda embaixo) ou pé (borda em cima).' },
     { nome: 'onSave', tipo: '() => void', descricao: 'Clique em salvar.' },
     { nome: 'onDiscard', tipo: '() => void', descricao: 'Clique em descartar.' },
     { nome: 'message', tipo: 'string', padrao: "'Alterações não salvas'", descricao: 'Texto da barra, anunciado ao abrir e nome da região.' },

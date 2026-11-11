@@ -6,12 +6,18 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Adicionado
+
+- `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
+
 ### Alterado
 
+- `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
 ### Corrigido
 
+- `Button` e `ButtonIcon`: o anel de foco deixa de sumir quando o ponteiro passa sobre o botão com foco de teclado.
 - `Button` e `ButtonIcon`: o ícone guarda a medida num espaço apertado, como a coluna de ações de uma tabela. Antes, encolhia até sumir, e o botão de ícone ficava sem ícone. Agora o botão mantém o tamanho e a tabela rola na horizontal.
 - `reset.css`: o teto `max-width: 100%` vale só para imagem e vídeo, como no Tailwind. No `svg`, deixava um ícone encolher até sumir.
 - Showcase: a coluna "Remover" de Novo pedido e da seção de configuração perde a largura fixa de 56 px, que não cabia o botão, e alinha à direita, como na página da `Table`.
