@@ -592,6 +592,7 @@ export const pagina: Pagina = {
     { nome: 'Sidebar.RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
     { nome: 'Sidebar.Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },
     { nome: 'Sidebar.Panel · nestedMode', tipo: "SidebarNestedMode: 'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
+    { nome: 'Sidebar.Panel · width', tipo: 'number | string', padrao: '256', descricao: 'Largura do submenu aberto: pixels ou medida CSS, como "18rem". Use o mesmo valor em todos os painéis.' },
     { nome: 'Sidebar.Panel · accountMode', tipo: "SidebarAccountMode: 'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
     { nome: 'Sidebar.Group · label', tipo: 'string', descricao: 'Título que reúne itens.' },
     {

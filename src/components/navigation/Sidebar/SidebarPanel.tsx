@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ComponentPropsWithRef,
+  type CSSProperties,
   type MouseEvent,
   type ReactNode,
 } from 'react';
@@ -39,6 +40,11 @@ export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'a
   label: string;
   /** Terceiro nível: `expand` abre os filhos no lugar; `stack` troca a lista pelo nível de baixo. */
   nestedMode?: SidebarNestedMode;
+  /**
+   * Largura do submenu aberto: número em pixels ou medida CSS em texto, como `"18rem"`. Na gaveta do celular, limitada à
+   * largura da tela. Todos os painéis do produto devem usar o mesmo valor.
+   */
+  width?: number | string;
 }
 
 /** Submenu do módulo, direto na base, entre o trilho e a página. Sem filhos, serve só de lugar da conta. */
@@ -50,6 +56,8 @@ export function SidebarPanel({
   className,
   label,
   nestedMode = 'expand',
+  style,
+  width,
   ...props
 }: SidebarPanelProps) {
   const { accountOpen, collapsePanel, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
@@ -73,10 +81,11 @@ export function SidebarPanel({
     <SidebarPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId }}>
       <div
         {...props}
-        className={[styles.panel, className].filter(Boolean).join(' ')}
+        className={[styles.panel, narrow && styles.narrow, className].filter(Boolean).join(' ')}
         data-visible={visible}
         id={panelId}
         inert={!visible}
+        style={width === undefined ? style : ({ ...style, '--sidebar-panel-width': typeof width === 'number' ? `${width}px` : width } as CSSProperties)}
       >
         <div className={styles.inner}>
           {hasItems && (

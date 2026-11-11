@@ -1,4 +1,4 @@
-/* Medidas do modelo (APPSHELL.md): submenu 232px, item 34px, filho 30px, cabeçalho na altura da marca do trilho. */
+/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item 34px, filho 30px, cabeçalho na altura da marca do trilho. */
 .panel {
   flex: none;
   width: 0;
@@ -9,7 +9,7 @@
 }
 
 .panel[data-visible='true'] {
-  width: 232px;
+  width: var(--sidebar-panel-width, 256px);
   opacity: 1;
 }
 
@@ -17,9 +17,19 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  width: 232px;
+  width: var(--sidebar-panel-width, 256px);
   height: 100%;
   padding: 11px 8px 4px 12px;
+}
+
+/* Na gaveta do celular, o submenu largo demais para a tela cede ao lado do trilho, e o conteúdo acompanha. */
+.panel.narrow {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.narrow .inner {
+  max-width: 100%;
 }
 
 .head {

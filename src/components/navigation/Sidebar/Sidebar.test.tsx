@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { AppShell, type AppShellProps } from '../AppShell';
+import { regrasDaFolha } from '../../../test/folha';
 import { Sidebar } from './Sidebar';
+import panelStyles from './SidebarPanel.module.css';
 import type { SidebarAccountMode, SidebarNestedMode } from './SidebarPanel.context';
 
 function stubViewport(narrow: boolean) {
@@ -11,10 +13,12 @@ function stubViewport(narrow: boolean) {
 interface ExampleProps extends AppShellProps {
   accountMode?: SidebarAccountMode;
   nestedMode?: SidebarNestedMode;
+  panelStyle?: CSSProperties;
+  panelWidth?: number | string;
   withItems?: boolean;
 }
 
-function Example({ accountMode, nestedMode, withItems = true, ...props }: ExampleProps) {
+function Example({ accountMode, nestedMode, panelStyle, panelWidth, withItems = true, ...props }: ExampleProps) {
   return (
     <AppShell {...props}>
       <Sidebar>
@@ -34,6 +38,8 @@ function Example({ accountMode, nestedMode, withItems = true, ...props }: Exampl
           brand="Gestor"
           label="Vendas"
           nestedMode={nestedMode}
+          style={panelStyle}
+          width={panelWidth}
         >
           {withItems && (
             <Sidebar.Group label="Operação">
@@ -297,6 +303,56 @@ describe('Sidebar', () => {
       });
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('largura do submenu', () => {
+    const painel = () => screen.getByRole('navigation', { name: 'Vendas' }).closest<HTMLElement>('[data-visible]')!;
+
+    it('tem 256px por padrão, no painel aberto e no conteúdo, lidos da mesma variável', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get(".panel[data-visible='true']")?.width).toBe('var(--sidebar-panel-width, 256px)');
+      expect(regras.get('.inner')?.width).toBe('var(--sidebar-panel-width, 256px)');
+    });
+
+    it('na gaveta, o painel cede para caber ao lado do trilho, e o conteúdo acompanha', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get('.panel.narrow')).toMatchObject({ 'flex-shrink': '1', 'min-width': '0' });
+      expect(regras.get('.narrow .inner')?.['max-width']).toBe('100%');
+      expect(regras.get('.panel')?.['max-width']).toBeUndefined();
+      expect(regras.get('.inner')?.['max-width']).toBeUndefined();
+    });
+
+    it('aceita número em pixels e medida em texto', () => {
+      const { unmount } = render(<Example />);
+      expect(painel().style.getPropertyValue('--sidebar-panel-width')).toBe('');
+      unmount();
+
+      const numerico = render(<Example panelWidth={280} />);
+      expect(painel().style.getPropertyValue('--sidebar-panel-width')).toBe('280px');
+      numerico.unmount();
+
+      render(<Example panelWidth="18rem" />);
+      expect(painel().style.getPropertyValue('--sidebar-panel-width')).toBe('18rem');
+    });
+
+    it('preserva o style do consumidor, e o width prevalece sobre a variável passada nele', () => {
+      render(<Example panelStyle={{ color: 'red', '--sidebar-panel-width': '200px' } as CSSProperties} panelWidth={300} />);
+
+      expect(painel().style.color).toBe('red');
+      expect(painel().style.getPropertyValue('--sidebar-panel-width')).toBe('300px');
+    });
+
+    it('vale também na gaveta do celular', () => {
+      stubViewport(true);
+      render(<Example panelWidth={280} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+
+      expect(within(screen.getByRole('dialog', { name: 'Menu' })).getByRole('navigation', { name: 'Vendas' })).toBeInTheDocument();
+      expect(painel().style.getPropertyValue('--sidebar-panel-width')).toBe('280px');
+      expect(painel()).toHaveClass(panelStyles.narrow!);
     });
   });
 });
