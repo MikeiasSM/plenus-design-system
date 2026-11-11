@@ -5,7 +5,7 @@ import styles from './FieldRow.module.css';
 export interface FieldRowWiring {
   /** Referência da explicação, para o controle que a anuncia. Fica indefinida sem `description`. */
   describedBy: string | undefined;
-  /** Id do controle, ao qual o rótulo da linha aponta. */
+  /** Id do controle, ao qual o rótulo da linha aponta. O rótulo só aponta para ele quando a função o lê. */
   id: string;
 }
 
@@ -22,12 +22,23 @@ export function FieldRow({ children, className, description, id: providedId, lab
   const generatedId = useId();
   const id = providedId ?? `field-row-${generatedId}`;
   const descriptionId = `${id}-description`;
-  const wiring: FieldRowWiring = { describedBy: description ? descriptionId : undefined, id };
+  // O controle que se nomeia pelo conteudo, como um botao, nao le o id: sem ele, o rotulo apontaria para o vazio. A
+  // leitura decide no proprio render, e o HTML do servidor ja sai certo; o controle que monta depois continua ligado.
+  let idRead = false;
+  const wiring: FieldRowWiring = {
+    describedBy: description ? descriptionId : undefined,
+    get id() {
+      idRead = true;
+      return id;
+    },
+  };
+  const control = typeof children === 'function' ? children(wiring) : children;
+  const labelTarget = typeof children === 'function' ? (idRead ? id : undefined) : providedId;
 
   return (
     <div {...props} className={[styles.row, className].filter(Boolean).join(' ')}>
       <div className={styles.text}>
-        <Label className={styles.label} htmlFor={id}>
+        <Label className={styles.label} htmlFor={labelTarget}>
           {label}
         </Label>
         {description && (
@@ -36,7 +47,7 @@ export function FieldRow({ children, className, description, id: providedId, lab
           </p>
         )}
       </div>
-      <div className={styles.control}>{typeof children === 'function' ? children(wiring) : children}</div>
+      <div className={styles.control}>{control}</div>
     </div>
   );
 }

@@ -1,7 +1,18 @@
+/* Sem largura para tudo numa linha, o intervalo, o seletor e os passos descem um abaixo do outro, em vez de vazar.
+   Onde cabe, a linha é a mesma. */
 .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-1);
+}
+
+/* Anterior, páginas e próxima andam juntos: é a lista que quebra, entre os dois passos. */
+.steps {
   display: flex;
   align-items: center;
   gap: var(--pl-space-1);
+  min-width: 0;
 }
 
 /* Ocupa a sobra da linha: o intervalo fica à esquerda e os botões, à direita. */
@@ -30,6 +41,7 @@
 
 .list {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--pl-space-1);
   margin: 0;
