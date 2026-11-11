@@ -21,6 +21,8 @@ export interface Verificacao {
 
 export interface DefinicaoDoPlayground<V extends Valores = Valores> {
   controles: readonly Controle<V>[];
+  /** Em Tablet e Celular, a previa roda num iframe dessa largura, para os componentes que decidem o modo pela janela (`matchMedia`). */
+  emJanela?: boolean;
   inicial: V;
   /** O codigo que reproduz a previa, refeito a cada mudanca. */
   codigo(valores: V): string;

@@ -5,13 +5,12 @@ import { familias } from './catalogo';
 import { Composicoes } from './composicoes/Composicoes';
 import { CAMINHO_DAS_COMPOSICOES, ROTA_DAS_COMPOSICOES } from './composicoes/menu';
 import { telas } from './composicoes/telas';
+import { CHAVE_DO_TEMA } from './estrutura/janela';
 import { PaginaDoComponente } from './estrutura/PaginaDoComponente';
 import { VisaoGeral } from './estrutura/VisaoGeral';
 import { Fundamentos } from './fundamentos/Fundamentos';
 import { CAMINHO_DOS_PATTERNS, ROTA_DOS_PATTERNS, patterns } from './patterns/catalogo';
 import { Patterns } from './patterns/Patterns';
-
-const CHAVE_DO_TEMA = 'plenus-showcase-tema';
 
 type Tema = 'light' | 'dark' | 'system';
 

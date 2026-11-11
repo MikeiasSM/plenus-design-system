@@ -80,6 +80,7 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, rolaAPagi
 }
 
 const playground = definirPlayground({
+  emJanela: true,
   inicial: { defaultOpen: true },
   controles: [{ tipo: 'booleano', nome: 'defaultOpen' }],
   renderizar: (valores, registrar) => (
