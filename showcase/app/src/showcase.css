@@ -933,3 +933,15 @@ button.icon-cell:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Previa em janela: o iframe e a propria prova de largura; sem moldura de caixa, so a borda.
+   A borda fica por fora: a largura e a altura sao as da janela de dentro, sem corte nem rolagem. */
+.pg-janela {
+  display: block;
+  box-sizing: content-box;
+  width: calc(100% - 2px);
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-background);
+  transition: max-width var(--pl-speed-2) var(--pl-ease);
+}

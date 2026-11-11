@@ -141,13 +141,13 @@ function TabelaDaApi({ linhas }: { linhas: readonly LinhaDaApi[] }) {
   );
 }
 
-function secoesDa(pagina: Pagina): Secao[] {
+function secoesDa(pagina: Pagina, nome: string): Secao[] {
   const secoes: Secao[] = [];
   const { Modos, Variantes } = pagina;
 
   if (pagina.playground) {
     secoes.push({
-      conteudo: <Playground definicao={pagina.playground} />,
+      conteudo: <Playground componente={nome} definicao={pagina.playground} />,
       id: 'playground',
       subtitulo: 'Mude as propriedades e use o componente de verdade: o código, os eventos e as verificações acompanham.',
       titulo: 'Playground',
@@ -224,7 +224,7 @@ function secoesDa(pagina: Pagina): Secao[] {
 }
 
 export function PaginaDoComponente({ componente, familia }: { componente: ComponenteDoCatalogo; familia: string }) {
-  const secoes = componente.pagina ? secoesDa(componente.pagina) : [];
+  const secoes = componente.pagina ? secoesDa(componente.pagina, componente.nome) : [];
   const caminho = `#/${componente.nome.toLowerCase()}`;
 
   return (
