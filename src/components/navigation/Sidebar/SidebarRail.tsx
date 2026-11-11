@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef, MouseEvent, ReactNode } from 'react';
 import { Tooltip } from '../../overlays/Tooltip';
 import { useSidebarContext } from './Sidebar.context';
+import { SidebarBrandContext } from './SidebarBrand.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
 import styles from './Sidebar.module.css';
 
@@ -17,7 +18,11 @@ export interface SidebarRailProps extends Omit<ComponentPropsWithRef<'nav'>, 'ar
 export function SidebarRail({ brand, children, className, footer, label = 'Módulos', ...props }: SidebarRailProps) {
   return (
     <nav {...props} aria-label={label} className={[styles.rail, className].filter(Boolean).join(' ')}>
-      {brand && <div className={styles.brand}>{brand}</div>}
+      {brand && (
+        <div className={styles.brand}>
+          <SidebarBrandContext value="rail">{brand}</SidebarBrandContext>
+        </div>
+      )}
       <ul className={styles.railGroup}>{children}</ul>
       <ul className={[styles.railGroup, styles.railFooter].join(' ')}>{footer}</ul>
     </nav>

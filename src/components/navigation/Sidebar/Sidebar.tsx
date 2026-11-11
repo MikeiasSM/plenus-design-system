@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Drawer } from '../../overlays/Drawer';
 import { useSidebarContext } from './Sidebar.context';
 import { SidebarAccount } from './SidebarAccount';
+import { SidebarBrand } from './SidebarBrand';
 import { SidebarGroup, SidebarItem, SidebarPanel } from './SidebarPanel';
 import { SidebarRail, SidebarRailAccount, SidebarRailItem } from './SidebarRail';
 import { SidebarTrigger } from './SidebarTrigger';
@@ -51,6 +52,7 @@ function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
 
 export const Sidebar = Object.assign(SidebarRoot, {
   Account: SidebarAccount,
+  Brand: SidebarBrand,
   Group: SidebarGroup,
   Item: SidebarItem,
   Panel: SidebarPanel,

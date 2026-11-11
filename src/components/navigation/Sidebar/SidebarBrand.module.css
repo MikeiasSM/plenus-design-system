@@ -1,0 +1,79 @@
+/* Trilho: só o símbolo, num quadro de 36px. */
+.railBrand {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--pl-radius-md);
+}
+
+.logo {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--pl-radius-md);
+}
+
+.framed {
+  background: var(--pl-color-primary);
+  color: var(--pl-color-on-primary);
+}
+
+/* Logo puro: a imagem cabe no quadro sem perder a proporção. */
+.logo > img,
+.logo > svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Submenu: nome e descrição em uma linha cada; o `min-width` deixa as reticências agirem sem empurrar o recolher. */
+.panelBrand {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* O logotipo cabe na caixa do cabeçalho: no máximo 36px de altura e a largura que sobra. */
+.wordmark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  height: 36px;
+  overflow: hidden;
+}
+
+.wordmark > img,
+.wordmark > svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 36px;
+  object-fit: contain;
+}
+
+/* A sonda só tem cor: `light-dark()` dá preto no tema claro e branco no escuro, pelo mesmo `color-scheme` da cor primária. */
+.probe {
+  position: absolute;
+  width: 0;
+  height: 0;
+  color: light-dark(rgb(0 0 0), rgb(255 255 255));
+  visibility: hidden;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* O mesmo anel de foco dos itens do trilho. */
+.link:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}

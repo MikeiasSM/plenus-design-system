@@ -227,11 +227,11 @@ export const pagina: Pagina = {
     texto: 'AppShell uma vez, na raiz da aplicação, com a Sidebar e a página como filhos.',
     codigo: `<AppShell defaultOpen={false}>
   <Sidebar>
-    <Sidebar.Rail brand={<Marca />}>
+    <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar />} name="Gestor" />}>
       <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
       …
     </Sidebar.Rail>
-    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+    <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>
       <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
       …
     </Sidebar.Panel>
@@ -253,8 +253,8 @@ export const pagina: Pagina = {
 <div>
   <AppShell defaultOpen={false}>
     <Sidebar>
-      <Sidebar.Rail brand={<Marca />}>…</Sidebar.Rail>
-      <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>…</Sidebar.Panel>
+      <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar />} name="Gestor" />}>…</Sidebar.Rail>
+      <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>…</Sidebar.Panel>
     </Sidebar>
     <AppShell.Page>
       <AppShell.PageBar>…</AppShell.PageBar>

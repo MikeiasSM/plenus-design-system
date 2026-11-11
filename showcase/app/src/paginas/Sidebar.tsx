@@ -15,7 +15,6 @@ import {
   type SidebarAccountMode,
   type SidebarNestedMode,
 } from '@plenustech/design-system';
-import { MarcaDaAplicacao, MarcaDoSubmenu } from '../estrutura/MarcaDaAplicacao';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
@@ -55,8 +54,6 @@ interface AplicacaoProps {
   nestedMode?: SidebarNestedMode;
   registrar?: (evento: string) => void;
 }
-
-const Marca = () => <MarcaDaAplicacao icone={<IconChartBar size={20} />} />;
 
 /** Uma aplicação pequena: módulos, grupos, itens, terceiro nível e conta. A navegação é estado local; a biblioteca não faz roteamento. */
 function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedMode, registrar }: AplicacaoProps) {
@@ -101,7 +98,7 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
       <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
         <Sidebar>
           <Sidebar.Rail
-            brand={<Marca />}
+            brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}
             footer={
               <>
                 <Sidebar.RailItem icon={<IconSliders size={20} />} label="Configurações" />
@@ -133,7 +130,7 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
               </Sidebar.Account>
             }
             accountMode={accountMode}
-            brand={<MarcaDoSubmenu />}
+            brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />}
             label={modulo.nome}
             nestedMode={nestedMode}
           >
@@ -166,11 +163,11 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
 function NavegacaoMinima() {
   return (
     <Sidebar>
-      <Sidebar.Rail brand={<Marca />}>
+      <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}>
         <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
         <Sidebar.RailItem icon={<IconFile size={20} />} label="Clientes" />
       </Sidebar.Rail>
-      <Sidebar.Panel brand={<MarcaDoSubmenu />} label="Vendas">
+      <Sidebar.Panel brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} label="Vendas">
         <Sidebar.Group label="Operação">
           <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
           <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
@@ -198,6 +195,45 @@ function MolduraPropria() {
           </div>
         </div>
       </SidebarProvider>
+    </div>
+  );
+}
+
+/** Um logotipo fictício do "Gestor", em SVG: a versão de cada tema muda só a cor do traço. */
+function LogotipoDoGestor({ cor }: { cor: string }) {
+  return (
+    <svg fill="none" height="24" viewBox="0 0 104 24" width="104">
+      <rect fill={cor} height="20" rx="5" width="20" x="2" y="2" />
+      <path d="M8 12h8M12 8v8" stroke="var(--pl-color-surface)" strokeLinecap="round" strokeWidth="2" />
+      <text fill={cor} fontFamily="var(--pl-font-heading)" fontSize="17" fontWeight="700" x="29" y="18">
+        Gestor
+      </text>
+    </svg>
+  );
+}
+
+const logotipo = { dark: <LogotipoDoGestor cor="#E8EAED" />, light: <LogotipoDoGestor cor="#1F2933" /> };
+
+/** O mesmo trilho e submenu em dois temas lado a lado: o logotipo de cada tema vem do `data-theme` mais próximo. */
+function MarcaComLogotipo() {
+  return (
+    <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+      {(['light', 'dark'] as const).map((tema) => (
+        <div data-theme={tema} key={tema} style={{ ...quadroDaPrevia, height: 220, background: 'var(--pl-color-background)', color: 'var(--pl-color-text)' }}>
+          <SidebarProvider>
+            <div style={{ display: 'flex', height: '100%', padding: 'var(--pl-shell-gap)', boxSizing: 'border-box' }}>
+              <Sidebar>
+                <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" wordmark={logotipo} />}>
+                  <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
+                </Sidebar.Rail>
+                <Sidebar.Panel brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" wordmark={logotipo} />} label="Vendas">
+                  <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
+                </Sidebar.Panel>
+              </Sidebar>
+            </div>
+          </SidebarProvider>
+        </div>
+      ))}
     </div>
   );
 }
@@ -246,12 +282,12 @@ const playground = definirPlayground({
     [
       `<AppShell${valores.defaultOpen ? '' : ' defaultOpen={false}'}>`,
       '  <Sidebar>',
-      '    <Sidebar.Rail brand={<Marca />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>',
+      '    <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>',
       '      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" href="/vendas" as={Link} />',
       '    </Sidebar.Rail>',
       '    <Sidebar.Panel',
       '      label="Vendas"',
-      '      brand={<Marca />}',
+      '      brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />}',
       ...(valores.nestedMode === 'stack' ? ['      nestedMode="stack"'] : []),
       ...(valores.accountMode === 'cover' ? ['      accountMode="cover"'] : []),
       '      account={<Sidebar.Account avatar={<Avatar name="Suporte" />} name="Suporte" description="Empresa">',
@@ -354,7 +390,7 @@ export const pagina: Pagina = {
       largo: true,
       Previa: AplicacaoPadrao,
       codigo:
-        '<AppShell>\n  <Sidebar>\n    <Sidebar.Rail brand={<Marca />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>\n      <Sidebar.RailItem current as={Link} href="/vendas" icon={<IconChartBar />} label="Vendas" />\n    </Sidebar.Rail>\n    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>\n      <Sidebar.Group label="Operação">\n        <Sidebar.Item current as={Link} href="/pedidos" icon={<IconFile />} label="Pedidos" trailing={<Badge size="sm">12</Badge>} />\n        <Sidebar.Item icon={<IconChartBar />} label="Painéis">\n          <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />\n        </Sidebar.Item>\n      </Sidebar.Group>\n      <Sidebar.Group label="Apoio">\n        <Sidebar.Item external href="https://exemplo.com/ajuda" icon={<IconFile />} label="Documentação" />\n      </Sidebar.Group>\n    </Sidebar.Panel>\n  </Sidebar>\n  <AppShell.Page>…</AppShell.Page>\n</AppShell>',
+        '<AppShell>\n  <Sidebar>\n    <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>\n      <Sidebar.RailItem current as={Link} href="/vendas" icon={<IconChartBar />} label="Vendas" />\n    </Sidebar.Rail>\n    <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>\n      <Sidebar.Group label="Operação">\n        <Sidebar.Item current as={Link} href="/pedidos" icon={<IconFile />} label="Pedidos" trailing={<Badge size="sm">12</Badge>} />\n        <Sidebar.Item icon={<IconChartBar />} label="Painéis">\n          <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />\n        </Sidebar.Item>\n      </Sidebar.Group>\n      <Sidebar.Group label="Apoio">\n        <Sidebar.Item external href="https://exemplo.com/ajuda" icon={<IconFile />} label="Documentação" />\n      </Sidebar.Group>\n    </Sidebar.Panel>\n  </Sidebar>\n  <AppShell.Page>…</AppShell.Page>\n</AppShell>',
     },
     {
       titulo: 'Terceiro nível em pilha',
@@ -379,11 +415,11 @@ export const pagina: Pagina = {
       codigo: `<SidebarProvider>
   <div style={{ display: 'flex', height: '100%' }}>
     <Sidebar>
-      <Sidebar.Rail brand={<Marca />}>
+      <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}>
         <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
         <Sidebar.RailItem icon={<IconFile />} label="Clientes" />
       </Sidebar.Rail>
-      <Sidebar.Panel label="Vendas" brand={<Marca />}>
+      <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />}>
         <Sidebar.Group label="Operação">
           <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
           <Sidebar.Item icon={<IconFile />} label="Relatórios" />
@@ -401,6 +437,30 @@ export const pagina: Pagina = {
 </SidebarProvider>`,
     },
     {
+      titulo: 'Marca com logotipo',
+      descricao:
+        'Sidebar.Brand com wordmark: no submenu, o logotipo toma o lugar do nome e da descrição, com uma versão para cada tema; o nome segue para o leitor de tela. No trilho fica só o símbolo (logo), no quadrado da cor principal ou puro com logoFrame={false}. Com href, a marca leva ao início da aplicação.',
+      largo: true,
+      Previa: MarcaComLogotipo,
+      codigo: `const marca = (
+  <Sidebar.Brand
+    logo={<IconChartBar />}
+    name="Gestor"
+    wordmark={{
+      light: <img alt="" src="/gestor-claro.svg" />,
+      dark: <img alt="" src="/gestor-escuro.svg" />,
+    }}
+  />
+);
+
+<div data-theme="dark">
+  <Sidebar>
+    <Sidebar.Rail brand={marca}>…</Sidebar.Rail>
+    <Sidebar.Panel brand={marca} label="Vendas">…</Sidebar.Panel>
+  </Sidebar>
+</div>`,
+    },
+    {
       titulo: 'Módulo sem submenu',
       descricao: 'O Sidebar.Panel sem itens: a página encosta no trilho, não há botão de abrir o submenu, e o avatar do trilho abre a conta.',
       largo: true,
@@ -414,7 +474,7 @@ export const pagina: Pagina = {
     codigo: `<AppShell defaultOpen={false}>
   <Sidebar>
     <Sidebar.Rail
-      brand={<Marca />}
+      brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}
       footer={
         <>
           <Sidebar.RailItem icon={<IconSliders />} label="Configurações" />
@@ -427,7 +487,7 @@ export const pagina: Pagina = {
       <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
       …
     </Sidebar.Rail>
-    <Sidebar.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
+    <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>
       <Sidebar.Group label="Operação">
         <Sidebar.Item
           current
@@ -504,7 +564,7 @@ export const pagina: Pagina = {
   ],
   notaDaApi: (
     <>
-      Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
+      Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Brand</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
       <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code> e <code>toggleSidebar</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
       <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code> e no <code>SidebarProvider</code>.
     </>
@@ -519,6 +579,14 @@ export const pagina: Pagina = {
     { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile e toggleSidebar. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu.' },
     { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
     { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
+    {
+      nome: 'Sidebar.Brand · name / logo / logoFrame / description / wordmark',
+      tipo: 'string · ReactNode · boolean · ReactNode · { light: ReactNode; dark?: ReactNode }',
+      padrao: 'logoFrame: true',
+      descricao:
+        'Marca do produto, no brand do Rail e do Panel. No trilho, só o logo (em quadrado na cor principal, ou puro com logoFrame false), nomeado por name; sem logo, nada. No submenu, o name e a description, ou o wordmark de cada tema (sem dark, o light vale nos dois), com o name oculto para o leitor de tela.',
+    },
+    { nome: 'Sidebar.Brand · as / href / linkProps', tipo: 'ElementType · string · Record<string, unknown>', descricao: 'Como no Sidebar.Item: com eles, a marca é um link para o início da aplicação, nos dois lugares.' },
     { nome: 'Sidebar.RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
     { nome: 'Sidebar.RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
     { nome: 'Sidebar.Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },

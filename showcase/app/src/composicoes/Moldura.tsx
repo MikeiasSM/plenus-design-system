@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar } from '@plenustech/design-system';
 import { IconPerson, IconShieldCheck } from '@plenustech/design-system/icons';
-import { MarcaDaAplicacao, MarcaDoSubmenu } from '../estrutura/MarcaDaAplicacao';
 import { CAMINHO_DAS_COMPOSICOES, MODULOS, MODULO_DE_CONFIGURACOES, type Modulo } from './menu';
 
 const hrefDe = (rota: string) => `${CAMINHO_DAS_COMPOSICOES}/${rota}`;
@@ -36,7 +35,7 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
     <AppShell>
       <Sidebar>
         <Sidebar.Rail
-          brand={<MarcaDaAplicacao icone={<IconStructure size={20} />} />}
+          brand={<Sidebar.Brand logo={<IconStructure size={20} />} name="Gestor" />}
           footer={
             <>
               <ItemDoModulo atual={atual.id === MODULO_DE_CONFIGURACOES.id} modulo={MODULO_DE_CONFIGURACOES} />
@@ -50,7 +49,7 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
             <ItemDoModulo atual={candidato.id === atual.id} key={candidato.id} modulo={candidato} />
           ))}
         </Sidebar.Rail>
-        <Sidebar.Panel account={<ContaDoUsuario />} brand={<MarcaDoSubmenu />} label={atual.nome}>
+        <Sidebar.Panel account={<ContaDoUsuario />} brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} label={atual.nome}>
           {atual.grupos.map((grupo) => {
             const itens = grupo.itens.map((entrada) => (
               <Sidebar.Item

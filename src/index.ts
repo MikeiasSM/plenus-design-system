@@ -162,6 +162,7 @@ export { Sidebar, SidebarProvider, useSidebar } from './components/navigation/Si
 export type {
   SidebarAccountMode,
   SidebarAccountProps,
+  SidebarBrandProps,
   SidebarGroupProps,
   SidebarItemProps,
   SidebarNestedMode,

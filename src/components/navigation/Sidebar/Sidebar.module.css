@@ -49,6 +49,11 @@
   margin-bottom: 8px;
 }
 
+/* A marca sem símbolo não aparece no trilho: o lugar dela some junto, sem deixar a margem. */
+.brand:empty {
+  display: none;
+}
+
 .railGroup {
   display: grid;
   gap: 2px;

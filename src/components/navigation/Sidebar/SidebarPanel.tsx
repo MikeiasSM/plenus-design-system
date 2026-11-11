@@ -20,6 +20,7 @@ import {
   type SidebarAccountMode,
   type SidebarNestedMode,
 } from './SidebarPanel.context';
+import { SidebarBrandContext } from './SidebarBrand.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
 import frameStyles from './Sidebar.module.css';
 import styles from './SidebarPanel.module.css';
@@ -81,7 +82,9 @@ export function SidebarPanel({
           {hasItems && (
             <nav aria-label={label} className={styles.navigation} data-covered={accountMode === 'cover' && accountOpen}>
               <div className={styles.head}>
-                <div className={styles.brand}>{brand}</div>
+                <div className={styles.brand}>
+                  <SidebarBrandContext value="panel">{brand}</SidebarBrandContext>
+                </div>
                 {narrow ? (
                   <ButtonIcon
                     className={frameStyles.frameButton}
