@@ -52,7 +52,13 @@ const playground = definirPlayground({
       <Card>
         <Card.Body flush>
           <FieldRow description={valores.description || undefined} label={valores.label}>
-            {({ describedBy, id }) => <ControleDaLinha controle={valores.controle} describedBy={describedBy} id={id} />}
+            {(wiring) =>
+              valores.controle === 'Button' ? (
+                <ControleDaLinha controle="Button" describedBy={wiring.describedBy} />
+              ) : (
+                <ControleDaLinha controle={valores.controle} describedBy={wiring.describedBy} id={wiring.id} />
+              )
+            }
           </FieldRow>
         </Card.Body>
       </Card>

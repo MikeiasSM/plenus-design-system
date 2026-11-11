@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useEffect, useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { Button } from '../../actions/Button';
 import { InputNumber } from '../InputNumber';
 import { Select } from '../Select';
@@ -46,6 +48,47 @@ describe('FieldRow', () => {
     expect(screen.getByRole('button', { name: 'Desligar aprovacao' })).toHaveAccessibleDescription(
       'Os pedidos seguem sem aprovacao.',
     );
+  });
+
+  it('nao deixa o rotulo apontar para um controle que nao existe', () => {
+    render(
+      <FieldRow description="Os pedidos seguem sem aprovacao." label="Pedidos na fila">
+        {({ describedBy }) => <Button aria-describedby={describedBy}>Desligar aprovacao</Button>}
+      </FieldRow>,
+    );
+
+    expect(screen.getByText('Pedidos na fila').closest('label')).not.toHaveAttribute('for');
+  });
+
+  it('volta a apontar para o controle quando ele aparece', () => {
+    const { rerender } = render(<FieldRow label="Limite">{() => <span>Carregando</span>}</FieldRow>);
+
+    expect(screen.getByText('Limite').closest('label')).not.toHaveAttribute('for');
+
+    rerender(<FieldRow label="Limite">{({ id }) => <input id={id} />}</FieldRow>);
+
+    expect(screen.getByRole('textbox', { name: 'Limite' })).toBeInTheDocument();
+  });
+
+  it('ja sai do servidor sem apontar para um controle que nao existe', () => {
+    const html = renderToString(
+      <FieldRow label="Pedidos na fila">{({ describedBy }) => <Button aria-describedby={describedBy}>Desligar</Button>}</FieldRow>,
+    );
+
+    expect(html).not.toContain('for=');
+  });
+
+  it('continua apontando para o controle que monta depois, sem a linha renderizar de novo', async () => {
+    function Carregando({ id }: { id: string }) {
+      const [pronto, setPronto] = useState(false);
+
+      useEffect(() => setPronto(true), []);
+      return pronto ? <input id={id} /> : <span>Carregando</span>;
+    }
+
+    render(<FieldRow label="Carteira">{({ id }) => <Carregando id={id} />}</FieldRow>);
+
+    expect(await screen.findByRole('textbox', { name: 'Carteira' })).toBeInTheDocument();
   });
 
   it('nao aponta para uma explicacao que nao existe', () => {
