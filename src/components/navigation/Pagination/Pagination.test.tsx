@@ -1,5 +1,33 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Pagination, montarFaixa } from './Pagination';
+
+describe('Pagination: estilo', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/navigation/Pagination/Pagination.module.css'), 'utf8');
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('quebra as paginas entre os passos quando nao cabem numa linha, em vez de vazar', () => {
+    expect(bloco('.pagination')).toContain('flex-wrap: wrap;');
+    expect(bloco('.steps')).toContain('min-width: 0;');
+    expect(bloco('.steps')).not.toContain('flex-wrap');
+    expect(bloco('.list')).toContain('flex-wrap: wrap;');
+  });
+
+  it('anterior, paginas e proxima ficam num grupo so, que desce inteiro', () => {
+    render(<Pagination pageCount={5} />);
+
+    const grupo = screen.getByRole('button', { name: 'Página anterior' }).parentElement;
+
+    expect(grupo).toContainElement(screen.getByRole('list'));
+    expect(grupo).toContainElement(screen.getByRole('button', { name: 'Próxima página' }));
+  });
+});
 
 describe('montarFaixa', () => {
   it('mostra tudo quando cabe', () => {

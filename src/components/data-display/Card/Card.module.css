@@ -121,10 +121,13 @@
   line-height: var(--pl-type-title-line-height);
 }
 
+/* Palavra sem ponto de quebra (código, e-mail, URL) quebra dentro da caixa; com o min-width: 0, não passa do cartão
+   nem cobre o trailing. */
 .description {
   grid-column: 1;
   min-width: 0;
   margin: 0;
+  overflow-wrap: break-word;
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);

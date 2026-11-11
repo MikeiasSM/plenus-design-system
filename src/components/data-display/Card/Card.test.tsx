@@ -284,3 +284,26 @@ describe('Card', () => {
     });
   });
 });
+
+describe('palavra longa sem espaco no Card.Header', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Card/Card.module.css'), 'utf8');
+
+  const bloco = (seletor: RegExp) => {
+    const inicio = css.search(seletor);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('a descricao quebra a palavra longa sem passar do cartao nem cobrir o trailing', () => {
+    const regra = bloco(/^\.description \{/m);
+
+    expect(regra).toContain('min-width: 0;');
+    expect(regra).toContain('overflow-wrap: break-word;');
+  });
+
+  it('no sm, o titulo continua cortado na terceira linha e a descricao na segunda', () => {
+    expect(bloco(/^\.headerSm \.title \{/m)).toContain('-webkit-line-clamp: 3;');
+    expect(bloco(/^\.headerSm \.description \{/m)).toContain('-webkit-line-clamp: 2;');
+  });
+});

@@ -50,10 +50,14 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Corrigido
 
 - `Card.Header`: com o título em mais de uma linha, o `badge` fica logo depois da última palavra, e não na ponta direita do cabeçalho. Sem espaço nessa linha, ele desce para a seguinte, rente ao título. Com o título numa linha só, a posição do selo não muda. Em `size="sm"`, em que o título para na terceira linha, o selo continua ao lado dele.
+- `FieldRow`: o rótulo da linha aponta para o campo quando a função dos filhos pega o `id`. Com um controle que se nomeia pelo próprio conteúdo, como um botão, que recebe só a explicação, o rótulo deixa de apontar para um campo que não existe, já no HTML do servidor. O campo que monta depois, como o que espera dados, continua ligado ao rótulo.
+- `Pagination`: sem largura para todas as páginas numa linha, como no rodapé de um cartão estreito ao lado de uma contagem, os números quebram em linhas entre os botões de anterior e próxima, em vez de vazar do contêiner e ter as últimas páginas cortadas. Onde a navegação já cabia, nada muda.
+- Showcase: nas composições de tela e na página do `AppShell`, a área de conteúdo do Showcase deixa de ser um `main`, porque a moldura demonstrada já traz o dela no `AppShell.Page`. Antes, um `main` ficava dentro do outro.
 - `Button` e `ButtonIcon`: o anel de foco deixa de sumir quando o ponteiro passa sobre o botão com foco de teclado.
 - `Button` e `ButtonIcon`: o ícone guarda a medida num espaço apertado, como a coluna de ações de uma tabela. Antes, encolhia até sumir, e o botão de ícone ficava sem ícone. Agora o botão mantém o tamanho e a tabela rola na horizontal.
 - `reset.css`: o teto `max-width: 100%` vale só para imagem e vídeo, como no Tailwind. No `svg`, deixava um ícone encolher até sumir.
 - `PageHeader`: o título com uma palavra longa sem espaço, como um código ou um e-mail, quebra dentro da própria caixa em vez de cobrir os selos. Na descrição e no contexto, a palavra longa também quebra, em vez de alargar o cabeçalho para fora da tela.
+- `Card`: no cabeçalho, a descrição com uma palavra longa sem espaço, como um código, um e-mail ou um endereço, quebra dentro da própria caixa em vez de passar da borda do cartão ou cobrir a ação ao lado. No `size="sm"`, ela continua cortada na segunda linha. Descrições que já cabiam não mudam.
 - Showcase: a coluna "Remover" de Novo pedido e da seção de configuração perde a largura fixa de 56 px, que não cabia o botão, e alinha à direita, como na página da `Table`.
 - Showcase: nos quadros Evite de `Tabs`, `Toast`, `Alert`, `CheckboxGroup`, `Timeline`, `ChartGauge` e `AppShell`, a prévia e o código mostram o uso que o texto desaconselha. Antes, mostravam a alternativa certa embaixo do "Evite".
 

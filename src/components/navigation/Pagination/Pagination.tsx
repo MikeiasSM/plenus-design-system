@@ -146,7 +146,7 @@ function PaginationSteps({
   const noFim = disabled || atual === totalDePaginas || undefined;
 
   return (
-    <>
+    <div className={styles.steps}>
       {showFirstLast && (
         <button
           className={styles.step}
@@ -210,7 +210,7 @@ function PaginationSteps({
           <IconChevronBarRight size={14} />
         </button>
       )}
-    </>
+    </div>
   );
 }
 

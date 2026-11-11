@@ -86,6 +86,10 @@ export function App() {
   const noComposicoes = rota.componente === ROTA_DAS_COMPOSICOES;
   const noFundamentos = rota.componente === 'fundamentos';
   const noPatterns = rota.componente === ROTA_DOS_PATTERNS;
+  // A moldura demonstrada traz o proprio `main`, no `AppShell.Page`: o conteudo do Showcase nao pode ser outro em volta.
+  const demonstraMoldura =
+    (noComposicoes && telas.some((tela) => tela.id === rota.secao)) || atual?.componente.nome === 'AppShell';
+  const Conteudo = demonstraMoldura ? 'div' : 'main';
   const telasFiltradas = telas.filter((tela) => !termo || [tela.nome, tela.resumo, 'composições'].some((texto) => normalizar(texto).includes(termo)));
 
   const patternsFiltrados = patterns.filter((pattern) => !termo || [pattern.nome, pattern.resumo, 'patterns'].some((texto) => normalizar(texto).includes(termo)));
@@ -272,7 +276,7 @@ export function App() {
           {filtradas.length === 0 && <p className="sidebar-empty">Nenhum componente com esse nome.</p>}
         </nav>
 
-        <main className={noComposicoes ? 'main main-composicao' : 'main'} id="conteudo" tabIndex={-1}>
+        <Conteudo className={noComposicoes ? 'main main-composicao' : 'main'} id="conteudo" tabIndex={-1}>
           {noComposicoes ? (
             <Composicoes tela={rota.secao} />
           ) : noPatterns ? (
@@ -284,7 +288,7 @@ export function App() {
           ) : (
             <VisaoGeral familias={familias} />
           )}
-        </main>
+        </Conteudo>
       </div>
     </div>
   );
