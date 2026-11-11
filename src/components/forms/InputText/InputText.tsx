@@ -1,4 +1,4 @@
-import { useRef, type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { useRef, type ChangeEvent, type ComponentPropsWithRef, type CSSProperties, type ReactNode } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
@@ -30,6 +30,11 @@ export interface InputTextProps extends Omit<ComponentPropsWithRef<'input'>, 'si
    */
   onRawValueChange?: (raw: string) => void;
   size?: InputTextSize;
+  /**
+   * Unidade ou sufixo ao fim do campo, como `%`, `kg` ou `dias`. E so visual: o leitor de tela a ouve depois do
+   * nome e do valor, como descricao do campo, e ela nao entra no `value`.
+   */
+  unit?: string;
   showCharacterCount?: boolean;
 }
 
@@ -47,6 +52,7 @@ export function InputText({
   required = false,
   size = 'md',
   showCharacterCount = false,
+  unit,
   defaultValue,
   onChange,
   onRawValueChange,
@@ -93,32 +99,41 @@ export function InputText({
       size={size}
     >
       {({ className: controlClassName, id, describedBy, invalid }) => {
+        const unitId = unit ? `${id}-unit` : undefined;
         const input = (
           <input
             {...props}
             defaultValue={shownDefaultValue}
             id={id}
             ref={mergedRef}
-            aria-describedby={describedBy}
+            aria-describedby={[describedBy, unitId].filter(Boolean).join(' ') || undefined}
             aria-invalid={invalid || ariaInvalid}
-            className={[controlClassName, icon && styles.withIcon, className].filter(Boolean).join(' ')}
+            className={[controlClassName, icon && styles.withIcon, unit && styles.withUnit, className].filter(Boolean).join(' ')}
             maxLength={maxLength}
             onChange={handleChange}
             required={required}
+            style={unit ? { ...props.style, '--unit-chars': unit.length } as CSSProperties : props.style}
             value={shownValue}
           />
         );
 
-        if (!icon) {
+        if (!icon && !unit) {
           return input;
         }
 
         return (
           <div className={[styles.control, size === 'sm' && styles.sm, size === 'lg' && styles.lg].filter(Boolean).join(' ')}>
-            <span aria-hidden="true" className={styles.icon}>
-              {icon}
-            </span>
+            {icon && (
+              <span aria-hidden="true" className={styles.icon}>
+                {icon}
+              </span>
+            )}
             {input}
+            {unit && (
+              <span aria-hidden="true" className={styles.unit} id={unitId}>
+                {unit}
+              </span>
+            )}
           </div>
         );
       }}

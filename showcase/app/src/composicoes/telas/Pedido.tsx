@@ -1,13 +1,13 @@
-import { Badge, Button, Card, Columns, DescriptionList, IconMore, IconPencil, Menu, PageHeader, Stack, Table, Textarea, Timeline, formatCurrency, formatDate } from '@plenustech/design-system';
+import { Badge, Button, ButtonIcon, Card, Columns, DescriptionList, IconMore, IconPencil, Menu, PageHeader, Stack, Table, Textarea, Timeline, formatCurrency, formatDate, formatPercent } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
-import { DESCONTO, FRETE, ITENS_DO_PEDIDO, PEDIDOS, SUBTOTAL, TOTAL } from '../dados';
+import { DESCONTO, DESCONTO_DO_PEDIDO, FRETE, ITENS_DO_PEDIDO, PEDIDOS, SITUACOES, SUBTOTAL, TOTAL } from '../dados';
 import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
 
 const pedido = PEDIDOS[0];
 
 const ANDAMENTO = [
   { key: 'criado', label: 'Pedido criado', date: `${formatDate(pedido.data)} · 09:12`, description: `Por ${pedido.vendedor}` },
-  { key: 'desconto', label: 'Desconto de 5% aplicado', date: `${formatDate(pedido.data)} · 09:14` },
+  { key: 'desconto', label: `Desconto de ${formatPercent(DESCONTO_DO_PEDIDO)} aplicado`, date: `${formatDate(pedido.data)} · 09:14` },
   { key: 'aprovacao', label: 'Aguardando aprovação do gerente', date: `${formatDate(pedido.data)} · 09:15` },
   { key: 'separacao', label: 'Separação' },
   { key: 'entrega', label: 'Entrega' },
@@ -36,7 +36,7 @@ export function Pedido() {
         <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} label="Voltar para Pedidos">Pedidos</PageHeader.Back>
         <PageHeader.Title>Pedido #{pedido.numero}</PageHeader.Title>
         <PageHeader.Badges>
-          <SeloDaSituacao situacao={pedido.situacao} />
+          <SeloDaSituacao situacao={SITUACOES[pedido.situacao]} />
           <Badge tone="neutral">Boleto 28 dias</Badge>
         </PageHeader.Badges>
         <PageHeader.Context>
@@ -46,7 +46,7 @@ export function Pedido() {
         </PageHeader.Context>
         <PageHeader.Actions>
           <Menu items={MAIS_ACOES} label="Mais ações">
-            <Button aria-label="Mais ações" variant="secondary"><IconMore /></Button>
+            <ButtonIcon icon={<IconMore />} label="Mais ações" />
           </Menu>
           <Button variant="secondary"><IconPencil />Editar</Button>
           <Button>Aprovar pedido</Button>
@@ -62,7 +62,7 @@ export function Pedido() {
                   <Table label="Itens do pedido" size="sm">
                     <Table.Header>
                       <Table.Column id="produto">Produto</Table.Column>
-                      <Table.Column hideBelow="sm" id="codigo">Código</Table.Column>
+                      <Table.Column hideBelow="sm" id="codigo" width="128px">Código</Table.Column>
                       <Table.Column id="quantidade" numeric>Qtd.</Table.Column>
                       <Table.Column hideBelow="md" id="unitario" numeric>Unitário</Table.Column>
                       <Table.Column id="total" numeric>Total</Table.Column>
@@ -83,7 +83,7 @@ export function Pedido() {
                 <Card.Footer>
                   <DescriptionList layout="inline">
                     <DescriptionList.Item term="Subtotal">{formatCurrency(SUBTOTAL)}</DescriptionList.Item>
-                    <DescriptionList.Item term="Desconto (5%)">− {formatCurrency(DESCONTO)}</DescriptionList.Item>
+                    <DescriptionList.Item term={`Desconto (${formatPercent(DESCONTO_DO_PEDIDO)})`}>− {formatCurrency(DESCONTO)}</DescriptionList.Item>
                     <DescriptionList.Item term="Frete">{formatCurrency(FRETE)}</DescriptionList.Item>
                     <DescriptionList.Item emphasis term="Total">{formatCurrency(TOTAL)}</DescriptionList.Item>
                   </DescriptionList>
@@ -104,7 +104,7 @@ export function Pedido() {
           <Columns.Aside>
             <Stack>
               <Card>
-                <Card.Header headingLevel={2} title="Cliente" trailing={<Button size="sm" variant="ghost">Ver base</Button>} />
+                <Card.Header headingLevel={2} title="Cliente" trailing={<Button href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} size="sm" variant="ghost">Ver base</Button>} />
                 <Card.Body>
                   <Definicoes
                     itens={[

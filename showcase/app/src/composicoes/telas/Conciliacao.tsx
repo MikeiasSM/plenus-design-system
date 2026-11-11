@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Alert,
-  Badge,
   Button,
   Card,
   EmptyState,
@@ -12,14 +11,15 @@ import {
   Stack,
   Steps,
   Table,
+  Text,
   formatCurrency,
   formatDate,
   type FileUploadItem,
 } from '@plenustech/design-system';
 import { IconCheck2Circle } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
-import { LANCAMENTOS, type ParDoLancamento } from '../dados';
-import { Coluna, Pagina } from '../Pagina';
+import { LANCAMENTOS, PARES_DO_LANCAMENTO } from '../dados';
+import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
 
 const ETAPAS = [
   { key: 'conta', label: 'Conta e período', titulo: 'Escolha a conta', explicacao: 'Qual conta e qual período vão ser conferidos.' },
@@ -30,12 +30,6 @@ const ETAPAS = [
 
 const CONTAS = ['Banco Horizonte · ag. 1020, c/c 40213-7', 'Coop. Vale Verde · ag. 0745, c/c 88120-3'].map((conta) => ({ label: conta, value: conta }));
 const PERIODOS = ['Outubro de 2026', 'Setembro de 2026'].map((periodo) => ({ label: periodo, value: periodo }));
-
-const PARES: Record<ParDoLancamento, { rotulo: string; tom: 'success' | 'warning' | 'neutral' }> = {
-  ok: { rotulo: 'Conciliado', tom: 'success' },
-  sugerido: { rotulo: 'Par sugerido', tom: 'warning' },
-  sem: { rotulo: 'Sem par', tom: 'neutral' },
-};
 
 export function Conciliacao() {
   const [etapa, setEtapa] = useState('conta');
@@ -69,7 +63,7 @@ export function Conciliacao() {
                 actions={
                   <>
                     <Button onClick={() => { setConcluida(false); setEtapa('conta'); setExtrato([]); setAceitos([]); }} variant="secondary">Nova conciliação</Button>
-                    <Button onClick={() => { window.location.hash = `${CAMINHO_DAS_COMPOSICOES}/inicio`; }}>Voltar à tela inicial</Button>
+                    <Button href={`${CAMINHO_DAS_COMPOSICOES}/inicio`}>Voltar à tela inicial</Button>
                   </>
                 }
                 description={`${conciliados} lançamentos conciliados. O que ficou sem par está na fila de ajuste.`}
@@ -92,7 +86,7 @@ export function Conciliacao() {
             <Steps current={etapa} items={ETAPAS} label="Etapas da conciliação" onCurrentChange={(chave) => ETAPAS.findIndex((e) => e.key === chave) < indice && setEtapa(chave)} />
           </Card.Body>
           <Card.Header description={atual.explicacao} headingLevel={2} title={atual.titulo} />
-          <Card.Body>
+          <Card.Body flush={etapa === 'conferencia'}>
             {etapa === 'conta' && (
               <Grid columns={2} minColumnWidth={252}>
                 <Select label="Conta bancária" onValueChange={setConta} options={CONTAS} value={conta} />
@@ -115,12 +109,12 @@ export function Conciliacao() {
                   <Table.Column id="data" width="90px">Data</Table.Column>
                   <Table.Column id="descricao">Lançamento</Table.Column>
                   <Table.Column id="valor" numeric>Valor</Table.Column>
-                  <Table.Column id="par">Par</Table.Column>
+                  <Table.Column id="par" width="240px">Par</Table.Column>
                 </Table.Header>
                 <Table.Body items={LANCAMENTOS}>
                   {(lancamento) => {
                     const aceito = aceitos.includes(lancamento.id);
-                    const par = aceito ? PARES.ok : PARES[lancamento.par];
+                    const par = PARES_DO_LANCAMENTO[aceito ? 'ok' : lancamento.par];
 
                     return (
                       <Table.Row id={lancamento.id}>
@@ -131,7 +125,7 @@ export function Conciliacao() {
                           {lancamento.par === 'sugerido' && !aceito ? (
                             <Button onClick={() => setAceitos([...aceitos, lancamento.id])} size="sm" variant="secondary">Aceitar {lancamento.referencia}</Button>
                           ) : (
-                            <Badge tone={par.tom}>{par.rotulo}</Badge>
+                            <SeloDaSituacao situacao={par} />
                           )}
                         </Table.Cell>
                       </Table.Row>
@@ -142,9 +136,9 @@ export function Conciliacao() {
             )}
             {etapa === 'revisao' && (
               <Stack>
-                <p>
+                <Text as="p">
                   {conciliados} de {LANCAMENTOS.length} lançamentos conciliados em {periodo.toLowerCase()}, conta {conta}.
-                </p>
+                </Text>
                 {semPar > 0 && (
                   <Alert title={`${semPar} lançamentos sem par`} tone="info">
                     Ficam na fila de ajuste e não travam a conclusão.

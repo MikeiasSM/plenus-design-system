@@ -1,0 +1,48 @@
+/* Leiaute das páginas de pattern. Estilo de componente é da biblioteca; aqui só ficam a prévia, as listas e o espaçamento. */
+
+/* A prévia de um pattern ocupa a largura do cartão, em vez de centrar um item pequeno. */
+.example-preview.pattern-preview {
+  display: block;
+}
+
+.example-preview.pattern-preview-moldura {
+  padding: 0;
+}
+
+/* A folha de página precisa de um pai com altura: a moldura da aplicação ocupa o espaço que o pai dá. */
+.pattern-moldura {
+  position: relative;
+  overflow: hidden;
+  background: var(--pl-color-background);
+}
+
+.pattern-texto {
+  max-width: 760px;
+  margin: 0 0 var(--pl-space-3);
+  color: var(--pl-color-text);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.pattern-lista {
+  display: grid;
+  gap: var(--pl-space-2);
+  max-width: 760px;
+  margin: 0;
+  padding-left: var(--pl-space-5);
+  color: var(--pl-color-text-secondary);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.pattern-lista code {
+  color: var(--pl-color-text);
+}
+
+.subsection-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--pl-space-5);
+}
+
+.subsection-pair > .subsection + .subsection {
+  margin-top: 0;
+}

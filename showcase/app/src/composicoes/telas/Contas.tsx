@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Badge, Button, Card, EmptyState, NumberedList, PageHeader, Stack, Table } from '@plenustech/design-system';
-import { IconPlusLg, IconUpload } from '@plenustech/design-system/icons';
+import { Button, Card, EmptyState, IconPlus, IconUpload, NumberedList, PageHeader, Stack, Table } from '@plenustech/design-system';
 import { IconBank } from '@plenustech/design-system/icons';
-import { Coluna, Pagina } from '../Pagina';
+import { CONTA_ATIVA } from '../dados';
+import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
 
 const PRIMEIRA_CONTA = { id: 'horizonte', apelido: 'Conta principal', banco: 'Banco Horizonte', agencia: '1020', conta: '40213-7' };
 
@@ -16,7 +16,7 @@ export function Contas() {
         <PageHeader.Description>Contas usadas na conciliação e nos recebimentos.</PageHeader.Description>
         {contas.length > 0 && (
           <PageHeader.Actions>
-            <Button><IconPlusLg />Nova conta</Button>
+            <Button><IconPlus />Nova conta</Button>
           </PageHeader.Actions>
         )}
       </PageHeader>
@@ -61,7 +61,7 @@ export function Contas() {
                         <Table.Cell>{conta.apelido}</Table.Cell>
                         <Table.Cell>{conta.banco}</Table.Cell>
                         <Table.Cell>{conta.agencia} / {conta.conta}</Table.Cell>
-                        <Table.Cell><Badge tone="success">Ativa</Badge></Table.Cell>
+                        <Table.Cell><SeloDaSituacao situacao={CONTA_ATIVA} /></Table.Cell>
                       </Table.Row>
                     )}
                   </Table.Body>

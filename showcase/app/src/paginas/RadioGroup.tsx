@@ -209,6 +209,18 @@ export const pagina: Pagina = {
         '<RadioGroup\n  label="Forma de pagamento"\n  hint={`Selecionado: ${pagamento}`}\n  value={pagamento}\n  onValueChange={setPagamento}\n>\n  <Radio label="Pix" value="pix" />\n  <Radio label="Boleto" value="boleto" />\n  <Radio label="Cartão de crédito" value="cartao" />\n</RadioGroup>',
     },
     {
+      titulo: 'Na horizontal',
+      descricao: 'Poucas opções curtas, lado a lado; quando não cabem, quebram de linha. As setas trocam a opção nos dois eixos.',
+      Previa: () => (
+        <RadioGroup defaultValue="fisica" label="Tipo de pessoa" orientation="horizontal">
+          <Radio label="Pessoa física" value="fisica" />
+          <Radio label="Pessoa jurídica" value="juridica" />
+        </RadioGroup>
+      ),
+      codigo:
+        '<RadioGroup label="Tipo de pessoa" orientation="horizontal" defaultValue="fisica">\n  <Radio label="Pessoa física" value="fisica" />\n  <Radio label="Pessoa jurídica" value="juridica" />\n</RadioGroup>',
+    },
+    {
       titulo: 'Obrigatório no formulário',
       descricao: 'Clique em Assinar sem escolher: o navegador barra o envio. Escolhido, o valor vai pelo name.',
       Previa: Obrigatorio,
@@ -272,6 +284,7 @@ export const pagina: Pagina = {
     { nome: 'defaultValue', tipo: 'string', descricao: 'Valor inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa a opção escolhida.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
+    { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Direção das opções: uma por linha ou lado a lado, com quebra de linha quando não couberem. O mesmo nome do CheckboxGroup.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo das opções.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Exige uma escolha no envio.' },

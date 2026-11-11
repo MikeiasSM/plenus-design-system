@@ -98,7 +98,7 @@ export type {
 } from './components/forms/FileUpload';
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
-export type { RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
+export type { RadioGroupOrientation, RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
 export { SegmentedControl } from './components/forms/SegmentedControl';
 export type {
   SegmentedControlItem,

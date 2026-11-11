@@ -151,7 +151,7 @@ function CardHeader({
       <Heading className={styles.title} id={titleId}>
         {title}
       </Heading>
-      {badge}
+      {badge && <span className={styles.badge}>{badge}</span>}
     </div>
   );
   const descriptionBox = description && <p className={styles.description}>{description}</p>;

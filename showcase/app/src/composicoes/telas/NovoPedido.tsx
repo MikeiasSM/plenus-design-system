@@ -7,6 +7,8 @@ import {
   Columns,
   DescriptionList,
   Grid,
+  IconPlus,
+  IconTrash,
   InputNumber,
   PageHeader,
   SaveBar,
@@ -15,11 +17,11 @@ import {
   Table,
   Textarea,
   formatCurrency,
+  formatPercent,
   VisuallyHidden,
 } from '@plenustech/design-system';
-import { IconPlusLg, IconTrash } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
-import { CLIENTES, PRODUTOS, VENDEDORES } from '../dados';
+import { CLIENTES, DESCONTO_DO_PEDIDO, PRODUTOS, VENDEDORES } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
 
 interface Item {
@@ -48,6 +50,7 @@ const SALVO: Rascunho = {
 };
 
 const precoDe = (produto: string) => PRODUTOS.find((candidato) => candidato.id === produto)?.preco ?? 0;
+const descricaoDe = (produto: string) => PRODUTOS.find((candidato) => candidato.id === produto)?.descricao ?? produto;
 
 export function NovoPedido() {
   // O rascunho já traz um desconto acima do salvo, para a barra aparecer ao abrir a tela.
@@ -120,7 +123,7 @@ export function NovoPedido() {
                   description="Produtos e quantidades do pedido."
                   headingLevel={2}
                   title="Itens"
-                  trailing={<Button onClick={adicionarItem} size="sm" variant="secondary"><IconPlusLg />Adicionar item</Button>}
+                  trailing={<Button onClick={adicionarItem} size="sm" variant="ghost"><IconPlus />Adicionar item</Button>}
                 />
                 <Card.Body flush>
                   <Table label="Itens do pedido" size="sm">
@@ -130,12 +133,12 @@ export function NovoPedido() {
                       <Table.Column hideBelow="md" id="total" numeric>Total</Table.Column>
                       <Table.Column align="end" id="remover"><VisuallyHidden>Remover</VisuallyHidden></Table.Column>
                     </Table.Header>
-                    <Table.Body items={rascunho.itens.map((item) => ({ ...item, id: String(item.chave) }))}>
+                    <Table.Body items={rascunho.itens.map((item, indice) => ({ ...item, id: String(item.chave), posicao: indice + 1 }))}>
                       {(item) => (
                         <Table.Row id={item.id}>
                           <Table.Cell>
                             <Select
-                              aria-label="Produto"
+                              aria-label={`Produto do item ${item.posicao}`}
                               onValueChange={(produto) => alterarItem(item.chave, { produto })}
                               options={PRODUTOS.map((produto) => ({ label: produto.descricao, value: produto.id }))}
                               value={item.produto}
@@ -143,7 +146,7 @@ export function NovoPedido() {
                           </Table.Cell>
                           <Table.Cell>
                             <InputNumber
-                              aria-label="Quantidade"
+                              aria-label={`Quantidade do item ${item.posicao}, ${descricaoDe(item.produto)}`}
                               onValueChange={(quantidade) => alterarItem(item.chave, { quantidade })}
                               value={item.quantidade}
                             />
@@ -152,7 +155,7 @@ export function NovoPedido() {
                           <Table.Cell>
                             <ButtonIcon
                               icon={<IconTrash />}
-                              label="Remover item"
+                              label={`Remover item ${item.posicao}, ${descricaoDe(item.produto)}`}
                               onClick={() => alterar({ itens: rascunho.itens.filter((candidato) => candidato.chave !== item.chave) })}
                               size="sm"
                               variant="ghost"
@@ -173,9 +176,10 @@ export function NovoPedido() {
                 <Card.Body>
                   <InputNumber
                     decimalScale={1}
-                    hint="Acima de 5% o pedido vai para aprovação."
-                    label="Desconto (%)"
+                    hint={`Acima de ${formatPercent(DESCONTO_DO_PEDIDO)} o pedido vai para aprovação.`}
+                    label="Desconto"
                     onValueChange={(valor) => alterar({ desconto: valor })}
+                    unit="%"
                     value={rascunho.desconto}
                   />
                 </Card.Body>

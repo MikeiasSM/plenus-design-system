@@ -1,26 +1,10 @@
 import type { ReactNode } from 'react';
-import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar, Text } from '@plenustech/design-system';
+import { AppShell, Avatar, IconClock, IconStar, IconStructure, Sidebar } from '@plenustech/design-system';
 import { IconPerson, IconShieldCheck } from '@plenustech/design-system/icons';
+import { MarcaDaAplicacao, MarcaDoSubmenu } from '../estrutura/MarcaDaAplicacao';
 import { CAMINHO_DAS_COMPOSICOES, MODULOS, MODULO_DE_CONFIGURACOES, type Modulo } from './menu';
 
 const hrefDe = (rota: string) => `${CAMINHO_DAS_COMPOSICOES}/${rota}`;
-
-function Marca() {
-  return (
-    <span aria-hidden="true" className="moldura-marca">
-      <IconStructure size={20} />
-    </span>
-  );
-}
-
-function MarcaDoSubmenu() {
-  return (
-    <span className="moldura-marca-texto">
-      <Text variant="title">Gestor</Text>
-      <Text tone="tertiary" variant="micro">by Plenustech</Text>
-    </span>
-  );
-}
 
 function ContaDoUsuario() {
   return (
@@ -52,7 +36,7 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
     <AppShell>
       <Sidebar>
         <Sidebar.Rail
-          brand={<Marca />}
+          brand={<MarcaDaAplicacao icone={<IconStructure size={20} />} />}
           footer={
             <>
               <ItemDoModulo atual={atual.id === MODULO_DE_CONFIGURACOES.id} modulo={MODULO_DE_CONFIGURACOES} />

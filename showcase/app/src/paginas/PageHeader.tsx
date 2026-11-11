@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
-import { Badge, Button, InputText, Menu, PageHeader, IconMore, IconSearch } from '@plenustech/design-system';
+import { Badge, Button, ButtonIcon, InputText, Menu, PageHeader, IconMore, IconSearch } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -27,9 +27,7 @@ function Acoes({ modo, registrar }: { modo: (typeof ACOES)[number]; registrar: (
     <PageHeader.Actions>
       {modo === 'com menu de mais ações' && (
         <Menu items={MAIS_ACOES.map((item) => ({ ...item, onSelect: () => registrar(`${item.key}: onSelect`) }))} label="Mais ações">
-          <Button aria-label="Mais ações" variant="secondary">
-            <IconMore />
-          </Button>
+          <ButtonIcon icon={<IconMore />} label="Mais ações" />
         </Menu>
       )}
       {modo !== 'principal' && <Button variant="secondary">Imprimir</Button>}
@@ -118,9 +116,7 @@ const CODIGO_DE_MAIS_DE_DUAS_ACOES = `<PageHeader>
   <PageHeader.Title>Pedido 1042</PageHeader.Title>
   <PageHeader.Actions>
     <Menu label="Mais ações" items={maisAcoes}>
-      <Button aria-label="Mais ações" variant="secondary">
-        <IconMore />
-      </Button>
+      <ButtonIcon icon={<IconMore />} label="Mais ações" />
     </Menu>
     <Button variant="secondary">Imprimir</Button>
     <Button>Aprovar pedido</Button>
@@ -149,9 +145,7 @@ function Modos() {
           <PageHeader.Title>Pedido 1042</PageHeader.Title>
           <PageHeader.Actions>
             <Menu items={MAIS_ACOES} label="Mais ações">
-              <Button aria-label="Mais ações" variant="secondary">
-                <IconMore />
-              </Button>
+              <ButtonIcon icon={<IconMore />} label="Mais ações" />
             </Menu>
             <Button variant="secondary">Imprimir</Button>
             <Button>Aprovar pedido</Button>

@@ -167,6 +167,12 @@ function Modos() {
       </dd>
       <dt><code>disabled</code></dt>
       <dd>Sai da ordem de tabulação e não dispara eventos. Prefira dizer, perto dele, por que a ação não está disponível.</dd>
+      <dt><code>href</code> e <code>as</code></dt>
+      <dd>
+        Com <code>href</code> (ou <code>as</code> e <code>linkProps</code>), vira link de verdade, com as mesmas variantes,
+        tamanhos e ícones. <code>disabled</code> tira o destino e o link sai da tabulação; <code>loading</code> mantém o
+        destino, mas não navega. <code>type</code> não se aplica.
+      </dd>
       <dt><code>type</code></dt>
       <dd>
         O padrão é <code>button</code>, para não enviar formulário por acidente. O envio é explícito, com{' '}
@@ -207,6 +213,23 @@ export const pagina: Pagina = {
       descricao: 'dangerGhost para excluir dentro de uma linha, de uma lista ou de uma barra, onde o vermelho sólido pesaria.',
       Previa: () => <Button variant="dangerGhost">Excluir rascunho</Button>,
       codigo: '<Button variant="dangerGhost" onClick={excluir}>\n  Excluir rascunho\n</Button>',
+    },
+    {
+      titulo: 'Como link',
+      descricao: 'Navegar é link, não botão: com href, o Button é um <a> com o mesmo visual, e Ctrl+clique abre outra aba.',
+      Previa: () => (
+        <>
+          <Button href="#/button">Novo pedido</Button>
+          <Button href="#/button" variant="secondary">
+            Ver tudo
+          </Button>
+          <Button disabled href="#/button" variant="secondary">
+            Ver base
+          </Button>
+        </>
+      ),
+      codigo:
+        '<Button href="/pedidos/novo">Novo pedido</Button>\n<Button href="/pedidos" variant="secondary">Ver tudo</Button>\n<Button href="/base" variant="secondary" disabled>\n  Ver base\n</Button>\n\n// Com o componente de link da aplicação\n<Button as={Link} linkProps={{ to: \'/pedidos\' }}>Ver tudo</Button>',
     },
     {
       titulo: 'Ações de baixa ênfase',
@@ -253,17 +276,20 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Aciona a operação, exceto em loading.' },
   ],
   garantias: [
-    { garantia: 'Semântica nativa', como: <>Elemento <code>&lt;button&gt;</code>, sem papel emprestado.</>, teste: 'Button.test.tsx' },
+    { garantia: 'Semântica nativa', como: <>Elemento <code>&lt;button&gt;</code>; com <code>href</code>, <code>as</code> ou <code>linkProps</code>, <code>&lt;a href&gt;</code>. Desabilitado, o link fica sem destino, com <code>role=&quot;link&quot;</code> e <code>aria-disabled</code>.</>, teste: 'Button.test.tsx' },
     { garantia: 'Nome acessível', como: 'O texto do botão. Sem texto, ButtonIcon, que exige label.', teste: 'Button.test.tsx' },
     { garantia: 'Estado ocupado', como: <><code>aria-busy</code> e <code>aria-disabled</code> durante o loading.</>, teste: 'Button.test.tsx' },
     { garantia: 'Contraste', como: 'primary sólido em 3,03:1 é exceção aceita; as demais variantes passam AA.', teste: 'check:contraste' },
   ],
-  notaDaApi: 'Além destas, todas as propriedades nativas de <button> e o ref.',
+  notaDaApi: 'Além destas, todas as propriedades nativas de <button> e o ref (do <a>, quando é link).',
   api: [
     { nome: 'variant', tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerGhost'", padrao: "'primary'", descricao: 'Peso visual da ação. dangerGhost é a destrutiva discreta, só o texto em vermelho.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura de 32, 36 ou 40px; o pequeno e o médio alinham com o campo do mesmo tamanho.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Indicador de atividade; o clique é ignorado.' },
-    { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
-    { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido.' },
+    { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo. Como link, tira o destino e o marca com aria-disabled.' },
+    { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido. Não vale para link.' },
+    { nome: 'href', tipo: 'string', descricao: 'Destino: o Button vira um <a href>, com o mesmo visual. Desabilitado, o link perde o href.' },
+    { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação, para não acoplar o sistema a um roteador, como no Breadcrumb.' },
+    { nome: 'linkProps', tipo: 'Record<string, unknown>', descricao: 'Propriedades entregues inteiras ao componente de link, para o roteador que não usa href, como o to do React Router.' },
   ],
 };

@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Badge, Button, Card, Grid, PageHeader, Progress, SegmentedControl, Table, formatNumber, formatPercent, Text } from '@plenustech/design-system';
-import { IconGrid, IconPlusLg, IconTable } from '@plenustech/design-system/icons';
-import { DEPOSITOS } from '../dados';
-import { Coluna, Pagina } from '../Pagina';
+import { Button, Card, Grid, IconPlus, PageHeader, Progress, SegmentedControl, Table, formatNumber, formatPercent, Text } from '@plenustech/design-system';
+import { IconGrid, IconTable } from '@plenustech/design-system/icons';
+import { DEPOSITOS, TIPOS_DE_DEPOSITO } from '../dados';
+import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
 
 type Forma = 'cartoes' | 'tabela';
-
-const tomDoTipo = (tipo: string) => (tipo === 'Principal' ? 'info' : 'neutral');
 
 function Cartoes() {
   return (
@@ -14,7 +12,7 @@ function Cartoes() {
       {DEPOSITOS.map((deposito) => (
         <Card key={deposito.id}>
           <Card.Header
-            badge={<Badge tone={tomDoTipo(deposito.tipo)}>{deposito.tipo}</Badge>}
+            badge={<SeloDaSituacao situacao={TIPOS_DE_DEPOSITO[deposito.tipo]} />}
             description={deposito.local}
             headingLevel={2}
             title={deposito.nome}
@@ -22,11 +20,13 @@ function Cartoes() {
           <Card.Body>
             <Progress label="Ocupação" showValue value={deposito.ocupacao} />
           </Card.Body>
-          <Card.Footer>
-            <Text as="div" tone="tertiary" variant="caption">
-              {formatNumber(deposito.itens)} itens · {deposito.responsavel}
-            </Text>
-          </Card.Footer>
+          <Card.Footer
+            start={
+              <Text tone="tertiary" variant="caption">
+                {formatNumber(deposito.itens)} itens · {deposito.responsavel}
+              </Text>
+            }
+          />
         </Card>
       ))}
     </Grid>
@@ -50,7 +50,7 @@ function Tabela() {
             {(deposito) => (
               <Table.Row id={deposito.id}>
                 <Table.Cell>{deposito.nome}</Table.Cell>
-                <Table.Cell><Badge tone={tomDoTipo(deposito.tipo)}>{deposito.tipo}</Badge></Table.Cell>
+                <Table.Cell><SeloDaSituacao situacao={TIPOS_DE_DEPOSITO[deposito.tipo]} /></Table.Cell>
                 <Table.Cell>{deposito.local}</Table.Cell>
                 <Table.Cell>{deposito.responsavel}</Table.Cell>
                 <Table.Cell>{formatNumber(deposito.itens)}</Table.Cell>
@@ -82,7 +82,7 @@ export function Depositos() {
             onValueChange={(valor) => setForma(valor as Forma)}
             value={forma}
           />
-          <Button><IconPlusLg />Novo depósito</Button>
+          <Button><IconPlus />Novo depósito</Button>
         </PageHeader.Actions>
       </PageHeader>
       <Coluna largura={1120}>{forma === 'cartoes' ? <Cartoes /> : <Tabela />}</Coluna>

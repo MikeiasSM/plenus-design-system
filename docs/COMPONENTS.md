@@ -11,6 +11,7 @@ A complexidade deve estar no lugar apropriado.
 - Visual simples → Componente primitivo
 - Estrutura composta → Componente composto
 - Estado e comportamento complexos → Componente complexo + State Motor
+- Aspecto comum montado com componentes existentes, sem API própria → Pattern
 
 ## 2. Componentes primitivos
 
@@ -331,7 +332,31 @@ não necessariamente precisa virar:
 
 Componentes oficiais devem representar padrões reutilizáveis e relevantes para o ecossistema.
 
-## 16. Regra final
+Ser reutilizável (servir a um ou mais cenários reais) e expansível (crescer por composição e propriedades sem acumular condições) é a premissa de um componente novo, não uma regra automática: cada caso é avaliado e discutido, com os cenários de uso, a API mínima e o custo. Quando a combinação se repete, mas não justifica API própria, ela vira um pattern (§16).
+
+## 16. Patterns
+
+Um pattern é a forma recomendada de montar um aspecto comum da interface com os componentes que já existem, como o controle do usuário, o menu de ações de uma página, um bloco de ajustes ou uma barra de filtros. Também é chamado de *block* em outras bibliotecas.
+
+O pattern não é componente:
+
+- Não tem API própria e não é exportado pelo pacote.
+- O produto copia a montagem e a adapta ao seu caso.
+- Ele muda junto com os componentes que combina, sem versão própria.
+
+O que o Design System garante é a montagem: os componentes certos para cada parte, a acessibilidade, o espaçamento e o comportamento, conforme o `COMPONENTS-CATALOG.md`.
+
+Os patterns ficam na seção Patterns do Showcase. Cada um traz:
+
+- O problema que resolve e quando usar.
+- Os componentes que combina e o papel de cada um.
+- Um exemplo funcionando e o código para copiar.
+- As decisões de acessibilidade e de comportamento que a montagem precisa manter.
+- As variações aceitas e o que evitar.
+
+O critério entre pattern e componente é a API. Se o aspecto precisa de estado, regras ou partes que o produto não deveria remontar, é candidato a componente (§14). Se basta combinar componentes que já existem numa ordem e num arranjo conhecidos, é pattern. Um pattern que passa a pedir API própria em vários produtos é reavaliado como componente.
+
+## 17. Regra final
 
 Antes de adicionar um componente, a pergunta principal deve ser:
 
@@ -339,4 +364,4 @@ Antes de adicionar um componente, a pergunta principal deve ser:
 
 Se for uma necessidade específica, a implementação deve permanecer na aplicação consumidora.
 
-Se representar um padrão compartilhado, o Design System é o local apropriado.
+Se representar um padrão compartilhado, o Design System é o local apropriado: como componente, quando precisa de API própria, ou como pattern, quando basta combinar os componentes existentes.

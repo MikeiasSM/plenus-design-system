@@ -29,31 +29,36 @@
   margin-top: var(--pl-space-2);
 }
 
-/* A moldura da aplicação ocupa a janela inteira; o botão passa para a barra da página. */
-.palco-controle-janela {
-  position: fixed;
-  top: 9px;
-  left: 50%;
-  z-index: calc(var(--pl-z-fullscreen) + 1);
-  margin: 0;
-  transform: translateX(-50%);
+.palco-moldura {
+  height: 100%;
 }
 
-@media (max-width: 900px) {
-  .palco-controle-janela {
-    top: auto;
-    bottom: 12px;
-  }
-}
-
+/* A moldura da aplicação ocupa a janela inteira. Uma faixa própria no alto leva o botão de sair: ele não cobre a barra da página. */
 .palco-janela {
   position: fixed;
   inset: 0;
   z-index: var(--pl-z-fullscreen);
+  display: flex;
+  flex-direction: column;
   height: auto;
   margin: 0;
   border: 0;
   border-radius: 0;
+}
+
+.palco-janela-barra {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  padding: var(--pl-space-2) var(--pl-space-4);
+  border-bottom: 1px solid var(--pl-color-border);
+  background: var(--pl-color-surface);
+}
+
+.palco-janela > .palco-moldura {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
 }
 
 .apoio {
@@ -91,20 +96,4 @@
   .palco:not(.palco-janela) {
     height: 680px;
   }
-}
-
-/* ---- Moldura de exemplo --------------------------------------------------- */
-
-.moldura-marca {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border-radius: var(--pl-radius-md);
-  background: var(--pl-color-primary);
-  color: var(--pl-color-on-primary);
-}
-
-.moldura-marca-texto {
-  display: grid;
 }

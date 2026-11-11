@@ -16,8 +16,8 @@ function CartaoDeAjustes() {
   return (
     <Card>
       <Card.Body flush>
-        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação (%)">
-          {({ describedBy, id }) => <InputNumber aria-describedby={describedBy} defaultValue={5} id={id} style={{ width: 80 }} />}
+        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação">
+          {({ describedBy, id }) => <InputNumber aria-describedby={describedBy} defaultValue={5} id={id} style={{ width: 96 }} unit="%" />}
         </FieldRow>
         <FieldRow description="Cada carteira define os próprios limites." label="Limites por carteira">
           {({ describedBy, id }) => <Switch aria-describedby={describedBy} defaultChecked id={id} />}
@@ -201,7 +201,7 @@ export const pagina: Pagina = {
       largo: true,
       Previa: TelaDeConfiguracao,
       codigo:
-        '<AnnotatedSection\n  title="Limites"\n  description="Até onde o vendedor concede sozinho, e o teto com aprovação."\n  action={<Button size="sm" variant="ghost">Adicionar limite</Button>}\n>\n  <Card>\n    <Card.Body flush>\n      <FieldRow label="Desconto sem aprovação (%)" description="Até este valor, o pedido segue direto.">\n        {({ describedBy, id }) => (\n          <InputNumber id={id} aria-describedby={describedBy} />\n        )}\n      </FieldRow>\n    </Card.Body>\n  </Card>\n</AnnotatedSection>',
+        '<AnnotatedSection\n  title="Limites"\n  description="Até onde o vendedor concede sozinho, e o teto com aprovação."\n  action={<Button size="sm" variant="ghost">Adicionar limite</Button>}\n>\n  <Card>\n    <Card.Body flush>\n      <FieldRow label="Desconto sem aprovação" description="Até este valor, o pedido segue direto.">\n        {({ describedBy, id }) => (\n          <InputNumber id={id} aria-describedby={describedBy} unit="%" />\n        )}\n      </FieldRow>\n    </Card.Body>\n  </Card>\n</AnnotatedSection>',
     },
     {
       titulo: 'Formulário por assunto',

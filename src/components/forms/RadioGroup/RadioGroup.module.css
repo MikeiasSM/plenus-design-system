@@ -24,8 +24,16 @@
 
 .options {
   display: flex;
-  flex-direction: column;
   gap: var(--pl-space-2);
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.horizontal {
+  flex-flow: row wrap;
+  column-gap: var(--pl-space-5);
 }
 
 .control {

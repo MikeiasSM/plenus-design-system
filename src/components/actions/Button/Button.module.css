@@ -4,6 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   gap: var(--pl-space-2);
   border: 1px solid transparent;
   border-radius: var(--pl-radius-md);
@@ -11,6 +12,8 @@
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-label-line-height);
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
   transition:
     background var(--pl-speed-1) var(--pl-ease),

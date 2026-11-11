@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Card, EmptyState, InputText, LinkList, PageHeader, Stack } from '@plenustech/design-system';
-import { IconSearch } from '@plenustech/design-system/icons';
+import { Card, EmptyState, IconSearch, InputText, LinkList, PageHeader, Stack } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { GRUPOS_DE_CONFIGURACAO } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -52,7 +51,13 @@ export function Configuracoes() {
               </Card.Body>
             </Card>
           ))}
-          {grupos.length === 0 && <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />}
+          {grupos.length === 0 && (
+            <Card>
+              <Card.Body>
+                <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />
+              </Card.Body>
+            </Card>
+          )}
         </Stack>
       </Coluna>
     </Pagina>

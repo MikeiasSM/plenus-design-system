@@ -6,6 +6,7 @@ import {
   Card,
   Dialog,
   Grid,
+  IconPlus,
   InputCurrency,
   InputNumber,
   InputText,
@@ -16,9 +17,8 @@ import {
   formatCurrency,
   formatNumber,
 } from '@plenustech/design-system';
-import { IconPlusLg } from '@plenustech/design-system/icons';
-import { PRODUTOS } from '../dados';
-import { Coluna, Pagina } from '../Pagina';
+import { ESTOQUE_ABAIXO_DO_MINIMO, PRODUTOS } from '../dados';
+import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
 
 interface Produto {
   descricao: string;
@@ -53,7 +53,7 @@ export function Produtos() {
         <PageHeader.Title>Produtos</PageHeader.Title>
         <PageHeader.Description>Catálogo de peças e serviços com estoque e preço de venda.</PageHeader.Description>
         <PageHeader.Actions>
-          <Button onClick={() => setDialogoAberto(true)}><IconPlusLg />Novo produto</Button>
+          <Button onClick={() => setDialogoAberto(true)}><IconPlus />Novo produto</Button>
         </PageHeader.Actions>
       </PageHeader>
       <Coluna largura={1120}>
@@ -70,6 +70,7 @@ export function Produtos() {
                   <Table.Column hideBelow="md" id="unidade">Unidade</Table.Column>
                   <Table.Column id="preco" numeric>Preço</Table.Column>
                   <Table.Column id="estoque" numeric>Estoque</Table.Column>
+                  <Table.Column id="situacao">Situação</Table.Column>
                 </Table.Header>
                 <Table.Body items={produtos}>
                   {(produto) => (
@@ -80,9 +81,8 @@ export function Produtos() {
                       </Table.Cell>
                       <Table.Cell>{produto.unidade}</Table.Cell>
                       <Table.Cell>{formatCurrency(produto.preco)}</Table.Cell>
-                      <Table.Cell>
-                        {produto.estoque < produto.minimo && <Badge tone="danger">Abaixo do mínimo</Badge>} {formatNumber(produto.estoque)}
-                      </Table.Cell>
+                      <Table.Cell>{formatNumber(produto.estoque)}</Table.Cell>
+                      <Table.Cell>{produto.estoque < produto.minimo && <SeloDaSituacao situacao={ESTOQUE_ABAIXO_DO_MINIMO} />}</Table.Cell>
                     </Table.Row>
                   )}
                 </Table.Body>
@@ -104,8 +104,8 @@ export function Produtos() {
         title="Novo produto"
       >
         <Stack>
-          <InputText label="Descrição" onValueChange={(descricao) => setNovo({ ...novo, descricao })} required value={novo.descricao} />
-          <Grid columns={3} minColumnWidth={163}>
+          <InputText autoFocus label="Descrição" onValueChange={(descricao) => setNovo({ ...novo, descricao })} required value={novo.descricao} />
+          <Grid columns={3} minColumnWidth={150}>
             <Select label="Unidade" onValueChange={(unidade) => setNovo({ ...novo, unidade })} options={UNIDADES} value={novo.unidade} />
             <InputCurrency label="Preço" onValueChange={(preco) => setNovo({ ...novo, preco: preco ?? 0 })} value={novo.preco} />
             <InputNumber label="Estoque inicial" onValueChange={(estoque) => setNovo({ ...novo, estoque: estoque ?? 0 })} value={novo.estoque} />

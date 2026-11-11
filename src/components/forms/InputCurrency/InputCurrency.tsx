@@ -4,7 +4,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { InputText, type InputTextProps } from '../InputText';
 import { formatCurrencyInput } from '../../../utils/formatters';
 
-export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'onValueChange' | 'showCharacterCount' | 'type' | 'value'> {
+export interface InputCurrencyProps extends Omit<InputTextProps, 'defaultValue' | 'onChange' | 'onValueChange' | 'showCharacterCount' | 'type' | 'unit' | 'value'> {
   currency?: string;
   defaultValue?: number | null;
   decimalScale?: number;

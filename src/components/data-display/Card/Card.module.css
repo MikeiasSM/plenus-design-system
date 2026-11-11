@@ -44,6 +44,37 @@
   min-width: 0;
 }
 
+/* O título corre em linha, e o selo vai logo após a última palavra, centrado nela: quebrado em duas linhas, o título
+   ocupava a largura inteira e empurrava o selo para a ponta. No `sm`, o título para na terceira linha, e o selo
+   continua ao lado do bloco, para não sumir com o corte. */
+.header:not(.headerSm) .titleRow {
+  display: block;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.header:not(.headerSm) .title {
+  display: inline;
+}
+
+/* O respiro fica no fim do título, e não no começo do selo: o selo que desce de linha começa rente ao título. */
+.header:not(.headerSm) .title:has(+ .badge) {
+  margin-inline-end: var(--pl-space-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-height: var(--pl-type-title-line-height);
+  vertical-align: top;
+}
+
+.headerSm .badge {
+  display: contents;
+}
+
 .header:has(> .description) > .trailing {
   grid-row: 1 / span 2;
 }
@@ -107,6 +138,17 @@
   flex: none;
   align-items: center;
   gap: var(--pl-space-2);
+}
+
+/* Na grade, o trailing começa no topo do título; o deslocamento põe o centro dele no centro da primeira linha. Só
+   desenha: a altura que ele ocupa no cabeçalho não muda. O deslocamento para no do controle mais alto, e um trailing
+   maior não sobe para fora do cabeçalho, onde o cartão o cortaria. */
+.header:not(.flowing) > .trailing {
+  translate: 0
+    max(
+      calc(var(--pl-type-title-line-height) / 2 - 50%),
+      calc((var(--pl-type-title-line-height) - var(--pl-control-height-lg)) / 2)
+    );
 }
 
 .body,

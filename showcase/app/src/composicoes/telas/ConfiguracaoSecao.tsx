@@ -9,8 +9,8 @@ import {
   Card,
   Columns,
   FieldRow,
-  IconClose,
   IconPlus,
+  IconTrash,
   InputNumber,
   PageHeader,
   SaveStatus,
@@ -18,6 +18,7 @@ import {
   Switch,
   Table,
   VisuallyHidden,
+  formatPercent,
 } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
 import { Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
@@ -77,15 +78,15 @@ function Limites() {
 
   return (
     <>
-      <Card.Body>
-        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação (%)">
+      <Card.Body flush>
+        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação">
           {({ describedBy, id }) => (
-            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(semAprovacao) => alterar({ semAprovacao })} value={valores.semAprovacao} />
+            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(semAprovacao) => alterar({ semAprovacao })} unit="%" value={valores.semAprovacao} />
           )}
         </FieldRow>
-        <FieldRow description="Acima dele, o pedido é recusado mesmo com aprovação." label="Desconto máximo (%)">
+        <FieldRow description="Acima dele, o pedido é recusado mesmo com aprovação." label="Desconto máximo">
           {({ describedBy, id }) => (
-            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(maximo) => alterar({ maximo })} value={valores.maximo} />
+            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(maximo) => alterar({ maximo })} unit="%" value={valores.maximo} />
           )}
         </FieldRow>
         <FieldRow description="Cada carteira define os próprios limites; estes viram o padrão." label="Limites por carteira">
@@ -116,10 +117,10 @@ function QuemAprova() {
               <Table.Cell>
                 <AvatarItem avatar={<Avatar name={aprovador.nome} size="sm" />} description={aprovador.papel} title={aprovador.nome} />
               </Table.Cell>
-              <Table.Cell>{aprovador.limite}%</Table.Cell>
+              <Table.Cell>{formatPercent(aprovador.limite / 100)}</Table.Cell>
               <Table.Cell>
                 <ButtonIcon
-                  icon={<IconClose />}
+                  icon={<IconTrash />}
                   label={`Remover ${aprovador.nome}`}
                   onClick={() => setAprovadores(aprovadores.filter((candidato) => candidato.id !== aprovador.id))}
                   size="sm"
@@ -147,7 +148,7 @@ function Avisos() {
 
   return (
     <>
-      <Card.Body>
+      <Card.Body flush>
         {linha('aprovador', 'Avisar o aprovador por e-mail', 'Assim que o pedido entra na fila.')}
         {linha('vendedor', 'Avisar o vendedor da decisão', 'Aprovado ou recusado, com o comentário do aprovador.')}
         {linha('resumo', 'Resumo diário para a gerência', 'Às 18h, os pedidos aprovados e recusados no dia.')}
@@ -159,7 +160,7 @@ function Avisos() {
 
 function DesligarAprovacao() {
   return (
-    <Card.Body>
+    <Card.Body flush>
       <FieldRow description="Os 14 pedidos aguardando seguem para separação com o desconto que têm." label="Pedidos na fila">
         {({ describedBy }) => <Button aria-describedby={describedBy} variant="danger">Desligar aprovação</Button>}
       </FieldRow>

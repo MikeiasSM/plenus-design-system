@@ -8,6 +8,8 @@ import { telas } from './composicoes/telas';
 import { PaginaDoComponente } from './estrutura/PaginaDoComponente';
 import { VisaoGeral } from './estrutura/VisaoGeral';
 import { Fundamentos } from './fundamentos/Fundamentos';
+import { CAMINHO_DOS_PATTERNS, ROTA_DOS_PATTERNS, patterns } from './patterns/catalogo';
+import { Patterns } from './patterns/Patterns';
 
 const CHAVE_DO_TEMA = 'plenus-showcase-tema';
 
@@ -33,10 +35,10 @@ function normalizar(texto: string) {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-/** `#/button/playground`: o componente e, opcionalmente, a secao da pagina. */
+/** `#/button/playground`: o componente e, opcionalmente, a secao da pagina. `#/patterns/assistente/exemplo` leva ainda a parte do pattern. */
 function lerRota() {
-  const [componente = '', secao = ''] = window.location.hash.replace(/^#\/?/, '').split('/');
-  return { componente, secao };
+  const [componente = '', secao = '', parte = ''] = window.location.hash.replace(/^#\/?/, '').split('/');
+  return { componente, parte, secao };
 }
 
 function useRota() {
@@ -83,7 +85,10 @@ export function App() {
 
   const noComposicoes = rota.componente === ROTA_DAS_COMPOSICOES;
   const noFundamentos = rota.componente === 'fundamentos';
+  const noPatterns = rota.componente === ROTA_DOS_PATTERNS;
   const telasFiltradas = telas.filter((tela) => !termo || [tela.nome, tela.resumo, 'composições'].some((texto) => normalizar(texto).includes(termo)));
+
+  const patternsFiltrados = patterns.filter((pattern) => !termo || [pattern.nome, pattern.resumo, 'patterns'].some((texto) => normalizar(texto).includes(termo)));
 
   const filtradas = familias
     .map((familia) => ({
@@ -115,14 +120,15 @@ export function App() {
   }, [tema]);
 
   useEffect(() => {
-    const alvo = rota.secao ? document.getElementById(rota.secao) : null;
+    const idDoAlvo = noPatterns ? rota.parte : rota.secao;
+    const alvo = idDoAlvo ? document.getElementById(idDoAlvo) : null;
 
     if (alvo) {
       alvo.scrollIntoView();
     } else {
       window.scrollTo(0, 0);
     }
-  }, [rota.componente, rota.secao]);
+  }, [noPatterns, rota.componente, rota.parte, rota.secao]);
 
   useEffect(() => {
     function atalho(evento: KeyboardEvent) {
@@ -146,7 +152,8 @@ export function App() {
           document.getElementById('conteudo')?.focus();
         }}
       />
-      <ToastRegion />
+      {/* Fora do fundo inerte da janela inteira das composicoes: o aviso de uma tela precisa ser ouvido e fechado. */}
+      <ToastRegion data-fora-do-modal="" />
       <header className="topbar">
         <a className="brand" href="#/">
           <span aria-hidden="true" className="brand-mark">P</span>
@@ -182,7 +189,7 @@ export function App() {
 
       <div className="body">
         <nav aria-label="Componentes" className="sidebar">
-          <a aria-current={atual || noComposicoes || noFundamentos ? undefined : 'page'} className="sidebar-home" href="#/">
+          <a aria-current={atual || noComposicoes || noFundamentos || noPatterns ? undefined : 'page'} className="sidebar-home" href="#/">
             Visão geral
           </a>
           <a aria-current={noFundamentos ? 'page' : undefined} className="sidebar-home" href="#/fundamentos">
@@ -203,6 +210,26 @@ export function App() {
                     key={tela.id}
                   >
                     {tela.nome}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {patternsFiltrados.length > 0 && (
+            <div className="sidebar-group">
+              <a aria-current={noPatterns && !rota.secao ? 'page' : undefined} className="sidebar-title sidebar-title-link" href={CAMINHO_DOS_PATTERNS}>
+                <span>Patterns</span>
+                <span className="sidebar-count">{patternsFiltrados.length}</span>
+              </a>
+              <div className="sidebar-items">
+                {patternsFiltrados.map((pattern) => (
+                  <a
+                    aria-current={noPatterns && rota.secao === pattern.id ? 'page' : undefined}
+                    className="sidebar-item"
+                    href={`${CAMINHO_DOS_PATTERNS}/${pattern.id}`}
+                    key={pattern.id}
+                  >
+                    {pattern.nome}
                   </a>
                 ))}
               </div>
@@ -248,6 +275,8 @@ export function App() {
         <main className={noComposicoes ? 'main main-composicao' : 'main'} id="conteudo" tabIndex={-1}>
           {noComposicoes ? (
             <Composicoes tela={rota.secao} />
+          ) : noPatterns ? (
+            <Patterns pattern={rota.secao} />
           ) : noFundamentos ? (
             <Fundamentos />
           ) : atual ? (

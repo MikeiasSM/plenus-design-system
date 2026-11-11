@@ -1,6 +1,48 @@
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { regrasDaFolha } from '../../../test/folha';
 import { Card } from './Card';
+
+describe('Card.Header: estilo', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Card/Card.module.css'), 'utf8');
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('o selo segue o fim do titulo, numa caixa da altura de uma linha dele', () => {
+    expect(bloco('.header:not(.headerSm) .titleRow')).toContain('display: block;');
+    expect(bloco('.header:not(.headerSm) .titleRow')).toContain('line-height: var(--pl-type-title-line-height);');
+    expect(bloco('.header:not(.headerSm) .title')).toContain('display: inline;');
+    expect(bloco('.badge')).toContain('min-height: var(--pl-type-title-line-height);');
+    expect(bloco('.badge')).toContain('vertical-align: top;');
+  });
+
+  it('o respiro fica no fim do titulo, e o selo que desce de linha comeca rente a ele', () => {
+    expect(bloco('.header:not(.headerSm) .title:has(+ .badge)')).toContain('margin-inline-end: var(--pl-space-2);');
+    expect(bloco('.badge')).not.toContain('margin');
+  });
+
+  it('no sm, o selo continua ao lado do titulo cortado', () => {
+    expect(bloco('.headerSm .badge')).toContain('display: contents;');
+  });
+
+  it('na grade, o centro do trailing fica no centro da primeira linha do titulo, sem mudar a altura do cabecalho', () => {
+    const regra = bloco('.header:not(.flowing) > .trailing');
+
+    expect(regra).toContain('translate: 0');
+    expect(regra).toContain('calc(var(--pl-type-title-line-height) / 2 - 50%)');
+  });
+
+  it('o trailing mais alto que o maior controle nao sobe para fora do cabecalho', () => {
+    expect(bloco('.header:not(.flowing) > .trailing')).toContain(
+      'calc((var(--pl-type-title-line-height) - var(--pl-control-height-lg)) / 2)',
+    );
+  });
+});
 
 describe('Card', () => {
   it('nomeia a regiao pelo titulo do cabecalho', () => {
@@ -51,6 +93,19 @@ describe('Card', () => {
     expect(screen.getByText('Gerencie quem tem acesso.')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Convidar' })).toBeInTheDocument();
+  });
+
+  it('poe o selo logo depois do titulo, fora do nome dele', () => {
+    render(
+      <Card>
+        <Card.Header badge={<span>12</span>} title="Membros" />
+      </Card>,
+    );
+
+    const titulo = screen.getByRole('heading', { name: 'Membros' });
+
+    expect(titulo.nextElementSibling).toContainElement(screen.getByText('12'));
+    expect(screen.getByRole('region', { name: 'Membros' })).toBeInTheDocument();
   });
 
   it('encosta o conteudo nas bordas quando pedido', () => {

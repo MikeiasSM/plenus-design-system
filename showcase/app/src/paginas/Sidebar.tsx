@@ -15,6 +15,7 @@ import {
   type SidebarAccountMode,
   type SidebarNestedMode,
 } from '@plenustech/design-system';
+import { MarcaDaAplicacao, MarcaDoSubmenu } from '../estrutura/MarcaDaAplicacao';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
@@ -55,32 +56,7 @@ interface AplicacaoProps {
   registrar?: (evento: string) => void;
 }
 
-function Marca() {
-  return (
-    <span
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        width: 36,
-        height: 36,
-        borderRadius: 'var(--pl-radius-md)',
-        background: 'var(--pl-color-primary)',
-        color: 'var(--pl-color-on-primary)',
-      }}
-    >
-      <IconChartBar size={20} />
-    </span>
-  );
-}
-
-function MarcaDoSubmenu() {
-  return (
-    <span style={{ display: 'grid', lineHeight: 1.15 }}>
-      <strong style={{ fontFamily: 'var(--pl-font-heading)', fontSize: 17 }}>Gestor</strong>
-      <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 11 }}>by Plenustech</span>
-    </span>
-  );
-}
+const Marca = () => <MarcaDaAplicacao icone={<IconChartBar size={20} />} />;
 
 /** Uma aplicação pequena: módulos, grupos, itens, terceiro nível e conta. A navegação é estado local; a biblioteca não faz roteamento. */
 function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedMode, registrar }: AplicacaoProps) {

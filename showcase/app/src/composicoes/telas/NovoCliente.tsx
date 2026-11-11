@@ -9,8 +9,9 @@ import {
   InputCurrency,
   InputText,
   PageHeader,
+  Radio,
+  RadioGroup,
   SaveStatus,
-  SegmentedControl,
   Select,
   showToast,
   Switch,
@@ -96,7 +97,7 @@ export function NovoCliente() {
       setErroDaRazao(`Informe ${pessoaJuridica ? 'a razão social' : 'o nome completo'}.`);
       return;
     }
-    showToast({ title: 'Cliente salvo', description: `${cliente.razao} entrou na Base de Clientes.`, tone: 'success' });
+    showToast({ title: 'Cliente salvo', description: `${cliente.razao} entrou na Base de clientes.`, tone: 'success' });
     setErroDaRazao(undefined);
     clearTimeout(esperaDoRascunho.current);
     setCliente(VAZIO);
@@ -114,7 +115,7 @@ export function NovoCliente() {
       caminho={['Clientes', 'Novo cliente']}
       rodape={
         <AppShell.PageFooter status={situacao}>
-          <Button onClick={() => { window.location.hash = `${CAMINHO_DAS_COMPOSICOES}/clientes-base`; }} variant="secondary">
+          <Button href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} variant="secondary">
             Cancelar
           </Button>
           <Button onClick={salvarCliente} variant="primary">Salvar cliente</Button>
@@ -122,7 +123,7 @@ export function NovoCliente() {
       }
     >
       <PageHeader maxWidth="1120px">
-        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} label="Voltar para Base de Clientes">Base de Clientes</PageHeader.Back>
+        <PageHeader.Back href={`${CAMINHO_DAS_COMPOSICOES}/clientes-base`} label="Voltar para Base de clientes">Base de clientes</PageHeader.Back>
         <PageHeader.Title>Novo cliente</PageHeader.Title>
         <PageHeader.Badges>
           <Badge tone="neutral">Rascunho</Badge>
@@ -134,12 +135,10 @@ export function NovoCliente() {
           <Card>
             <Card.Body>
             <Grid columns={2} minColumnWidth={252}>
-              <SegmentedControl
-                items={[{ label: 'Jurídica', value: 'PJ' }, { label: 'Física', value: 'PF' }]}
-                label="Tipo de pessoa"
-                onValueChange={(tipo) => alterar({ ...cliente, tipo })}
-                value={cliente.tipo}
-              />
+              <RadioGroup label="Tipo de pessoa" onValueChange={(tipo) => alterar({ ...cliente, tipo })} orientation="horizontal" value={cliente.tipo}>
+                <Radio label="Jurídica" value="PJ" />
+                <Radio label="Física" value="PF" />
+              </RadioGroup>
               <InputText inputMode="numeric" label={pessoaJuridica ? 'CNPJ' : 'CPF'} required {...texto('documento')} />
               <InputText error={erroDaRazao} label={pessoaJuridica ? 'Razão social' : 'Nome completo'} required {...texto('razao')} />
             </Grid>

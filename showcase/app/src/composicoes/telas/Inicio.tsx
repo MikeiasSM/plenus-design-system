@@ -113,7 +113,7 @@ export function Inicio() {
                   </ActivityFeed>
                 </Card.Body>
                 <Card.Footer>
-                  <Button size="sm" variant="ghost">Ver tudo</Button>
+                  <Button href={`${CAMINHO_DAS_COMPOSICOES}/pedidos`} size="sm" variant="ghost">Ver tudo</Button>
                 </Card.Footer>
               </Card>
             </Stack>

@@ -24,6 +24,8 @@ export function useRadioGroupContexto() {
   return contexto;
 }
 
+export type RadioGroupOrientation = 'vertical' | 'horizontal';
+
 export interface RadioGroupProps extends Omit<ComponentPropsWithRef<'fieldset'>, 'onChange'> {
   children: ReactNode;
   defaultValue?: string;
@@ -33,6 +35,8 @@ export interface RadioGroupProps extends Omit<ComponentPropsWithRef<'fieldset'>,
   label: string;
   name?: string;
   onValueChange?: (value: string) => void;
+  /** `vertical`, o padrão: uma opção por linha. `horizontal`: lado a lado, com quebra de linha quando não couber. */
+  orientation?: RadioGroupOrientation;
   required?: boolean;
   value?: string;
 }
@@ -49,6 +53,7 @@ export function RadioGroup({
   label,
   name: providedName,
   onValueChange,
+  orientation = 'vertical',
   required = false,
   value,
   ...props
@@ -75,7 +80,7 @@ export function RadioGroup({
           {label}
           {required && <span className={styles.required} aria-hidden="true">*</span>}
         </legend>
-        <div className={styles.options}>{children}</div>
+        <div className={[styles.options, styles[orientation]].join(' ')}>{children}</div>
         {(error || hint) && (
           <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
             {error || hint}

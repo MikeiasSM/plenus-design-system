@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Badge,
   Button,
   Card,
   EmptyState,
+  IconFilter,
+  IconPlus,
+  IconSearch,
   InputText,
   PageHeader,
   Pagination,
@@ -12,12 +15,13 @@ import {
   Stack,
   Table,
   Tabs,
+  VisuallyHidden,
   formatCurrency,
   formatDate,
   type TableSort,
   Text,
 } from '@plenustech/design-system';
-import { IconDownload, IconFunnel, IconPlusLg, IconSearch } from '@plenustech/design-system/icons';
+import { IconDownload } from '@plenustech/design-system/icons';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { PEDIDOS, SITUACOES, VENDEDORES, type Pedido, type SituacaoDoPedido } from '../dados';
 import { Coluna, Pagina, SeloDaSituacao } from '../Pagina';
@@ -60,6 +64,14 @@ function ListaDePedidos({ busca, filtros, limparBuscaEFiltros, visao }: ListaPro
   const [ordem, setOrdem] = useState<TableSort>({ column: 'data', direction: 'descending' });
   const [selecionados, setSelecionados] = useState<readonly string[]>([]);
   const [pagina, setPagina] = useState(1);
+  // Buscar ou filtrar volta à primeira página: a consulta nova recomeça a paginação.
+  const consulta = `${busca}|${filtros.situacao}|${filtros.vendedor}`;
+  const [consultaDaPagina, setConsultaDaPagina] = useState(consulta);
+
+  if (consulta !== consultaDaPagina) {
+    setConsultaDaPagina(consulta);
+    setPagina(1);
+  }
 
   const termo = busca.trim().toLowerCase();
   const filtrados = PEDIDOS.filter(
@@ -109,22 +121,25 @@ function ListaDePedidos({ busca, filtros, limparBuscaEFiltros, visao }: ListaPro
               </Table.Cell>
               <Table.Cell>{pedido.cliente}</Table.Cell>
               <Table.Cell>{formatDate(pedido.data)}</Table.Cell>
-              <Table.Cell><SeloDaSituacao situacao={pedido.situacao} /></Table.Cell>
+              <Table.Cell><SeloDaSituacao situacao={SITUACOES[pedido.situacao]} /></Table.Cell>
               <Table.Cell>{formatCurrency(pedido.total)}</Table.Cell>
             </Table.Row>
           )}
         </Table.Body>
       </Table>
-      <Card.Footer>
-        <Text as="div" tone="tertiary" variant="caption">
-          {selecionados.length > 0 ? `${selecionados.length} selecionados` : `${filtrados.length} pedidos`}
-        </Text>
-        <Pagination
-          onPageChange={setPagina}
-          page={Math.min(pagina, paginas)}
-          pageCount={paginas}
-        />
-      </Card.Footer>
+      {(selecionados.length > 0 || paginas > 1) && (
+        <Card.Footer
+          start={
+            selecionados.length > 0 && (
+              <Text tone="tertiary" variant="caption">
+                {selecionados.length === 1 ? '1 selecionado' : `${selecionados.length} selecionados`}
+              </Text>
+            )
+          }
+        >
+          <Pagination onPageChange={setPagina} page={Math.min(pagina, paginas)} pageSize={POR_PAGINA} totalItems={filtrados.length} />
+        </Card.Footer>
+      )}
     </>
   );
 }
@@ -134,6 +149,7 @@ export function Pedidos() {
   const [busca, setBusca] = useState('');
   const [filtros, setFiltros] = useState(SEM_FILTROS);
   const [painelAberto, setPainelAberto] = useState(false);
+  const gatilho = useRef<HTMLButtonElement>(null);
   const ativos = [filtros.situacao !== 'todas', filtros.vendedor !== 'todos'].filter(Boolean).length;
 
   function limparBuscaEFiltros() {
@@ -149,7 +165,7 @@ export function Pedidos() {
           <PageHeader.Description>Acompanhe os pedidos de venda, da aprovação à entrega.</PageHeader.Description>
           <PageHeader.Actions>
             <Button variant="secondary"><IconDownload />Exportar</Button>
-            <Button><IconPlusLg />Novo pedido</Button>
+            <Button href={`${CAMINHO_DAS_COMPOSICOES}/novo-pedido`}><IconPlus />Novo pedido</Button>
           </PageHeader.Actions>
         </PageHeader>
         <Coluna largura="total">
@@ -170,10 +186,15 @@ export function Pedidos() {
                           type="search"
                           value={busca}
                         />
-                        <Button aria-expanded={painelAberto} onClick={() => setPainelAberto(!painelAberto)} variant="secondary">
-                          <IconFunnel />
+                        <Button aria-expanded={painelAberto} onClick={() => setPainelAberto(!painelAberto)} ref={gatilho} variant="secondary">
+                          <IconFilter />
                           Filtros
-                          {ativos > 0 && <Badge tone="info">{ativos}</Badge>}
+                          {ativos > 0 && (
+                            <>
+                              <Badge tone="info">{ativos}</Badge>
+                              <VisuallyHidden>{' aplicados'}</VisuallyHidden>
+                            </>
+                          )}
                         </Button>
                       </Table.Toolbar>
                       <ListaDePedidos busca={busca} filtros={filtros} limparBuscaEFiltros={limparBuscaEFiltros} visao={chave} />
@@ -192,7 +213,14 @@ export function Pedidos() {
         footer={
           <>
             <Button onClick={() => setFiltros(SEM_FILTROS)} variant="secondary">Limpar</Button>
-            <Button onClick={() => setPainelAberto(false)}>Concluir</Button>
+            <Button
+              onClick={() => {
+                setPainelAberto(false);
+                gatilho.current?.focus();
+              }}
+            >
+              Concluir
+            </Button>
           </>
         }
         onOpenChange={setPainelAberto}

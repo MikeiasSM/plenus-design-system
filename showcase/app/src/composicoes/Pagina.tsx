@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { AppShell, Badge, Breadcrumb, Container } from '@plenustech/design-system';
-import { SITUACOES, type SituacaoDoPedido } from './dados';
+import type { Situacao } from './dados';
 
 /** Larguras da coluna de conteúdo: total, larga (1120), do índice (1000) e estreita (760). */
 export type LarguraDaColuna = 'total' | 760 | 1000 | 1120;
@@ -43,8 +43,7 @@ export function Coluna({ children, largura }: ColunaProps) {
   );
 }
 
-export function SeloDaSituacao({ situacao }: { situacao: SituacaoDoPedido }) {
-  const { rotulo, tom } = SITUACOES[situacao];
-
+/** O único caminho da situação ao tom do selo: a tela passa a `Situacao` que `dados.ts` guarda e não decide tom. */
+export function SeloDaSituacao({ situacao: { rotulo, tom } }: { situacao: Situacao }) {
   return <Badge tone={tom}>{rotulo}</Badge>;
 }
