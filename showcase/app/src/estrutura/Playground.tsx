@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, CodeBlock, InputText, SegmentedControl, Select, Switch } from '@plenustech/design-system';
+import { lerTemaDoDocumento, mensagemConfiavel, ROTA_DA_PREVIA, type MensagemDaPrevia, type MensagemParaAPrevia } from './janela';
 import type { Controle, DefinicaoDoPlayground, NivelDaVerificacao, Valores } from './tipos';
 
 const LARGURAS = [
@@ -88,12 +89,94 @@ function CampoDoControle({
   );
 }
 
+/** Altura de partida do iframe, ate a previa dizer a do conteudo. */
+const ALTURA_INICIAL = 320;
+
+/** O tema do documento, acompanhado em tempo real: o iframe o recebe junto dos valores. */
+function useTemaDoDocumento() {
+  const [tema, setTema] = useState(lerTemaDoDocumento);
+
+  useEffect(() => {
+    const observador = new MutationObserver(() => setTema(lerTemaDoDocumento()));
+    observador.observe(document.documentElement, { attributeFilter: ['data-theme'], attributes: true });
+    return () => observador.disconnect();
+  }, []);
+
+  return tema;
+}
+
+interface JanelaProps {
+  componente: string;
+  largura: string;
+  registrar: (evento: string) => void;
+  titulo: string;
+  valores: Valores;
+}
+
+/**
+ * A previa numa janela propria: o iframe carrega o Showcase na rota de previa, mesma origem, e so recebe os valores
+ * por mensagem, sem recarregar. Cada evento volta pelo mesmo canal.
+ */
+function JanelaDaPrevia({ componente, largura, registrar, titulo, valores }: JanelaProps) {
+  const quadro = useRef<HTMLIFrameElement>(null);
+  const pronta = useRef(false);
+  const tema = useTemaDoDocumento();
+  const [altura, setAltura] = useState(ALTURA_INICIAL);
+  // O ouvinte vive o tempo do iframe; o que muda a cada render fica numa referencia.
+  const registrarAtual = useRef(registrar);
+  const estado = useRef<MensagemParaAPrevia>({ tipo: 'estado', tema, valores });
+
+  registrarAtual.current = registrar;
+  estado.current = { tipo: 'estado', tema, valores };
+
+  function enviar() {
+    if (pronta.current) {
+      quadro.current?.contentWindow?.postMessage(estado.current, window.location.origin);
+    }
+  }
+
+  useEffect(() => {
+    function receber(evento: MessageEvent<MensagemDaPrevia>) {
+      if (!mensagemConfiavel(evento, quadro.current?.contentWindow ?? null)) {
+        return;
+      }
+
+      if (evento.data?.tipo === 'pronto') {
+        pronta.current = true;
+        enviar();
+      } else if (evento.data?.tipo === 'evento') {
+        registrarAtual.current(evento.data.nome);
+      } else if (evento.data?.tipo === 'altura') {
+        setAltura(evento.data.altura);
+      }
+    }
+
+    window.addEventListener('message', receber);
+    return () => window.removeEventListener('message', receber);
+  }, []);
+
+  useEffect(enviar, [tema, valores]);
+
+  return (
+    <iframe
+      className="pg-janela"
+      ref={quadro}
+      src={`${window.location.pathname}${window.location.search}#/${ROTA_DA_PREVIA}/${encodeURIComponent(componente)}`}
+      style={{ height: altura, maxWidth: largura }}
+      title={titulo}
+    />
+  );
+}
+
 /** Previa do componente com as propriedades editaveis, o codigo que a reproduz, os eventos disparados e as verificacoes. */
-export function Playground({ definicao }: { definicao: DefinicaoDoPlayground }) {
+export function Playground({ componente, definicao }: { componente: string; definicao: DefinicaoDoPlayground }) {
   const [valores, setValores] = useState<Valores>(definicao.inicial);
   const [largura, setLargura] = useState<(typeof LARGURAS)[number]['value']>('livre');
   const [eventos, setEventos] = useState<Evento[]>([]);
   const verificacoes = definicao.verificar?.(valores) ?? [];
+  const escolhida = LARGURAS.find((item) => item.value === largura) ?? LARGURAS[0];
+  // Em Livre, a previa segue a janela de verdade; so as larguras fixas precisam de uma janela propria.
+  const emJanela = definicao.emJanela && largura !== 'livre';
   const pendentes = verificacoes.filter((verificacao) => verificacao.nivel !== 'ok').length;
 
   function registrar(nome: string) {
@@ -113,12 +196,26 @@ export function Playground({ definicao }: { definicao: DefinicaoDoPlayground }) 
               size="sm"
               value={largura}
             />
-            <span className="pg-caption">A largura estreita a prévia; as consultas de mídia seguem a janela.</span>
+            <span className="pg-caption">
+              {definicao.emJanela
+                ? 'Em Livre, a prévia segue a janela; em Tablet e Celular, roda numa janela dessa largura, e as consultas de mídia valem dentro dela.'
+                : 'A largura estreita a prévia; as consultas de mídia seguem a janela.'}
+            </span>
           </div>
           <div className="pg-stage-bg">
-            <div className="pg-stage" style={{ maxWidth: LARGURAS.find((item) => item.value === largura)?.maxima }}>
-              {definicao.renderizar(valores, registrar)}
-            </div>
+            {emJanela ? (
+              <JanelaDaPrevia
+                componente={componente}
+                largura={escolhida.maxima}
+                registrar={registrar}
+                titulo={`Prévia de ${componente} na largura de ${escolhida.label.toLowerCase()}`}
+                valores={valores}
+              />
+            ) : (
+              <div className="pg-stage" style={{ maxWidth: escolhida.maxima }}>
+                {definicao.renderizar(valores, registrar)}
+              </div>
+            )}
           </div>
         </div>
         <div className="pg-controls">

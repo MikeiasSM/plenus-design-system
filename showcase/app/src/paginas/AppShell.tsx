@@ -186,6 +186,7 @@ function Moldura({
 }
 
 const playground = definirPlayground({
+  emJanela: true,
   inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true },
   controles: [
     { tipo: 'opcoes', nome: 'nestedMode', opcoes: MODOS_DO_TERCEIRO_NIVEL },

@@ -109,6 +109,7 @@ function PainelDoPlayground({ registrar, valores }: { registrar: (evento: string
 }
 
 const playground = definirPlayground({
+  emJanela: true,
   inicial: { title: 'Filtros', side: 'right', size: 'md', rodape: true },
   controles: [
     { tipo: 'texto', nome: 'title' },
