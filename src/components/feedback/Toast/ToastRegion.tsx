@@ -5,6 +5,7 @@ import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTrian
 import { useChosenPortalContainer } from '../../overlays/Portal/PortalContext';
 import { useToastStore } from './ToastProvider';
 import { MAX_TOAST_ACTIONS, type ToastEntry, type ToastStore } from './toastStore';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Toast.module.css';
 
 const VISIBLE_LIMIT = 3;
@@ -93,7 +94,7 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
           </div>
         )}
       </div>
-      <button aria-label="Fechar aviso" className={styles.close} onClick={() => store.dismiss(id)} type="button">
+      <button aria-label="Fechar aviso" className={styles.close} onClick={() => store.dismiss(id)} onKeyDown={blockRepeatedPress} type="button">
         <IconClose />
       </button>
     </div>

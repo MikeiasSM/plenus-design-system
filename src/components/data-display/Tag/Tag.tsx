@@ -1,5 +1,6 @@
 import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { IconCheck, IconClose } from '../../icons';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Tag.module.css';
 
 export type TagSize = 'sm' | 'md';
@@ -52,6 +53,7 @@ export function Tag({
           disabled={disabled}
           id={textId}
           onClick={toggle}
+          onKeyDown={blockRepeatedPress}
           type="button"
         >
           {currentSelected && <IconCheck className={styles.check} />}
@@ -68,6 +70,7 @@ export function Tag({
           disabled={disabled}
           id={removeId}
           onClick={onRemove}
+          onKeyDown={blockRepeatedPress}
           type="button"
         >
           <IconClose />

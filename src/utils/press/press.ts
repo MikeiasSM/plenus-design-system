@@ -16,3 +16,10 @@ export function blockRepeatedPress(event: PressKey) {
 export function isRepeatedClick(event: { detail: number }) {
   return event.detail > 1;
 }
+
+export function withoutRepeat<E extends PressKey>(handler?: (event: E) => void) {
+  return (event: E) => {
+    handler?.(event);
+    blockRepeatedPress(event);
+  };
+}

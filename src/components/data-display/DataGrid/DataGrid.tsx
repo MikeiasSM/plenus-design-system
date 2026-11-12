@@ -20,6 +20,7 @@ import { Button } from '../../actions/Button';
 import { selectionStatus, select, selectRange, toggleAll, type SelectionState } from '../../../hooks/useSelection/selection';
 import { formatNumber } from '../../../utils/formatters';
 import { isDevelopment } from '../../../utils/isDevelopment';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Spinner } from '../../feedback/Spinner';
 import { Checkbox } from '../../forms/Checkbox';
 import { IconChevronRight } from '../../icons';
@@ -1677,6 +1678,10 @@ export function DataGrid<Row>({
 
     if (target !== cell) {
       handleKeyInsideCell(event, cell);
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 

@@ -5,6 +5,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateInput, parseDateInput } from '../../../utils/formatters';
@@ -240,6 +241,7 @@ export function DatePicker({
               className={styles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
+              onKeyDown={blockRepeatedPress}
               ref={triggerRef}
               type="button"
             >

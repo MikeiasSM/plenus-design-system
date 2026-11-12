@@ -6,6 +6,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { IconClose } from '../../icons';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Dialog.module.css';
 
 export interface DialogFrameProps extends DialogBaseProps {
@@ -138,7 +139,7 @@ function DialogFrameContent({
                 {description && <p className={styles.description} id={descriptionId}>{description}</p>}
               </div>
               {dismissable && (
-                <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
+                <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose} onKeyDown={blockRepeatedPress}>
                   <IconClose size={20} />
                 </button>
               )}

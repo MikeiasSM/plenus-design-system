@@ -20,6 +20,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './ComboBox.module.css';
@@ -347,6 +348,10 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
 
     if (event.key === 'Enter') {
+      if (blockRepeatedPress(event)) {
+        return;
+      }
+
       const alvo = listing.visible.find((option) => option.value === listing.focusedKey);
 
       if (open && alvo && !alvo.disabled) {

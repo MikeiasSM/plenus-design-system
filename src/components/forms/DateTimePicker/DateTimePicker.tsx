@@ -14,6 +14,7 @@ import {
 } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
@@ -276,6 +277,7 @@ export function DateTimePicker({
               className={datePickerStyles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
+              onKeyDown={blockRepeatedPress}
               ref={triggerRef}
               type="button"
             >

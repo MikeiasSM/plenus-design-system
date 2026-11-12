@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- Segurar Enter ou Espaço deixa de repetir a ação em `Menu`, `Select`, `ComboBox`, `DatePicker`, `DatePickerRange`, `DateTimePicker`, `TimePicker`, `DataGrid`, nos gráficos, em `Tag`, `ButtonTile`, `Accordion`, `Pagination`, `Table`, `Toast` e nos botões de fechar. Antes, com a tecla segurada, o `Menu` rodava o item várias vezes e acabava acionando um item que a pessoa não escolheu, o `Select` abria, escolhia e fechava em ciclo, e a marca de um gráfico disparava `onMarkClick` a cada repetição.
 - `Button` e `ButtonIcon`: segurar Enter ou Espaço no botão focado deixa de repetir o clique a cada repetição da tecla. Antes, uma ação como salvar ou excluir rodava várias vezes.
 - `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.
 - `CardMetric.Chart`: o botão "Ver como tabela" deixa de aparecer no gráfico do cartão. Antes, a partir de cerca de 300 px de largura, ele tomava parte do espaço e o desenho passava da borda do cartão. Agora o desenho cabe exatamente no espaço que o cartão concede, nas larguras de 200 a 400 px.

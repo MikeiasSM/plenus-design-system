@@ -1,4 +1,5 @@
 import { useState, type ButtonHTMLAttributes, type MouseEvent, type ReactNode, type Ref } from 'react';
+import { withoutRepeat } from '../../../utils/press/press';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './ButtonTile.module.css';
 
@@ -26,6 +27,7 @@ export function ButtonTile({
   icon,
   label,
   onClick,
+  onKeyDown,
   onSelectedChange,
   selected,
   size = 'md',
@@ -54,6 +56,7 @@ export function ButtonTile({
       aria-pressed={toggleable ? currentSelected : undefined}
       className={[styles.tile, styles[size], className].filter(Boolean).join(' ')}
       onClick={handleClick}
+      onKeyDown={withoutRepeat(onKeyDown)}
       type={type}
     >
       <span aria-hidden="true" className={styles.icon}>

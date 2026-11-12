@@ -5,6 +5,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { withoutRepeat } from '../../../utils/press/press';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Button } from '../../actions/Button';
@@ -88,6 +89,7 @@ export function DatePickerRange({
   max,
   min,
   onClick,
+  onKeyDown,
   onOpenChange,
   onValueChange,
   open: controlledOpen,
@@ -201,6 +203,7 @@ export function DatePickerRange({
               onClick?.(event);
               setOpen(!open);
             }}
+            onKeyDown={withoutRepeat(onKeyDown)}
             ref={mergedRef}
             type="button"
           >

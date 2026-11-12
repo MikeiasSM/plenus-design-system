@@ -19,6 +19,7 @@ import { usePortalContainer } from '../Portal/PortalContext';
 import type { PopoverPlacement } from '../Popover/Popover';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck, IconChevronRight } from '../../icons';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
 
@@ -124,6 +125,10 @@ export function Menu({
       open ? fechar(true) : abrir('first'),
     ),
     onKeyDown: encadear(dono.onKeyDown as (evento: KeyboardEvent) => void, (event: KeyboardEvent) => {
+      if (blockRepeatedPress(event)) {
+        return;
+      }
+
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         abrir(event.key === 'ArrowDown' ? 'first' : 'last');
@@ -314,6 +319,7 @@ function MenuList({
         disabled={item.disabled}
         key={item.key}
         onClick={() => acionar(item)}
+        onKeyDown={blockRepeatedPress}
         onPointerEnter={() => hover(item)}
         ref={(node) => {
           if (node) {

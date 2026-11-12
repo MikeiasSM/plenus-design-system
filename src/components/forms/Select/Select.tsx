@@ -17,6 +17,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import styles from './Select.module.css';
@@ -139,6 +140,10 @@ export function Select({
   function handleTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     onKeyDown?.(event);
 
+    if (blockRepeatedPress(event)) {
+      return;
+    }
+
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
       event.preventDefault();
       abrir();
@@ -256,6 +261,10 @@ function SelectListbox({
     // O Escape fecha pelo `useOverlay`: tratá-lo aqui avisaria duas vezes.
     if (event.key === 'Tab') {
       onClose();
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 

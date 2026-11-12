@@ -1,5 +1,6 @@
 import { useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Select } from '../../forms/Select';
 import stepsStyles from '../Steps/Steps.module.css';
 import styles from './Pagination.module.css';
@@ -154,6 +155,7 @@ function PaginationSteps({
           aria-label="Primeira página"
           aria-disabled={noInicio}
           onClick={() => atual > 1 && irPara(1)}
+          onKeyDown={blockRepeatedPress}
         >
           <IconChevronBarLeft size={14} />
         </button>
@@ -165,6 +167,7 @@ function PaginationSteps({
         aria-label="Página anterior"
         aria-disabled={noInicio}
         onClick={() => atual > 1 && irPara(atual - 1)}
+        onKeyDown={blockRepeatedPress}
       >
         <IconChevronLeft size={14} />
       </button>
@@ -183,6 +186,7 @@ function PaginationSteps({
                 aria-current={numero === atual ? 'page' : undefined}
                 aria-disabled={disabled || undefined}
                 onClick={() => irPara(numero)}
+                onKeyDown={blockRepeatedPress}
               >
                 {numero}
               </button>
@@ -196,6 +200,7 @@ function PaginationSteps({
         aria-label="Próxima página"
         aria-disabled={noFim}
         onClick={() => atual < totalDePaginas && irPara(atual + 1)}
+        onKeyDown={blockRepeatedPress}
       >
         <IconChevronRight size={14} />
       </button>
@@ -206,6 +211,7 @@ function PaginationSteps({
           aria-label="Última página"
           aria-disabled={noFim}
           onClick={() => atual < totalDePaginas && irPara(totalDePaginas)}
+          onKeyDown={blockRepeatedPress}
         >
           <IconChevronBarRight size={14} />
         </button>

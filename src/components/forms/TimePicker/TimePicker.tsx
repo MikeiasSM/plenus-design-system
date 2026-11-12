@@ -5,6 +5,7 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import type { Time } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
@@ -221,6 +222,7 @@ export function TimePicker({
               className={datePickerStyles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
+              onKeyDown={blockRepeatedPress}
               ref={triggerRef}
               type="button"
             >
