@@ -114,14 +114,15 @@ function TooltipOnChild({
       if (event.key === 'Escape' && !event.defaultPrevented) {
         event.preventDefault();
         event.stopPropagation();
-        hide();
+        clearTimeout(timer.current);
+        setInternalOpen(false);
+        onOpenChange?.(false);
       }
     }
 
     document.addEventListener('keydown', closeOnEscape, true);
     return () => document.removeEventListener('keydown', closeOnEscape, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [onOpenChange, open]);
 
   // Só o foco por teclado abre a dica: clique e `focus()` programático não são pedidos de ajuda.
   useEffect(() => {
