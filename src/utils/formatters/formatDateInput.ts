@@ -1,16 +1,21 @@
 import { CalendarDate } from '@internationalized/date';
-import { maskParts } from './maskParts';
+import { closePart, maskParts } from './maskParts';
 
 /** Data colada em ISO, com o ano na frente, que a mascara reordena. */
 const ISO_DATE = /^\s*(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})\s*$/;
+
+const DATE_LIMITS = [2, 2, 4];
+const DATE_SEPARATORS = ['/', '/'];
 
 /** Aplica a mascara dia/mes/ano conforme o usuario digita. */
 export function formatDateInput(value: string) {
   const iso = value.match(ISO_DATE);
   const text = iso ? [iso[3].padStart(2, '0'), iso[2].padStart(2, '0'), iso[1]].join('/') : value;
 
-  return maskParts(text, [2, 2, 4], ['/', '/']);
+  return maskParts(text, DATE_LIMITS, DATE_SEPARATORS);
 }
+
+export const closeDateInput = (text: string, key: string) => closePart(text, key, DATE_LIMITS, DATE_SEPARATORS);
 
 /** Le dia, mes e ano separados por barra, traco, ponto ou espaco. */
 export function parseDateInput(value: string) {

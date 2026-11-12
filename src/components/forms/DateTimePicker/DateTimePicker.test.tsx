@@ -234,16 +234,12 @@ describe('DateTimePicker', () => {
       return fireEvent.keyDown(campo, { key });
     }
 
-    it('aceita so numeros; barra, espaco e dois pontos ficam com a mascara', () => {
+    it('aceita so numeros, barra, espaco e dois pontos', () => {
       const campo = montar();
 
       expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
-      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(false);
-      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
-      expect(fireEvent.keyDown(campo, { key: ' ' })).toBe(false);
-
-      fireEvent.change(campo, { target: { value: '1/2 3:4' } });
-      expect(campo).toHaveValue('12/34');
+      fireEvent.change(campo, { target: { value: '01/03/2026 8:3x' } });
+      expect(campo).toHaveValue('01/03/2026 8:3');
     });
 
     it('anuncia a data e a hora novas so quando um atalho as troca', () => {

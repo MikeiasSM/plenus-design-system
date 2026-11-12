@@ -171,8 +171,10 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        Data e hora na mesma máscara, só com números: a barra, o espaço e os dois pontos vêm dela, e digitá-los não faz
-        nada. Durante a digitação, o valor só grava com a data e a hora completas; só a data vale meia-noite ao confirmar
+        Data e hora na mesma máscara, com números, barra, espaço e dois pontos. A data segue o{' '}
+        <code>DatePicker</code> e a hora, o <code>TimePicker</code>. O espaço digitado fecha a data, só com o ano de 2
+        ou 4 dígitos; antes disso, é ignorado. <code>1/3/2026 8:3</code>, digitado ou colado, vale 01/03/2026 08:30.
+        Durante a digitação, o valor só grava com a data e a hora completas; só a data vale meia-noite ao confirmar
         ou sair do campo. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
       </dd>
       <dt>Atalhos</dt>

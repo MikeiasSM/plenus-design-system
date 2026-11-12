@@ -188,8 +188,10 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        O campo aceita só números: a barra vem da máscara, e digitá-la não faz nada. A data inteira e válida grava na
-        hora. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
+        O campo aceita números e a barra. Sem barra digitada, a máscara a insere: <code>2105</code> mostra{' '}
+        <code>21/05</code>. A barra digitada fecha o grupo, com o zero à esquerda: <code>1/3</code> mostra{' '}
+        <code>01/3</code> e vale 01/03 do ano atual. O ano tem 2 ou 4 dígitos. Colar <code>1/3/2026</code> ou a data em
+        ISO também vale. A data inteira e válida grava na hora. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
       </dd>
       <dt>Atalhos</dt>
       <dd>

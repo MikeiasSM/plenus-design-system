@@ -1,10 +1,10 @@
 import { CalendarDate } from '@internationalized/date';
-import { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepDigits } from './completeInput';
+import { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepInputChars } from './completeInput';
 
 const hoje = new CalendarDate(2026, 11, 12);
 const data = (texto: string) => completeDateInput(texto, hoje)?.toString();
-const hora = (texto: string) => {
-  const lida = completeTimeInput(texto);
+const hora = (texto: string, fechada = false) => {
+  const lida = completeTimeInput(texto, fechada);
   return lida && lida.hour + ':' + lida.minute;
 };
 
@@ -19,17 +19,22 @@ describe('completeDateInput', () => {
     ['260350', '2050-03-26'],
     ['21052026', '2026-05-21'],
     ['21/05/2026', '2026-05-21'],
+    ['1/1/2026', '2026-01-01'],
+    ['21/5', '2026-05-21'],
   ])('completa %s em %s', (digitado, esperado) => {
     expect(data(digitado)).toBe(esperado);
   });
 
-  it.each(['', '12345', '1234567', '32', '3102', '0000', '0', '00', '13/13'])('recusa %s', (digitado) => {
+  it.each(['', '12345', '1234567', '32', '3102', '0000', '0', '00', '13/13', '01/03/2', '01/03/202'])('recusa %s', (digitado) => {
     expect(data(digitado)).toBeUndefined();
   });
 
-  it('le so os digitos, sem os separadores', () => {
-    expect(data('1/12')).toBe('2026-02-11');
-    expect(data('1/1/2026')).toBeUndefined();
+  it('le os grupos fechados pelo separador', () => {
+    expect(data('01/3')).toBe('2026-03-01');
+    expect(data('01/12')).toBe('2026-12-01');
+    expect(data('01/03/26')).toBe('2026-03-01');
+    expect(data('1/03/2026')).toBe('2026-03-01');
+    expect(data('1/3')).toBe('2026-03-01');
   });
 });
 
@@ -38,11 +43,23 @@ describe('completeTimeInput', () => {
     ['8', '8:0'],
     ['14', '14:0'],
     ['830', '8:30'],
+    ['83:0', '8:30'],
+    ['12:3', '1:23'],
     ['1430', '14:30'],
     ['14:30', '14:30'],
     ['8:30', '8:30'],
+    ['8:3', '8:30'],
   ])('completa %s em %s', (digitado, esperado) => {
     expect(hora(digitado)).toBe(esperado);
+  });
+
+  it.each([
+    ['08:', '8:0'],
+    ['08:3', '8:30'],
+    ['12:3', '12:30'],
+    ['08:30', '8:30'],
+  ])('com os dois pontos digitados, completa %s em %s', (digitado, esperado) => {
+    expect(hora(digitado, true)).toBe(esperado);
   });
 
   it.each(['', '25', '1275', '12345', '99'])('recusa %s', (digitado) => {
@@ -51,8 +68,8 @@ describe('completeTimeInput', () => {
 });
 
 describe('completeDateTimeInput', () => {
-  const lido = (texto: string) => {
-    const r = completeDateTimeInput(texto, hoje);
+  const lido = (texto: string, fechada = false) => {
+    const r = completeDateTimeInput(texto, hoje, fechada);
     return r.value?.toString() ?? r.invalid;
   };
 
@@ -60,6 +77,12 @@ describe('completeDateTimeInput', () => {
     expect(lido('21/05/2026 8')).toBe('2026-05-21T08:00:00');
     expect(lido('21/05/2026 1430')).toBe('2026-05-21T14:30:00');
     expect(lido('21/05/2026 14:30')).toBe('2026-05-21T14:30:00');
+    expect(lido('01/03/26 08:30')).toBe('2026-03-01T08:30:00');
+  });
+
+  it('com os dois pontos digitados, o digito unico e a dezena do minuto', () => {
+    expect(lido('01/03/2026 08:3', true)).toBe('2026-03-01T08:30:00');
+    expect(lido('01/03/2026 83:0')).toBe('2026-03-01T08:30:00');
   });
 
   it('completa a data sem hora em meia-noite', () => {
@@ -73,17 +96,18 @@ describe('completeDateTimeInput', () => {
   });
 });
 
-describe('keepDigits', () => {
-  it('guarda so os digitos', () => {
-    expect(keepDigits('1a2-3/4 5')).toBe('12345');
-    expect(keepDigits('21/05/2026 1a4:30')).toBe('210520261430');
+describe('keepInputChars', () => {
+  it('guarda so digitos e o separador', () => {
+    expect(keepInputChars('1a2-3/4 5', '/')).toBe('123/45');
+    expect(keepInputChars('1:2x', ':')).toBe('1:2');
+    expect(keepInputChars('21/05/2026 1a4:30', '/ :')).toBe('21/05/2026 14:30');
   });
 });
 
 describe('keepDateChars', () => {
-  it('preserva a data colada em ISO, que a mascara reordena', () => {
-    expect(keepDateChars('2026-03-09')).toBe('2026-03-09');
+  it('poe a data colada em ISO na ordem do campo', () => {
+    expect(keepDateChars('2026-03-09')).toBe('09/03/2026');
     expect(keepDateChars('09-03-2026')).toBe('09032026');
-    expect(keepDateChars('1/12')).toBe('112');
+    expect(keepDateChars('1/12')).toBe('1/12');
   });
 });

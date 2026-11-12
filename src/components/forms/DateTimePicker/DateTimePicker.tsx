@@ -17,11 +17,12 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import {
+  closeDateTimeInput,
   completeDateTimeInput,
   formatDate,
   formatDateTimeInput,
   formatTime,
-  keepDigits,
+  keepInputChars,
   parseDateTimeInput,
 } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
@@ -120,6 +121,7 @@ export function DateTimePicker({
   onBlur,
   onOpenChange,
   onKeyDown,
+  onPaste,
   open: controlledOpen,
   portalContainer,
   placeholder = 'dd/mm/aaaa hh:mm',
@@ -204,10 +206,11 @@ export function DateTimePicker({
 
       return `${formatDate(iso, { format: 'long', locale })}, ${formatTime(iso, { locale })}`;
     },
+    close: closeDateTimeInput,
     commit: definir,
     error,
-    evaluate: (text) => {
-      const parsed = completeDateTimeInput(text, today(getLocalTimeZone()));
+    evaluate: (text, closed) => {
+      const parsed = completeDateTimeInput(text, today(getLocalTimeZone()), closed);
 
       if (parsed.invalid) {
         return { message: parsed.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.', reason: 'invalid' };
@@ -217,7 +220,7 @@ export function DateTimePicker({
         ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
         : { value: parsed.value };
     },
-    filter: keepDigits,
+    filter: (input) => keepInputChars(input, '/ :'),
     format: paraTexto,
     inputRef,
     isAllowed: (moment) => !isUnavailable(toCalendarDate(moment), limites),
@@ -303,6 +306,7 @@ export function DateTimePicker({
               onBlur={(event) => entry.handleBlur(event, onBlur)}
               onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={(event) => entry.handlePaste(event, onPaste)}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"

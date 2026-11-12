@@ -234,7 +234,7 @@ describe('DatePicker', () => {
       vi.useRealTimers();
     });
 
-    it('aceita so numeros; a barra fica com a mascara', () => {
+    it('aceita so numeros e a barra, que fecha o grupo', () => {
       const campo = montar();
 
       expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
@@ -248,10 +248,10 @@ describe('DatePicker', () => {
       expect(campo).toHaveValue('12');
 
       fireEvent.change(campo, { target: { value: '1/2' } });
-      expect(campo).toHaveValue('12');
+      expect(campo).toHaveValue('1/2');
     });
 
-    it('ignora a barra digitada e completa so pelos digitos', () => {
+    it('a barra digitada fecha o dia com o zero a esquerda', () => {
       const campo = montar();
 
       for (const tecla of ['1', '/', '1', '2']) {
@@ -260,9 +260,9 @@ describe('DatePicker', () => {
         }
       }
 
-      expect(campo).toHaveValue('11/2');
+      expect(campo).toHaveValue('01/12');
       fireEvent.blur(campo);
-      expect(campo).toHaveValue('11/02/2026');
+      expect(campo).toHaveValue('01/12/2026');
     });
 
     it('somente leitura, os atalhos nao mudam o valor', () => {

@@ -1,11 +1,15 @@
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
+import { formatDateInput } from './formatDateInput';
+import { parseTimeInput } from './formatTimeInput';
 
-export const keepDigits = (text: string) => text.replace(/\D/g, '');
+export function keepInputChars(text: string, separators: string) {
+  return [...text].filter((char) => (char >= '0' && char <= '9') || separators.includes(char)).join('');
+}
 
 const ISO_DATE = /^\s*\d{4}[/\-.]\d{1,2}[/\-.]\d{1,2}\s*$/;
 
 export function keepDateChars(text: string) {
-  return ISO_DATE.test(text) ? text : keepDigits(text);
+  return ISO_DATE.test(text) ? formatDateInput(text) : keepInputChars(text, '/');
 }
 
 function toDate(day: number, month: number, year: number) {
@@ -19,41 +23,47 @@ function toDate(day: number, month: number, year: number) {
 }
 
 export function completeDateInput(text: string, reference: CalendarDate) {
-  const digits = keepDigits(text);
-  const { month, year } = reference;
+  const [day = '', month = '', year = ''] = formatDateInput(text).split('/');
 
-  switch (digits.length) {
-    case 1:
-    case 2:
-      return toDate(Number(digits), month, year);
-    case 3:
-      return toDate(Number(digits.slice(0, 2)), Number(digits.slice(2)), year);
-    case 4:
-      return toDate(Number(digits.slice(0, 2)), Number(digits.slice(2)), year);
-    case 6:
-      return toDate(Number(digits.slice(0, 2)), Number(digits.slice(2, 4)), 2000 + Number(digits.slice(4)));
-    case 8:
-      return toDate(Number(digits.slice(0, 2)), Number(digits.slice(2, 4)), Number(digits.slice(4)));
-    default:
-      return undefined;
+  if (day === '' || (year !== '' && year.length !== 2 && year.length !== 4)) {
+    return undefined;
   }
+
+  return toDate(
+    Number(day),
+    month === '' ? reference.month : Number(month),
+    year === '' ? reference.year : Number(year) + (year.length === 2 ? 2000 : 0),
+  );
 }
 
-export function completeTimeInput(text: string) {
-  const digits = keepDigits(text);
+function toTime(hour: number, minute: number) {
+  return hour > 23 || minute > 59 ? undefined : new Time(hour, minute);
+}
+
+export function completeTimeInput(text: string, closed = false) {
+  const whole = parseTimeInput(text);
+
+  if (whole) {
+    return whole;
+  }
+
+  const [hourText, minuteText] = text.split(':');
+
+  if (minuteText !== undefined && hourText !== '' && (closed || hourText.length < 2)) {
+    return toTime(Number(hourText), Number(minuteText.padEnd(2, '0')));
+  }
+
+  const digits = text.replace(/\D/g, '');
   const hourLength = digits.length === 3 ? 1 : 2;
 
   if (digits.length < 1 || digits.length > 4) {
     return undefined;
   }
 
-  const hour = Number(digits.slice(0, hourLength));
-  const minute = Number(digits.slice(hourLength) || 0);
-
-  return hour > 23 || minute > 59 ? undefined : new Time(hour, minute);
+  return toTime(Number(digits.slice(0, hourLength)), Number(digits.slice(hourLength) || 0));
 }
 
-export function completeDateTimeInput(text: string, reference: CalendarDate) {
+export function completeDateTimeInput(text: string, reference: CalendarDate, closed = false) {
   const [dateText, timeText = ''] = text.trim().split(/\s+/);
   const date = completeDateInput(dateText, reference);
 
@@ -61,7 +71,7 @@ export function completeDateTimeInput(text: string, reference: CalendarDate) {
     return { invalid: 'date' as const };
   }
 
-  const time = timeText === '' ? new Time(0, 0) : completeTimeInput(timeText);
+  const time = timeText === '' ? new Time(0, 0) : completeTimeInput(timeText, closed);
 
   if (!time) {
     return { invalid: 'time' as const };

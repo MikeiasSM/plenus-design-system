@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, type ReactElement } from 'react';
 import { CalendarDateTime, Time, getLocalTimeZone, today } from '@internationalized/date';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { DatePicker } from './DatePicker';
 import { DateTimePicker } from './DateTimePicker';
 import { parseDateTimeInput } from '../../utils/formatters';
@@ -276,34 +277,241 @@ describe('edicao da data digitada', () => {
     const campo = screen.getByLabelText('Vencimento');
 
     fireEvent.change(campo, { target: { value: '1/03/2026' } });
-    expect(campo).toHaveValue('10/32/026');
-    expect(mudou).not.toHaveBeenCalled();
+    expect(campo).toHaveValue('1/03/2026');
 
     fireEvent.change(campo, { target: { value: '15/03/2026' } });
     expect(mudou).toHaveBeenLastCalledWith('2026-03-15');
   });
 
-  it('os separadores do texto saem e a mascara agrupa so os digitos', () => {
+  it('le dia e mes sem zero a esquerda digitados tecla a tecla', () => {
     const mudou = vi.fn();
     render(<DatePicker label="Vencimento" onValueChange={mudou} />);
 
     const campo = screen.getByLabelText('Vencimento');
 
     digitar(campo, '1/3/2026');
-    expect(campo).toHaveValue('13/20/26');
-    expect(mudou).not.toHaveBeenCalled();
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-01');
 
     fireEvent.blur(campo);
-    expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
+    expect(campo).toHaveValue('01/03/2026');
   });
 
-  it('le data e hora coladas com os separadores', () => {
+  it('le data e hora coladas sem zero a esquerda', () => {
     const mudou = vi.fn();
     render(<DateTimePicker label="Agenda" onValueChange={mudou} />);
 
-    fireEvent.change(screen.getByLabelText('Agenda'), { target: { value: '01/03/2026 18:40' } });
+    fireEvent.change(screen.getByLabelText('Agenda'), { target: { value: '1/3/2026 18:40' } });
 
     expect(mudou).toHaveBeenLastCalledWith('2026-03-01T18:40');
+  });
+
+  it('pelo teclado, troca o dia selecionado e preserva o resto e o cursor', async () => {
+    const user = userEvent.setup();
+    const mudou = vi.fn();
+    render(<DatePicker defaultValue={'2026-03-09'} label="Vencimento" onValueChange={mudou} />);
+
+    const campo = screen.getByLabelText('Vencimento') as HTMLInputElement;
+
+    await user.type(campo, '1', { initialSelectionEnd: 2, initialSelectionStart: 0 });
+    expect(campo).toHaveValue('1/03/2026');
+    expect(campo.selectionStart).toBe(1);
+
+    await user.keyboard('5');
+    expect(campo).toHaveValue('15/03/2026');
+    expect(campo.selectionStart).toBe(2);
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-15');
+  });
+
+  it('pelo teclado, o dia de um digito no meio da data vale ao sair', async () => {
+    const user = userEvent.setup();
+    const mudou = vi.fn();
+    render(<DatePicker defaultValue={'2026-03-09'} label="Vencimento" onValueChange={mudou} />);
+
+    const campo = screen.getByLabelText('Vencimento') as HTMLInputElement;
+
+    await user.type(campo, '1', { initialSelectionEnd: 2, initialSelectionStart: 0 });
+    await user.tab();
+
+    expect(campo).toHaveValue('01/03/2026');
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-01');
+  });
+});
+
+describe('o separador digitado fecha o grupo', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 12, 14, 37));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  async function escrever(elemento: ReactElement, rotulo: string, teclas: string) {
+    const user = userEvent.setup();
+    render(elemento);
+    const campo = screen.getByLabelText(rotulo) as HTMLInputElement;
+
+    await user.type(campo, teclas);
+
+    return { campo, user };
+  }
+
+  async function colar(elemento: ReactElement, rotulo: string, texto: string) {
+    const user = userEvent.setup();
+    render(elemento);
+    const campo = screen.getByLabelText(rotulo) as HTMLInputElement;
+
+    await user.click(campo);
+    await user.paste(texto);
+
+    return { campo, user };
+  }
+
+  async function conferir(
+    campo: HTMLInputElement,
+    user: ReturnType<typeof userEvent.setup>,
+    tela: string | null,
+    saida: string | null,
+    invalido: string,
+  ) {
+    if (tela !== null) {
+      expect(campo).toHaveValue(tela);
+      expect(campo.selectionStart).toBe(tela.length);
+    }
+
+    if (saida !== null) {
+      await user.tab();
+
+      if (saida === 'invalido') {
+        expect(screen.getByRole('alert')).toHaveTextContent(invalido);
+      } else {
+        expect(campo).toHaveValue(saida);
+      }
+    }
+  }
+
+  describe('na data', () => {
+    it.each([
+      ['2105', '21/05', '21/05/2026'],
+      ['112', '11/2', '11/02/2026'],
+      ['215', null, '21/05/2026'],
+      ['1', '1', null],
+      ['1/', '01/', null],
+      ['1/3', '01/3', '01/03/2026'],
+      ['1/3/', '01/03/', null],
+      ['1/3/2026', '01/03/2026', null],
+      ['1/12', '01/12', '01/12/2026'],
+      ['1/3/26', null, '01/03/2026'],
+      ['1/3/2', null, 'invalido'],
+      ['1/3/202', null, 'invalido'],
+      ['/', '', null],
+      ['1//', '01/', null],
+      ['21/', '21/', null],
+      ['21//', '21/', null],
+      ['1/3/2026/', '01/03/2026', null],
+    ])('%s mostra %s e da %s ao sair', async (teclas, tela, saida) => {
+      const { campo, user } = await escrever(<DatePicker label="Vencimento" />, 'Vencimento', teclas);
+
+      await conferir(campo, user, tela, saida, 'Data inválida.');
+    });
+
+    it('a data inteira grava durante a digitacao', async () => {
+      const mudou = vi.fn();
+      await escrever(<DatePicker label="Vencimento" onValueChange={mudou} />, 'Vencimento', '1/3/2026');
+
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-01');
+    });
+
+    it.each([
+      ['1/3/2026', '01/03/2026', '2026-03-01'],
+      ['1/12', '01/12/2026', '2026-12-01'],
+      ['2026-03-09', '09/03/2026', '2026-03-09'],
+    ])('colar %s da %s', async (texto, saida, valor) => {
+      const mudou = vi.fn();
+      const { campo, user } = await colar(<DatePicker label="Vencimento" onValueChange={mudou} />, 'Vencimento', texto);
+
+      await user.tab();
+      expect(campo).toHaveValue(saida);
+      expect(mudou).toHaveBeenLastCalledWith(valor);
+    });
+  });
+
+  describe('na hora', () => {
+    it.each([
+      ['8:', '08:', '08:00'],
+      ['8:3', '08:3', '08:30'],
+      ['8:30', null, '08:30'],
+      ['830', '83:0', '08:30'],
+      ['25', null, 'invalido'],
+      [':', '', null],
+      ['8::', '08:', null],
+      ['8:30:', '08:30', null],
+    ])('%s mostra %s e da %s ao sair', async (teclas, tela, saida) => {
+      const { campo, user } = await escrever(<TimePicker label="Início" />, 'Início', teclas);
+
+      await conferir(campo, user, tela, saida, 'Hora inválida.');
+    });
+
+    it('colar 8:3 da 08:30', async () => {
+      const { campo, user } = await colar(<TimePicker label="Início" />, 'Início', '8:3');
+
+      await user.tab();
+      expect(campo).toHaveValue('08:30');
+    });
+  });
+
+  describe('na data e hora', () => {
+    it.each([
+      ['1/3/2026 8:3', '01/03/2026 08:3', '01/03/2026 08:30'],
+      ['1/3/26 8:30', '01/03/26 08:30', '01/03/2026 08:30'],
+      ['1/3 ', '01/3', null],
+      ['1/3/ ', '01/03/', null],
+      ['1/3/2 ', '01/03/2', null],
+      ['1/3/2026  ', '01/03/2026 ', null],
+      ['1/3/2026 8 ', '01/03/2026 8', null],
+    ])('%s mostra %s e da %s ao sair', async (teclas, tela, saida) => {
+      const { campo, user } = await escrever(<DateTimePicker label="Agenda" />, 'Agenda', teclas);
+
+      await conferir(campo, user, tela, saida, 'Data inválida.');
+    });
+
+    it('durante a digitacao, so grava com a data e a hora completas', async () => {
+      const mudou = vi.fn();
+      const { user } = await escrever(<DateTimePicker label="Agenda" onValueChange={mudou} />, 'Agenda', '1/3/2026 8:3');
+
+      expect(mudou).not.toHaveBeenCalled();
+      await user.keyboard('0');
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-01T08:30');
+    });
+
+    it('so a data, ao sair, vale meia-noite', async () => {
+      const mudou = vi.fn();
+      const { user } = await escrever(<DateTimePicker label="Agenda" onValueChange={mudou} />, 'Agenda', '1/3/2026 ');
+
+      expect(mudou).not.toHaveBeenCalled();
+      await user.tab();
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-01T00:00');
+    });
+
+    it('digitado, 1/3/2026 8:3 grava 01/03/2026 08:30 ao sair', async () => {
+      const mudou = vi.fn();
+      const { campo, user } = await escrever(<DateTimePicker label="Agenda" onValueChange={mudou} />, 'Agenda', '1/3/2026 8:3');
+
+      await user.tab();
+      expect(campo).toHaveValue('01/03/2026 08:30');
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-01T08:30');
+    });
+
+    it('colado, 1/3/2026 8:3 grava 01/03/2026 08:30 ao sair', async () => {
+      const mudou = vi.fn();
+      const { campo, user } = await colar(<DateTimePicker label="Agenda" onValueChange={mudou} />, 'Agenda', '1/3/2026 8:3');
+
+      expect(campo).toHaveValue('01/03/2026 08:3');
+      await user.tab();
+      expect(campo).toHaveValue('01/03/2026 08:30');
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-01T08:30');
+    });
   });
 });
 

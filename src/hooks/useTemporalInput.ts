@@ -1,12 +1,21 @@
-import { useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type RefObject } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type FocusEvent,
+  type KeyboardEvent,
+  type RefObject,
+} from 'react';
 
 type Evaluation<T> = { value: T } | { message: string; reason: 'invalid' | 'outOfRange' };
 
 interface TemporalInputOptions<T> {
   announce: (value: T) => string;
+  close: (text: string, key: string) => string | undefined;
   commit: (value: T | null) => void;
   error?: string;
-  evaluate: (text: string) => Evaluation<T>;
+  evaluate: (text: string, closed: boolean) => Evaluation<T>;
   filter: (input: string) => string;
   format: (value?: T) => string;
   inputRef: RefObject<HTMLInputElement | null>;
@@ -21,6 +30,7 @@ interface TemporalInputOptions<T> {
 
 export function useTemporalInput<T extends { toString: () => string }>({
   announce,
+  close,
   commit,
   error,
   evaluate,
@@ -41,6 +51,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   const [announcement, setAnnouncement] = useState('');
   const cursorRef = useRef<number | null>(null);
   const reportedRef = useRef<string | null>(null);
+  const closedRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     if (cursorRef.current !== null) {
@@ -50,6 +61,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   });
 
   function reset() {
+    closedRef.current = null;
     setTyping(false);
     setMessage(undefined);
   }
@@ -71,8 +83,10 @@ export function useTemporalInput<T extends { toString: () => string }>({
     }
   }
 
-  function change(input: string) {
-    const masked = mask(filter(input));
+  function write(masked: string) {
+    if (closedRef.current !== null && !masked.startsWith(closedRef.current)) {
+      closedRef.current = null;
+    }
 
     reportedRef.current = null;
     setAnnouncement('');
@@ -93,6 +107,20 @@ export function useTemporalInput<T extends { toString: () => string }>({
     }
   }
 
+  function change(input: string) {
+    write(mask(filter(input)));
+  }
+
+  function closeAt(masked: string, key: string) {
+    const closed = close(masked, key);
+
+    if (closed !== undefined) {
+      closedRef.current = closed;
+    }
+
+    return closed;
+  }
+
   function confirm() {
     if (!typing) {
       return;
@@ -103,7 +131,8 @@ export function useTemporalInput<T extends { toString: () => string }>({
       return;
     }
 
-    const evaluated = evaluate(text);
+    const closed = closedRef.current !== null && !/\D/.test(text.slice(closedRef.current.length));
+    const evaluated = evaluate(text, closed);
 
     if ('message' in evaluated) {
       setMessage(evaluated.message);
@@ -149,7 +178,41 @@ export function useTemporalInput<T extends { toString: () => string }>({
       apply(next.value, next.cursor);
     } else if (key.length === 1 && !(key >= '0' && key <= '9')) {
       event.preventDefault();
+
+      const { selectionEnd, selectionStart, value: current } = event.currentTarget;
+      const closed = selectionStart === current.length && selectionEnd === current.length ? closeAt(current, key) : undefined;
+
+      if (closed !== undefined) {
+        cursorRef.current = closed.length;
+        write(closed);
+      }
     }
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLInputElement>, onPaste?: (event: ClipboardEvent<HTMLInputElement>) => void) {
+    onPaste?.(event);
+
+    if (event.defaultPrevented || event.currentTarget.readOnly) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const { selectionEnd, selectionStart, value: current } = event.currentTarget;
+    const input =
+      current.slice(0, selectionStart ?? current.length) +
+      event.clipboardData.getData('text') +
+      current.slice(selectionEnd ?? current.length);
+    let typed = '';
+
+    closedRef.current = null;
+
+    for (const char of filter(input)) {
+      typed = closeAt(typed, char) ?? (char >= '0' && char <= '9' ? mask(typed + char) : typed);
+    }
+
+    cursorRef.current = typed.length;
+    write(typed);
   }
 
   function handleBlur(event: FocusEvent<HTMLInputElement>, onBlur?: (event: FocusEvent<HTMLInputElement>) => void) {
@@ -164,6 +227,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
     error: error || message,
     handleBlur,
     handleKeyDown,
+    handlePaste,
     reset,
     text: typing ? text : format(value),
   };

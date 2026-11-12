@@ -7,7 +7,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeDateInput, formatDate, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
+import { closeDateInput, completeDateInput, formatDate, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
@@ -87,6 +87,7 @@ export function DatePicker({
   onBlur,
   onOpenChange,
   onKeyDown,
+  onPaste,
   open: controlledOpen,
   portalContainer,
   placeholder = 'dd/mm/aaaa',
@@ -150,6 +151,7 @@ export function DatePicker({
     date ? [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/') : '';
   const entry = useTemporalInput<CalendarDate>({
     announce: (date) => formatDate(date.toString(), { format: 'long', locale }),
+    close: closeDateInput,
     commit: definir,
     error,
     evaluate: (text) => {
@@ -241,6 +243,7 @@ export function DatePicker({
               onBlur={(event) => entry.handleBlur(event, onBlur)}
               onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={(event) => entry.handlePaste(event, onPaste)}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"

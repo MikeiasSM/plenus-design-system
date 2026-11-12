@@ -7,7 +7,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeTimeInput, formatTime, formatTimeInput, keepDigits, parseTimeInput } from '../../../utils/formatters';
+import { closeTimeInput, completeTimeInput, formatTime, formatTimeInput, keepInputChars, parseTimeInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -84,6 +84,7 @@ export function TimePicker({
   onBlur,
   onOpenChange,
   onKeyDown,
+  onPaste,
   open: controlledOpen,
   portalContainer,
   placeholder = 'hh:mm',
@@ -136,10 +137,11 @@ export function TimePicker({
 
   const entry = useTemporalInput<Time>({
     announce: (time) => formatTime(toIsoTime(time)),
+    close: closeTimeInput,
     commit: definir,
     error,
-    evaluate: (text) => {
-      const parsed = completeTimeInput(text);
+    evaluate: (text, closed) => {
+      const parsed = completeTimeInput(text, closed);
 
       if (!parsed) {
         return { message: 'Hora inválida.', reason: 'invalid' };
@@ -149,7 +151,7 @@ export function TimePicker({
         ? { value: parsed }
         : { message: 'Hora fora do intervalo permitido.', reason: 'outOfRange' };
     },
-    filter: keepDigits,
+    filter: (input) => keepInputChars(input, ':'),
     format: paraTextoDeHora,
     inputRef,
     isAllowed: (time) => isTimeAllowed(time, horaMinima, horaMaxima),
@@ -234,6 +236,7 @@ export function TimePicker({
               onBlur={(event) => entry.handleBlur(event, onBlur)}
               onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={(event) => entry.handlePaste(event, onPaste)}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
