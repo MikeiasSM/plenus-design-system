@@ -121,12 +121,12 @@ export interface ChartAreaProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Pontos de cada valor: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDots?: MarkVisibility;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /**
    * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
    * `ChartTooltip` pela costura; sem balao nem costura, o ponto volta a ter o `<title>`.
    */
-  /** Botao "Ver como tabela". Ligado por padrao. */
-  showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Empilha so as series do mesmo eixo: cada eixo tem a sua pilha. */
   stacked?: boolean;

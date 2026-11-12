@@ -328,6 +328,10 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
 
     if (event.key === 'Escape') {
+      if (open) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       fechar();
       return;
     }
@@ -426,11 +430,13 @@ export function ComboBox(allProps: ComboBoxProps) {
             {multiple ? (
               <div
                 className={[styles.control, styles[size], error && styles.error].filter(Boolean).join(' ')}
-                // O clique na moldura, fora do campo, leva o foco a ele em vez de tira-lo.
                 onMouseDown={(event) => {
                   if (event.target !== inputRef.current) {
                     event.preventDefault();
                     inputRef.current?.focus();
+                    if (!disabled) {
+                      setOpen(true);
+                    }
                   }
                 }}
                 ref={controlRef}

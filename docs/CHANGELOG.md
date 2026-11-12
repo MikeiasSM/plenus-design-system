@@ -2,7 +2,7 @@
 
 Mudanças de cada versão publicada de `@plenustech/design-system`, da mais recente para a mais antiga.
 
-A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]
+A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
 ## [Não publicado]
 
@@ -17,9 +17,17 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.
+- `CardMetric.Chart`: o botão "Ver como tabela" deixa de aparecer no gráfico do cartão. Antes, a partir de cerca de 300 px de largura, ele tomava parte do espaço e o desenho passava da borda do cartão. Agora o desenho cabe exatamente no espaço que o cartão concede, nas larguras de 200 a 400 px.
+- `Table`: um texto só para leitor de tela no título de uma coluna, como "Ações", deixa de alargar a página inteira quando a tabela rola de lado, por exemplo no celular. Antes, ele se ancorava na página e criava uma rolagem horizontal do documento.
+- `ComboBox`: o Escape com a lista aberta fecha só a lista; antes, dentro de um `SidePanel`, de um `Dialog` ou de um `Drawer`, fechava a camada junto, inclusive no `SidePanel` que vira gaveta na janela estreita. O próximo Escape fecha a camada. Com a lista fechada, o Escape segue adiante como antes.
 - `SidePanel`: o foco volta a quem abriu também quando o painel fecha por uma ação de dentro dele, como "Aplicar filtros"; antes, ficava perdido. E o Escape que fecha o painel não fecha junto outra camada que também ouve a tecla.
-- `Tooltip`: o Escape com o tooltip aberto fecha só o tooltip; antes, dentro de um painel, fechava o painel junto. O próximo Escape fecha o painel.
+- `Tooltip`: o Escape com o tooltip aberto fecha só o tooltip, também quando ele está ancorado a um elemento fora dele; antes, dentro de um painel, de um `Dialog` ou de um `Drawer`, fechava a camada junto, inclusive o `SidePanel` que vira gaveta na janela estreita. O próximo Escape fecha a camada.
 - Showcase: na página do `SidePanel`, em janela abaixo de 900 px, como a prévia em "Tablet" ou "Celular", o painel do playground, os exemplos "Filtros ao lado da página" e "À esquerda, estreito" e a demonstração de tamanhos começam fechados. Antes, abriam já como gaveta e tomavam o foco, e quem escolhia a largura da prévia pelas setas ia parar dentro dela. Em janela de computador, continuam começando abertos. Na demonstração de tamanhos, o botão "Filtros" passa a abrir e fechar o painel, que antes ficava sempre aberto.
+- Documentação: os exemplos de tokens usam os nomes reais (`--pl-*`), conferidos no CSS, no lugar de nomes que não existiam.
+- Documentação: o catálogo diz o que o `AppShell` pede para ocupar a janela: `html`, `body` e o elemento raiz da aplicação com `height: 100%`, e o `body` sem margem. Sem isso, a moldura cresce com o conteúdo, e a barra e o rodapé saem da vista ao rolar.
+- Documentação: os exemplos de hooks citam os hooks reais do pacote. Fica claro que só o `useToast` é público e que os demais são internos.
+- Documentação: o catálogo traz o contrato do link da aplicação (`as` e `linkProps`), o ícone como filho do `Button`, os valores do `hideBelow`, o uso do `FieldRow` e as props `hideTitle`, `formatRightValue` e `height` dos gráficos. O `README.md` lista os oito ícones de mesmo nome nas duas entradas. `ARCHITECTURE.md`, `COMPONENTS.md`, `CONTRIBUTING.md` e `TOKENS.md` dizem no topo para quem são.
 - Showcase: nos playgrounds do `AppShell` e do `SidePanel`, "Tablet" e "Celular", em "Largura da prévia", mostram o componente numa janela própria dessa largura, de até 768 e 390 px, e o modo celular entra de fato: o `AppShell` vira barra com o menu em gaveta, e o `SidePanel` vira gaveta. Antes, só estreitavam a caixa e o componente seguia a janela inteira, então em "Celular" o `AppShell` mostrava trilho e submenu espremendo a página. Em "Livre", a prévia segue a janela do navegador, como antes.
 - `FieldRow`: o rótulo da linha aponta para o campo quando a função dos filhos pega o `id`. Com um controle que se nomeia pelo próprio conteúdo, como um botão, que recebe só a explicação, o rótulo deixa de apontar para um campo que não existe, já no HTML do servidor. O campo que monta depois, como o que espera dados, continua ligado ao rótulo.
 - `Pagination`: sem largura para todas as páginas numa linha, como no rodapé de um cartão estreito ao lado de uma contagem, os números quebram em linhas entre os botões de anterior e próxima, em vez de vazar do contêiner e ter as últimas páginas cortadas. Onde a navegação já cabia, nada muda.

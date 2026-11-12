@@ -149,7 +149,6 @@ function fromZero(config: ChartHeatmapColorScale, values: readonly number[]): Ch
   return { ...config, domain: [0, Math.max(...values)] };
 }
 
-/** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
 /**
  * Com celula quadrada, a coluna desenhada e o lado do quadrado, mais estreito que a largura util quando a altura
  * manda. O angulo sai dessa coluna; girar o rotulo come altura, entao a coluna e medida de novo com ele.
@@ -165,6 +164,7 @@ function anguloDaColunaQuadrada(opcoes: Omit<CartesianLayoutOptions, 'labelAngle
   return bottomLabelRotation(opcoes.bottomLabels, opcoes.font, lado(primeiro));
 }
 
+/** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
 export function ChartHeatmap({
   cells,
   colorScale = { type: 'sequential' },

@@ -68,6 +68,16 @@ describe('ComboBox', () => {
     expect(campo).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Rio de Janeiro' }).id);
   });
 
+  it('com a lista aberta o Escape é dela e marca o evento; fechada, segue adiante', () => {
+    const campo = montar();
+
+    fireEvent.keyDown(campo, { key: 'ArrowDown' });
+    expect(fireEvent.keyDown(campo, { key: 'Escape' })).toBe(false);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    expect(fireEvent.keyDown(campo, { key: 'Escape' })).toBe(true);
+  });
+
   it('confirma com Enter e limpa o filtro com Escape', () => {
     const onValueChange = vi.fn();
     const campo = montar({ onValueChange });
@@ -332,6 +342,28 @@ describe('ComboBox', () => {
       fireEvent.keyDown(campo, { key: 'Escape' });
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
       expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+  });
+
+  describe('clique na moldura do campo múltiplo', () => {
+    it('fora do input, nas etiquetas e no respiro, leva o foco ao campo e abre a lista', () => {
+      render(<ComboBox defaultValue={['rj', 'mg']} label="Cidades" options={opcoes} selectionMode="multiple" />);
+      const campo = screen.getByRole('combobox', { name: 'Cidades' });
+      const moldura = campo.parentElement as HTMLElement;
+
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      fireEvent.mouseDown(moldura.querySelector('[aria-hidden="true"]') as Element);
+
+      expect(campo).toHaveFocus();
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('desabilitado, o clique na moldura não abre a lista', () => {
+      render(<ComboBox defaultValue={['rj']} disabled label="Cidades" options={opcoes} selectionMode="multiple" />);
+
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Cidades' }).parentElement as HTMLElement);
+
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
   });
 

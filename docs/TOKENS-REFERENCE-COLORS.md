@@ -154,9 +154,9 @@ Os componentes devem consumir tokens semanticos, nunca a paleta de marca diretam
 
 ```css
 .component {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-color: var(--color-border);
+  background: var(--pl-color-primary);
+  color: var(--pl-color-on-primary);
+  border-color: var(--pl-color-border);
 }
 ```
 

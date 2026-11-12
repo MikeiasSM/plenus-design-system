@@ -83,12 +83,12 @@ export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showLabels?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /**
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
    * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
-  /** Botao "Ver como tabela". Ligado por padrao. */
-  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
 }

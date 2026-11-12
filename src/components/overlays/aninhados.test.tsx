@@ -7,6 +7,7 @@ import { DateTimePicker } from '../forms/DateTimePicker';
 import { Select } from '../forms/Select';
 import { TimePicker } from '../forms/TimePicker';
 import { Dialog } from './Dialog';
+import { Drawer } from './Drawer';
 import { Menu } from './Menu';
 import { Popover } from './Popover';
 import { Tooltip } from './Tooltip';
@@ -114,6 +115,31 @@ describe('overlays aninhados em Dialog', () => {
   });
 
   it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
+  ])('o Escape com a lista do ComboBox aberta fecha só a lista, e não o %s', (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <ComboBox label="Tipo" options={tipos} />
+      </Camada>,
+    );
+
+    const campo = screen.getByRole('combobox', { name: 'Tipo' });
+
+    fireEvent.keyDown(campo, { key: 'ArrowDown' });
+    fireEvent.keyDown(campo, { key: 'Escape' });
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(campo, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
+  });
+
+  it.each([
     ['DatePicker', DatePicker, 'Abrir calendário'],
     ['DateTimePicker', DateTimePicker, 'Abrir calendário'],
     ['TimePicker', TimePicker, 'Abrir seletor de hora'],
@@ -218,5 +244,76 @@ describe('Tooltip', () => {
 
     expect(aviso).not.toHaveBeenCalled();
     aviso.mockRestore();
+  });
+});
+
+describe('Escape com o Tooltip aberto', () => {
+  it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
+  ])('fecha só a dica, e não o %s', (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <Tooltip content="Explicacao">
+          <button type="button">Alvo</button>
+        </Tooltip>
+      </Camada>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => alvo.focus());
+
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
+  });
+
+  it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
+  ])('com âncora externa, fecha só a dica, e não o %s', (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    function Celula() {
+      const celula = useRef<HTMLButtonElement>(null);
+      const [aberta, setAberta] = useState(true);
+
+      return (
+        <>
+          <button ref={celula} type="button">
+            Alvo
+          </button>
+          <Tooltip anchorRef={celula} content="Explicacao" id="dica" onOpenChange={setAberta} open={aberta} />
+        </>
+      );
+    }
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <Celula />
+      </Camada>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
   });
 });
