@@ -9,12 +9,12 @@ import {
   type DataGridFilterOperator,
 } from './filterModel';
 import { aggregatorOf, type DataGridAggregator, type DataGridAggregatorId } from './summaries';
-import { formatCurrency, formatDate, formatNumber } from '../../../utils/formatters';
+import { formatCurrency, formatDate, formatNumber, formatTime } from '../../../utils/formatters';
 import { containsTerm } from '../../../utils/textSearch';
 
 /** State Motor do DataGrid: estado em fatias, estágios do pipeline de linhas e foco. Sem React e sem DOM. */
 
-export type DataGridColumnType = 'text' | 'number' | 'currency' | 'date' | 'boolean';
+export type DataGridColumnType = 'text' | 'number' | 'currency' | 'date' | 'time' | 'datetime' | 'boolean';
 export type DataGridAlign = 'start' | 'center' | 'end';
 export type DataGridSortDirection = 'asc' | 'desc';
 
@@ -100,11 +100,30 @@ function timeOf(value: unknown) {
   return new Date(value as Date | string).getTime();
 }
 
+function minutesOf(value: unknown) {
+  if (typeof value === 'string') {
+    const match = /^(\d{1,2}):(\d{2})/.exec(value);
+
+    if (match) {
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+  }
+
+  const date = new Date(value as Date | string);
+  return date.getHours() * 60 + date.getMinutes();
+}
+
 const columnTypes: Record<DataGridColumnType, ColumnTypeDefinition> = {
   text: { align: 'start', compare: (a, b) => collator.compare(String(a), String(b)), format: String },
   number: { align: 'end', compare: compareNumbers, format: (value) => formatNumber(Number(value)) },
   currency: { align: 'end', compare: compareNumbers, format: (value) => formatCurrency(Number(value)) },
   date: { align: 'start', compare: (a, b) => compareMeasures(timeOf(a), timeOf(b)), format: (value) => formatDate(value as Date | string) },
+  time: { align: 'start', compare: (a, b) => compareMeasures(minutesOf(a), minutesOf(b)), format: (value) => formatTime(value as Date | string) },
+  datetime: {
+    align: 'start',
+    compare: (a, b) => compareMeasures(timeOf(a), timeOf(b)),
+    format: (value) => `${formatDate(value as Date | string)} ${formatTime(value as Date | string)}`,
+  },
   boolean: { align: 'center', compare: compareNumbers, format: (value) => (value ? 'Sim' : 'Não') },
 };
 

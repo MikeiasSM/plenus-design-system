@@ -8,6 +8,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Adicionado
 
+- `DataGrid`: as colunas `type: 'time'` (hora, `"HH:mm"`) e `type: 'datetime'` (data e hora, `"AAAA-MM-DDTHH:mm"`). A célula mostra o valor como o campo, a coluna ordena pela hora, ou pela data e hora, e o filtro oferece "É", "Antes de", "Depois de", "Entre", "Vazio" e "Preenchido", com o `TimePicker` ou o `DateTimePicker` no lugar da caixa de texto.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado
