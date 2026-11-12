@@ -515,3 +515,45 @@ O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 - Roteamento. Componentes de navegação recebem a abstração de link da aplicação.
 
 Uma necessidade que caia em qualquer um desses casos permanece na aplicação consumidora.
+
+## 16. Hooks
+
+| Hook | Papel | Situação |
+| --- | --- | --- |
+| `useColorScheme` | Escolha do esquema de cor da aplicação: claro, escuro ou o do sistema. | Disponível |
+
+O `useColorScheme` dá e troca a escolha entre `'light'`, `'dark'` e `'system'`, e é a forma de o produto oferecer o seletor de tema. Devolve `colorScheme`, o que a pessoa escolheu; `resolvedColorScheme`, o que vale na tela (`'light'` ou `'dark'`, que em `'system'` é o do sistema e acompanha o `prefers-color-scheme` quando ele muda); e `setColorScheme`. As opções são `defaultColorScheme`, a escolha de quem nunca escolheu (`'system'` por padrão), e `storageKey`, a chave do `localStorage` onde a escolha fica guardada (`'pl-color-scheme'` por padrão). A escolha guardada vale na visita seguinte e nas outras abas abertas, que a seguem pelo evento `storage`. Sem acesso ao `localStorage`, ela vale até a página fechar.
+
+O hook aplica o atributo de tema que o pacote já documenta no `README.md`: `data-theme="light"` ou `data-theme="dark"` no `<html>`, e nenhum atributo em `'system'`, para o `prefers-color-scheme` decidir pela folha de estilo. O atributo posto à mão num elemento interno continua valendo sobre o do `<html>` naquela subárvore. No servidor, a escolha é a `defaultColorScheme` e `resolvedColorScheme` é `'light'`, e a hidratação corrige o que a pessoa guardou.
+
+```tsx
+import { SegmentedControl, useColorScheme, type ColorScheme } from '@plenustech/design-system';
+
+function SeletorDeTema() {
+  const { colorScheme, setColorScheme } = useColorScheme();
+
+  return (
+    <SegmentedControl
+      items={[
+        { label: 'Claro', value: 'light' },
+        { label: 'Escuro', value: 'dark' },
+        { label: 'Sistema', value: 'system' },
+      ]}
+      label="Tema"
+      onValueChange={(valor) => setColorScheme(valor as ColorScheme)}
+      value={colorScheme}
+    />
+  );
+}
+```
+
+O hook só roda depois da hidratação, e a página pintada antes dele sairia no tema do sistema, piscando para quem escolheu o outro. Para isso não acontecer, o `<head>` leva um script curto e síncrono, antes da folha de estilo e do corpo, que põe o atributo da escolha guardada. Em `'system'` não há o que fazer, porque a folha de estilo já segue o sistema. Quem muda a `storageKey` troca a chave também no script:
+
+```html
+<script>
+  try {
+    var tema = localStorage.getItem('pl-color-scheme');
+    if (tema === 'light' || tema === 'dark') document.documentElement.setAttribute('data-theme', tema);
+  } catch (erro) {}
+</script>
+```

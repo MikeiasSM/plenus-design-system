@@ -135,6 +135,8 @@ O tema segue `prefers-color-scheme` do sistema. `data-theme="dark"` e `data-them
 <aside data-theme="dark">...</aside>
 ```
 
+O `useColorScheme` dá e troca a escolha entre `light`, `dark` e `system`, guarda-a no `localStorage` e aplica esse atributo no `<html>`, sem atributo em `system`. O catálogo (`docs/COMPONENTS-CATALOG.md`, seção 16) traz o uso e o script do `<head>` que evita o piscar na carga.
+
 `data-theme="light"` força o claro mesmo com o sistema escuro. Os overlays em portal (`Dialog`, `Popover`, `Tooltip` e os painéis dos campos) vão para o `body` e seguem o tema do documento, não o da subárvore do gatilho. Para que herdem o tema e a paleta de uma subárvore, o `PortalProvider` indica o elemento de destino, ou cada overlay recebe `portalContainer`:
 
 ```tsx

@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconChevronRight, IconSearch, InputText, SegmentedControl, SkipLink, ToastRegion } from '@plenustech/design-system';
+import {
+  IconChevronRight,
+  IconSearch,
+  InputText,
+  SegmentedControl,
+  SkipLink,
+  ToastRegion,
+  useColorScheme,
+  type ColorScheme,
+} from '@plenustech/design-system';
 import { version } from '../../../package.json';
 import { familias } from './catalogo';
 import { Composicoes } from './composicoes/Composicoes';
@@ -11,23 +20,6 @@ import { VisaoGeral } from './estrutura/VisaoGeral';
 import { Fundamentos } from './fundamentos/Fundamentos';
 import { CAMINHO_DOS_PATTERNS, ROTA_DOS_PATTERNS, patterns } from './patterns/catalogo';
 import { Patterns } from './patterns/Patterns';
-
-type Tema = 'light' | 'dark' | 'system';
-
-/** A escolha guardada vence; sem ela, o sistema decide e o documento fica sem `data-theme`. */
-function lerTema(): Tema {
-  try {
-    const guardado = localStorage.getItem(CHAVE_DO_TEMA);
-
-    if (guardado === 'dark' || guardado === 'light') {
-      return guardado;
-    }
-  } catch {
-    // Sem acesso ao armazenamento, quem decide e o sistema.
-  }
-
-  return 'system';
-}
 
 /** Ignora caixa e acento, para "formularios" achar "Formulários". */
 function normalizar(texto: string) {
@@ -53,7 +45,7 @@ function useRota() {
 }
 
 export function App() {
-  const [tema, setTema] = useState(lerTema);
+  const { colorScheme: tema, setColorScheme: setTema } = useColorScheme({ storageKey: CHAVE_DO_TEMA });
   const [busca, setBusca] = useState('');
   const campoDeBusca = useRef<HTMLInputElement>(null);
   const rota = useRota();
@@ -103,24 +95,6 @@ export function App() {
       ),
     }))
     .filter((familia) => familia.componentes.length > 0);
-
-  useEffect(() => {
-    if (tema === 'system') {
-      delete document.documentElement.dataset.theme;
-    } else {
-      document.documentElement.dataset.theme = tema;
-    }
-
-    try {
-      if (tema === 'system') {
-        localStorage.removeItem(CHAVE_DO_TEMA);
-      } else {
-        localStorage.setItem(CHAVE_DO_TEMA, tema);
-      }
-    } catch {
-      // Guardar a escolha e conveniencia, nao requisito.
-    }
-  }, [tema]);
 
   useEffect(() => {
     const idDoAlvo = noPatterns ? rota.parte : rota.secao;
@@ -183,7 +157,7 @@ export function App() {
               { label: 'Escuro', value: 'dark' },
             ]}
             label="Tema"
-            onValueChange={(valor) => setTema(valor as Tema)}
+            onValueChange={(valor) => setTema(valor as ColorScheme)}
             size="sm"
             value={tema}
           />

@@ -148,7 +148,7 @@ export const familias: readonly Familia[] = [
   },
   {
     nome: 'Fundamentos',
-    componentes: [componente('Paletas', 'Paletas de marca prontas e próprias, por data-palette e createPalette.', { importa: 'createPalette' })],
+    componentes: [componente('Paletas', 'Paletas de marca prontas e próprias, por data-palette e createPalette, e o esquema de cor, por useColorScheme.', { importa: 'createPalette' })],
   },
   {
     nome: 'Ícones',

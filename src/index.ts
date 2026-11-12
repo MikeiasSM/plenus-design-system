@@ -382,6 +382,8 @@ export type {
   FormatPercentOptions,
   FormatTimeOptions,
 } from './utils/formatters';
+export { useColorScheme } from './hooks/useColorScheme';
+export type { ColorScheme, ResolvedColorScheme, UseColorSchemeOptions, UseColorSchemeResult } from './hooks/useColorScheme';
 export { createPalette, nearestPaletteColor } from './utils/palette';
 export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
 export { ChartBar } from './components/charts/ChartBar';
