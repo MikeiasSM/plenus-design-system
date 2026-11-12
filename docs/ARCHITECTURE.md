@@ -312,7 +312,7 @@ Exemplos reais, em `src/hooks/`, todos internos ao pacote:
 - `useFormReset`: restaura o valor quando o formulário é redefinido.
 - `useDecimalInput`, `useCharacterCount`, `useCalendar` e `useSelection`: comportamento de campos, calendário e seleção.
 
-Hooks internos não fazem parte da API pública: não saem de `src/index.ts`, e quem usa o pacote não os importa. O único hook público é `useToast`, exportado junto do `ToastProvider`.
+Hooks internos não fazem parte da API pública: não saem de `src/index.ts`, e quem usa o pacote não os importa. Os hooks públicos são dois, exportados junto do provider que os alimenta: `useToast`, com o `ToastProvider`, e `useSidebar`, com o `SidebarProvider`.
 
 Hooks podem utilizar APIs do navegador e abstrações comportamentais, mas não devem conter regras de negócio específicas de uma aplicação.
 
