@@ -17,6 +17,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -88,6 +89,7 @@ export function Select({
   const container = usePortalContainer(portalContainer);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const resetRef = useFormReset<HTMLButtonElement>(() => listing.reset());
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);

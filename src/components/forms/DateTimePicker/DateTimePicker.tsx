@@ -17,6 +17,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
@@ -126,6 +127,7 @@ export function DateTimePicker({
   // Fixo, o id fazia dois seletores dividirem os ids das opcoes de hora.
   const idDaLista = `datetime-hora-${useId()}`;
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const devolverFocoRef = useRef(true);
   const limites: CalendarLimits = {

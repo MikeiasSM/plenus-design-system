@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../actions/Button';
+import { ComboBox } from '../forms/ComboBox';
+import { DatePicker } from '../forms/DatePicker';
 import { Dialog } from './Dialog';
 import { Drawer } from './Drawer';
 import { Menu } from './Menu';
@@ -145,6 +147,48 @@ describe('o clique que fecha não atravessa para a página', () => {
     }
 
     render(<Exemplo />);
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }), { detail: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Linha' }), { detail: 2 });
+
+    expect(onPagina).not.toHaveBeenCalled();
+  });
+});
+
+describe('o clique que fecha um painel de campo não atravessa para a página', () => {
+  it('DatePicker: o segundo clique do clique duplo em Aplicar não chega à página', () => {
+    const onPagina = vi.fn();
+    render(
+      <>
+        <DatePicker label="Vencimento" />
+        <Button onClick={onPagina}>Linha</Button>
+      </>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }), { detail: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Linha' }), { detail: 2 });
+
+    expect(onPagina).not.toHaveBeenCalled();
+  });
+
+  it('ComboBox de seleção múltipla: o segundo clique do clique duplo em Aplicar não chega à página', () => {
+    const onPagina = vi.fn();
+    render(
+      <>
+        <ComboBox
+          confirmSelection
+          label="Cidades"
+          selectionMode="multiple"
+          options={[
+            { value: 'sp', label: 'São Paulo' },
+            { value: 'rj', label: 'Rio' },
+          ]}
+        />
+        <Button onClick={onPagina}>Linha</Button>
+      </>,
+    );
+    fireEvent.click(screen.getByRole('combobox', { name: 'Cidades' }));
+
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }), { detail: 1 });
     fireEvent.click(screen.getByRole('button', { name: 'Linha' }), { detail: 2 });
 

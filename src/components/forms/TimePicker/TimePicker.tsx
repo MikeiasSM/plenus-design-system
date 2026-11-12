@@ -8,6 +8,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -97,6 +98,7 @@ export function TimePicker({
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const devolverFocoRef = useRef(true);
   const horaMinima = readIsoTime(min);

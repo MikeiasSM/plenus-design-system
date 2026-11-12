@@ -20,6 +20,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -175,6 +176,7 @@ export function ComboBox(allProps: ComboBoxProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const baseId = `combobox-${useId()}`;
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const [filtering, setFiltering] = useState(false);
   // Só com `confirmSelection`: o que se marca no painel é rascunho, e o valor do campo continua o aplicado.
