@@ -9,8 +9,6 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Adicionado
 
 - `package.json`: o campo `browserslist` declara o piso de navegador do pacote (Chrome, Edge e Chrome Android 123, Firefox 120, Safari e iOS Safari 17.5), para que as ferramentas do produto o leiam sem consulta manual. Ele só informa as ferramentas do produto; o build do pacote não o usa, e a saída é a mesma.
-- `SaveBar`: o `onSave` que devolve uma `Promise` deixa o botão Salvar ocupado até ela terminar, pelo mesmo mecanismo do `Button`, sem precisar ligar `saving`. A propriedade `saving` segue valendo.
-- `Button` e `ButtonIcon`: o `onClick` que devolve uma `Promise` trava o botão sozinho até ela terminar. Nesse tempo o botão mostra o indicador de `loading`, anuncia `aria-busy`, mantém o foco e não roda um segundo clique nem um segundo Enter. Se a promessa falhar, o botão volta ao normal e o erro vai para o console, sem virar rejeição sem tratamento. A propriedade `loading` segue valendo como o modo controlado.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado
@@ -26,7 +24,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `AppShell`, `SaveBar`, `Toast` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda. Novos tokens `--pl-safe-top`, `--pl-safe-right`, `--pl-safe-bottom` e `--pl-safe-left`.
 - `SidePanel`: na janela abaixo de 900 px, onde vira gaveta, `id`, `className`, `data-*`, `aria-*` e as demais propriedades chegam ao painel, como na janela larga. Antes, só chegavam o título, o rodapé, o lado e o tamanho, e o `data-*` do produto sumia.
 - `Dialog` e `Drawer`: o `aria-describedby` dado pelo produto, quando não há a propriedade `description`, chega ao diálogo; antes, era descartado.
-- Documentação: o catálogo explica que a ação assíncrona do `Button` trava sozinha e que descartar respostas fora de ordem e a idempotência no servidor ficam com o produto, e completa o contrato do `onBeforeClose` com a resposta antiga e a consulta que falha.
+- Documentação: o catálogo orienta ligar `loading` de forma síncrona no próprio handler da ação assíncrona do `Button`, e `saving` na `SaveBar`, explica que descartar respostas fora de ordem e a idempotência no servidor ficam com o produto, e completa o contrato do `onBeforeClose` com a resposta antiga e a consulta que falha.
 - `DataGrid`, construtor de filtros: o clique duplo na lixeira de uma condição ou de um grupo deixa de remover também o item de baixo.
 - `Dialog` e `Drawer` com `onBeforeClose` assíncrono: a resposta de uma consulta antiga deixa de fechar o diálogo que o produto já fechou e reabriu, e o Esc do diálogo reaberto volta a consultar. Se a consulta falhar, o diálogo continua aberto e o erro vai para o console, sem virar rejeição sem tratamento.
 - Depois de remover uma `Tag` ou um arquivo do `FileUpload`, ou de acionar uma ação de um aviso do `Toast`, o foco passa para o próximo botão de remover do mesmo grupo; sem próximo, para o anterior; sem nenhum, para o contêiner da etiqueta ou para o campo de arquivo. Antes, o foco caía no fim da página e quem usa o teclado perdia o lugar.

@@ -9,7 +9,7 @@ export interface SaveBarProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   open: boolean;
   message?: string;
   onDiscard: () => void;
-  onSave: () => unknown;
+  onSave: () => void;
   /** Lado da área de rolagem a que a barra se prende: no topo ou no pé. No pé, monte-a depois do conteúdo. */
   placement?: 'top' | 'bottom';
   /** O salvamento em curso: o botão de salvar fica ocupado e o de descartar, desabilitado. */

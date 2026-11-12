@@ -1,7 +1,8 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import type { ButtonHTMLAttributes } from 'react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Button } from './Button';
+import { Button, type ButtonProps } from './Button';
 
 describe('Button', () => {
   it('renders its children and uses button semantics', () => {
@@ -147,79 +148,20 @@ describe('Button: cliques repetidos', () => {
     });
   });
 
-  describe('onClick assíncrono', () => {
-    function pendente() {
-      let resolver!: () => void;
-      let rejeitar!: (erro: Error) => void;
-      const promessa = new Promise<void>((resolve, reject) => {
-        resolver = resolve;
-        rejeitar = reject;
-      });
-      return { promessa, rejeitar, resolver };
-    }
+  it('o onClick que devolve uma Promise não trava o botão: quem liga loading é o produto', () => {
+    const onClick = vi.fn(() => new Promise<void>(() => {}));
+    render(<Button onClick={onClick}>Salvar</Button>);
+    const button = screen.getByRole('button', { name: 'Salvar' });
 
-    it('trava o segundo clique até a promessa terminar e mostra o estado de carregando', async () => {
-      const { promessa, resolver } = pendente();
-      const onClick = vi.fn(() => promessa);
-      render(<Button onClick={onClick}>Salvar</Button>);
-      const button = screen.getByRole('button', { name: 'Salvar' });
-      button.focus();
+    fireEvent.click(button);
+    fireEvent.click(button);
 
-      fireEvent.click(button);
-      fireEvent.click(button);
-      fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(2);
+    expect(button).not.toHaveAttribute('aria-busy');
+    expect(button).not.toHaveAttribute('aria-disabled');
+  });
 
-      expect(onClick).toHaveBeenCalledTimes(1);
-      expect(button).toHaveAttribute('aria-busy', 'true');
-      expect(button).toHaveAttribute('aria-disabled', 'true');
-      expect(button).not.toBeDisabled();
-      expect(button).toHaveFocus();
-
-      await act(async () => {
-        resolver();
-        await promessa;
-      });
-
-      expect(button).not.toHaveAttribute('aria-busy');
-      fireEvent.click(button);
-      expect(onClick).toHaveBeenCalledTimes(2);
-    });
-
-    it('a rejeição volta ao estado normal e não vira rejeição sem tratamento', async () => {
-      const { promessa, rejeitar } = pendente();
-      const semTratamento = vi.fn();
-      const erro = vi.spyOn(console, 'error').mockImplementation(() => {});
-      process.on('unhandledRejection', semTratamento);
-      render(<Button onClick={() => promessa}>Salvar</Button>);
-      const button = screen.getByRole('button', { name: 'Salvar' });
-
-      fireEvent.click(button);
-      await act(async () => rejeitar(new Error('falhou')));
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      process.off('unhandledRejection', semTratamento);
-
-      expect(semTratamento).not.toHaveBeenCalled();
-      expect(button).not.toHaveAttribute('aria-busy');
-      expect(erro).toHaveBeenCalled();
-      erro.mockRestore();
-    });
-
-    it('a prop loading segue controlando o botão e o onClick síncrono não trava', () => {
-      const onClick = vi.fn();
-      const { rerender } = render(<Button onClick={onClick}>Salvar</Button>);
-      const button = screen.getByRole('button', { name: 'Salvar' });
-
-      fireEvent.click(button);
-      fireEvent.click(button);
-      expect(onClick).toHaveBeenCalledTimes(2);
-
-      rerender(
-        <Button loading onClick={onClick}>
-          Salvar
-        </Button>,
-      );
-      fireEvent.click(button);
-      expect(onClick).toHaveBeenCalledTimes(2);
-    });
+  it('o onClick tem o tipo nativo do botão', () => {
+    expectTypeOf<ButtonProps['onClick']>().toEqualTypeOf<ButtonHTMLAttributes<HTMLButtonElement>['onClick']>();
   });
 });

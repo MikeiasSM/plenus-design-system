@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { SaveBar, type SaveBarProps } from './SaveBar';
 
 function barra(props: Partial<SaveBarProps> = {}) {
@@ -68,19 +68,19 @@ describe('SaveBar', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
-  it('com um onSave assíncrono, trava o Salvar sozinho até a promessa terminar', async () => {
-    let resolver!: () => void;
-    const onSave = vi.fn(() => new Promise<void>((resolve) => (resolver = resolve)));
+  it('o onSave que devolve uma Promise não ocupa o Salvar: quem liga saving é o produto', () => {
+    const onSave = vi.fn(() => new Promise<void>(() => {}));
     barra({ onSave });
     const salvar = screen.getByRole('button', { name: 'Salvar' });
 
     fireEvent.click(salvar);
     fireEvent.click(salvar);
 
-    expect(onSave).toHaveBeenCalledTimes(1);
-    expect(salvar).toHaveAttribute('aria-busy', 'true');
-
-    await act(async () => resolver());
+    expect(onSave).toHaveBeenCalledTimes(2);
     expect(salvar).not.toHaveAttribute('aria-busy');
+  });
+
+  it('o onSave tem o tipo original', () => {
+    expectTypeOf<SaveBarProps['onSave']>().toEqualTypeOf<() => void>();
   });
 });
