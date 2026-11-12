@@ -77,6 +77,39 @@ describe('Sidebar: renderização no servidor', () => {
     erro.mockRestore();
   });
 
+  it('com a conta aberta no início e a gaveta fechada, a hidratação na largura estreita abre a gaveta, como no cliente', async () => {
+    stubViewport(true);
+    const container = document.createElement('div');
+    const conta = (
+      <SidebarProvider defaultAccountOpen defaultOpen={false}>
+        <Sidebar>
+          <Sidebar.Panel
+            account={
+              <Sidebar.Account avatar="MD" name="Suporte">
+                <Sidebar.Item href="/favoritos" label="Favoritos" />
+              </Sidebar.Account>
+            }
+            label="Vendas"
+          >
+            <Sidebar.Item current href="/pedidos" label="Pedidos" />
+          </Sidebar.Panel>
+        </Sidebar>
+      </SidebarProvider>
+    );
+    container.innerHTML = renderToString(conta);
+    document.body.append(container);
+
+    let raiz!: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      raiz = hydrateRoot(container, conta);
+    });
+
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+
+    await act(async () => raiz.unmount());
+    container.remove();
+  });
+
   it('com side right, a hidratação também não diverge', async () => {
     const erro = vi.spyOn(console, 'error').mockImplementation(() => {});
 

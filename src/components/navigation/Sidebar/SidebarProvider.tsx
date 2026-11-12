@@ -54,9 +54,9 @@ export interface UseSidebarResult {
   open: boolean;
   /** Gaveta aberta, na largura estreita. */
   openMobile: boolean;
-  /** Abre ou recolhe o submenu sem mexer no foco. Ao recolher, fecha a conta. */
   /** Abre ou fecha a conta. Ao abrir, abre também o submenu, ou a gaveta na largura estreita, e leva o foco à primeira opção, exceto com o foco num campo editável. */
   setAccountOpen: (open: boolean) => void;
+  /** Abre ou recolhe o submenu sem mexer no foco. Ao recolher, fecha a conta. */
   setOpen: (open: boolean) => void;
   setOpenMobile: (open: boolean) => void;
   /** Na largura estreita alterna a gaveta; na larga, o submenu. */
@@ -126,7 +126,7 @@ export function SidebarProvider({
 
   useEffect(() => {
     if (accountOpen && !accountWasOpen.current) {
-      if (narrow) {
+      if (narrow || isNarrowNow(narrowBelow)) {
         setMenuOpen(true);
       } else {
         setSubmenuOpenState(true);
