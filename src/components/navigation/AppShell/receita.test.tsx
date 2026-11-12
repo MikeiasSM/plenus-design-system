@@ -25,7 +25,7 @@ function PaginaDePedidos() {
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
 
   return (
-    <Moldura>
+    <>
       <AppShell.Page>
         <AppShell.PageBar>
           <Breadcrumb items={[{ label: 'Vendas' }, { label: 'Pedidos' }]} />
@@ -42,13 +42,21 @@ function PaginaDePedidos() {
       <SidePanel onOpenChange={setFiltrosAbertos} open={filtrosAbertos} title="Filtros">
         Campos dos filtros
       </SidePanel>
+    </>
+  );
+}
+
+function Aplicacao() {
+  return (
+    <Moldura>
+      <PaginaDePedidos />
     </Moldura>
   );
 }
 
 describe('receita da moldura', () => {
   it('monta a moldura com a página como filha e o SidePanel como irmão dela', () => {
-    render(<PaginaDePedidos />);
+    render(<Aplicacao />);
 
     expect(screen.getByRole('navigation', { name: 'Módulos' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Vendas' })).toBeInTheDocument();

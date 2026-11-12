@@ -300,7 +300,7 @@ O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h
 
 O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. A moldura ocupa a janela sozinha: o `body` precisa de margem zero, que o `reset.css` já zera, e quem embute a moldura numa caixa redefine `--pl-shell-height`, por exemplo `100%`, nela ou num ancestral. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`), o corpo (`PageBody`), a única área da página que rola, e, quando a tela pede, o rodapé fixo (`PageFooter`). O rodapé fica sempre à vista, fora da área que rola: a situação à esquerda (`status`), como a do rascunho salvo sozinho, anunciada ao leitor de tela, e as ações à direita. A fronteira com a `SaveBar` é o momento: a `SaveBar` aparece quando há alteração por salvar, e o rodapé fica sempre lá. O estado da navegação fica no `SidebarProvider`, que o `AppShell` monta por dentro, ou usa o de fora quando já existe um. A barra da página já traz o botão de abrir o submenu e a gaveta, e o produto não acrescenta outro: o `Sidebar.Trigger` avulso é só de quem monta a própria moldura.
 
-A moldura é montada uma vez, e a página entra como filha: cada rota renderiza o seu próprio `AppShell.Page`, com a `PageBar`, o `PageBody` e, quando houver, o `PageFooter`. O `SidePanel` é irmão do `AppShell.Page`, dentro do `AppShell`.
+A moldura é montada uma vez, na raiz da aplicação, e a página entra como filha: cada rota renderiza o seu próprio `AppShell.Page`, com a `PageBar`, o `PageBody` e, quando houver, o `PageFooter`. O `SidePanel` é irmão do `AppShell.Page`, dentro do `AppShell`.
 
 ```tsx
 import { useState, type ReactNode } from 'react';
@@ -329,7 +329,7 @@ function PaginaDePedidos() {
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
 
   return (
-    <Moldura>
+    <>
       <AppShell.Page>
         <AppShell.PageBar>
           <Breadcrumb items={[{ label: 'Vendas' }, { label: 'Pedidos' }]} />
@@ -346,6 +346,14 @@ function PaginaDePedidos() {
       <SidePanel onOpenChange={setFiltrosAbertos} open={filtrosAbertos} title="Filtros">
         Campos dos filtros
       </SidePanel>
+    </>
+  );
+}
+
+function Aplicacao() {
+  return (
+    <Moldura>
+      <PaginaDePedidos />
     </Moldura>
   );
 }
