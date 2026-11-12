@@ -124,6 +124,14 @@
     var(--pl-palette-30),
     color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface))
   );
+  --pl-color-primary-tint: light-dark(
+    color-mix(in srgb, var(--pl-color-primary) 8%, transparent),
+    color-mix(in srgb, var(--pl-color-primary) 12%, transparent)
+  );
+  --pl-color-primary-tint-hover: light-dark(
+    color-mix(in srgb, var(--pl-color-primary) 4%, transparent),
+    color-mix(in srgb, var(--pl-color-primary) 6%, transparent)
+  );
   --pl-color-on-primary: light-dark(var(--pl-palette-on-solid), var(--pl-palette-on-40));
   --pl-color-on-primary-container: light-dark(var(--pl-palette-80), var(--pl-palette-30));
 }

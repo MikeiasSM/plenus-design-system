@@ -166,7 +166,7 @@ Componentes devem utilizar os valores definidos pelo sistema.
 Raios e sombras fazem parte da linguagem visual e devem ser centralizados:
 
 - Raios, em `src/tokens/primitive/radius.css`: `--pl-radius-sm`, `--pl-radius-md` e `--pl-radius-full`.
-- Elevação, em `src/tokens/semantic/elevation.css`: `--pl-sh-1`, `--pl-sh-2` e `--pl-sh-3`.
+- Elevação, em `src/tokens/semantic/elevation.css`: `--pl-sh-1`, `--pl-sh-2` e `--pl-sh-3`, mais `--pl-sh-up`, a sombra em degradê que sobe de uma superfície ancorada na base, como o cartão da conta da `Sidebar`.
 
 A ordem das camadas fixas também é token, em `src/tokens/semantic/layer.css`: `--pl-z-fullscreen` (90, o `DataGrid` em tela cheia), `--pl-z-modal` (100, o fundo do `Dialog` e do `Drawer`), `--pl-z-toast` (110), `--pl-z-tooltip` (120, a dica dos gráficos) e `--pl-z-skip-link` (120). Um produto com escala própria redefine esses tokens no `:root` para encaixar a biblioteca, sem sobrescrever classes. Os painéis posicionados pelo React Aria (`Popover`, `Select`, `ComboBox`, os seletores de data e hora, `Menu`, `Tooltip` e a `Toolbar` ancorada) recebem `z-index: 100000` inline e não dependem de token: ficam acima de qualquer escala do produto abaixo desse valor. O `z-index` interno da pilha de um componente, como o da `Toolbar` fixa e o das células do `DataGrid`, continua local.
 
