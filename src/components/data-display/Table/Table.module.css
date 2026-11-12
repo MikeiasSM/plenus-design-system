@@ -2,6 +2,9 @@
 .scroll {
   --table-inline-padding: var(--pl-space-5);
 
+  /* Contém o que é posicionado de forma absoluta dentro da tabela, como um texto só para leitor de tela: sem isto, ele se
+     ancora no body e, com a tabela rolando de lado, alarga a página. */
+  position: relative;
   width: 100%;
   overflow-x: auto;
 }

@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `Table`: um texto só para leitor de tela no título de uma coluna, como "Ações", deixa de alargar a página inteira quando a tabela rola de lado, por exemplo no celular. Antes, ele se ancorava na página e criava uma rolagem horizontal do documento.
 - `ComboBox`: o Escape com a lista aberta fecha só a lista; antes, dentro de um `SidePanel`, fechava o painel junto. O próximo Escape fecha o painel. Com a lista fechada, o Escape segue adiante como antes.
 - `SidePanel`: o foco volta a quem abriu também quando o painel fecha por uma ação de dentro dele, como "Aplicar filtros"; antes, ficava perdido. E o Escape que fecha o painel não fecha junto outra camada que também ouve a tecla.
 - `Tooltip`: o Escape com o tooltip aberto fecha só o tooltip; antes, dentro de um painel, fechava o painel junto. O próximo Escape fecha o painel.
