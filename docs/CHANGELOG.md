@@ -8,6 +8,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Adicionado
 
+- `SaveBar`: o `onSave` que devolve uma `Promise` deixa o botão Salvar ocupado até ela terminar, pelo mesmo mecanismo do `Button`, sem precisar ligar `saving`. A propriedade `saving` segue valendo.
 - `Button` e `ButtonIcon`: o `onClick` que devolve uma `Promise` trava o botão sozinho até ela terminar. Nesse tempo o botão mostra o indicador de `loading`, anuncia `aria-busy`, mantém o foco e não roda um segundo clique nem um segundo Enter. Se a promessa falhar, o botão volta ao normal e o erro vai para o console, sem virar rejeição sem tratamento. A propriedade `loading` segue valendo como o modo controlado.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
@@ -18,6 +19,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `DataGrid`, construtor de filtros: o clique duplo na lixeira de uma condição ou de um grupo deixa de remover também o item de baixo.
 - `Dialog` e `Drawer` com `onBeforeClose` assíncrono: a resposta de uma consulta antiga deixa de fechar o diálogo que o produto já fechou e reabriu, e o Esc do diálogo reaberto volta a consultar. Se a consulta falhar, o diálogo continua aberto e o erro vai para o console, sem virar rejeição sem tratamento.
 - Depois de remover uma `Tag` ou um arquivo do `FileUpload`, ou de acionar uma ação de um aviso do `Toast`, o foco passa para o próximo botão de remover do mesmo grupo; sem próximo, para o anterior; sem nenhum, para o contêiner da etiqueta ou para o campo de arquivo. Antes, o foco caía no fim da página e quem usa o teclado perdia o lugar.
 - `DatePicker`, `DatePickerRange`, `DateTimePicker`, `TimePicker`, `Select` e `ComboBox`: o segundo clique de um clique duplo em "Aplicar" ou na opção que fecha o painel deixa de atravessar para a página atrás.
