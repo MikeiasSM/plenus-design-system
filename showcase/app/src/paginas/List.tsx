@@ -336,6 +336,7 @@ export const pagina: Pagina = {
     { teclas: ['Tab'], acao: 'Passa pela busca e pelo marcar todos; sem busca, a lista com seleção recebe o foco.' },
   ],
   garantias: [
+    { garantia: 'Pressão', como: <>A opção mostra <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
     {
       garantia: 'Papel conforme o modo',
       como: <>Sem seleção, <code>ul</code> e <code>li</code>; com seleção, <code>role="listbox"</code> nomeado, com <code>aria-multiselectable</code> na múltipla.</>,

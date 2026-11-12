@@ -100,8 +100,10 @@ button.text:focus-visible {
   color: var(--pl-color-on-primary-container);
 }
 
-button.text:hover .label {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  button.text:hover .label {
+    color: var(--pl-color-text);
+  }
 }
 
 .description {

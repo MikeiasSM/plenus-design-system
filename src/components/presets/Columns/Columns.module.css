@@ -55,9 +55,11 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.indexLink:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
+@media (hover: hover) {
+  .indexLink:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .indexLink:focus-visible {

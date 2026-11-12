@@ -26,8 +26,17 @@
 .menuSurface.menuSurface {
   width: var(--sidebar-drawer-width, auto);
   max-width: 100%;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    var(--pl-shell-gap)
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
   background: var(--pl-color-background);
+}
+
+.menuSurface.menuSurface:has(.menu[data-side='right']) {
+  padding-right: calc(var(--pl-shell-gap) + env(safe-area-inset-right, 0px));
+  padding-left: var(--pl-shell-gap);
 }
 
 .menu .rail {
@@ -95,13 +104,19 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.railItem:hover {
-  background: var(--pl-color-primary-tint-hover);
+@media (hover: hover) {
+  .railItem:hover {
+    background: var(--pl-color-primary-tint-hover);
+    color: var(--pl-color-text);
+  }
+}
+
+.railItem:not([aria-current='page']):not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-tint);
   color: var(--pl-color-text);
 }
 
-.railItem[aria-current='page'],
-.railItem[aria-current='page']:hover {
+.railItem[aria-current='page'] {
   background: var(--pl-color-primary-tint);
   color: var(--pl-color-on-primary-container);
 }
@@ -138,7 +153,14 @@
 }
 
 /* Recolher, abrir e fechar seguem o destaque dos itens. A classe dobrada vence o `ghost` do `ButtonIcon`. */
-.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
+}
+
+.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
 }

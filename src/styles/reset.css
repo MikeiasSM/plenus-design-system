@@ -43,7 +43,9 @@ a {
   text-decoration: none;
 }
 
-a:hover { text-decoration: underline; }
+@media (hover: hover) {
+  a:hover { text-decoration: underline; }
+}
 
 /* Controles nativos herdam a tipografia do contexto. */
 input, button, textarea, select {

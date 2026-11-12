@@ -4,7 +4,15 @@
   width: 100%;
   height: var(--pl-shell-height, 100dvh);
   min-height: 0;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-right, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
+  --pl-safe-top: 0px;
+  --pl-safe-right: 0px;
+  --pl-safe-bottom: 0px;
+  --pl-safe-left: 0px;
   overflow: hidden;
   background: var(--pl-color-background);
   color: var(--pl-color-text);
@@ -54,8 +62,10 @@
   scrollbar-color: transparent transparent;
 }
 
-.pageBody:hover {
-  scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+@media (hover: hover) {
+  .pageBody:hover {
+    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+  }
 }
 
 .pageFooter {

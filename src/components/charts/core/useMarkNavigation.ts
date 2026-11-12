@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent, type SyntheticEvent } from 'react';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Chart.module.css';
 
 /** Lugar de uma marca na grade do grafico: a coluna e a categoria ou a fatia; a linha, a serie. */
@@ -100,6 +101,10 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
     const from = positionFrom(event);
 
     if (!from) {
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 

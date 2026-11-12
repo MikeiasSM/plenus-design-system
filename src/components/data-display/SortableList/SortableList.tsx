@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconDragHandle } from '../../icons';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './SortableList.module.css';
 
 export interface SortableListItem {
@@ -170,6 +171,9 @@ export function SortableList({
     } else if (event.key === 'End') {
       choose(items[items.length - 1].key);
     } else if (event.key === ' ' || event.key === 'Enter') {
+      if (blockRepeatedPress(event)) {
+        return;
+      }
       choose(items[index].key);
     } else {
       return;

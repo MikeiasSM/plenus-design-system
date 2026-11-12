@@ -23,6 +23,7 @@ import styles from './Table.module.css';
 import { EmptyState } from '../../feedback/EmptyState';
 import { Skeleton } from '../../feedback/Skeleton';
 import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
+import { blockRepeatedPress } from '../../../utils/press/press';
 
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
@@ -392,7 +393,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
     >
       {sortable ? (
         <div className={styles.sortHeader}>
-          <button className={styles.sortButton} onClick={() => requestSort(id)} type="button">
+          <button className={styles.sortButton} onClick={() => requestSort(id)} onKeyDown={blockRepeatedPress} type="button">
             {children}
             {sorted ? (
               <IconArrowUp

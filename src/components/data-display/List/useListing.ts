@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useSelection, type SelectionItem, type SelectionStatus } from '../../../hooks/useSelection';
 import { containsTerm } from '../../../utils/textSearch';
+import { blockRepeatedPress } from '../../../utils/press/press';
 
 export type ListingSelectionMode = 'none' | 'single' | 'multiple';
 
@@ -115,6 +116,10 @@ export function useListing({
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (selectionMode === 'none' || (event.target instanceof HTMLInputElement && TECLAS_DE_EDICAO.includes(event.key))) {
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 

@@ -9,8 +9,10 @@
   box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
 }
 
-.frame:has(> .activate:hover) {
-  border-color: var(--pl-color-border-strong);
+@media (hover: hover) {
+  .frame:has(> .activate:hover) {
+    border-color: var(--pl-color-border-strong);
+  }
 }
 
 .activate {
@@ -90,4 +92,9 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.frame:has(> .activate:active) {
+  border-color: var(--pl-color-border-strong);
+  background: var(--pl-color-surface-muted);
 }

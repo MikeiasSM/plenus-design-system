@@ -1,8 +1,8 @@
 /* Canto inferior direito, o mais recente embaixo. No celular ocupa a largura, com o respiro da pagina. */
 .region {
   position: fixed;
-  right: var(--pl-space-5);
-  bottom: var(--pl-space-5);
+  right: calc(var(--pl-space-5) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--pl-space-5) + env(safe-area-inset-bottom, 0px));
   z-index: var(--pl-z-toast);
   display: flex;
   flex-direction: column;
@@ -13,8 +13,8 @@
 
 @media (max-width: 480px) {
   .region {
-    right: var(--pl-space-4);
-    bottom: var(--pl-space-4);
+    right: calc(var(--pl-space-4) + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--pl-space-4) + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -100,9 +100,11 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.close:hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .close:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
 .close:focus-visible {

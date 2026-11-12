@@ -297,6 +297,7 @@ export const pagina: Pagina = {
       como: <>Aviso e erro com <code>role=&quot;alert&quot;</code>; os demais com <code>role=&quot;status&quot;</code>.</>,
       teste: 'Toast.test.tsx',
     },
+    { garantia: 'Safe area', como: <>O canto soma <code>env(safe-area-inset-*)</code> ao respiro, com <code>viewport-fit=cover</code>.</>, teste: 'mobile.test.ts' },
     { garantia: 'Erro não se perde', como: 'O erro fica até ser fechado.', teste: 'Toast.test.tsx' },
     { garantia: 'Tempo pausável', como: 'Ponteiro em cima para o tempo, que recomeça ao sair.', teste: 'Toast.test.tsx' },
     { garantia: 'Botão de fechar com nome', como: <>Botão nativo com <code>aria-label=&quot;Fechar aviso&quot;</code>.</>, teste: 'Toast.test.tsx' },

@@ -3,7 +3,7 @@ import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconClose } from '../../icons';
-import { Drawer } from '../Drawer';
+import { Drawer, type DrawerProps } from '../Drawer';
 import styles from './SidePanel.module.css';
 
 export type SidePanelSide = 'left' | 'right';
@@ -75,7 +75,18 @@ export function SidePanel({
 
   if (narrow) {
     return (
-      <Drawer footer={footer} onOpenChange={setOpen} open={open} side={side} size={size} title={title}>
+      <Drawer
+        {...(props as Omit<DrawerProps, 'aria-label' | 'footer' | 'title'>)}
+        className={className}
+        footer={footer}
+        onKeyDown={onKeyDown as ComponentPropsWithRef<'div'>['onKeyDown']}
+        onOpenChange={setOpen}
+        open={open}
+        ref={ref as ComponentPropsWithRef<'div'>['ref']}
+        side={side}
+        size={size}
+        title={title}
+      >
         {children}
       </Drawer>
     );

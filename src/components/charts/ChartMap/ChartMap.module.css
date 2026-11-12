@@ -214,10 +214,12 @@
   outline: none;
 }
 
-.marker:hover {
-  stroke: var(--pl-color-text);
-  stroke-width: 1.5;
-  fill-opacity: 1;
+@media (hover: hover) {
+  .marker:hover {
+    stroke: var(--pl-color-text);
+    stroke-width: 1.5;
+    fill-opacity: 1;
+  }
 }
 
 /* O halo na cor da superficie garante o contraste do texto sobre qualquer tom da escala, nos dois temas. */

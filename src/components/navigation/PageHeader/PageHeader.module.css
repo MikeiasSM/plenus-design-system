@@ -36,9 +36,11 @@
   text-decoration: none;
 }
 
-.back:hover {
-  color: var(--pl-color-primary-active);
-  text-decoration: underline;
+@media (hover: hover) {
+  .back:hover {
+    color: var(--pl-color-primary-active);
+    text-decoration: underline;
+  }
 }
 
 .back:focus-visible {

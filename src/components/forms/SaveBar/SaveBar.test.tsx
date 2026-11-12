@@ -67,4 +67,20 @@ describe('SaveBar', () => {
     expect(screen.getByRole('button', { name: 'Salvar' })).toHaveAttribute('aria-busy', 'true');
     expect(onSave).not.toHaveBeenCalled();
   });
+
+  it('o onSave que devolve uma Promise não ocupa o Salvar: quem liga saving é o produto', () => {
+    const onSave = vi.fn(() => new Promise<void>(() => {}));
+    barra({ onSave });
+    const salvar = screen.getByRole('button', { name: 'Salvar' });
+
+    fireEvent.click(salvar);
+    fireEvent.click(salvar);
+
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(salvar).not.toHaveAttribute('aria-busy');
+  });
+
+  it('o onSave tem o tipo original', () => {
+    expectTypeOf<SaveBarProps['onSave']>().toEqualTypeOf<() => void>();
+  });
 });

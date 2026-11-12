@@ -24,8 +24,10 @@
   text-decoration: none;
 }
 
-.link:hover {
-  background: var(--pl-color-surface-subtle);
+@media (hover: hover) {
+  .link:hover {
+    background: var(--pl-color-surface-subtle);
+  }
 }
 
 /* Anel de foco proprio, por dentro da linha: um anel de fora seria cortado pelo cartao. */

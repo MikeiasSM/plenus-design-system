@@ -1,5 +1,6 @@
 import type { PointerEvent, SyntheticEvent } from 'react';
 import type { ChartAnchorPoint } from './useMarkNavigation';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Chart.module.css';
 
 export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
@@ -101,6 +102,7 @@ export function ChartLegend({
                 aria-pressed={!entrada.hidden}
                 className={`${styles.legendButton} ${entrada.hidden ? styles.legendOff : ''}`}
                 onClick={() => onToggle(entrada.label)}
+                onKeyDown={blockRepeatedPress}
                 type="button"
               >
                 {conteudo}

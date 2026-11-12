@@ -5,8 +5,10 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { Time, getLocalTimeZone, now } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { closeTimeInput, completeTimeInput, formatTime, formatTimeInput, keepInputChars, parseTimeInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Field } from '../Field';
@@ -101,6 +103,7 @@ export function TimePicker({
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const devolverFocoRef = useRef(true);
   const horaMinima = readIsoTime(min);
@@ -249,6 +252,7 @@ export function TimePicker({
               className={datePickerStyles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
+              onKeyDown={blockRepeatedPress}
               ref={triggerRef}
               type="button"
             >

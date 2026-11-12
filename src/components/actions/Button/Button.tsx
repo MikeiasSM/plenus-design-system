@@ -1,4 +1,5 @@
-import { forwardRef, type ButtonHTMLAttributes, type ElementType, type MouseEvent, type Ref } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ElementType, type KeyboardEvent, type MouseEvent, type Ref } from 'react';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Spinner } from '../../feedback/Spinner';
 import styles from './Button.module.css';
 
@@ -31,6 +32,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       linkProps,
       loading = false,
       onClick,
+      onKeyDown,
       size = 'md',
       type = 'button',
       variant = 'primary',
@@ -52,6 +54,14 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       onClick?.(event);
     }
 
+    function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+      onKeyDown?.(event);
+
+      if (!asLink || event.key === 'Enter') {
+        blockRepeatedPress(event);
+      }
+    }
+
     if (asLink) {
       // Desabilitado, o link perde o destino e o componente da aplicacao: sem `href` nao ha navegacao e,
       // sem foco, o teclado o pula, como pula o botao desabilitado. O papel `link` mantem o anuncio.
@@ -69,6 +79,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
           aria-busy={loading || undefined}
           onAuxClick={loading ? (event: MouseEvent) => event.preventDefault() : undefined}
           onClick={handleClick}
+          onKeyDown={handleKeyDown}
         >
           {loading && <Spinner size={size === 'lg' ? 'md' : 'sm'} />}
           {children}
@@ -85,6 +96,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
         aria-disabled={loading || undefined}
         aria-busy={loading || undefined}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         type={type}
       >
         {loading && <Spinner size={size === 'lg' ? 'md' : 'sm'} />}

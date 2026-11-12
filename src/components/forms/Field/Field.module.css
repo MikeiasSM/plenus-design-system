@@ -56,9 +56,11 @@
   color: var(--pl-color-text-tertiary);
 }
 
-.control:not(.invalid):hover:not(:disabled):not(:focus-visible) {
-  border-color: var(--pl-control-border-hover);
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .control:not(.invalid):hover:not(:disabled):not(:focus-visible) {
+    border-color: var(--pl-control-border-hover);
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .control:focus-visible {
@@ -92,8 +94,10 @@
   border-color: var(--pl-color-danger);
 }
 
-.invalid:hover:not(:disabled) {
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .invalid:hover:not(:disabled) {
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .invalid:focus-visible {

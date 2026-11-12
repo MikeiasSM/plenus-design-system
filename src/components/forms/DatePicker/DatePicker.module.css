@@ -9,9 +9,11 @@
   transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
 }
 
-.field:not(.error):hover:not(:has(.input:disabled)):not(:focus-within) {
-  border-color: var(--pl-control-border-hover);
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .field:not(.error):hover:not(:has(.input:disabled)):not(:focus-within) {
+    border-color: var(--pl-control-border-hover);
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .field:focus-within {
@@ -28,8 +30,10 @@
   border-color: var(--pl-color-danger);
 }
 
-.error:hover:not(:has(.input:disabled)) {
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .error:hover:not(:has(.input:disabled)) {
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .error:focus-within {
@@ -87,8 +91,10 @@
   cursor: pointer;
 }
 
-.trigger:hover:not(:disabled) {
-  color: var(--pl-color-primary-active);
+@media (hover: hover) {
+  .trigger:hover:not(:disabled) {
+    color: var(--pl-color-primary-active);
+  }
 }
 
 .trigger:focus-visible {
@@ -143,9 +149,11 @@
   cursor: pointer;
 }
 
-.navigate:hover {
-  border-color: var(--pl-color-border);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .navigate:hover {
+    border-color: var(--pl-color-border);
+    color: var(--pl-color-text);
+  }
 }
 
 .navigate:focus-visible {
@@ -183,9 +191,11 @@
   cursor: pointer;
 }
 
-.day:hover:not([aria-disabled='true']) {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
+@media (hover: hover) {
+  .day:hover:not([aria-disabled='true']) {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .day[aria-disabled='true'] {
@@ -209,11 +219,18 @@
   color: var(--pl-color-on-primary-container);
 }
 
-.selectedDay,
-.selectedDay:hover:not([aria-disabled='true']) {
+.selectedDay {
   background: var(--pl-color-primary);
   border-color: var(--pl-color-primary);
   color: var(--pl-color-on-primary);
+}
+
+@media (hover: hover) {
+  .selectedDay:hover:not([aria-disabled='true']) {
+    background: var(--pl-color-primary);
+    border-color: var(--pl-color-primary);
+    color: var(--pl-color-on-primary);
+  }
 }
 
 .day:focus-visible {

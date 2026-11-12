@@ -47,6 +47,14 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "browserslist": [
+    "chrome >= 123",
+    "edge >= 123",
+    "firefox >= 120",
+    "safari >= 17.5",
+    "ios_saf >= 17.5",
+    "and_chr >= 123"
+  ],
   "files": [
     "dist",
     "docs/CHANGELOG.md"

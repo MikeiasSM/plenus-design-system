@@ -279,7 +279,7 @@ export const pagina: Pagina = {
     { garantia: 'Região nomeada', como: <>Um <code>aside</code> nomeado pelo título, sem <code>aria-modal</code>.</>, teste: 'SidePanel.test.tsx' },
     { garantia: 'Fechado, inerte', como: 'O painel fechado não recebe foco nem leitura.', teste: 'SidePanel.test.tsx' },
     { garantia: 'Foco', como: 'Vai ao painel ao abrir e volta a quem abriu ao fechar de dentro.', teste: 'SidePanel.test.tsx' },
-    { garantia: 'Celular', como: 'Em largura estreita, passa a se comportar como o Drawer.', teste: 'SidePanel.test.tsx' },
+    { garantia: 'Celular', como: <>Abaixo de 900px, passa a ser modal, como o Drawer, e repassa <code>id</code>, <code>className</code>, <code>data-*</code> e <code>aria-*</code> ao painel.</>, teste: 'SidePanel.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <aside> e o ref vão ao elemento do painel; o className soma ao do sistema.',
   api: [

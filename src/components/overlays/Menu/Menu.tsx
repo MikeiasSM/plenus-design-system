@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactElement,
   type ReactNode,
   type Ref,
@@ -15,10 +16,12 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { PopoverPlacement } from '../Popover/Popover';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck, IconChevronRight } from '../../icons';
+import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
 
@@ -120,10 +123,18 @@ export function Menu({
     ref: mergedTriggerRef,
     'aria-haspopup': 'menu',
     'aria-expanded': open,
-    onClick: encadear(dono.onClick as (evento: unknown) => void, () =>
-      open ? fechar(true) : abrir('first'),
-    ),
+    onClick: encadear(dono.onClick as (evento: unknown) => void, (event: MouseEvent) => {
+      if (!open) {
+        abrir('first');
+      } else if (!isRepeatedClick(event)) {
+        fechar(true);
+      }
+    }),
     onKeyDown: encadear(dono.onKeyDown as (evento: KeyboardEvent) => void, (event: KeyboardEvent) => {
+      if (blockRepeatedPress(event)) {
+        return;
+      }
+
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         abrir(event.key === 'ArrowDown' ? 'first' : 'last');
@@ -216,10 +227,11 @@ function MenuList({
   // Sem isto o gatilho conta como "fora": o ponteiro fecha o menu e o clique
   // dele reabre em seguida, e o menu pisca sem abrir.
   // O submenu vive noutro portal: clicar nele nao e clicar fora.
+  const dismiss = useOverlayClickGuard(() => onClose(false), !isSubmenu);
   const { overlayProps } = useOverlay(
     {
       isOpen: !isSubmenu,
-      onClose: () => onClose(false),
+      onClose: dismiss,
       isDismissable: true,
       shouldCloseOnBlur: false,
       shouldCloseOnInteractOutside: (elemento) =>
@@ -313,7 +325,8 @@ function MenuList({
         className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
         disabled={item.disabled}
         key={item.key}
-        onClick={() => acionar(item)}
+        onClick={(event) => !isRepeatedClick(event) && acionar(item)}
+        onKeyDown={blockRepeatedPress}
         onPointerEnter={() => hover(item)}
         ref={(node) => {
           if (node) {

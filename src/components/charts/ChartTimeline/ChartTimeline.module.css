@@ -161,8 +161,10 @@
   cursor: pointer;
 }
 
-.groupButton:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .groupButton:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 .groupButton:focus-visible,
@@ -372,10 +374,16 @@
   transition: opacity var(--pl-speed-2) var(--pl-ease);
 }
 
-.figure:hover .axisOnHover,
 .figure:focus-within .axisOnHover {
   opacity: 1;
   transition-delay: 80ms;
+}
+
+@media (hover: hover) {
+  .figure:hover .axisOnHover {
+    opacity: 1;
+    transition-delay: 80ms;
+  }
 }
 
 .tableScroll {
@@ -462,5 +470,11 @@
   .chevron,
   .axisOnHover {
     transition: none;
+  }
+}
+
+@media (hover: none) {
+  .axisOnHover {
+    opacity: 1;
   }
 }

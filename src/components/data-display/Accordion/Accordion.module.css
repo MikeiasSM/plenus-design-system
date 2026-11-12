@@ -46,9 +46,11 @@
   transition: color var(--pl-speed-1) var(--pl-ease);
 }
 
-.trigger:hover:not(:disabled),
-.trigger:hover:not(:disabled) .icon {
-  color: var(--pl-color-primary-active);
+@media (hover: hover) {
+  .trigger:hover:not(:disabled),
+  .trigger:hover:not(:disabled) .icon {
+    color: var(--pl-color-primary-active);
+  }
 }
 
 .trigger:disabled {

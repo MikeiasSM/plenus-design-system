@@ -306,8 +306,10 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-.legendButton:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .legendButton:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 .legendButton:focus-visible {

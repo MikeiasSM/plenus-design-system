@@ -64,8 +64,10 @@
   opacity: 0;
 }
 
-.swatch:hover:not(:has(.input:checked, .input:disabled)) {
-  box-shadow: 0 0 0 2px var(--pl-color-surface), 0 0 0 4px var(--pl-color-border-strong);
+@media (hover: hover) {
+  .swatch:hover:not(:has(.input:checked, .input:disabled)) {
+    box-shadow: 0 0 0 2px var(--pl-color-surface), 0 0 0 4px var(--pl-color-border-strong);
+  }
 }
 
 /* O anel no texto principal passa 4,5:1 sobre a superfície nos dois temas; o visto diz o mesmo sem depender de cor. */

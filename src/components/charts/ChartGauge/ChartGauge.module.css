@@ -77,8 +77,16 @@
   opacity: 0;
 }
 
-.canvas:hover .segmentLabelOnHover {
-  opacity: 1;
+@media (hover: hover) {
+  .canvas:hover .segmentLabelOnHover {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .segmentLabelOnHover {
+    opacity: 1;
+  }
 }
 
 /* O contorno na cor da superfície separa a meta do arco que passa por baixo dela. */

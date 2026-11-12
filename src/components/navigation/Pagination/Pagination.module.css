@@ -68,10 +68,12 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.page:hover:not(.current):not([aria-disabled='true']),
-.step:hover:not([aria-disabled='true']) {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
+@media (hover: hover) {
+  .page:hover:not(.current):not([aria-disabled='true']),
+  .step:hover:not([aria-disabled='true']) {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .page[aria-disabled='true']:not(.current),
@@ -105,4 +107,10 @@
 .step:focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
+}
+
+.page:active:not(.current):not([aria-disabled='true']),
+.step:active:not([aria-disabled='true']) {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
 }

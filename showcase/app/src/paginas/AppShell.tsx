@@ -267,6 +267,7 @@ export const pagina: Pagina = {
     { garantia: 'Estado controlado', como: 'Com open, clicar pede a mudança e o estado segue o valor recebido.', teste: 'AppShell.test.tsx' },
     { garantia: 'Estrutura da página', como: <>O <code>AppShell.Page</code> é o <code>main</code>, com a barra e o corpo.</>, teste: 'AppShell.test.tsx' },
     { garantia: 'Nomes antigos', como: 'As peças da navegação seguem aceitas como aliases obsoletos da Sidebar.', teste: 'AppShell.test.tsx' },
+    { garantia: 'Safe area', como: <>Soma <code>env(safe-area-inset-*)</code> ao respiro da borda, com <code>viewport-fit=cover</code>; sem ele, nada muda.</>, teste: 'mobile.test.ts' },
   ],
   notaDaApi: (
     <>

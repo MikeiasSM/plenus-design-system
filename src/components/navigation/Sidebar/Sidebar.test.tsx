@@ -443,7 +443,7 @@ describe('Sidebar', () => {
     });
 
     it('o ativo do submenu leva fundo leve e barra solta, sem borda nem sombra', () => {
-      const ativo = painel().get(".item[aria-current='page'], .item[aria-current='page']:hover")!;
+      const ativo = painel().get(".item[aria-current='page']")!;
 
       expect(ativo).toMatchObject({ background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-on-primary-container)' });
       expect(ativo['box-shadow']).toBeUndefined();
@@ -462,8 +462,15 @@ describe('Sidebar', () => {
       expect(moldura().get('.railItem:hover')).toMatchObject({ background: 'var(--pl-color-primary-tint-hover)', color: 'var(--pl-color-text)' });
     });
 
+    it('pressionar o item do submenu e do trilho usa o fundo do ativo, sem valer no atual nem no desabilitado', () => {
+      const pressionado = { background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-text)' };
+
+      expect(painel().get(".item:not([aria-current='page']):not(:disabled):not([aria-disabled='true']):active")).toEqual(pressionado);
+      expect(moldura().get(".railItem:not([aria-current='page']):not(:disabled):not([aria-disabled='true']):active")).toEqual(pressionado);
+    });
+
     it('o ativo do trilho usa o fundo leve do submenu, sem barra', () => {
-      const ativo = moldura().get(".railItem[aria-current='page'], .railItem[aria-current='page']:hover")!;
+      const ativo = moldura().get(".railItem[aria-current='page']")!;
 
       expect(ativo).toMatchObject({ background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-on-primary-container)' });
       expect(moldura().get(".railItem[aria-current='page']::before")).toBeUndefined();
