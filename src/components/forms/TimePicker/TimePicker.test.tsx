@@ -267,7 +267,7 @@ describe('TimePicker', () => {
       const texto = campo.value;
       fireEvent.blur(campo);
 
-      expect(screen.getByRole('alert')).toHaveTextContent('Hora inválida.');
+      expect(screen.getByRole('alert')).toHaveTextContent('Hora invÃ¡lida.');
       expect(campo).toHaveAttribute('aria-invalid', 'true');
       expect(campo).toHaveValue(texto);
       expect(mudou).not.toHaveBeenCalled();
@@ -290,12 +290,12 @@ describe('TimePicker', () => {
     });
 
     it('o erro do produto prevalece', () => {
-      const campo = montar({ error: 'Obrigatório' });
+      const campo = montar({ error: 'ObrigatÃ³rio' });
 
       fireEvent.change(campo, { target: { value: '25' } });
       fireEvent.blur(campo);
 
-      expect(screen.getByRole('alert')).toHaveTextContent('Obrigatório');
+      expect(screen.getByRole('alert')).toHaveTextContent('ObrigatÃ³rio');
     });
   });
 });

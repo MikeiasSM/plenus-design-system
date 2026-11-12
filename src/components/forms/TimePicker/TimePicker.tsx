@@ -43,7 +43,7 @@ export interface TimePickerProps
   max?: string;
   min?: string;
   step?: number;
-  /** Avisa o texto digitado que n„o È uma hora v·lida, ao confirmar ou sair do campo. */
+  /** Avisa o texto digitado que n√£o √© uma hora v√°lida, ao confirmar ou sair do campo. */
   onInvalid?: (texto: string) => void;
   /** Sem hora inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
@@ -145,7 +145,7 @@ export function TimePicker({
       const lido = completeTimeInput(digitado);
 
       if (!lido) {
-        return { mensagem: 'Hora inv·lida.' };
+        return { mensagem: 'Hora inv√°lida.' };
       }
 
       return isTimeAllowed(lido, horaMinima, horaMaxima) ? { valor: lido } : { mensagem: 'Hora fora do intervalo permitido.' };

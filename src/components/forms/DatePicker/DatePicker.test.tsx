@@ -339,7 +339,7 @@ describe('DatePicker', () => {
       const texto = (campo as HTMLInputElement).value;
       fireEvent.blur(campo);
 
-      expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
+      expect(screen.getByRole('alert')).toHaveTextContent('Data invÃ¡lida.');
       expect(campo).toHaveAttribute('aria-invalid', 'true');
       expect(campo).toHaveValue(texto);
       expect(mudou).not.toHaveBeenCalled();
@@ -348,12 +348,12 @@ describe('DatePicker', () => {
     });
 
     it('o erro do produto prevalece sobre a mensagem do campo', () => {
-      const campo = montar({ error: 'Obrigatório' });
+      const campo = montar({ error: 'ObrigatÃ³rio' });
 
       fireEvent.change(campo, { target: { value: '32' } });
       fireEvent.blur(campo);
 
-      expect(screen.getByRole('alert')).toHaveTextContent('Obrigatório');
+      expect(screen.getByRole('alert')).toHaveTextContent('ObrigatÃ³rio');
     });
 
     it('a mensagem some quando o valor fica valido', () => {

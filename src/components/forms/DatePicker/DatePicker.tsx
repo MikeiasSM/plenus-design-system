@@ -45,7 +45,7 @@ export interface DatePickerProps
   locale?: string;
   max?: string;
   min?: string;
-  /** Avisa o texto digitado que n„o È uma data v·lida, ao confirmar ou sair do campo. */
+  /** Avisa o texto digitado que n√£o √© uma data v√°lida, ao confirmar ou sair do campo. */
   onInvalid?: (texto: string) => void;
   /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
@@ -155,7 +155,7 @@ export function DatePicker({
       const lido = completeDateInput(digitado, today(getLocalTimeZone()));
 
       if (!lido) {
-        return { mensagem: 'Data inv·lida.' };
+        return { mensagem: 'Data inv√°lida.' };
       }
 
       return isUnavailable(lido, limites) ? { mensagem: 'Data fora do intervalo permitido.' } : { valor: lido };
