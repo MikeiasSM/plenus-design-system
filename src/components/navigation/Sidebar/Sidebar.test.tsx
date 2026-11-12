@@ -286,6 +286,7 @@ describe('Sidebar', () => {
 
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(container.querySelector(`.${panelStyles.accountShield}`)).toBeNull();
+      expect(trigger).toHaveFocus();
     });
 
     it('a camada do clique fora não aparece com a conta cobrindo a lista', () => {

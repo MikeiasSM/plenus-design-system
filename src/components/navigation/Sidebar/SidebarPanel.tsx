@@ -60,7 +60,7 @@ export function SidebarPanel({
   width,
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, icons, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, side, submenuOpen } = useSidebarContext();
+  const { accountId, accountOpen, collapsePanel, setAccountOpen, collapseRef, icons, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, side, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -80,6 +80,7 @@ export function SidebarPanel({
   function handleInnerClick(event: MouseEvent<HTMLDivElement>) {
     if (accountOpen && accountMode === 'inline' && !(event.target as Element).closest(`.${styles.account}`)) {
       setAccountOpen(false);
+      event.currentTarget.querySelector<HTMLElement>(`[aria-controls="${accountId}"]`)?.focus();
     }
   }
 
