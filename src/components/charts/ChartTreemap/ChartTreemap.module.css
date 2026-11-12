@@ -7,8 +7,10 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-svg:hover .tile:not(:hover) {
-  opacity: 0.82;
+@media (hover: hover) {
+  svg:hover .tile:not(:hover) {
+    opacity: 0.82;
+  }
 }
 
 .label {

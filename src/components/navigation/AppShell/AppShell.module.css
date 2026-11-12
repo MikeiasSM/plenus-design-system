@@ -112,9 +112,11 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.railItem:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .railItem:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .railItem[aria-current='page'] {
@@ -123,9 +125,11 @@
 }
 
 /* Recolher, abrir e fechar seguem o destaque dos itens. A classe dobrada vence o `ghost` do `ButtonIcon`. */
-.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .railAccount {
@@ -183,8 +187,10 @@
   scrollbar-color: transparent transparent;
 }
 
-.pageBody:hover {
-  scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+@media (hover: hover) {
+  .pageBody:hover {
+    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -192,4 +198,10 @@
   .railAccount {
     transition: none;
   }
+}
+
+.railItem:active,
+.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
 }

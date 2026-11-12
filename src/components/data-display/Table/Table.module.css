@@ -77,8 +77,10 @@
   cursor: pointer;
 }
 
-.sortButton:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .sortButton:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 .sortButton:focus-visible {
@@ -107,8 +109,10 @@
   cursor: help;
 }
 
-.help:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .help:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 .help:focus-visible {
@@ -263,6 +267,8 @@
   background: var(--pl-color-primary-container);
 }
 
-.row:hover:not(.selected, .skeletonRow) {
-  background: var(--pl-color-surface-subtle);
+@media (hover: hover) {
+  .row:hover:not(.selected, .skeletonRow) {
+    background: var(--pl-color-surface-subtle);
+  }
 }

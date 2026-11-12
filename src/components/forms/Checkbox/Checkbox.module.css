@@ -33,9 +33,11 @@
   transition: background-color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
 }
 
-.input:not(.error):hover:not(:disabled):not(:focus-visible):not(:checked):not(:indeterminate) {
-  border-color: var(--pl-control-border-hover);
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .input:not(.error):hover:not(:disabled):not(:focus-visible):not(:checked):not(:indeterminate) {
+    border-color: var(--pl-control-border-hover);
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .input:checked,
@@ -69,8 +71,10 @@
   border-color: var(--pl-color-danger);
 }
 
-.error:hover:not(:disabled) {
-  box-shadow: var(--pl-sh-1);
+@media (hover: hover) {
+  .error:hover:not(:disabled) {
+    box-shadow: var(--pl-sh-1);
+  }
 }
 
 .text {

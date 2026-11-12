@@ -168,8 +168,10 @@
   background: var(--pl-color-surface);
 }
 
-.row:hover:not(.selected) {
-  background: var(--pl-color-surface-subtle);
+@media (hover: hover) {
+  .row:hover:not(.selected) {
+    background: var(--pl-color-surface-subtle);
+  }
 }
 
 .selected {
@@ -304,8 +306,10 @@
   cursor: pointer;
 }
 
-.sortable:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .sortable:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 /* Coluna fixa: cola na borda e cobre as que rolam por baixo, com o fundo da própria linha. */
@@ -372,10 +376,15 @@
   background: linear-gradient(to left, transparent, var(--pl-color-surface-subtle) var(--pl-space-3));
 }
 
-.headerCell:hover > .headerActions,
 .headerCell:focus-within > .headerActions,
 .headerActionsOpen {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .headerCell:hover > .headerActions {
+    opacity: 1;
+  }
 }
 
 .headerMenuButton {
@@ -392,15 +401,23 @@
   cursor: pointer;
 }
 
-.headerMenuButton:hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .headerMenuButton:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
-.filterActive,
-.filterActive:hover {
+.filterActive {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-primary-strong);
+}
+
+@media (hover: hover) {
+  .filterActive:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .filterPopover {
@@ -468,14 +485,24 @@
   width: 100%;
 }
 
-.filterOptions > div:hover,
 .filterOptions > div:has(input:focus-visible) {
   background: var(--pl-color-primary-container);
 }
 
-.filterOptions > div:hover label > span,
+@media (hover: hover) {
+  .filterOptions > div:hover {
+    background: var(--pl-color-primary-container);
+  }
+}
+
 .filterOptions > div:has(input:focus-visible) label > span {
   color: var(--pl-color-on-primary-container);
+}
+
+@media (hover: hover) {
+  .filterOptions > div:hover label > span {
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .filterNote {
@@ -512,13 +539,17 @@
   opacity: 0;
 }
 
-.headerCell:hover > .resizer::after {
-  opacity: 0.35;
+@media (hover: hover) {
+  .headerCell:hover > .resizer::after {
+    opacity: 0.35;
+  }
+
+  .resizer:hover::after {
+    opacity: 1;
+  }
 }
 
-.resizer:hover::after {
-  opacity: 1;
-}
+
 
 .dropTarget {
   box-shadow: inset 3px 0 0 var(--pl-color-primary-strong);
@@ -570,9 +601,11 @@
   cursor: pointer;
 }
 
-.expander:hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .expander:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
 .expander svg {
@@ -722,4 +755,18 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.row.clickable:active:not(.selected) {
+  background: var(--pl-color-surface-muted);
+}
+
+.row.clickable.selected:active {
+  background: var(--pl-color-primary-selected);
+}
+
+@media (hover: none) {
+  .headerActions {
+    opacity: 1;
+  }
 }

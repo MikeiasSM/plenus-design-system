@@ -33,6 +33,8 @@ O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o context
 
 O `Button` leva o ícone como filho, antes do texto: `<Button><IconPlus />Novo pedido</Button>`.
 
+O realce de hover vale só onde há ponteiro que paira (`@media (hover: hover)`), em todos os componentes, para não ficar preso depois de um toque. Os controles interativos — `Button`, `ButtonIcon`, `ButtonTile`, os itens de `Menu`, de `List`, de `Tabs`, de `Pagination` e do `SegmentedControl`, o item do `AppShell`, o `CardMetric` com `onActivate` e as linhas clicáveis do `DataGrid` e do `SortableList` — mostram o estado pressionado (`:active`) em qualquer ponteiro, um passo mais forte que o hover: o fundo `--pl-color-primary-active` no botão primário, e o fundo selecionado ou o neutro mais escuro nos demais. O texto sobre o fundo pressionado mantém 4,5:1, medido por `npm run check:contraste`. O que só aparece no hover, como as ações do título de coluna do `DataGrid` e o eixo `onHover` do `ChartTimeline`, fica sempre visível onde não há hover.
+
 O `ButtonTile` é o botão de uma paleta — os blocos que um editor insere, os tipos de registro que uma tela cria. Ícone e nome ficam sempre visíveis, e uma descrição curta é opcional. Com `selected`, ele alterna e expõe `aria-pressed`. Fora de uma grade de opções equivalentes, a escolha é o `Button`.
 
 A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação de um editor: um único ponto de tabulação e as setas percorrendo os controles, conforme o padrão de barra de ferramentas do WAI-ARIA. Ela pode ficar fixa no fluxo, presa ao topo ao rolar, ou flutuar ancorada a um elemento. Os controles são os do próprio catálogo. Um conjunto solto de botões sem relação entre si não é barra de ferramentas.

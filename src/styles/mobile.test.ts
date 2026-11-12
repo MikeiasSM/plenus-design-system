@@ -56,3 +56,91 @@ describe('safe area', () => {
     expect(ler('tokens/semantic/shell.css')).toContain('--pl-safe-top: env(safe-area-inset-top, 0px)');
   });
 });
+
+
+function blocoDaMidia(css: string, consulta: string): string {
+  const inicio = css.indexOf(`@media (${consulta}) {`);
+  let nivel = 0;
+
+  for (let i = css.indexOf('{', inicio); i < css.length; i++) {
+    nivel += css[i] === '{' ? 1 : css[i] === '}' ? -1 : 0;
+
+    if (nivel === 0) {
+      return css.slice(inicio, i + 1);
+    }
+  }
+
+  return '';
+}
+
+function soAMidia(css: string, consulta: string): string {
+  let resto = css;
+  let dentro = '';
+
+  for (let bloco = blocoDaMidia(resto, consulta); bloco; bloco = blocoDaMidia(resto, consulta)) {
+    dentro += bloco;
+    resto = resto.replace(bloco, '');
+  }
+
+  return dentro;
+}
+
+function semAMidia(css: string, consulta: string): string {
+  let resto = css;
+
+  for (let bloco = blocoDaMidia(resto, consulta); bloco; bloco = blocoDaMidia(resto, consulta)) {
+    resto = resto.replace(bloco, '');
+  }
+
+  return resto;
+}
+
+describe('hover e pressão', () => {
+  it.each(todas)('%s: todo :hover vale só dentro de @media (hover: hover)', (_nome, css) => {
+    expect(semAMidia(css, 'hover: hover')).not.toContain(':hover');
+  });
+
+  it('o hover de ao menos uma folha segue valendo no computador, dentro da consulta', () => {
+    expect(soAMidia(ler('components/actions/Button/Button.module.css'), 'hover: hover')).toContain(':hover');
+  });
+
+  it.each([
+    'components/actions/Button/Button.module.css',
+    'components/actions/ButtonTile/ButtonTile.module.css',
+    'components/overlays/Menu/Menu.module.css',
+    'components/data-display/List/List.module.css',
+    'components/navigation/Tabs/Tabs.module.css',
+    'components/navigation/Pagination/Pagination.module.css',
+    'components/forms/SegmentedControl/SegmentedControl.module.css',
+    'components/data-display/CardMetric/CardMetric.module.css',
+    'components/data-display/DataGrid/DataGrid.module.css',
+    'components/data-display/SortableList/SortableList.module.css',
+    'components/navigation/AppShell/AppShell.module.css',
+    'components/navigation/AppShell/AppShellPanel.module.css',
+  ])('%s: tem :active, que não depende de hover: hover', (arquivo) => {
+    const css = ler(arquivo);
+
+    expect(semAMidia(css, 'hover: hover')).toContain(':active');
+    expect(soAMidia(css, 'hover: hover')).not.toContain(':active');
+  });
+
+  it('o botão primário pressionado usa --pl-color-primary-active, um passo além do hover', () => {
+    const css = ler('components/actions/Button/Button.module.css');
+
+    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-color-primary-active\);/);
+    expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-hover');
+  });
+
+  it('o que só aparece no hover aparece sempre onde não há hover', () => {
+    expect(blocoDaMidia(ler('components/data-display/DataGrid/DataGrid.module.css'), 'hover: none')).toContain('.headerActions');
+    expect(blocoDaMidia(ler('components/charts/ChartTimeline/ChartTimeline.module.css'), 'hover: none')).toContain('.axisOnHover');
+  });
+
+  it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+
+    expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO");
+    expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
+    expect(laudo).toContain("'--pl-color-primary-active', '--pl-color-surface-muted', TEXTO_MINIMO");
+  });
+});

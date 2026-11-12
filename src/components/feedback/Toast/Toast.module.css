@@ -100,9 +100,11 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.close:hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .close:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
 .close:focus-visible {

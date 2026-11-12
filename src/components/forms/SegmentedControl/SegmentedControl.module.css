@@ -77,8 +77,10 @@
   font-size: 1rem;
 }
 
-.segment:hover:not(:has(.input:disabled)) {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .segment:hover:not(:has(.input:disabled)) {
+    color: var(--pl-color-text);
+  }
 }
 
 .segment:has(.input:checked) {
@@ -104,4 +106,9 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.segment:active:not(:has(.input:disabled)) {
+  background: var(--pl-color-border-strong);
+  color: var(--pl-color-text);
 }
