@@ -15,7 +15,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
-- Hover: o realce de passar o ponteiro vale só onde há ponteiro que paira (`@media (hover: hover)`), em todos os componentes, como no Tailwind CSS 4. No toque, ele deixa de ficar preso depois do dedo sair. O que só aparecia no hover, como as ações do título de coluna do `DataGrid` e o eixo `onHover` do `ChartTimeline`, fica sempre visível onde não há hover.
+- Hover: o realce de passar o ponteiro vale só onde há ponteiro que paira (`@media (hover: hover)`), em todos os componentes, como no Tailwind CSS 4. No toque, ele deixa de ficar preso depois do dedo sair. O que só aparecia no hover, como as ações do título de coluna do `DataGrid`, o eixo `onHover` do `ChartTimeline` e os rótulos `onHover` do `ChartGauge`, fica sempre visível onde não há hover.
 - Pressão: `Button`, `ButtonIcon`, `ButtonTile`, os itens de `Menu`, `List`, `Tabs`, `Pagination` e `SegmentedControl`, o item do `AppShell`, o `CardMetric` clicável e as linhas clicáveis do `DataGrid` e do `SortableList` ganham o estado pressionado (`:active`), um passo mais forte que o hover, em qualquer ponteiro. O texto sobre o fundo pressionado mantém 4,5:1, e o laudo de contraste passa a medi-lo.
 - `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.

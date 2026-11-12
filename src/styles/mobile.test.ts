@@ -134,6 +134,7 @@ describe('hover e pressão', () => {
   it('o que só aparece no hover aparece sempre onde não há hover', () => {
     expect(blocoDaMidia(ler('components/data-display/DataGrid/DataGrid.module.css'), 'hover: none')).toContain('.headerActions');
     expect(blocoDaMidia(ler('components/charts/ChartTimeline/ChartTimeline.module.css'), 'hover: none')).toContain('.axisOnHover');
+    expect(blocoDaMidia(ler('components/charts/ChartGauge/ChartGauge.module.css'), 'hover: none')).toContain('.segmentLabelOnHover');
   });
 
   it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {

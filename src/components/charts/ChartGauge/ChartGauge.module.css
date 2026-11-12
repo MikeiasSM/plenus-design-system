@@ -83,6 +83,12 @@
   }
 }
 
+@media (hover: none) {
+  .segmentLabelOnHover {
+    opacity: 1;
+  }
+}
+
 /* O contorno na cor da superfície separa a meta do arco que passa por baixo dela. */
 .targetOutline {
   stroke: var(--pl-color-surface);
