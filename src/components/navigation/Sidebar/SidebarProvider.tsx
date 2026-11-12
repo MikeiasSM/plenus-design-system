@@ -10,11 +10,21 @@ import {
 } from './Sidebar.context';
 
 export interface SidebarProviderProps {
+  /** Conta aberta, no modo controlado. */
+  accountOpen?: boolean;
   children: ReactNode;
+  /** Conta aberta no início, no modo não controlado. */
+  defaultAccountOpen?: boolean;
+  /** Gaveta do celular aberta no início, no modo não controlado. */
+  defaultMenuOpen?: boolean;
   /** Submenu aberto no início, no modo não controlado. */
   defaultOpen?: boolean;
   /** Textos fixos dos botões; só os passados trocam o padrão em português. */
   labels?: Partial<SidebarLabels>;
+  /** Gaveta do celular aberta, no modo controlado. */
+  menuOpen?: boolean;
+  onAccountOpenChange?: (open: boolean) => void;
+  onMenuOpenChange?: (open: boolean) => void;
   onOpenChange?: (open: boolean) => void;
   /** Submenu aberto, no modo controlado. */
   open?: boolean;
@@ -42,11 +52,27 @@ function mergeDefined<T extends object>(defaults: T, overrides?: Partial<T>): T 
 }
 
 /** Guarda o estado da navegação (`Sidebar`) e o reparte com quem estiver dentro, sem desenhar nada. O `AppShell` monta um por dentro. */
-export function SidebarProvider({ children, defaultOpen = true, labels, onOpenChange, open: controlledOpen }: SidebarProviderProps) {
+export function SidebarProvider({
+  accountOpen: controlledAccountOpen,
+  children,
+  defaultAccountOpen,
+  defaultMenuOpen,
+  defaultOpen = true,
+  labels,
+  menuOpen: controlledMenuOpen,
+  onAccountOpenChange,
+  onMenuOpenChange,
+  onOpenChange,
+  open: controlledOpen,
+}: SidebarProviderProps) {
   const narrow = useNarrowViewport();
   const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useOpenState({ defaultOpen: defaultMenuOpen, onOpenChange: onMenuOpenChange, open: controlledMenuOpen });
+  const [accountOpen, setAccountOpen] = useOpenState({
+    defaultOpen: defaultAccountOpen,
+    onOpenChange: onAccountOpenChange,
+    open: controlledAccountOpen,
+  });
   const [panelKind, setPanelKind] = useState<SidebarPanelKind>('none');
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);

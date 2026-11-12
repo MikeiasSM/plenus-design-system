@@ -23,9 +23,34 @@ export interface AppShellProps extends ComponentPropsWithRef<'div'>, Omit<Sideba
 }
 
 /** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa a janela; numa caixa, redefina `--pl-shell-height`. */
-function AppShellRoot({ children, className, defaultOpen, labels, onOpenChange, open, ...props }: AppShellProps) {
+function AppShellRoot({
+  accountOpen,
+  children,
+  className,
+  defaultAccountOpen,
+  defaultMenuOpen,
+  defaultOpen,
+  labels,
+  menuOpen,
+  onAccountOpenChange,
+  onMenuOpenChange,
+  onOpenChange,
+  open,
+  ...props
+}: AppShellProps) {
   const outerSidebar = useContext(SidebarContext);
-  const providerProps = { defaultOpen, labels, onOpenChange, open };
+  const providerProps = {
+    accountOpen,
+    defaultAccountOpen,
+    defaultMenuOpen,
+    defaultOpen,
+    labels,
+    menuOpen,
+    onAccountOpenChange,
+    onMenuOpenChange,
+    onOpenChange,
+    open,
+  };
   const ignoresStateProps = outerSidebar !== null && Object.values(providerProps).some((value) => value !== undefined);
 
   useEffect(() => {
