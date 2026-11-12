@@ -1,12 +1,20 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { SidebarContext, useSidebarContext, type SidebarPanelKind } from './Sidebar.context';
+import {
+  defaultSidebarLabels,
+  SidebarContext,
+  useSidebarContext,
+  type SidebarLabels,
+  type SidebarPanelKind,
+} from './Sidebar.context';
 
 export interface SidebarProviderProps {
   children: ReactNode;
   /** Submenu aberto no início, no modo não controlado. */
   defaultOpen?: boolean;
+  /** Textos fixos dos botões; só os passados trocam o padrão em português. */
+  labels?: Partial<SidebarLabels>;
   onOpenChange?: (open: boolean) => void;
   /** Submenu aberto, no modo controlado. */
   open?: boolean;
@@ -27,8 +35,14 @@ export interface UseSidebarResult {
   toggleSidebar: () => void;
 }
 
+function mergeDefined<T extends object>(defaults: T, overrides?: Partial<T>): T {
+  const entries = Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined);
+
+  return { ...defaults, ...Object.fromEntries(entries) };
+}
+
 /** Guarda o estado da navegação (`Sidebar`) e o reparte com quem estiver dentro, sem desenhar nada. O `AppShell` monta um por dentro. */
-export function SidebarProvider({ children, defaultOpen = true, onOpenChange, open: controlledOpen }: SidebarProviderProps) {
+export function SidebarProvider({ children, defaultOpen = true, labels, onOpenChange, open: controlledOpen }: SidebarProviderProps) {
   const narrow = useNarrowViewport();
   const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,6 +51,7 @@ export function SidebarProvider({ children, defaultOpen = true, onOpenChange, op
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
+  const resolvedLabels = mergeDefined(defaultSidebarLabels, labels);
   const panelId = useId();
   const accountId = useId();
 
@@ -97,6 +112,7 @@ export function SidebarProvider({ children, defaultOpen = true, onOpenChange, op
         expandPanel,
         expandRef,
         isPanelVisible,
+        labels: resolvedLabels,
         menuOpen,
         narrow,
         openAccountFromRail,

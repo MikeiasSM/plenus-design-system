@@ -13,7 +13,7 @@ export type SidebarTriggerProps = Omit<ButtonIconProps, 'icon' | 'label'>;
  * que abrir. O `onClick` do consumidor roda antes; `event.preventDefault()` nele cancela a abertura.
  */
 export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant = 'ghost', ...props }: SidebarTriggerProps) {
-  const { expandPanel, expandRef, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
+  const { expandPanel, expandRef, labels, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
   const expandButtonRef = useMergedRefs(ref, expandRef);
   const classes = [styles.frameButton, className].filter(Boolean).join(' ');
 
@@ -33,7 +33,7 @@ export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant =
         aria-haspopup="dialog"
         className={classes}
         icon={<IconSidebar />}
-        label="Abrir menu"
+        label={labels.openMenu}
         onClick={(event) => handleClick(event, () => setMenuOpen(true))}
         ref={ref}
         size={size}
@@ -50,7 +50,7 @@ export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant =
         aria-expanded={false}
         className={classes}
         icon={<IconSidebar />}
-        label="Abrir submenu"
+        label={labels.openSubmenu}
         onClick={(event) => handleClick(event, expandPanel)}
         ref={expandButtonRef}
         size={size}

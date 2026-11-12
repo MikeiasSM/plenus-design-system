@@ -60,7 +60,7 @@ export function SidebarPanel({
   width,
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
+  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -104,7 +104,7 @@ export function SidebarPanel({
                   <ButtonIcon
                     className={frameStyles.frameButton}
                     icon={<IconClose />}
-                    label="Fechar menu"
+                    label={labels.closeMenu}
                     onClick={() => setMenuOpen(false)}
                     size="sm"
                     variant="ghost"
@@ -115,7 +115,7 @@ export function SidebarPanel({
                     aria-expanded={submenuOpen}
                     className={frameStyles.frameButton}
                     icon={<IconSidebar />}
-                    label="Recolher submenu"
+                    label={labels.collapseSubmenu}
                     onClick={collapsePanel}
                     ref={collapseRef}
                     size="sm"

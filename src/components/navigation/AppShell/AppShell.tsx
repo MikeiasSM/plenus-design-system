@@ -1,16 +1,18 @@
 import { useContext, useEffect, type ComponentPropsWithRef } from 'react';
 import { isDevelopment } from '../../../utils/isDevelopment';
-import { Sidebar, SidebarProvider } from '../Sidebar';
+import { Sidebar, SidebarProvider, type SidebarProviderProps } from '../Sidebar';
 import { SidebarContext } from '../Sidebar/Sidebar.context';
 import { AppShellPage, AppShellPageBar, AppShellPageBody, AppShellPageFooter } from './AppShellPage';
 import styles from './AppShell.module.css';
 
-export interface AppShellProps extends ComponentPropsWithRef<'div'> {
+export interface AppShellProps extends ComponentPropsWithRef<'div'>, Omit<SidebarProviderProps, 'children'> {
   /**
    * Submenu aberto no início, no modo não controlado (padrão `true`).
    * Ignorado quando já existe um `SidebarProvider` por fora: o estado é o dele.
    */
   defaultOpen?: boolean;
+  /** Textos fixos da navegação. Ignorado quando já existe um `SidebarProvider` por fora. */
+  labels?: SidebarProviderProps['labels'];
   /** Ignorado quando já existe um `SidebarProvider` por fora. */
   onOpenChange?: (open: boolean) => void;
   /**
@@ -21,13 +23,14 @@ export interface AppShellProps extends ComponentPropsWithRef<'div'> {
 }
 
 /** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa a janela; numa caixa, redefina `--pl-shell-height`. */
-function AppShellRoot({ children, className, defaultOpen, onOpenChange, open, ...props }: AppShellProps) {
+function AppShellRoot({ children, className, defaultOpen, labels, onOpenChange, open, ...props }: AppShellProps) {
   const outerSidebar = useContext(SidebarContext);
-  const ignoresStateProps = outerSidebar !== null && (defaultOpen !== undefined || onOpenChange !== undefined || open !== undefined);
+  const providerProps = { defaultOpen, labels, onOpenChange, open };
+  const ignoresStateProps = outerSidebar !== null && Object.values(providerProps).some((value) => value !== undefined);
 
   useEffect(() => {
     if (ignoresStateProps && isDevelopment()) {
-      console.warn('AppShell: há um <SidebarProvider> por fora, que guarda o estado; `open`, `defaultOpen` e `onOpenChange` do AppShell são ignorados.');
+      console.warn('AppShell: há um <SidebarProvider> por fora, que guarda o estado e a configuração; as props de navegação do AppShell são ignoradas.');
     }
   }, [ignoresStateProps]);
 
@@ -42,7 +45,7 @@ function AppShellRoot({ children, className, defaultOpen, onOpenChange, open, ..
   }
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen} onOpenChange={onOpenChange} open={open}>
+    <SidebarProvider {...providerProps}>
       {frame}
     </SidebarProvider>
   );
