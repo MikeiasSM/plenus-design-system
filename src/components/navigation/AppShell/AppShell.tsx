@@ -22,6 +22,12 @@ export interface AppShellProps extends ComponentPropsWithRef<'div'>, Omit<Sideba
   open?: boolean;
 }
 
+function AppShellFrame({ className, ...props }: ComponentPropsWithRef<'div'>) {
+  const side = useContext(SidebarContext)?.side ?? 'left';
+
+  return <div {...props} className={[styles.appShell, className].filter(Boolean).join(' ')} data-side={side} />;
+}
+
 /** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa a janela; numa caixa, redefina `--pl-shell-height`. */
 function AppShellRoot({
   accountOpen,
@@ -37,6 +43,7 @@ function AppShellRoot({
   onMenuOpenChange,
   onOpenChange,
   open,
+  side,
   ...props
 }: AppShellProps) {
   const outerSidebar = useContext(SidebarContext);
@@ -52,6 +59,7 @@ function AppShellRoot({
     onMenuOpenChange,
     onOpenChange,
     open,
+    side,
   };
   const ignoresStateProps = outerSidebar !== null && Object.values(providerProps).some((value) => value !== undefined);
 
@@ -62,9 +70,9 @@ function AppShellRoot({
   }, [ignoresStateProps]);
 
   const frame = (
-    <div {...props} className={[styles.appShell, className].filter(Boolean).join(' ')}>
+    <AppShellFrame {...props} className={className}>
       {children}
-    </div>
+    </AppShellFrame>
   );
 
   if (outerSidebar) {

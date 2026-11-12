@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { regrasDaFolha } from '../../../test/folha';
 import { AppShell } from '../AppShell';
+import drawerStyles from '../../overlays/Drawer/Drawer.module.css';
 import { Sidebar } from './Sidebar';
 import { SidebarProvider, useSidebar, type SidebarProviderProps } from './SidebarProvider';
 
@@ -276,6 +278,63 @@ describe('SidebarProvider: ponto de virada (narrowBelow)', () => {
     render(<Frame narrowBelow={600} />);
 
     expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+});
+
+describe('SidebarProvider: lado (side)', () => {
+  const painel = () => screen.getByRole('navigation', { name: 'Vendas' }).closest('[data-visible]');
+  const trilho = () => screen.getByRole('navigation', { name: 'Módulos' });
+
+  it('o padrão é a esquerda, em todas as partes', () => {
+    const { container } = render(<AppShell><Navigation /></AppShell>);
+
+    expect(trilho().parentElement).toHaveAttribute('data-side', 'left');
+    expect(painel()).toHaveAttribute('data-side', 'left');
+    expect(container.firstElementChild).toHaveAttribute('data-side', 'left');
+  });
+
+  it('à direita, o trilho, o submenu e a moldura do AppShell seguem o lado', () => {
+    const { container } = render(<AppShell side="right"><Navigation /></AppShell>);
+
+    expect(trilho().parentElement).toHaveAttribute('data-side', 'right');
+    expect(painel()).toHaveAttribute('data-side', 'right');
+    expect(container.firstElementChild).toHaveAttribute('data-side', 'right');
+  });
+
+  it('o SidebarProvider avulso também aceita o lado', () => {
+    render(<Frame side="right" />);
+
+    expect(trilho().parentElement).toHaveAttribute('data-side', 'right');
+  });
+
+  it('na largura estreita, a gaveta abre pela esquerda por padrão e pela direita com side right', () => {
+    stubViewport(true);
+    const { unmount } = render(<Frame defaultMenuOpen />);
+    expect(screen.getByRole('dialog').parentElement).toHaveClass(drawerStyles.left);
+    unmount();
+
+    render(<Frame defaultMenuOpen side="right" />);
+    expect(screen.getByRole('dialog').parentElement).toHaveClass(drawerStyles.right);
+    expect(screen.getByRole('dialog').parentElement).not.toHaveClass(drawerStyles.left);
+    expect(painel()).toHaveAttribute('data-side', 'right');
+  });
+
+  it('a folha espelha trilho, submenu, barra do item, recuo e guia do subnível com propriedades lógicas', () => {
+    const frame = regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
+    const panel = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+    expect(frame.get(".navigation[data-side='right']")).toMatchObject({ 'flex-direction': 'row-reverse' });
+    expect(frame.get(".menu[data-side='right']")).toMatchObject({ 'flex-direction': 'row-reverse' });
+    expect(panel.get(".panel[data-side='right'] .item[aria-current='page']::before")).toMatchObject({
+      'inset-inline-end': '-8px',
+      'inset-inline-start': 'auto',
+    });
+    expect(panel.get(".panel[data-side='right'] .nested")).toMatchObject({
+      'border-inline-end': '1px solid var(--pl-color-border-strong)',
+      'border-inline-start': '0',
+    });
+    expect(panel.get('.nested')).toMatchObject({ 'border-inline-start': '1px solid var(--pl-color-border-strong)', 'margin-inline-start': '16px' });
+    expect(panel.get(".item[aria-current='page']::before")).toMatchObject({ 'inset-inline-start': '-8px' });
   });
 });
 

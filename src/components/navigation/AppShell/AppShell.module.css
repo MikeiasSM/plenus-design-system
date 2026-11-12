@@ -13,6 +13,10 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+.appShell[data-side='right'] {
+  flex-direction: row-reverse;
+}
+
 /* Folha: o trilho e a página ficam no mesmo nível. */
 .page {
   border: 1px solid var(--pl-color-border);

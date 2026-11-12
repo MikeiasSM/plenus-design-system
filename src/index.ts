@@ -173,6 +173,7 @@ export type {
   SidebarRailAccountProps,
   SidebarRailItemProps,
   SidebarRailProps,
+  SidebarSide,
   SidebarTriggerProps,
   UseSidebarResult,
 } from './components/navigation/Sidebar';

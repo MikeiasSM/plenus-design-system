@@ -7,6 +7,7 @@ import {
   useSidebarContext,
   type SidebarLabels,
   type SidebarPanelKind,
+  type SidebarSide,
 } from './Sidebar.context';
 
 export interface SidebarProviderProps {
@@ -30,6 +31,8 @@ export interface SidebarProviderProps {
   onOpenChange?: (open: boolean) => void;
   /** Submenu aberto, no modo controlado. */
   open?: boolean;
+  /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
+  side?: SidebarSide;
 }
 
 /** O que `useSidebar()` devolve: o estado público da navegação e os meios de mudá-lo. */
@@ -67,6 +70,7 @@ export function SidebarProvider({
   onMenuOpenChange,
   onOpenChange,
   open: controlledOpen,
+  side = 'left',
 }: SidebarProviderProps) {
   const narrow = useNarrowViewport(narrowBelow);
   const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
@@ -151,6 +155,7 @@ export function SidebarProvider({
         setMenuOpen,
         setPanelKind,
         setSubmenuOpen: setOpenWithoutFocus,
+        side,
         submenuOpen,
       }}
     >

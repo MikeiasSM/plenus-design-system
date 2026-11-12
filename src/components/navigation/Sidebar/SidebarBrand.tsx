@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type ElementType, type ReactNode } from 'react';
+import { useContext, useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type ElementType, type ReactNode } from 'react';
 import { VisuallyHidden } from '../../accessibility/VisuallyHidden';
 import { Tooltip } from '../../overlays/Tooltip';
 import { Text } from '../../typography/Text';
+import { SidebarContext, tooltipPlacement } from './Sidebar.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
 import { useSidebarBrandPlace } from './SidebarBrand.context';
 import { readSidebarBrandTheme, watchSidebarBrandTheme, type SidebarBrandTheme } from './SidebarBrand.theme';
@@ -62,6 +63,7 @@ export function SidebarBrand({
   ...props
 }: SidebarBrandProps) {
   const place = useSidebarBrandPlace();
+  const side = useContext(SidebarContext)?.side ?? 'left';
   const isRail = place === 'rail';
   const isLink = href !== undefined || linkProps !== undefined;
 
@@ -113,7 +115,7 @@ export function SidebarBrand({
   );
 
   return isRail ? (
-    <Tooltip content={name} delay={150} placement="right">
+    <Tooltip content={name} delay={150} placement={tooltipPlacement(side)}>
       {link}
     </Tooltip>
   ) : (

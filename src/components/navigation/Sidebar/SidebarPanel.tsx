@@ -60,7 +60,7 @@ export function SidebarPanel({
   width,
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
+  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, side, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -88,6 +88,7 @@ export function SidebarPanel({
       <div
         {...props}
         className={[styles.panel, narrow && styles.narrow, className].filter(Boolean).join(' ')}
+        data-side={side}
         data-visible={visible}
         id={panelId}
         inert={!visible}

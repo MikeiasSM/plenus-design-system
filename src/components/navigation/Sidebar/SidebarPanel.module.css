@@ -19,7 +19,12 @@
   box-sizing: border-box;
   width: var(--sidebar-panel-width, 256px);
   height: 100%;
-  padding: 10px 8px 4px 12px;
+  padding-block: 10px 4px;
+  padding-inline: 12px 8px;
+}
+
+.panel[data-side='right'] .inner {
+  padding-inline: 8px 12px;
 }
 
 /* Na gaveta do celular, o submenu largo demais para a tela cede ao lado do trilho, e o conteúdo acompanha. */
@@ -63,11 +68,18 @@
 .list {
   flex: 1;
   min-height: 0;
-  margin: -3px -4px -3px -10px;
-  padding: 3px 4px 3px 10px;
+  margin-block: -3px;
+  margin-inline: -10px -4px;
+  padding-block: 3px;
+  padding-inline: 10px 4px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
+}
+
+.panel[data-side='right'] .list {
+  margin-inline: -4px -10px;
+  padding-inline: 4px 10px;
 }
 
 .list:hover {
@@ -100,7 +112,8 @@
   align-items: flex-end;
   box-sizing: border-box;
   height: var(--sidebar-row, 34px);
-  margin: 0 0 2px 8px;
+  margin: 0 0 2px;
+  margin-inline-start: 8px;
   padding-bottom: 6px;
   color: var(--pl-color-text);
   font-size: 13px;
@@ -129,7 +142,7 @@
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-label-line-height);
-  text-align: left;
+  text-align: start;
   text-decoration: none;
   cursor: pointer;
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
@@ -156,10 +169,15 @@
   position: absolute;
   top: calc((var(--sidebar-row, 34px) - 20px) / 2);
   bottom: calc((var(--sidebar-row, 34px) - 20px) / 2);
-  left: -8px;
+  inset-inline-start: -8px;
   width: 3px;
   border-radius: 3px;
   background: var(--pl-color-primary);
+}
+
+.panel[data-side='right'] .item[aria-current='page']::before {
+  inset-inline-start: auto;
+  inset-inline-end: -8px;
 }
 
 .item[aria-current='page'] .icon {
@@ -182,7 +200,7 @@
 .external,
 .chevron {
   flex: none;
-  margin-left: auto;
+  margin-inline-start: auto;
   color: var(--pl-color-text-tertiary);
 }
 
@@ -218,11 +236,20 @@
   display: grid;
   gap: 2px;
   min-height: 0;
-  margin: 0 0 0 16px;
-  padding: 0 0 0 9px;
+  margin: 0;
+  margin-inline-start: 16px;
+  padding: 0;
+  padding-inline-start: 9px;
   overflow: hidden;
-  border-left: 1px solid var(--pl-color-border-strong);
+  border-inline-start: 1px solid var(--pl-color-border-strong);
   list-style: none;
+}
+
+.panel[data-side='right'] .nested {
+  margin-inline: 0 16px;
+  padding-inline: 0 9px;
+  border-inline-start: 0;
+  border-inline-end: 1px solid var(--pl-color-border-strong);
 }
 
 .branch[data-expanded='true'] > .nestedWrap > .nested {
@@ -238,7 +265,12 @@
 }
 
 .nested .item[aria-current='page']::before {
-  left: -6px;
+  inset-inline-start: -6px;
+}
+
+.panel[data-side='right'] .nested .item[aria-current='page']::before {
+  inset-inline-start: auto;
+  inset-inline-end: -6px;
 }
 
 .nested[hidden] {
@@ -283,6 +315,17 @@
 
 .stacked .groupTitle {
   margin-bottom: 0;
+}
+
+@keyframes stack-in-end {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+}
+
+.panel[data-side='right'] .stacked {
+  animation-name: stack-in-end;
 }
 
 @keyframes stack-in {
@@ -352,8 +395,10 @@
   flex: 1;
   min-height: 0;
   max-height: none;
-  margin: -3px -4px -3px -10px;
-  padding: 3px 4px 3px 10px;
+  margin-block: -3px;
+  margin-inline: -10px -4px;
+  padding-block: 3px;
+  padding-inline: 10px 4px;
   border: 0;
   border-radius: 0;
   background: none;
@@ -362,6 +407,11 @@
   visibility: visible;
   transform: none;
   transition: none;
+}
+
+.panel[data-side='right'] .account[data-mode='cover'] .accountNav {
+  margin-inline: -4px -10px;
+  padding-inline: 4px 10px;
 }
 
 .accountAvatar {
@@ -388,7 +438,7 @@
   background: none;
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -404,7 +454,7 @@
 
 .accountChevron {
   flex: none;
-  margin-left: auto;
+  margin-inline-start: auto;
   color: var(--pl-color-text-tertiary);
   transition: transform var(--pl-speed-2) var(--pl-ease);
 }

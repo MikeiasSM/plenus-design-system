@@ -3,6 +3,12 @@ import { createContext, useContext, type RefObject } from 'react';
 /** O que o submenu traz: nada, itens de um módulo ou só a conta (módulo sem submenu). */
 export type SidebarPanelKind = 'none' | 'items' | 'account';
 
+export type SidebarSide = 'left' | 'right';
+
+export function tooltipPlacement(side: SidebarSide) {
+  return side === 'right' ? 'left' : 'right';
+}
+
 export interface SidebarLabels {
   /** Fecha a gaveta, no celular. */
   closeMenu: string;
@@ -35,6 +41,7 @@ export interface SidebarContextValue {
   openAccountFromRail: () => void;
   panelId: string;
   panelKind: SidebarPanelKind;
+  side: SidebarSide;
   setAccountOpen: (open: boolean) => void;
   setMenuOpen: (open: boolean) => void;
   setPanelKind: (kind: SidebarPanelKind) => void;
