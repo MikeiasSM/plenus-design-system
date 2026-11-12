@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
 import { AppShell } from '../AppShell';
@@ -516,5 +516,3 @@ describe('SidebarProvider: atalho de teclado (shortcut)', () => {
     expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
   });
 });
-
-export { Frame, Navigation, stubViewport, useSidebar, useState };

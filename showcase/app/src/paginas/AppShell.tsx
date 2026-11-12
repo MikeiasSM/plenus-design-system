@@ -277,6 +277,7 @@ export const pagina: Pagina = {
   ),
   api: [
     { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não, repassado ao SidebarProvider que o AppShell monta. Ignorado quando já há um SidebarProvider por fora.' },
+    { nome: 'AppShell · labels / icons / side / narrowBelow / tooltipDelay / shortcut / menuOpen / accountOpen', tipo: 'as props do SidebarProvider', descricao: 'A personalização da Sidebar, repassada ao SidebarProvider que o AppShell monta e descrita na página da Sidebar. Ignorada quando já há um SidebarProvider por fora.' },
     { nome: 'AppShell.Page', tipo: "ComponentPropsWithRef<'main'>", descricao: 'Folha da página: ocupa o que sobra ao lado da navegação.' },
     { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
     { nome: 'AppShell.PageBody', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Corpo da página, a única área que rola.' },

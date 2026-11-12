@@ -14,11 +14,13 @@ import {
   SidebarProvider,
   type SidebarAccountMode,
   type SidebarNestedMode,
+  type SidebarSide,
 } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
 const MODOS_DA_CONTA = ['inline', 'cover'] as const;
+const LADOS = ['left', 'right'] as const;
 
 interface GrupoDoModulo {
   itens: readonly string[];
@@ -53,10 +55,11 @@ interface AplicacaoProps {
   initialModule?: string;
   nestedMode?: SidebarNestedMode;
   registrar?: (evento: string) => void;
+  side?: SidebarSide;
 }
 
 /** Uma aplicação pequena: módulos, grupos, itens, terceiro nível e conta. A navegação é estado local; a biblioteca não faz roteamento. */
-function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedMode, registrar }: AplicacaoProps) {
+function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedMode, registrar, side }: AplicacaoProps) {
   const [moduloAtual, setModuloAtual] = useState(initialModule);
   const [itemAtual, setItemAtual] = useState('Pedidos');
   const modulo = MODULOS.find((m) => m.nome === moduloAtual) ?? MODULOS[1];
@@ -95,7 +98,7 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
 
   return (
     <div style={{ height: 480, overflow: 'hidden', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
-      <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
+      <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)} side={side}>
         <Sidebar>
           <Sidebar.Rail
             brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}
@@ -150,7 +153,7 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
           <AppShell.PageBody>
             <div style={{ padding: 18 }}>
               <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>{itemAtual}</h3>
-              <p style={{ color: 'var(--pl-color-text-secondary)' }}>A navegação à esquerda é a Sidebar; este corpo é da página.</p>
+              <p style={{ color: 'var(--pl-color-text-secondary)' }}>A navegação ao lado é a Sidebar; este corpo é da página.</p>
             </div>
           </AppShell.PageBody>
         </AppShell.Page>
@@ -264,24 +267,26 @@ function SidebarComoColuna() {
 
 const playground = definirPlayground({
   emJanela: true,
-  inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true },
+  inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true, side: 'left' },
   controles: [
     { tipo: 'opcoes', nome: 'nestedMode', opcoes: MODOS_DO_TERCEIRO_NIVEL },
     { tipo: 'opcoes', nome: 'accountMode', opcoes: MODOS_DA_CONTA },
+    { tipo: 'opcoes', nome: 'side', opcoes: LADOS },
     { tipo: 'booleano', nome: 'defaultOpen' },
   ],
   renderizar: (valores, registrar) => (
     <Aplicacao
       accountMode={valores.accountMode as SidebarAccountMode}
       defaultOpen={Boolean(valores.defaultOpen)}
-      key={`${valores.nestedMode}-${valores.accountMode}-${valores.defaultOpen}`}
+      key={`${valores.nestedMode}-${valores.accountMode}-${valores.defaultOpen}-${valores.side}`}
       nestedMode={valores.nestedMode as SidebarNestedMode}
       registrar={registrar}
+      side={valores.side as SidebarSide}
     />
   ),
   codigo: (valores) =>
     [
-      `<AppShell${valores.defaultOpen ? '' : ' defaultOpen={false}'}>`,
+      `<AppShell${valores.defaultOpen ? '' : ' defaultOpen={false}'}${valores.side === 'right' ? ' side="right"' : ''}>`,
       '  <Sidebar>',
       '    <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />} footer={<Sidebar.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></Sidebar.RailAccount>}>',
       '      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" href="/vendas" as={Link} />',
@@ -374,7 +379,7 @@ function Modos() {
       <dd>O <code>Sidebar.Panel</code> vem sem itens: a página encosta no trilho, e o submenu fica só como lugar da conta.</dd>
       <dt>Gaveta no celular</dt>
       <dd>
-        Abaixo de 900px, o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página (<code>Sidebar.Trigger</code>).
+        Abaixo de 900px (ou do <code>narrowBelow</code>), o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página (<code>Sidebar.Trigger</code>).
         A prévia acima mede a janela do navegador, e não a própria largura: estreite a janela para ver a gaveta.
       </dd>
     </dl>
@@ -572,6 +577,14 @@ export const pagina: Pagina = {
   ),
   api: [
     { nome: 'SidebarProvider · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não. Não desenha nada: só reparte o estado com o que estiver dentro.' },
+    { nome: 'SidebarProvider · menuOpen / defaultMenuOpen / onMenuOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultMenuOpen: false', descricao: 'Gaveta do celular, controlada ou não, no mesmo padrão do submenu.' },
+    { nome: 'SidebarProvider · accountOpen / defaultAccountOpen / onAccountOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultAccountOpen: false', descricao: 'Conta aberta, controlada ou não. Recolher o submenu a fecha.' },
+    { nome: 'SidebarProvider · narrowBelow', tipo: 'number', padrao: '900', descricao: 'Largura, em pixels, abaixo da qual a navegação vira gaveta. O AppShell e o Sidebar.Trigger seguem o mesmo valor.' },
+    { nome: 'SidebarProvider · side', tipo: "SidebarSide: 'left' | 'right'", padrao: "'left'", descricao: 'Lado da página em que ficam o trilho e o submenu. À direita, a gaveta abre pela direita e as dicas, a barra do item atual, o recuo e a guia do subnível espelham.' },
+    { nome: 'SidebarProvider · labels', tipo: 'Partial<SidebarLabels>', padrao: 'português', descricao: 'Nomes acessíveis dos botões: openMenu, openSubmenu, closeMenu e collapseSubmenu. Só os passados trocam o padrão.' },
+    { nome: 'SidebarProvider · icons', tipo: 'Partial<SidebarIcons>', padrao: 'os atuais', descricao: 'Ícones de open, collapse, close, back, external e account. Só os passados trocam o padrão.' },
+    { nome: 'SidebarProvider · tooltipDelay', tipo: 'number', padrao: '150', descricao: 'Espera, em milissegundos, das dicas do trilho e da marca.' },
+    { nome: 'SidebarProvider · shortcut', tipo: 'string | false', padrao: 'desligado', descricao: 'Atalho como "mod+b" (Ctrl+B ou Cmd+B), que alterna o submenu ou, em largura estreita, a gaveta. Aceita outra letra, como "mod+k". Ignorado com o foco num input, textarea ou contenteditable.' },
     {
       nome: 'Sidebar.Trigger',
       tipo: "Omit<ButtonIconProps, 'icon' | 'label'>",
