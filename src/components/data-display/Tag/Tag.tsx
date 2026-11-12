@@ -1,5 +1,7 @@
-import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { useId, useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { IconCheck, IconClose } from '../../icons';
+import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import styles from './Tag.module.css';
 
@@ -24,10 +26,13 @@ export function Tag({
   disabled = false,
   onRemove,
   onSelectedChange,
+  ref: refDoConsumidor,
   selected,
   size = 'md',
   ...props
 }: TagProps) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const mergedRef = useMergedRefs(ref, refDoConsumidor);
   const textId = useId();
   const removeId = useId();
   const [internalSelected, setInternalSelected] = useState(defaultSelected ?? false);
@@ -37,6 +42,8 @@ export function Tag({
     .filter(Boolean)
     .join(' ');
 
+  useFocusNeighborOnRemove(ref);
+
   function toggle() {
     if (selected === undefined) {
       setInternalSelected(!currentSelected);
@@ -45,7 +52,7 @@ export function Tag({
   }
 
   return (
-    <span {...props} className={classes}>
+    <span {...props} className={classes} ref={mergedRef}>
       {toggleable ? (
         <button
           aria-pressed={currentSelected}
@@ -67,6 +74,7 @@ export function Tag({
           aria-label="Remover"
           aria-labelledby={`${removeId} ${textId}`}
           className={styles.remove}
+          data-removes=""
           disabled={disabled}
           id={removeId}
           onClick={(event) => !isRepeatedClick(event) && onRemove()}

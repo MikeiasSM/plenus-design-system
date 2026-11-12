@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- Depois de remover uma `Tag` ou um arquivo do `FileUpload`, ou de acionar uma ação de um aviso do `Toast`, o foco passa para o próximo botão de remover do mesmo grupo; sem próximo, para o anterior; sem nenhum, para o contêiner da etiqueta ou para o campo de arquivo. Antes, o foco caía no fim da página e quem usa o teclado perdia o lugar.
 - `DatePicker`, `DatePickerRange`, `DateTimePicker`, `TimePicker`, `Select` e `ComboBox`: o segundo clique de um clique duplo em "Aplicar" ou na opção que fecha o painel deixa de atravessar para a página atrás.
 - `Dialog`, `Drawer`, `Menu` e `Popover`: o segundo clique de um clique duplo que fecha a camada deixa de atravessar para a página atrás, onde acionava outro botão ou linha. O clique duplo no botão que abre um `Dialog` ou um `Drawer` deixa de abri-lo e fechá-lo em seguida, e o clique duplo no gatilho do `Menu` deixa de fechá-lo logo depois de abrir.
 - O clique duplo deixa de acionar duas vezes ações que fecham ou removem: o "Desfazer" e as outras ações do `Toast`, o X da `Tag`, a lixeira, o cancelar e o tentar de novo do `FileUpload` e os itens do `Menu`. Antes, ao sair o primeiro item, o seguinte subia para o mesmo lugar e o segundo clique o removia também, ou desfazia outro aviso.
