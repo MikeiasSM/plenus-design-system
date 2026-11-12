@@ -213,7 +213,7 @@ describe('hover e pressão', () => {
   });
 
   it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {
-    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
     expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
@@ -241,7 +241,7 @@ describe('hover e pressão', () => {
   });
 
   it('o laudo de contraste mede o texto de apoio pressionado e sobre o container', () => {
-    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
     expect(laudo).toContain("['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'resumo da linha pressionada']");
     expect(laudo).toContain("['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'resumo da linha selecionada pressionada']");
