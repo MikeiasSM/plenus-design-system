@@ -450,6 +450,10 @@ describe('Table', () => {
         expect(regras.get('.toolbar')).toMatchObject({ 'align-items': 'flex-end' });
       });
 
+      it('como filha, fica parada quando a tabela rola de lado', () => {
+        expect(regras.get('.scroll > .toolbar')).toEqual({ position: 'sticky', 'inset-inline-start': '0' });
+      });
+
       it('alinha o respiro lateral com o da primeira coluna da tabela', () => {
         const margemDaTabela = regras.get('.scroll')?.['--table-inline-padding'];
 

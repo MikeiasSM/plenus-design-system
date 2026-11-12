@@ -277,6 +277,11 @@
   padding: var(--pl-space-3) var(--pl-space-5);
 }
 
+.scroll > .toolbar {
+  position: sticky;
+  inset-inline-start: 0;
+}
+
 /* O primeiro filho, em geral a busca, cresce ate um limite; os demais ficam ao lado. */
 .toolbar > :first-child {
   flex: 1 1 220px;
