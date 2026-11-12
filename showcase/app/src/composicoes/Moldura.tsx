@@ -24,7 +24,7 @@ function MarcaDoSubmenu() {
 
 function ContaDoUsuario() {
   return (
-    <AppShell.Account avatar={<Avatar name="Suporte" />} description="Roman Mecânica Ltda" name="Suporte">
+    <AppShell.Account avatar={<Avatar name="Suporte" />} description="Mecânica Irmãos Duarte Ltda" name="Suporte">
       <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
       <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
       <AppShell.PanelItem icon={<IconShieldCheck size={18} />} label="Administração" />
@@ -56,7 +56,7 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
           footer={
             <>
               <ItemDoModulo atual={atual.id === MODULO_DE_CONFIGURACOES.id} modulo={MODULO_DE_CONFIGURACOES} />
-              <AppShell.RailAccount label="Conta: Suporte, Roman Mecânica">
+              <AppShell.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
                 <Avatar name="Suporte" size="sm" />
               </AppShell.RailAccount>
             </>

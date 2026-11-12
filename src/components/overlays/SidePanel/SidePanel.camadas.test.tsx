@@ -183,7 +183,7 @@ const camadas: Camada[] = [
           </AppShell.Rail>
           <AppShell.Panel
             account={
-              <AppShell.Account avatar="RM" description="Roman Mecânica" name="Suporte">
+              <AppShell.Account avatar="MD" description="Mecânica Irmãos Duarte" name="Suporte">
                 <AppShell.PanelItem label="Favoritos" />
               </AppShell.Account>
             }

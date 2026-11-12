@@ -25,7 +25,7 @@ function Example({ accountMode, nestedMode, withItems = true, ...props }: Exampl
         </AppShell.Rail>
         <AppShell.Panel
           account={
-            <AppShell.Account avatar="RM" description="Roman Mecânica" name="Suporte">
+            <AppShell.Account avatar="MD" description="Mecânica Irmãos Duarte" name="Suporte">
               <AppShell.PanelItem href="/favoritos" label="Favoritos" />
             </AppShell.Account>
           }
@@ -247,7 +247,7 @@ describe('AppShell', () => {
       fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
 
       expect(screen.getByRole('navigation', { name: 'Vendas' })).toHaveAttribute('data-covered', 'true');
-      expect(within(screen.getByRole('navigation', { name: 'Conta' })).getByText('Roman Mecânica')).toBeInTheDocument();
+      expect(within(screen.getByRole('navigation', { name: 'Conta' })).getByText('Mecânica Irmãos Duarte')).toBeInTheDocument();
     });
 
     it('o avatar do trilho só aparece com o submenu recolhido e o abre já na conta', () => {

@@ -97,8 +97,8 @@ function Moldura({
           footer={
             <>
               <AppShell.RailItem icon={<IconSliders size={20} />} label="Configurações" />
-              <AppShell.RailAccount label="Conta: Suporte, Roman Mecânica">
-                <Avatar name="Roman Mecânica" size="sm" />
+              <AppShell.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
+                <Avatar name="Mecânica Irmãos Duarte" size="sm" />
               </AppShell.RailAccount>
             </>
           }
@@ -118,7 +118,7 @@ function Moldura({
         </AppShell.Rail>
         <AppShell.Panel
             account={
-              <AppShell.Account avatar={<Avatar name="Roman Mecânica" />} description="Roman Mecânica Ltda" name="Suporte">
+              <AppShell.Account avatar={<Avatar name="Mecânica Irmãos Duarte" />} description="Mecânica Irmãos Duarte Ltda" name="Suporte">
                 <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
                 <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
                 <AppShell.PanelItem icon={<IconSliders size={18} />} label="Preferências" />

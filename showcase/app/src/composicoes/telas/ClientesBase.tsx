@@ -21,7 +21,7 @@ import {
 import { Coluna, Pagina } from '../Pagina';
 
 const PERIODOS = ['Últimos 7 dias', 'Último mês', 'Últimos 3 meses', 'Ano atual'];
-const EMPRESAS = ['01 · Roman Mecânica de Caminhões Ltda', '02 · Roman Peças e Serviços'];
+const EMPRESAS = ['01 · Mecânica Irmãos Duarte Ltda', '02 · Irmãos Duarte Peças e Serviços'];
 
 const formatarInteiro = (valor: number) => formatNumber(valor);
 
