@@ -157,7 +157,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   return {
     change,
     confirm,
-    error: error ?? message,
+    error: error || message,
     handleBlur,
     handleKeyDown,
     reset,

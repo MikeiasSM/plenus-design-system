@@ -383,6 +383,16 @@ describe('DatePicker', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Obrigatório');
     });
 
+    it('o erro vazio do produto nao esconde a mensagem do campo', () => {
+      const campo = montar({ error: '' });
+
+      fireEvent.change(campo, { target: { value: '32' } });
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
+      expect(campo).toHaveAttribute('aria-invalid', 'true');
+    });
+
     it('a mensagem some quando o valor fica valido', () => {
       const campo = montar();
 
