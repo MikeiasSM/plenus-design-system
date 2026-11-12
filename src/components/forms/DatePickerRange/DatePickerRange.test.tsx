@@ -238,6 +238,19 @@ describe('DatePickerRange', () => {
       expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-09', end: '2026-03-11' });
     });
 
+    it('anuncia o intervalo novo quando H ou as setas o deslocam', () => {
+      const gatilho = montar({ defaultValue: { start: '2026-03-10', end: '2026-03-16' } });
+      const anuncio = screen.getByRole('status');
+
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      expect(anuncio).toHaveTextContent('11/03/2026 – 17/03/2026');
+
+      fireEvent.keyDown(gatilho, { key: 'h' });
+      expect(anuncio).toHaveTextContent('15/03/2026 – 15/03/2026');
+    });
+
     it('Alt+seta para baixo abre o painel, e a seta sozinha nao', () => {
       const gatilho = montar({ defaultValue: { start: '2026-03-10', end: '2026-03-12' } });
 

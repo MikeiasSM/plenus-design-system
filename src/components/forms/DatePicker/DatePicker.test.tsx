@@ -277,6 +277,26 @@ describe('DatePicker', () => {
       expect(mudou).not.toHaveBeenCalled();
     });
 
+    it('anuncia a data nova so quando um atalho a troca', () => {
+      const campo = montar({ defaultValue: '2026-11-21' });
+      const anuncio = screen.getByRole('status');
+
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      fireEvent.keyDown(campo, { key: '+' });
+      expect(anuncio).toHaveTextContent('22 de novembro de 2026');
+
+      fireEvent.change(campo, { target: { value: '1' } });
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      fireEvent.keyDown(campo, { key: 'h' });
+      expect(anuncio).toHaveTextContent('12 de novembro de 2026');
+
+      fireEvent.blur(campo);
+      fireEvent.keyDown(campo, { key: '-' });
+      expect(anuncio).toHaveTextContent('11 de novembro de 2026');
+    });
+
     it('H da a data de hoje, sem escrever a letra, e substitui o que houver', () => {
       const mudou = vi.fn();
       const campo = montar({ defaultValue: '2026-03-09', onValueChange: mudou });

@@ -7,7 +7,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeTimeInput, formatTimeInput, keepDigits, parseTimeInput } from '../../../utils/formatters';
+import { completeTimeInput, formatTime, formatTimeInput, keepDigits, parseTimeInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -135,6 +135,7 @@ export function TimePicker({
   }
 
   const entry = useTemporalInput<Time>({
+    announce: (time) => formatTime(toIsoTime(time)),
     commit: definir,
     error,
     evaluate: (text) => {
@@ -251,6 +252,9 @@ export function TimePicker({
               <IconClock size={15} />
             </button>
           </div>
+          <span className={datePickerStyles.visuallyHidden} role="status">
+            {entry.announcement}
+          </span>
           {open &&
             container &&
             createPortal(

@@ -112,6 +112,7 @@ export function DatePickerRange({
   const chosen = value === undefined ? internalValue : readRange(value);
   // O rascunho vale enquanto o painel está aberto: só `Aplicar` o torna o valor do campo.
   const [draft, setDraft] = useState<Selection | null>(null);
+  const [announcement, setAnnouncement] = useState('');
   const shown = draft ?? chosen;
   const limits: CalendarLimits = {
     isDateUnavailable: isDateUnavailable && ((date) => isDateUnavailable(date.toString())),
@@ -146,6 +147,7 @@ export function DatePickerRange({
     }
 
     setInternalValue(range);
+    setAnnouncement(formatRange(range) ?? '');
     onValueChange?.({ start: range.start.toString(), end: range.end.toString() });
   }
 
@@ -256,6 +258,9 @@ export function DatePickerRange({
             </span>
             <IconCalendar className={selectStyles.chevron} size={15} />
           </button>
+          <span className={datePickerStyles.visuallyHidden} role="status">
+            {announcement}
+          </span>
           {open &&
             container &&
             createPortal(

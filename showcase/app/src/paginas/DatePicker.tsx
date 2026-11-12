@@ -195,7 +195,8 @@ function Modos() {
       <dd>
         <code>H</code> dá a data de hoje e substitui o que houver no campo. <code>+</code> e <code>-</code> mudam um dia:
         com o campo vazio partem de hoje, e com texto inválido, do último valor válido. Nenhuma das teclas aparece no
-        campo, e a data que sairia de <code>min</code> e <code>max</code> não é aplicada.
+        campo, e a data que sairia de <code>min</code> e <code>max</code> não é aplicada. A data nova é anunciada ao
+        leitor de tela por extenso, como &quot;22 de novembro de 2026&quot;.
       </dd>
       <dt>Completar ao sair</dt>
       <dd>

@@ -180,6 +180,7 @@ function Modos() {
         <code>H</code> dá a data e a hora atuais. <code>+</code> e <code>-</code> mudam um dia com o cursor na data, uma
         hora na hora e um minuto no minuto, e a virada passa para a data: 31/12 às 23:30 com <code>+</code> na hora vira
         01/01 do ano seguinte às 00:30. Com o campo vazio, partem de agora; com texto inválido, do último valor válido.
+        O valor novo é anunciado ao leitor de tela, como &quot;22 de novembro de 2026, 14:37&quot;.
       </dd>
       <dt>Completar ao sair</dt>
       <dd>

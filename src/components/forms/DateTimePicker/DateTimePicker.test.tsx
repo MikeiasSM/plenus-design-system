@@ -246,6 +246,20 @@ describe('DateTimePicker', () => {
       expect(campo).toHaveValue('12/34');
     });
 
+    it('anuncia a data e a hora novas so quando um atalho as troca', () => {
+      const campo = montar({ defaultValue: '2026-11-22T14:36' });
+      const anuncio = screen.getByRole('status');
+
+      teclar(campo, '+', 15);
+      expect(anuncio).toHaveTextContent('22 de novembro de 2026, 14:37');
+
+      fireEvent.change(campo, { target: { value: '1' } });
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      teclar(campo, 'h', 0);
+      expect(anuncio).toHaveTextContent('12 de novembro de 2026, 14:37');
+    });
+
     it('H da data e hora atuais', () => {
       const mudou = vi.fn();
       const campo = montar({ defaultValue: '2026-03-09T08:00', onValueChange: mudou });

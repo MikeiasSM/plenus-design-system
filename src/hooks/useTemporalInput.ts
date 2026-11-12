@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent,
 type Evaluation<T> = { value: T } | { message: string; reason: 'invalid' | 'outOfRange' };
 
 interface TemporalInputOptions<T> {
+  announce: (value: T) => string;
   commit: (value: T | null) => void;
   error?: string;
   evaluate: (text: string) => Evaluation<T>;
@@ -19,6 +20,7 @@ interface TemporalInputOptions<T> {
 }
 
 export function useTemporalInput<T extends { toString: () => string }>({
+  announce,
   commit,
   error,
   evaluate,
@@ -36,6 +38,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   const [text, setText] = useState('');
   const [typing, setTyping] = useState(false);
   const [message, setMessage] = useState<string>();
+  const [announcement, setAnnouncement] = useState('');
   const cursorRef = useRef<number | null>(null);
   const reportedRef = useRef<string | null>(null);
 
@@ -64,6 +67,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
 
     if (next.toString() !== value?.toString()) {
       commit(next);
+      setAnnouncement(announce(next));
     }
   }
 
@@ -71,6 +75,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
     const masked = mask(filter(input));
 
     reportedRef.current = null;
+    setAnnouncement('');
     setTyping(true);
     setText(masked);
 
@@ -153,6 +158,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   }
 
   return {
+    announcement,
     change,
     confirm,
     error: error || message,

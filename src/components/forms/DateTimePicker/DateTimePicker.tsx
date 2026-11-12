@@ -16,7 +16,14 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeDateTimeInput, formatDateTimeInput, keepDigits, parseDateTimeInput } from '../../../utils/formatters';
+import {
+  completeDateTimeInput,
+  formatDate,
+  formatDateTimeInput,
+  formatTime,
+  keepDigits,
+  parseDateTimeInput,
+} from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
@@ -192,6 +199,11 @@ export function DateTimePicker({
     return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
   };
   const entry = useTemporalInput<CalendarDateTime>({
+    announce: (moment) => {
+      const iso = toIsoDateTime(moment);
+
+      return `${formatDate(iso, { format: 'long', locale })}, ${formatTime(iso, { locale })}`;
+    },
     commit: definir,
     error,
     evaluate: (text) => {
@@ -309,6 +321,9 @@ export function DateTimePicker({
               <IconCalendar size={15} />
             </button>
           </div>
+          <span className={datePickerStyles.visuallyHidden} role="status">
+            {entry.announcement}
+          </span>
           {open &&
             container &&
             createPortal(

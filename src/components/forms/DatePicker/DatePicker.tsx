@@ -7,7 +7,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeDateInput, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
+import { completeDateInput, formatDate, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
@@ -149,6 +149,7 @@ export function DatePicker({
   const textOf = (date?: CalendarDate) =>
     date ? [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/') : '';
   const entry = useTemporalInput<CalendarDate>({
+    announce: (date) => formatDate(date.toString(), { format: 'long', locale }),
     commit: definir,
     error,
     evaluate: (text) => {
@@ -258,6 +259,9 @@ export function DatePicker({
               <IconCalendar size={15} />
             </button>
           </div>
+          <span className={styles.visuallyHidden} role="status">
+            {entry.announcement}
+          </span>
           {open &&
             container &&
             createPortal(

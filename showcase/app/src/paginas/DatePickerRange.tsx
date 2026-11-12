@@ -118,7 +118,8 @@ function Modos() {
         Com o painel fechado, <code>H</code> marca hoje como início e fim. <code>←</code> e <code>→</code> deslocam o
         intervalo inteiro um dia, e <code>↑</code> e <code>↓</code>, sete, passando de um mês para o outro. Sem intervalo,
         as setas partem de hoje. A seta que levaria o intervalo para fora de <code>min</code> e <code>max</code> não faz
-        nada. Cada deslocamento chama <code>onValueChange</code>. O painel abre com Enter, Espaço ou Alt+<code>↓</code>.
+        nada. Cada deslocamento chama <code>onValueChange</code> e é anunciado ao leitor de tela como o gatilho o mostra,
+        &quot;10/11/2026 – 16/11/2026&quot;. O painel abre com Enter, Espaço ou Alt+<code>↓</code>.
       </dd>
       <dt>Rascunho no painel</dt>
       <dd>

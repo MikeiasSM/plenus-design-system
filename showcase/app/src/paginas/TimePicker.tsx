@@ -161,7 +161,7 @@ function Modos() {
         <code>H</code> dá a hora atual exata, sem arredondar para <code>step</code>. <code>+</code> e <code>-</code>{' '}
         mudam uma hora com o cursor na hora e um minuto com o cursor no minuto, e a virada é de relógio: 14:59 vira 15:00,
         e 00:00 com <code>-</code> no minuto vira 23:59. Com o campo vazio, partem da hora atual. Nenhuma das teclas
-        aparece no campo.
+        aparece no campo. A hora nova é anunciada ao leitor de tela, como &quot;14:37&quot;.
       </dd>
       <dt>Completar ao sair</dt>
       <dd>

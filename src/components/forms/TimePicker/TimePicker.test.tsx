@@ -177,6 +177,20 @@ describe('TimePicker', () => {
       expect(campo).toHaveValue('08:30');
     });
 
+    it('anuncia a hora nova so quando um atalho a troca', () => {
+      const campo = montar({ defaultValue: '09:00' });
+      const anuncio = screen.getByRole('status');
+
+      teclar(campo, 'H', 0);
+      expect(anuncio).toHaveTextContent('14:37');
+
+      fireEvent.change(campo, { target: { value: '1' } });
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      teclar(campo, '+', 1);
+      expect(anuncio).toHaveTextContent('15:37');
+    });
+
     it('H da a hora atual exata, sem arredondar para o passo', () => {
       const mudou = vi.fn();
       const campo = montar({ defaultValue: '09:00', onValueChange: mudou, step: 30 });
