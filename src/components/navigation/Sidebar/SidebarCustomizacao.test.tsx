@@ -221,4 +221,62 @@ describe('SidebarProvider: conta controlável', () => {
   });
 });
 
+function stubWidth(width: number) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: width <= Number(/max-width:\s*([\d.]+)px/.exec(query)?.[1]),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }));
+}
+
+describe('SidebarProvider: ponto de virada (narrowBelow)', () => {
+  it('o padrão é 900: a 1000px a navegação fica larga e a 899px vira gaveta', () => {
+    stubWidth(1000);
+    const { unmount } = render(<Frame />);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+    unmount();
+
+    stubWidth(899);
+    render(<Frame />);
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toBeInTheDocument();
+  });
+
+  it('com narrowBelow 1024, a 1000px a Sidebar vira gaveta', () => {
+    stubWidth(1000);
+    render(<Frame narrowBelow={1024} />);
+
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Recolher submenu' })).not.toBeInTheDocument();
+  });
+
+  it('com narrowBelow 1024, a 1000px o AppShell e a Sidebar estão os dois em gaveta', () => {
+    stubWidth(1000);
+    function Reader() {
+      return <output data-testid="mobile">{String(useSidebar().isMobile)}</output>;
+    }
+    render(
+      <AppShell narrowBelow={1024}>
+        <Navigation />
+        <AppShell.Page>
+          <AppShell.PageBar>
+            <Reader />
+          </AppShell.PageBar>
+        </AppShell.Page>
+      </AppShell>,
+    );
+
+    expect(screen.getByTestId('mobile')).toHaveTextContent('true');
+    expect(within(screen.getByRole('main')).getByRole('button', { name: 'Abrir menu' })).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole('main')).getByRole('button', { name: 'Abrir menu' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('com narrowBelow menor, a 1000px segue larga', () => {
+    stubWidth(1000);
+    render(<Frame narrowBelow={600} />);
+
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+});
+
 export { Frame, Navigation, stubViewport, useSidebar, useState };

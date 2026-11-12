@@ -23,6 +23,8 @@ export interface SidebarProviderProps {
   labels?: Partial<SidebarLabels>;
   /** Gaveta do celular aberta, no modo controlado. */
   menuOpen?: boolean;
+  /** Largura, em pixels, abaixo da qual a navegação vira gaveta. Padrão 900. */
+  narrowBelow?: number;
   onAccountOpenChange?: (open: boolean) => void;
   onMenuOpenChange?: (open: boolean) => void;
   onOpenChange?: (open: boolean) => void;
@@ -60,12 +62,13 @@ export function SidebarProvider({
   defaultOpen = true,
   labels,
   menuOpen: controlledMenuOpen,
+  narrowBelow,
   onAccountOpenChange,
   onMenuOpenChange,
   onOpenChange,
   open: controlledOpen,
 }: SidebarProviderProps) {
-  const narrow = useNarrowViewport();
+  const narrow = useNarrowViewport(narrowBelow);
   const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const [menuOpen, setMenuOpen] = useOpenState({ defaultOpen: defaultMenuOpen, onOpenChange: onMenuOpenChange, open: controlledMenuOpen });
   const [accountOpen, setAccountOpen] = useOpenState({
