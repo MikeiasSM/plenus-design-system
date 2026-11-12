@@ -308,8 +308,8 @@ A `LinkList` é a lista de destinos de uma tela, como as pendências que levam a
 
 Os componentes de navegação não conhecem o roteador: a aplicação entrega o componente de link, e o sistema cuida da aparência e da acessibilidade.
 
-- Nas coleções, `Breadcrumb` e `TabsNav`, o `as` fica na raiz e vale para todos os itens. Cada item leva o próprio `href` ou `linkProps`.
-- Nos elementos avulsos, o `as` fica no próprio elemento: `PageHeader.Back`, `AppShell.RailItem` e `AppShell.PanelItem`.
+- Nas coleções, `Breadcrumb`, `TabsNav` e `LinkList`, o `as` fica na raiz e vale para todos os itens. Cada item leva o próprio `href` ou `linkProps`.
+- Nos elementos avulsos, o `as` fica no próprio elemento, com `href` ou `linkProps`: `Button`, `ButtonIcon`, `PageHeader.Back`, `Sidebar.Item`, `Sidebar.RailItem` e `Sidebar.Brand`. `AppShell.RailItem` e `AppShell.PanelItem` são apelidos antigos, obsoletos, de `Sidebar.RailItem` e `Sidebar.Item`.
 - Sem `as`, o link é um `<a>`.
 
 O componente em `as` recebe o `href`, as props de `linkProps` espalhadas e as demais props do elemento, como `className`, `aria-current`, `aria-label` e os filhos. O `linkProps` serve ao roteador que não usa `href`: o do React Router pede `to`.
@@ -326,6 +326,10 @@ import { Link } from 'react-router-dom';
 />
 
 <PageHeader.Back as={Link} label="Voltar para Pedidos" linkProps={{ to: '/pedidos' }} />
+
+<Button as={Link} linkProps={{ to: '/pedidos/novo' }}>
+  Novo pedido
+</Button>
 ```
 
 ## 9. Sobreposições
