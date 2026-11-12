@@ -110,7 +110,7 @@ const playground = definirPlayground({
 });
 
 function CanaisControlados() {
-  const [canais, setCanais] = useState<string[]>(['web']);
+  const [canais, setCanais] = useState<readonly string[]>(['web']);
 
   return (
     <CheckboxGroup
@@ -305,9 +305,9 @@ export const pagina: Pagina = {
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Pergunta do grupo, na legend. Obrigatório.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'As opções, em Checkbox com value.' },
-    { nome: 'value', tipo: 'string[]', descricao: 'Valores marcados, no modo controlado.' },
-    { nome: 'defaultValue', tipo: 'string[]', padrao: '[]', descricao: 'Valores iniciais, no modo não controlado.' },
-    { nome: 'onValueChange', tipo: '(values: string[]) => void', descricao: 'Avisa a lista inteira dos marcados a cada mudança.' },
+    { nome: 'value', tipo: 'readonly string[]', descricao: 'Valores marcados, no modo controlado.' },
+    { nome: 'defaultValue', tipo: 'readonly string[]', padrao: '[]', descricao: 'Valores iniciais, no modo não controlado.' },
+    { nome: 'onValueChange', tipo: '(values: readonly string[]) => void', descricao: 'Avisa a lista inteira dos marcados a cada mudança.' },
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Disposição das caixas.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo das caixas, usado no envio do formulário.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo das opções.' },

@@ -3,8 +3,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Checkbox } from '../Checkbox';
 import { CheckboxGroup } from './CheckboxGroup';
 
-function Canais({ onValueChange }: { onValueChange?: (values: string[]) => void }) {
-  const [canais, setCanais] = useState<string[]>(['web']);
+function Canais({ onValueChange }: { onValueChange?: (values: readonly string[]) => void }) {
+  const [canais, setCanais] = useState<readonly string[]>(['web']);
 
   return (
     <CheckboxGroup

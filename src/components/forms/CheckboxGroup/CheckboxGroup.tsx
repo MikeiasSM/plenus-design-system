@@ -31,7 +31,7 @@ export interface CheckboxGroupProps extends Omit<ComponentPropsWithRef<'fieldset
   hint?: string;
   label: string;
   name?: string;
-  onValueChange?: (values: string[]) => void;
+  onValueChange?: (values: readonly string[]) => void;
   orientation?: CheckboxGroupOrientation;
   /** Exige ao menos uma caixa marcada no envio. */
   required?: boolean;
