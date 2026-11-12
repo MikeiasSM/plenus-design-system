@@ -3,9 +3,11 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { IconClose } from '../../icons';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Dialog.module.css';
 
 export interface DialogFrameProps extends DialogBaseProps {
@@ -31,6 +33,13 @@ export function DialogFrame({
   const container = usePortalContainer(portalContainer);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const awaitingPermission = useRef(false);
+  const openCycle = useRef(0);
+  const isOpen = open ?? internalOpen;
+
+  useEffect(() => {
+    openCycle.current += 1;
+    awaitingPermission.current = false;
+  }, [isOpen]);
 
   function close() {
     if (open === undefined) {
@@ -54,19 +63,24 @@ export function DialogFrame({
       return;
     }
 
+    const cycle = openCycle.current;
     awaitingPermission.current = true;
 
     try {
-      if (await permission) {
+      if ((await permission) && cycle === openCycle.current) {
         close();
       }
+    } catch (erro) {
+      console.error(erro);
     } finally {
-      awaitingPermission.current = false;
+      if (cycle === openCycle.current) {
+        awaitingPermission.current = false;
+      }
     }
   }
 
   // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
-  if (!(open ?? internalOpen) || !container) {
+  if (!isOpen || !container) {
     return null;
   }
 
@@ -99,10 +113,11 @@ function DialogFrameContent({
   const titleId = `${generatedId}-title`;
   const descriptionId = `${generatedId}-description`;
 
+  const dismiss = useOverlayClickGuard(onClose);
   const { overlayProps, underlayProps } = useOverlay(
     {
       isOpen: true,
-      onClose,
+      onClose: dismiss,
       isDismissable: dismissable,
       isKeyboardDismissDisabled: !dismissable,
     },
@@ -138,7 +153,7 @@ function DialogFrameContent({
                 {description && <p className={styles.description} id={descriptionId}>{description}</p>}
               </div>
               {dismissable && (
-                <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose}>
+                <button className={styles.close} type="button" aria-label="Fechar" onClick={onClose} onKeyDown={blockRepeatedPress}>
                   <IconClose size={20} />
                 </button>
               )}

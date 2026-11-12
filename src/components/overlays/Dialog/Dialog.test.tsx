@@ -187,6 +187,62 @@ describe('Dialog', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
+    it('a resposta de um pedido antigo não fecha o diálogo reaberto, e o Esc dele volta a consultar', async () => {
+      let responder: (permitir: boolean) => void = () => {};
+      const onBeforeClose = vi.fn(() => new Promise<boolean>((resolve) => (responder = resolve)));
+      const onOpenChange = vi.fn();
+      const { rerender } = render(<Dialog onBeforeClose={onBeforeClose} onOpenChange={onOpenChange} open title="Editar" />);
+
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      const antiga = responder;
+      rerender(<Dialog onBeforeClose={onBeforeClose} onOpenChange={onOpenChange} open={false} title="Editar" />);
+      rerender(<Dialog onBeforeClose={onBeforeClose} onOpenChange={onOpenChange} open title="Editar" />);
+
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(onBeforeClose).toHaveBeenCalledTimes(2);
+
+      await act(async () => antiga(true));
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('a rejeição conta como não fechar e não vira rejeição sem tratamento', async () => {
+      const semTratamento = vi.fn();
+      const erro = vi.spyOn(console, 'error').mockImplementation(() => {});
+      process.on('unhandledRejection', semTratamento);
+      const onBeforeClose = vi.fn(() => Promise.reject<boolean>(new Error('falhou')));
+      render(<Dialog defaultOpen onBeforeClose={onBeforeClose} title="Editar" />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+      process.off('unhandledRejection', semTratamento);
+
+      expect(semTratamento).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      expect(onBeforeClose).toHaveBeenCalledTimes(2);
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+      erro.mockRestore();
+    });
+
+    it('com a consulta pendente, o Esc e o clique fora não abrem outra', () => {
+      const onBeforeClose = vi.fn(() => new Promise<boolean>(() => {}));
+      render(<Dialog defaultOpen onBeforeClose={onBeforeClose} title="Editar" />);
+
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.mouseUp(document.body);
+
+      expect(onBeforeClose).toHaveBeenCalledOnce();
+    });
+
     it('nao e consultado quando o produto muda open', () => {
       const onBeforeClose = vi.fn(() => false);
       const { rerender } = render(<Dialog onBeforeClose={onBeforeClose} open title="Editar" />);

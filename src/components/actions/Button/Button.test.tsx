@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Button } from './Button';
@@ -117,5 +117,103 @@ describe('hover do Button ghost', () => {
     for (const variante of ['primary', 'secondary', 'soft', 'danger']) {
       expect(css.slice(css.indexOf(`.${variante} {`), css.indexOf('}', css.indexOf(`.${variante} {`)))).toContain('--button-hover-shadow');
     }
+  });
+});
+
+describe('Button: cliques repetidos', () => {
+  describe('tecla segurada', () => {
+    it('cancela o Enter e o Espaço repetidos, que o navegador converteria em cliques', () => {
+      render(<Button>Salvar</Button>);
+      const button = screen.getByRole('button', { name: 'Salvar' });
+
+      expect(fireEvent.keyDown(button, { key: 'Enter', repeat: true })).toBe(false);
+      expect(fireEvent.keyDown(button, { key: ' ', repeat: true })).toBe(false);
+      expect(fireEvent.keyDown(button, { key: 'Enter' })).toBe(true);
+    });
+
+    it('repassa a tecla ao onKeyDown do consumidor', () => {
+      const onKeyDown = vi.fn();
+      render(<Button onKeyDown={onKeyDown}>Salvar</Button>);
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Salvar' }), { key: 'Enter', repeat: true });
+
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('onClick assíncrono', () => {
+    function pendente() {
+      let resolver!: () => void;
+      let rejeitar!: (erro: Error) => void;
+      const promessa = new Promise<void>((resolve, reject) => {
+        resolver = resolve;
+        rejeitar = reject;
+      });
+      return { promessa, rejeitar, resolver };
+    }
+
+    it('trava o segundo clique até a promessa terminar e mostra o estado de carregando', async () => {
+      const { promessa, resolver } = pendente();
+      const onClick = vi.fn(() => promessa);
+      render(<Button onClick={onClick}>Salvar</Button>);
+      const button = screen.getByRole('button', { name: 'Salvar' });
+      button.focus();
+
+      fireEvent.click(button);
+      fireEvent.click(button);
+      fireEvent.click(button);
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(button).toHaveAttribute('aria-busy', 'true');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).not.toBeDisabled();
+      expect(button).toHaveFocus();
+
+      await act(async () => {
+        resolver();
+        await promessa;
+      });
+
+      expect(button).not.toHaveAttribute('aria-busy');
+      fireEvent.click(button);
+      expect(onClick).toHaveBeenCalledTimes(2);
+    });
+
+    it('a rejeição volta ao estado normal e não vira rejeição sem tratamento', async () => {
+      const { promessa, rejeitar } = pendente();
+      const semTratamento = vi.fn();
+      const erro = vi.spyOn(console, 'error').mockImplementation(() => {});
+      process.on('unhandledRejection', semTratamento);
+      render(<Button onClick={() => promessa}>Salvar</Button>);
+      const button = screen.getByRole('button', { name: 'Salvar' });
+
+      fireEvent.click(button);
+      await act(async () => rejeitar(new Error('falhou')));
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      process.off('unhandledRejection', semTratamento);
+
+      expect(semTratamento).not.toHaveBeenCalled();
+      expect(button).not.toHaveAttribute('aria-busy');
+      expect(erro).toHaveBeenCalled();
+      erro.mockRestore();
+    });
+
+    it('a prop loading segue controlando o botão e o onClick síncrono não trava', () => {
+      const onClick = vi.fn();
+      const { rerender } = render(<Button onClick={onClick}>Salvar</Button>);
+      const button = screen.getByRole('button', { name: 'Salvar' });
+
+      fireEvent.click(button);
+      fireEvent.click(button);
+      expect(onClick).toHaveBeenCalledTimes(2);
+
+      rerender(
+        <Button loading onClick={onClick}>
+          Salvar
+        </Button>,
+      );
+      fireEvent.click(button);
+      expect(onClick).toHaveBeenCalledTimes(2);
+    });
   });
 });

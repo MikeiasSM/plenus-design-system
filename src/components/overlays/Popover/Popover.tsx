@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Popover.module.css';
 
@@ -65,10 +66,11 @@ function PopoverContent({
   const ref = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRefs(ref, refDoConsumidor);
 
+  const dismiss = useOverlayClickGuard(onClose);
   const { overlayProps } = useOverlay(
     {
       isOpen: true,
-      onClose,
+      onClose: dismiss,
       isDismissable: true,
       shouldCloseOnBlur: false,
       // O gatilho nao conta como "fora": o clique dele e do consumidor, que decide se alterna.

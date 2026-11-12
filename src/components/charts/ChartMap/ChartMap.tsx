@@ -30,6 +30,7 @@ import {
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
 import { formatNumber, formatPercent } from '../../../utils/formatters';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { ChartMapLegend } from './ChartMapLegend';
 import { ChartMapTable, type MapTableMarkerRow, type MapTableRegionRow } from './ChartMapTable';
 import {
@@ -924,6 +925,10 @@ export function ChartMap({
 
     // Com o mapa aproximado, Shift com a seta arrasta a vista em vez de percorrer as marcas.
     if (!mark || !marks.includes(mark) || (zoomable && event.shiftKey)) {
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 
