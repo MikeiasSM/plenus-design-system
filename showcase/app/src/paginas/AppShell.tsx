@@ -44,7 +44,7 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, semAltura
             <p style={{ color: 'var(--pl-color-text-secondary)' }}>
               {semAlturaDaCaixa
                 ? 'A moldura mede a janela, e não a caixa: ela passa da caixa, e a rolagem da caixa leva a barra e o rodapé para fora de vista.'
-                : 'Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.'}
+                : 'Só este corpo rola. No Showcase, --pl-shell-height vale 100%, e a moldura ocupa a caixa.'}
             </p>
           </div>
         </AppShell.PageBody>

@@ -20,7 +20,7 @@ export interface AppShellProps extends ComponentPropsWithRef<'div'> {
   open?: boolean;
 }
 
-/** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa o espaço que o pai lhe dá. */
+/** Moldura da aplicação: monta o `SidebarProvider` com o estado da navegação (`Sidebar`) e abriga a página. Ocupa a janela; numa caixa, redefina `--pl-shell-height`. */
 function AppShellRoot({ children, className, defaultOpen, onOpenChange, open, ...props }: AppShellProps) {
   const outerSidebar = useContext(SidebarContext);
   const ignoresStateProps = outerSidebar !== null && (defaultOpen !== undefined || onOpenChange !== undefined || open !== undefined);

@@ -18,7 +18,7 @@ export const pattern: Pattern = {
     <>Quando a tela salva, com o rodapé fixo (<code>AppShell.PageFooter</code>) ou o aviso de alteração por salvar (<code>SaveBar</code>).</>,
   ],
   componentes: [
-    { nome: 'AppShell', papel: 'A moldura da aplicação: ocupa o espaço que o pai lhe dá, e só as áreas internas rolam.' },
+    { nome: 'AppShell', papel: 'A moldura da aplicação: ocupa a janela, e só as áreas internas rolam.' },
     { nome: 'Sidebar', papel: 'A navegação, ao lado da folha. No exemplo ela é mínima e fica recolhida, para dar espaço à página.' },
     { nome: 'AppShell.Page', papel: 'A folha da página, o <main> da tela.' },
     { nome: 'AppShell.PageBar', papel: 'A barra de 46px no topo, com o botão de abrir o submenu e o que o produto puser ao lado.' },
@@ -48,7 +48,7 @@ export const pattern: Pattern = {
   comportamento: [
     <>O <code>maxWidth</code> do <code>PageHeader</code> e o do <code>Container</code> são o mesmo: com o mesmo valor, os dois alinham na borda. As composições usam 760px, 1120px e a largura total, e a escolha é da tela.</>,
     <>O respiro vertical é de quem usa o <code>Container</code>, que só cuida do lateral: o <code>paddingBlock</code> com um espaçamento dos tokens.</>,
-    <>Só o corpo rola. A barra e o rodapé ficam à vista, e por isso a moldura precisa de um pai com altura.</>,
+    <>Só o corpo rola. A barra e o rodapé ficam à vista, porque a moldura ocupa a janela; numa caixa de altura fixa, redefina <code>--pl-shell-height</code>, por exemplo para <code>100%</code>.</>,
     <>O rodapé fica sempre lá; a <code>SaveBar</code> aparece quando há alteração por salvar. Escolha um dos dois para a mesma tela.</>,
   ],
   variacoes: [
@@ -60,7 +60,7 @@ export const pattern: Pattern = {
   evitar: [
     <>Cabeçalho e conteúdo com larguras diferentes: as bordas deixam de alinhar.</>,
     <>O respiro vertical em margens soltas, ou no cabeçalho, em vez de no <code>Container</code>.</>,
-    <>A moldura num pai sem altura: a página inteira passa a rolar, e a barra e o rodapé saem de vista.</>,
+    <>A moldura numa caixa de altura fixa sem redefinir <code>--pl-shell-height</code>: ela passa da caixa, e a barra e o rodapé saem de vista.</>,
     <>Rodapé e <code>SaveBar</code> juntos, avisando a mesma coisa duas vezes.</>,
   ],
 };
