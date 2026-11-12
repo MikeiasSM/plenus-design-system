@@ -571,7 +571,7 @@ export const pagina: Pagina = {
   notaDaApi: (
     <>
       Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Brand</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
-      <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code> e <code>toggleSidebar</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
+      <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code>, <code>toggleSidebar</code>, <code>accountOpen</code> e <code>setAccountOpen</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
       <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code> e no <code>SidebarProvider</code>.
     </>
   ),
@@ -580,8 +580,8 @@ export const pagina: Pagina = {
     { nome: 'SidebarProvider · menuOpen / defaultMenuOpen / onMenuOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultMenuOpen: false', descricao: 'Gaveta do celular, controlada ou não, no mesmo padrão do submenu.' },
     { nome: 'SidebarProvider · accountOpen / defaultAccountOpen / onAccountOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultAccountOpen: false', descricao: 'Conta aberta, controlada ou não. Abrir a conta abre também o submenu, ou a gaveta na largura estreita; recolher o submenu a fecha.' },
     { nome: 'SidebarProvider · narrowBelow', tipo: 'number', padrao: '900', descricao: 'Largura, em pixels, abaixo da qual a navegação vira gaveta. O AppShell e o Sidebar.Trigger seguem o mesmo valor.' },
-    { nome: 'SidebarProvider · side', tipo: "SidebarSide: 'left' | 'right'", padrao: "'left'", descricao: 'Lado da página em que ficam o trilho e o submenu. À direita, a gaveta abre pela direita e as dicas e a barra do item atual espelham; o recuo e a guia do subnível seguem no início do texto.' },
-    { nome: 'SidebarProvider · labels', tipo: 'Partial<SidebarLabels>', padrao: 'português', descricao: 'Nomes acessíveis dos botões: openMenu, openSubmenu, closeMenu e collapseSubmenu. Só os passados trocam o padrão.' },
+    { nome: 'SidebarProvider · side', tipo: "SidebarSide: 'left' | 'right'", padrao: "'left'", descricao: 'Lado da página em que ficam o trilho e o submenu. À direita, a gaveta abre pela direita e as dicas, a barra do item atual e a entrada do terceiro nível em pilha espelham; o recuo e a guia do subnível seguem no início do texto. O lado é físico, também com dir="rtl": nessa escrita, chevron, link externo e seta de voltar espelham.' },
+    { nome: 'SidebarProvider · labels', tipo: 'Partial<SidebarLabels>', padrao: 'português', descricao: 'Nomes acessíveis: openMenu, openSubmenu, closeMenu e collapseSubmenu, nos botões, e menu (gaveta, "Menu"), modules (trilho, "Módulos") e account (conta, "Conta"). Só os passados trocam o padrão, e a propriedade de cada peça ganha do labels.' },
     { nome: 'SidebarProvider · icons', tipo: 'Partial<SidebarIcons>', padrao: 'os atuais', descricao: 'Ícones de open, collapse, close, back, external e account. Só os passados trocam o padrão.' },
     { nome: 'SidebarProvider · tooltipDelay', tipo: 'number', padrao: '150', descricao: 'Espera, em milissegundos, das dicas do trilho e da marca.' },
     { nome: 'SidebarProvider · shortcut', tipo: 'string | false', padrao: 'desligado', descricao: 'Atalho como "mod+b" (Ctrl+B ou Cmd+B), que alterna o submenu ou, em largura estreita, a gaveta. Aceita outra letra, como "mod+k". Ignorado com o foco num input, textarea ou contenteditable.' },
@@ -590,9 +590,9 @@ export const pagina: Pagina = {
       tipo: "Omit<ButtonIconProps, 'icon' | 'label'>",
       descricao: 'Botão de abrir: a gaveta na largura estreita, o submenu recolhido na larga. Não aparece quando não há o que abrir. Aceita as propriedades do ButtonIcon, menos o ícone e o nome; o onClick roda antes, e preventDefault nele cancela a abertura.',
     },
-    { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile e toggleSidebar. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu.' },
-    { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
-    { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
+    { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar, accountOpen e setAccountOpen. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu. setAccountOpen(true) abre o submenu, ou a gaveta, e leva o foco à primeira opção, como o clique no bloco, menos com o foco num campo editável.' },
+    { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "labels.menu ('Menu')", descricao: 'Nome da gaveta no celular.' },
+    { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: labels.modules ('Módulos')", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
     {
       nome: 'Sidebar.Brand · name / logo / logoFrame / description / wordmark',
       tipo: 'string · ReactNode · boolean · ReactNode · { light: ReactNode; dark?: ReactNode }',
@@ -614,6 +614,6 @@ export const pagina: Pagina = {
       descricao: 'Item do submenu. Com children, abre o terceiro nível; external abre em outra aba; trailing é o complemento ao fim da linha.',
     },
     { nome: 'Sidebar.Item · expanded / defaultExpanded / onExpandedChange', tipo: 'boolean · boolean · (expanded: boolean) => void', descricao: 'Filhos abertos. Na pilha, defaultExpanded entra no nível no início.' },
-    { nome: 'Sidebar.Account · avatar / name / description / label', tipo: 'ReactNode · string · string · string', padrao: "label: 'Conta'", descricao: 'Bloco da conta no rodapé; os filhos são as opções (Sidebar.Item).' },
+    { nome: 'Sidebar.Account · avatar / name / description / label', tipo: 'ReactNode · string · string · string', padrao: "label: labels.account ('Conta')", descricao: 'Bloco da conta no rodapé; os filhos são as opções (Sidebar.Item).' },
   ],
 };
