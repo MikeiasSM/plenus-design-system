@@ -141,10 +141,7 @@ export function DatePickerRange({
   const steps: Record<string, number> = { ArrowDown: 7, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7 };
 
   function move(range: Required<Selection>) {
-    const outside = (day: CalendarDate) =>
-      Boolean((limits.min && day.compare(limits.min) < 0) || (limits.max && day.compare(limits.max) > 0));
-
-    if (outside(range.start) || outside(range.end)) {
+    if (isUnavailable(range.start, limits) || isUnavailable(range.end, limits)) {
       return;
     }
 

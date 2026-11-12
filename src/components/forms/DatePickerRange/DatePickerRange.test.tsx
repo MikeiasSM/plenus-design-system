@@ -223,6 +223,21 @@ describe('DatePickerRange', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
+    it('a seta que levaria uma ponta para um dia indisponivel nao faz nada', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({
+        defaultValue: { start: '2026-03-10', end: '2026-03-12' },
+        isDateUnavailable: (data) => data === '2026-03-13',
+        onValueChange,
+      });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowLeft' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-09', end: '2026-03-11' });
+    });
+
     it('Alt+seta para baixo abre o painel, e a seta sozinha nao', () => {
       const gatilho = montar({ defaultValue: { start: '2026-03-10', end: '2026-03-12' } });
 
