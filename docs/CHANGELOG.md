@@ -12,7 +12,6 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
-- `AppShell`: a moldura agora ocupa a janela (`100dvh`) sem o produto dar altura a `html`, `body` e `#root`; antes, sem essa altura, a página inteira rolava e a barra e o rodapé saíam da vista. Para embutir a moldura numa caixa, como num cartão ou numa demonstração, redefina `--pl-shell-height` (por exemplo, `100%`) nela ou num ancestral.
 - `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
@@ -26,6 +25,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Tooltip`: o Escape com o tooltip aberto fecha só o tooltip; antes, dentro de um painel, fechava o painel junto. O próximo Escape fecha o painel.
 - Showcase: na página do `SidePanel`, em janela abaixo de 900 px, como a prévia em "Tablet" ou "Celular", o painel do playground, os exemplos "Filtros ao lado da página" e "À esquerda, estreito" e a demonstração de tamanhos começam fechados. Antes, abriam já como gaveta e tomavam o foco, e quem escolhia a largura da prévia pelas setas ia parar dentro dela. Em janela de computador, continuam começando abertos. Na demonstração de tamanhos, o botão "Filtros" passa a abrir e fechar o painel, que antes ficava sempre aberto.
 - Documentação: os exemplos de tokens usam os nomes reais (`--pl-*`), conferidos no CSS, no lugar de nomes que não existiam.
+- Documentação: o catálogo diz o que o `AppShell` pede para ocupar a janela: `html`, `body` e o elemento raiz da aplicação com `height: 100%`, e o `body` sem margem. Sem isso, a moldura cresce com o conteúdo, e a barra e o rodapé saem da vista ao rolar.
 - Documentação: os exemplos de hooks citam os hooks reais do pacote. Fica claro que só o `useToast` é público e que os demais são internos.
 - Documentação: o catálogo traz o contrato do link da aplicação (`as` e `linkProps`), o ícone como filho do `Button`, os valores do `hideBelow`, o uso do `FieldRow` e as props `hideTitle`, `formatRightValue` e `height` dos gráficos. O `README.md` lista os oito ícones de mesmo nome nas duas entradas. `ARCHITECTURE.md`, `COMPONENTS.md`, `CONTRIBUTING.md` e `TOKENS.md` dizem no topo para quem são.
 - Showcase: nos playgrounds do `AppShell` e do `SidePanel`, "Tablet" e "Celular", em "Largura da prévia", mostram o componente numa janela própria dessa largura, de até 768 e 390 px, e o modo celular entra de fato: o `AppShell` vira barra com o menu em gaveta, e o `SidePanel` vira gaveta. Antes, só estreitavam a caixa e o componente seguia a janela inteira, então em "Celular" o `AppShell` mostrava trilho e submenu espremendo a página. Em "Livre", a prévia segue a janela do navegador, como antes.
