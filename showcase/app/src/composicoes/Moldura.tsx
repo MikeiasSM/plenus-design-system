@@ -7,7 +7,7 @@ const hrefDe = (rota: string) => `${CAMINHO_DAS_COMPOSICOES}/${rota}`;
 
 function ContaDoUsuario() {
   return (
-    <Sidebar.Account avatar={<Avatar name="Suporte" />} description="Roman Mecânica Ltda" name="Suporte">
+    <Sidebar.Account avatar={<Avatar name="Suporte" />} description="Mecânica Irmãos Duarte Ltda" name="Suporte">
       <Sidebar.Item icon={<IconStar size={18} />} label="Favoritos" />
       <Sidebar.Item icon={<IconClock size={18} />} label="Atividade recente" />
       <Sidebar.Item icon={<IconShieldCheck size={18} />} label="Administração" />
@@ -39,7 +39,7 @@ export function Moldura({ children, item, modulo }: MolduraProps) {
           footer={
             <>
               <ItemDoModulo atual={atual.id === MODULO_DE_CONFIGURACOES.id} modulo={MODULO_DE_CONFIGURACOES} />
-              <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
+              <Sidebar.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
                 <Avatar name="Suporte" size="sm" />
               </Sidebar.RailAccount>
             </>

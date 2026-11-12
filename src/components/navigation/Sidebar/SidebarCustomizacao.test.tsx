@@ -18,7 +18,7 @@ function Navigation({ nestedMode }: { nestedMode?: 'expand' | 'stack' }) {
       </Sidebar.Rail>
       <Sidebar.Panel
         account={
-          <Sidebar.Account avatar="RM" name="Suporte">
+          <Sidebar.Account avatar="MD" name="Suporte">
             <Sidebar.Item href="/favoritos" label="Favoritos" />
           </Sidebar.Account>
         }

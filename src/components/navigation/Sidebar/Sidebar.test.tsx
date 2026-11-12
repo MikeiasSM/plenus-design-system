@@ -30,7 +30,7 @@ function Example({ accountMode, nestedMode, panelStyle, panelWidth, withItems = 
         </Sidebar.Rail>
         <Sidebar.Panel
           account={
-            <Sidebar.Account avatar="RM" description="Roman Mecânica" name="Suporte">
+            <Sidebar.Account avatar="MD" description="Mecânica Irmãos Duarte" name="Suporte">
               <Sidebar.Item href="/favoritos" label="Favoritos" />
             </Sidebar.Account>
           }
@@ -223,7 +223,7 @@ describe('Sidebar', () => {
       const conta = screen.getByRole('navigation', { name: 'Conta' });
       expect(screen.getByRole('navigation', { name: 'Vendas' })).toHaveAttribute('data-covered', 'true');
       expect(within(conta).getByRole('link', { name: 'Favoritos' })).toBeVisible();
-      expect(within(conta).queryByText('Roman Mecânica')).not.toBeInTheDocument();
+      expect(within(conta).queryByText('Mecânica Irmãos Duarte')).not.toBeInTheDocument();
     });
 
     it('cobrindo a lista, as opções não levam cartão: sem borda, fundo nem sombra', () => {

@@ -105,8 +105,8 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
             footer={
               <>
                 <Sidebar.RailItem icon={<IconSliders size={20} />} label="Configurações" />
-                <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
-                  <Avatar name="Roman Mecânica" size="sm" />
+                <Sidebar.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
+                  <Avatar name="Mecânica Irmãos Duarte" size="sm" />
                 </Sidebar.RailAccount>
               </>
             }
@@ -126,7 +126,7 @@ function Aplicacao({ accountMode, defaultOpen, initialModule = 'Vendas', nestedM
           </Sidebar.Rail>
           <Sidebar.Panel
             account={
-              <Sidebar.Account avatar={<Avatar name="Roman Mecânica" />} description="Roman Mecânica Ltda" name="Suporte">
+              <Sidebar.Account avatar={<Avatar name="Mecânica Irmãos Duarte" />} description="Mecânica Irmãos Duarte Ltda" name="Suporte">
                 <Sidebar.Item icon={<IconStar size={18} />} label="Favoritos" />
                 <Sidebar.Item icon={<IconClock size={18} />} label="Atividade recente" />
                 <Sidebar.Item icon={<IconSliders size={18} />} label="Preferências" />
@@ -484,8 +484,8 @@ export const pagina: Pagina = {
       footer={
         <>
           <Sidebar.RailItem icon={<IconSliders />} label="Configurações" />
-          <Sidebar.RailAccount label="Conta: Suporte, Roman Mecânica">
-            <Avatar name="Roman Mecânica" size="sm" />
+          <Sidebar.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
+            <Avatar name="Mecânica Irmãos Duarte" size="sm" />
           </Sidebar.RailAccount>
         </>
       }
