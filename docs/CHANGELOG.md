@@ -19,6 +19,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- Documentação: o catálogo explica que a ação assíncrona do `Button` trava sozinha e que descartar respostas fora de ordem e a idempotência no servidor ficam com o produto, e completa o contrato do `onBeforeClose` com a resposta antiga e a consulta que falha.
 - `DataGrid`, construtor de filtros: o clique duplo na lixeira de uma condição ou de um grupo deixa de remover também o item de baixo.
 - `Dialog` e `Drawer` com `onBeforeClose` assíncrono: a resposta de uma consulta antiga deixa de fechar o diálogo que o produto já fechou e reabriu, e o Esc do diálogo reaberto volta a consultar. Se a consulta falhar, o diálogo continua aberto e o erro vai para o console, sem virar rejeição sem tratamento.
 - Depois de remover uma `Tag` ou um arquivo do `FileUpload`, ou de acionar uma ação de um aviso do `Toast`, o foco passa para o próximo botão de remover do mesmo grupo; sem próximo, para o anterior; sem nenhum, para o contêiner da etiqueta ou para o campo de arquivo. Antes, o foco caía no fim da página e quem usa o teclado perdia o lugar.

@@ -33,6 +33,8 @@ O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o context
 
 O `Button` leva o ícone como filho, antes do texto: `<Button><IconPlus />Novo pedido</Button>`.
 
+O `onClick` que devolve uma `Promise` trava o `Button` e o `ButtonIcon` sozinhos até ela terminar: o botão mostra o estado de `loading`, mantém o foco e não roda um segundo clique nem um segundo Enter. Se a promessa falhar, o botão volta ao normal e o erro vai para o console. A propriedade `loading` segue como o modo controlado, para o que o produto acompanha por conta própria. O componente reduz o risco, e o resto é do produto: descartar a resposta que chega fora de ordem, como na busca remota do `ComboBox`, e tornar a operação idempotente no servidor, pois há reenvio por timeout e duas abas.
+
 O `ButtonTile` é o botão de uma paleta — os blocos que um editor insere, os tipos de registro que uma tela cria. Ícone e nome ficam sempre visíveis, e uma descrição curta é opcional. Com `selected`, ele alterna e expõe `aria-pressed`. Fora de uma grade de opções equivalentes, a escolha é o `Button`.
 
 A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação de um editor: um único ponto de tabulação e as setas percorrendo os controles, conforme o padrão de barra de ferramentas do WAI-ARIA. Ela pode ficar fixa no fluxo, presa ao topo ao rolar, ou flutuar ancorada a um elemento. Os controles são os do próprio catálogo. Um conjunto solto de botões sem relação entre si não é barra de ferramentas.
@@ -314,7 +316,7 @@ import { Link } from 'react-router-dom';
 
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 
-O `Dialog` tem os tamanhos `sm`, `md`, `lg` e `xl`, de até 1040px, para formulários e conteúdos largos. `onBeforeClose` deixa o produto impedir o fechamento, como quando há alterações não salvas: devolve `boolean` ou `Promise<boolean>`, e `false` mantém aberto. É consultado por Esc, pelo clique no véu e pelo botão Fechar, uma consulta por vez, e não quando o produto muda `open`, que é decisão dele. Não recebe o motivo do fechamento, porque a confirmação não difere pela via; se um produto precisar, a assinatura ganha um argumento sem quebrar. O `Drawer` recebe o mesmo `onBeforeClose`, pois divide a mecânica com o `Dialog` e é onde mais se edita um item com alterações a perder.
+O `Dialog` tem os tamanhos `sm`, `md`, `lg` e `xl`, de até 1040px, para formulários e conteúdos largos. `onBeforeClose` deixa o produto impedir o fechamento, como quando há alterações não salvas: devolve `boolean` ou `Promise<boolean>`, e `false` mantém aberto. É consultado por Esc, pelo clique no véu e pelo botão Fechar, uma consulta por vez, e não quando o produto muda `open`, que é decisão dele. A resposta de uma consulta antiga é descartada se o diálogo foi fechado e reaberto, e a consulta que falha conta como não fechar. Não recebe o motivo do fechamento, porque a confirmação não difere pela via; se um produto precisar, a assinatura ganha um argumento sem quebrar. O `Drawer` recebe o mesmo `onBeforeClose`, pois divide a mecânica com o `Dialog` e é onde mais se edita um item com alterações a perder.
 
 O `Drawer` sem `title` segue o `Dialog`: sem cabeçalho, nomeado pelo `aria-label` obrigatório. Com `flush`, o corpo perde o respiro interno, para o conteúdo que desenha a própria margem; a rolagem do meio continua.
 
