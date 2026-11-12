@@ -11,20 +11,20 @@ import styles from './CardMetric.module.css';
 
 export interface CardMetricProps extends ComponentPropsWithRef<'section'> {
   children: ReactNode;
-  /** Abre o detalhe. Com ele, um botão cobre o cartão, abaixo dos controles que o produto põe dentro. */
+  /** Abre o detalhe. Com ele, um botao cobre o cartao, abaixo dos controles que o produto poe dentro. */
   onActivate?: () => void;
-  /** Nome do botão de ativação. Padrão: "Abrir detalhes de" e o título do `Card.Header`. */
+  /** Nome do botao de ativacao. Padrao: "Abrir detalhes de" e o titulo do `Card.Header`. */
   activateLabel?: string;
   loading?: boolean;
   /** Dados validos na tela enquanto os novos chegam, como na troca de filtro. */
   updating?: boolean;
-  /** Mensagem curta. Presente, ela aparece no corpo do cartão e as partes saem. */
+  /** Mensagem curta. Presente, ela aparece no corpo do cartao e as partes saem. */
   error?: string;
 }
 
 /**
- * Moldura de um indicador sobre o `Card` compacto: ativação, estados e o contexto que as partes leem. O produto
- * monta o cartão com o `Card.Header` e as partes `Body`, `Value`, `Trend`, `Bar` e `Chart`.
+ * Moldura de um indicador sobre o `Card` compacto: ativacao, estados e o contexto que as partes leem. O produto
+ * monta o cartao com o `Card.Header` e as partes `Body`, `Value`, `Trend`, `Bar` e `Chart`.
  */
 export function CardMetric({
   activateLabel,

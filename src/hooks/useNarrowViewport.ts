@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-/** Abaixo de 900px (`--pl-bp-sm`): onde não ha espaço para empurrar a página e o painel vira gaveta. */
+/** Abaixo de 900px (`--pl-bp-sm`): onde nao ha espaco para empurrar a pagina e o painel vira gaveta. */
 const NARROW_VIEWPORT = '(max-width: 899.98px)';
 
 function subscribe(notify: () => void) {

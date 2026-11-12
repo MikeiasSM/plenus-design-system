@@ -12,8 +12,8 @@
   box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
 }
 
-/* Partes de uma comparação. Os números nunca quebram; rótulo e explicação quebram livres, sem reticências.
-   No balão, os números vão na mono, que alinha os digitos entre as comparações; o selo segue na fonte do Badge. */
+/* Partes de uma comparacao. Os numeros nunca quebram; rotulo e explicacao quebram livres, sem reticencias.
+   No balao, os numeros vao na mono, que alinha os digitos entre as comparacoes; o selo segue na fonte do Badge. */
 .change,
 .magnitude,
 .value {
@@ -25,7 +25,7 @@
   font-family: var(--pl-font-mono);
 }
 
-/* No selo, o Badge já separa o ícone; no balão, a mascara cola o ícone ao numero, e o respiro vem daqui. */
+/* No selo, o Badge ja separa o icone; no balao, a mascara cola o icone ao numero, e o respiro vem daqui. */
 :is(.stack, .table) .icon {
   margin-inline: 2px;
 }
@@ -52,7 +52,7 @@
   white-space: pre-wrap;
 }
 
-/* Tons de texto dos estados, medidos contra a superfície nos dois temas. */
+/* Tons de texto dos estados, medidos contra a superficie nos dois temas. */
 .success {
   color: var(--pl-color-on-success-container);
 }
@@ -90,7 +90,7 @@
   text-wrap: pretty;
 }
 
-/* Tabela: a primeira linha em colunas alinhadas entre as comparações; as seguintes ocupam a largura inteira. */
+/* Tabela: a primeira linha em colunas alinhadas entre as comparacoes; as seguintes ocupam a largura inteira. */
 .table {
   display: grid;
   align-items: start;

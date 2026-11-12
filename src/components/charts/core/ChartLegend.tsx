@@ -16,7 +16,7 @@ export interface ChartLegendEntry {
 
 export type ChartLegendSwatch = 'square' | 'dot';
 
-/** Onde a legenda horizontal se apoia na largura do gráfico. */
+/** Onde a legenda horizontal se apoia na largura do grafico. */
 export type ChartLegendAlign = 'left' | 'center' | 'right';
 
 const ALINHAMENTO: Record<ChartLegendAlign, string> = {
@@ -28,16 +28,16 @@ const ALINHAMENTO: Record<ChartLegendAlign, string> = {
 export interface ChartLegendProps {
   align?: ChartLegendAlign;
   entries: readonly ChartLegendEntry[];
-  /** Entrada sob o ponteiro ou o foco, com o ponto da janela onde ancorar o balão, para o gráfico destacar o que ela representa; `null` ao sair. */
+  /** Entrada sob o ponteiro ou o foco, com o ponto da janela onde ancorar o balao, para o grafico destacar o que ela representa; `null` ao sair. */
   onHighlight?: (label: string | null, anchor?: ChartAnchorPoint) => void;
-  /** Ponteiro andando sobre a legenda, para o balão acompanha-lo como acompanha o desenho; `null` ao sair. */
+  /** Ponteiro andando sobre a legenda, para o balao acompanha-lo como acompanha o desenho; `null` ao sair. */
   onPointerAt?: (point: ChartAnchorPoint | null) => void;
   onToggle?: (label: string) => void;
   position: ChartLegendPosition;
   swatch?: ChartLegendSwatch;
 }
 
-/** Ponta direita da entrada, a meia altura, com a caixa dela: no foco, que não tem ponteiro, o balão encosta na entrada. */
+/** Ponta direita da entrada, a meia altura, com a caixa dela: no foco, que nao tem ponteiro, o balao encosta na entrada. */
 function anchorOf(event: SyntheticEvent<HTMLElement>) {
   const box = event.currentTarget.getBoundingClientRect();
 
@@ -47,8 +47,8 @@ function anchorOf(event: SyntheticEvent<HTMLElement>) {
 const pointOf = (event: PointerEvent<HTMLElement>) => ({ x: event.clientX, y: event.clientY });
 
 /**
- * Legenda do gráfico. Quando existe um alvo para o clique, cada entrada vira um
- * botão que liga e desliga a série, com o estado exposto por `aria-pressed`.
+ * Legenda do grafico. Quando existe um alvo para o clique, cada entrada vira um
+ * botao que liga e desliga a serie, com o estado exposto por `aria-pressed`.
  */
 export function ChartLegend({
   align = 'center',
@@ -62,7 +62,7 @@ export function ChartLegend({
   const lateral = position === 'left' || position === 'right';
 
   return (
-    // A saida e da lista, e não da entrada: o ponteiro que cruza o espaço entre duas entradas mantem o realce.
+    // A saida e da lista, e nao da entrada: o ponteiro que cruza o espaco entre duas entradas mantem o realce.
     <ul
       className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}
       onPointerLeave={

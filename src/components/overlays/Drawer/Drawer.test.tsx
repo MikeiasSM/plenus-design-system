@@ -72,7 +72,7 @@ describe('Drawer', () => {
   });
 
   it('exige o aria-label quando falta o titulo', () => {
-    // @ts-expect-error sem titulo, o nome acessível e obrigatório
+    // @ts-expect-error sem titulo, o nome acessivel e obrigatorio
     render(<Drawer open />);
   });
 

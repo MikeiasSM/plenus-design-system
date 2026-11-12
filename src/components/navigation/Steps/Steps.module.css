@@ -1,4 +1,4 @@
-/* Etapas do Untitled UI: marcador numerado ligado por uma linha, rótulo abaixo. */
+/* Etapas do Untitled UI: marcador numerado ligado por uma linha, rotulo abaixo. */
 .steps {
   --steps-marker: 2rem;
   font-family: var(--pl-font-body);
@@ -22,7 +22,7 @@
   text-align: center;
 }
 
-/* A linha sai do marcador até o próximo; preenchida quando a etapa já foi feita. */
+/* A linha sai do marcador ate o proximo; preenchida quando a etapa ja foi feita. */
 .step:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -119,7 +119,7 @@ button.text:hover .label {
   white-space: nowrap;
 }
 
-/* No celular as etapas empilham: lado a lado, os rótulos não cabem. */
+/* No celular as etapas empilham: lado a lado, os rotulos nao cabem. */
 @media (max-width: 480px) {
   .list {
     flex-direction: column;

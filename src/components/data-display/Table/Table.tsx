@@ -50,7 +50,7 @@ export interface TableSort {
 
 export interface TableProps extends ComponentPropsWithRef<'div'> {
   children: ReactNode;
-  /** Escolha inicial no modo não controlado. */
+  /** Escolha inicial no modo nao controlado. */
   defaultSelectedIds?: readonly string[];
   defaultSort?: TableSort;
   divider?: boolean;
@@ -60,19 +60,18 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   highlightSelectedRow?: boolean;
   onSelectedIdsChange?: (ids: readonly string[]) => void;
   onSortChange?: (sort: TableSort) => void;
-  /** Linhas para a seleção: alimentam as caixas e a marcação de todas, mas não desenham linhas; quem as desenha é `Table.Body`. */
   rows?: readonly TableRowItem[];
   selectedIds?: readonly string[];
   selectionControl?: TableSelectionControl;
   selectionMode?: TableSelectionMode;
   size?: TableSize;
   sort?: TableSort;
-  /** Cabeçalho colado no topo da rolagem da página; com a tabela mais larga ou mais alta que o espaço, no dela. */
+  /** Cabecalho colado no topo da rolagem da pagina; com a tabela mais larga ou mais alta que o espaco, no dela. */
   stickyHeader?: boolean;
   striped?: boolean;
 }
 
-/** O que a célula herda da coluna na mesma posição, quando não declara o próprio. */
+/** O que a celula herda da coluna na mesma posicao, quando nao declara o proprio. */
 interface ColumnLayout {
   align: TableAlign;
   hideBelow?: TableBreakpoint;
@@ -105,7 +104,7 @@ interface TableSelection {
 
 const TableContext = createContext<TableContextValue | undefined>(undefined);
 
-/** Posição do filho no cabeçalho ou na linha: e por ela que a célula acha a sua coluna. */
+/** Posicao do filho no cabecalho ou na linha: e por ela que a celula acha a sua coluna. */
 const ColumnIndexContext = createContext<number | undefined>(undefined);
 
 function withColumnIndex(children: ReactNode) {
@@ -165,8 +164,8 @@ export function Table({
   const currentSort = sort ?? internalSort;
   const control = selectionControl ?? (selectionMode === 'single' ? 'radio' : 'checkbox');
 
-  // Rolar dentro da tabela e colar o cabeçalho na rolagem da página se excluem em CSS: o envoltorio só
-  // continua contêiner de rolagem quando a tabela transborda dele.
+  // Rolar dentro da tabela e colar o cabecalho na rolagem da pagina se excluem em CSS: o envoltorio so
+  // continua conteiner de rolagem quando a tabela transborda dele.
   const [precisaRolar, setPrecisaRolar] = useState(true);
   const observarTransbordo = useCallback((envoltorio: HTMLDivElement | null) => {
     if (!envoltorio || typeof ResizeObserver === 'undefined') {
@@ -190,7 +189,7 @@ export function Table({
   const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, ref);
 
   // A coluna se registra enquanto esta na tela e sai quando sai: registrada para sempre, o vazio ocupava colunas
-  // que não existiam mais.
+  // que nao existiam mais.
   const registerColumn = useCallback((id: string) => {
     setColumns((atuais) => new Set(atuais).add(id));
 
@@ -229,7 +228,7 @@ export function Table({
   );
 
   const selection = useSelection({
-    // Caixa e chave desmarcam ao clicar de novo; o radio, não.
+    // Caixa e chave desmarcam ao clicar de novo; o radio, nao.
     allowEmpty: control !== 'radio',
     defaultSelectedKeys: defaultSelectedIds,
     items: collection,
@@ -311,7 +310,7 @@ function TableHeader({ children }: TableHeaderProps) {
       <tr>
         {selection.mode === 'multiple' && (
           <th className={[styles.column, styles.lead].join(' ')} scope="col">
-            {/* Sem `rows` não ha o que marcar, e o clique só apagava a escolha que já havia. */}
+            {/* Sem `rows` nao ha o que marcar, e o clique so apagava a escolha que ja havia. */}
             <input
               aria-label="Selecionar todas as linhas"
               checked={selection.status === 'all'}
@@ -346,7 +345,6 @@ export interface TableColumnProps {
   id: string;
   numeric?: boolean;
   sortable?: boolean;
-  /** Largura preferida da coluna, em qualquer unidade de CSS; o conteúdo pode vence-la e alargar a coluna. */
   width?: string;
 }
 
@@ -357,7 +355,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
 
   useEffect(() => registerColumn(id), [id, registerColumn]);
 
-  // Antes da pintura: com efeito comum, a célula aparecia um quadro alinhada a esquerda e só depois ia para o lado
+  // Antes da pintura: com efeito comum, a celula aparecia um quadro alinhada a esquerda e so depois ia para o lado
   // da coluna.
   useLayoutEffect(
     () => (index === undefined ? undefined : registerLayout(index, { align: columnAlign, hideBelow, numeric })),
@@ -366,7 +364,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
 
   const sorted = sort?.column === id ? sort.direction : undefined;
 
-  // A ajuda e focável e fica fora do botão de ordenação: controle dentro de controle não e HTML válido.
+  // A ajuda e focavel e fica fora do botao de ordenacao: controle dentro de controle nao e HTML valido.
   const ajuda = help && (
     <Tooltip content={help} placement="bottom">
       <span aria-label={help} className={styles.help} role="img" tabIndex={0}>
@@ -428,7 +426,7 @@ function TableBody<T extends TableRowItem>({
   const { columnAt, countColumns, loading, selection } = useTableContext('Table.Body');
 
   if (loading) {
-    // Mantem a altura das linhas que já estavam na tela, para a página não pular quando a nova chegar.
+    // Mantem a altura das linhas que ja estavam na tela, para a pagina nao pular quando a nova chegar.
     const rows = Array.from({ length: items.length || SKELETON_ROWS }, (_, index) => index);
     const leadCells = selection.mode === 'none' ? 0 : 1;
     const columns = Array.from({ length: countColumns() - leadCells }, (_, index) => columnAt(index));
@@ -486,7 +484,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
   const selected = selection.mode !== 'none' && selection.isSelected(id);
 
   return (
-    // Sem `aria-selected` na linha: ele só vale em grade, e numa tabela quem anuncia a marcação e o controle.
+    // Sem `aria-selected` na linha: ele so vale em grade, e numa tabela quem anuncia a marcacao e o controle.
     <tr className={[styles.row, selected && selection.highlight && styles.selected].filter(Boolean).join(' ')}>
       {selection.mode !== 'none' && (
         <td className={[styles.cell, styles.lead].join(' ')}>
@@ -508,7 +506,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
   );
 }
 
-/** Sem valor próprio, `align`, `hideBelow` e `numeric` seguem a coluna da mesma posição no cabeçalho. */
+/** Sem valor proprio, `align`, `hideBelow` e `numeric` seguem a coluna da mesma posicao no cabecalho. */
 export interface TableCellProps {
   align?: TableAlign;
   children?: ReactNode;

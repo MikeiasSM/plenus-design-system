@@ -76,7 +76,7 @@ describe('useVirtualWindow', () => {
 
     medir(result.current.measureItem, 0);
 
-    // Presa na janela de medida, a lista mostrava 24 opções para sempre.
+    // Presa na janela de medida, a lista mostrava 24 opcoes para sempre.
     expect(result.current.active).toBe(false);
     expect(result.current.end).toBe(100);
   });
@@ -125,7 +125,7 @@ describe('useVirtualWindow', () => {
     act(() => result.current.measureItem(primeiro));
     act(() => result.current.scrollToIndex(20));
 
-    // O item 20 começa em 108 + 20 x 32 e termina 32 depois; a rolagem o deixa encostado embaixo.
+    // O item 20 comeca em 108 + 20 x 32 e termina 32 depois; a rolagem o deixa encostado embaixo.
     expect(lista.scrollTop).toBe(108 + 21 * 32 - 320);
   });
 });

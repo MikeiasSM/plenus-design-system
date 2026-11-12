@@ -2,10 +2,10 @@ export type Point = readonly [number, number];
 export type Ring = readonly Point[];
 
 interface Cell {
-  /** Distância do centro da célula até a borda: positiva dentro do poligono, negativa fora. */
+  /** Distancia do centro da celula ate a borda: positiva dentro do poligono, negativa fora. */
   distance: number;
   half: number;
-  /** O maior valor que um ponto da célula ainda pode alcancar. */
+  /** O maior valor que um ponto da celula ainda pode alcancar. */
   potential: number;
   x: number;
   y: number;
@@ -21,7 +21,7 @@ function segmentDistanceSquared(x: number, y: number, [ax, ay]: Point, [bx, by]:
   return (x - px) ** 2 + (y - py) ** 2;
 }
 
-/** Distância até a borda mais próxima, com o sinal de dentro ou fora; furos contam como borda. */
+/** Distancia ate a borda mais proxima, com o sinal de dentro ou fora; furos contam como borda. */
 export function signedDistance(x: number, y: number, rings: readonly Ring[]) {
   let inside = false;
   let nearest = Infinity;
@@ -49,7 +49,7 @@ function cellAt(x: number, y: number, half: number, rings: readonly Ring[]): Cel
 
 /**
  * Centro visual do poligono: o ponto interno mais distante das bordas, achado por subdivisao, como o polylabel do
- * Mapbox. Num "L" ou num litoral recortado, o centroide cai fora ou colado na borda; este ponto, não.
+ * Mapbox. Num "L" ou num litoral recortado, o centroide cai fora ou colado na borda; este ponto, nao.
  */
 export function polylabel(rings: readonly Ring[], precision = 1): Point {
   let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
@@ -64,7 +64,7 @@ export function polylabel(rings: readonly Ring[], precision = 1): Point {
     return Number.isFinite(x0) ? [x0, y0] : [0, 0];
   }
 
-  // Fila em ordem crescente de potencial: a célula mais promissora sai do fim.
+  // Fila em ordem crescente de potencial: a celula mais promissora sai do fim.
   const queue: Cell[] = [];
   const enqueue = (cell: Cell) => {
     let low = 0;

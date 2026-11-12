@@ -169,7 +169,7 @@ describe('ChartBar', () => {
     render(<ChartBar categories={periodos} series={dre} title="DRE" yAxis="onHover" />);
     const area = document.querySelector('figure svg')!.parentElement!;
     const eixo = () => document.querySelector(`.${chartStyles.dynamicAxis}`)!;
-    // O desenho começa na margem esquerda: ela cresce quando o eixo da esquerda abre a calha.
+    // O desenho comeca na margem esquerda: ela cresce quando o eixo da esquerda abre a calha.
     const margemEsquerda = () => Number(document.querySelector('figure svg g')!.getAttribute('transform')!.match(/translate\(([\d.]+)/)![1]);
     const recolhida = margemEsquerda();
 
@@ -317,8 +317,8 @@ describe('ChartBar', () => {
   it('aceita uma serie nova sem quebrar, enquanto o movimento ainda nao a conhece', () => {
     const { rerender } = render(<ChartBar categories={periodos} series={[dre[0]]} title="DRE" />);
 
-    // O tween devolve o array anterior por um render: a serie que entra não tem
-    // presenca, e o indice dela ainda não existe na repartição da faixa.
+    // O tween devolve o array anterior por um render: a serie que entra nao tem
+    // presenca, e o indice dela ainda nao existe na reparticao da faixa.
     rerender(<ChartBar categories={periodos} series={[dre[0], dre[1]]} title="DRE" />);
 
     expect(barras()).toHaveLength(4);

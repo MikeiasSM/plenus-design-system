@@ -21,7 +21,7 @@ export function signedValue(value: number, format: (value: number) => string = f
   return (value > 0 ? '+' : '') + format(value);
 }
 
-/** O que cada parte mostra numa comparação; `null` quando ela não existe ali, como a diferença não informada. */
+/** O que cada parte mostra numa comparacao; `null` quando ela nao existe ali, como a diferenca nao informada. */
 function partContent(part: CardMetricTrendPart, comparison: CardMetricComparison, { formatPercent, iconSize }: PartOptions): ReactNode {
   const change = comparison.change as number;
 
@@ -47,7 +47,7 @@ function partContent(part: CardMetricTrendPart, comparison: CardMetricComparison
 const segmentsOf = (line: TrendMaskLine, comparison: CardMetricComparison, options: PartOptions) =>
   resolveTrendLine(line, (part) => partContent(part, comparison, options) !== null);
 
-/** Uma linha da mascara desenhada para uma comparação. */
+/** Uma linha da mascara desenhada para uma comparacao. */
 export function TrendLine({ comparison, line, options }: { comparison: CardMetricComparison; line: TrendMaskLine; options: PartOptions }) {
   const { tone } = comparisonTone(comparison);
 
@@ -74,7 +74,7 @@ interface TrendComparisonsProps {
   options: PartOptions;
 }
 
-/** O corpo do balão. Em bloco, cada linha flui; em tabela, a primeira linha vira colunas alinhadas entre as comparações. */
+/** O corpo do balao. Em bloco, cada linha flui; em tabela, a primeira linha vira colunas alinhadas entre as comparacoes. */
 export function TrendComparisons({ comparisons, layout, lines, options }: TrendComparisonsProps) {
   const lineOf = (comparison: CardMetricComparison, line: TrendMaskLine) => (
     <TrendLine comparison={comparison} line={line} options={options} />

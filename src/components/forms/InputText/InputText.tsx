@@ -13,19 +13,19 @@ export type InputTextSize = 'sm' | 'md' | 'lg';
 export interface InputTextProps extends Omit<ComponentPropsWithRef<'input'>, 'size'> {
   error?: string;
   hint?: string;
-  /** Ícone decorativo a frente do texto, como a lupa de uma busca. O nome do campo continua no `label`. */
+  /** Icone decorativo a frente do texto, como a lupa de uma busca. O nome do campo continua no `label`. */
   icon?: ReactNode;
   label?: string;
   /**
-   * Formata o que a pessoa digita ou cola: um padrão como `'000.000.000-00'` (`0` digito, `a` letra, `*` letra ou
-   * digito, o resto e literal) ou uma função `(texto) => texto formatado`. O `value` e o `defaultValue` também
+   * Formata o que a pessoa digita ou cola: um padrao como `'000.000.000-00'` (`0` digito, `a` letra, `*` letra ou
+   * digito, o resto e literal) ou uma funcao `(texto) => texto formatado`. O `value` e o `defaultValue` tambem
    * passam pela mascara, e podem chegar crus.
    */
   mask?: InputMask;
-  /** O texto a cada mudança, ao lado do `onChange` nativo. Com `mask`, e o texto formatado. */
+  /** O texto a cada mudanca, ao lado do `onChange` nativo. Com `mask`, e o texto formatado. */
   onValueChange?: (value: string) => void;
   /**
-   * O texto sem a formatação, a cada mudança, quando ha `mask`. No padrão, só o que preencheu posições; na função,
+   * O texto sem a formatacao, a cada mudanca, quando ha `mask`. No padrao, so o que preencheu posicoes; na funcao,
    * as letras e os digitos do texto.
    */
   onRawValueChange?: (raw: string) => void;

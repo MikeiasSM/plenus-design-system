@@ -12,9 +12,9 @@ export interface UseSliceRingOptions {
   defaultHidden?: readonly string[];
   hidden?: readonly string[];
   onHiddenChange?: (hidden: readonly string[]) => void;
-  /** Torna as fatias botões. Recebe a fatia já agrupada, como `onHover`. */
+  /** Torna as fatias botoes. Recebe a fatia ja agrupada, como `onHover`. */
   onMarkClick?: (slice: ChartSlice) => void;
-  /** Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada, ou `null` ao sair. Da legenda vem o detalhe. */
+  /** Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda vem o detalhe. */
   onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
   otherLabel?: string;
   slices: readonly ChartSlice[];
@@ -40,9 +40,9 @@ export interface SliceRing {
 }
 
 /**
- * O anel repartido: fatias pequenas já reunidas, cores resolvidas, valores das
+ * O anel repartido: fatias pequenas ja reunidas, cores resolvidas, valores das
  * fatias ligadas e os angulos em movimento. E o que `ChartPie` e `ChartDonut`
- * compartilham — o anel, não o componente.
+ * compartilham — o anel, nao o componente.
  */
 export function useSliceRing({
   accent,
@@ -68,7 +68,7 @@ export function useSliceRing({
     [otherLabel, slices, smallSliceThreshold],
   );
 
-  // A cor sai da lista inteira, e não das visíveis: desligar uma fatia não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma fatia nao pode
   // repintar as demais.
   const colors = useMemo(() => resolveSeriesColors(reunidas, { accent, palette }), [accent, palette, reunidas]);
 
@@ -77,11 +77,11 @@ export function useSliceRing({
   );
   const total = values.reduce((soma, valor) => soma + valor, 0);
 
-  // Os angulos caminham até o alvo, então desligar uma fatia reparte o anel em
-  // movimento. Partindo de zero, o anel também varre ao aparecer.
+  // Os angulos caminham ate o alvo, entao desligar uma fatia reparte o anel em
+  // movimento. Partindo de zero, o anel tambem varre ao aparecer.
   const alvo = useMemo(
     () => sliceAngles(values).flatMap((angulo) => [angulo.startAngle, angulo.endAngle]),
-    // A chave resume os valores: o alvo muda com o numero, não com a identidade
+    // A chave resume os valores: o alvo muda com o numero, nao com a identidade
     // do array, que e outra a cada render.
     [values.join()],
   );
@@ -96,8 +96,8 @@ export function useSliceRing({
   // fatia, e a saida chega antes do novo render: quem decide e a ultima realcada.
   const realcada = useRef<number | null>(null);
 
-  // A fatia entregue e a **agrupada**: as pequenas já viraram uma só, então o
-  // indice do anel não corresponde ao que o consumidor informou.
+  // A fatia entregue e a **agrupada**: as pequenas ja viraram uma so, entao o
+  // indice do anel nao corresponde ao que o consumidor informou.
   const focus = (indice: number | null, details?: ChartHoverDetails) => {
     const fatia = indice === null ? null : reunidas[indice] ?? null;
     realcada.current = indice;
@@ -122,8 +122,8 @@ export function useSliceRing({
     present: values.flatMap((valor, column) => (valor > 0 ? [{ column, row: 0 }] : [])),
   });
 
-  // Só a legenda traz o detalhe: no ponteiro e no teclado o aviso segue com um
-  // argumento, que o teste do consumidor compara. Série desligada não se realca.
+  // So a legenda traz o detalhe: no ponteiro e no teclado o aviso segue com um
+  // argumento, que o teste do consumidor compara. Serie desligada nao se realca.
   const highlight = (label: string | null, anchor?: ChartAnchorPoint) => {
     const indice = label === null ? -1 : reunidas.findIndex((fatia) => fatia.label === label);
 

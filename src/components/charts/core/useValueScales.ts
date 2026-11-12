@@ -3,8 +3,8 @@ import { linearScale, type NumericRange } from '../scales';
 import { useTweenedNumbers } from './useTweenedNumbers';
 
 /**
- * Escalas dos dois eixos de valor. As alvo fixam as marcas, que sem elas exibiriam valores quebrados na transição;
- * as animadas posicionam o desenho, e os dois dominios caminham numa animação só, chegando juntos.
+ * Escalas dos dois eixos de valor. As alvo fixam as marcas, que sem elas exibiriam valores quebrados na transicao;
+ * as animadas posicionam o desenho, e os dois dominios caminham numa animacao so, chegando juntos.
  */
 export function useValueScales([leftDomain, rightDomain]: readonly [NumericRange, NumericRange], from: number, to: number) {
   const targetLeft = useMemo(() => linearScale({ domain: leftDomain, nice: false, range: [from, to] }), [from, leftDomain, to]);

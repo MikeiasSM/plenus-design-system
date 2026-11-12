@@ -21,7 +21,7 @@ export interface SliceAnglesOptions {
 }
 
 /**
- * Ângulo de cada fatia, **na ordem recebida**. A ordenação por valor fica de
+ * Angulo de cada fatia, **na ordem recebida**. A ordenacao por valor fica de
  * fora: a fatia precisa ficar onde o consumidor a colocou, porque e essa ordem
  * que a legenda repete.
  */
@@ -52,7 +52,7 @@ export function arcPath({ cornerRadius = 0, endAngle, innerRadius, outerRadius, 
   );
 }
 
-/** Centro geometrico do arco, onde um rótulo sobre a fatia se apoia. */
+/** Centro geometrico do arco, onde um rotulo sobre a fatia se apoia. */
 export function arcCentroid({ endAngle, innerRadius, outerRadius, startAngle }: ArcShape): [number, number] {
   const raio = (innerRadius + outerRadius) / 2;
   const angulo = (startAngle + endAngle) / 2 - Math.PI / 2;
@@ -60,7 +60,7 @@ export function arcCentroid({ endAngle, innerRadius, outerRadius, startAngle }: 
   return [Math.cos(angulo) * raio, Math.sin(angulo) * raio];
 }
 
-/** Ponto na borda do arco, de onde parte o conector de um rótulo externo. */
+/** Ponto na borda do arco, de onde parte o conector de um rotulo externo. */
 export function arcAnchor(angles: ArcAngles, radius: number): [number, number] {
   const angulo = (angles.startAngle + angles.endAngle) / 2 - Math.PI / 2;
 

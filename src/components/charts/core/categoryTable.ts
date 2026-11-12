@@ -5,7 +5,7 @@ export interface CategoryTableSeries {
   values: readonly (number | null)[];
 }
 
-/** Uma linha por categoria e uma coluna por série, com o valor no formato da série. Valor inválido fica em branco. */
+/** Uma linha por categoria e uma coluna por serie, com o valor no formato da serie. Valor invalido fica em branco. */
 export function categoryTable(
   categories: readonly string[],
   series: readonly CategoryTableSeries[],

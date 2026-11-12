@@ -25,54 +25,53 @@ export type { ChartSlice as ChartDonutSlice };
 
 export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
-  /** Texto sob o valor do centro, trocado pelo rótulo da fatia sob o ponteiro. */
+  /** Texto sob o valor do centro, trocado pelo rotulo da fatia sob o ponteiro. */
   centerLabel?: string;
-  /** Fatias ocultas de inicio, enquanto o produto não controla `hidden`. */
+  /** Fatias ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
-  /** Formato dos valores no balão. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
-   * Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada, ou `null` ao sair. Da legenda, que não
+   * Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda, que nao
    * tem ponteiro, vem o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
    */
   onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  /** @deprecated Use `onHover`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  /** Torna as fatias botões, percorridas pelas setas. Recebe a fatia já agrupada. */
+  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
   onMarkClick?: (slice: ChartSlice) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Rótulo da fatia que reúne as pequenas. `Outros` por padrão. */
+  /** Rotulo da fatia que reune as pequenas. `Outros` por padrao. */
   otherLabel?: string;
-  /** Cores das séries sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showCenter?: boolean;
   showLegendValues?: boolean;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
-  /** Balão com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o próprio `ChartTooltip`. */
+  /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   slices: readonly ChartSlice[];
-  /** Fração do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrão. A regra e o `groupSmallSlices`. */
+  /** Fracao do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrao. A regra e o `groupSmallSlices`. */
   smallSliceThreshold?: number;
   /** Espessura do anel, como fracao do raio. */
   thickness?: number;

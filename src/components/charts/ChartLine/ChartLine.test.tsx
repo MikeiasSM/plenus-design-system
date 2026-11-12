@@ -113,7 +113,7 @@ describe('ChartLine', () => {
     const faixas = [...document.querySelectorAll<SVGRectElement>(`.${chartStyles.hoverBand}`)];
     const larguras = faixas.map((faixa) => Number(faixa.getAttribute('width')));
 
-    // Cada faixa vai até o meio do caminho para o vizinho: as das pontas tem metade da do meio.
+    // Cada faixa vai ate o meio do caminho para o vizinho: as das pontas tem metade da do meio.
     expect(larguras[1]).toBeCloseTo(larguras[0] * 2);
     expect(larguras[2]).toBeCloseTo(larguras[0]);
 
@@ -198,7 +198,7 @@ describe('ChartLine', () => {
     it('sem yAxisRight, o eixo da direita segue o onHover do esquerdo e recolhe com ele', () => {
       render(<ChartLine categories={meses} series={duasEscalas} title="Faturamento" xAxis="onHover" yAxis="onHover" />);
 
-      // Eixo de baixo, esquerdo e direito: os tres são dinamicos, nenhum reserva calha em repouso.
+      // Eixo de baixo, esquerdo e direito: os tres sao dinamicos, nenhum reserva calha em repouso.
       expect(document.querySelectorAll(`.${chartStyles.dynamicAxis}`)).toHaveLength(3);
     });
 

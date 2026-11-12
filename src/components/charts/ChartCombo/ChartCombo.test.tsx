@@ -4,9 +4,9 @@ import { ChartCombo, type ChartComboSeries } from './ChartCombo';
 const meses = ['04/26', '05/26', '06/26'];
 
 /**
- * Duas grandezas incomparáveis: faturamento na casa dos milhares e conversão em
- * pontos percentuais. Os dois maximos são redondos, então cada escala leva o
- * seu ao topo da área de desenho.
+ * Duas grandezas incomparaveis: faturamento na casa dos milhares e conversao em
+ * pontos percentuais. Os dois maximos sao redondos, entao cada escala leva o
+ * seu ao topo da area de desenho.
  */
 const faturamentoEConversao: ChartComboSeries[] = [
   { kind: 'bar', label: 'Faturamento', values: [600, 800, 1000] },
@@ -41,7 +41,7 @@ function alturasDa(barra: Element) {
 
 /**
  * Altura util do desenho, medida pela barra do maior valor: ela vai do zero ao
- * topo da escala, então ocupa a área inteira.
+ * topo da escala, entao ocupa a area inteira.
  */
 function alturaDoDesenho() {
   const ys = alturasDa(barras()[2]);
@@ -109,7 +109,7 @@ describe('ChartCombo', () => {
       />,
     );
 
-    // Sem eixo próprio, os tres pontos se amontoam numa faixa de um pixel.
+    // Sem eixo proprio, os tres pontos se amontoam numa faixa de um pixel.
     expect(amplitudeDaCurva()).toBeLessThan(alturaDoDesenho() / 100);
   });
 

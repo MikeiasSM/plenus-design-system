@@ -6,7 +6,7 @@ export interface ShareTableItem {
   value: number;
 }
 
-/** Cada parte com o valor e a fatia dela no total. O total sai das partes validas, e não das que a legenda mantem ligadas. */
+/** Cada parte com o valor e a fatia dela no total. O total sai das partes validas, e nao das que a legenda mantem ligadas. */
 export function shareTable(
   items: readonly ShareTableItem[],
   formatValue: (value: number) => string,
@@ -25,7 +25,7 @@ export function shareTable(
   };
 }
 
-/** A hierarquia inteira, um no por linha com o caminho do grupo até ele, e a fatia de cada um no total da raiz. */
+/** A hierarquia inteira, um no por linha com o caminho do grupo ate ele, e a fatia de cada um no total da raiz. */
 export function treeTable(
   root: HierarchyNode<{ label: string }>,
   formatValue: (value: number) => string,

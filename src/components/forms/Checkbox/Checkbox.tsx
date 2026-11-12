@@ -8,9 +8,9 @@ export interface CheckboxProps extends Omit<ComponentPropsWithRef<'input'>, 'typ
   error?: string;
   hint?: string;
   indeterminate?: boolean;
-  /** Sem rótulo visível, o nome vem de `aria-label` ou `aria-labelledby`. */
+  /** Sem rotulo visivel, o nome vem de `aria-label` ou `aria-labelledby`. */
   label?: ReactNode;
-  /** A marcação a cada mudança, ao lado do `onChange` nativo. */
+  /** A marcacao a cada mudanca, ao lado do `onChange` nativo. */
   onCheckedChange?: (checked: boolean) => void;
 }
 

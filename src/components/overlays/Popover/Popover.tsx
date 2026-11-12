@@ -16,10 +16,10 @@ export type PopoverPlacement =
   | 'left'
   | 'right';
 
-/** As propriedades nativas vão ao elemento do painel; o `className` soma ao do sistema. */
+/** As propriedades nativas vao ao elemento do painel; o `className` soma ao do sistema. */
 export interface PopoverProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   children: ReactNode;
-  /** Aberto no inicio, no modo não controlado. */
+  /** Aberto no inicio, no modo nao controlado. */
   defaultOpen?: boolean;
   offset?: number;
   onOpenChange?: (open: boolean) => void;
@@ -41,7 +41,7 @@ export function Popover({ defaultOpen = false, onOpenChange, open, portalContain
     onOpenChange?.(false);
   }
 
-  // No servidor não ha `document` para o portal; o Popover nasce na hidratação.
+  // No servidor nao ha `document` para o portal; o Popover nasce na hidratacao.
   if (!(open ?? internalOpen) || !container) {
     return null;
   }
@@ -71,7 +71,7 @@ function PopoverContent({
       onClose,
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho não conta como "fora": o clique dele e do consumidor, que decide se alterna.
+      // O gatilho nao conta como "fora": o clique dele e do consumidor, que decide se alterna.
       shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
     },
     ref,
@@ -86,8 +86,8 @@ function PopoverContent({
     onClose,
   });
 
-  // Sem `contain`: o Popover não bloqueia a página. O `restoreFocus` leva o Tab da borda ao elemento seguinte
-  // ao gatilho, e não ao fim do `body`, onde o painel vive.
+  // Sem `contain`: o Popover nao bloqueia a pagina. O `restoreFocus` leva o Tab da borda ao elemento seguinte
+  // ao gatilho, e nao ao fim do `body`, onde o painel vive.
   return (
     <FocusScope restoreFocus autoFocus>
       <div

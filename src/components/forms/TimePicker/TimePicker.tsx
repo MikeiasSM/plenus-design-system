@@ -19,7 +19,7 @@ import { IconClock } from '../../icons';
 export type TimePickerSize = 'sm' | 'md' | 'lg';
 
 /**
- * As propriedades nativas vão ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
  * se posiciona e dimensiona.
  */
 export interface TimePickerProps
@@ -27,7 +27,7 @@ export interface TimePickerProps
     ComponentPropsWithRef<'input'>,
     'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
-  /** Hora em `HH:mm`, como no `FormData`: a API não expoe tipo de biblioteca de terceiros. */
+  /** Hora em `HH:mm`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
   disabled?: boolean;
   error?: string;
@@ -35,7 +35,7 @@ export interface TimePickerProps
   id?: string;
   label?: string;
   /**
-   * Nome do campo no formulário. Com ele, um input oculto carrega o valor para
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
@@ -48,8 +48,8 @@ export interface TimePickerProps
   required?: boolean;
   size?: TimePickerSize;
   /**
-   * `null` e "controlado e vazio": devolver a propriedade a `undefined` não
-   * limpa o campo, porque ali ele volta a ser não controlado.
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
   /** Abertura do painel de início, sem controle. */
@@ -92,7 +92,7 @@ export function TimePicker({
   const container = usePortalContainer(portalContainer);
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  // Sem isto, dois seletores de hora na mesma página dividiam os ids das opções.
+  // Sem isto, dois seletores de hora na mesma pagina dividiam os ids das opcoes.
   const idDaLista = `hora-${useId()}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
@@ -122,7 +122,7 @@ export function TimePicker({
     devolverFocoRef.current = true;
   }, [open]);
 
-  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, não ressurge um valor velho.
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: Time | null) {
     setInternalValue(proximo);
     onValueChange?.(proximo ? toIsoTime(proximo) : null);
@@ -139,7 +139,7 @@ export function TimePicker({
     setDigitando(true);
     setTexto(mascarado);
 
-    // O valor acompanha o texto: `18:4` ou `25:99` na tela não convivem com a hora anterior.
+    // O valor acompanha o texto: `18:4` ou `25:99` na tela nao convivem com a hora anterior.
     const lido = parseTimeInput(mascarado);
 
     definir(lido && isTimeAllowed(lido, horaMinima, horaMaxima) ? lido : null);
@@ -162,7 +162,7 @@ export function TimePicker({
       onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho não conta como "fora": sem isto o ponteiro fecha o painel e o
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
       // clique dele reabre em seguida, e ele pisca sem abrir.
       shouldCloseOnInteractOutside: (elemento) => !fieldRef.current?.contains(elemento),
     },

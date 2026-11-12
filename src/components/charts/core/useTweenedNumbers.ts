@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Duração do movimento dos dados. Ela e mais longa que os tokens de `speed`,
+ * Duracao do movimento dos dados. Ela e mais longa que os tokens de `speed`,
  * que medem resposta a um gesto: aqui o olho precisa acompanhar uma barra
- * mudando de altura, não apenas notar que algo respondeu.
+ * mudando de altura, nao apenas notar que algo respondeu.
  */
 const DURACAO = 320;
 
 /**
- * Sem `matchMedia` não ha navegador para animar, e sem preferência conhecida o
- * salto e a escolha segura. Isso também mantem o resultado deterministico fora
- * do navegador, onde não existe quadro a quadro.
+ * Sem `matchMedia` nao ha navegador para animar, e sem preferencia conhecida o
+ * salto e a escolha segura. Isso tambem mantem o resultado deterministico fora
+ * do navegador, onde nao existe quadro a quadro.
  */
 function podeAnimar() {
   return typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -22,16 +22,16 @@ function suavizar(t: number) {
 }
 
 /**
- * Números que caminham até o alvo em vez de saltar. Animar o dominio de uma
- * escala move o gráfico inteiro — barras, curvas, grade e marcas do eixo — com
- * uma única animação, em vez de uma por marca.
+ * Numeros que caminham ate o alvo em vez de saltar. Animar o dominio de uma
+ * escala move o grafico inteiro — barras, curvas, grade e marcas do eixo — com
+ * uma unica animacao, em vez de uma por marca.
  *
- * Quando a quantidade de números muda não existe par para interpolar, e o valor
+ * Quando a quantidade de numeros muda nao existe par para interpolar, e o valor
  * assume o alvo de imediato.
  */
 export interface TweenOptions {
   duration?: number;
-  /** Ponto de partida do primeiro quadro, para o gráfico entrar em vez de surgir pronto. */
+  /** Ponto de partida do primeiro quadro, para o grafico entrar em vez de surgir pronto. */
   from?: readonly number[];
 }
 
@@ -39,7 +39,7 @@ export function useTweenedNumbers(target: readonly number[], { duration = DURACA
   const [valores, setValores] = useState(from ?? target);
   const atual = useRef(from ?? target);
 
-  // A chave resume os números: o efeito reage ao valor, e não a identidade do
+  // A chave resume os numeros: o efeito reage ao valor, e nao a identidade do
   // array, que e outra a cada render.
   const chave = target.join(',');
 

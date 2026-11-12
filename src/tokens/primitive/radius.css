@@ -1,5 +1,5 @@
 :root {
-  --pl-radius-sm: 5px;    /* elementos pequenos: badge, tag, célula */
+  --pl-radius-sm: 5px;    /* elementos pequenos: badge, tag, celula */
   --pl-radius-md: 8px;    /* base do sistema */
   --pl-radius-full: 999px;  /* pilulas, avatares, switches */
 }

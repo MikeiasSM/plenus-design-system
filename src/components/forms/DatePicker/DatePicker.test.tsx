@@ -39,7 +39,7 @@ describe('DatePicker', () => {
 
     fireEvent.change(campo, { target: { value: '3102' } });
 
-    // O valor acompanha o texto: enquanto ele não e uma data, não ha data.
+    // O valor acompanha o texto: enquanto ele nao e uma data, nao ha data.
     expect(mudou).toHaveBeenLastCalledWith(null);
   });
 

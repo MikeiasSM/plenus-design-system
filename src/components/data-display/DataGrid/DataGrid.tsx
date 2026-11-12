@@ -192,7 +192,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   columnState?: DataGridColumnState;
   /** Lista estável, memorizada pelo produto: uma lista nova a cada desenho refaz a busca e a ordenação. */
   columns: readonly DataGridColumnDefinition<Row>[];
-  /** Ctrl+C cópia em TSV as linhas selecionadas ou, sem seleção, a célula com foco. */
+  /** Ctrl+C copia em TSV as linhas selecionadas ou, sem seleção, a célula com foco. */
   copyable?: boolean;
   /** Com `copyable`, a primeira linha copiada leva os títulos das colunas. */
   copyHeaders?: boolean;

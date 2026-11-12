@@ -18,16 +18,16 @@ export interface CardMetricSegment {
 
 export interface CardMetricBarProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'title'> {
   segments: readonly CardMetricSegment[];
-  /** Nomeia a imagem e o balão, como nos gráficos. */
+  /** Nomeia a imagem e o balao, como nos graficos. */
   title: string;
-  /** Linha de total do balão. Padrão: a soma com sinal. */
+  /** Linha de total do balao. Padrao: a soma com sinal. */
   total?: number;
   orientation?: 'horizontal' | 'vertical';
-  /** Lista em rotação ou `{ base }`, que gera os tons. */
+  /** Lista em rotacao ou `{ base }`, que gera os tons. */
   palette?: ChartPalette;
   /** `byValue` da a primeira cor ao maior segmento, como pede a paleta de tons. */
   paletteOrder?: 'byIndex' | 'byValue';
-  /** Fração abaixo da qual os segmentos positivos se reunem no balão; 0 desliga. */
+  /** Fracao abaixo da qual os segmentos positivos se reunem no balao; 0 desliga. */
   smallSegmentThreshold?: number;
   otherLabel?: string;
   showPercent?: boolean;
@@ -53,8 +53,8 @@ function colorsOf(segments: readonly CardMetricSegment[], palette: ChartPalette,
 }
 
 /**
- * Barra de composição de um total. E uma imagem nomeada com uma parada de Tab, que abre o balão com a lista
- * inteira: os segmentos não são acionáveis, e por isso não ha setas entre eles (COMPONENTS §7).
+ * Barra de composicao de um total. E uma imagem nomeada com uma parada de Tab, que abre o balao com a lista
+ * inteira: os segmentos nao sao acionaveis, e por isso nao ha setas entre eles (COMPONENTS §7).
  */
 export function CardMetricBar({
   className,
@@ -106,7 +106,7 @@ export function CardMetricBar({
   const describe = (segment: CardMetricSegment) =>
     [segment.label, formatValue(segment.value), showPercent && formatPercent(share(segment.value))].filter(Boolean).join(', ');
 
-  // Negativo não ocupa fatia de um total: só os positivos se reunem, e os negativos seguem a parte, no fim.
+  // Negativo nao ocupa fatia de um total: so os positivos se reunem, e os negativos seguem a parte, no fim.
   const slices: ChartSlice[] = segments.map((segment, index) => ({ color: colors[index], label: segment.label, value: segment.value }));
   const grouped = groupSmallSlices(
     slices.filter((slice) => slice.value > 0),

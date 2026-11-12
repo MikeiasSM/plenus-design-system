@@ -54,7 +54,7 @@
   font-family: var(--pl-font-mono);
   font-size: var(--pl-type-code-size);
   font-weight: var(--pl-type-code-weight);
-  /* Sem ligaduras, como nas IDEs da JetBrains: `!=` lido como `≠` não e o que se digita. */
+  /* Sem ligaduras, como nas IDEs da JetBrains: `!=` lido como `≠` nao e o que se digita. */
   font-variant-ligatures: none;
   line-height: var(--pl-type-code-line-height);
   white-space: pre;
@@ -75,7 +75,7 @@
   font: inherit;
 }
 
-/* O destaque acompanha a linha até o fim da rolagem, e não só até a borda visível. */
+/* O destaque acompanha a linha ate o fim da rolagem, e nao so ate a borda visivel. */
 .body:not(.wrap) .code {
   width: max-content;
   min-width: 100%;
@@ -133,7 +133,7 @@ mark.line {
   color: var(--pl-code-attribute);
 }
 
-/* As linhas compartilham as colunas do código, para os números alinharem entre si. */
+/* As linhas compartilham as colunas do codigo, para os numeros alinharem entre si. */
 .numbered .code {
   display: grid;
   grid-template-columns: auto 1fr;

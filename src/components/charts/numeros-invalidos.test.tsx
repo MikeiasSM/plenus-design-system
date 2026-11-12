@@ -40,7 +40,7 @@ describe('numero invalido nos dados', () => {
       />,
     );
 
-    // Dois trechos: o invalido rompe a curva, como o ausente já rompia.
+    // Dois trechos: o invalido rompe a curva, como o ausente ja rompia.
     expect(caminhos()[0].match(/M/g)).toHaveLength(2);
   });
 
@@ -80,7 +80,7 @@ describe('numero invalido nos dados', () => {
     const marcadorDoMeio = document.querySelector('[aria-label^="Cima, b"]');
     const areaDeCima = marcadorDoMeio?.closest('g')?.querySelector('path')?.getAttribute('d') ?? '';
 
-    // A de cima se partia em dois trechos de largura zero, e o marcador ficava sem posição.
+    // A de cima se partia em dois trechos de largura zero, e o marcador ficava sem posicao.
     expect(marcadorDoMeio).toHaveAttribute('cy', expect.stringMatching(/^\d/));
     expect(areaDeCima.match(/M/g)).toHaveLength(1);
   });

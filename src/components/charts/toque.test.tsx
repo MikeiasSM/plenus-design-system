@@ -10,7 +10,7 @@ const fatias = [
   { label: 'Beta', value: 70 },
 ];
 
-/** O jsdom não tem PointerEvent: sem ele, `pointerType` e `isPrimary` não chegam ao gestor. */
+/** O jsdom nao tem PointerEvent: sem ele, `pointerType` e `isPrimary` nao chegam ao gestor. */
 class PointerEventDoJsdom extends MouseEvent {
   readonly isPrimary: boolean;
   readonly pointerType: string;

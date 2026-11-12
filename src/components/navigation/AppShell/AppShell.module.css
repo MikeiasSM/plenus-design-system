@@ -3,7 +3,6 @@
   display: flex;
   box-sizing: border-box;
   width: 100%;
-  /* Ocupa a janela sem o produto dar altura a html, body e #root. Numa caixa, redefina --pl-shell-height (por exemplo, 100%). */
   height: var(--pl-shell-height, 100dvh);
   min-height: 0;
   padding: var(--pl-shell-gap);

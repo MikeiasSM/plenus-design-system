@@ -1,11 +1,11 @@
-/* A area só existe para ouvir o ponteiro. Bloco de largura inteira, que e o que
-   o gráfico já ocupa, então envolver não muda o desenho. */
+/* A area so existe para ouvir o ponteiro. Bloco de largura inteira, que e o que
+   o grafico ja ocupa, entao envolver nao muda o desenho. */
 .area {
   display: block;
   width: 100%;
 }
 
-/* Envolvendo o gráfico inteiro, a area sai do leiaute: a figura volta a ser filha do contêiner do produto e o
+/* Envolvendo o grafico inteiro, a area sai do leiaute: a figura volta a ser filha do conteiner do produto e o
    `height="fill"` encontra a altura dele. */
 .area:has(> figure) {
   display: contents;
@@ -71,8 +71,8 @@
   line-height: var(--pl-type-body-line-height);
 }
 
-/* O rótulo quebra em até duas linhas; palavra sem espaço quebra onde precisar e o excedente vira
-   reticências. O texto inteiro segue no DOM: o corte e só de desenho. */
+/* O rotulo quebra em ate duas linhas; palavra sem espaco quebra onde precisar e o excedente vira
+   reticencias. O texto inteiro segue no DOM: o corte e so de desenho. */
 .labelText {
   min-width: 0;
   overflow: hidden;
@@ -108,8 +108,8 @@
   color: var(--pl-color-text-tertiary);
 }
 
-/* A linha sob o ponteiro sobe de tom; as demais continuam legíveis. Só o rótulo ganha peso:
-   a mono dos valores só e carregada em 500. */
+/* A linha sob o ponteiro sobe de tom; as demais continuam legiveis. So o rotulo ganha peso:
+   a mono dos valores so e carregada em 500. */
 .emphasis {
   color: var(--pl-color-text);
 }

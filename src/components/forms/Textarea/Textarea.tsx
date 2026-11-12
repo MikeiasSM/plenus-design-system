@@ -10,7 +10,7 @@ export interface TextareaProps extends Omit<ComponentPropsWithRef<'textarea'>, '
   error?: string;
   hint?: string;
   label?: string;
-  /** O texto a cada mudança, ao lado do `onChange` nativo. */
+  /** O texto a cada mudanca, ao lado do `onChange` nativo. */
   onValueChange?: (value: string) => void;
   size?: TextareaSize;
   showCharacterCount?: boolean;

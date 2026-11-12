@@ -36,7 +36,7 @@ export interface LigacaoDoSankey {
 export interface OpcoesDoLeiaute {
   align: AlinhamentoDoSankey;
   flows: readonly FluxoDoSankey[];
-  /** Rótulos na ordem declarada: e a ordem inicial dos nos em cada coluna. */
+  /** Rotulos na ordem declarada: e a ordem inicial dos nos em cada coluna. */
   labels: readonly string[];
   nodePadding: number;
   nodeWidth: number;
@@ -103,7 +103,7 @@ function criarNosELigacoes(labels: readonly string[], flows: readonly FluxoDoSan
   return { ligacoes, nos };
 }
 
-/** Distância de cada no até o inicio (`depth`) ou até o fim (`height`) do fluxo, em passos. */
+/** Distancia de cada no ate o inicio (`depth`) ou ate o fim (`height`) do fluxo, em passos. */
 function medirProfundidades(
   nos: NoDoSankey[],
   propriedade: 'depth' | 'height',
@@ -154,7 +154,7 @@ function reordenarLigacoesVizinhas({ sourceLinks, targetLinks }: NoDoSankey) {
   sourceLinks.forEach(({ target }) => target.targetLinks.sort(porAlturaDaOrigem));
 }
 
-/** Altura do destino que deixaria a ligacao horizontal, dado o espaco que as irmãs ocupam. */
+/** Altura do destino que deixaria a ligacao horizontal, dado o espaco que as irmas ocupam. */
 function topoIdealDoDestino(origem: NoDoSankey, destino: NoDoSankey, espaco: number) {
   let y = origem.y0 - ((origem.sourceLinks.length - 1) * espaco) / 2;
 
@@ -346,7 +346,7 @@ function posicionarLigacoes(nos: NoDoSankey[]) {
 
 /**
  * Leiaute do diagrama de Sankey, portado do `d3-sankey` 0.12 sem as opcoes que
- * o `ChartSankey` não usa. Lanca se o fluxo tem ciclo ou aponta para no ausente.
+ * o `ChartSankey` nao usa. Lanca se o fluxo tem ciclo ou aponta para no ausente.
  */
 export function posicionarSankey(opcoes: OpcoesDoLeiaute) {
   const { ligacoes, nos } = criarNosELigacoes(opcoes.labels, opcoes.flows);

@@ -18,11 +18,11 @@ const TONE_ICONS = {
 };
 
 export interface ToastRegionProps extends ComponentPropsWithRef<'div'> {
-  /** Elemento que recebe o canto de avisos. Sem ele vale o `PortalProvider` mais próximo; sem este, o canto fica onde foi montado. */
+  /** Elemento que recebe o canto de avisos. Sem ele vale o `PortalProvider` mais proximo; sem este, o canto fica onde foi montado. */
   portalContainer?: HTMLElement | null;
 }
 
-/** Canto onde os avisos aparecem: os de `showToast`, ou os do `ToastProvider` mais próximo. Montado uma vez na árvore. */
+/** Canto onde os avisos aparecem: os de `showToast`, ou os do `ToastProvider` mais proximo. Montado uma vez na arvore. */
 export function ToastRegion({ className, portalContainer, ...props }: ToastRegionProps) {
   const store = useToastStore();
   const container = useChosenPortalContainer(portalContainer);
@@ -46,7 +46,7 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
   const [focused, setFocused] = useState(false);
   const ToneIcon = TONE_ICONS[tone];
 
-  // Quem esta lendo ou operando o aviso não o perde: ponteiro ou foco dentro param o tempo, que recomeca ao sair.
+  // Quem esta lendo ou operando o aviso nao o perde: ponteiro ou foco dentro param o tempo, que recomeca ao sair.
   useEffect(() => {
     if (duration === null || hovered || focused) {
       return;

@@ -451,8 +451,8 @@ export function IconItalic(props: IconProps) {
   );
 }
 
-/* Desenho próprio da lib, fora do Bootstrap Icons, que não tem a linha de tendência sem eixos. Traco, e não
-   preenchimento, no traco dos ícones de tendência da Untitled UI, a base visual do Design System. */
+/* Desenho proprio da lib, fora do Bootstrap Icons, que nao tem a linha de tendencia sem eixos. Traco, e nao
+   preenchimento, no traco dos icones de tendencia da Untitled UI, a base visual do Design System. */
 const TRACO = { fill: 'none', stroke: 'currentColor', strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 1.5 } as const;
 
 export function IconTrendDown(props: IconProps) {

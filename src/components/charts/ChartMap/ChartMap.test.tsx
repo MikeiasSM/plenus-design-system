@@ -6,7 +6,7 @@ import styles from './ChartMap.module.css';
 
 type Ring = number[][];
 
-/** Anel no sentido que o d3-geo le: horário, com a latitude para cima. */
+/** Anel no sentido que o d3-geo le: horario, com a latitude para cima. */
 const box = (x: number, y: number, width: number, height = width): Ring => [
   [x, y],
   [x, y + height],
@@ -722,7 +722,7 @@ describe('ChartMap', () => {
     });
 
     describe('arraste', () => {
-      /** O jsdom não tem PointerEvent: sem ele, `pointerId` e `pointerType` não chegam ao gesto. */
+      /** O jsdom nao tem PointerEvent: sem ele, `pointerId` e `pointerType` nao chegam ao gesto. */
       class PointerEventDoJsdom extends MouseEvent {
         readonly pointerId: number;
         readonly pointerType: string;

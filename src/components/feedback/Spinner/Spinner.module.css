@@ -24,9 +24,9 @@
   border-width: 3px;
 }
 
-/* O keyframe vive aqui, e não num arquivo global: o CSS Modules renomeia o
-   nome na declaração `animation` mesmo quando ele foi definido fora, e a
-   referência deixava de casar com coisa alguma. */
+/* O keyframe vive aqui, e nao num arquivo global: o CSS Modules renomeia o
+   nome na declaracao `animation` mesmo quando ele foi definido fora, e a
+   referencia deixava de casar com coisa alguma. */
 @keyframes pl-spin {
   to {
     transform: rotate(360deg);

@@ -17,7 +17,7 @@ const tipos = [
   { value: 'recibo', label: 'Recibo' },
 ];
 
-// O React avisa uma vez por tipo de elemento; um tipo só destes testes não herda o aviso já dado.
+// O React avisa uma vez por tipo de elemento; um tipo so destes testes nao herda o aviso ja dado.
 function GatilhoDoMenu(props: ComponentPropsWithRef<'button'>) {
   return <button type="button" {...props} />;
 }
@@ -27,7 +27,7 @@ function AlvoDoTooltip(props: ComponentPropsWithRef<'button'>) {
 }
 
 // O `ariaHideOutside` esconde o que entra depois do Dialog num MutationObserver, que roda em microtarefa:
-// conferir antes dele passava também com o overlay escondido.
+// conferir antes dele passava tambem com o overlay escondido.
 async function esperarOObservador() {
   await act(async () => undefined);
 }

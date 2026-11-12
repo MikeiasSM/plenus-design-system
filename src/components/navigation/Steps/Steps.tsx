@@ -11,12 +11,12 @@ export interface StepItem {
 export interface StepsProps extends Omit<ComponentPropsWithRef<'nav'>, 'children'> {
   /** Chave da etapa atual. As anteriores contam como concluidas, as seguintes como por vir. */
   current?: string;
-  /** Etapa inicial no modo não controlado. Sem ela, a primeira. */
+  /** Etapa inicial no modo nao controlado. Sem ela, a primeira. */
   defaultCurrent?: string;
   items: readonly StepItem[];
-  /** Nome da navegação, para o leitor de tela. */
+  /** Nome da navegacao, para o leitor de tela. */
   label: string;
-  /** Com ela, cada etapa vira um botão, para quem pode ir e voltar livremente. */
+  /** Com ela, cada etapa vira um botao, para quem pode ir e voltar livremente. */
   onCurrentChange?: (key: string) => void;
 }
 

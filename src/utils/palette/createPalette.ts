@@ -12,7 +12,7 @@ export interface PaletteScope {
   style: CSSProperties;
 }
 
-// Superficies de `src/tokens/semantic/color.css` e o texto do tema: o CSS não mede contraste, então a medida e feita aqui.
+// Superficies de `src/tokens/semantic/color.css` e o texto do tema: o CSS nao mede contraste, entao a medida e feita aqui.
 const LIGHT_SURFACE = '#FFFFFF';
 const DARK_SURFACE = '#1B1D20';
 const GRAPHITE = '#373435';
@@ -37,7 +37,7 @@ function rampOf(color: string) {
 const legibleOn = (background: string, candidates: readonly string[]) =>
   candidates.reduce((best, candidate) => (contrast(candidate, background) > contrast(best, background) ? candidate : best));
 
-/** Primeiro passo, a partir de `start` e na direção dada, que se le contra a superficie. */
+/** Primeiro passo, a partir de `start` e na direcao dada, que se le contra a superficie. */
 function strongFrom(ramp: readonly string[], start: number, direction: 1 | -1, surface: string) {
   for (let index = start; index >= 0 && index < ramp.length; index += direction) {
     if (contrast(ramp[index], surface) >= TEXT_MINIMUM) {
@@ -49,8 +49,8 @@ function strongFrom(ramp: readonly string[], start: number, direction: 1 | -1, s
 }
 
 /**
- * A cor que `createPalette` aceita mais próxima da pedida, na mesma matiz e croma, ou a própria cor quando
- * já e aceita. Serve a cor que vem de fora do código, como a escolhida pelo usuário.
+ * A cor que `createPalette` aceita mais proxima da pedida, na mesma matiz e croma, ou a propria cor quando
+ * ja e aceita. Serve a cor que vem de fora do codigo, como a escolhida pelo usuario.
  */
 export function nearestPaletteColor(color: string) {
   if (!isHexColor(color)) {
@@ -74,8 +74,8 @@ export function nearestPaletteColor(color: string) {
 }
 
 /**
- * Paleta própria de um produto, gerada e medida a partir de uma cor. Devolve o
- * atributo e as variáveis de `data-palette`, para espalhar num elemento:
+ * Paleta propria de um produto, gerada e medida a partir de uma cor. Devolve o
+ * atributo e as variaveis de `data-palette`, para espalhar num elemento:
  * `<div {...createPalette('#67BD50')}>`.
  */
 export function createPalette(color: string, { onSolid }: CreatePaletteOptions = {}): PaletteScope {

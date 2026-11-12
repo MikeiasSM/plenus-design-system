@@ -1,12 +1,12 @@
 /**
- * Mascara de entrada: um padrão, em que `0` e um digito, `a` uma letra e `*` uma letra ou digito, e todo
- * outro caractere e literal; ou uma função que recebe o texto e devolve o texto formatado.
+ * Mascara de entrada: um padrao, em que `0` e um digito, `a` uma letra e `*` uma letra ou digito, e todo
+ * outro caractere e literal; ou uma funcao que recebe o texto e devolve o texto formatado.
  */
 export type InputMask = string | ((text: string) => string);
 
 export interface MaskedInput {
   text: string;
-  /** Padrão: só os caracteres que preenchem posições. Função: as letras e os digitos do texto. */
+  /** Padrao: so os caracteres que preenchem posicoes. Funcao: as letras e os digitos do texto. */
   raw: string;
 }
 
@@ -18,7 +18,7 @@ const SLOTS: Record<string, RegExp> = {
 const LETTER_OR_DIGIT = /[\p{L}\p{N}]/gu;
 
 interface PatternResult extends MaskedInput {
-  /** Literais que terminam o texto digitado e ainda não entraram no resultado. */
+  /** Literais que terminam o texto digitado e ainda nao entraram no resultado. */
   typedLiterals: number;
 }
 
@@ -55,7 +55,7 @@ function formatPattern(text: string, pattern: string): PatternResult {
   return { text: formatted, raw, typedLiterals };
 }
 
-/** Os literais só entram quando o próximo caractere chega: apagar o ultimo digito apaga também o separador. */
+/** Os literais so entram quando o proximo caractere chega: apagar o ultimo digito apaga tambem o separador. */
 export function formatInputMask(text: string, mask: InputMask): MaskedInput {
   if (typeof mask === 'string') {
     const { text: formatted, raw } = formatPattern(text, mask);
@@ -69,8 +69,8 @@ export function formatInputMask(text: string, mask: InputMask): MaskedInput {
 }
 
 /**
- * Onde fica o cursor depois de formatar. No padrão, logo apos o ultimo caractere aceito antes do cursor, e
- * depois dos literais que a pessoa deixou colados nele; na função, apos o mesmo numero de letras e digitos, que resiste a separadores que se deslocam.
+ * Onde fica o cursor depois de formatar. No padrao, logo apos o ultimo caractere aceito antes do cursor, e
+ * depois dos literais que a pessoa deixou colados nele; na funcao, apos o mesmo numero de letras e digitos, que resiste a separadores que se deslocam.
  */
 export function maskedCaret(typed: string, caret: number, mask: InputMask, formatted: string) {
   const before = typed.slice(0, caret);

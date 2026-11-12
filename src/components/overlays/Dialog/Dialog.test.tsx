@@ -43,7 +43,7 @@ describe('Dialog', () => {
   it('fecha pelo Escape e devolve o foco a quem abriu', () => {
     render(<Host />);
     const abrir = screen.getByRole('button', { name: 'Abrir' });
-    // Um clique real foca o botao; fireEvent não, e o restoreFocus depende disso.
+    // Um clique real foca o botao; fireEvent nao, e o restoreFocus depende disso.
     abrir.focus();
     fireEvent.click(abrir);
 
@@ -231,9 +231,9 @@ describe('Dialog', () => {
     });
 
     it('exige o aria-label quando falta o titulo', () => {
-      // @ts-expect-error sem titulo, o nome acessível e obrigatório
+      // @ts-expect-error sem titulo, o nome acessivel e obrigatorio
       const semNome = <Dialog open />;
-      // @ts-expect-error titulo e aria-label não se somam: o nome e um só
+      // @ts-expect-error titulo e aria-label nao se somam: o nome e um so
       const comOsDois = <Dialog aria-label="Busca" open title="Busca" />;
 
       expect([semNome, comOsDois]).toHaveLength(2);

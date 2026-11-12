@@ -5,7 +5,7 @@
   min-width: 0;
 }
 
-/* Moldura tracejada: o ícone discreto, o texto e as restrições, e o botão por ultimo. */
+/* Moldura tracejada: o icone discreto, o texto e as restricoes, e o botao por ultimo. */
 .zone {
   position: relative;
   display: flex;
@@ -82,7 +82,7 @@
   line-height: var(--pl-type-caption-line-height);
 }
 
-/* O seletor nativo sai da vista e fica na árvore e na tabulação; o foco dele acende a zona. */
+/* O seletor nativo sai da vista e fica na arvore e na tabulacao; o foco dele acende a zona. */
 .input {
   position: absolute;
   width: 1px;

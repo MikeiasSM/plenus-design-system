@@ -28,10 +28,8 @@ function DentroDoPainel({ children }: { children: ReactNode }) {
   );
 }
 
-// Fechado, o painel continua no DOM, mas inerte.
 const painelAberto = () => document.querySelector('aside')?.hasAttribute('inert') === false;
 
-/** O Escape vai ao elemento com o foco, como no navegador. */
 function escape() {
   fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
 }
@@ -167,7 +165,6 @@ const camadas: Camada[] = [
     abrir: () => {
       const alca = screen.getByRole('button', { name: 'Reordenar Título' });
       alca.focus();
-      // O jsdom não tem PointerEvent nem captura de ponteiro.
       window.PointerEvent = class extends MouseEvent {
         pointerId = 1;
       } as typeof PointerEvent;
@@ -219,7 +216,6 @@ describe('camadas de dentro do SidePanel', () => {
     expect(aberta()).toBe(false);
     expect(painelAberto()).toBe(true);
 
-    // O foco devolvido à origem da camada é do navegador; aqui o Escape vai direto ao painel.
     fireEvent.keyDown(document.querySelector('aside')!, { key: 'Escape' });
 
     expect(painelAberto()).toBe(false);

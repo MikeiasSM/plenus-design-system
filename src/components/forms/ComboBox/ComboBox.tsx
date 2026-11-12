@@ -38,7 +38,7 @@ export interface ComboBoxOption {
   value: string;
 }
 
-/** As propriedades nativas vão ao campo de texto, que e o controle; o `className` soma ao do sistema. */
+/** As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma ao do sistema. */
 interface ComboBoxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'defaultValue' | 'name' | 'onChange' | 'size' | 'type' | 'value'> {
   /** Abertura da lista de início, sem controle. */
@@ -48,7 +48,7 @@ interface ComboBoxBaseProps
   hint?: string;
   label?: string;
   /**
-   * Nome do campo no formulário. Com ele, um input oculto carrega o valor para
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
@@ -187,7 +187,7 @@ export function ComboBox(allProps: ComboBoxProps) {
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
-  // O valor e a chave, e não a opção: com opções que chegam depois, filtrar por elas perdia a escolha.
+  // O valor e a chave, e nao a opcao: com opcoes que chegam depois, filtrar por elas perdia a escolha.
   const listing = useListing({
     items: options,
     selectionMode,
@@ -202,7 +202,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     ? applied.map((item) => known.find((option) => option.value === item.value && option.label) ?? item)
     : listing.selected;
   const [chosen] = escolhidos;
-  // Na escolha múltipla o campo só guarda a busca: quem mostra o que esta escolhido são as etiquetas.
+  // Na escolha multipla o campo so guarda a busca: quem mostra o que esta escolhido sao as etiquetas.
   const texto = multiple || filtering ? listing.term : chosen?.label ?? '';
   const ancoraRef = multiple ? controlRef : inputRef;
   const activeIndex = listing.visible.findIndex((option) => option.value === listing.focusedKey);
@@ -235,7 +235,7 @@ export function ComboBox(allProps: ComboBoxProps) {
       return;
     }
 
-    // Desenhar todas e medir na mesma passada, antes da pintura, para o campo não piscar ao redimensionar.
+    // Desenhar todas e medir na mesma passada, antes da pintura, para o campo nao piscar ao redimensionar.
     const observador = new ResizeObserver(() => {
       flushSync(() => setResumir(false));
       const selecao = selecaoRef.current;
@@ -275,7 +275,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     return Array.from(panelRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
   }
 
-  // O painel fica em outro ponto do DOM; o Tab percorre o rodapé e volta ao campo, de onde segue a ordem da página.
+  // O painel fica em outro ponto do DOM; o Tab percorre o rodape e volta ao campo, de onde segue a ordem da pagina.
   function handlePanelKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -304,7 +304,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
   }
 
-  // O fechamento feito pelo produto ao mudar `open` também desfaz a busca.
+  // O fechamento feito pelo produto ao mudar `open` tambem desfaz a busca.
   useEffect(() => {
     if (wasOpenRef.current && !open && filtering) {
       encerrarFiltro();
@@ -328,7 +328,6 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
 
     if (event.key === 'Escape') {
-      // Com a lista aberta o Escape é dela e não segue adiante; fechada, segue, como para fechar um painel em volta.
       if (open) {
         event.preventDefault();
       }
@@ -430,7 +429,6 @@ export function ComboBox(allProps: ComboBoxProps) {
             {multiple ? (
               <div
                 className={[styles.control, styles[size], error && styles.error].filter(Boolean).join(' ')}
-                // O clique na moldura, fora do campo, leva o foco a ele em vez de tira-lo e abre a lista, como o clique no texto.
                 onMouseDown={(event) => {
                   if (event.target !== inputRef.current) {
                     event.preventDefault();
@@ -471,7 +469,7 @@ export function ComboBox(allProps: ComboBoxProps) {
                   className={styles.panel}
                   // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
                   data-react-aria-top-layer="true"
-                  // O clique no painel, fora de uma opção, não tira o foco do campo nem fecha a lista.
+                  // O clique no painel, fora de uma opcao, nao tira o foco do campo nem fecha a lista.
                   onBlur={handlePanelBlur}
                   onKeyDown={hasFooter ? handlePanelKeyDown : undefined}
                   onMouseDown={(event) => event.preventDefault()}

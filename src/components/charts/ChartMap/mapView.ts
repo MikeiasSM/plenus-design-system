@@ -2,7 +2,7 @@ import { geoMercator, type GeoProjection } from 'd3-geo';
 import type { MapCorners } from './mapGeometry';
 import type { Point } from './polylabel';
 
-/** Vista do mapa: o ponto no centro da área e quantas vezes o enquadramento inicial foi aproximado. */
+/** Vista do mapa: o ponto no centro da area e quantas vezes o enquadramento inicial foi aproximado. */
 export interface ChartMapView {
   /** `[longitude, latitude]`. */
   center: [number, number];
@@ -11,12 +11,12 @@ export interface ChartMapView {
 }
 
 /**
- * A área de desenho, o enquadramento inicial e os limites da vista. As contas correm em pixels do enquadramento
- * inicial (`base`): na Mercator, aproximar e deslocar são uma semelhanca, e a vista e um retangulo nesse plano.
+ * A area de desenho, o enquadramento inicial e os limites da vista. As contas correm em pixels do enquadramento
+ * inicial (`base`): na Mercator, aproximar e deslocar sao uma semelhanca, e a vista e um retangulo nesse plano.
  */
 export interface ViewFrame {
   base: GeoProjection;
-  /** Caixa do conteúdo e da área inicial, em pixels do enquadramento inicial: a vista não sai dela. */
+  /** Caixa do conteudo e da area inicial, em pixels do enquadramento inicial: a vista nao sai dela. */
   bounds: readonly [Point, Point];
   height: number;
   maxScale: number;
@@ -25,15 +25,15 @@ export interface ViewFrame {
 
 export interface ViewFrameInput {
   base: GeoProjection;
-  /** Cantos do conteúdo, em longitude e latitude. */
+  /** Cantos do conteudo, em longitude e latitude. */
   content: MapCorners;
   height: number;
-  /** Escala da projeção no teto da aproximação. */
+  /** Escala da projecao no teto da aproximacao. */
   ceiling: number;
   width: number;
 }
 
-/** Quanto cada botão e cada tecla aproximam. */
+/** Quanto cada botao e cada tecla aproximam. */
 export const ZOOM_STEP = 2;
 
 const CENTER_TOLERANCE = 0.5;
@@ -78,7 +78,7 @@ function place(frame: ViewFrame, [x, y]: Point, scale: number): ChartMapView {
   );
 }
 
-/** O enquadramento inicial: o centro da área de desenho, na escala 1. */
+/** O enquadramento inicial: o centro da area de desenho, na escala 1. */
 export function initialView(frame: ViewFrame): ChartMapView {
   return viewAt(frame, [frame.width / 2, frame.height / 2], 1);
 }
@@ -92,7 +92,7 @@ export function isInitialView(frame: ViewFrame, view: ChartMapView) {
   );
 }
 
-/** As duas vistas desenham o mesmo mapa, a menos de uma fração de pixel. */
+/** As duas vistas desenham o mesmo mapa, a menos de uma fracao de pixel. */
 export function sameView(frame: ViewFrame, a: ChartMapView, b: ChartMapView) {
   const [ax, ay] = pixelsOf(frame, a);
   const [bx, by] = pixelsOf(frame, b);
@@ -100,7 +100,7 @@ export function sameView(frame: ViewFrame, a: ChartMapView, b: ChartMapView) {
   return Math.abs(a.scale - b.scale) < 1e-6 && Math.hypot(ax - bx, ay - by) < 0.01;
 }
 
-/** Traz a vista para dentro dos limites: escala entre 1 e o teto, e o centro de modo que a área não saia do conteúdo. */
+/** Traz a vista para dentro dos limites: escala entre 1 e o teto, e o centro de modo que a area nao saia do conteudo. */
 export function clampView(frame: ViewFrame, view: ChartMapView): ChartMapView {
   const [longitude, latitude] = view.center;
 
@@ -135,7 +135,7 @@ export function panView(frame: ViewFrame, view: ChartMapView, dx: number, dy: nu
   return transformView(frame, view, 1, [0, 0], [dx, dy]);
 }
 
-/** Leva para o centro da área o ponto dela em `point`. */
+/** Leva para o centro da area o ponto dela em `point`. */
 export function centerView(frame: ViewFrame, view: ChartMapView, [x, y]: Point): ChartMapView {
   return panView(frame, view, frame.width / 2 - x, frame.height / 2 - y);
 }

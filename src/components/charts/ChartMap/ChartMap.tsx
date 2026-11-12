@@ -61,7 +61,7 @@ import styles from './ChartMap.module.css';
 export interface ChartMapRegionDatum {
   /** `id` da categoria, na escala categorica. */
   category?: string;
-  /** Casa com o identificador da feição, lido por `featureIdKey`. */
+  /** Casa com o identificador da feicao, lido por `featureIdKey`. */
   id: string;
   value?: number | null;
 }
@@ -80,7 +80,7 @@ export interface ChartMapMarkerSeries extends SeriesAppearance {
   points: readonly ChartMapMarker[];
 }
 
-/** Região sob o ponteiro ou clicada. */
+/** Regiao sob o ponteiro ou clicada. */
 export interface ChartMapRegion {
   category: string | null;
   feature: ChartMapFeature;
@@ -92,12 +92,12 @@ export interface ChartMapRegion {
 /** Marcador sob o ponteiro ou clicado. */
 export interface ChartMapMarkerEvent {
   id: string;
-  /** `id` da série. */
+  /** `id` da serie. */
   series: string;
   value: number;
 }
 
-/** Marca do mapa, discriminada por `kind`: a região ou o marcador. */
+/** Marca do mapa, discriminada por `kind`: a regiao ou o marcador. */
 export type ChartMapMark = ({ kind: 'region' } & ChartMapRegion) | ({ kind: 'marker' } & ChartMapMarkerEvent);
 
 export type ChartMapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
@@ -111,27 +111,27 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   clickableMarks?: readonly ChartMapMark['kind'][];
   colorScale?: ChartColorScale;
   data?: readonly ChartMapRegionDatum[];
-  /** Faixas ocultas de inicio, no modo não controlado, pelo índice. */
+  /** Faixas ocultas de inicio, no modo nao controlado, pelo indice. */
   defaultHiddenClasses?: readonly number[];
-  /** Vista de inicio, no modo não controlado. Sem ela, o enquadramento inicial. */
+  /** Vista de inicio, no modo nao controlado. Sem ela, o enquadramento inicial. */
   defaultView?: ChartMapView;
-  /** Categorias e series de marcadores ocultas de inicio, pelo `id`, no modo não controlado. */
+  /** Categorias e series de marcadores ocultas de inicio, pelo `id`, no modo nao controlado. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
-  /** Região escolhida de inicio, no modo não controlado. Com ele, as regioes viram botões. */
+  /** Regiao escolhida de inicio, no modo nao controlado. Com ele, as regioes viram botoes. */
   defaultSelectedRegion?: string | null;
   emptyMessage?: string;
-  /** Caminho do identificador na feição, como `properties.sigla`. E por ele que o dado casa. */
+  /** Caminho do identificador na feicao, como `properties.sigla`. E por ele que o dado casa. */
   featureIdKey?: string;
-  /** Caminho do texto curto do rótulo no desenho. Sem ele, o identificador, como a sigla da UF. */
+  /** Caminho do texto curto do rotulo no desenho. Sem ele, o identificador, como a sigla da UF. */
   featureLabelKey?: string;
-  /** Caminho do nome exibido no balão, na tabela e na descrição. */
+  /** Caminho do nome exibido no balao, na tabela e na descricao. */
   featureNameKey?: string;
-  /** Ids que o enquadramento abraca. As demais regioes ficam em cinza, como contexto, sem interação. */
+  /** Ids que o enquadramento abraca. As demais regioes ficam em cinza, como contexto, sem interacao. */
   focus?: readonly string[];
   /**
-   * Ids de marcador que o enquadramento abraca, de qualquer série, com margem do raio do maior e teto de 100 vezes a aproximação do mapa inteiro.
+   * Ids de marcador que o enquadramento abraca, de qualquer serie, com margem do raio do maior e teto de 100 vezes a aproximacao do mapa inteiro.
    * As regioes seguem desenhadas e interativas, sem cinza. Com `focus`, o enquadramento abraca as regioes e esses marcadores.
    */
   focusMarkers?: readonly string[];
@@ -140,18 +140,18 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   formatValue?: (value: number) => string;
   /** Fronteiras em GeoJSON, fornecidas pelo produto, que responde pela licenca delas. */
   geometry: ChartMapFeatureCollection;
-  /** Altura maxima em px, ou `fill`. Na largura estreita, a altura encolhe até a proporção da geometria. */
+  /** Altura maxima em px, ou `fill`. Na largura estreita, a altura encolhe ate a proporcao da geometria. */
   height?: ChartHeight;
-  /** Faixas ocultas pelo índice, na escala por classes (controlado). */
+  /** Faixas ocultas pelo indice, na escala por classes (controlado). */
   hiddenClasses?: readonly number[];
   /** Categorias e series de marcadores desligadas, pelo `id` (controlado). As faixas da escala ficam em `hiddenClasses`. Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   /** Abaixo de 640 px de largura, `right` cai para `bottom`. */
   legend?: ChartMapLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** Raio máximo do marcador, em px. O raio cresce pela raiz do valor, então a área e proporcional. */
+  /** Raio maximo do marcador, em px. O raio cresce pela raiz do valor, entao a area e proporcional. */
   markerMaxSize?: number;
   markerMinSize?: number;
   markers?: readonly ChartMapMarkerSeries[];
@@ -159,40 +159,40 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   noDataLabel?: string;
   noDataStyle?: NoDataStyle;
   onHiddenClassesChange?: (hidden: readonly number[]) => void;
-  /** Ids das categorias e das series de marcadores ocultas, a cada alternância da legenda. */
+  /** Ids das categorias e das series de marcadores ocultas, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Região ou marcador sob o ponteiro ou o foco, para painéis vizinhos, ou `null` ao sair. */
+  /** Regiao ou marcador sob o ponteiro ou o foco, para paineis vizinhos, ou `null` ao sair. */
   onHover?: (mark: ChartMapMark | null) => void;
-  /** @deprecated Use `onHover`, que traz a região inteira. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHover`, que traz a regiao inteira. Aceito ate a 0.7.0. */
   onHoverRegion?: (id: string | null) => void;
-  /** Com ele, as regioes e os marcadores viram botões e entram no teclado; `mark.kind` os distingue. */
+  /** Com ele, as regioes e os marcadores viram botoes e entram no teclado; `mark.kind` os distingue. */
   onMarkClick?: (mark: ChartMapMark) => void;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'marker'`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'marker'`. Aceito ate a 0.7.0. */
   onMarkerClick?: (marker: ChartMapMarkerEvent) => void;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'region'`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'region'`. Aceito ate a 0.7.0. */
   onRegionClick?: (region: ChartMapRegion) => void;
-  /** Com ele, as regioes viram botões, e o clique escolhe a região ou, na escolhida, a desfaz. */
+  /** Com ele, as regioes viram botoes, e o clique escolhe a regiao ou, na escolhida, a desfaz. */
   onSelectedRegionChange?: (id: string | null) => void;
   /** A vista nova, a cada aproximação, afastamento ou arraste. */
   onViewChange?: (view: ChartMapView) => void;
-  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   regionLabels?: MarkVisibility;
   selectedRegion?: string | null;
   showDataLabels?: MarkVisibility;
-  /** Parte do total no balão e na tabela. Só faz sentido em grandeza somável. */
+  /** Parte do total no balao e na tabela. So faz sentido em grandeza somavel. */
   showShare?: boolean;
   showTableToggle?: boolean;
   showTooltip?: boolean;
-  /** O rótulo que não cabe na região vai para uma coluna junto ao desenho, com linha guia, ou some. */
+  /** O rotulo que nao cabe na regiao vai para uma coluna junto ao desenho, com linha guia, ou some. */
   smallRegionLabels?: 'callout' | 'hidden';
-  /** Linha sob o título, como o total do nível. */
+  /** Linha sob o titulo, como o total do nivel. */
   subtitle?: string;
   /**
-   * Contorno por dentro das regioes, como as divisas dos estados numa visao por macrorregiao. Mesma projeção da `geometry`;
-   * desenhado em traco fino, sem preenchimento, rótulo nem interação, fora da tabela e da legenda.
+   * Contorno por dentro das regioes, como as divisas dos estados numa visao por macrorregiao. Mesma projecao da `geometry`;
+   * desenhado em traco fino, sem preenchimento, rotulo nem interacao, fora da tabela e da legenda.
    */
   subdivisions?: ChartMapFeatureCollection;
   title: string;
@@ -205,7 +205,7 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
 
 interface RegionEntry {
   category: string | null;
-  /** Nome, valor e posição, para o leitor de tela. */
+  /** Nome, valor e posicao, para o leitor de tela. */
   description: string;
   /** Cor da escala; `undefined` sem dado. */
   fill: string | undefined;
@@ -234,11 +234,11 @@ const DEFAULT_SCALE: ChartColorScale = { type: 'sequential' };
 const NARROW = 640;
 const MIN_HEIGHT = 160;
 const SIDE_LEGEND_MAX = 240;
-/** Espessura da divisa em relação a borda da região. */
+/** Espessura da divisa em relacao a borda da regiao. */
 const SUBDIVISION_RATIO = 0.6;
 const HIDDEN_FILL = 'var(--pl-color-surface-subtle)';
 const ALL_MARK_KINDS: readonly ChartMapMark['kind'][] = ['region', 'marker'];
-/** Folga além da área, em px, em que o desenho ainda e recortado: a borda da região no limite não aparece como linha. */
+/** Folga alem da area, em px, em que o desenho ainda e recortado: a borda da regiao no limite nao aparece como linha. */
 const CLIP_MARGIN = 16;
 
 const defaultPercent = (ratio: number) => formatPercent(ratio, { decimals: 1 });
@@ -250,7 +250,7 @@ function strokeWidthFor(count: number) {
 }
 
 interface MapLayout {
-  /** Largura da área onde o mapa e enquadrado: a do desenho menos a coluna dos rótulos fora da região. */
+  /** Largura da area onde o mapa e enquadrado: a do desenho menos a coluna dos rotulos fora da regiao. */
   drawingWidth: number;
   height: number;
   plan: LabelPlan;
@@ -265,7 +265,7 @@ interface MapFrame {
 interface LayoutInput {
   all: readonly MapRegion[];
   callouts: boolean;
-  /** Em `fill`, a altura e a do contêiner, e não a que a geometria pede. */
+  /** Em `fill`, a altura e a do conteiner, e nao a que a geometria pede. */
   fixedHeight: boolean;
   font: LabelFont;
   labels: boolean;
@@ -279,7 +279,7 @@ interface LayoutInput {
 
 interface LabelInput {
   callouts: boolean;
-  /** Só as regioes que cabem inteiras na área recebem rótulo: a que passa dela não tem onde pousar o seu. */
+  /** So as regioes que cabem inteiras na area recebem rotulo: a que passa dela nao tem onde pousar o seu. */
   cropped: boolean;
   drawingWidth: number;
   font: LabelFont;
@@ -324,7 +324,7 @@ function planRegionLabels({ callouts, cropped, drawingWidth, font, height, proje
 }
 
 /**
- * Enquadra e rotula. A altura e a que a geometria pede na largura, até a maxima, sem faixa vazia. Quando algum rótulo
+ * Enquadra e rotula. A altura e a que a geometria pede na largura, ate a maxima, sem faixa vazia. Quando algum rotulo
  * vai para a coluna, o desenho cede a largura dela e e enquadrado e rotulado de novo.
  */
 function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight, target, valueOf, width }: LayoutInput): MapLayout {
@@ -353,7 +353,7 @@ function layoutMap({ all, callouts, fixedHeight, font, frame, labels, maxHeight,
   const measure = (text: string) => measureLabel(text, font);
   const gutter = Math.ceil(Math.max(...first.plan.callouts.map((label) => calloutWidth(label, measure))) + CALLOUT_GAP + 4);
 
-  // A coluna só fica enquanto o mapa ainda cabe ao lado dela: sem isso, o mapa fica por conta do rótulo.
+  // A coluna so fica enquanto o mapa ainda cabe ao lado dela: sem isso, o mapa fica por conta do rotulo.
   return width - gutter < CHART_MIN_PLOT.width ? pass(width, false) : pass(Math.max(width - gutter, width / 2));
 }
 
@@ -371,7 +371,7 @@ function isDimmed(key: string | undefined, highlightedKey: string | null) {
 
 /**
  * Regioes pintadas pelo valor e marcadores por coordenada, sobre a geometria GeoJSON que o produto fornece. O desenho
- * e imagem nomeada pelo título; com `onMarkClick`, ou a seleção de região, um grupo cujas marcas são botões de tabulação
+ * e imagem nomeada pelo titulo; com `onMarkClick`, ou a selecao de regiao, um grupo cujas marcas sao botoes de tabulacao
  * movel. A leitura completa, com busca, esta na visao em tabela.
  */
 export function ChartMap({
@@ -448,7 +448,7 @@ export function ChartMap({
       onHiddenSeriesChange?.(ocultas);
     },
   });
-  // As faixas são índices; a legenda liga e desliga por texto.
+  // As faixas sao indices; a legenda liga e desliga por texto.
   const hiddenClassKeys = useMemo(() => hiddenClasses?.map(String), [hiddenClasses]);
   const classToggle = useSeriesToggle({
     defaultHidden: defaultHiddenClasses?.map(String),
@@ -469,7 +469,7 @@ export function ChartMap({
     () => regionsOf(geometry, { idKey: featureIdKey, labelKey: featureLabelKey, nameKey: featureNameKey }),
     [featureIdKey, featureLabelKey, featureNameKey, geometry],
   );
-  // A chave textual mantem o recorte memorizado enquanto os ids não mudam, mesmo com outra lista a cada desenho.
+  // A chave textual mantem o recorte memorizado enquanto os ids nao mudam, mesmo com outra lista a cada desenho.
   const focusKey = (focus ?? []).join('\u0000');
   const { context, focusedByRegion, inPlay } = useMemo(() => {
     const ids = new Set(focusKey ? focusKey.split('\u0000') : []);
@@ -483,7 +483,7 @@ export function ChartMap({
   const legendToggle = colorScale.type === 'categorical' ? seriesToggle : classToggle;
   const isLegendHidden = legendToggle.isHidden;
 
-  // Memorizado contra o ponteiro: com milhares de municipios, refazer escala e descrições a cada passagem pesaria.
+  // Memorizado contra o ponteiro: com milhares de municipios, refazer escala e descricoes a cada passagem pesaria.
   const { entries, ranked, scale } = useMemo(() => {
     const datumById = new Map<string, ChartMapRegionDatum>();
     data.forEach((datum) => {
@@ -540,7 +540,7 @@ export function ChartMap({
   const total = sum(ranked, (entry) => entry.value!);
   const noDataCount = colorScale.type === 'none' ? 0 : entries.filter((entry) => entry.fill === undefined).length;
 
-  // Dado sem região some do desenho: em desenvolvimento, o componente avisa em vez de descartar calado.
+  // Dado sem regiao some do desenho: em desenvolvimento, o componente avisa em vez de descartar calado.
   const orphanKey = useMemo(() => {
     const ids = new Set(regions.map((region) => region.id));
 
@@ -683,7 +683,7 @@ export function ChartMap({
 
   const gestures = useMapGestures({ frame: viewport, onChange: commitView, svgRef, view: activeView, visible: !tableView });
 
-  // Com a vista deslocada, o mapa e reenquadrado e rotulado só com o que cabe: a coluna de rótulos fica de fora.
+  // Com a vista deslocada, o mapa e reenquadrado e rotulado so com o que cabe: a coluna de rotulos fica de fora.
   const layout = useMemo(() => {
     if (!baseLayout || !viewport || !activeView || !moved) {
       return baseLayout;
@@ -709,7 +709,7 @@ export function ChartMap({
   const projection = layout?.projection;
   const plotHeight = layout?.height ?? 0;
   const drawingWidth = layout?.drawingWidth ?? 0;
-  // O caminho recorta na área e pula a região que ficou toda fora dela: com a vista aproximada, as coordenadas iriam longe.
+  // O caminho recorta na area e pula a regiao que ficou toda fora dela: com a vista aproximada, as coordenadas iriam longe.
   const pathProjection = useMemo(
     () =>
       moved && viewport && projection
@@ -731,7 +731,7 @@ export function ChartMap({
     return new Map(regions.map((region) => [region.id, moved && isOutside(region) ? '' : (path(region.shape) ?? '')]));
   }, [drawingWidth, moved, pathProjection, plotHeight, projection, regions]);
 
-  // Um caminho só para a malha toda: com milhares de feições, um elemento por feição pesaria.
+  // Um caminho so para a malha toda: com milhares de feicoes, um elemento por feicao pesaria.
   const subdivisionOutlines = useMemo(() => (subdivisions ? outlinesOf(subdivisions) : []), [subdivisions]);
   const subdivisionPath = useMemo(
     () =>
@@ -864,7 +864,7 @@ export function ChartMap({
     onSelectedRegionChange?.(id);
   }
 
-  /** O centro da marca na área de desenho, mesmo fora da vista. */
+  /** O centro da marca na area de desenho, mesmo fora da vista. */
   function anchorOf(mark: string): Point {
     const entry = entryOfMark(mark);
     const marker = markerOfMark(mark);
@@ -872,7 +872,7 @@ export function ChartMap({
     return entry && projection ? geoPath(projection).centroid(entry.region.shape) : marker ? [marker.x, marker.y] : [0, 0];
   }
 
-  /** A marca focada pelo teclado fora da vista leva a vista até ela. */
+  /** A marca focada pelo teclado fora da vista leva a vista ate ela. */
   function revealMark(mark: string | null, target: Element) {
     if (!viewport || !activeView || !mark || !isKeyboardFocus(target)) {
       return;
@@ -885,7 +885,7 @@ export function ChartMap({
     }
   }
 
-  /** A marca vizinha na direção da seta, pelo centro de cada uma. */
+  /** A marca vizinha na direcao da seta, pelo centro de cada uma. */
   function neighbor(from: string, [dx, dy]: readonly [number, number]) {
     if (!projection) {
       return undefined;
@@ -967,7 +967,7 @@ export function ChartMap({
   const lineHeight = plot.font.size + 1;
   const noDataFill = noDataStyle === 'hatch' ? `url(#${hatchId})` : NO_DATA_FILL;
 
-  // As regioes não dependem do ponteiro: o balão e o contorno passam sem refazer milhares de caminhos.
+  // As regioes nao dependem do ponteiro: o balao e o contorno passam sem refazer milhares de caminhos.
   const regionShapes = useMemo(
     () =>
       entries.map((entry, index) => {
@@ -991,7 +991,7 @@ export function ChartMap({
       }),
     [currentSelectedRegion, entries, highlightedKey, noDataFill, paths, regionSelectable, regionsInteractive, strokeWidth, tabStop],
   );
-  // A divisa passa por cima do preenchimento e da borda da região; a borda volta por cima para continuar mandando.
+  // A divisa passa por cima do preenchimento e da borda da regiao; a borda volta por cima para continuar mandando.
   const regionBorders = useMemo(
     () =>
       subdivisionPath &&
@@ -1326,7 +1326,7 @@ interface TooltipOptions {
   valueLabel: string;
 }
 
-/** Balão do que esta sob o ponteiro: a região com valor, faixa, parte do total e posição, ou o marcador. */
+/** Balao do que esta sob o ponteiro: a regiao com valor, faixa, parte do total e posicao, ou o marcador. */
 function tooltipOf(target: Target | null, options: TooltipOptions): Omit<ChartTooltipProps, 'children'> {
   if (target === null) {
     return { rows: [] };

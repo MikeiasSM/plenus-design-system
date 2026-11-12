@@ -2,19 +2,19 @@
   fill: none;
 }
 
-/* A ligação e desenhada como traco, não como preenchimento: a espessura e que
-   carrega o volume, e ela vem da própria medida do no.
+/* A ligacao e desenhada como traco, nao como preenchimento: a espessura e que
+   carrega o volume, e ela vem da propria medida do no.
 
    Em repouso ela fica lavada de proposito: o no e que carrega a cor cheia, e e
-   sobre a faixa lavada que os rótulos continuam legíveis. */
+   sobre a faixa lavada que os rotulos continuam legiveis. */
 .link {
   opacity: 0.3;
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* A ligação sob o ponteiro sobe um degrau, e não até a cor cheia: o realce
-   aponta qual e, não muda o gráfico de aparência. Apagar as outras sozinho
-   também não serve — ali o que se ve e o gráfico inteiro sumindo. */
+/* A ligacao sob o ponteiro sobe um degrau, e nao ate a cor cheia: o realce
+   aponta qual e, nao muda o grafico de aparencia. Apagar as outras sozinho
+   tambem nao serve — ali o que se ve e o grafico inteiro sumindo. */
 .linkOn {
   opacity: 0.58;
 }
@@ -42,7 +42,7 @@
   pointer-events: none;
 }
 
-/* Texto que cai sobre a faixa: o halo da cor da superfície o separa do que
+/* Texto que cai sobre a faixa: o halo da cor da superficie o separa do que
    passa por baixo. */
 .sobreFluxo {
   paint-order: stroke;
@@ -61,9 +61,9 @@
   }
 }
 
-/* O keyframe vive aqui, e não num arquivo global: o CSS Modules renomeia o
-   nome na declaração `animation` mesmo quando ele foi definido fora, e a
-   referência deixava de casar com coisa alguma. */
+/* O keyframe vive aqui, e nao num arquivo global: o CSS Modules renomeia o
+   nome na declaracao `animation` mesmo quando ele foi definido fora, e a
+   referencia deixava de casar com coisa alguma. */
 @keyframes chartSeriesIn {
   from {
     opacity: 0;

@@ -13,8 +13,8 @@ export interface GridProps {
 const alinharAoMeioPixel = (posicao: number) => Math.floor(posicao) + 0.5;
 
 /**
- * Linhas de referência do gráfico. A linha da base recebe destaque próprio:
- * ela separa valores positivos de negativos e não e apenas mais uma marca.
+ * Linhas de referencia do grafico. A linha da base recebe destaque proprio:
+ * ela separa valores positivos de negativos e nao e apenas mais uma marca.
  */
 export function Grid({ baseline, length, lines, orientation }: GridProps) {
   const horizontal = orientation === 'horizontal';

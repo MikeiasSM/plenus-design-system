@@ -43,52 +43,51 @@ export interface ChartSunburstNode extends SeriesAppearance {
 
 export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
-  /** Grupos ocultos de inicio, enquanto o produto não controla `hidden`. */
+  /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenGroups?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
-  /** Formato dos valores no balão. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos dos grupos desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos dos grupos desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenGroups?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   nodes: readonly ChartSunburstNode[];
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenGroupsChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
-   * Caminho até o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o maior entre o valor
-   * próprio e a soma dos filhos, ou `null` ao sair. Da legenda, que não tem ponteiro, vem o segundo argumento: a cor desenhada
+   * Caminho ate o no sob o ponteiro, o foco ou a entrada da legenda, do grupo ao no, cada nivel com o maior entre o valor
+   * proprio e a soma dos filhos, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem o segundo argumento: a cor desenhada
    * do grupo e o ponto onde ancorar o `ChartTooltip`.
    */
   onHover?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
-  /** @deprecated Use `onHover`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
   onHoverNode?: (path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void;
-  /** Clique no arco, com o caminho do grupo até ele. Com ele, os arcos viram botões percorridos pelas setas. */
+  /** Clique no arco, com o caminho do grupo ate ele. Com ele, os arcos viram botoes percorridos pelas setas. */
   onMarkClick?: (path: readonly ChartHoveredNode[]) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onNodeClick?: (path: readonly ChartHoveredNode[]) => void;
-  /** Cores das séries sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Folga entre dois aneis vizinhos. */
   ringGap?: number;
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showLabels?: boolean;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
   /**
-   * Balão com o caminho até o no sob o ponteiro. Desligue para montar o próprio `ChartTooltip`
-   * pela costura; sem balão nem costura, o no volta a ter o `<title>`.
+   * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
+   * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
   showTooltip?: boolean;
   title: string;
@@ -96,12 +95,12 @@ export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
 
 type Arco = HierarchyRectangularNode<ChartSunburstNode>;
 
-/** Arco menor que isso não comporta rótulo nem conector legível. */
+/** Arco menor que isso nao comporta rotulo nem conector legivel. */
 const ANGULO_MINIMO_DO_ROTULO = 0.18;
 const COMPRIMENTO_DO_CONECTOR = 14;
 /**
- * Rótulos de cada nivel da arvore declarada. Medir a banda antes de montar o
- * anel exige saber os rótulos antes, e o nivel mais profundo declarado e o
+ * Rotulos de cada nivel da arvore declarada. Medir a banda antes de montar o
+ * anel exige saber os rotulos antes, e o nivel mais profundo declarado e o
  * mesmo que o anel externo tera.
  */
 function rotulosPorNivel(
@@ -190,7 +189,7 @@ export function ChartSunburst({
   });
   const [emFoco, setEmFoco] = useState<Arco | null>(null);
 
-  // A cor sai da lista inteira, e não das visiveis: desligar um grupo não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar um grupo nao pode
   // repintar os demais.
   const coresDeNivelZero = useMemo(() => resolveSeriesColors(nodes, { accent, palette }), [accent, palette, nodes]);
 
@@ -204,9 +203,9 @@ export function ChartSunburst({
     [nodes],
   );
 
-  // A banda dos rótulos e reservada antes do anel, medida pelo rótulo mais
-  // largo do anel externo. Sem reservar, o rótulo era desenhado no que sobrasse
-  // — quase nada nas laterais — e acabava cortado até sumir.
+  // A banda dos rotulos e reservada antes do anel, medida pelo rotulo mais
+  // largo do anel externo. Sem reservar, o rotulo era desenhado no que sobrasse
+  // — quase nada nas laterais — e acabava cortado ate sumir.
   const rotulosExternos = useMemo(() => {
     const niveis = rotulosPorNivel(visiveis);
     const externo = Math.max(0, ...niveis.keys());
@@ -268,9 +267,9 @@ export function ChartSunburst({
   const grupoEmFoco = foco?.ancestors().find((arco) => arco.depth === 1)?.data.label;
 
   /**
-   * Acende o arco sob o ponteiro e os que o originaram. O caminho até a raiz e
-   * o que explica de onde aquela fatia veio; os filhos dela não explicam nada
-   * sobre ela, então ficam apagados junto com o resto.
+   * Acende o arco sob o ponteiro e os que o originaram. O caminho ate a raiz e
+   * o que explica de onde aquela fatia veio; os filhos dela nao explicam nada
+   * sobre ela, entao ficam apagados junto com o resto.
    */
   function aceso(arco: Arco) {
     return foco === null || foco.ancestors().includes(arco);
@@ -303,7 +302,7 @@ export function ChartSunburst({
     present: arcos.map((_, column) => ({ column, row: 0 })),
   });
 
-  // A legenda lista os grupos, e o desligado não tem arco. Só ela traz o detalhe:
+  // A legenda lista os grupos, e o desligado nao tem arco. So ela traz o detalhe:
   // no ponteiro e no teclado o aviso segue com um argumento, que o teste do consumidor compara.
   function realcarGrupo(label: string | null, anchor?: ChartAnchorPoint) {
     const grupo = label === null ? undefined : arcos.find((arco) => arco.depth === 1 && arco.data.label === label);

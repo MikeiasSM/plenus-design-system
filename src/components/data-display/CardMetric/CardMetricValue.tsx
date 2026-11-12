@@ -9,16 +9,16 @@ import styles from './CardMetricValue.module.css';
 
 export interface CardMetricValueProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   value: number | null;
-  /** Rótulo acima do valor, como "Total em aberto". */
+  /** Rotulo acima do valor, como "Total em aberto". */
   label?: string;
   emptyValue?: string;
   /** O que aparece, que pode sair compacto. */
   formatValue?: (value: number) => string;
-  /** Valor exato no balão e na impressao, como nos gráficos. Com ela, o valor ganha balão. */
+  /** Valor exato no balao e na impressao, como nos graficos. Com ela, o valor ganha balao. */
   formatTooltipValue?: (value: number) => string;
 }
 
-/** A medida da tela não leva o peso 600 do valor, e o texto real sai um pouco mais largo. */
+/** A medida da tela nao leva o peso 600 do valor, e o texto real sai um pouco mais largo. */
 const FOLGA_DO_PESO = 0.92;
 
 /** O maior degrau da escala oficial em que o valor cabe inteiro, como o centro do ChartDonut. */
@@ -28,7 +28,7 @@ function stepFor(text: string, font: LabelFont, width: number) {
   const fits = steps.find(
     (step) => measureLabel(text, { ...font, family: familyOf(step.display), size: step.size }) <= width * FOLGA_DO_PESO,
   );
-  // Sem largura ainda, o maior: o valor não nasce pequeno para crescer depois.
+  // Sem largura ainda, o maior: o valor nao nasce pequeno para crescer depois.
   const step = width <= 0 ? steps[0] : (fits ?? steps[steps.length - 1]);
 
   return { ...step, family: familyOf(step.display) };

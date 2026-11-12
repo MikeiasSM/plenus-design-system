@@ -4,9 +4,9 @@ import { isHexColor, oklchToHex, toOklch } from '../../../utils/palette/color';
 export const SERIES_TOKENS = 6;
 
 /**
- * Cores das series na paleta do Design System, como variáveis CSS. Resolvem
- * tema claro e escuro sozinhas, e a série N usa sempre o mesmo token, para que
- * um filtro que reduza as series não repinte as restantes.
+ * Cores das series na paleta do Design System, como variaveis CSS. Resolvem
+ * tema claro e escuro sozinhas, e a serie N usa sempre o mesmo token, para que
+ * um filtro que reduza as series nao repinte as restantes.
  */
 export function seriesColors(quantidade: number) {
   return Array.from(
@@ -15,7 +15,7 @@ export function seriesColors(quantidade: number) {
   );
 }
 
-/** Cores de marca que já ocupam uma posição fixa na paleta do sistema. */
+/** Cores de marca que ja ocupam uma posicao fixa na paleta do sistema. */
 const POSICAO_NA_PALETA: Record<string, number> = {
   '#49619c': 1,
   '#f26b35': 2,
@@ -23,12 +23,12 @@ const POSICAO_NA_PALETA: Record<string, number> = {
 };
 
 /**
- * Paleta que abre com a cor escolhida pela aplicação e segue com as do Design
- * System, saltando a posição que repetiria essa cor.
+ * Paleta que abre com a cor escolhida pela aplicacao e segue com as do Design
+ * System, saltando a posicao que repetiria essa cor.
  *
  * Gerar as demais a partir da cor escolhida foi medido e descartado: girar a
- * matiz em passos iguais não separa as series de forma perceptível, e a paleta
- * resultante reprova na verificação de deficiência de visao de cores.
+ * matiz em passos iguais nao separa as series de forma perceptivel, e a paleta
+ * resultante reprova na verificacao de deficiencia de visao de cores.
  */
 export function paletteWithAccent(accent: string, quantidade: number) {
   if (quantidade <= 0) {
@@ -43,7 +43,7 @@ export function paletteWithAccent(accent: string, quantidade: number) {
   return [accent, ...Array.from({ length: quantidade - 1 }, (_, i) => restantes[i % restantes.length])];
 }
 
-/** Cores das series sem cor própria: uma lista em rotação, ou uma cor base que gera os tons. */
+/** Cores das series sem cor propria: uma lista em rotacao, ou uma cor base que gera os tons. */
 export type ChartPalette = readonly string[] | { base: string };
 
 const TOM_MAIS_ESCURO = 0.36;
@@ -69,7 +69,7 @@ function tonesOf(base: string, quantidade: number) {
   );
 }
 
-/** Uma cor por série a partir da paleta do gráfico. A cor base fora do hexadecimal pinta todas com ela. */
+/** Uma cor por serie a partir da paleta do grafico. A cor base fora do hexadecimal pinta todas com ela. */
 export function paletteOf(palette: ChartPalette, quantidade: number) {
   if (quantidade <= 0) {
     return [];

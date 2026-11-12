@@ -141,7 +141,7 @@ describe('CardMetric', () => {
       expect(balao).toHaveTextContent('+R$ 168 k');
       expect(balao).toHaveTextContent('-5,0% vs. meta');
       expect(balao).toHaveTextContent('Revisada em março.');
-      // Sem diferença, o separador sai junto: a linha da meta e só a explicacao.
+      // Sem diferença, o separador sai junto: a linha da meta e so a explicacao.
       expect(balao.textContent).not.toMatch(/·\s*Revisada/);
     });
 
@@ -231,7 +231,6 @@ describe('CardMetric', () => {
   });
 
   it('o grafico não traz o botão "Ver como tabela", que tomaria o espaço medido do desenho', () => {
-    // O jsdom não tem layout: o espaço que o cartão concede vem de fora.
     const altura = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(48);
     const largura = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(226);
 

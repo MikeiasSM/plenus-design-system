@@ -102,7 +102,7 @@ describe('ChartSankey', () => {
 
     fireEvent.mouseEnter(ligacoes()[0]);
 
-    // Apagar as outras sozinho não destaca: a de foco também sobe de tom.
+    // Apagar as outras sozinho nao destaca: a de foco tambem sobe de tom.
     expect(com('linkOn')).toBe(1);
     expect(com('linkDim')).toBe(2);
 
@@ -170,7 +170,7 @@ describe('ChartSankey', () => {
 
   it('omite o valor que cruzaria o rotulo de um no, em vez de sobrepor os dois', () => {
     // Com o valor no comeco da ligacao ele disputa a faixa com o rotulo da
-    // própria origem, que fica logo a direita do no.
+    // propria origem, que fica logo a direita do no.
     render(<ChartSankey flowValuePosition="start" flows={caixa} showFlowValues title="Fluxo" />);
     const noComeco = valores().length;
 
@@ -211,7 +211,7 @@ describe('ChartSankey', () => {
   });
 
   it('reune num no so o que chega de colunas diferentes', () => {
-    // Aprovado recebe da primeira e da segunda coluna: o fluxo não e uma arvore.
+    // Aprovado recebe da primeira e da segunda coluna: o fluxo nao e uma arvore.
     render(
       <ChartSankey
         flows={[
@@ -231,7 +231,7 @@ describe('ChartSankey', () => {
       (no) => no.getAttribute('aria-label') === 'Recusado',
     );
 
-    // Um no só, com a altura das duas chegadas somadas: 420 contra 80.
+    // Um no so, com a altura das duas chegadas somadas: 420 contra 80.
     expect(nos()).toHaveLength(4);
     expect(Number(aprovado?.getAttribute('height'))).toBeCloseTo(
       Number(recusado?.getAttribute('height')) * (420 / 80),

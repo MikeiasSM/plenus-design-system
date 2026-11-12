@@ -114,7 +114,7 @@ export function useSelection({
     focusLast: (extend?: boolean) => move(lastKey(items), extend),
     focusNext: (extend?: boolean) => move(nextKey(items, state.focusedKey) ?? state.focusedKey, extend),
     focusPrevious: (extend?: boolean) => move(previousKey(items, state.focusedKey) ?? state.focusedKey, extend),
-    // Volta a escolha inicial sem avisar, como o `reset` do formulário faz num controle nativo.
+    // Volta a escolha inicial sem avisar, como o `reset` do formulario faz num controle nativo.
     reset: () => setInternal({ selectedKeys: new Set(defaultSelectedKeys ?? []) }),
     select: (key: string) => applySelection(select(state, key, mode, { allowEmpty })),
     selectRange: (key: string) => applySelection(selectRange(state, key, items)),
@@ -128,7 +128,7 @@ export function useSelection({
       }, typeaheadDelay);
 
       // Com mais de um caractere a busca inclui o item focado, para que
-      // digitar "ca" não pule o "Cartão" que "c" acabou de encontrar.
+      // digitar "ca" nao pule o "Cartao" que "c" acabou de encontrar.
       const origin = buffer.current.length > 1 ? previousKey(items, state.focusedKey) : state.focusedKey;
       const found = matchKey(items, buffer.current, origin);
 

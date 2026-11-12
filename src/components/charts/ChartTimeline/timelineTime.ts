@@ -6,7 +6,7 @@ const HOURS_IN_DAY = 24;
 const DAY_MS = HOURS_IN_DAY * HOUR_MS;
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-/** Menor distância entre duas marcas do eixo, e a partir de quanto a marca diaria leva o dia da semana. */
+/** Menor distancia entre duas marcas do eixo, e a partir de quanto a marca diaria leva o dia da semana. */
 const MIN_TICK_GAP = 40;
 const MIN_DAY_TICK_GAP = 44;
 const WEEKDAY_TICK_GAP = 70;
@@ -19,7 +19,7 @@ export interface TimeTick {
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
-/** Posição no eixo: em `calendar`, milissegundos desde a epoca; em `dayHours`, a hora decimal do dia. */
+/** Posicao no eixo: em `calendar`, milissegundos desde a epoca; em `dayHours`, a hora decimal do dia. */
 export function toPosition(time: ChartTimelineTime, scale: ChartTimelineScale) {
   if (!(time instanceof Date)) {
     return time;
@@ -32,7 +32,7 @@ export function toPosition(time: ChartTimelineTime, scale: ChartTimelineScale) {
   return time.getHours() + time.getMinutes() / 60 + time.getSeconds() / 3600 + time.getMilliseconds() / HOUR_MS;
 }
 
-/** A posição como `Date`, para os formatadores do consumidor. Em `dayHours` a data e indiferente: vale a hora. */
+/** A posicao como `Date`, para os formatadores do consumidor. Em `dayHours` a data e indiferente: vale a hora. */
 export function toDate(position: number, scale: ChartTimelineScale) {
   return scale === 'calendar' ? new Date(position) : new Date(1970, 0, 1, 0, 0, 0, Math.round(position * HOUR_MS));
 }
@@ -46,13 +46,13 @@ function startOfDay(time: number) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-/** Dias somados pelo calendário, e não por 24 horas: o dia de mudança de horário não tem 24. */
+/** Dias somados pelo calendario, e nao por 24 horas: o dia de mudanca de horario nao tem 24. */
 function addDays(day: number, days: number) {
   const date = new Date(day);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days).getTime();
 }
 
-/** Faixa automatica: do primeiro ao ultimo instante, arredondada a hora ou ao dia, com uma unidade no mínimo. */
+/** Faixa automatica: do primeiro ao ultimo instante, arredondada a hora ou ao dia, com uma unidade no minimo. */
 export function autoDomain(positions: readonly number[], scale: ChartTimelineScale): [number, number] {
   const [min, max] = extent(positions.filter(Number.isFinite));
 
@@ -80,7 +80,7 @@ function dayMonth(date: Date) {
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
 }
 
-/** Instante no balão e na tabela: `07:12` em horas do dia; `05/10 14:00`, ou só `05/10` a meia-noite, em datas. */
+/** Instante no balao e na tabela: `07:12` em horas do dia; `05/10 14:00`, ou so `05/10` a meia-noite, em datas. */
 export function formatPosition(position: number, scale: ChartTimelineScale) {
   if (scale === 'dayHours') {
     const minutes = Math.round(position * 60);

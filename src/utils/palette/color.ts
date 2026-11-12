@@ -70,7 +70,7 @@ function oklchToRgb({ C, L, h }: Oklch) {
 
 const inGamut = (channels: number[]) => channels.every((channel) => channel >= -0.001 && channel <= 1.001);
 
-/** Converte para hexadecimal, reduzindo o croma até a cor caber no sRGB. */
+/** Converte para hexadecimal, reduzindo o croma ate a cor caber no sRGB. */
 export function oklchToHex(color: Oklch) {
   let chroma = color.C;
   let channels = oklchToRgb(color);
@@ -86,5 +86,5 @@ export function oklchToHex(color: Oklch) {
     .toUpperCase()}`;
 }
 
-/** Abaixo deste croma a cor e lida como neutra, e a matiz calculada e ruído. */
+/** Abaixo deste croma a cor e lida como neutra, e a matiz calculada e ruido. */
 export const NEUTRAL_CHROMA = 0.01;

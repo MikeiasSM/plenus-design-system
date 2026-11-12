@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type RefObject } from 'react';
 import { initialView, panView, transformView, ZOOM_STEP, zoomView, type ChartMapView, type ViewFrame } from './mapView';
 
-/** Quanto o ponteiro pode andar com o botão pressionado e ainda valer como clique, e não como arraste. */
+/** Quanto o ponteiro pode andar com o botao pressionado e ainda valer como clique, e nao como arraste. */
 const DRAG_SLOP = 4;
 const KEY_PAN = 64;
 const HINT_DURATION = 1500;
@@ -29,7 +29,7 @@ interface GesturesOptions {
   onChange: (view: ChartMapView) => void;
   svgRef: RefObject<SVGSVGElement | null>;
   view?: ChartMapView;
-  /** O desenho esta na tela: na visao em tabela, não ha o que aproximar. */
+  /** O desenho esta na tela: na visao em tabela, nao ha o que aproximar. */
   visible: boolean;
 }
 
@@ -45,8 +45,8 @@ function middleAndDistance([a, b]: Position[]) {
 }
 
 /**
- * Arraste com o mouse, pinca e arraste com dois dedos, Ctrl ou ⌘ com a rolagem e as teclas da vista. Um dedo só não entra:
- * continua rolando a página e valendo como toque nas marcas. Devolve as propriedades do SVG.
+ * Arraste com o mouse, pinca e arraste com dois dedos, Ctrl ou ⌘ com a rolagem e as teclas da vista. Um dedo so nao entra:
+ * continua rolando a pagina e valendo como toque nas marcas. Devolve as propriedades do SVG.
  */
 export function useMapGestures({ frame, onChange, svgRef, view, visible }: GesturesOptions) {
   const [dragging, setDragging] = useState(false);
@@ -132,7 +132,7 @@ export function useMapGestures({ frame, onChange, svgRef, view, visible }: Gestu
     if (event.pointerType === 'touch') {
       fingers.current.delete(event.pointerId);
 
-      // O dedo que sobra de uma pinca não e toque nas marcas: o evento não chega a regra de toque do gráfico.
+      // O dedo que sobra de uma pinca nao e toque nas marcas: o evento nao chega a regra de toque do grafico.
       if (pinch.current) {
         event.stopPropagation();
       }
@@ -220,7 +220,7 @@ export function useMapGestures({ frame, onChange, svgRef, view, visible }: Gestu
         return;
       }
 
-      // O botão solto fora do mapa não chega como `pointerup`: sem esta saida, o arraste seguiria o ponteiro solto.
+      // O botao solto fora do mapa nao chega como `pointerup`: sem esta saida, o arraste seguiria o ponteiro solto.
       if ((event.buttons & 1) === 0) {
         releasePointer(event);
         return;

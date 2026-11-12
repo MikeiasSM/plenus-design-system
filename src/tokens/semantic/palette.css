@@ -1,8 +1,8 @@
-/* Paleta ativa: a rampa que alimenta a cor primaria. O laranja vale por padrão;
-   `data-palette` troca a paleta em qualquer elemento, inclusive numa subárvore.
-   A paleta própria de um produto declara as mesmas variáveis, como as que
-   `createPalette` devolve. Solido, texto sobre ele e traco são declarados porque
-   o CSS não mede contraste. */
+/* Paleta ativa: a rampa que alimenta a cor primaria. O laranja vale por padrao;
+   `data-palette` troca a paleta em qualquer elemento, inclusive numa subarvore.
+   A paleta propria de um produto declara as mesmas variaveis, como as que
+   `createPalette` devolve. Solido, texto sobre ele e traco sao declarados porque
+   o CSS nao mede contraste. */
 :root,
 [data-palette='orange'] {
   --pl-palette-10: var(--pl-brand-orange-10);
@@ -15,7 +15,7 @@
   --pl-palette-80: var(--pl-brand-orange-80);
   --pl-palette-90: var(--pl-brand-orange-90);
   --pl-palette-100: var(--pl-brand-orange-100);
-  /* O branco sobre o laranja mede 3,03:1: exceção aceita, registrada em `scripts/check-contraste.mjs`. */
+  /* O branco sobre o laranja mede 3,03:1: excecao aceita, registrada em `scripts/check-contraste.mjs`. */
   --pl-palette-on-solid: var(--pl-neutral-white);
   --pl-palette-on-40: var(--pl-neutral-black);
   --pl-palette-strong-light: var(--pl-brand-orange-70);

@@ -46,11 +46,9 @@ export interface DataGridColumnModel<Row> {
   sortable?: boolean;
   /** Agregado da linha de sumarização, sobre as linhas filtradas de todas as páginas. */
   summary?: DataGridAggregatorId | DataGridAggregator;
-  /** Define o formato, o alinhamento, a ordenação e o filtro da coluna; sem ele, vale `text`. */
   type?: DataGridColumnType;
   /** Mensagem de recusa do valor novo, ou nada se ele vale. A edição fica aberta enquanto houver mensagem. */
   validate?: (value: unknown, row: Row) => string | null | undefined;
-  /** Valor cru da célula. Sem ele, a grade lê `row[id]`. */
   value?: (row: Row) => unknown;
 }
 

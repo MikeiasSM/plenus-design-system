@@ -34,7 +34,7 @@ export interface SelectOption {
   value: string;
 }
 
-/** As propriedades nativas vão ao gatilho, que e o controle; o `className` soma ao do sistema. */
+/** As propriedades nativas vao ao gatilho, que e o controle; o `className` soma ao do sistema. */
 export interface SelectProps
   extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'defaultValue' | 'name' | 'onChange' | 'type' | 'value'> {
   defaultOpen?: boolean;
@@ -43,7 +43,7 @@ export interface SelectProps
   hint?: string;
   label?: string;
   /**
-   * Nome do campo no formulário. Com ele, um input oculto carrega o valor para
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
@@ -91,7 +91,7 @@ export function Select({
   const resetRef = useFormReset<HTMLButtonElement>(() => listing.reset());
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
 
-  // O valor e a chave, e não a opção: com opções que chegam depois, filtrar por elas perdia a escolha.
+  // O valor e a chave, e nao a opcao: com opcoes que chegam depois, filtrar por elas perdia a escolha.
   const listing = useListing({
     items: options,
     selectionMode: 'single',
@@ -224,7 +224,7 @@ function SelectListbox({
       onClose,
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho não conta como "fora": sem isto o ponteiro fecha o painel e o
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
       // clique dele reabre em seguida, e ele pisca sem abrir.
       shouldCloseOnInteractOutside: (elemento) => !triggerRef.current?.contains(elemento),
     },
@@ -240,8 +240,8 @@ function SelectListbox({
     onClose,
   });
   const [largura, setLargura] = useState<number>();
-  // useOverlayPosition entrega toda a altura disponível; limitamos para que
-  // uma lista longa não ocupe a tela inteira.
+  // useOverlayPosition entrega toda a altura disponivel; limitamos para que
+  // uma lista longa nao ocupe a tela inteira.
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 280, 280);
 
   useLayoutEffect(() => {
@@ -293,7 +293,7 @@ function SelectListbox({
         label={label}
         listing={listing}
         onKeyDown={(event) => {
-          // Espalhar overlayProps antes não basta: este onKeyDown o substituiria.
+          // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
           handleKeyDown(event);
           overlayProps.onKeyDown?.(event as KeyboardEvent<HTMLDivElement>);
         }}

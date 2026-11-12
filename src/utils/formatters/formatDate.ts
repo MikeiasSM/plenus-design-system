@@ -21,7 +21,7 @@ const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Data sem hora entra pelo fuso local: lida como UTC, ela recua um dia em
- * qualquer fuso negativo. Qualquer outra cadeia — a começar pelo que sai de
+ * qualquer fuso negativo. Qualquer outra cadeia — a comecar pelo que sai de
  * `toISOString()` — vai inteira para o `Date`, que sabe ler o deslocamento.
  */
 function toDate(value: Date | string) {

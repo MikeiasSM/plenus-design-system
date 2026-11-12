@@ -43,8 +43,8 @@ import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartLine.module.css';
 /**
- * Ponto sem vizinho desenhado. A curva entre ele e o nada não tem tracado, e o
- * marcador só no hover deixaria o dado invisível — então ele aparece sempre.
+ * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
+ * marcador so no hover deixaria o dado invisivel — entao ele aparece sempre.
  */
 function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
   return pontos[indice] !== null && !pontos[indice - 1] && !pontos[indice + 1];
@@ -52,7 +52,7 @@ function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
 
 
 export interface ChartLineSeries extends SeriesAppearance {
-  /** Eixo de valor da serie. Com alguma a direita, o eixo da direita ganha escala própria. */
+  /** Eixo de valor da serie. Com alguma a direita, o eixo da direita ganha escala propria. */
   axis?: ChartValueAxis;
   label: string;
   values: readonly (number | null)[];
@@ -62,73 +62,72 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
-  /** Séries ocultas de inicio, enquanto o produto não controla `hidden`. */
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
-  /** Formato do eixo da direita, dos rótulos e do balão das series dele. Sem ele, vale o `formatValue`. */
+  /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
   formatRightValue?: (value: number) => string;
-  /** Formato dos valores no balão das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
+  /** Formato dos valores no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
   /**
-   * Inclui o zero no dominio do eixo de valor. Ligado por padrão, porque marca
-   * que não parte do zero exagera a diferença; para medidas que não se comparam
-   * a ele — um ano, uma temperatura — desligue; um ano pede também um formato sem separador de milhar em `formatValue`.
+   * Inclui o zero no dominio do eixo de valor. Ligado por padrao, porque marca
+   * que nao parte do zero exagera a diferenca; para medidas que nao se comparam
+   * a ele — um ano, uma temperatura — desligue; um ano pede tambem um formato sem separador de milhar em `formatValue`.
    */
   includeZero?: boolean;
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** Passo mínimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
-  /** Categoria mais próxima do ponteiro, ou `null` ao sair. */
+  /** Categoria mais proxima do ponteiro, ou `null` ao sair. */
   onHover?: (category: ChartCategoryHover | null) => void;
-  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
   onHoverCategory?: (index: number | null) => void;
-  /** Torna os pontos botões, percorridos pelas setas; o clique na faixa vale pelo ponto mais próximo. */
+  /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
   onMarkClick?: (mark: ChartMarkClick) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onPointClick?: (point: ChartMarkClick) => void;
-  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartLineSeries[];
-  /** Valor acima de cada ponto: sempre, nunca, ou só os da serie mais próxima do ponteiro. */
+  /** Valor acima de cada ponto: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDataLabels?: MarkVisibility;
-  /** Pontos de cada valor: sempre, nunca, ou só os da serie mais próxima do ponteiro. */
+  /** Pontos de cada valor: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDots?: MarkVisibility;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
   /**
-   * Balão com as series da categoria mais próxima do ponteiro. Desligue para montar o próprio
-   * `ChartTooltip` pela costura; sem balão nem costura, o ponto volta a ter o `<title>`.
+   * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
+   * `ChartTooltip` pela costura; sem balao nem costura, o ponto volta a ter o `<title>`.
    */
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
-  /** Título do eixo das categorias, embaixo do desenho. */
+  /** Titulo do eixo das categorias, embaixo do desenho. */
   xAxisTitle?: string;
   /** Linhas horizontais de referência e a linha do zero. */
   showGrid?: boolean;
   yAxis?: AxisVisibility;
-  /** Padrão: escondido; visível quando alguma serie esta a direita. */
+  /** Padrao: escondido; visivel quando alguma serie esta a direita. */
   yAxisRight?: AxisVisibility;
-  /** Título do eixo de valor da direita. */
+  /** Titulo do eixo de valor da direita. */
   yAxisRightTitle?: string;
-  /** Título do eixo de valor, a esquerda do desenho. */
+  /** Titulo do eixo de valor, a esquerda do desenho. */
   yAxisTitle?: string;
 }
 
@@ -185,7 +184,7 @@ export function ChartLine({
     },
   });
 
-  // A cor sai da lista inteira, e não das visíveis: desligar uma serie não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 

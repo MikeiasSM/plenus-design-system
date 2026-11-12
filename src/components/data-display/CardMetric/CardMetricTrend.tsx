@@ -11,18 +11,18 @@ import { useCardMetric } from './CardMetricContext';
 import styles from './CardMetricTrend.module.css';
 
 export interface CardMetricTrendProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
-  /** Mascara do selo, que mostra a primeira comparação. `{icon}{magnitude}` por padrão. */
+  /** Mascara do selo, que mostra a primeira comparacao. `{icon}{magnitude}` por padrao. */
   badgeMask?: string;
-  /** O selo mostra a primeira; o balão, todas. */
+  /** O selo mostra a primeira; o balao, todas. */
   comparisons: readonly CardMetricComparison[];
   formatPercent?: (ratio: number) => string;
-  /** Arranjo do balão: `stack` faz cada linha da mascara fluir; `table` alinha a primeira linha em colunas. */
+  /** Arranjo do balao: `stack` faz cada linha da mascara fluir; `table` alinha a primeira linha em colunas. */
   layout?: CardMetricTrendLayout;
-  /** Partes de cada comparação no balão, uma linha da comparação por linha do texto. O padrão depende do `layout`. */
+  /** Partes de cada comparacao no balao, uma linha da comparacao por linha do texto. O padrao depende do `layout`. */
   mask?: string;
-  /** Partes pintadas no tom da comparação. Variação, ícone e rótulo por padrão. */
+  /** Partes pintadas no tom da comparacao. Variacao, icone e rotulo por padrao. */
   tonedParts?: readonly CardMetricTrendPart[];
-  /** Largura maxima do balão, em pixels. 360 por padrão. */
+  /** Largura maxima do balao, em pixels. 360 por padrao. */
   tooltipMaxWidth?: number;
 }
 
@@ -71,7 +71,7 @@ export function CardMetricTrend({
     return null;
   }
 
-  // A mascara e só visual: o nome acessível e a frase completa, na mesma ordem, com todas as partes.
+  // A mascara e so visual: o nome acessivel e a frase completa, na mesma ordem, com todas as partes.
   const phrase = (comparison: CardMetricComparison) => {
     const { direction, tone } = comparisonTone(comparison);
     const change = knownChange(comparison)

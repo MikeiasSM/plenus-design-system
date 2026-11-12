@@ -75,20 +75,20 @@ export interface ChartTimelineSeries extends SeriesAppearance {
 
 export interface ChartTimelineSegment {
   end: ChartTimelineTime;
-  /** Nome do intervalo, como a reuniao ou o responsável. */
+  /** Nome do intervalo, como a reuniao ou o responsavel. */
   label?: string;
   /** De 0 a 1. */
   progress?: number;
   /** `key` da linha. */
   row: string;
-  /** `label` da série. */
+  /** `label` da serie. */
   series: string;
   start: ChartTimelineTime;
 }
 
 export interface ChartTimelineState {
   row: string;
-  /** `label` da série. */
+  /** `label` da serie. */
   state: string;
   time: ChartTimelineTime;
 }
@@ -140,12 +140,12 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   bands?: readonly ChartTimelineBand[];
   collapsedGroups?: readonly string[];
   collapsibleGroups?: boolean;
-  /** Em largura estreita, o resumo vai para baixo do rótulo ou sai. */
+  /** Em largura estreita, o resumo vai para baixo do rotulo ou sai. */
   compactSummary?: 'below' | 'hidden';
   defaultCollapsedGroups?: readonly string[];
-  /** Séries ocultas de inicio, enquanto o produto não controla `hidden`. */
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   density?: ChartTimelineDensity;
   /** Faixa fixa do eixo. Sem ela, do primeiro ao ultimo instante, arredondada a hora ou ao dia. */
@@ -155,39 +155,39 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   formatTick?: (time: Date) => string;
   formatTime?: (time: Date) => string;
   formatTooltipValue?: (durationMs: number) => string;
-  /** Formato das durações no rótulo da barra, na descrição e na tabela. */
+  /** Formato das duracoes no rotulo da barra, na descricao e na tabela. */
   formatValue?: (durationMs: number) => string;
   groups?: readonly ChartTimelineGroup[];
-  /** Altura da área das linhas, com o eixo: as linhas rolam na vertical e o eixo fica fixo. `fill` ocupa a altura imposta pelo contêiner. Sem ela, a altura vem das linhas. */
+  /** Altura da area das linhas, com o eixo: as linhas rolam na vertical e o eixo fica fixo. `fill` ocupa a altura imposta pelo conteiner. Sem ela, a altura vem das linhas. */
   height?: ChartHeight;
-  /** Rótulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   highlightOnHover?: boolean;
   legend?: 'top' | 'bottom' | 'none';
   legendAlign?: ChartLegendAlign;
   markers?: readonly ChartTimelineMarker[];
   mergeConsecutive?: boolean;
-  /** Abaixo dessa largura, o desenho rola de lado dentro do contêiner, com rótulos e resumo fixos. */
+  /** Abaixo dessa largura, o desenho rola de lado dentro do conteiner, com rotulos e resumo fixos. */
   minPlotWidth?: number;
   onCollapsedGroupsChange?: (collapsed: readonly string[]) => void;
-  /** Rótulos das series ocultas, a cada alternância da legenda. */
+  /** Rotulos das series ocultas, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Com ele, os intervalos viram botões e entram no teclado. */
+  /** Com ele, os intervalos viram botoes e entram no teclado. */
   onMarkClick?: (mark: ChartTimelineMark) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onSegmentClick?: (segment: ChartTimelineSegment, row: ChartTimelineRow) => void;
   overlap?: ChartTimelineOverlap;
-  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   referenceLines?: readonly ChartTimelineReferenceLine[];
   rowBands?: readonly ChartTimelineRowBand[];
   rowGap?: number;
   rowLabelWidth?: number | 'auto';
-  /** Coluna de resumo, calculada sobre os intervalos visíveis da linha: a legenda filtra a leitura inteira. */
+  /** Coluna de resumo, calculada sobre os intervalos visiveis da linha: a legenda filtra a leitura inteira. */
   rowSummary?: (row: ChartTimelineRow, segments: readonly ChartTimelineSegment[]) => ChartTimelineSummary | undefined;
   rows: readonly ChartTimelineRow[];
   segmentLabel?: ChartTimelineSegmentLabelContent;
@@ -197,10 +197,10 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   showGrid?: boolean;
   showProgress?: boolean;
   showSegmentLabels?: ChartTimelineSegmentLabels;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
-  /** Alternativa a `segments`: cada mudança de estado vale até a seguinte. */
+  /** Alternativa a `segments`: cada mudanca de estado vale ate a seguinte. */
   states?: readonly ChartTimelineState[];
   /** Fim do ultimo estado de cada linha, como o instante atual. Sem ele, o fim do eixo. */
   statesEnd?: ChartTimelineTime;
@@ -215,7 +215,7 @@ const DENSITY: Record<ChartTimelineDensity, { bar: number; row: number }> = {
 };
 
 const ROW_WITH_SUMMARY_BELOW = 40;
-/** Abaixo dessa altura de linha, título e subtitulo do resumo dividem a mesma linha. */
+/** Abaixo dessa altura de linha, titulo e subtitulo do resumo dividem a mesma linha. */
 const STACKED_SUMMARY_ROW = 32;
 const LANE_GAP = 3;
 const GROUP_HEIGHT = 28;
@@ -270,7 +270,7 @@ function clipMarkPath({ height, width, x, y }: SegmentShape, side: 'start' | 'en
   return `M${back},${y + 3}L${tip},${y + height / 2}L${back},${y + height - 3}`;
 }
 
-/** Rótulo dentro da barra: `auto` só quando cabe inteiro; `visible` corta com reticências o que não cabe. */
+/** Rotulo dentro da barra: `auto` so quando cabe inteiro; `visible` corta com reticencias o que nao cabe. */
 function fitLabel(text: string, width: number, font: LabelFont, mode: ChartTimelineSegmentLabels) {
   if (mode === 'hidden') {
     return undefined;
@@ -292,8 +292,8 @@ function hatch(color: string) {
 }
 
 /**
- * Barras de intervalo em linhas sobre um eixo de tempo continuo: quem fez o que, de quando até quando. O desenho e
- * imagem nomeada pelo título; com `onMarkClick`, um grupo cujos intervalos são botões de tabulação movel. A leitura
+ * Barras de intervalo em linhas sobre um eixo de tempo continuo: quem fez o que, de quando ate quando. O desenho e
+ * imagem nomeada pelo titulo; com `onMarkClick`, um grupo cujos intervalos sao botoes de tabulacao movel. A leitura
  * medida a medida esta na visao em tabela.
  */
 export function ChartTimeline({
@@ -367,7 +367,7 @@ export function ChartTimeline({
       onHiddenSeriesChange?.(ocultas);
     },
   });
-  // Recolher grupo e o mesmo controle da legenda: estado próprio ou do produto, pela chave.
+  // Recolher grupo e o mesmo controle da legenda: estado proprio ou do produto, pela chave.
   const groupToggle = useSeriesToggle({
     defaultHidden: defaultCollapsedGroups,
     hidden: collapsedGroups,
@@ -395,7 +395,7 @@ export function ChartTimeline({
   const colors = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
   const colorByLabel = new Map<string, string>();
   series.forEach((entry, index) => {
-    // Rótulo repetido e a mesma série, como na legenda dos demais gráficos: vale a primeira cor.
+    // Rotulo repetido e a mesma serie, como na legenda dos demais graficos: vale a primeira cor.
     if (!colorByLabel.has(entry.label)) {
       colorByLabel.set(entry.label, colors[index]);
     }
@@ -469,7 +469,7 @@ export function ChartTimeline({
       : [],
   );
 
-  // As colunas ao lado do desenho saem pela medida do texto delas, na ordem: o resumo vai para baixo do rótulo, depois o rótulo encurta.
+  // As colunas ao lado do desenho saem pela medida do texto delas, na ordem: o resumo vai para baixo do rotulo, depois o rotulo encurta.
   const labelsRoom = widestLabel(rows.flatMap((row) => [row.label, row.description ?? '']), outer.font) + LABEL_PADDING * 2;
   const summaryRoom =
     widestLabel([...summaries.values()].flatMap((summary) => (summary ? [summary.title, summary.subtitle ?? ''] : [])), outer.font) +
@@ -1047,7 +1047,7 @@ export function ChartTimeline({
   const scrollsDown = sized && svgHeight > plot.height + 1;
   const scrolls = scrollsAside || scrollsDown;
 
-  // Rótulos e resumo param onde o desenho para: acima do eixo de baixo e da barra de rolagem horizontal.
+  // Rotulos e resumo param onde o desenho para: acima do eixo de baixo e da barra de rolagem horizontal.
   useLayoutEffect(() => {
     const node = scrollNode.current;
     setHorizontalBarHeight(sized && node ? node.offsetHeight - node.clientHeight : 0);
@@ -1248,11 +1248,11 @@ interface TimelineLabelsProps {
   items: readonly TimelineItem[];
   onToggleGroup: (groupKey: string) => void;
   style: CSSProperties;
-  /** Resumo abaixo do rótulo, na largura estreita. */
+  /** Resumo abaixo do rotulo, na largura estreita. */
   summaries?: ReadonlyMap<string, ChartTimelineSummary | undefined>;
 }
 
-/** Coluna dos rótulos, em texto, cada item na altura da sua linha no desenho. O cabeçalho do grupo recolhe o grupo. */
+/** Coluna dos rotulos, em texto, cada item na altura da sua linha no desenho. O cabecalho do grupo recolhe o grupo. */
 function TimelineLabels({ className, collapsibleGroups, columnRef, items, onToggleGroup, style, summaries }: TimelineLabelsProps) {
   return (
     <div className={`${styles.labels} ${className}`} ref={columnRef} style={style}>
@@ -1314,7 +1314,7 @@ function TimelineLabels({ className, collapsibleGroups, columnRef, items, onTogg
 
 interface TimelineSummariesProps {
   columnRef: Ref<HTMLDivElement>;
-  /** Título e subtitulo na mesma linha, quando ela e baixa demais para empilhar os dois. */
+  /** Titulo e subtitulo na mesma linha, quando ela e baixa demais para empilhar os dois. */
   inline: boolean;
   items: readonly TimelineItem[];
   style: CSSProperties;

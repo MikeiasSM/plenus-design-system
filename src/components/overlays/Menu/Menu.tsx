@@ -26,7 +26,7 @@ export interface MenuItem {
   /** Com ele, o item e de marcar e mostra o visto quando marcado, como o tipo atual de um bloco. */
   checked?: boolean;
   disabled?: boolean;
-  /** Ícone decorativo antes do texto. */
+  /** Icone decorativo antes do texto. */
   icon?: ReactNode;
   /** Com eles, o item abre um submenu, e o `onSelect` não é chamado. */
   items?: readonly (MenuItem | MenuSection)[];
@@ -37,11 +37,11 @@ export interface MenuItem {
   shortcut?: string;
   /** Valor de `aria-keyshortcuts` quando a conversão do `shortcut` não basta, como `Control+Shift+D Meta+Shift+D`. */
   shortcutKeys?: string;
-  /** `danger` para a ação que destroi, como remover. */
+  /** `danger` para a acao que destroi, como remover. */
   tone?: 'danger';
 }
 
-/** Grupo de itens, com título opcional; entre dois grupos, o menu desenha o divisor. */
+/** Grupo de itens, com titulo opcional; entre dois grupos, o menu desenha o divisor. */
 export interface MenuSection {
   items: readonly MenuItem[];
   key: string;
@@ -50,13 +50,13 @@ export interface MenuSection {
 
 export interface MenuProps {
   children: ReactElement<Record<string, unknown>>;
-  /** Abertura inicial no modo não controlado. */
+  /** Abertura inicial no modo nao controlado. */
   defaultOpen?: boolean;
   items: readonly (MenuItem | MenuSection)[];
   label: string;
-  /** Avisa cada abertura e fechamento pedidos pelo gatilho, pelo teclado, pela opção ou pelo clique fora. */
+  /** Avisa cada abertura e fechamento pedidos pelo gatilho, pelo teclado, pela opcao ou pelo clique fora. */
   onOpenChange?: (open: boolean) => void;
-  /** Controla a abertura; sem ele, o menu guarda o próprio estado. */
+  /** Controla a abertura; sem ele, o menu guarda o proprio estado. */
   open?: boolean;
   /** Lado e alinhamento do painel em relação ao gatilho, com os nomes do `Popover`. O padrão é `bottom start`. */
   placement?: PopoverPlacement;
@@ -105,7 +105,7 @@ export function Menu({
   }
 
   // O foco volta na hora, antes de o `onSelect` montar o que vem depois, como um campo com `autoFocus` ou
-  // um Dialog, que guarda o elemento em foco para devolver. Clique fora não devolve: o foco e de quem foi clicado.
+  // um Dialog, que guarda o elemento em foco para devolver. Clique fora nao devolve: o foco e de quem foi clicado.
   function fechar(devolverFoco: boolean) {
     setOpen(false);
 
@@ -137,7 +137,7 @@ export function Menu({
       {open &&
         container &&
         createPortal(
-          // O escopo próprio põe o menu na árvore de escopos do Dialog, cujo `contain` puxaria o foco de volta.
+          // O escopo proprio poe o menu na arvore de escopos do Dialog, cujo `contain` puxaria o foco de volta.
           // Sem `contain` aqui: ele disputaria o foco com o gatilho quando o menu fecha.
           <FocusScope>
             <MenuList
@@ -201,7 +201,7 @@ function MenuList({
   const submenuAnchor = useRef<HTMLElement | null>(null);
   const submenuList = useRef<HTMLDivElement>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  // O teclado percorre os itens de todos os grupos como uma lista só.
+  // O teclado percorre os itens de todos os grupos como uma lista so.
   const items = useMemo(() => entradas.flatMap((entrada) => (ehSecao(entrada) ? entrada.items : [entrada])), [entradas]);
   const collection = useMemo<SelectionItem[]>(
     () => items.map((item) => ({ key: item.key, disabled: item.disabled, textValue: item.label })),
@@ -211,11 +211,11 @@ function MenuList({
   const { focus, focusedKey, focusFirst, focusLast, focusNext, focusPrevious, search } = selection;
   const openItem = submenu ? items.find((item) => item.key === submenu.key) : undefined;
 
-  // useOverlayPosition entrega toda a altura disponível; limitamos para que
-  // uma lista longa não ocupe a tela inteira.
+  // useOverlayPosition entrega toda a altura disponivel; limitamos para que
+  // uma lista longa nao ocupe a tela inteira.
   // Sem isto o gatilho conta como "fora": o ponteiro fecha o menu e o clique
   // dele reabre em seguida, e o menu pisca sem abrir.
-  // O submenu vive noutro portal: clicar nele não e clicar fora.
+  // O submenu vive noutro portal: clicar nele nao e clicar fora.
   const { overlayProps } = useOverlay(
     {
       isOpen: !isSubmenu,
@@ -265,7 +265,7 @@ function MenuList({
     setSubmenu({ key: item.key, focus: initial });
   }
 
-  /* O foco que estava no submenu volta ao item pai, e não se perde no `body` quando ele sai ou troca. */
+  /* O foco que estava no submenu volta ao item pai, e nao se perde no `body` quando ele sai ou troca. */
   function returnFocusFromSubmenu() {
     if (submenu && submenuList.current?.contains(document.activeElement)) {
       focus(submenu.key);
@@ -382,11 +382,11 @@ function MenuList({
       role="menu"
       aria-label={label}
       onKeyDown={(event) => {
-        // O submenu fica no menu pela árvore do React: a tecla dele não sobe ao menu de fora.
+        // O submenu fica no menu pela arvore do React: a tecla dele nao sobe ao menu de fora.
         if (isSubmenu) {
           event.stopPropagation();
         }
-        // Espalhar overlayProps antes não basta: este onKeyDown o substituiria.
+        // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
         handleKeyDown(event);
         overlayProps.onKeyDown?.(event);
       }}

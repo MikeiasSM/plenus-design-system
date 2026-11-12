@@ -7,7 +7,7 @@
   fill-opacity: 1;
 }
 
-/* Guias do ponto sob o ponteiro, até cada eixo. */
+/* Guias do ponto sob o ponteiro, ate cada eixo. */
 .guide {
   stroke: var(--pl-chart-axis);
   stroke-dasharray: 3 3;

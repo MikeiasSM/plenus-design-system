@@ -8,23 +8,23 @@ import styles from './CardMetricChart.module.css';
 
 export interface CardMetricChartProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'title'> {
   type?: 'area' | 'line';
-  /** Nome do gráfico para o leitor de tela e título do balão. */
+  /** Nome do grafico para o leitor de tela e titulo do balao. */
   title: string;
   categories: readonly string[];
   values: readonly (number | null)[];
   formatValue?: (value: number) => string;
   accent?: string;
-  /** Balão no ponteiro. O clique no gráfico continua abrindo o cartão. */
+  /** Balao no ponteiro. O clique no grafico continua abrindo o cartao. */
   showTooltip?: boolean;
-  /** Torna os pontos botões, com uma parada de Tab e setas; o clique no gráfico deixa de abrir o cartão. */
+  /** Torna os pontos botoes, com uma parada de Tab e setas; o clique no grafico deixa de abrir o cartao. */
   onPointClick?: (point: ChartMarkClick) => void;
-  /** Piso da altura, em pixels. Acima dele, o gráfico ocupa o que sobra no cartão. */
+  /** Piso da altura, em pixels. Acima dele, o grafico ocupa o que sobra no cartao. */
   minHeight?: number;
 }
 
 /**
- * Área ou linha sem eixos, grade, legenda nem pontos, no espaço que sobra do cartão. O desenho e o ChartArea ou o
- * ChartLine da lib; esta parte só mede o lugar e responde aos estados da moldura.
+ * Area ou linha sem eixos, grade, legenda nem pontos, no espaco que sobra do cartao. O desenho e o ChartArea ou o
+ * ChartLine da lib; esta parte so mede o lugar e responde aos estados da moldura.
  */
 export function CardMetricChart({
   accent,

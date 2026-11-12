@@ -1,6 +1,6 @@
 import { formatCurrency, formatNumber, formatPercent } from './formatNumber';
 
-/** O Intl separa simbolo e numero por espaço não separável; o teste compara pelo comum. */
+/** O Intl separa simbolo e numero por espaco nao separavel; o teste compara pelo comum. */
 function semEspacoEstreito(texto: string) {
   return texto.replace(/ /g, ' ');
 }

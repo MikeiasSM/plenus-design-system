@@ -2,7 +2,7 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* Liga o acumulado de um passo ao inicio do próximo. */
+/* Liga o acumulado de um passo ao inicio do proximo. */
 .connector {
   stroke: var(--pl-chart-axis);
   stroke-dasharray: 3 3;

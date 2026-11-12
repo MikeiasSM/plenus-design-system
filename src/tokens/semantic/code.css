@@ -1,6 +1,6 @@
 /* Cores de sintaxe do `CodeBlock`, a partir dos temas da JetBrains: IntelliJ Light no
    claro e Darcula no escuro. Os tons que reprovavam contra o fundo do bloco mudaram
-   só na luminosidade, e a matiz continua a do tema de origem. */
+   so na luminosidade, e a matiz continua a do tema de origem. */
 :root,
 [data-theme="light"] {
   --pl-code-keyword: #0033B3;

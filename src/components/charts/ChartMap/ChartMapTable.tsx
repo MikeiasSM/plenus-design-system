@@ -13,7 +13,7 @@ export interface MapTableRegionRow {
   /** Parte do total, de 0 a 1. */
   share?: number;
   value: number | null;
-  /** Valor formatado, ou a categoria; sem ele, a célula diz que não ha dado. */
+  /** Valor formatado, ou a categoria; sem ele, a celula diz que nao ha dado. */
   valueText?: string;
 }
 
@@ -41,17 +41,17 @@ interface ChartMapTableProps {
   valueLabel: string;
 }
 
-/** Quantas linhas aparecem de cada vez: com 645 municipios, a tabela inteira de uma vez pesaria a página. */
+/** Quantas linhas aparecem de cada vez: com 645 municipios, a tabela inteira de uma vez pesaria a pagina. */
 const PAGE = 50;
 
-/** Ignora caixa e acento, para "são paulo" achar "São Paulo". */
+/** Ignora caixa e acento, para "sao paulo" achar "São Paulo". */
 function normalized(text: string) {
   return text.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('pt-BR');
 }
 
 /**
- * Leitura completa do mapa: uma linha por região, com busca pelo nome e cabecalhos que ordenam. E o caminho até as
- * regioes de poucos pixels, que o ponteiro e o dedo não alcancam.
+ * Leitura completa do mapa: uma linha por regiao, com busca pelo nome e cabecalhos que ordenam. E o caminho ate as
+ * regioes de poucos pixels, que o ponteiro e o dedo nao alcancam.
  */
 export function ChartMapTable({
   formatPercent,
@@ -85,7 +85,7 @@ export function ChartMapTable({
       return row.valueText;
     }
 
-    // Faixa, parte do total e posição seguem o valor: ordenar por elas e ordenar por ele.
+    // Faixa, parte do total e posicao seguem o valor: ordenar por elas e ordenar por ele.
     return row.value ?? undefined;
   };
   const sign = sort.direction === 'ascending' ? 1 : -1;

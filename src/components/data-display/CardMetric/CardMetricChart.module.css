@@ -1,4 +1,4 @@
-/* Ocupa a altura que sobra no cartão. O desenho fica fora do fluxo para a medida ser o espaço concedido. */
+/* Ocupa a altura que sobra no cartao. O desenho fica fora do fluxo para a medida ser o espaco concedido. */
 .chart {
   position: relative;
   flex: 1 1 auto;

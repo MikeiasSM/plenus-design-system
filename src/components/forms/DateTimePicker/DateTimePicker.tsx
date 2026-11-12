@@ -31,7 +31,7 @@ import { IconCalendar } from '../../icons';
 export type DateTimePickerSize = 'sm' | 'md' | 'lg';
 
 /**
- * As propriedades nativas vão ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
  * se posiciona e dimensiona.
  */
 export interface DateTimePickerProps
@@ -39,7 +39,7 @@ export interface DateTimePickerProps
     ComponentPropsWithRef<'input'>,
     'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
-  /** Data e hora em ISO, `2026-03-09T18:40`, como no `FormData`: a API não expoe tipo de biblioteca de terceiros. */
+  /** Data e hora em ISO, `2026-03-09T18:40`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
   disabled?: boolean;
   error?: string;
@@ -48,7 +48,7 @@ export interface DateTimePickerProps
   isDateUnavailable?: (date: string) => boolean;
   label?: string;
   /**
-   * Nome do campo no formulário. Com ele, um input oculto carrega o valor para
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
@@ -63,8 +63,8 @@ export interface DateTimePickerProps
   required?: boolean;
   size?: DateTimePickerSize;
   /**
-   * `null` e "controlado e vazio": devolver a propriedade a `undefined` não
-   * limpa o campo, porque ali ele volta a ser não controlado.
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
   /** Abertura do painel de início, sem controle. */
@@ -122,7 +122,7 @@ export function DateTimePicker({
   const fieldRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  // Fixo, o id fazia dois seletores dividirem os ids das opções de hora.
+  // Fixo, o id fazia dois seletores dividirem os ids das opcoes de hora.
   const idDaLista = `datetime-hora-${useId()}`;
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const wasOpenRef = useRef(open);
@@ -162,7 +162,7 @@ export function DateTimePicker({
   }, [open]);
   const exibido = digitando ? texto : paraTexto(escolhido);
 
-  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, não ressurge um valor velho.
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDateTime | null) {
     setInternalValue(proximo);
     onValueChange?.(proximo ? toIsoDateTime(proximo) : null);
@@ -173,7 +173,7 @@ export function DateTimePicker({
   }
 
   // Sem data escolhida, a hora se apoia em hoje: inventar outra data
-  // faria o campo exibir um dia que o usuário nunca escolheu.
+  // faria o campo exibir um dia que o usuario nunca escolheu.
   function rascunharHora(hora: Time) {
     const base = rascunho ?? today(getLocalTimeZone());
 
@@ -191,8 +191,8 @@ export function DateTimePicker({
     setDigitando(true);
     setTexto(mascarado);
 
-    // O texto e o valor tem de concordar. Enquanto o que esta escrito não e uma
-    // data e hora inteiras, o campo não tem valor — segurar o ultimo deixava o
+    // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
+    // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
     // consumidor com meia-noite enquanto a tela mostrava `18:4`.
     const lido = parseDateTimeInput(mascarado);
     const dia = lido && toCalendarDate(lido);
@@ -217,7 +217,7 @@ export function DateTimePicker({
       onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho não conta como "fora": sem isto o ponteiro fecha o painel e o
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
       // clique dele reabre em seguida, e ele pisca sem abrir.
       shouldCloseOnInteractOutside: (elemento) => !fieldRef.current?.contains(elemento),
     },
@@ -317,7 +317,7 @@ export function DateTimePicker({
                   <div className={styles.footer}>
                     <Button
                       onClick={() => {
-                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho já fosse hoje.
+                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
                         setRascunho(toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }));
                         setVersaoDoCalendario((versao) => versao + 1);
                       }}

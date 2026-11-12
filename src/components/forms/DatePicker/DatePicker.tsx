@@ -20,7 +20,7 @@ import { IconCalendar } from '../../icons';
 export type DatePickerSize = 'sm' | 'md' | 'lg';
 
 /**
- * As propriedades nativas vão ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
+ * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
  * se posiciona e dimensiona.
  */
 export interface DatePickerProps
@@ -28,7 +28,7 @@ export interface DatePickerProps
     ComponentPropsWithRef<'input'>,
     'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value'
   > {
-  /** Data em ISO, `2026-03-09`, como no `FormData`: a API não expoe tipo de biblioteca de terceiros. */
+  /** Data em ISO, `2026-03-09`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
   disabled?: boolean;
   error?: string;
@@ -37,7 +37,7 @@ export interface DatePickerProps
   isDateUnavailable?: (date: string) => boolean;
   label?: string;
   /**
-   * Nome do campo no formulário. Com ele, um input oculto carrega o valor para
+   * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
@@ -50,8 +50,8 @@ export interface DatePickerProps
   required?: boolean;
   size?: DatePickerSize;
   /**
-   * `null` e "controlado e vazio": devolver a propriedade a `undefined` não
-   * limpa o campo, porque ali ele volta a ser não controlado.
+   * `null` e "controlado e vazio": devolver a propriedade a `undefined` nao
+   * limpa o campo, porque ali ele volta a ser nao controlado.
    */
   value?: string | null;
   /** Abertura do painel de início, sem controle. */
@@ -139,7 +139,7 @@ export function DatePicker({
       ? [String(escolhido.day).padStart(2, '0'), String(escolhido.month).padStart(2, '0'), escolhido.year].join('/')
       : '';
 
-  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, não ressurge um valor velho.
+  // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDate | null) {
     setInternalValue(proximo);
     onValueChange?.(proximo?.toString() ?? null);
@@ -156,8 +156,8 @@ export function DatePicker({
     setDigitando(true);
     setTexto(mascarado);
 
-    // Data fora dos limites não se grava: o calendário já a recusa, e o campo
-    // digitado não pode ser a porta dos fundos dela.
+    // Data fora dos limites nao se grava: o calendario ja a recusa, e o campo
+    // digitado nao pode ser a porta dos fundos dela.
     const lido = parseDateInput(mascarado);
     const permitido = lido && !isUnavailable(lido, limites) ? lido : null;
 
@@ -181,7 +181,7 @@ export function DatePicker({
       onClose: () => fechar(Boolean(panelRef.current?.contains(document.activeElement))),
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho não conta como "fora": sem isto o ponteiro fecha o painel e o
+      // O gatilho nao conta como "fora": sem isto o ponteiro fecha o painel e o
       // clique dele reabre em seguida, e ele pisca sem abrir.
       shouldCloseOnInteractOutside: (elemento) => !fieldRef.current?.contains(elemento),
     },
@@ -273,7 +273,7 @@ export function DatePicker({
                   <div className={styles.footer}>
                     <Button
                       onClick={() => {
-                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho já fosse hoje.
+                        // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
                         setRascunho(today(getLocalTimeZone()));
                         setVersaoDoCalendario((versao) => versao + 1);
                       }}

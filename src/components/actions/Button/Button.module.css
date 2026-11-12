@@ -19,8 +19,8 @@
     box-shadow var(--pl-speed-2) var(--pl-ease);
 }
 
-/* O ícone guarda a medida declarada, qualquer que seja o reset do hospedeiro: sem isto, um teto
-   percentual no svg o deixa encolher até sumir quando o botão fica apertado. */
+/* O icone guarda a medida declarada, qualquer que seja o reset do hospedeiro: sem isto, um teto
+   percentual no svg o deixa encolher ate sumir quando o botao fica apertado. */
 .button > svg {
   flex-shrink: 0;
   max-width: none;

@@ -13,7 +13,7 @@ export interface TimelineRowBand extends TimelineRange {
   series: string;
 }
 
-/** O que esta sob o ponteiro. Cada caso carrega o que o balão dele precisa. */
+/** O que esta sob o ponteiro. Cada caso carrega o que o balao dele precisa. */
 export type TimelineTarget =
   | { clip: string | undefined; kind: 'segment'; row: ChartTimelineRow; segment: TimelineSegment }
   | { kind: 'marker'; marker: TimelineMarker; row: ChartTimelineRow }
@@ -25,7 +25,7 @@ export type TimelineTarget =
       segments: readonly TimelineSegment[];
     }
   | {
-      /** A linha não tem intervalo algum, de nenhuma série. */
+      /** A linha nao tem intervalo algum, de nenhuma serie. */
       empty: boolean;
       kind: 'row';
       row: ChartTimelineRow;
@@ -125,7 +125,7 @@ export function timelineTooltip(target: TimelineTarget | null, options: Timeline
     return ofSeries.length ? [{ color: colorOf(series), label: series, values: [sum(ofSeries, duration)] }] : [];
   });
 
-  // Sem coluna declarada o balão não inventa um valor para a linha que só tem rótulo.
+  // Sem coluna declarada o balao nao inventa um valor para a linha que so tem rotulo.
   if (totals.length === 0) {
     return {
       computed: 'none',

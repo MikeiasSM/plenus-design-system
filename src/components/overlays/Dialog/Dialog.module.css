@@ -11,7 +11,7 @@
   animation: dialog-fade var(--pl-speed-2) var(--pl-ease) both;
 }
 
-/* Cartão com cabeçalho e rodapé fixos: o meio rola, e as ações ficam sempre a vista. */
+/* Cartao com cabecalho e rodape fixos: o meio rola, e as acoes ficam sempre a vista. */
 .dialog {
   display: flex;
   flex-direction: column;
@@ -124,7 +124,7 @@
   color: var(--pl-color-text);
 }
 
-/* Anel de foco próprio: o componente não depende do `reset.css`, que e opcional. */
+/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
 .close:focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
@@ -156,7 +156,7 @@
   background: var(--pl-color-surface-subtle);
 }
 
-/* No celular continua um cartão centralizado; as ações dividem a largura para o toque. */
+/* No celular continua um cartao centralizado; as acoes dividem a largura para o toque. */
 @media (max-width: 480px) {
   .footer > * {
     flex: 1 1 0;

@@ -27,7 +27,7 @@ describe('InputNumber', () => {
 
     expect(input.dispatchEvent(commaEvent)).toBe(false);
     expect(input.dispatchEvent(dotEvent)).toBe(false);
-    // O hifen entra no padrão: o formatador aceita negativo, e o padrão barrava
+    // O hifen entra no padrao: o formatador aceita negativo, e o padrao barrava
     // no envio o que o campo deixava digitar.
     expect(input).toHaveAttribute('pattern', '-?[0-9]*');
   });

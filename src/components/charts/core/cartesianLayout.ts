@@ -6,23 +6,23 @@ export type AxisLabelRotation = 0 | 45 | 90;
 export type AxisLabelAngle = AxisLabelRotation | 'auto';
 
 /**
- * Como o eixo se mostra. `onHover` não reserva a calha: o desenho ocupa o espaço
- * todo e, depois de um instante com o ponteiro sobre o gráfico, encolhe para o
+ * Como o eixo se mostra. `onHover` nao reserva a calha: o desenho ocupa o espaco
+ * todo e, depois de um instante com o ponteiro sobre o grafico, encolhe para o
  * eixo entrar; `hidden` dispensa o eixo de vez.
  */
 export type AxisVisibility = 'visible' | 'hidden' | 'onHover';
 
-/** Como pontos e rotulos de valor se mostram. `onHover` mostra os da série sob o ponteiro, e só eles. */
+/** Como pontos e rotulos de valor se mostram. `onHover` mostra os da serie sob o ponteiro, e so eles. */
 export type MarkVisibility = 'visible' | 'hidden' | 'onHover';
 
-/** Se a marca da série aparece: sempre, nunca, ou só com a série sob o ponteiro. */
+/** Se a marca da serie aparece: sempre, nunca, ou so com a serie sob o ponteiro. */
 export function markShown(visibility: MarkVisibility, seriesFocused: boolean) {
   return visibility === 'visible' || (visibility === 'onHover' && seriesFocused);
 }
 
 export type AxisPosition = 'bottom' | 'top';
 
-/** Altura do desenho, sem o cabeçalho nem a legenda, que ficam fora dela: um número fixa, `fill` entrega a decisão ao contêiner. */
+/** Altura do desenho: um numero fixa, `fill` entrega a decisao ao contêiner. */
 export type ChartHeight = number | 'fill';
 
 export interface ResolvedHeight {
@@ -32,7 +32,7 @@ export interface ResolvedHeight {
 
 /**
  * Altura efetiva do desenho. Com `fill`, ela vem da medida do contêiner, o que
- * permite ao gráfico ocupar a célula de um painel sem que ninguem repita a
+ * permite ao grafico ocupar a celula de um painel sem que ninguem repita a
  * medida em JavaScript.
  */
 export function chartHeight(height: ChartHeight, measured: number): ResolvedHeight {
@@ -51,7 +51,7 @@ export interface ChartPlot {
   width: number;
 }
 
-/** Títulos dos eixos, pelo lugar na tela: `x` no eixo das categorias de baixo, `y` no da esquerda. Só a presenca importa aqui. */
+/** Titulos dos eixos, pelo lugar na tela: `x` no eixo das categorias de baixo, `y` no da esquerda. So a presenca importa aqui. */
 export interface AxisTitles {
   x?: string;
   y?: string;
@@ -68,7 +68,7 @@ export interface CartesianLayoutOptions {
   /** Os eixos `onHover` estao a vista e ocupam a calha. */
   revealed?: boolean;
   rightLabels: readonly string[];
-  /** Espaço mínimo a direita do desenho, para o que passa da ponta dele, como o rótulo de dado de uma barra horizontal. */
+  /** Espaco minimo a direita do desenho, para o que passa da ponta dele, como o rotulo de dado de uma barra horizontal. */
   rightRoom?: number;
   topRoom: number;
   width: number;
@@ -84,12 +84,12 @@ export interface CartesianLayout {
   rotation: AxisLabelRotation;
 }
 
-/** Se o eixo ocupa a calha agora: o `onHover` só enquanto revelado. */
+/** Se o eixo ocupa a calha agora: o `onHover` so enquanto revelado. */
 function ocupa(visibility: AxisVisibility, revealed: boolean) {
   return visibility === 'visible' || (visibility === 'onHover' && revealed);
 }
 
-/** O título acompanha o eixo `onHover`: surge e some com ele. Nos outros modos, fica sempre. */
+/** O titulo acompanha o eixo `onHover`: surge e some com ele. Nos outros modos, fica sempre. */
 function comTitulo(title: string | undefined, visibility: AxisVisibility, revealed: boolean) {
   return Boolean(title) && (visibility !== 'onHover' || revealed);
 }
@@ -99,9 +99,9 @@ function calha(ocupada: boolean, labels: readonly string[], font: LabelFont) {
 }
 
 /**
- * Ângulo dos rotulos do eixo de baixo. Em zero grau, dois rotulos vizinhos não
- * podem se tocar. Girados, o que precisa caber e a distância perpendicular
- * entre duas linhas de base vizinhas, que vale o passo vezes o seno do ângulo.
+ * Angulo dos rotulos do eixo de baixo. Em zero grau, dois rotulos vizinhos nao
+ * podem se tocar. Girados, o que precisa caber e a distancia perpendicular
+ * entre duas linhas de base vizinhas, que vale o passo vezes o seno do angulo.
  */
 export function bottomLabelRotation(
   labels: readonly string[],
@@ -119,7 +119,7 @@ export function bottomLabelRotation(
   return step * Math.SQRT1_2 >= font.lineHeight ? 45 : 90;
 }
 
-/** Altura que os rotulos de baixo ocupam, que e a caixa do texto já girado. */
+/** Altura que os rotulos de baixo ocupam, que e a caixa do texto ja girado. */
 function alturaDosRotulos(
   labels: readonly string[],
   font: LabelFont,
@@ -141,10 +141,10 @@ function alturaDosRotulos(
 }
 
 /**
- * Margens derivadas do conteúdo, e não de constantes. A ordem resolve sozinha a
- * dependência entre elas: as calhas laterais definem a largura util, a largura
- * util define o passo entre categorias, o passo define o ângulo dos rotulos e o
- * ângulo define a altura que eles ocupam embaixo.
+ * Margens derivadas do conteudo, e nao de constantes. A ordem resolve sozinha a
+ * dependencia entre elas: as calhas laterais definem a largura util, a largura
+ * util define o passo entre categorias, o passo define o angulo dos rotulos e o
+ * angulo define a altura que eles ocupam embaixo.
  */
 export function cartesianLayout({
   axisTitles = {},
@@ -178,8 +178,8 @@ export function cartesianLayout({
       ? bottomLabelRotation(bottomLabels, font, plotWidth / Math.max(bottomLabels.length, 1))
       : labelAngle;
 
-  // Sem rotação o rótulo das pontas transborda meia largura para cada lado; a
-  // folga só precisa cobrir o que a calha lateral ainda não cobre.
+  // Sem rotacao o rotulo das pontas transborda meia largura para cada lado; a
+  // folga so precisa cobrir o que a calha lateral ainda nao cobre.
   const bordaLateral = rotation === 0 ? meioRotulo : 0;
   const rotulos = alturaDosRotulos(bottomLabels, font, rotation, embaixo);
   const emCima = xAxisPosition === 'top';
@@ -203,10 +203,10 @@ export function cartesianLayout({
 }
 
 /**
- * Rótulos de valor usados apenas para medir a calha do eixo, antes de a área de
+ * Rotulos de valor usados apenas para medir a calha do eixo, antes de a area de
  * desenho existir. Eles saem da altura total em vez da altura util, o que pode
- * render uma marca a mais ou a menos: a largura do rótulo mais largo não muda
- * por isso, e e só ela que a medida precisa.
+ * render uma marca a mais ou a menos: a largura do rotulo mais largo nao muda
+ * por isso, e e so ela que a medida precisa.
  */
 export function valueLabelsFor(
   domain: NumericRange,

@@ -126,7 +126,7 @@ describe('SortableList', () => {
   });
 
   describe('arrasto pela alca', () => {
-    // O jsdom não tem PointerEvent nem captura de ponteiro.
+    // O jsdom nao tem PointerEvent nem captura de ponteiro.
     beforeEach(() => {
       window.PointerEvent = class extends MouseEvent {
         pointerId: number;

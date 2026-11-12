@@ -33,46 +33,45 @@ export interface ChartRadialTrack extends SeriesAppearance {
 
 export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
-  /** Texto sob o valor do centro. Sem ele, o rótulo do primeiro anel. O anel em foco troca esse texto pelo próprio rótulo. */
+  /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. O anel em foco troca esse texto pelo proprio rotulo. */
   centerLabel?: string;
-  /** Aneis ocultos de inicio, enquanto o produto não controla `hidden`. */
+  /** Aneis ocultos de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenTracks?: readonly string[];
   emptyMessage?: string;
-  /** Ângulo final da volta, em graus a partir do topo. Meia-lua usa 180. */
+  /** Angulo final da volta, em graus a partir do topo. Meia-lua usa 180. */
   endAngle?: number;
-  /** Formato dos valores no balão. Sem ele, vale o `formatValue`. */
+  /** Formato dos valores no balao. Sem ele, vale o `formatValue`. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos dos aneis desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos dos aneis desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenTracks?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenTracksChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
-   * Anel sob o ponteiro, o foco ou a entrada da legenda, ou `null` ao sair. Da legenda, que não tem ponteiro, vem
+   * Anel sob o ponteiro, o foco ou a entrada da legenda, ou `null` ao sair. Da legenda, que nao tem ponteiro, vem
    * o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
    */
   onHover?: (track: ChartRadialTrack | null, details?: ChartHoverDetails) => void;
-  /** Clique no anel. Com ele, os aneis viram botões percorridos pelas setas. */
+  /** Clique no anel. Com ele, os aneis viram botoes percorridos pelas setas. */
   onMarkClick?: (track: ChartRadialTrack) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onTrackClick?: (track: ChartRadialTrack) => void;
-  /** Cores das séries sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
-  /** Valor no centro. Ele reserva o próprio espaço, até metade do raio: com muitos aneis, quem cede e a espessura deles. */
+  /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
-  /** Balão com o detalhe do que esta sob o ponteiro. Desligue para não mostrar nada além do `<title>` nativo. */
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   startAngle?: number;
   /** Raio das pontas do arco. Sem valor, o token de raio pequeno. */
@@ -86,7 +85,7 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
 /** Folga entre dois aneis vizinhos. */
 const ESPACO_ENTRE_ANEIS = 6;
 
-/** Raio mínimo do vazio central, com ou sem texto nele. */
+/** Raio minimo do vazio central, com ou sem texto nele. */
 const PISO_DO_RAIO = 8;
 
 function emRadianos(graus: number) {
@@ -134,11 +133,11 @@ export function ChartRadial({
     },
   });
 
-  // A cor sai da lista inteira, e não das visíveis: desligar um anel não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar um anel nao pode
   // repintar os demais.
   const cores = useMemo(() => resolveSeriesColors(tracks, { accent, palette }), [accent, palette, tracks]);
 
-  // Valor inválido tem o destino do ausente: não entra no máximo nem preenche o anel.
+  // Valor invalido tem o destino do ausente: nao entra no maximo nem preenche o anel.
   const valido = (anel: ChartRadialTrack) => Number.isFinite(anel.value);
   const maiorValor = tracks.reduce((maior, anel) => (valido(anel) ? Math.max(maior, anel.value) : maior), 0);
   const fracoes = tracks.map((anel) => {
@@ -147,12 +146,12 @@ export function ChartRadial({
     return isHidden(anel.label) || !valido(anel) || !(meta > 0) ? 0 : Math.min(Math.max(anel.value, 0) / meta, 1);
   });
 
-  // As fracoes caminham até o alvo, então o arco cresce ao aparecer e recolhe
+  // As fracoes caminham ate o alvo, entao o arco cresce ao aparecer e recolhe
   // quando o anel e desligado.
   const animadas = useTweenedNumbers(fracoes, { from: fracoes.map(() => 0) });
 
   const [emFoco, setEmFoco] = useState<number | null>(null);
-  // O ponteiro que salta do anel para a legenda entra nela antes de sair do anel: a saida só solta o que ainda e dele.
+  // O ponteiro que salta do anel para a legenda entra nela antes de sair do anel: a saida so solta o que ainda e dele.
   const realcado = useRef<number | null>(null);
 
   function focarAnel(indice: number | null, details?: ChartHoverDetails) {
@@ -180,7 +179,7 @@ export function ChartRadial({
     present: tracks.flatMap((anel, column) => (isHidden(anel.label) || !valido(anel) ? [] : [{ column, row: 0 }])),
   });
 
-  // Anel desligado não tem arco: a legenda não o realca.
+  // Anel desligado nao tem arco: a legenda nao o realca.
   function realcarAnel(label: string | null, anchor?: ChartAnchorPoint) {
     const indice = label === null ? -1 : tracks.findIndex((anel) => anel.label === label);
     const alvo = indice >= 0 && !isHidden(label!) && valido(tracks[indice]) ? indice : null;
@@ -245,12 +244,12 @@ export function ChartRadial({
     width,
   });
   const valorDoCentro = removed.has('centerText') ? undefined : valorDoCentroPedido;
-  // O centro reserva o que o valor pede no menor degrau da escala, até metade do raio; quem cede e a espessura dos aneis.
+  // O centro reserva o que o valor pede no menor degrau da escala, ate metade do raio; quem cede e a espessura dos aneis.
   const piso =
     valorDoCentro === undefined
       ? PISO_DO_RAIO
       : Math.max(PISO_DO_RAIO, Math.min(centerTextRadius(valorDoCentro, font), raioExterno / 2));
-  // Com muitos aneis, espessura e folga cedem na mesma proporção até caber; só a espessura cedia, e os ultimos
+  // Com muitos aneis, espessura e folga cedem na mesma proporcao ate caber; so a espessura cedia, e os ultimos
   // aneis passavam do centro.
   const cabe = Math.min(1, Math.max(raioExterno - piso, 0) / (Math.max(tracks.length, 1) * (thickness + ESPACO_ENTRE_ANEIS)));
   const espessuraCabivel = Math.max(thickness * cabe, 1);

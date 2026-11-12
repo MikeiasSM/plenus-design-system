@@ -11,7 +11,7 @@ interface ChartMapZoomControlsProps {
   onZoomOut: () => void;
 }
 
-/** Aproximar, afastar e voltar ao enquadramento, no canto da área de desenho. */
+/** Aproximar, afastar e voltar ao enquadramento, no canto da area de desenho. */
 export function ChartMapZoomControls({ canReset, canZoomIn, canZoomOut, onReset, onZoomIn, onZoomOut }: ChartMapZoomControlsProps) {
   return (
     <div className={styles.zoomControls}>
@@ -29,7 +29,7 @@ export function ChartMapZoomControls({ canReset, canZoomIn, canZoomOut, onReset,
   );
 }
 
-/** O que o leitor de tela ouve da escala; o enquadramento inicial só e anunciado quando a vista volta a ele. */
+/** O que o leitor de tela ouve da escala; o enquadramento inicial so e anunciado quando a vista volta a ele. */
 export function zoomAnnouncement(scale: number, backToInitial: boolean) {
   if (scale > 1) {
     return `Aproximação de ${String(Math.round(scale * 10) / 10).replace('.', ',')} vezes`;
@@ -38,7 +38,7 @@ export function zoomAnnouncement(scale: number, backToInitial: boolean) {
   return backToInitial ? 'Enquadramento inicial' : '';
 }
 
-/** A rolagem sem a tecla rola a página; a dica diz como aproximar. */
+/** A rolagem sem a tecla rola a pagina; a dica diz como aproximar. */
 export function zoomHint() {
   const key = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘' : 'Ctrl';
 

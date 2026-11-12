@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Restaura o valor inicial quando o formulario e reiniciado. Campo que guarda o
- * texto exibido em estado do React não volta sozinho: o `reset` mexe no DOM, e
+ * texto exibido em estado do React nao volta sozinho: o `reset` mexe no DOM, e
  * o estado continua onde estava.
  */
 export function useFormReset<T extends HTMLElement>(restaurar: () => void) {

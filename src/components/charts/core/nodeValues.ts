@@ -1,8 +1,8 @@
 import type { HierarchyNode } from 'd3-hierarchy';
 
 /**
- * Valor de cada no: o maior entre o próprio e a soma dos filhos. O pai maior que a soma
- * deixa a parte não detalhada; o menor cede ao que os filhos somam.
+ * Valor de cada no: o maior entre o proprio e a soma dos filhos. O pai maior que a soma
+ * deixa a parte nao detalhada; o menor cede ao que os filhos somam.
  */
 export function assignNodeValues<Data>(root: HierarchyNode<Data>, ownValue: (data: Data) => number) {
   return root.eachAfter((node) => {

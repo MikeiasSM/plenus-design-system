@@ -6,10 +6,10 @@ export type EmptyStateSize = 'sm' | 'md' | 'lg';
 export type EmptyStateTone = 'neutral' | 'danger';
 
 export interface EmptyStateProps extends Omit<ComponentPropsWithRef<'div'>, 'title'> {
-  /** Uma ou duas ações: a secundaria antes da principal. */
+  /** Uma ou duas acoes: a secundaria antes da principal. */
   actions?: ReactNode;
   description?: ReactNode;
-  /** Sem ícone próprio, a lupa. */
+  /** Sem icone proprio, a lupa. */
   icon?: ReactNode;
   size?: EmptyStateSize;
   title: ReactNode;
@@ -26,7 +26,7 @@ export function EmptyState({
   tone = 'neutral',
   ...props
 }: EmptyStateProps) {
-  // Os cartoes contam que o conteúdo ainda não chegou: não cabem no tamanho pequeno nem na falha.
+  // Os cartoes contam que o conteudo ainda nao chegou: nao cabem no tamanho pequeno nem na falha.
   const withCards = size !== 'sm' && tone === 'neutral';
 
   return (

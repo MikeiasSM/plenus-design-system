@@ -14,10 +14,10 @@ import styles from './Card.module.css';
 
 export type CardHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-/** `sm` encolhe o respiro e põe a descrição abaixo do título, que para na terceira linha. */
+/** `sm` encolhe o respiro e poe a descricao abaixo do titulo, que para na terceira linha. */
 export type CardSize = 'sm' | 'md';
 
-/** O que o `trailing` faz quando o título, numa linha só, não cabe ao lado dele. */
+/** O que o `trailing` faz quando o titulo, numa linha so, nao cabe ao lado dele. */
 export type CardTrailingWhenNarrow = 'keep' | 'wrap' | 'hide';
 
 export interface CardProps extends ComponentPropsWithRef<'section'> {
@@ -44,7 +44,7 @@ function useCardContext(part: string) {
   return context;
 }
 
-/** Id do título do cabeçalho, enquanto ele existir, para quem compoe sobre o Card nomear algo por ele. */
+/** Id do titulo do cabecalho, enquanto ele existir, para quem compoe sobre o Card nomear algo por ele. */
 export function useCardTitle() {
   const { titled, titleId } = useCardContext('useCardTitle');
 
@@ -58,7 +58,7 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, s
   const [titled, setTitled] = useState(false);
   const titleId = baseId + '-title';
 
-  // O título que sai da tela desfaz o registro; senão o cartão apontava para um id que não existe mais.
+  // O titulo que sai da tela desfaz o registro; senao o cartao apontava para um id que nao existe mais.
   const context: CardContextValue = {
     registerTitle: useCallback(() => {
       setTitled(true);
@@ -91,7 +91,7 @@ export interface CardHeaderProps extends Omit<ComponentPropsWithRef<'header'>, '
 
 /**
  * Se o `trailing` desceu de linha. Ele continua no fluxo mesmo oculto, sem altura, para a quebra seguir
- * medindo a largura dele; fora do fluxo, o título voltaria a caber e ele reapareceria.
+ * medindo a largura dele; fora do fluxo, o titulo voltaria a caber e ele reapareceria.
  */
 function useTrailingWrapped(enabled: boolean) {
   const titleRow = useRef<HTMLDivElement>(null);

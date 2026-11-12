@@ -3,7 +3,7 @@ const DECIMAL_SEPARATOR = ',';
 /** Quantos digitos formam um grupo de milhar. */
 const GROUP_DIGITS = 3;
 
-/** O que fica de cada lado do ponto, quando ha um só e nenhuma vírgula. */
+/** O que fica de cada lado do ponto, quando ha um so e nenhuma virgula. */
 function sidesOfSingleDot(text: string) {
   const parts = text.split('.');
 
@@ -15,8 +15,8 @@ function sidesOfSingleDot(text: string) {
 }
 
 /**
- * O ponto separa milhar em pt-BR e e decimal no teclado numerico e no texto colado: vale como decimal só quando e o
- * unico, sem vírgula, e o que vem depois não forma grupo de milhar ou o que vem antes e zero.
+ * O ponto separa milhar em pt-BR e e decimal no teclado numerico e no texto colado: vale como decimal so quando e o
+ * unico, sem virgula, e o que vem depois nao forma grupo de milhar ou o que vem antes e zero.
  */
 function normalizeDot(text: string) {
   const sides = sidesOfSingleDot(text);
@@ -27,7 +27,7 @@ function normalizeDot(text: string) {
 
 /**
  * Numero que vem de fora **arredonda** nas casas pedidas, em vez de truncar, e
- * sai sem notação exponencial. Truncar e o certo para o que se digita, porque
+ * sai sem notacao exponencial. Truncar e o certo para o que se digita, porque
  * ali o valor ainda esta pela metade; para um valor pronto, e perda.
  */
 function asText(value: number, decimals: number) {
@@ -67,8 +67,8 @@ export function formatDecimalInput(value: string | number, decimals = 0): string
 }
 
 /**
- * O texto do campo enquanto se digita: o ponto que ainda pode virar milhar na próxima tecla fica como foi digitado, e
- * o valor o le como decimal até la. Decidido na hora, `1.234` virava `1,23`.
+ * O texto do campo enquanto se digita: o ponto que ainda pode virar milhar na proxima tecla fica como foi digitado, e
+ * o valor o le como decimal ate la. Decidido na hora, `1.234` virava `1,23`.
  */
 export function formatDecimalDraft(text: string, decimals = 0): string {
   const sides = sidesOfSingleDot(text);

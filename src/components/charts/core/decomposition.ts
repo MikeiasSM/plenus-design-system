@@ -3,7 +3,7 @@ import type { ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import { measureLabel, type LabelFont } from './measureText';
 import type { ChartPlot } from './cartesianLayout';
 
-/** Menor área de marcas em que o desenho ainda se le; abaixo dela, o gráfico retira partes na ordem da família. */
+/** Menor area de marcas em que o desenho ainda se le; abaixo dela, o grafico retira partes na ordem da familia. */
 export const CHART_MIN_PLOT: ChartPlot = { height: 96, width: 120 };
 
 /** Menor diametro da forma radial. */
@@ -14,17 +14,17 @@ const ITEM_GAP = 8;
 const LEGEND_COLUMN_GAP = 16;
 const LEGEND_BODY_GAP = 12;
 const LEGEND_SIDE_SHARE = 0.45;
-/** O botão "Ver como tabela" só cabe ao lado do título a partir desta largura; abaixo dela sai, e a leitura segue pelo `aria-label`. */
+/** O botao "Ver como tabela" so cabe ao lado do titulo a partir desta largura; abaixo dela sai, e a leitura segue pelo `aria-label`. */
 export const TABLE_TOGGLE_MIN_WIDTH = 200;
 
 const COLOR_LEGEND_HEIGHT = 56;
 const COLOR_LEGEND_WIDTH = 140;
 
 /**
- * Retira as partes, na ordem, até a área medida caber no mínimo. A parte só sai quando a área não cabe e a saida
- * ganha espaço na dimensao que falta: tirar a legenda de baixo não devolve largura, e tirar o rótulo do eixo de valor
- * não devolve altura. `lastResort` sai por ultimo se, esgotadas as demais, a área ainda não cabe — e a parte que
- * acompanha o traco sem ocupar espaço, como a grade.
+ * Retira as partes, na ordem, ate a area medida caber no minimo. A parte so sai quando a area nao cabe e a saida
+ * ganha espaco na dimensao que falta: tirar a legenda de baixo nao devolve largura, e tirar o rotulo do eixo de valor
+ * nao devolve altura. `lastResort` sai por ultimo se, esgotadas as demais, a area ainda nao cabe — e a parte que
+ * acompanha o traco sem ocupar espaco, como a grade.
  */
 export function removedParts<Part extends string>(
   order: readonly Part[],
@@ -56,7 +56,7 @@ export function removedParts<Part extends string>(
   return removed;
 }
 
-/** O que a legenda de escala de cor tira da área: a altura do degrade com os valores, ou a coluna ao lado. */
+/** O que a legenda de escala de cor tira da area: a altura do degrade com os valores, ou a coluna ao lado. */
 export function colorLegendRoom(position: ChartLegendPosition, fillHeight: boolean): ChartPlot {
   if (position === 'none') {
     return { height: 0, width: 0 };
@@ -67,7 +67,7 @@ export function colorLegendRoom(position: ChartLegendPosition, fillHeight: boole
   return { height: !lateral && fillHeight ? COLOR_LEGEND_HEIGHT : 0, width: lateral ? COLOR_LEGEND_WIDTH : 0 };
 }
 
-/** O que a legenda tira da área de desenho: a largura, ao lado, ou a altura, em cima e embaixo. */
+/** O que a legenda tira da area de desenho: a largura, ao lado, ou a altura, em cima e embaixo. */
 export function legendRoom(
   entries: readonly ChartLegendEntry[] | undefined,
   position: ChartLegendPosition,
@@ -108,7 +108,7 @@ export function legendRoom(
   return { height: rows * font.lineHeight + (rows - 1) * ITEM_GAP + LEGEND_BODY_GAP, width: 0 };
 }
 
-/** A área que sobra ao desenho: a medida do que esta na tela, com a legenda de volta e, se ela fica, descontada de novo. */
+/** A area que sobra ao desenho: a medida do que esta na tela, com a legenda de volta e, se ela fica, descontada de novo. */
 export function plotRoom(measured: ChartPlot, legend: ChartPlot, legendWasShown: boolean, legendKept: boolean): ChartPlot {
   const own = legendWasShown ? 1 : 0;
   const kept = legendKept ? 1 : 0;
@@ -120,8 +120,8 @@ export function plotRoom(measured: ChartPlot, legend: ChartPlot, legendWasShown:
 }
 
 /**
- * As partes retiradas pela medida, na ordem da família. `measure` recebe o que já saiu e se a legenda estava na tela na
- * ultima pintura, porque a medida do desenho já descontou a que estava la, e devolve a área que sobra as marcas.
+ * As partes retiradas pela medida, na ordem da familia. `measure` recebe o que ja saiu e se a legenda estava na tela na
+ * ultima pintura, porque a medida do desenho ja descontou a que estava la, e devolve a area que sobra as marcas.
  */
 export function useFit<Part extends string>(
   order: readonly Part[],

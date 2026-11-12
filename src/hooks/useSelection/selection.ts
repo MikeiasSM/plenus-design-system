@@ -93,8 +93,8 @@ export function select(
   }
 
   if (mode === 'single') {
-    // Escolher de novo o que já estava escolhido desfaz a escolha apenas onde o
-    // vazio e um estado válido: uma secao de acordeao fecha, uma aba não.
+    // Escolher de novo o que ja estava escolhido desfaz a escolha apenas onde o
+    // vazio e um estado valido: uma secao de acordeao fecha, uma aba nao.
     const desfaz = allowEmpty && state.selectedKeys.has(key);
 
     return { focusedKey: key, selectedKeys: desfaz ? new Set() : new Set([key]) };

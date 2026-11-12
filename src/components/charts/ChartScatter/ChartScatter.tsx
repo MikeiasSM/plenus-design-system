@@ -35,7 +35,7 @@ export interface ChartScatterSeries extends SeriesAppearance {
   points: readonly ChartScatterPoint[];
 }
 
-/** Argumento do clique num ponto: a posicao dele na lista da serie e a própria serie. */
+/** Argumento do clique num ponto: a posicao dele na lista da serie e a propria serie. */
 export interface ChartScatterPointClick {
   index: number;
   point: ChartScatterPoint;
@@ -44,62 +44,61 @@ export interface ChartScatterPointClick {
 
 export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
-  /** Séries ocultas de inicio, enquanto o produto não controla `hidden`. */
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatX?: (value: number) => string;
   formatY?: (value: number) => string;
   formatZ?: (value: number) => string;
   /**
-   * Inclui o zero no dominio: `true` nos dois eixos, `'x'` ou `'y'` só naquele, `false` em nenhum.
-   * Medida que não se compara ao zero — um ano, uma temperatura — fica com o eixo dela de fora;
-   * um ano pede também um formato sem separador de milhar em `formatX` ou `formatY`.
+   * Inclui o zero no dominio: `true` nos dois eixos, `'x'` ou `'y'` so naquele, `false` em nenhum.
+   * Medida que nao se compara ao zero — um ano, uma temperatura — fica com o eixo dela de fora;
+   * um ano pede tambem um formato sem separador de milhar em `formatX` ou `formatY`.
    */
   includeZero?: boolean | 'x' | 'y';
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** Passo mínimo entre as marcas do eixo horizontal, na unidade do dado. */
+  /** Passo minimo entre as marcas do eixo horizontal, na unidade do dado. */
   minXTickStep?: number;
-  /** Passo mínimo entre as marcas dos eixos verticais, na unidade do dado. */
+  /** Passo minimo entre as marcas dos eixos verticais, na unidade do dado. */
   minYTickStep?: number;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Ponto sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
   onHover?: (point: ChartScatterPointClick | null) => void;
-  /** Clique no ponto. Com ele, os pontos viram botões percorridos pelas setas, na ordem da lista. */
+  /** Clique no ponto. Com ele, os pontos viram botoes percorridos pelas setas, na ordem da lista. */
   onMarkClick?: (point: ChartScatterPointClick) => void;
-  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
   onPointClick?: (point: ChartScatterPointClick) => void;
-  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
-  /** Balão com o detalhe do que esta sob o ponteiro. Desligue para não mostrar nada além do `<title>` nativo. */
+  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
   title: string;
-  /** Nome de cada medida no balão. */
+  /** Nome de cada medida no balao. */
   xLabel?: string;
   yLabel?: string;
   zLabel?: string;
   xAxis?: AxisVisibility;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
-  /** Título do eixo horizontal, embaixo do desenho. Separado do `xLabel`, que nomeia a medida no balão. */
+  /** Titulo do eixo horizontal, embaixo do desenho. Separado do `xLabel`, que nomeia a medida no balao. */
   xAxisTitle?: string;
-  /** Título do eixo vertical da direita. */
+  /** Titulo do eixo vertical da direita. */
   yAxisRightTitle?: string;
-  /** Título do eixo vertical, a esquerda do desenho. Separado do `yLabel`. */
+  /** Titulo do eixo vertical, a esquerda do desenho. Separado do `yLabel`. */
   yAxisTitle?: string;
 }
 
@@ -111,7 +110,7 @@ interface Guia {
   y: number;
 }
 
-/** Tamanho inválido tem o destino do ausente: a bolha fica no raio padrão. */
+/** Tamanho invalido tem o destino do ausente: a bolha fica no raio padrao. */
 function zValido(ponto: ChartScatterPoint) {
   return ponto.z !== undefined && Number.isFinite(ponto.z) ? ponto.z : undefined;
 }
@@ -167,7 +166,7 @@ export function ChartScatter({
   const [guia, setGuia] = useState<Guia | null>(null);
   const [emFoco, setEmFoco] = useState<{ ponto: number; serie: number } | null>(null);
 
-  // A cor sai da lista inteira, e não das visíveis: desligar uma serie não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
@@ -223,7 +222,7 @@ export function ChartScatter({
   });
 
   // As escalas alvo fixam as marcas; as animadas posicionam o desenho. Sem
-  // separar as duas, as marcas exibiriam valores quebrados durante a transição.
+  // separar as duas, as marcas exibiriam valores quebrados durante a transicao.
   const alvoX = useMemo(() => linearScale({ domain: dominioX, range: [0, plot.width] }), [dominioX, plot.width]);
   const alvoY = useMemo(() => linearScale({ domain: dominioY, range: [plot.height, 0] }), [dominioY, plot.height]);
 
@@ -345,7 +344,7 @@ export function ChartScatter({
           ? {
               computed: 'none',
               rows: linhasDoBalao(),
-              // Com nome no ponto, ele e o título e a serie vira subtitulo.
+              // Com nome no ponto, ele e o titulo e a serie vira subtitulo.
               subtitle: pontoEmFoco?.label ? serieEmFoco?.label : undefined,
               title: pontoEmFoco?.label ?? serieEmFoco?.label,
             }

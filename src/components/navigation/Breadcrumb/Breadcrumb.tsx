@@ -7,13 +7,13 @@ export interface BreadcrumbItem {
   label: string;
   /**
    * Propriedades entregues inteiras ao componente de link. Serve ao roteador
-   * que não usa `href` — o do React Router pede `to`.
+   * que nao usa `href` — o do React Router pede `to`.
    */
   linkProps?: Record<string, unknown>;
 }
 
 export interface BreadcrumbProps extends ComponentPropsWithRef<'nav'> {
-  /** Componente de link da aplicação, para não acoplar o sistema a um roteador. */
+  /** Componente de link da aplicacao, para nao acoplar o sistema a um roteador. */
   as?: ElementType;
   items: readonly BreadcrumbItem[];
   label?: string;

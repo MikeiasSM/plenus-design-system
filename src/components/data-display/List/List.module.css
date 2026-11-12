@@ -46,9 +46,9 @@
   outline: none;
 }
 
-/* Os espacadores da janela virtual medem a lista inteira, e a opção mede o
-   próprio conteúdo. Num flex em coluna com rolagem, item encolhível tem a
-   altura renegociada quando o conteúdo excede o container — e e a altura deles
+/* Os espacadores da janela virtual medem a lista inteira, e a opcao mede o
+   proprio conteudo. Num flex em coluna com rolagem, item encolhivel tem a
+   altura renegociada quando o conteudo excede o container — e e a altura deles
    que sustenta a barra de rolagem. */
 .spacer {
   flex: none;
@@ -68,7 +68,7 @@
   cursor: pointer;
 }
 
-/* O marcar todos tem o respiro da opção, para a caixa dele ficar na coluna das caixas da lista. */
+/* O marcar todos tem o respiro da opcao, para a caixa dele ficar na coluna das caixas da lista. */
 .selectAll {
   padding: var(--pl-space-2) var(--pl-space-3);
 }

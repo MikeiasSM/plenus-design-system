@@ -172,7 +172,7 @@ describe('ChartPie: legenda e costura', () => {
     const lista = entrada.closest('ul')!;
 
     fireEvent.pointerEnter(entrada);
-    // O jsdom não tem PointerEvent, e sem ele o `relatedTarget` se perde: o evento sai como MouseEvent.
+    // O jsdom nao tem PointerEvent, e sem ele o `relatedTarget` se perde: o evento sai como MouseEvent.
     entrada.dispatchEvent(new MouseEvent('pointerout', { bubbles: true, relatedTarget: lista }));
 
     expect(aoPassar).not.toHaveBeenLastCalledWith(null);

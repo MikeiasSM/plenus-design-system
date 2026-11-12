@@ -43,8 +43,8 @@ import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartCombo.module.css';
 /**
- * Ponto sem vizinho desenhado. A curva entre ele e o nada não tem tracado, e o
- * marcador só no hover deixaria o dado invisível — então ele aparece sempre.
+ * Ponto sem vizinho desenhado. A curva entre ele e o nada nao tem tracado, e o
+ * marcador so no hover deixaria o dado invisivel — entao ele aparece sempre.
  */
 function isolado(pontos: readonly (ChartPoint | null)[], indice: number) {
   return pontos[indice] !== null && !pontos[indice - 1] && !pontos[indice + 1];
@@ -57,11 +57,11 @@ export type ChartComboAxis = ChartValueAxis;
 
 export interface ChartComboSeries extends SeriesAppearance {
   axis?: ChartComboAxis;
-  /** Curva desta serie de linha. Vence a `curve` do gráfico. */
+  /** Curva desta serie de linha. Vence a `curve` do grafico. */
   curve?: ChartCurve;
   kind: ChartComboKind;
   label: string;
-  /** Visibilidade do rótulo de valor desta serie. Vence a `showDataLabels` do gráfico. */
+  /** Visibilidade do rotulo de valor desta serie. Vence a `showDataLabels` do grafico. */
   showDataLabels?: MarkVisibility;
   values: readonly (number | null)[];
 }
@@ -70,68 +70,67 @@ export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
-  /** Séries ocultas de inicio, enquanto o produto não controla `hidden`. */
+  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatRightValue?: (value: number) => string;
   /**
-   * Formato no balão das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o
-   * balão, exato. As da direita seguem `formatRightValue`.
+   * Formato no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o
+   * balao, exato. As da direita seguem `formatRightValue`.
    */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
-  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rótulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** Passo mínimo entre as marcas do eixo da esquerda, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  /** Passo minimo entre as marcas do eixo da esquerda, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
-  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Rótulos ocultos, a cada alternância da legenda. */
+  /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Categoria sob o ponteiro, ou `null` ao sair dela. */
   onHover?: (category: ChartCategoryHover | null) => void;
-  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito até a 0.7.0. */
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
   onHoverCategory?: (index: number | null) => void;
-  /** Clique na barra ou no ponto da linha. Com ele, as marcas viram botões percorridos pelas setas. */
+  /** Clique na barra ou no ponto da linha. Com ele, as marcas viram botoes percorridos pelas setas. */
   onMarkClick?: (mark: ChartMarkClick) => void;
-  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartComboSeries[];
   /**
    * Valor de cada barra e de cada ponto; cada serie pode declarar o seu em `showDataLabels`. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
-   * linhas, que não tem alvo próprio, os da categoria sob o ponteiro.
+   * linhas, que nao tem alvo proprio, os da categoria sob o ponteiro.
    */
   showDataLabels?: MarkVisibility;
   /** Pontos das linhas. Em `onHover`, os da categoria sob o ponteiro. */
   showDots?: MarkVisibility;
-  /** Botão "Ver como tabela". Ligado por padrão. */
+  /** Botao "Ver como tabela". Ligado por padrao. */
   showTableToggle?: boolean;
-  /** Balão com as series da categoria sob o ponteiro, cada uma no formato do seu eixo. Desligue para montar o próprio `ChartTooltip`. */
+  /** Balao com as series da categoria sob o ponteiro, cada uma no formato do seu eixo. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
   title: string;
   xAxis?: AxisVisibility;
-  /** Título do eixo das categorias, embaixo do desenho. */
+  /** Titulo do eixo das categorias, embaixo do desenho. */
   xAxisTitle?: string;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
-  /** Título do eixo de valor da direita. */
+  /** Titulo do eixo de valor da direita. */
   yAxisRightTitle?: string;
-  /** Título do eixo de valor da esquerda. */
+  /** Titulo do eixo de valor da esquerda. */
   yAxisTitle?: string;
 }
 
-/** A serie decide a visibilidade do próprio rótulo; sem ela, vale a do gráfico. */
+/** A serie decide a visibilidade do proprio rotulo; sem ela, vale a do grafico. */
 function rotuloDaSerie(serie: ChartComboSeries, doGrafico: MarkVisibility) {
   return serie.showDataLabels ?? doGrafico;
 }
@@ -217,11 +216,11 @@ export function ChartCombo({
   const eixos = useMemo(() => series.map(axisOf), [series]);
   const temEixoDireito = eixos.includes('right');
 
-  // A cor sai da lista inteira, e não das visíveis: desligar uma serie não pode
+  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
-  // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, então a
+  // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, entao a
   // barra desligada encolhe enquanto as demais ocupam o lugar dela.
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
 
@@ -265,7 +264,7 @@ export function ChartCombo({
   });
 
   // Barras e linhas compartilham a escala de faixas: a linha passa pelo centro
-  // da faixa, que e onde a marca do eixo de categoria também fica.
+  // da faixa, que e onde a marca do eixo de categoria tambem fica.
   const escalaCategorias = useMemo(
     () => bandScale({ domain: categories, range: [0, plot.width] }),
     [categories, plot.width],
@@ -288,7 +287,7 @@ export function ChartCombo({
 
   const vao = escalaCategorias.bandwidth();
 
-  // Só as barras repartem a faixa: a linha passa pelo centro dela, e por isso
+  // So as barras repartem a faixa: a linha passa pelo centro dela, e por isso
   // entra na conta com presenca zero.
   const faixas = barSlots(
     vao,

@@ -3,19 +3,19 @@ import type { ChartPoint } from './shapes';
 import styles from './Chart.module.css';
 
 export interface PointBandsProps {
-  /** Clique na faixa da categoria, quando o gráfico tem clique no ponto. */
+  /** Clique na faixa da categoria, quando o grafico tem clique no ponto. */
   onActivate?: (index: number) => void;
   onHover: (index: number | null) => void;
-  /** Altura do ponteiro na área de desenho, para quem escolhe a série mais próxima dele. */
+  /** Altura do ponteiro na area de desenho, para quem escolhe a serie mais proxima dele. */
   onPointerY?: (y: number | null) => void;
   plot: ChartPlot;
-  /** Posição de cada categoria no eixo, na ordem das categorias. */
+  /** Posicao de cada categoria no eixo, na ordem das categorias. */
   positions: readonly number[];
 }
 
 /**
- * Faixas invisíveis sobre a área de desenho, uma por categoria, que vão do ponto
- * até o meio do caminho para cada vizinho: o ponteiro sempre cai no ponto mais próximo.
+ * Faixas invisiveis sobre a area de desenho, uma por categoria, que vao do ponto
+ * ate o meio do caminho para cada vizinho: o ponteiro sempre cai no ponto mais proximo.
  */
 export function PointBands({ onActivate, onHover, onPointerY, plot, positions }: PointBandsProps) {
   return (
@@ -52,7 +52,7 @@ export function PointCursor({ plot, position }: { plot: ChartPlot; position: num
   return <line className={styles.pointCursor} x1={position} x2={position} y1={0} y2={plot.height} />;
 }
 
-/** A série visível com ponto na categoria cujo ponto fica mais perto da altura do ponteiro. */
+/** A serie visivel com ponto na categoria cujo ponto fica mais perto da altura do ponteiro. */
 export function nearestSeriesAt(
   pointsBySeries: readonly (readonly (ChartPoint | null)[])[],
   category: number | null,

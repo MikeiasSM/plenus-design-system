@@ -16,12 +16,12 @@ export interface ColorLegendEntry extends ColorScaleEntry {
 
 export interface ColorLegendProps {
   align: ChartLegendAlign;
-  /** Blocos proprios do gráfico, depois da escala, como as séries de marcadores do mapa. */
+  /** Blocos proprios do grafico, depois da escala, como as series de marcadores do mapa. */
   children?: ReactNode;
   entries: readonly ColorLegendEntry[];
   formatValue: (value: number) => string;
   gradient?: ColorGradient;
-  /** Posição, na barra, do valor sob o ponteiro. */
+  /** Posicao, na barra, do valor sob o ponteiro. */
   indicator?: number;
   noData?: { color: string; count: number; label: string };
   onHighlight: (key: string | null) => void;
@@ -31,7 +31,7 @@ export interface ColorLegendProps {
   valueLabel: string;
 }
 
-/** A legenda liga e desliga pelo rótulo; aqui ele volta a ser a chave, que e o que o gráfico e o produto reconhecem. */
+/** A legenda liga e desliga pelo rotulo; aqui ele volta a ser a chave, que e o que o grafico e o produto reconhecem. */
 export function keyByLabel(items: readonly { key: string; label: string }[]) {
   const keys = new Map<string, string>();
   items.forEach((item) => !keys.has(item.label) && keys.set(item.label, item.key));

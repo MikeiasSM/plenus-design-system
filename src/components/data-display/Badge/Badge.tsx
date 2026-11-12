@@ -3,7 +3,7 @@ import styles from './Badge.module.css';
 
 export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
-/** `brand` pinta na cor da marca e ignora o `tone`: destaque, não estado. */
+/** `brand` pinta na cor da marca e ignora o `tone`: destaque, nao estado. */
 export type BadgeVariant = 'status' | 'brand';
 
 export type BadgeSize = 'sm' | 'md';
@@ -11,7 +11,7 @@ export type BadgeSize = 'sm' | 'md';
 export interface BadgeProps extends ComponentPropsWithRef<'span'> {
   dot?: boolean;
   outline?: boolean;
-  /** `sm` usa o papel `type.micro` (10px): etiqueta ao lado de um título, sem competir com ele. */
+  /** `sm` usa o papel `type.micro` (10px): etiqueta ao lado de um titulo, sem competir com ele. */
   size?: BadgeSize;
   tone?: BadgeTone;
   variant?: BadgeVariant;

@@ -18,7 +18,7 @@ import type { ChartAnchorPoint } from './useMarkNavigation';
 import styles from './Chart.module.css';
 
 export interface ChartRootProps extends Omit<ComponentPropsWithRef<'figure'>, 'children' | 'title'> {
-  /** Título só para o leitor de tela, quando o contêiner já o mostra. */
+  /** Titulo so para o leitor de tela, quando o conteiner ja o mostra. */
   hideTitle?: boolean;
 }
 
@@ -33,13 +33,13 @@ export function chartRoot(
 }
 
 export interface ChartFrameProps {
-  /** `group` quando as marcas são controles, percorridos pelo teclado; `img` quando o desenho e uma leitura só. */
+  /** `group` quando as marcas sao controles, percorridos pelo teclado; `img` quando o desenho e uma leitura so. */
   canvasRole?: 'img' | 'group';
-  /** Marcas do gráfico, em coordenadas da área de desenho. */
+  /** Marcas do grafico, em coordenadas da area de desenho. */
   children: ReactNode;
   /**
-   * Leva a origem das marcas para o centro da área, de modo que o filho
-   * raciocine em raio e ângulo em vez de converter coordenadas.
+   * Leva a origem das marcas para o centro da area, de modo que o filho
+   * raciocine em raio e angulo em vez de converter coordenadas.
    */
   centerOrigin?: boolean;
   containerRef: (node: HTMLElement | null) => void;
@@ -49,35 +49,35 @@ export interface ChartFrameProps {
   height: number;
   legend?: readonly ChartLegendEntry[];
   legendAlign?: ChartLegendAlign;
-  /** Legenda própria do gráfico, no lugar da lista de séries, como a de uma escala de cor. */
+  /** Legenda propria do grafico, no lugar da lista de series, como a de uma escala de cor. */
   legendContent?: ReactNode;
   legendPosition: ChartLegendPosition;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
-  /** Entrada da legenda sob o ponteiro ou o foco, com onde ancorar o balão; `null` ao sair. */
+  /** Entrada da legenda sob o ponteiro ou o foco, com onde ancorar o balao; `null` ao sair. */
   onHighlightSeries?: ChartLegendProps['onHighlight'];
-  /** Ponteiro entrando e saindo da área de desenho, para quem revela os eixos `onHover`. */
+  /** Ponteiro entrando e saindo da area de desenho, para quem revela os eixos `onHover`. */
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
   onToggleSeries?: (label: string) => void;
   root?: ChartRootProps;
   swatch?: ChartLegendSwatch;
-  /** Leitura medida a medida, no lugar do desenho, pelo botão "Ver como tabela". */
+  /** Leitura medida a medida, no lugar do desenho, pelo botao "Ver como tabela". */
   table?: ReactNode;
-  /** `false` tira o botão "Ver como tabela" e deixa só o desenho. */
+  /** `false` tira o botao "Ver como tabela" e deixa so o desenho. */
   showTableToggle?: boolean;
   title: string;
-  /** O balão do que esta sob o ponteiro, montado pelo gráfico. Sem linhas, não aparece. */
+  /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
   tooltip?: Omit<ChartTooltipProps, 'children'>;
-  /** Centro da marca em foco pelo teclado, onde o balão se fixa. */
+  /** Centro da marca em foco pelo teclado, onde o balao se fixa. */
   tooltipAnchor?: ChartTooltipProps['anchor'];
   width: number;
 }
 
 /**
- * Moldura de qualquer gráfico: título, área de desenho, estado vazio e legenda.
+ * Moldura de qualquer grafico: titulo, area de desenho, estado vazio e legenda.
  * O que muda entre as familias e o que se desenha dentro dela — eixos, aneis ou
- * a área inteira —, e não o cerco, que era o mesmo repetido tres vezes.
+ * a area inteira —, e nao o cerco, que era o mesmo repetido tres vezes.
  */
 export function ChartFrame({
   canvasRole = 'img',
@@ -109,9 +109,9 @@ export function ChartFrame({
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
   const toque = useTouchPin();
-  // Sobre a legenda, o balão segue o ponteiro, como sobre o desenho; a âncora da marca fica para o teclado.
+  // Sobre a legenda, o balao segue o ponteiro, como sobre o desenho; a ancora da marca fica para o teclado.
   const [ponteiroNaLegenda, setPonteiroNaLegenda] = useState<ChartAnchorPoint | null>(null);
-  // O botão divide a linha com o título: vale a largura do corpo, que a legenda ao lado não estreita como a do desenho.
+  // O botao divide a linha com o titulo: vale a largura do corpo, que a legenda ao lado nao estreita como a do desenho.
   const corpo = useChartMetrics();
   const alternavel = table !== undefined && showTableToggle && !empty && (corpo.width === 0 || corpo.width >= TABLE_TOGGLE_MIN_WIDTH);
   const { figureProps, titleClassName } = chartRoot(root, {
@@ -121,7 +121,7 @@ export function ChartFrame({
   const lateral = legendPosition === 'left' || legendPosition === 'right';
   const plotDaForma = centerOrigin && lateral;
   const mostraTabela = alternavel && emTabela;
-  // A tabela mostra o dado inteiro: a legenda, que filtra só o desenho, sai com ele.
+  // A tabela mostra o dado inteiro: a legenda, que filtra so o desenho, sai com ele.
   const legenda = !mostraTabela && legendPosition !== 'none' && (legendContent ?? (legend !== undefined && legend.length >= minLegendEntries && (
     <ChartLegend
       align={legendAlign}
@@ -182,7 +182,7 @@ export function ChartFrame({
           style={fillHeight ? undefined : { minHeight: height, flexBasis: plotDaForma ? height : undefined }}
         >
           {/* Sem medida ainda — SSR, aba escondida, contêiner recolhido — o
-              desenho espera. Anunciar ausência de dados ali seria mentira: eles
+              desenho espera. Anunciar ausencia de dados ali seria mentira: eles
               estao la, e o que falta e largura. */}
           {empty ? (
             <div className={styles.empty}>

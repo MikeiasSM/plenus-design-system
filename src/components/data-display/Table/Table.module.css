@@ -1,9 +1,7 @@
-/* A margem lateral e a mesma do cabeçalho do `Card`, para a primeira coluna alinhar com o título. */
+/* A margem lateral e a mesma do cabecalho do `Card`, para a primeira coluna alinhar com o titulo. */
 .scroll {
   --table-inline-padding: var(--pl-space-5);
 
-  /* Contém o que é posicionado de forma absoluta dentro da tabela, como um texto só para leitor de tela: sem isto, ele se
-     âncora no body e, com a tabela rolando de lado, alarga a página. */
   position: relative;
   width: 100%;
   overflow-x: auto;
@@ -138,7 +136,7 @@
 }
 
 /* O papel `data-value` e JetBrains Mono, conforme `TOKENS-REFERENCE-TYPOGRAPHY.md`.
-   Pegar o peso 500 sem a família dava Montserrat sintetizada, porque só a mono
+   Pegar o peso 500 sem a familia dava Montserrat sintetizada, porque so a mono
    e carregada nesse peso — e o monoespacado e o que alinha os digitos. */
 .numeric {
   font-family: var(--pl-font-mono);
@@ -164,7 +162,7 @@
   padding: var(--pl-space-6) var(--table-inline-padding);
 }
 
-/* Só para o leitor de tela: a mensagem do esqueleto e o nome da coluna de seleção única. */
+/* So para o leitor de tela: a mensagem do esqueleto e o nome da coluna de selecao unica. */
 .visuallyHidden {
   position: absolute;
   width: 1px;
@@ -175,7 +173,7 @@
   white-space: nowrap;
 }
 
-/* A barra ocupa a célula até um teto: não impoe largura a coluna, e a tabela estreita não rola por causa dela. */
+/* A barra ocupa a celula ate um teto: nao impoe largura a coluna, e a tabela estreita nao rola por causa dela. */
 .skeletonRow .skeleton {
   display: inline-block;
   max-width: 8rem;
@@ -195,7 +193,7 @@
   height: 1rem;
 }
 
-/* O cabeçalho só gruda dentro de um contêiner com altura: quem envolve a
+/* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
    tabela define o limite, por `className` ou `style`. */
 .sticky .head {
   position: sticky;
@@ -203,8 +201,8 @@
   z-index: 1;
 }
 
-/* O botão de ordenação ocupa a largura da célula, então e ele que precisa
-   distribuir o conteúdo conforme o alinhamento da coluna. */
+/* O botao de ordenacao ocupa a largura da celula, entao e ele que precisa
+   distribuir o conteudo conforme o alinhamento da coluna. */
 .end .sortButton {
   justify-content: flex-end;
 }
@@ -213,7 +211,7 @@
   justify-content: center;
 }
 
-/* Os breakpoints do sistema, `--pl-bp-*` em `tokens/primitive/layout.css`; variável CSS não entra em @media. */
+/* Os breakpoints do sistema, `--pl-bp-*` em `tokens/primitive/layout.css`; variavel CSS nao entra em @media. */
 @media (max-width: 900px) {
   .table [data-hide-below='sm'] {
     display: none;
@@ -250,7 +248,7 @@
   padding-left: var(--pl-space-3);
 }
 
-/* Os controles de seleção tem o visual dos do sistema, sem trocar o elemento nativo. */
+/* Os controles de selecao tem o visual dos do sistema, sem trocar o elemento nativo. */
 
 .checkbox,
 .radio,
