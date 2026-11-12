@@ -2,6 +2,7 @@
 .scroll {
   --table-inline-padding: var(--pl-space-5);
 
+  position: relative;
   width: 100%;
   overflow-x: auto;
 }

@@ -81,12 +81,12 @@ export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showDataLabels?: boolean;
+  /** Botao "Ver como tabela". Ligado por padrao. */
+  showTableToggle?: boolean;
   /**
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
    * pela costura; sem balao nem costura, o no volta a ter o `<title>`.
    */
-  /** Botao "Ver como tabela". Ligado por padrao. */
-  showTableToggle?: boolean;
   showTooltip?: boolean;
   title: string;
 }

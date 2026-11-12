@@ -1,5 +1,7 @@
 # Arquitetura
 
+Este documento é para quem cria componentes ou tokens do design system. Quem usa o pacote parte do `README.md` e do `docs/COMPONENTS-CATALOG.md`.
+
 Este documento descreve as decisões arquiteturais e os limites do Plenustech Design System.
 
 O objetivo é garantir que o Design System permaneça reutilizável, previsível e independente das regras de negócio dos produtos consumidores.
@@ -165,15 +167,15 @@ Exemplo:
 
 ```css
 :root {
-  --cor-superficie-principal: ...;
-  --cor-texto-principal: ...;
-  --cor-borda-padrao: ...;
+  --pl-color-surface: ...;
+  --pl-color-text: ...;
+  --pl-color-border: ...;
 }
 
 [data-theme='dark'] {
-  --cor-superficie-principal: ...;
-  --cor-texto-principal: ...;
-  --cor-borda-padrao: ...;
+  --pl-color-surface: ...;
+  --pl-color-text: ...;
+  --pl-color-border: ...;
 }
 ```
 
@@ -302,12 +304,15 @@ O State Motor não deve ser utilizado para retirar toda e qualquer lógica de um
 
 Hooks devem encapsular comportamentos reutilizáveis de interface.
 
-Exemplos:
+Exemplos reais, em `src/hooks/`, todos internos ao pacote:
 
-- `useDisclosure`
-- `useClickOutside`
-- `useBreakpoint`
-- `useControllableState`
+- `useOpenState`: abertura controlável de um painel (`open`, `defaultOpen` e `onOpenChange`).
+- `useNarrowViewport`: informa se a janela está abaixo de 900px (`--pl-bp-sm`).
+- `useMergedRefs`: junta várias refs numa só.
+- `useFormReset`: restaura o valor quando o formulário é redefinido.
+- `useDecimalInput`, `useCharacterCount`, `useCalendar` e `useSelection`: comportamento de campos, calendário e seleção.
+
+Hooks internos não fazem parte da API pública: não saem de `src/index.ts`, e quem usa o pacote não os importa. O único hook público é `useToast`, exportado junto do `ToastProvider`.
 
 Hooks podem utilizar APIs do navegador e abstrações comportamentais, mas não devem conter regras de negócio específicas de uma aplicação.
 
@@ -388,13 +393,13 @@ A lógica de acessibilidade não precisa necessariamente estar em hooks separado
 
 Componentes de navegação devem evitar acoplamento a um roteador específico.
 
-Quando necessário, a aplicação pode fornecer uma abstração de link:
+Quando necessário, a aplicação fornece o componente de link do roteador na prop `as`, e os parâmetros dele em `linkProps`:
 
 ```tsx
-<NavigationLink as={Link} href="/clientes">
-  Clientes
-</NavigationLink>
+<PageHeader.Back as={Link} label="Voltar para clientes" linkProps={{ to: '/clientes' }} />
 ```
+
+Nas coleções, como o `Breadcrumb` e o `TabsNav`, o `as` fica na raiz e vale para todos os itens; cada item leva o seu `linkProps`.
 
 O Design System permanece responsável pela apresentação e acessibilidade, enquanto a aplicação permanece responsável pelo roteamento.
 

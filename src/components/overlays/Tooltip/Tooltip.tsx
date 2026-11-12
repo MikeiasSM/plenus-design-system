@@ -134,6 +134,7 @@ function TooltipOnChild({
       if (event.key === 'Escape' && open && !event.defaultPrevented) {
         hide();
         event.preventDefault();
+        event.stopPropagation();
       }
     }),
   });
@@ -180,6 +181,7 @@ function TooltipOnAnchor({
     function requestCloseOnEscape(event: globalThis.KeyboardEvent) {
       if (event.key === 'Escape' && !event.defaultPrevented) {
         event.preventDefault();
+        event.stopPropagation();
         onOpenChange?.(false);
       }
     }

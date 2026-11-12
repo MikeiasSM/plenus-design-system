@@ -1,10 +1,5 @@
 /* Ponto de entrada dos tokens, em `src/tokens`: primitivos, semanticos e os nomes antigos como alias.
-   A norma esta em `TOKENS.md` e nos dois `TOKENS-REFERENCE-*.md`: paleta laranja padrao e tema por subarvore (§4).
-
-   Aguardam promocao ao corpus normativo (proposta em andamento):
-   • Escala tipografica normalizada, sem tamanhos fracionados; UI densa, nao cresce em telas grandes
-   • Espacamento em base 4px
-   • Breakpoints 900 / 1180 / 1280 e container maximo de 1600px */
+   A norma esta em `TOKENS.md` e nos dois `TOKENS-REFERENCE-*.md`: paleta laranja padrao e tema por subarvore (§4). */
 
 @import '../tokens/primitive/brand.css';
 @import '../tokens/primitive/neutral.css';

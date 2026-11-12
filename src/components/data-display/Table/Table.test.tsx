@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
@@ -434,5 +436,19 @@ describe('Table', () => {
         expect(regras.get('.toolbar > :first-child')).toEqual({ flex: '1 1 220px', 'max-width': '360px' });
       });
     });
+  });
+});
+
+describe('CSS da Table', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Table/Table.module.css'), 'utf8');
+  const bloco = (seletor: RegExp) => {
+    const inicio = css.search(seletor);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('o contêiner de rolagem é posicionado, para o texto absoluto do título não alargar a página', () => {
+    expect(bloco(/^\.scroll \{/m)).toContain('position: relative;');
   });
 });

@@ -7,7 +7,7 @@ A divisão de responsabilidades entre os documentos é:
 - `COMPONENTS.md` define **como** um componente é criado, composto, testado e nomeado.
 - Este catálogo define **quais** componentes existem e **o que** cada um representa.
 - `CHANGELOG.md` registra o que cada versão publicada entregou e não é normativo.
-- A API de cada componente é definida pelo código, exposta por `src/index.ts` e demonstrada no Showcase.
+- A API de cada componente é definida pelo código, exposta por `src/index.ts`, e está nos tipos (`.d.ts`) do pacote e neste catálogo.
 
 Um componente entra neste catálogo mediante decisão de produto ou arquitetural aprovada. Estar previsto aqui não determina prioridade nem prazo.
 
@@ -32,6 +32,7 @@ A situação indica a existência do componente, não a cobertura integral do pa
 O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o contexto já diz: o filtro ao lado da busca, o fechar, a ação de uma linha. O nome é obrigatório e vai em `label`, que o leitor de tela ouve e a dica mostra a quem passa o ponteiro ou chega pelo teclado. Havendo espaço para o texto, o `Button` com texto é a escolha: ícone sozinho pede que a pessoa adivinhe.
 
 Quando a ação leva a outra página, `Button` e `ButtonIcon` recebem o destino em `href` (ou o componente de link da aplicação em `as`, com `linkProps`) e viram link de verdade, com o mesmo visual: abrem em outra aba, têm o endereço copiável e o leitor de tela anuncia "link". Operação que muda dados continua sendo botão.
+O `Button` leva o ícone como filho, antes do texto: `<Button><IconPlus />Novo pedido</Button>`.
 
 O `ButtonTile` é o botão de uma paleta — os blocos que um editor insere, os tipos de registro que uma tela cria. Ícone e nome ficam sempre visíveis, e uma descrição curta é opcional. Com `selected`, ele alterna e expõe `aria-pressed`. Fora de uma grade de opções equivalentes, a escolha é o `Button`.
 
@@ -87,6 +88,16 @@ O `FieldRow` é a linha de uma lista de ajustes: o rótulo e a explicação à e
 
 O `SaveStatus` é o texto curto da situação do salvamento, no lugar do texto montado à mão num rodapé ou numa barra: o `status` (`idle`, `dirty`, `saving`, `saved` ou `error`) escolhe o indicador e o produto escreve o texto, como "Rascunho salvo às 10:42". `saving` mostra o `Spinner` pequeno, `saved` o sinal de pronto no tom de sucesso e `error` o de erro no tom de perigo; `idle` e `dirty` ficam só com o texto, porque a alteração pendente não é erro nem aviso e o texto já a diz sem depender de cor. O texto tem o tamanho de legenda, em tom terciário, numa região `role="status"` sempre montada, para a mudança ser lida sem tirar o foco. Na situação do `AppShell.PageFooter`, que já é uma região de status, ela não cria a sua, e o texto é lido uma vez só. A fronteira com a `SaveBar` é a ação: a `SaveStatus` só informa e não tem botão, e cabe no `start` do `Card.Footer` ou no rodapé da página. Quem salva, e quando, é do produto.
 
+O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy }`. Os dois valores vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
+
+```tsx
+<FieldRow label="Desconto sem aprovação" description="Até este valor, o pedido segue direto.">
+  {({ describedBy, id }) => <InputNumber id={id} aria-describedby={describedBy} />}
+</FieldRow>
+```
+
+O controle que se nomeia pelo conteúdo, como um `Button`, usa só `describedBy`.
+
 ## 4. Listagem e escolha
 
 | Componente | Papel | Situação |
@@ -139,7 +150,7 @@ O `DataGrid` traz os recursos de grade como mecanismo, e nenhum é regra de prod
 - **Virtualização de colunas.** `virtualizeColumns` desenha só as colunas que cruzam a tela, junto da janela de linhas que a grade sempre tem.
 - **Exportação.** O CSV vem no núcleo. XLSX, PDF ou outro formato entram por `exporters`, sem dependência na biblioteca: o exportador do produto recebe as colunas visíveis e as linhas do escopo, já filtradas e ordenadas, com o texto exibido e o valor cru, e `apiRef` entrega o mesmo modelo fora do menu.
 
-O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima. A dica do `help` do título abre embaixo dele, onde cobre só o respiro da primeira linha, e não os filtros e o cabeçalho de página que costumam ficar em cima da tabela; sem espaço embaixo, ela inverte sozinha. A `Table` não rola na vertical: com muitas linhas em altura limitada, como o corpo de um `Card` de altura imposta, o excesso é cortado. Para esse caso, use o `DataGrid` com `height="fill"`. A coluna com `hideBelow` sai abaixo do breakpoint do sistema que ele nomeia, medido na janela, e não na largura da tabela.
+O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima. A dica do `help` do título abre embaixo dele, onde cobre só o respiro da primeira linha, e não os filtros e o cabeçalho de página que costumam ficar em cima da tabela; sem espaço embaixo, ela inverte sozinha. A `Table` não rola na vertical: com muitas linhas em altura limitada, como o corpo de um `Card` de altura imposta, o excesso é cortado. Para esse caso, use o `DataGrid` com `height="fill"`. A coluna com `hideBelow` sai abaixo do breakpoint do sistema que ele nomeia, medido na janela, e não na largura da tabela: `sm` é 900px, `md` é 1180px e `lg` é 1280px.
 
 A `Table.Toolbar` é a barra acima da tabela, com a busca e as ações dela, dentro do mesmo contêiner: um grupo rotulado (`label`), e não `role="toolbar"`, que pede navegação por setas entre os controles e impede o uso do campo de texto da busca. O primeiro filho, em geral a busca, cresce até 360px; os demais ficam ao lado, e tudo quebra de linha quando falta espaço. O respiro lateral é o da margem da tabela, para a busca alinhar com a primeira coluna.
 
@@ -242,6 +253,8 @@ O `ChartHeatmap` é a matriz de calor: linhas e colunas são categorias, e a cor
 
 O Design System entrega os gráficos. A tradução entre o manifesto de um dashboard e as propriedades de cada gráfico pertence à aplicação, conforme `ARCHITECTURE.md` §15.
 
+Em todos os gráficos, `hideTitle` esconde o título e o deixa só para o leitor de tela, quando o contêiner já o mostra. `ChartBar`, `ChartLine`, `ChartArea` e `ChartCombo`, que têm eixo à direita, aceitam `formatRightValue`: o formato do eixo da direita, dos rótulos e do balão das séries dele; sem ele, vale o `formatValue`. O `height` é a altura do desenho, em pixels, ou `fill` para o contêiner decidir: o cabeçalho e a legenda ficam fora dela.
+
 ## 7. Feedback
 
 | Componente | Papel | Situação |
@@ -281,15 +294,39 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 
 A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens por página e os passos para a primeira e a última página. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual, para não perder o lugar de quem lia.
 
-`Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido como no `Breadcrumb`.
+`Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
 
-O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h1`, e a linha que o separa do conteúdo vai de borda a borda do elemento que o contém. Voltar é um link da aplicação, recebido como no `Breadcrumb`, posto acima do título, com a seta e o texto visível; o `label` é o nome acessível e deve conter esse texto; a trilha do caminho continua sendo o `Breadcrumb`, e o cabeçalho de um cartão, o `Card.Header`. A ação principal fica à direita, com até duas secundárias antes dela, e o excedente num `Menu`; o sistema não impõe o limite. Fixar ou compactar ao rolar é do produto.
+O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h1`, e a linha que o separa do conteúdo vai de borda a borda do elemento que o contém. Voltar é um link da aplicação, recebido conforme a seção "Link da aplicação", abaixo, posto acima do título, com a seta e o texto visível; o `label` é o nome acessível e deve conter esse texto; a trilha do caminho continua sendo o `Breadcrumb`, e o cabeçalho de um cartão, o `Card.Header`. A ação principal fica à direita, com até duas secundárias antes dela, e o excedente num `Menu`; o sistema não impõe o limite. Fixar ou compactar ao rolar é do produto.
 
-O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`), o corpo (`PageBody`), a única área da página que rola, e, quando a tela pede, o rodapé fixo (`PageFooter`). O rodapé fica sempre à vista, fora da área que rola: a situação à esquerda (`status`), como a do rascunho salvo sozinho, anunciada ao leitor de tela, e as ações à direita. A fronteira com a `SaveBar` é o momento: a `SaveBar` aparece quando há alteração por salvar, e o rodapé fica sempre lá. O estado da navegação fica no `SidebarProvider`, que o `AppShell` monta por dentro, ou usa o de fora quando já existe um. A barra da página traz o botão de abrir o submenu e a gaveta, o `Sidebar.Trigger`.
+O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele ocupa a altura do elemento que o contém: para tomar a janela, `html`, `body` e o elemento raiz da aplicação precisam de `height: 100%`, e o `body`, de margem zero, que o `reset.css` já zera. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`), o corpo (`PageBody`), a única área da página que rola, e, quando a tela pede, o rodapé fixo (`PageFooter`). O rodapé fica sempre à vista, fora da área que rola: a situação à esquerda (`status`), como a do rascunho salvo sozinho, anunciada ao leitor de tela, e as ações à direita. A fronteira com a `SaveBar` é o momento: a `SaveBar` aparece quando há alteração por salvar, e o rodapé fica sempre lá. O estado da navegação fica no `SidebarProvider`, que o `AppShell` monta por dentro, ou usa o de fora quando já existe um. A barra da página traz o botão de abrir o submenu e a gaveta, o `Sidebar.Trigger`.
 
-A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; a largura do submenu é do produto, pelo `width` do `Sidebar.Panel`, e todos os painéis devem usar o mesmo valor para a página não mudar de largura ao trocar de módulo; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo; com o submenu recolhido, o avatar no trilho a abre. A marca do produto fica no alto do trilho e do submenu, com o `Sidebar.Brand`: no trilho, só o símbolo, num quadrado na cor principal ou puro; no submenu, o nome e a descrição, ou o logotipo de cada tema, claro e escuro; com `href`, leva ao início da aplicação. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. A `Sidebar` funciona dentro do `AppShell` ou de um `SidebarProvider`: quem monta a própria moldura usa o provider, o `useSidebar()` para ler e mudar o estado e o `Sidebar.Trigger` como botão de abrir. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido como no `Breadcrumb`.
+A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; a largura do submenu é do produto, pelo `width` do `Sidebar.Panel`, e todos os painéis devem usar o mesmo valor para a página não mudar de largura ao trocar de módulo; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo; com o submenu recolhido, o avatar no trilho a abre. A marca do produto fica no alto do trilho e do submenu, com o `Sidebar.Brand`: no trilho, só o símbolo, num quadrado na cor principal ou puro; no submenu, o nome e a descrição, ou o logotipo de cada tema, claro e escuro; com `href`, leva ao início da aplicação. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. A `Sidebar` funciona dentro do `AppShell` ou de um `SidebarProvider`: quem monta a própria moldura usa o provider, o `useSidebar()` para ler e mudar o estado e o `Sidebar.Trigger` como botão de abrir. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
 
-A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido como no `Breadcrumb`, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
+A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido conforme a seção "Link da aplicação", abaixo, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
+
+### Link da aplicação
+
+Os componentes de navegação não conhecem o roteador: a aplicação entrega o componente de link, e o sistema cuida da aparência e da acessibilidade.
+
+- Nas coleções, `Breadcrumb` e `TabsNav`, o `as` fica na raiz e vale para todos os itens. Cada item leva o próprio `href` ou `linkProps`.
+- Nos elementos avulsos, o `as` fica no próprio elemento: `PageHeader.Back`, `AppShell.RailItem` e `AppShell.PanelItem`.
+- Sem `as`, o link é um `<a>`.
+
+O componente em `as` recebe o `href`, as props de `linkProps` espalhadas e as demais props do elemento, como `className`, `aria-current`, `aria-label` e os filhos. O `linkProps` serve ao roteador que não usa `href`: o do React Router pede `to`.
+
+```tsx
+import { Link } from 'react-router-dom';
+
+<Breadcrumb
+  as={Link}
+  items={[
+    { label: 'Pedidos', linkProps: { to: '/pedidos' } },
+    { label: 'Pedido 1042' },
+  ]}
+/>
+
+<PageHeader.Back as={Link} label="Voltar para Pedidos" linkProps={{ to: '/pedidos' }} />
+```
 
 ## 9. Sobreposições
 
@@ -326,7 +363,7 @@ Os overlays em portal vão ao `document.body`, e por isso herdam o tema e a pale
 | --- | --- | --- |
 | Biblioteca oficial de ícones | Conjunto de ícones exposto pelo Design System, conforme `ARCHITECTURE.md` seção 12. | Disponível |
 
-A biblioteca tem duas entradas. O ponto de entrada principal traz os ícones de interface, que os componentes usam e as ações gerais pedem — editar, excluir, filtrar, desfazer, abrir fora, os dispositivos —, nomeados pelo significado: `IconFilter`, e não funil. O subcaminho `@plenustech/design-system/icons` traz a suíte completa do Bootstrap Icons, por decisão do mantenedor de 18/10/2026: os 2.050 desenhos, pelo nome de cada um no Bootstrap (`IconFolder`, `IconTruck`, `IconCashStack`), para os produtos também categorizarem conteúdo — assuntos, tipos de documento, seções — sem desenhar ícone próprio. Cada ícone da suíte tem ainda o próprio módulo, em `@plenustech/design-system/icons/IconFolder`, para quem importa só um desenho e não conta com o tree-shaking do empacotador. Oito nomes existem nas duas entradas com desenhos diferentes, e a página de ícones do Showcase os lista. Os dois conjuntos seguem a nomenclatura de família, tipo seguido de especialização. A base `Icon` continua interna, para a aplicação usar a biblioteca oficial em vez de desenhar o próprio caminho.
+A biblioteca tem duas entradas. O ponto de entrada principal traz os ícones de interface, que os componentes usam e as ações gerais pedem — editar, excluir, filtrar, desfazer, abrir fora, os dispositivos —, nomeados pelo significado: `IconFilter`, e não funil. O subcaminho `@plenustech/design-system/icons` traz a suíte completa do Bootstrap Icons, por decisão do mantenedor de 18/10/2026: os 2.050 desenhos, pelo nome de cada um no Bootstrap (`IconFolder`, `IconTruck`, `IconCashStack`), para os produtos também categorizarem conteúdo — assuntos, tipos de documento, seções — sem desenhar ícone próprio. Cada ícone da suíte tem ainda o próprio módulo, em `@plenustech/design-system/icons/IconFolder`, para quem importa só um desenho e não conta com o tree-shaking do empacotador. Oito nomes existem nas duas entradas com desenhos diferentes, e o `README.md` traz a lista. Os dois conjuntos seguem a nomenclatura de família, tipo seguido de especialização. A base `Icon` continua interna, para a aplicação usar a biblioteca oficial em vez de desenhar o próprio caminho.
 
 Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 

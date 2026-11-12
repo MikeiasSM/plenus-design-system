@@ -1,5 +1,7 @@
 # Componentes
 
+Este documento é para quem cria componentes ou tokens do design system. Quem usa o pacote parte do `README.md` e do `docs/COMPONENTS-CATALOG.md`.
+
 Este documento define as convenções para criação, organização e evolução dos componentes do Plenustech Design System.
 
 ## 1. Princípio geral
@@ -204,10 +206,10 @@ Exemplo:
 
 ```css
 .button {
-  padding: var(--spacing-button-padding);
-  border-radius: var(--radius-button);
-  color: var(--color-button-primary-text);
-  background: var(--color-button-primary-background);
+  padding: var(--pl-space-2) var(--pl-space-4);
+  border-radius: var(--pl-radius-md);
+  color: var(--pl-color-on-primary);
+  background: var(--pl-color-primary);
 }
 ```
 
@@ -227,11 +229,15 @@ Valores técnicos que não representam decisões da linguagem visual podem perma
 
 Componentes devem utilizar os breakpoints definidos pelo Design System.
 
-Quando o comportamento depende do ambiente de execução, hooks podem ser utilizados:
+Quando o comportamento é só de aparência, use media query no CSS do componente, com os valores dos breakpoints (`--pl-bp-sm`, `--pl-bp-md` e `--pl-bp-lg`): variável CSS não entra em `@media`, então o valor vai literal.
+
+Quando o comportamento depende da largura no código, use o hook interno `useNarrowViewport`, de `src/hooks/useNarrowViewport.ts`. Ele devolve `true` com a janela abaixo de 900px (`--pl-bp-sm`):
 
 ```ts
-const isMobile = useBreakpoint('md');
+const narrow = useNarrowViewport();
 ```
+
+O `AppShell` e o `SidePanel` o usam. Ele não é exportado em `src/index.ts`, e não existe um hook que aceite o nome do breakpoint.
 
 O componente não deve criar sua própria escala de breakpoints.
 
