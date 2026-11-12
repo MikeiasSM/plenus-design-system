@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Drawer } from './Drawer';
 import styles from './Drawer.module.css';
 
@@ -43,6 +43,20 @@ describe('Drawer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
 
     expect(onBeforeClose).toHaveBeenCalledOnce();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('a resposta antiga de onBeforeClose não fecha o Drawer reaberto', async () => {
+    let responder: (permitir: boolean) => void = () => {};
+    const onBeforeClose = vi.fn(() => new Promise<boolean>((resolve) => (responder = resolve)));
+    const { rerender } = render(<Drawer onBeforeClose={onBeforeClose} open title="Filtros" />);
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    const antiga = responder;
+    rerender(<Drawer onBeforeClose={onBeforeClose} open={false} title="Filtros" />);
+    rerender(<Drawer onBeforeClose={onBeforeClose} open title="Filtros" />);
+    await act(async () => antiga(true));
+
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 

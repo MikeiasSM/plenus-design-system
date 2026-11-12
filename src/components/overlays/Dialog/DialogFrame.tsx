@@ -33,6 +33,13 @@ export function DialogFrame({
   const container = usePortalContainer(portalContainer);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const awaitingPermission = useRef(false);
+  const openCycle = useRef(0);
+  const isOpen = open ?? internalOpen;
+
+  useEffect(() => {
+    openCycle.current += 1;
+    awaitingPermission.current = false;
+  }, [isOpen]);
 
   function close() {
     if (open === undefined) {
@@ -56,19 +63,24 @@ export function DialogFrame({
       return;
     }
 
+    const cycle = openCycle.current;
     awaitingPermission.current = true;
 
     try {
-      if (await permission) {
+      if ((await permission) && cycle === openCycle.current) {
         close();
       }
+    } catch (erro) {
+      console.error(erro);
     } finally {
-      awaitingPermission.current = false;
+      if (cycle === openCycle.current) {
+        awaitingPermission.current = false;
+      }
     }
   }
 
   // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
-  if (!(open ?? internalOpen) || !container) {
+  if (!isOpen || !container) {
     return null;
   }
 

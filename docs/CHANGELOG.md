@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `Dialog` e `Drawer` com `onBeforeClose` assíncrono: a resposta de uma consulta antiga deixa de fechar o diálogo que o produto já fechou e reabriu, e o Esc do diálogo reaberto volta a consultar. Se a consulta falhar, o diálogo continua aberto e o erro vai para o console, sem virar rejeição sem tratamento.
 - Depois de remover uma `Tag` ou um arquivo do `FileUpload`, ou de acionar uma ação de um aviso do `Toast`, o foco passa para o próximo botão de remover do mesmo grupo; sem próximo, para o anterior; sem nenhum, para o contêiner da etiqueta ou para o campo de arquivo. Antes, o foco caía no fim da página e quem usa o teclado perdia o lugar.
 - `DatePicker`, `DatePickerRange`, `DateTimePicker`, `TimePicker`, `Select` e `ComboBox`: o segundo clique de um clique duplo em "Aplicar" ou na opção que fecha o painel deixa de atravessar para a página atrás.
 - `Dialog`, `Drawer`, `Menu` e `Popover`: o segundo clique de um clique duplo que fecha a camada deixa de atravessar para a página atrás, onde acionava outro botão ou linha. O clique duplo no botão que abre um `Dialog` ou um `Drawer` deixa de abri-lo e fechá-lo em seguida, e o clique duplo no gatilho do `Menu` deixa de fechá-lo logo depois de abrir.
