@@ -352,13 +352,11 @@ O pattern não é componente:
 
 O que o Design System garante é a montagem: os componentes certos para cada parte, a acessibilidade, o espaçamento e o comportamento, conforme o `COMPONENTS-CATALOG.md`.
 
-Os patterns ficam na seção Patterns do Showcase. Cada um traz:
+Os patterns estão descritos no `COMPONENTS-CATALOG.md` (§14). Cada um traz:
 
-- O problema que resolve e quando usar.
-- Os componentes que combina e o papel de cada um.
-- Um exemplo funcionando e o código para copiar.
-- As decisões de acessibilidade e de comportamento que a montagem precisa manter.
-- As variações aceitas e o que evitar.
+- O problema que resolve.
+- Os componentes que combina.
+- A regra principal que a montagem precisa manter.
 
 O critério entre pattern e componente é a API. Se o aspecto precisa de estado, regras ou partes que o produto não deveria remontar, é candidato a componente (§14). Se basta combinar componentes que já existem numa ordem e num arranjo conhecidos, é pattern. Um pattern que passa a pedir API própria em vários produtos é reavaliado como componente.
 
