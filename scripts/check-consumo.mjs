@@ -206,6 +206,9 @@ async function consumoVite() {
     }
 
     const varrer = async (cenario) => {
+      await pagina.evaluate(() =>
+        Promise.all(document.getAnimations().filter((a) => a instanceof CSSTransition || a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))),
+      );
       const { violations } = await pagina.evaluate(() => axe.run(document, { resultTypes: ['violations'] }));
 
       for (const v of violations) {
