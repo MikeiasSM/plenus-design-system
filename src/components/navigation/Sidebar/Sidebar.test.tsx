@@ -267,6 +267,43 @@ describe('Sidebar', () => {
       expect(conta.parentElement).toHaveAttribute('inert');
     });
 
+    it('com o cartão aberto, uma camada transparente cobre o submenu por baixo do cartão: o clique fora só fecha a conta', () => {
+      const { container } = render(<Example />);
+      expect(container.querySelector(`.${panelStyles.accountShield}`)).toBeNull();
+
+      const trigger = screen.getByRole('button', { name: /Suporte/ });
+      fireEvent.click(trigger);
+      const camada = container.querySelector(`.${panelStyles.accountShield}`)!;
+      const submenu = screen.getByRole('navigation', { name: 'Vendas' });
+      const conta = trigger.parentElement!;
+
+      expect(camada).toHaveAttribute('aria-hidden', 'true');
+      expect(camada.parentElement).toBe(submenu.parentElement);
+      expect(submenu.compareDocumentPosition(camada) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(camada.compareDocumentPosition(conta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+      fireEvent.click(camada);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(container.querySelector(`.${panelStyles.accountShield}`)).toBeNull();
+    });
+
+    it('a camada do clique fora não aparece com a conta cobrindo a lista', () => {
+      const { container } = render(<Example accountMode="cover" />);
+      fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
+
+      expect(container.querySelector(`.${panelStyles.accountShield}`)).toBeNull();
+    });
+
+    it('a camada do clique fora ocupa o submenu inteiro, sem cor, e fica por baixo do cartão', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get('.inner')?.position).toBe('relative');
+      expect(regras.get('.accountShield')).toMatchObject({ position: 'absolute', inset: '0' });
+      expect(regras.get('.accountShield')).not.toHaveProperty('background');
+      expect(regras.get('.accountCard')?.['z-index']).toBe('1');
+    });
+
     it('com a conta cobrindo, o clique fora do bloco não a fecha', () => {
       render(<Example accountMode="cover" />);
       const trigger = screen.getByRole('button', { name: /Suporte/ });

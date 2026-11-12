@@ -129,6 +129,7 @@ export function SidebarPanel({
               </div>
             </nav>
           )}
+          {accountMode === 'inline' && accountOpen && <div aria-hidden="true" className={styles.accountShield} />}
           {account}
         </div>
       </div>

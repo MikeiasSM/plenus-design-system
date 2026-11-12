@@ -373,7 +373,7 @@ function Modos() {
       <dt>Conta e <code>accountMode</code></dt>
       <dd>
         Abre dentro do submenu, pelo bloco do rodapé. <code>inline</code> abre um cartão por cima da lista, que não encolhe nem se move, e clicar fora dele, dentro do submenu,
-        fecha a conta; <code>cover</code> ocupa o lugar da lista com as opções, no mesmo desenho dos itens do submenu, em grupos com título. Com o submenu recolhido, o avatar do trilho abre o submenu já na conta.
+        só fecha a conta, sem acionar o que está embaixo; <code>cover</code> ocupa o lugar da lista com as opções, no mesmo desenho dos itens do submenu, em grupos com título. Com o submenu recolhido, o avatar do trilho abre o submenu já na conta.
       </dd>
       <dt>Módulo sem submenu</dt>
       <dd>O <code>Sidebar.Panel</code> vem sem itens: a página encosta no trilho, e o submenu fica só como lugar da conta.</dd>
