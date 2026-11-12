@@ -63,7 +63,7 @@ export function SidebarBrand({
   ...props
 }: SidebarBrandProps) {
   const place = useSidebarBrandPlace();
-  const side = useContext(SidebarContext)?.side ?? 'left';
+  const context = useContext(SidebarContext);
   const isRail = place === 'rail';
   const isLink = href !== undefined || linkProps !== undefined;
 
@@ -115,7 +115,7 @@ export function SidebarBrand({
   );
 
   return isRail ? (
-    <Tooltip content={name} delay={150} placement={tooltipPlacement(side)}>
+    <Tooltip content={name} delay={context?.tooltipDelay ?? 150} placement={tooltipPlacement(context?.side ?? 'left')}>
       {link}
     </Tooltip>
   ) : (

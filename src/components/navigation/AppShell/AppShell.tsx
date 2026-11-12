@@ -45,6 +45,7 @@ function AppShellRoot({
   onOpenChange,
   open,
   side,
+  tooltipDelay,
   ...props
 }: AppShellProps) {
   const outerSidebar = useContext(SidebarContext);
@@ -62,6 +63,7 @@ function AppShellRoot({
     onOpenChange,
     open,
     side,
+    tooltipDelay,
   };
   const ignoresStateProps = outerSidebar !== null && Object.values(providerProps).some((value) => value !== undefined);
 

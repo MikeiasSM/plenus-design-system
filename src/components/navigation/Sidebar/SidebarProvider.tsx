@@ -37,6 +37,8 @@ export interface SidebarProviderProps {
   open?: boolean;
   /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
   side?: SidebarSide;
+  /** Espera, em ms, das dicas do trilho e da marca. Padrão 150. */
+  tooltipDelay?: number;
 }
 
 /** O que `useSidebar()` devolve: o estado público da navegação e os meios de mudá-lo. */
@@ -85,6 +87,7 @@ export function SidebarProvider({
   onOpenChange,
   open: controlledOpen,
   side = 'left',
+  tooltipDelay = 150,
 }: SidebarProviderProps) {
   const narrow = useNarrowViewport(narrowBelow);
   const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
@@ -173,6 +176,7 @@ export function SidebarProvider({
         setSubmenuOpen: setOpenWithoutFocus,
         side,
         submenuOpen,
+        tooltipDelay,
       }}
     >
       {children}

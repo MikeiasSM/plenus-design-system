@@ -71,4 +71,33 @@ describe('Sidebar: dicas do trilho', () => {
       expect(dica).toHaveAttribute('data-placement', 'left');
     }
   });
+
+  it('tooltipDelay troca a espera da marca, do módulo e da conta', () => {
+    renderIn({ tooltipDelay: 400 });
+
+    expect(railTips()).toHaveLength(3);
+    for (const dica of railTips()) {
+      expect(dica).toHaveAttribute('data-delay', '400');
+    }
+  });
+
+  it('aceita zero, sem espera', () => {
+    renderIn({ tooltipDelay: 0 });
+
+    for (const dica of railTips()) {
+      expect(dica).toHaveAttribute('data-delay', '0');
+    }
+  });
+
+  it('o AppShell repassa a espera', () => {
+    render(
+      <AppShell tooltipDelay={0}>
+        <Navigation />
+      </AppShell>,
+    );
+
+    for (const dica of railTips()) {
+      expect(dica).toHaveAttribute('data-delay', '0');
+    }
+  });
 });

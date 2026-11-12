@@ -64,6 +64,7 @@ export interface SidebarContextValue {
   /** Muda o submenu sem tocar no foco; ao recolher, fecha a conta. É o que o `useSidebar` expõe. */
   setSubmenuOpen: (open: boolean) => void;
   submenuOpen: boolean;
+  tooltipDelay: number;
 }
 
 export const SidebarContext = createContext<SidebarContextValue | null>(null);

@@ -38,7 +38,7 @@ export interface SidebarRailItemProps extends Omit<SidebarActionProps, 'aria-lab
 }
 
 export function SidebarRailItem({ className, current = false, icon, label, onClick, ...props }: SidebarRailItemProps) {
-  const { collapsePanel, expandPanel, narrow, panelKind, setMenuOpen, side, submenuOpen } = useSidebarContext();
+  const { collapsePanel, expandPanel, narrow, panelKind, setMenuOpen, side, submenuOpen, tooltipDelay } = useSidebarContext();
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     onClick?.(event);
@@ -62,7 +62,7 @@ export function SidebarRailItem({ className, current = false, icon, label, onCli
 
   return (
     <li>
-      <Tooltip content={label} delay={150} placement={tooltipPlacement(side)}>
+      <Tooltip content={label} delay={tooltipDelay} placement={tooltipPlacement(side)}>
         <SidebarAction
           {...props}
           aria-current={current ? 'page' : undefined}
@@ -86,7 +86,7 @@ export interface SidebarRailAccountProps extends Omit<ComponentPropsWithRef<'but
 
 /** Avatar da conta no trilho. Só aparece com o submenu recolhido; abre o submenu já na conta. */
 export function SidebarRailAccount({ children, className, label, onClick, ...props }: SidebarRailAccountProps) {
-  const { accountId, isPanelVisible, openAccountFromRail, panelKind, side } = useSidebarContext();
+  const { accountId, isPanelVisible, openAccountFromRail, panelKind, side, tooltipDelay } = useSidebarContext();
 
   if (panelKind === 'none' || isPanelVisible(panelKind)) {
     return null;
@@ -94,7 +94,7 @@ export function SidebarRailAccount({ children, className, label, onClick, ...pro
 
   return (
     <li>
-      <Tooltip content={label} delay={150} placement={tooltipPlacement(side)}>
+      <Tooltip content={label} delay={tooltipDelay} placement={tooltipPlacement(side)}>
         <button
           {...props}
           aria-controls={accountId}
