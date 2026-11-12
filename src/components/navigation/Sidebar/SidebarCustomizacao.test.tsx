@@ -319,7 +319,7 @@ describe('SidebarProvider: lado (side)', () => {
     expect(painel()).toHaveAttribute('data-side', 'right');
   });
 
-  it('a folha espelha trilho, submenu, barra do item, recuo e guia do subnível com propriedades lógicas', () => {
+  it('a folha espelha trilho, submenu e barra do item, e mantém o recuo e a guia do subnível no início do texto', () => {
     const frame = regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
     const panel = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
 
@@ -329,10 +329,8 @@ describe('SidebarProvider: lado (side)', () => {
       'inset-inline-end': '-8px',
       'inset-inline-start': 'auto',
     });
-    expect(panel.get(".panel[data-side='right'] .nested")).toMatchObject({
-      'border-inline-end': '1px solid var(--pl-color-border-strong)',
-      'border-inline-start': '0',
-    });
+    expect(panel.get(".panel[data-side='right'] .nested")).toEqual({ 'margin-inline-end': '-8px', 'padding-inline-end': '8px' });
+    expect(panel.get(".panel[data-side='right'] .nested .item[aria-current='page']::before")).toBeUndefined();
     expect(panel.get('.nested')).toMatchObject({ 'border-inline-start': '1px solid var(--pl-color-border-strong)', 'margin-inline-start': '16px' });
     expect(panel.get(".item[aria-current='page']::before")).toMatchObject({ 'inset-inline-start': '-8px' });
   });

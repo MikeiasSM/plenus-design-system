@@ -251,10 +251,8 @@
 }
 
 .panel[data-side='right'] .nested {
-  margin-inline: 0 16px;
-  padding-inline: 0 9px;
-  border-inline-start: 0;
-  border-inline-end: 1px solid var(--pl-color-border-strong);
+  margin-inline-end: -8px;
+  padding-inline-end: 8px;
 }
 
 .branch[data-expanded='true'] > .nestedWrap > .nested {
@@ -271,11 +269,6 @@
 
 .nested .item[aria-current='page']::before {
   inset-inline-start: -6px;
-}
-
-.panel[data-side='right'] .nested .item[aria-current='page']::before {
-  inset-inline-start: auto;
-  inset-inline-end: -6px;
 }
 
 .nested[hidden] {
