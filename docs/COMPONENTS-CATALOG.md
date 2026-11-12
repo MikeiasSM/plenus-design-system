@@ -300,6 +300,57 @@ O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h
 
 O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele ocupa a altura do elemento que o contém: para tomar a janela, `html`, `body` e o elemento raiz da aplicação precisam de `height: 100%`, e o `body`, de margem zero, que o `reset.css` já zera. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`), o corpo (`PageBody`), a única área da página que rola, e, quando a tela pede, o rodapé fixo (`PageFooter`). O rodapé fica sempre à vista, fora da área que rola: a situação à esquerda (`status`), como a do rascunho salvo sozinho, anunciada ao leitor de tela, e as ações à direita. A fronteira com a `SaveBar` é o momento: a `SaveBar` aparece quando há alteração por salvar, e o rodapé fica sempre lá. O estado da navegação fica no `SidebarProvider`, que o `AppShell` monta por dentro, ou usa o de fora quando já existe um. A barra da página já traz o botão de abrir o submenu e a gaveta, e o produto não acrescenta outro: o `Sidebar.Trigger` avulso é só de quem monta a própria moldura.
 
+A moldura é montada uma vez, e a página entra como filha: cada rota renderiza o seu próprio `AppShell.Page`, com a `PageBar`, o `PageBody` e, quando houver, o `PageFooter`. O `SidePanel` é irmão do `AppShell.Page`, dentro do `AppShell`.
+
+```tsx
+import { useState, type ReactNode } from 'react';
+import { AppShell, Breadcrumb, Button, IconFile, IconStructure, Sidebar, SidePanel } from '@plenustech/design-system';
+
+function Moldura({ children }: { children: ReactNode }) {
+  return (
+    <AppShell>
+      <Sidebar>
+        <Sidebar.Rail brand={<Sidebar.Brand logo={<IconStructure size={20} />} name="Gestor" />}>
+          <Sidebar.RailItem current href="/vendas" icon={<IconFile size={20} />} label="Vendas" />
+        </Sidebar.Rail>
+        <Sidebar.Panel brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} label="Vendas">
+          <Sidebar.Group label="Pedidos">
+            <Sidebar.Item current href="/vendas/pedidos" icon={<IconFile size={18} />} label="Todos os pedidos" />
+            <Sidebar.Item href="/vendas/devolucoes" icon={<IconFile size={18} />} label="Devoluções" />
+          </Sidebar.Group>
+        </Sidebar.Panel>
+      </Sidebar>
+      {children}
+    </AppShell>
+  );
+}
+
+function PaginaDePedidos() {
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+
+  return (
+    <Moldura>
+      <AppShell.Page>
+        <AppShell.PageBar>
+          <Breadcrumb items={[{ label: 'Vendas' }, { label: 'Pedidos' }]} />
+        </AppShell.PageBar>
+        <AppShell.PageBody>
+          <Button onClick={() => setFiltrosAbertos(true)} variant="secondary">
+            Filtros
+          </Button>
+        </AppShell.PageBody>
+        <AppShell.PageFooter status="Rascunho salvo">
+          <Button>Concluir</Button>
+        </AppShell.PageFooter>
+      </AppShell.Page>
+      <SidePanel onOpenChange={setFiltrosAbertos} open={filtrosAbertos} title="Filtros">
+        Campos dos filtros
+      </SidePanel>
+    </Moldura>
+  );
+}
+```
+
 A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; a largura do submenu é do produto, pelo `width` do `Sidebar.Panel`, e todos os painéis devem usar o mesmo valor para a página não mudar de largura ao trocar de módulo; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo; com o submenu recolhido, o avatar no trilho a abre. A marca do produto fica no alto do trilho e do submenu, com o `Sidebar.Brand`: no trilho, só o símbolo, num quadrado na cor principal ou puro; no submenu, o nome e a descrição, ou o logotipo de cada tema, claro e escuro; com `href`, leva ao início da aplicação. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. A `Sidebar` funciona dentro do `AppShell` ou de um `SidebarProvider`: quem monta a própria moldura usa o provider, o `useSidebar()` para ler e mudar o estado e o `Sidebar.Trigger` como botão de abrir. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
 
 A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido conforme a seção "Link da aplicação", abaixo, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
