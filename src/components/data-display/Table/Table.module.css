@@ -272,6 +272,7 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: var(--pl-space-2);
   padding: var(--pl-space-3) var(--pl-space-5);
 }

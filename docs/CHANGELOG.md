@@ -29,6 +29,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Container`: coluna de conteúdo centrada, com largura máxima (`maxWidth`) e o respiro lateral dos tokens. Com o mesmo `maxWidth` do `PageHeader`, os dois alinham na mesma borda; o respiro vertical fica com quem o usa.
 - `Text`: texto com papel tipográfico (`variant`: corpo, rótulo, legenda, microtexto, título e código) e tom (`tone`: padrão, secundário, terciário e perigo). `truncate` corta o excesso com reticências, `numeric` usa algarismos tabulares e `as` troca o elemento, que por padrão é `span`.
 - `Table.Toolbar`: barra acima da tabela, com a busca e as ações dela. É um grupo rotulado (`label`), e não `role="toolbar"`, que pediria navegação por setas e impediria o campo de busca. O primeiro filho cresce até 360px, os demais ficam ao lado, tudo quebra de linha, e o respiro lateral alinha com a primeira coluna da tabela.
+- `Table.Toolbar`: também pode ser filha da `Table`. A `Table` a desenha antes do `<table>`, no mesmo contêiner, e o HTML segue válido; como irmã antes da `Table`, continua valendo.
 - `SaveStatus`: texto curto da situação do salvamento, na família de formulários. O `status` (`idle`, `dirty`, `saving`, `saved` ou `error`) escolhe o indicador: o `Spinner` em `saving`, o sinal de pronto em `saved` e o de erro em `error`, e o produto escreve o texto. Fica numa região `role="status"` sempre montada, para a mudança ser lida; na situação do `AppShell.PageFooter`, que já é essa região, não cria outra.
 - `Card.Footer`: a propriedade `start` leva conteúdo à esquerda do rodapé, como uma ação secundária ou a `SaveStatus`, e os filhos ficam juntos à direita, e podem faltar. Sem ela, nada muda.
 - `VisuallyHidden`: componente de acessibilidade. Texto que só o leitor de tela lê, para dar nome ao que a tela mostra só por ícone, cor ou posição, como uma coluna de ações sem título. Sai da vista e continua na árvore de acessibilidade.
@@ -52,6 +53,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `Table.Toolbar`: os itens se alinham pela base. Antes, um campo com rótulo visível esticava os controles ao lado.
 - `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.
 - `CardMetric.Chart`: o botão "Ver como tabela" deixa de aparecer no gráfico do cartão. Antes, a partir de cerca de 300 px de largura, ele tomava parte do espaço e o desenho passava da borda do cartão. Agora o desenho cabe exatamente no espaço que o cartão concede, nas larguras de 200 a 400 px.
 - `Table`: um texto só para leitor de tela no título de uma coluna, como "Ações", deixa de alargar a página inteira quando a tabela rola de lado, por exemplo no celular. Antes, ele se ancorava na página e criava uma rolagem horizontal do documento.

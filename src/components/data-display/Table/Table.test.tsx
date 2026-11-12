@@ -409,6 +409,27 @@ describe('Table', () => {
       expect(grupo).toContainElement(screen.getByRole('button', { name: 'Filtros' }));
     });
 
+    it('como filha da Table, sai antes da tabela e nao vira filha dela', () => {
+      const { container } = render(
+        <Table label="Membros">
+          <Table.Toolbar label="Ferramentas">
+            <input aria-label="Buscar" type="search" />
+          </Table.Toolbar>
+          <Table.Header>
+            <Table.Column id="nome">Nome</Table.Column>
+          </Table.Header>
+          <Table.Body items={[]}>{() => null}</Table.Body>
+        </Table>,
+      );
+
+      const tabela = screen.getByRole('table', { name: 'Membros' });
+      const grupo = screen.getByRole('group', { name: 'Ferramentas' });
+      expect(container.querySelector('table > div')).toBeNull();
+      expect(tabela).not.toContainElement(grupo);
+      expect(grupo.parentElement).toBe(tabela.parentElement);
+      expect(grupo.compareDocumentPosition(tabela) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
     it('entrega propriedades nativas, className e ref a raiz', () => {
       const ref = createRef<HTMLDivElement>();
       render(<Table.Toolbar className="extra" data-testid="barra" label="Ferramentas" ref={ref} />);
@@ -423,6 +444,10 @@ describe('Table', () => {
 
       it('quebra de linha e espaca os filhos', () => {
         expect(regras.get('.toolbar')).toMatchObject({ display: 'flex', 'flex-wrap': 'wrap', gap: 'var(--pl-space-2)' });
+      });
+
+      it('alinha os itens pela base, para o campo com rotulo nao esticar os controles', () => {
+        expect(regras.get('.toolbar')).toMatchObject({ 'align-items': 'flex-end' });
       });
 
       it('alinha o respiro lateral com o da primeira coluna da tabela', () => {

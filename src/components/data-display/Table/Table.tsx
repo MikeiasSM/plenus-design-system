@@ -180,8 +180,10 @@ export function Table({
 
     observador.observe(envoltorio);
 
-    if (envoltorio.firstElementChild) {
-      observador.observe(envoltorio.firstElementChild);
+    const tabela = envoltorio.querySelector(':scope > table');
+
+    if (tabela) {
+      observador.observe(tabela);
     }
 
     return () => observador.disconnect();
@@ -268,6 +270,10 @@ export function Table({
     sort: currentSort,
   };
 
+  const filhos = Children.toArray(children);
+  const barras = filhos.filter((filho) => isValidElement(filho) && filho.type === TableToolbar);
+  const corpo = filhos.filter((filho) => !barras.includes(filho));
+
   const classes = [
     styles.table,
     styles[size],
@@ -284,8 +290,9 @@ export function Table({
       className={[styles.scroll, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
       ref={envoltorioRef}
     >
+      {barras}
       <table aria-busy={loading || undefined} aria-label={label} className={classes}>
-        <TableContext.Provider value={context}>{children}</TableContext.Provider>
+        <TableContext.Provider value={context}>{corpo}</TableContext.Provider>
       </table>
       {loading && (
         <p className={styles.visuallyHidden} role="status">
