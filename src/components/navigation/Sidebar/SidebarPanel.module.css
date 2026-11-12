@@ -364,17 +364,14 @@
   background: var(--pl-color-surface);
   box-shadow: var(--pl-sh-up);
   opacity: 0;
-  visibility: hidden;
   transform: translateY(8px);
   transition:
     opacity var(--pl-speed-2) var(--pl-ease),
-    transform var(--pl-speed-2) var(--pl-ease),
-    visibility var(--pl-speed-2) var(--pl-ease);
+    transform var(--pl-speed-2) var(--pl-ease);
 }
 
 .account[data-open='true'] .accountNav {
   opacity: 1;
-  visibility: visible;
   transform: none;
 }
 
@@ -391,7 +388,6 @@
   background: none;
   box-shadow: none;
   opacity: 1;
-  visibility: visible;
   transform: none;
   transition: none;
 }

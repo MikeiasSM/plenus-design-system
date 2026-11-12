@@ -245,6 +245,13 @@ describe('Sidebar', () => {
       expect(regras.get('.list')?.flex).toBe('1');
     });
 
+    it('o cartão fechado some só pela opacidade e pelo inert, para o foco entrar nele ao abrir', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get('.accountNav')).not.toHaveProperty('visibility');
+      expect(regras.get(".account[data-open='true'] .accountNav")).not.toHaveProperty('visibility');
+    });
+
     it('clicar fora do cartão, dentro do submenu, fecha a conta, sem prender o foco', () => {
       render(<Example />);
       const trigger = screen.getByRole('button', { name: /Suporte/ });
