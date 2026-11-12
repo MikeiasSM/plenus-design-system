@@ -1,4 +1,4 @@
-import { createContext, useContext, type RefObject } from 'react';
+import { createContext, useContext, type ReactNode, type RefObject } from 'react';
 
 /** O que o submenu traz: nada, itens de um módulo ou só a conta (módulo sem submenu). */
 export type SidebarPanelKind = 'none' | 'items' | 'account';
@@ -27,6 +27,21 @@ export const defaultSidebarLabels: SidebarLabels = {
   openSubmenu: 'Abrir submenu',
 };
 
+export interface SidebarIcons {
+  /** Seta da conta, no bloco do rodapé. */
+  account: ReactNode;
+  /** Seta de voltar, no terceiro nível em pilha. */
+  back: ReactNode;
+  /** Fecha a gaveta, no celular. */
+  close: ReactNode;
+  /** Recolhe o submenu, na largura larga. */
+  collapse: ReactNode;
+  /** Marca o link que sai da aplicação. */
+  external: ReactNode;
+  /** Abre a gaveta ou o submenu recolhido, no `Sidebar.Trigger`. */
+  open: ReactNode;
+}
+
 export interface SidebarContextValue {
   accountId: string;
   accountOpen: boolean;
@@ -35,6 +50,7 @@ export interface SidebarContextValue {
   expandPanel: () => void;
   expandRef: RefObject<HTMLButtonElement | null>;
   labels: SidebarLabels;
+  icons: SidebarIcons;
   isPanelVisible: (kind: SidebarPanelKind) => boolean;
   menuOpen: boolean;
   narrow: boolean;

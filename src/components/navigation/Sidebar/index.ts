@@ -8,4 +8,4 @@ export type { SidebarAccountProps } from './SidebarAccount';
 export type { SidebarGroupProps, SidebarItemProps, SidebarPanelProps } from './SidebarPanel';
 export type { SidebarAccountMode, SidebarNestedMode } from './SidebarPanel.context';
 export type { SidebarRailAccountProps, SidebarRailItemProps, SidebarRailProps } from './SidebarRail';
-export type { SidebarLabels, SidebarSide } from './Sidebar.context';
+export type { SidebarIcons, SidebarLabels, SidebarSide } from './Sidebar.context';

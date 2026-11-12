@@ -164,6 +164,7 @@ export type {
   SidebarAccountProps,
   SidebarBrandProps,
   SidebarGroupProps,
+  SidebarIcons,
   SidebarItemProps,
   SidebarLabels,
   SidebarNestedMode,

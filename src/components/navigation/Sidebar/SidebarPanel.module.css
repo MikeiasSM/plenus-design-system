@@ -204,6 +204,11 @@
   color: var(--pl-color-text-tertiary);
 }
 
+.external,
+.accountChevron {
+  display: inline-flex;
+}
+
 .chevron {
   transition: transform var(--pl-speed-2) var(--pl-ease);
 }

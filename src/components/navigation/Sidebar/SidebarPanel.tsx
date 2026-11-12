@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { IconChevronLeft, IconChevronRight, IconClose, IconExternalLink, IconSidebar } from '../../icons';
+import { IconChevronRight } from '../../icons';
 import { useSidebarContext } from './Sidebar.context';
 import {
   SidebarItemScopeContext,
@@ -60,7 +60,7 @@ export function SidebarPanel({
   width,
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, side, submenuOpen } = useSidebarContext();
+  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, icons, isPanelVisible, labels, narrow, panelId, setMenuOpen, setPanelKind, side, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -104,7 +104,7 @@ export function SidebarPanel({
                 {narrow ? (
                   <ButtonIcon
                     className={frameStyles.frameButton}
-                    icon={<IconClose />}
+                    icon={icons.close}
                     label={labels.closeMenu}
                     onClick={() => setMenuOpen(false)}
                     size="sm"
@@ -115,7 +115,7 @@ export function SidebarPanel({
                     aria-controls={panelId}
                     aria-expanded={submenuOpen}
                     className={frameStyles.frameButton}
-                    icon={<IconSidebar />}
+                    icon={icons.collapse}
                     label={labels.collapseSubmenu}
                     onClick={collapsePanel}
                     ref={collapseRef}
@@ -217,7 +217,7 @@ function SidebarLeaf({
   trailing,
   ...props
 }: SidebarItemProps) {
-  const { narrow, setMenuOpen } = useSidebarContext();
+  const { icons, narrow, setMenuOpen } = useSidebarContext();
   const { enteredId } = useSidebarPanel();
   const scope = useSidebarItemScope();
   const isLink = props.href !== undefined || props.linkProps !== undefined;
@@ -244,7 +244,7 @@ function SidebarLeaf({
         onClick={handleClick}
       >
         <ItemContent icon={icon} label={label} trailing={trailing} />
-        {external && <IconExternalLink className={styles.external} size={15} />}
+        {external && <span className={styles.external}>{icons.external}</span>}
       </SidebarAction>
     </li>
   );
@@ -311,6 +311,7 @@ function StackedBranch({
   trailing,
   ...props
 }: SidebarItemProps) {
+  const { icons } = useSidebarContext();
   const { enteredId, label: panelLabel, setEnteredId } = useSidebarPanel();
   const scope = useSidebarItemScope();
   const id = useId();
@@ -341,7 +342,7 @@ function StackedBranch({
     return (
       <li className={styles.stacked}>
         <button className={styles.back} onClick={() => setEnteredId(null)} ref={backRef} type="button">
-          <IconChevronLeft size={14} />
+          {icons.back}
           {panelLabel}
         </button>
         <span className={styles.groupTitle}>{label}</span>

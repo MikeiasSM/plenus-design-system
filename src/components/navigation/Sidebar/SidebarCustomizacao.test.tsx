@@ -338,4 +338,75 @@ describe('SidebarProvider: lado (side)', () => {
   });
 });
 
+describe('SidebarProvider: ícones (icons)', () => {
+  const marca = (nome: string) => <svg data-testid={nome} />;
+
+  it('mantém os ícones atuais por padrão', () => {
+    render(<Frame defaultOpen={false} />);
+
+    expect(screen.getByRole('button', { name: 'Abrir submenu' }).querySelector('svg')).toBeInTheDocument();
+    expect(screen.queryByTestId('abrir')).not.toBeInTheDocument();
+  });
+
+  it('troca o ícone de abrir, no submenu recolhido e na gaveta', () => {
+    const { unmount } = render(<Frame defaultOpen={false} icons={{ open: marca('abrir') }} />);
+    expect(within(screen.getByRole('button', { name: 'Abrir submenu' })).getByTestId('abrir')).toBeInTheDocument();
+    unmount();
+
+    stubViewport(true);
+    render(<Frame icons={{ open: marca('abrir') }} />);
+    expect(within(screen.getByRole('button', { name: 'Abrir menu' })).getByTestId('abrir')).toBeInTheDocument();
+  });
+
+  it('troca o ícone de recolher', () => {
+    render(<Frame icons={{ collapse: marca('recolher') }} />);
+
+    expect(within(screen.getByRole('button', { name: 'Recolher submenu' })).getByTestId('recolher')).toBeInTheDocument();
+  });
+
+  it('troca o ícone de fechar a gaveta', () => {
+    stubViewport(true);
+    render(<Frame defaultMenuOpen icons={{ close: marca('fechar') }} />);
+
+    expect(within(screen.getByRole('button', { name: 'Fechar menu' })).getByTestId('fechar')).toBeInTheDocument();
+  });
+
+  it('troca a seta de voltar do terceiro nível em pilha', () => {
+    render(<Frame icons={{ back: marca('voltar') }} nestedMode="stack" />);
+
+    expect(screen.queryByTestId('voltar')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Painéis' }));
+    expect(within(screen.getByRole('button', { name: 'Vendas' })).getByTestId('voltar')).toBeInTheDocument();
+  });
+
+  it('troca o ícone do link externo', () => {
+    render(<Frame icons={{ external: marca('externo') }} />);
+
+    expect(within(screen.getByRole('link', { name: 'Ajuda' })).getByTestId('externo')).toBeInTheDocument();
+  });
+
+  it('troca a seta da conta', () => {
+    render(<Frame icons={{ account: marca('conta') }} />);
+
+    expect(within(screen.getByRole('button', { name: /Suporte/ })).getByTestId('conta')).toBeInTheDocument();
+  });
+
+  it('mescla: os ícones não passados ficam com o padrão', () => {
+    render(<Frame icons={{ collapse: marca('recolher'), external: undefined }} />);
+
+    expect(screen.getByTestId('recolher')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ajuda' }).querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('o AppShell repassa os ícones', () => {
+    render(
+      <AppShell icons={{ collapse: marca('recolher') }}>
+        <Navigation />
+      </AppShell>,
+    );
+
+    expect(screen.getByTestId('recolher')).toBeInTheDocument();
+  });
+});
+
 export { Frame, Navigation, stubViewport, useSidebar, useState };

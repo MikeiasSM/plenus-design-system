@@ -1,5 +1,4 @@
 import { useEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
-import { IconChevronUp } from '../../icons';
 import { useSidebarContext } from './Sidebar.context';
 import { SidebarItemScopeContext, useSidebarPanel } from './SidebarPanel.context';
 import styles from './SidebarPanel.module.css';
@@ -27,7 +26,7 @@ export function SidebarAccount({
   onKeyDown,
   ...props
 }: SidebarAccountProps) {
-  const { accountId, accountOpen, setAccountOpen } = useSidebarContext();
+  const { accountId, accountOpen, icons, setAccountOpen } = useSidebarContext();
   const { accountMode } = useSidebarPanel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -85,7 +84,7 @@ export function SidebarAccount({
       >
         <span className={styles.accountAvatar}>{avatar}</span>
         <AccountIdentity description={description} name={name} />
-        <IconChevronUp className={styles.accountChevron} size={15} />
+        <span className={styles.accountChevron}>{icons.account}</span>
       </button>
     </div>
   );

@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { IconChevronLeft, IconChevronUp, IconClose, IconExternalLink, IconSidebar } from '../../icons';
 import {
   defaultSidebarLabels,
   SidebarContext,
   useSidebarContext,
+  type SidebarIcons,
   type SidebarLabels,
   type SidebarPanelKind,
   type SidebarSide,
@@ -20,6 +22,8 @@ export interface SidebarProviderProps {
   defaultMenuOpen?: boolean;
   /** Submenu aberto no início, no modo não controlado. */
   defaultOpen?: boolean;
+  /** Ícones trocáveis; só os passados trocam o padrão. */
+  icons?: Partial<SidebarIcons>;
   /** Textos fixos dos botões; só os passados trocam o padrão em português. */
   labels?: Partial<SidebarLabels>;
   /** Gaveta do celular aberta, no modo controlado. */
@@ -50,6 +54,15 @@ export interface UseSidebarResult {
   toggleSidebar: () => void;
 }
 
+const defaultSidebarIcons: SidebarIcons = {
+  account: <IconChevronUp size={15} />,
+  back: <IconChevronLeft size={14} />,
+  close: <IconClose />,
+  collapse: <IconSidebar />,
+  external: <IconExternalLink size={15} />,
+  open: <IconSidebar />,
+};
+
 function mergeDefined<T extends object>(defaults: T, overrides?: Partial<T>): T {
   const entries = Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined);
 
@@ -63,6 +76,7 @@ export function SidebarProvider({
   defaultAccountOpen,
   defaultMenuOpen,
   defaultOpen = true,
+  icons,
   labels,
   menuOpen: controlledMenuOpen,
   narrowBelow,
@@ -85,6 +99,7 @@ export function SidebarProvider({
   const expandRef = useRef<HTMLButtonElement>(null);
   const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
   const resolvedLabels = mergeDefined(defaultSidebarLabels, labels);
+  const resolvedIcons = mergeDefined(defaultSidebarIcons, icons);
   const panelId = useId();
   const accountId = useId();
 
@@ -144,6 +159,7 @@ export function SidebarProvider({
         collapseRef,
         expandPanel,
         expandRef,
+        icons: resolvedIcons,
         isPanelVisible,
         labels: resolvedLabels,
         menuOpen,

@@ -1,6 +1,5 @@
 import type { MouseEvent } from 'react';
 import { ButtonIcon, type ButtonIconProps } from '../../actions/ButtonIcon';
-import { IconSidebar } from '../../icons';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useSidebarContext } from './Sidebar.context';
 import styles from './Sidebar.module.css';
@@ -13,7 +12,7 @@ export type SidebarTriggerProps = Omit<ButtonIconProps, 'icon' | 'label'>;
  * que abrir. O `onClick` do consumidor roda antes; `event.preventDefault()` nele cancela a abertura.
  */
 export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant = 'ghost', ...props }: SidebarTriggerProps) {
-  const { expandPanel, expandRef, labels, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
+  const { expandPanel, expandRef, icons, labels, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useSidebarContext();
   const expandButtonRef = useMergedRefs(ref, expandRef);
   const classes = [styles.frameButton, className].filter(Boolean).join(' ');
 
@@ -32,7 +31,7 @@ export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant =
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         className={classes}
-        icon={<IconSidebar />}
+        icon={icons.open}
         label={labels.openMenu}
         onClick={(event) => handleClick(event, () => setMenuOpen(true))}
         ref={ref}
@@ -49,7 +48,7 @@ export function SidebarTrigger({ className, onClick, ref, size = 'sm', variant =
         aria-controls={panelId}
         aria-expanded={false}
         className={classes}
-        icon={<IconSidebar />}
+        icon={icons.open}
         label={labels.openSubmenu}
         onClick={(event) => handleClick(event, expandPanel)}
         ref={expandButtonRef}
