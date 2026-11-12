@@ -16,7 +16,16 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
+import {
+  closeDateTimeInput,
+  completeDateTimeInput,
+  formatDate,
+  formatDateTimeInput,
+  formatTime,
+  keepInputChars,
+  parseDateTimeInput,
+} from '../../../utils/formatters';
+import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { readIsoDate, readIsoDateTime, toIsoDateTime } from '../DatePicker/iso';
@@ -57,6 +66,8 @@ export interface DateTimePickerProps
   max?: string;
   min?: string;
   step?: number;
+  /** Avisa, ao confirmar ou sair do campo, o texto que não é data e hora válidas e por quê. */
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -105,10 +116,12 @@ export function DateTimePicker({
   max,
   min,
   step = 30,
+  onInvalidText,
   onValueChange,
   onBlur,
   onOpenChange,
   onKeyDown,
+  onPaste,
   open: controlledOpen,
   portalContainer,
   placeholder = 'dd/mm/aaaa hh:mm',
@@ -133,8 +146,6 @@ export function DateTimePicker({
     min: readIsoDate(min),
   };
   const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(() => readIsoDateTime(defaultValue) ?? null);
-  const [texto, setTexto] = useState('');
-  const [digitando, setDigitando] = useState(false);
   const controlado = value === undefined ? undefined : (readIsoDateTime(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
@@ -142,7 +153,7 @@ export function DateTimePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDateTime(defaultValue) ?? null);
-    setDigitando(false);
+    entry.reset();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -160,7 +171,6 @@ export function DateTimePicker({
       setRascunho(escolhido);
     }
   }, [open]);
-  const exibido = digitando ? texto : paraTexto(escolhido);
 
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDateTime | null) {
@@ -185,23 +195,58 @@ export function DateTimePicker({
     setOpen(false);
   }
 
-  function handleChange(entrada: string) {
-    const mascarado = formatDateTimeInput(entrada);
+  const readMoment = (text: string) => {
+    const parsed = parseDateTimeInput(text);
 
-    setDigitando(true);
-    setTexto(mascarado);
+    return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
+  };
+  const entry = useTemporalInput<CalendarDateTime>({
+    announce: (moment) => {
+      const iso = toIsoDateTime(moment);
 
-    // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
-    // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
-    // consumidor com meia-noite enquanto a tela mostrava `18:4`.
-    const lido = parseDateTimeInput(mascarado);
-    const dia = lido && toCalendarDate(lido);
+      return `${formatDate(iso, { format: 'long', locale })}, ${formatTime(iso, { locale })}`;
+    },
+    close: closeDateTimeInput,
+    commit: definir,
+    error,
+    evaluate: (text, closed) => {
+      const parsed = completeDateTimeInput(text, today(getLocalTimeZone()), closed);
 
-    definir(lido && dia && !isUnavailable(dia, limites) ? lido : null);
-  }
+      if (parsed.invalid) {
+        return { message: parsed.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.', reason: 'invalid' };
+      }
+
+      return isUnavailable(toCalendarDate(parsed.value), limites)
+        ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
+        : { value: parsed.value };
+    },
+    filter: (input) => keepInputChars(input, '/ :'),
+    format: paraTexto,
+    inputRef,
+    isAllowed: (moment) => !isUnavailable(toCalendarDate(moment), limites),
+    mask: formatDateTimeInput,
+    now: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
+    onInvalidText,
+    parse: (text) => (text.trim().includes(' ') ? readMoment(text) : undefined),
+    step: (moment, direction, text, cursor) => {
+      const base = readMoment(text) ?? moment;
+      const space = text.indexOf(' ');
+      const colon = text.indexOf(':');
+
+      if (space < 0 || cursor <= space) {
+        return { cursor: 10, value: base.add({ days: direction }) };
+      }
+
+      return colon < 0 || cursor <= colon
+        ? { cursor: 13, value: base.add({ hours: direction }) }
+        : { cursor: 16, value: base.add({ minutes: direction }) };
+    },
+    value: escolhido,
+  });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
+    entry.handleKeyDown(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -234,7 +279,7 @@ export function DateTimePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={entry.error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -245,7 +290,7 @@ export function DateTimePicker({
             value={escolhido ? toIsoDateTime(escolhido) : ''}
           />
           <div
-            className={[datePickerStyles.field, datePickerStyles[size], error && datePickerStyles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], entry.error && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -258,16 +303,14 @@ export function DateTimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => {
-                setDigitando(false);
-                onBlur?.(event);
-              }}
-              onChange={(event) => handleChange(event.target.value)}
+              onBlur={(event) => entry.handleBlur(event, onBlur)}
+              onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={(event) => entry.handlePaste(event, onPaste)}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={exibido}
+              value={entry.text}
             />
             <button
               aria-expanded={open}
@@ -282,6 +325,9 @@ export function DateTimePicker({
               <IconCalendar size={15} />
             </button>
           </div>
+          <span className={datePickerStyles.visuallyHidden} role="status">
+            {entry.announcement}
+          </span>
           {open &&
             container &&
             createPortal(
@@ -334,7 +380,7 @@ export function DateTimePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          setDigitando(false);
+                          entry.reset();
                           fechar();
                         }}
                         size="sm"

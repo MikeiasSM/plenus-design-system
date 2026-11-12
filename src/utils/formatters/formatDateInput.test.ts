@@ -1,5 +1,5 @@
-import { formatDateInput, parseDateInput } from './formatDateInput';
-import { formatDateTimeInput, formatTimeInput, parseDateTimeInput, parseTimeInput } from './formatTimeInput';
+import { closeDateInput, formatDateInput, parseDateInput } from './formatDateInput';
+import { closeDateTimeInput, closeTimeInput, formatDateTimeInput, formatTimeInput, parseDateTimeInput, parseTimeInput } from './formatTimeInput';
 
 describe('formatDateInput', () => {
   it('aplica a mascara conforme a digitacao avanca', () => {
@@ -71,5 +71,32 @@ describe('formatTimeInput e formatDateTimeInput', () => {
     expect(formatDateTimeInput('1/3/2026 18:40')).toBe('1/3/2026 18:40');
     expect(parseDateTimeInput('1/3/2026 18:40')?.toString()).toBe('2026-03-01T18:40:00');
     expect(formatDateTimeInput('090320261840')).toBe('09/03/2026 18:40');
+  });
+});
+
+describe('separador digitado', () => {
+  it('fecha o grupo em andamento com o zero a esquerda', () => {
+    expect(closeDateInput('1', '/')).toBe('01/');
+    expect(closeDateInput('21', '/')).toBe('21/');
+    expect(closeDateInput('01/3', '/')).toBe('01/03/');
+    expect(closeTimeInput('8', ':')).toBe('08:');
+    expect(closeDateTimeInput('01/03/2026 8', ':')).toBe('01/03/2026 08:');
+  });
+
+  it('o espaco fecha a data so com o ano de 2 ou 4 digitos', () => {
+    expect(closeDateTimeInput('01/03/2026', ' ')).toBe('01/03/2026 ');
+    expect(closeDateTimeInput('01/03/26', ' ')).toBe('01/03/26 ');
+    expect(closeDateTimeInput('01/03/2', ' ')).toBeUndefined();
+    expect(closeDateTimeInput('01/03/202', ' ')).toBeUndefined();
+    expect(closeDateTimeInput('01/03', ' ')).toBeUndefined();
+  });
+
+  it('ignora o separador no comeco, repetido, fora do lugar ou depois do ultimo grupo', () => {
+    expect(closeDateInput('', '/')).toBeUndefined();
+    expect(closeDateInput('01/', '/')).toBeUndefined();
+    expect(closeDateInput('1', ':')).toBeUndefined();
+    expect(closeDateInput('01/03/2026', '/')).toBeUndefined();
+    expect(closeTimeInput('08:30', ':')).toBeUndefined();
+    expect(closeDateTimeInput('01', ' ')).toBeUndefined();
   });
 });

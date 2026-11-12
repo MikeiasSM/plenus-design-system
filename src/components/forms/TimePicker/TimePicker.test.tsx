@@ -127,4 +127,225 @@ describe('TimePicker', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
   });
+
+  describe('atalhos e completar', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(2026, 10, 12, 14, 37));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function montar(props: Partial<React.ComponentProps<typeof TimePicker>> = {}) {
+      render(<TimePicker label="Inicio" {...props} />);
+      return screen.getByLabelText('Inicio') as HTMLInputElement;
+    }
+
+    function teclar(campo: HTMLInputElement, key: string, cursor: number) {
+      campo.setSelectionRange(cursor, cursor);
+      return fireEvent.keyDown(campo, { key });
+    }
+
+    it('aceita so numeros e os dois pontos, que fecham a hora', () => {
+      const campo = montar();
+
+      expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: '5' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
+
+      fireEvent.change(campo, { target: { value: '1a2/' } });
+      expect(campo).toHaveValue('12');
+
+      fireEvent.change(campo, { target: { value: '8:3' } });
+      expect(campo).toHaveValue('8:3');
+    });
+
+    it('os dois pontos digitados fecham a hora com o zero a esquerda', () => {
+      const campo = montar();
+
+      for (const tecla of ['8', ':', '3']) {
+        if (fireEvent.keyDown(campo, { key: tecla })) {
+          fireEvent.change(campo, { target: { value: campo.value + tecla } });
+        }
+      }
+
+      expect(campo).toHaveValue('08:3');
+      fireEvent.blur(campo);
+      expect(campo).toHaveValue('08:30');
+    });
+
+    it('anuncia a hora nova so quando um atalho a troca', () => {
+      const campo = montar({ defaultValue: '09:00' });
+      const anuncio = screen.getByRole('status');
+
+      teclar(campo, 'H', 0);
+      expect(anuncio).toHaveTextContent('14:37');
+
+      fireEvent.change(campo, { target: { value: '1' } });
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      teclar(campo, '+', 1);
+      expect(anuncio).toHaveTextContent('15:37');
+    });
+
+    it('H da a hora atual exata, sem arredondar para o passo', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '09:00', onValueChange: mudou, step: 30 });
+
+      expect(fireEvent.keyDown(campo, { key: 'H' })).toBe(false);
+
+      expect(campo).toHaveValue('14:37');
+      expect(mudou).toHaveBeenLastCalledWith('14:37');
+    });
+
+    it('+ e - mudam a hora com o cursor na hora e o minuto com o cursor no minuto', () => {
+      const campo = montar({ defaultValue: '14:59' });
+
+      teclar(campo, '+', 1);
+      expect(campo).toHaveValue('15:59');
+
+      teclar(campo, '+', 5);
+      expect(campo).toHaveValue('16:00');
+
+      teclar(campo, '-', 2);
+      expect(campo).toHaveValue('15:00');
+
+      teclar(campo, '-', 4);
+      expect(campo).toHaveValue('14:59');
+    });
+
+    it('a virada e de relogio', () => {
+      const campo = montar({ defaultValue: '23:10' });
+
+      teclar(campo, '+', 0);
+      expect(campo).toHaveValue('00:10');
+
+      fireEvent.change(campo, { target: { value: '00:00' } });
+      teclar(campo, '-', 5);
+      expect(campo).toHaveValue('23:59');
+    });
+
+    it('mantem o cursor na parte alterada', () => {
+      const campo = montar({ defaultValue: '14:30' });
+
+      teclar(campo, '+', 4);
+      teclar(campo, '+', campo.selectionStart ?? 0);
+
+      expect(campo).toHaveValue('14:32');
+    });
+
+    it('com o campo vazio, + parte da hora atual', () => {
+      const campo = montar();
+
+      teclar(campo, '+', 0);
+
+      expect(campo).toHaveValue('15:37');
+    });
+
+    it('o + do teclado numerico tambem age', () => {
+      const campo = montar({ defaultValue: '10:00' });
+
+      campo.setSelectionRange(1, 1);
+      fireEvent.keyDown(campo, { key: '+', code: 'NumpadAdd' });
+
+      expect(campo).toHaveValue('11:00');
+    });
+
+    it.each([
+      ['8', '08:00'],
+      ['14', '14:00'],
+      ['830', '08:30'],
+      ['1430', '14:30'],
+    ])('ao sair, completa %s em %s', (digitado, esperado) => {
+      const mudou = vi.fn();
+      const campo = montar({ onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: digitado } });
+      expect(mudou).not.toHaveBeenCalledWith(null);
+      fireEvent.blur(campo);
+
+      expect(campo).toHaveValue(esperado);
+      expect(mudou).toHaveBeenLastCalledWith(esperado);
+    });
+
+    it('Enter completa o que foi digitado', () => {
+      const campo = montar();
+
+      fireEvent.change(campo, { target: { value: '8' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+
+      expect(campo).toHaveValue('08:00');
+    });
+
+    it('nao apaga o valor enquanto a hora esta incompleta', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '09:00', onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: '18:4' } });
+
+      expect(mudou).not.toHaveBeenCalled();
+    });
+
+    it.each(['25', '1275'])('ao sair, %s e invalido', (digitado) => {
+      const mudou = vi.fn();
+      const aviso = vi.fn();
+      const campo = montar({ defaultValue: '09:00', onInvalidText: aviso, onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: digitado } });
+      const texto = campo.value;
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Hora inválida.');
+      expect(campo).toHaveAttribute('aria-invalid', 'true');
+      expect(campo).toHaveValue(texto);
+      expect(mudou).not.toHaveBeenCalled();
+      expect(aviso).toHaveBeenCalledWith(texto, 'invalid');
+    });
+
+    it('avisa como fora do intervalo a hora alem dos limites', () => {
+      const aviso = vi.fn();
+      const campo = montar({ max: '18:00', onInvalidText: aviso });
+
+      fireEvent.change(campo, { target: { value: '1900' } });
+      fireEvent.blur(campo);
+
+      expect(aviso).toHaveBeenCalledWith('19:00', 'outOfRange');
+    });
+
+    it('repassa ao campo o onInvalid nativo', () => {
+      const nativo = vi.fn();
+      const campo = montar({ onInvalid: nativo });
+
+      fireEvent.invalid(campo);
+
+      expect(nativo).toHaveBeenCalledTimes(1);
+    });
+
+    it('recusa a hora fora dos limites e a mensagem some ao corrigir', () => {
+      const mudou = vi.fn();
+      const campo = montar({ max: '18:00', onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: '19:00' } });
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Hora fora do intervalo permitido.');
+      expect(mudou).not.toHaveBeenCalled();
+
+      fireEvent.change(campo, { target: { value: '17:00' } });
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(mudou).toHaveBeenLastCalledWith('17:00');
+    });
+
+    it('o erro do produto prevalece', () => {
+      const campo = montar({ error: 'Obrigatório' });
+
+      fireEvent.change(campo, { target: { value: '25' } });
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Obrigatório');
+    });
+  });
 });

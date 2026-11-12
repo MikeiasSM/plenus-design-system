@@ -21,7 +21,7 @@ import {
   type DataGridColumnModel,
   type DataGridState,
 } from './gridState';
-import { EMPTY_FILTER, type DataGridFilter } from './filterModel';
+import { EMPTY_FILTER, filterKindOf, operatorsOf, type DataGridFilter } from './filterModel';
 
 interface Order {
   id: string;
@@ -391,5 +391,70 @@ describe('expansion', () => {
     expect(isDetailKey(items[1].key)).toBe(true);
     expect(isDetailKey('a')).toBe(false);
     expect(isDetailKey(null)).toBe(false);
+  });
+});
+
+describe('time and datetime columns', () => {
+  interface Visit {
+    id: string;
+    at: string | null;
+    when: string | null;
+  }
+
+  const visits: Visit[] = [
+    { id: '1', at: '14:30', when: '2026-05-21T14:30' },
+    { id: '2', at: '09:05', when: '2026-05-21T09:05' },
+    { id: '3', at: null, when: null },
+    { id: '4', at: '23:59', when: '2026-01-02T23:59' },
+  ];
+  const cols: DataGridColumnModel<Visit>[] = [
+    { id: 'at', header: 'Hora', type: 'time' },
+    { id: 'when', header: 'Data e hora', type: 'datetime' },
+  ];
+  const where = (...conditions: DataGridFilter['conditions']): DataGridFilter => ({ logic: 'and', conditions });
+  const visitIds = (rows: readonly Visit[]) => rows.map((row) => row.id);
+
+  it('shows the value as the field does', () => {
+    expect(cellText(cols[0], visits[0])).toBe('14:30');
+    expect(cellText(cols[1], visits[0])).toBe('21/05/2026 14:30');
+    expect(cellText(cols[0], visits[2])).toBe('');
+  });
+
+  it('orders by the time, not by the text', () => {
+    const loose = [{ id: 'a', at: '9:30' }, { id: 'b', at: '10:00' }, { id: 'c', at: '08:15' }];
+    const timeColumn: DataGridColumnModel<(typeof loose)[number]>[] = [{ id: 'at', header: 'Hora', type: 'time' }];
+
+    expect(sortRows(loose, timeColumn, [{ columnId: 'at', direction: 'asc' }]).map((row) => row.id)).toEqual(['c', 'a', 'b']);
+    expect(visitIds(sortRows(visits, cols, [{ columnId: 'at', direction: 'asc' }]))).toEqual(['2', '1', '4', '3']);
+  });
+
+  it('orders by the date and the time', () => {
+    expect(visitIds(sortRows(visits, cols, [{ columnId: 'when', direction: 'asc' }]))).toEqual(['4', '2', '1', '3']);
+  });
+
+  it('filters a time with is, before, after and between', () => {
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'at', operator: 'equals', value: '14:30' })))).toEqual(['1']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'at', operator: 'before', value: '14:30' })))).toEqual(['2']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'at', operator: 'after', value: '14:30' })))).toEqual(['4']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'at', operator: 'between', value: ['09:05', '14:30'] })))).toEqual(['1', '2']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'at', operator: 'empty' })))).toEqual(['3']);
+  });
+
+  it('filters a date and time with is, before, after and between', () => {
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'when', operator: 'equals', value: '2026-05-21T14:30' })))).toEqual(['1']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'when', operator: 'before', value: '2026-05-21T10:00' })))).toEqual(['2', '4']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'when', operator: 'after', value: '2026-05-21T10:00' })))).toEqual(['1']);
+    expect(
+      visitIds(filterRows(visits, cols, where({ columnId: 'when', operator: 'between', value: ['2026-05-21T09:05', '2026-05-21T14:30'] }))),
+    ).toEqual(['1', '2']);
+    expect(visitIds(filterRows(visits, cols, where({ columnId: 'when', operator: 'notEmpty' })))).toEqual(['1', '2', '4']);
+  });
+
+  it('gives each type its own filter kind and operators', () => {
+    expect(filterKindOf(cols[0])).toBe('time');
+    expect(filterKindOf(cols[1])).toBe('datetime');
+    expect(operatorsOf(cols[0]).map((operator) => operator.label)).toEqual(['Às', 'Antes de', 'Depois de', 'Entre', 'Vazio', 'Preenchido']);
+    expect(operatorsOf(cols[1]).map((operator) => operator.label)).toEqual(['Em', 'Antes de', 'Depois de', 'Entre', 'Vazio', 'Preenchido']);
+    expect(operatorsOf(cols[1]).map((operator) => operator.id)).toEqual(['equals', 'before', 'after', 'between', 'empty', 'notEmpty']);
   });
 });

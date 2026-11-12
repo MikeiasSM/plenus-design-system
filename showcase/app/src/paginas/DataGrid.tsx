@@ -29,6 +29,7 @@ interface Pedido {
   cliente: string;
   cidade: string;
   emissao: string;
+  hora: string;
   valor: number;
   itens: number;
   urgente: boolean;
@@ -47,6 +48,7 @@ function gerarPedidos(quantidade: number, metricas = 0): Pedido[] {
       cliente: CLIENTES[semente % CLIENTES.length],
       cidade: CIDADES[(semente >> 2) % CIDADES.length],
       emissao: `2026-${String((semente % 12) + 1).padStart(2, '0')}-${String((semente % 28) + 1).padStart(2, '0')}`,
+      hora: `${String(semente % 24).padStart(2, '0')}:${String((semente * 7) % 60).padStart(2, '0')}`,
       valor: (semente * 37) % 25000,
       itens: (semente % 40) + 1,
       urgente: semente % 9 === 0,
@@ -65,6 +67,7 @@ const COLUNAS: DataGridColumn<Pedido>[] = [
   { id: 'cliente', header: 'Cliente', flex: 2, minWidth: 180, filter: 'set' },
   { id: 'cidade', header: 'Cidade', minWidth: 140, filter: 'set' },
   { id: 'emissao', header: 'Emissão', type: 'date', width: 120 },
+  { id: 'hora', header: 'Hora', type: 'time', width: 100 },
   { id: 'itens', header: 'Itens', type: 'number', width: 90, summary: 'sum' },
   { id: 'valor', header: 'Valor', type: 'currency', width: 150, summary: 'sum' },
   { id: 'urgente', header: 'Urgente', type: 'boolean', width: 100, searchable: false },
@@ -719,6 +722,7 @@ function CopiarELinhasFixas() {
         cliente: `${pedidos.length} pedidos`,
         cidade: '',
         emissao: '',
+        hora: '',
         valor: pedidos.reduce((soma, pedido) => soma + pedido.valor, 0),
         itens: pedidos.reduce((soma, pedido) => soma + pedido.itens, 0),
         urgente: false,
@@ -1158,7 +1162,8 @@ export const pagina: Pagina = {
     {
       nome: 'columns',
       tipo: 'DataGridColumn<Row>[]',
-      descricao: 'Obrigatória. Colunas como dados: id, header, type, largura, filter, filterOperators, filterOptions, summary e slots.',
+      descricao:
+        "Obrigatória. Colunas como dados: id, header, type ('text', 'number', 'currency', 'date', 'time', 'datetime' ou 'boolean'), largura, filter, filterOperators, filterOptions, summary e slots.",
     },
     { nome: 'rows', tipo: 'readonly Row[]', descricao: 'Obrigatória. Todas as linhas, ou a página atual no modo servidor.' },
     { nome: 'getRowId', tipo: '(row: Row) => string', descricao: 'Obrigatória. Chave estável de cada linha.' },

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
+import { useEffect, useRef, useState, type ComponentPropsWithRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
+import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useOpenState } from '../../../hooks/useOpenState';
@@ -88,6 +88,7 @@ export function DatePickerRange({
   max,
   min,
   onClick,
+  onKeyDown,
   onOpenChange,
   onValueChange,
   open: controlledOpen,
@@ -111,6 +112,7 @@ export function DatePickerRange({
   const chosen = value === undefined ? internalValue : readRange(value);
   // O rascunho vale enquanto o painel está aberto: só `Aplicar` o torna o valor do campo.
   const [draft, setDraft] = useState<Selection | null>(null);
+  const [announcement, setAnnouncement] = useState('');
   const shown = draft ?? chosen;
   const limits: CalendarLimits = {
     isDateUnavailable: isDateUnavailable && ((date) => isDateUnavailable(date.toString())),
@@ -134,6 +136,52 @@ export function DatePickerRange({
       setDraft({ start: day });
     } else {
       setDraft(day.compare(start) < 0 ? { start: day, end: start } : { start, end: day });
+    }
+  }
+
+  const steps: Record<string, number> = { ArrowDown: 7, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7 };
+
+  function move(range: Required<Selection>) {
+    if (isUnavailable(range.start, limits) || isUnavailable(range.end, limits)) {
+      return;
+    }
+
+    setInternalValue(range);
+    setAnnouncement(formatRange(range) ?? '');
+    onValueChange?.({ start: range.start.toString(), end: range.end.toString() });
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    onKeyDown?.(event);
+
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    if (event.altKey) {
+      if (event.key === 'ArrowDown' && !open) {
+        event.preventDefault();
+        setOpen(true);
+      }
+
+      return;
+    }
+
+    if (open) {
+      return;
+    }
+
+    const base = today(getLocalTimeZone());
+
+    if (event.key === 'h' || event.key === 'H') {
+      event.preventDefault();
+      move({ start: base, end: base });
+    } else if (event.key in steps) {
+      event.preventDefault();
+
+      const from = chosen.start && chosen.end ? { start: chosen.start, end: chosen.end } : { start: base, end: base };
+
+      move({ start: from.start.add({ days: steps[event.key] }), end: from.end.add({ days: steps[event.key] }) });
     }
   }
 
@@ -197,6 +245,7 @@ export function DatePickerRange({
               .join(' ')}
             disabled={disabled}
             id={id}
+            onKeyDown={handleKeyDown}
             onClick={(event) => {
               onClick?.(event);
               setOpen(!open);
@@ -209,6 +258,9 @@ export function DatePickerRange({
             </span>
             <IconCalendar className={selectStyles.chevron} size={15} />
           </button>
+          <span className={datePickerStyles.visuallyHidden} role="status">
+            {announcement}
+          </span>
           {open &&
             container &&
             createPortal(

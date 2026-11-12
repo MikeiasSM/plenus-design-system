@@ -474,6 +474,64 @@ describe('DataGrid', () => {
       expect(screen.getByRole('status')).toHaveTextContent('1 de 3 linhas após o filtro');
     });
 
+    it('filters a time column with the time field instead of the text box', () => {
+      interface Visit {
+        id: string;
+        at: string;
+      }
+      const visits: Visit[] = [{ id: 'V-1', at: '14:30' }, { id: 'V-2', at: '09:05' }];
+      render(
+        <DataGrid
+          columns={[{ id: 'id', header: 'Nº' }, { id: 'at', header: 'Hora', type: 'time' }]}
+          getRowId={(visit: Visit) => visit.id}
+          label="Visitas"
+          rows={visits}
+        />,
+      );
+
+      const panel = openFilter('Hora');
+      const field = within(panel).getByRole('textbox', { name: 'Valor de Hora' });
+      expect(field).toHaveAttribute('inputmode', 'numeric');
+
+      fireEvent.change(field, { target: { value: '1430' } });
+      fireEvent.blur(field);
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(firstColumn()).toEqual(['V-1']);
+    });
+
+    it('filters a datetime column with the date and time field', () => {
+      interface Visit {
+        id: string;
+        when: string;
+      }
+      const visits: Visit[] = [
+        { id: 'V-1', when: '2026-05-21T14:30' },
+        { id: 'V-2', when: '2026-05-21T09:05' },
+        { id: 'V-3', when: '2026-05-22T14:30' },
+      ];
+      render(
+        <DataGrid
+          columns={[{ id: 'id', header: 'Nº' }, { id: 'when', header: 'Quando', type: 'datetime' }]}
+          getRowId={(visit: Visit) => visit.id}
+          label="Visitas"
+          rows={visits}
+        />,
+      );
+
+      const panel = openFilter('Quando');
+      expect(within(panel).getByRole('combobox', { name: /de Quando$/ })).toHaveTextContent('Em');
+
+      const field = within(panel).getByRole('textbox', { name: 'Valor de Quando' });
+      expect(field).toHaveAttribute('placeholder', 'dd/mm/aaaa hh:mm');
+
+      fireEvent.change(field, { target: { value: '210520261430' } });
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(field).toHaveValue('21/05/2026 14:30');
+      expect(firstColumn()).toEqual(['V-1']);
+    });
+
     it('offers to clear the filters when nothing is left', () => {
       const onFilterChange = vi.fn();
       renderGrid({
