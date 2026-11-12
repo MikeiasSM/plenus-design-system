@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { IconClose } from '../../icons';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
@@ -100,10 +101,11 @@ function DialogFrameContent({
   const titleId = `${generatedId}-title`;
   const descriptionId = `${generatedId}-description`;
 
+  const dismiss = useOverlayClickGuard(onClose);
   const { overlayProps, underlayProps } = useOverlay(
     {
       isOpen: true,
-      onClose,
+      onClose: dismiss,
       isDismissable: dismissable,
       isKeyboardDismissDisabled: !dismissable,
     },
