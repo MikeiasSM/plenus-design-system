@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `ComboBox`: o Escape com a lista aberta fecha só a lista; antes, dentro de um `SidePanel`, fechava o painel junto. O próximo Escape fecha o painel. Com a lista fechada, o Escape segue adiante como antes.
 - `SidePanel`: o foco volta a quem abriu também quando o painel fecha por uma ação de dentro dele, como "Aplicar filtros"; antes, ficava perdido. E o Escape que fecha o painel não fecha junto outra camada que também ouve a tecla.
 - `Tooltip`: o Escape com o tooltip aberto fecha só o tooltip; antes, dentro de um painel, fechava o painel junto. O próximo Escape fecha o painel.
 - Showcase: na página do `SidePanel`, em janela abaixo de 900 px, como a prévia em "Tablet" ou "Celular", o painel do playground, os exemplos "Filtros ao lado da página" e "À esquerda, estreito" e a demonstração de tamanhos começam fechados. Antes, abriam já como gaveta e tomavam o foco, e quem escolhia a largura da prévia pelas setas ia parar dentro dela. Em janela de computador, continuam começando abertos. Na demonstração de tamanhos, o botão "Filtros" passa a abrir e fechar o painel, que antes ficava sempre aberto.

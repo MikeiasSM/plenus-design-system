@@ -68,6 +68,16 @@ describe('ComboBox', () => {
     expect(campo).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Rio de Janeiro' }).id);
   });
 
+  it('com a lista aberta o Escape é dela e marca o evento; fechada, segue adiante', () => {
+    const campo = montar();
+
+    fireEvent.keyDown(campo, { key: 'ArrowDown' });
+    expect(fireEvent.keyDown(campo, { key: 'Escape' })).toBe(false);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    expect(fireEvent.keyDown(campo, { key: 'Escape' })).toBe(true);
+  });
+
   it('confirma com Enter e limpa o filtro com Escape', () => {
     const onValueChange = vi.fn();
     const campo = montar({ onValueChange });

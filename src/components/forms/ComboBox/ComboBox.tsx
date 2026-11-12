@@ -328,6 +328,10 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
 
     if (event.key === 'Escape') {
+      // Com a lista aberta o Escape é dela e não segue adiante; fechada, segue, como para fechar um painel em volta.
+      if (open) {
+        event.preventDefault();
+      }
       fechar();
       return;
     }
