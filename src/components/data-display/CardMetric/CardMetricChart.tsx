@@ -73,6 +73,7 @@ export function CardMetricChart({
               series={[{ label: title, values }]}
               showDots="hidden"
               showGrid={false}
+              showTableToggle={false}
               showTooltip={showTooltip}
               title={title}
               xAxis="hidden"

@@ -230,6 +230,25 @@ describe('CardMetric', () => {
     expect(onActivate).toHaveBeenCalledTimes(1);
   });
 
+  it('o grafico não traz o botão "Ver como tabela", que tomaria o espaço medido do desenho', () => {
+    // O jsdom não tem layout: o espaço que o cartão concede vem de fora.
+    const altura = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(48);
+    const largura = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(226);
+
+    render(
+      <CardMetric>
+        <CardMetric.Body>
+          <CardMetric.Chart categories={['01/10', '02/10']} title="Ticket diário" values={[172, 168]} />
+        </CardMetric.Body>
+      </CardMetric>,
+    );
+
+    expect(screen.getByRole('img', { name: /Ticket diário/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ver como tabela' })).not.toBeInTheDocument();
+    altura.mockRestore();
+    largura.mockRestore();
+  });
+
   it('as partes so existem dentro da moldura', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
