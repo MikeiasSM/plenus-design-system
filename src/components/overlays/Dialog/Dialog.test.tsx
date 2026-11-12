@@ -295,4 +295,22 @@ describe('Dialog', () => {
       expect([semNome, comOsDois]).toHaveLength(2);
     });
   });
+
+  it('com description, soma o aria-describedby do produto ao da descricao', () => {
+    const { rerender } = render(
+      <Dialog aria-describedby="nota" description="Esta acao nao pode ser desfeita." open title="Excluir">
+        Corpo
+      </Dialog>,
+    );
+
+    const descricao = screen.getByText('Esta acao nao pode ser desfeita.');
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', `${descricao.id} nota`);
+
+    rerender(
+      <Dialog aria-describedby="nota" open title="Excluir">
+        Corpo
+      </Dialog>,
+    );
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
+  });
 });

@@ -139,7 +139,7 @@ function DialogFrameContent({
           role={role}
           aria-modal="true"
           aria-labelledby={title ? titleId : undefined}
-          aria-describedby={description ? descriptionId : props['aria-describedby']}
+          aria-describedby={[description && descriptionId, props['aria-describedby']].filter(Boolean).join(' ') || undefined}
         >
           {title && (
             <header className={[styles.header, children && styles.headerDivided].filter(Boolean).join(' ')}>

@@ -98,4 +98,22 @@ describe('Drawer', () => {
     rerender(<Drawer flush open title="Acesso">Corpo</Drawer>);
     expect(screen.getByText('Corpo').className).toContain('bodyFlush');
   });
+
+  it('com description, soma o aria-describedby do produto ao da descricao', () => {
+    const { rerender } = render(
+      <Drawer aria-describedby="nota" description="Ajuste quem ve o painel." open title="Acesso">
+        Corpo
+      </Drawer>,
+    );
+
+    const descricao = screen.getByText('Ajuste quem ve o painel.');
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', `${descricao.id} nota`);
+
+    rerender(
+      <Drawer aria-describedby="nota" open title="Acesso">
+        Corpo
+      </Drawer>,
+    );
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
+  });
 });
