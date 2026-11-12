@@ -268,7 +268,7 @@ export const pagina: Pagina = {
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Hora em HH:mm, ou null ao esvaziar o campo. Hora pela metade ou inválida não chama.' },
-    { nome: 'onInvalid', tipo: '(texto: string) => void', descricao: 'Avisa o texto digitado que não é uma hora válida, ao confirmar ou sair do campo.' },
+    { nome: 'onInvalid', tipo: '(text: string) => void', descricao: 'Avisa o texto digitado que não é uma hora válida, ao confirmar ou sair do campo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeiro horário permitido, em HH:mm.' },
     { nome: 'max', tipo: 'string', descricao: 'Último horário permitido, em HH:mm.' },
     { nome: 'step', tipo: 'number', padrao: '30', descricao: 'Minutos entre os horários da lista.' },

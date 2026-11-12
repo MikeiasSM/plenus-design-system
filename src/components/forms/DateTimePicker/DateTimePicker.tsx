@@ -17,7 +17,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { completeDateTimeInput, formatDateTimeInput, keepInputChars, parseDateTimeInput } from '../../../utils/formatters';
-import { useCampoDigitado } from '../../../hooks/useCampoDigitado';
+import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { readIsoDate, readIsoDateTime, toIsoDateTime } from '../DatePicker/iso';
@@ -59,7 +59,7 @@ export interface DateTimePickerProps
   min?: string;
   step?: number;
   /** Avisa o texto digitado que não é uma data e hora válidas, ao confirmar ou sair do campo. */
-  onInvalid?: (texto: string) => void;
+  onInvalid?: (text: string) => void;
   /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -144,7 +144,7 @@ export function DateTimePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDateTime(defaultValue) ?? null);
-    campo.limpar();
+    entry.reset();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -186,51 +186,51 @@ export function DateTimePicker({
     setOpen(false);
   }
 
-  const campo = useCampoDigitado<CalendarDateTime>({
-    agora: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
-    atual: escolhido,
-    avaliar: (digitado) => {
-      const lido = completeDateTimeInput(digitado, today(getLocalTimeZone()));
+  const entry = useTemporalInput<CalendarDateTime>({
+    commit: definir,
+    error,
+    evaluate: (text) => {
+      const parsed = completeDateTimeInput(text, today(getLocalTimeZone()));
 
-      if (lido.invalid) {
-        return { mensagem: lido.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.' };
+      if (parsed.invalid) {
+        return { message: parsed.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.' };
       }
 
-      return isUnavailable(toCalendarDate(lido.value), limites)
-        ? { mensagem: 'Data fora do intervalo permitido.' }
-        : { valor: lido.value };
+      return isUnavailable(toCalendarDate(parsed.value), limites)
+        ? { message: 'Data fora do intervalo permitido.' }
+        : { value: parsed.value };
     },
-    deslocar: (valor, passo, digitado, cursor) => {
-      const espaco = digitado.indexOf(' ');
-      const doisPontos = digitado.indexOf(':');
-
-      if (espaco < 0 || cursor <= espaco) {
-        return { cursor: 10, valor: valor.add({ days: passo }) };
-      }
-
-      return doisPontos < 0 || cursor <= doisPontos
-        ? { cursor: 13, valor: valor.add({ hours: passo }) }
-        : { cursor: 16, valor: valor.add({ minutes: passo }) };
-    },
-    erro: error,
-    filtrar: (entrada) => keepInputChars(entrada, '/ :'),
-    gravar: definir,
+    filter: (input) => keepInputChars(input, '/ :'),
+    format: paraTexto,
     inputRef,
-    ler: (digitado) => {
-      const lido = parseDateTimeInput(digitado);
-
-      return lido && !isUnavailable(toCalendarDate(lido), limites) ? lido : undefined;
-    },
-    mascarar: formatDateTimeInput,
+    isAllowed: (moment) => !isUnavailable(toCalendarDate(moment), limites),
+    mask: formatDateTimeInput,
+    now: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
     onInvalid,
-    paraTexto,
-    permitido: (valor) => !isUnavailable(toCalendarDate(valor), limites),
-    separadores: '/ :',
+    parse: (text) => {
+      const parsed = parseDateTimeInput(text);
+
+      return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
+    },
+    separators: '/ :',
+    step: (moment, direction, text, cursor) => {
+      const space = text.indexOf(' ');
+      const colon = text.indexOf(':');
+
+      if (space < 0 || cursor <= space) {
+        return { cursor: 10, value: moment.add({ days: direction }) };
+      }
+
+      return colon < 0 || cursor <= colon
+        ? { cursor: 13, value: moment.add({ hours: direction }) }
+        : { cursor: 16, value: moment.add({ minutes: direction }) };
+    },
+    value: escolhido,
   });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
-    campo.tratarTecla(event);
+    entry.handleKeyDown(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -263,7 +263,7 @@ export function DateTimePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={campo.erro} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={entry.error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -274,7 +274,7 @@ export function DateTimePicker({
             value={escolhido ? toIsoDateTime(escolhido) : ''}
           />
           <div
-            className={[datePickerStyles.field, datePickerStyles[size], campo.erro && datePickerStyles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], entry.error && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -287,13 +287,13 @@ export function DateTimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => campo.sair(event, onBlur)}
-              onChange={(event) => campo.mudar(event.target.value)}
+              onBlur={(event) => entry.handleBlur(event, onBlur)}
+              onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={campo.exibido}
+              value={entry.text}
             />
             <button
               aria-expanded={open}
@@ -360,7 +360,7 @@ export function DateTimePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          campo.limpar();
+                          entry.reset();
                           fechar();
                         }}
                         size="sm"

@@ -138,7 +138,7 @@ export function DatePickerRange({
     }
   }
 
-  const passos: Record<string, number> = { ArrowDown: 7, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7 };
+  const steps: Record<string, number> = { ArrowDown: 7, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7 };
 
   function move(range: Required<Selection>) {
     const outside = (day: CalendarDate) =>
@@ -177,12 +177,12 @@ export function DatePickerRange({
     if (event.key === 'h' || event.key === 'H') {
       event.preventDefault();
       move({ start: base, end: base });
-    } else if (event.key in passos) {
+    } else if (event.key in steps) {
       event.preventDefault();
 
       const from = chosen.start && chosen.end ? { start: chosen.start, end: chosen.end } : { start: base, end: base };
 
-      move({ start: from.start.add({ days: passos[event.key] }), end: from.end.add({ days: passos[event.key] }) });
+      move({ start: from.start.add({ days: steps[event.key] }), end: from.end.add({ days: steps[event.key] }) });
     }
   }
 

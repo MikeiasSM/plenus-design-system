@@ -331,7 +331,7 @@ export const pagina: Pagina = {
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null ao esvaziar o campo. Data pela metade ou inválida não chama.' },
-    { nome: 'onInvalid', tipo: '(texto: string) => void', descricao: 'Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo.' },
+    { nome: 'onInvalid', tipo: '(text: string) => void', descricao: 'Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
     { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },

@@ -8,7 +8,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { completeDateInput, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
-import { useCampoDigitado } from '../../../hooks/useCampoDigitado';
+import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
@@ -46,7 +46,7 @@ export interface DatePickerProps
   max?: string;
   min?: string;
   /** Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo. */
-  onInvalid?: (texto: string) => void;
+  onInvalid?: (text: string) => void;
   /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -114,7 +114,7 @@ export function DatePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDate(defaultValue) ?? null);
-    campo.limpar();
+    entry.reset();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -146,40 +146,40 @@ export function DatePicker({
     setOpen(false);
   }
 
-  const textoDe = (valor?: CalendarDate) =>
-    valor ? [String(valor.day).padStart(2, '0'), String(valor.month).padStart(2, '0'), valor.year].join('/') : '';
-  const campo = useCampoDigitado<CalendarDate>({
-    agora: () => today(getLocalTimeZone()),
-    atual: escolhido,
-    avaliar: (digitado) => {
-      const lido = completeDateInput(digitado, today(getLocalTimeZone()));
+  const textOf = (date?: CalendarDate) =>
+    date ? [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/') : '';
+  const entry = useTemporalInput<CalendarDate>({
+    commit: definir,
+    error,
+    evaluate: (text) => {
+      const parsed = completeDateInput(text, today(getLocalTimeZone()));
 
-      if (!lido) {
-        return { mensagem: 'Data inválida.' };
+      if (!parsed) {
+        return { message: 'Data inválida.' };
       }
 
-      return isUnavailable(lido, limites) ? { mensagem: 'Data fora do intervalo permitido.' } : { valor: lido };
+      return isUnavailable(parsed, limites) ? { message: 'Data fora do intervalo permitido.' } : { value: parsed };
     },
-    deslocar: (valor, passo) => ({ cursor: 10, valor: valor.add({ days: passo }) }),
-    erro: error,
-    filtrar: keepDateChars,
-    gravar: definir,
+    filter: keepDateChars,
+    format: textOf,
     inputRef,
-    ler: (digitado) => {
-      const lido = parseDateInput(digitado);
-
-      return lido && !isUnavailable(lido, limites) ? lido : undefined;
-    },
-    mascarar: formatDateInput,
+    isAllowed: (date) => !isUnavailable(date, limites),
+    mask: formatDateInput,
+    now: () => today(getLocalTimeZone()),
     onInvalid,
-    paraTexto: textoDe,
-    permitido: (valor) => !isUnavailable(valor, limites),
-    separadores: '/',
+    parse: (text) => {
+      const parsed = parseDateInput(text);
+
+      return parsed && !isUnavailable(parsed, limites) ? parsed : undefined;
+    },
+    separators: '/',
+    step: (date, direction) => ({ cursor: 10, value: date.add({ days: direction }) }),
+    value: escolhido,
   });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
-    campo.tratarTecla(event);
+    entry.handleKeyDown(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -212,7 +212,7 @@ export function DatePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={campo.erro} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={entry.error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -223,7 +223,7 @@ export function DatePicker({
             value={escolhido?.toString() ?? ''}
           />
           <div
-            className={[styles.field, styles[size], campo.erro && styles.error, className].filter(Boolean).join(' ')}
+            className={[styles.field, styles[size], entry.error && styles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -236,13 +236,13 @@ export function DatePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => campo.sair(event, onBlur)}
-              onChange={(event) => campo.mudar(event.target.value)}
+              onBlur={(event) => entry.handleBlur(event, onBlur)}
+              onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={campo.exibido}
+              value={entry.text}
             />
             <button
               aria-expanded={open}
@@ -301,7 +301,7 @@ export function DatePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          campo.limpar();
+                          entry.reset();
                           fechar();
                         }}
                         size="sm"
