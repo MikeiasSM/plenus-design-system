@@ -8,6 +8,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Adicionado
 
+- Tokens `--pl-safe-top`, `--pl-safe-right`, `--pl-safe-bottom` e `--pl-safe-left`, em `src/tokens/semantic/shell.css`, que guardam o recorte da janela (`env(safe-area-inset-*, 0px)`). O `AppShell` os zera para o que está dentro dele, porque a moldura já soma o recorte ao próprio respiro.
 - `package.json`: o campo `browserslist` declara o piso de navegador do pacote (Chrome, Edge e Chrome Android 123, Firefox 120, Safari e iOS Safari 17.5), para que as ferramentas do produto o leiam sem consulta manual. Ele só informa as ferramentas do produto; o build do pacote não o usa, e a saída é a mesma.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
@@ -22,7 +23,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 - `SortableList` e `AppShell`: o texto de apoio sobre o fundo da seleção passa do tom terciário ao secundário e chega a 4,5:1. Vale para o resumo da linha selecionada do `SortableList` e para a descrição da conta no gatilho do `AppShell`, no hover e com o menu aberto. Antes, ficava entre 4,13 e 4,49:1 em cinco dos seis temas.
 - `Dialog` e filtro do `DataGrid`: a altura máxima passa a acompanhar a janela visível do celular (`dvh`), com a barra do navegador e o teclado virtual. Antes, usava `vh`, e o rodapé do diálogo podia ficar atrás da barra.
-- `AppShell`, `SaveBar`, `Toast` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda. Novos tokens `--pl-safe-top`, `--pl-safe-right`, `--pl-safe-bottom` e `--pl-safe-left`.
+- `AppShell`, `SaveBar`, `Toast` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda.
 - `SidePanel`: na janela abaixo de 900 px, onde vira gaveta, `id`, `className`, `data-*`, `aria-*` e as demais propriedades chegam ao painel, como na janela larga. Antes, só chegavam o título, o rodapé, o lado e o tamanho, e o `data-*` do produto sumia.
 - `Dialog` e `Drawer`: o `aria-describedby` dado pelo produto, quando não há a propriedade `description`, chega ao diálogo; antes, era descartado.
 - Documentação: o catálogo orienta ligar `loading` de forma síncrona no próprio handler da ação assíncrona do `Button`, e `saving` na `SaveBar`, explica que descartar respostas fora de ordem e a idempotência no servidor ficam com o produto, e completa o contrato do `onBeforeClose` com a resposta antiga e a consulta que falha.
