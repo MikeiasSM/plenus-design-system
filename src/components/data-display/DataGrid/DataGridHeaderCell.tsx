@@ -103,7 +103,7 @@ export function DataGridHeaderCell({
     <div
       aria-colindex={colIndex}
       aria-labelledby={filter?.active ? `${labelId} ${stateId}` : labelId}
-      aria-sort={sortIndex === 0 && sortItem ? (sortItem.direction === 'asc' ? 'ascending' : 'descending') : undefined}
+      aria-sort={sortIndex === 0 && sortItem ? (sortItem.direction) : undefined}
       className={[className, dropTarget && styles.dropTarget].filter(Boolean).join(' ')}
       data-column={columnId}
       data-row=""
@@ -162,7 +162,7 @@ export function DataGridHeaderCell({
       )}
       {sortItem && (
         <span aria-hidden="true" className={styles.sortMark}>
-          {sortItem.direction === 'asc' ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
+          {sortItem.direction === 'ascending' ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
           {sortCount > 1 && <sup>{sortIndex + 1}</sup>}
         </span>
       )}

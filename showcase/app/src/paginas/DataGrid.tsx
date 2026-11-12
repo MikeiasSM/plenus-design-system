@@ -544,7 +544,7 @@ function ModoServidor() {
       const ordenados = criterio
         ? [...filtrados].sort((a, b) => {
             const [va, vb] = [a[criterio.columnId as keyof Pedido], b[criterio.columnId as keyof Pedido]];
-            return (va < vb ? -1 : va > vb ? 1 : 0) * (criterio.direction === 'asc' ? 1 : -1);
+            return (va < vb ? -1 : va > vb ? 1 : 0) * (criterio.direction === 'ascending' ? 1 : -1);
           })
         : filtrados;
       const inicio = (consulta.page - 1) * consulta.pageSize;
@@ -1170,7 +1170,7 @@ export const pagina: Pagina = {
     { nome: 'dataMode', tipo: "'client' | 'server'", padrao: "'client'", descricao: 'Quem busca, ordena e pagina.' },
     { nome: 'totalRows', tipo: 'number', descricao: 'Total de linhas no modo servidor.' },
     { nome: 'onQueryChange', tipo: '(query: DataGridQuery) => void', descricao: 'No modo servidor, a consulta a cada mudança.' },
-    { nome: 'sort', tipo: 'DataGridSortItem[]', descricao: 'Ordem em vários níveis: { columnId, direction }.' },
+    { nome: 'sort', tipo: 'DataGridSortItemInput[]', descricao: 'Ordem em vários níveis: { columnId, direction }, com direction "ascending" ou "descending".' },
     { nome: 'search', tipo: 'string', descricao: 'Busca global sobre o texto exibido.' },
     {
       nome: 'filter',

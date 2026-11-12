@@ -75,7 +75,9 @@ import {
   detailPathOf,
   distinctTexts,
   filterRows,
+  hasLegacySortDirection,
   moveFocus,
+  normalizeSort,
   pageCountOf,
   pageRows,
   reconcileFocus,
@@ -99,6 +101,7 @@ import {
   type DataGridFocusMove,
   type DataGridSnapshot,
   type DataGridSortItem,
+  type DataGridSortItemInput,
   type DataGridState,
 } from './gridState';
 import { DataGridContext, DataGridLevelContext, DataGridScrollContext } from './dataGridContext';
@@ -211,7 +214,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   defaultPageSize?: number;
   defaultSearch?: string;
   defaultSelectedIds?: readonly string[];
-  defaultSort?: readonly DataGridSortItem[];
+  defaultSort?: readonly DataGridSortItemInput[];
   /** Texto da grade vazia. Com busca, o padrão diz que nada a atende. */
   emptyMessage?: ReactNode;
   /** Falha ao carregar, mostrada no lugar das linhas. */
@@ -278,7 +281,7 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
   search?: string;
   selectedIds?: readonly string[];
   selectionMode?: DataGridSelectionMode;
-  sort?: readonly DataGridSortItem[];
+  sort?: readonly DataGridSortItemInput[];
   /** No servidor, os agregados da linha de sumarização, pelo id da coluna, vindos na resposta da consulta. */
   summaryValues?: Readonly<Record<string, unknown>>;
   totalRows?: number;
@@ -389,7 +392,7 @@ function sortAnnouncement<Row>(sort: readonly DataGridSortItem[], columns: reado
 
   const parts = sort.map((item) => {
     const header = columns.find((column) => column.id === item.columnId)?.header ?? item.columnId;
-    return `${header}, ${item.direction === 'asc' ? 'crescente' : 'decrescente'}`;
+    return `${header}, ${item.direction === 'ascending' ? 'crescente' : 'decrescente'}`;
   });
 
   return `Ordenado por ${parts.join('; depois por ')}`;
@@ -482,7 +485,7 @@ export function DataGrid<Row>({
 
   const [restored] = useState(() => {
     const fallback = {
-      sort: defaultSort,
+      sort: normalizeSort(defaultSort),
       search: defaultSearch,
       filter: normalizeFilter(defaultFilter, columns),
       page: defaultPage,
@@ -492,7 +495,9 @@ export function DataGrid<Row>({
 
     return pageSizeOptions.includes(snapshot.pageSize) ? snapshot : { ...snapshot, pageSize: fallback.pageSize };
   });
-  const [sort, setSort] = useSlice(sortProp, restored.sort, onSortChange);
+  const controlledSort = useMemo(() => (sortProp ? normalizeSort(sortProp) : undefined), [sortProp]);
+  const [sort, setSort] = useSlice<readonly DataGridSortItem[]>(controlledSort, restored.sort, onSortChange);
+  const legacySortDirection = hasLegacySortDirection(sortProp) || hasLegacySortDirection(defaultSort);
   const [search, setSearch] = useSlice(searchProp, restored.search, onSearchChange);
   const [filter, setFilter] = useSlice(filterProp, restored.filter, onFilterChange);
   const activeFilter = useMemo(() => activeFilterOf(filter, columns), [filter, columns]);
@@ -669,6 +674,12 @@ export function DataGrid<Row>({
   /* No servidor a primeira consulta sai na montagem: o retrato restaurado pode diferir do que o produto guardou. */
   const lastQueryKey = useRef<string | null>(server ? (memory?.queryKey ?? null) : queryKey);
   const lastSnapshotKey = useRef(snapshotKey);
+
+  useEffect(() => {
+    if (legacySortDirection && isDevelopment()) {
+      console.warn(`DataGrid "${label}": 'asc' e 'desc' em sort e defaultSort são obsoletos; use 'ascending' e 'descending'.`);
+    }
+  }, [legacySortDirection, label]);
 
   useEffect(() => {
     if (tree && renderDetail && isDevelopment()) {
@@ -1022,7 +1033,7 @@ export function DataGrid<Row>({
   }
 
   function restoreDefaults() {
-    setSort(defaultSort);
+    setSort(normalizeSort(defaultSort));
     setSearch(defaultSearch);
     setFilter(normalizeFilter(defaultFilter, columns));
     setGroupBy(defaultGroupBy);
@@ -1958,8 +1969,8 @@ export function DataGrid<Row>({
     const sorting: MenuSection = {
       key: 'sort',
       items: [
-        { key: 'asc', label: 'Ordenar crescente', checked: direction === 'asc', onSelect: () => applySort(sortBy(sort, column.id, 'asc')) },
-        { key: 'desc', label: 'Ordenar decrescente', checked: direction === 'desc', onSelect: () => applySort(sortBy(sort, column.id, 'desc')) },
+        { key: 'asc', label: 'Ordenar crescente', checked: direction === 'ascending', onSelect: () => applySort(sortBy(sort, column.id, 'ascending')) },
+        { key: 'desc', label: 'Ordenar decrescente', checked: direction === 'descending', onSelect: () => applySort(sortBy(sort, column.id, 'descending')) },
         direction
           ? { key: 'clear', label: 'Remover da ordenação', onSelect: () => applySort(sortBy(sort, column.id, null)) }
           : { key: 'stack', label: 'Somar à ordenação', shortcut: 'Shift+Enter', onSelect: () => applySort(toggleSort(sort, column.id, true)) },

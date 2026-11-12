@@ -348,6 +348,7 @@ export type {
   DataGridSnapshot,
   DataGridSortDirection,
   DataGridSortItem,
+  DataGridSortItemInput,
   DataGridToolbarProps,
 } from './components/data-display/DataGrid';
 export { DatePicker } from './components/forms/DatePicker';

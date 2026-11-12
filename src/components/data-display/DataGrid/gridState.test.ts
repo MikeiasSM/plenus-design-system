@@ -6,8 +6,10 @@ import {
   detailKeyOf,
   distinctTexts,
   filterRows,
+  hasLegacySortDirection,
   isDetailKey,
   moveFocus,
+  normalizeSort,
   pageRows,
   reconcileFocus,
   restoreSnapshot,
@@ -19,6 +21,7 @@ import {
   toggleExpanded,
   toggleSort,
   type DataGridColumnModel,
+  type DataGridSortItem,
   type DataGridState,
 } from './gridState';
 import { EMPTY_FILTER, filterKindOf, operatorsOf, type DataGridFilter } from './filterModel';
@@ -93,21 +96,21 @@ describe('searchRows', () => {
 
 describe('sortRows', () => {
   it('orders text naturally and ignores case', () => {
-    const sorted = sortRows(orders, columns, [{ columnId: 'customer', direction: 'asc' }]);
+    const sorted = sortRows(orders, columns, [{ columnId: 'customer', direction: 'ascending' }]);
 
     expect(ids(sorted)).toEqual(['3', '2', '5', '4', '1']);
   });
 
   it('keeps empty values last in both directions', () => {
-    expect(ids(sortRows(orders, columns, [{ columnId: 'total', direction: 'asc' }])).at(-1)).toBe('2');
-    expect(ids(sortRows(orders, columns, [{ columnId: 'total', direction: 'desc' }])).at(-1)).toBe('2');
+    expect(ids(sortRows(orders, columns, [{ columnId: 'total', direction: 'ascending' }])).at(-1)).toBe('2');
+    expect(ids(sortRows(orders, columns, [{ columnId: 'total', direction: 'descending' }])).at(-1)).toBe('2');
   });
 
   it('breaks ties with the next criterion and keeps the original order after that', () => {
-    const byTotal = sortRows(orders, columns, [{ columnId: 'total', direction: 'desc' }]);
+    const byTotal = sortRows(orders, columns, [{ columnId: 'total', direction: 'descending' }]);
     const stacked = sortRows(orders, columns, [
-      { columnId: 'total', direction: 'desc' },
-      { columnId: 'customer', direction: 'desc' },
+      { columnId: 'total', direction: 'descending' },
+      { columnId: 'customer', direction: 'descending' },
     ]);
 
     expect(ids(byTotal)).toEqual(['1', '3', '4', '5', '2']);
@@ -118,41 +121,41 @@ describe('sortRows', () => {
     const rows = [{ id: '1', d: '2024-03-01' }, { id: '2', d: 'xx' }, { id: '3', d: '2024-01-01' }];
     const byDate: DataGridColumnModel<(typeof rows)[number]>[] = [{ id: 'd', header: 'Data', type: 'date' }];
 
-    expect(sortRows(rows, byDate, [{ columnId: 'd', direction: 'asc' }]).map((row) => row.id)).toEqual(['3', '1', '2']);
+    expect(sortRows(rows, byDate, [{ columnId: 'd', direction: 'ascending' }]).map((row) => row.id)).toEqual(['3', '1', '2']);
   });
 
   it('orders dates chronologically', () => {
-    expect(ids(sortRows(orders, columns, [{ columnId: 'issuedAt', direction: 'asc' }]))).toEqual(['2', '3', '4', '1', '5']);
+    expect(ids(sortRows(orders, columns, [{ columnId: 'issuedAt', direction: 'ascending' }]))).toEqual(['2', '3', '4', '1', '5']);
   });
 
   it('ignores criteria for unknown or unsortable columns', () => {
-    expect(sortRows(orders, columns, [{ columnId: 'id', direction: 'desc' }])).toBe(orders);
-    expect(sortRows(orders, columns, [{ columnId: 'gone', direction: 'asc' }])).toBe(orders);
+    expect(sortRows(orders, columns, [{ columnId: 'id', direction: 'descending' }])).toBe(orders);
+    expect(sortRows(orders, columns, [{ columnId: 'gone', direction: 'ascending' }])).toBe(orders);
   });
 });
 
 describe('toggleSort', () => {
   it('cycles ascending, descending and none, replacing other columns', () => {
-    const first = toggleSort([{ columnId: 'total', direction: 'asc' }], 'customer');
+    const first = toggleSort([{ columnId: 'total', direction: 'ascending' }], 'customer');
 
-    expect(first).toEqual([{ columnId: 'customer', direction: 'asc' }]);
-    expect(toggleSort(first, 'customer')).toEqual([{ columnId: 'customer', direction: 'desc' }]);
-    expect(toggleSort([{ columnId: 'customer', direction: 'desc' }], 'customer')).toEqual([]);
+    expect(first).toEqual([{ columnId: 'customer', direction: 'ascending' }]);
+    expect(toggleSort(first, 'customer')).toEqual([{ columnId: 'customer', direction: 'descending' }]);
+    expect(toggleSort([{ columnId: 'customer', direction: 'descending' }], 'customer')).toEqual([]);
   });
 
   it('stacks a new column after the others and changes one in place', () => {
-    const sort = toggleSort([{ columnId: 'total', direction: 'asc' }], 'customer', true);
+    const sort = toggleSort([{ columnId: 'total', direction: 'ascending' }], 'customer', true);
 
     expect(sort).toEqual([
-      { columnId: 'total', direction: 'asc' },
-      { columnId: 'customer', direction: 'asc' },
+      { columnId: 'total', direction: 'ascending' },
+      { columnId: 'customer', direction: 'ascending' },
     ]);
     expect(toggleSort(sort, 'total', true)).toEqual([
-      { columnId: 'total', direction: 'desc' },
-      { columnId: 'customer', direction: 'asc' },
+      { columnId: 'total', direction: 'descending' },
+      { columnId: 'customer', direction: 'ascending' },
     ]);
-    expect(toggleSort([{ columnId: 'total', direction: 'desc' }, ...sort.slice(1)], 'total', true)).toEqual([
-      { columnId: 'customer', direction: 'asc' },
+    expect(toggleSort([{ columnId: 'total', direction: 'descending' }, ...sort.slice(1)], 'total', true)).toEqual([
+      { columnId: 'customer', direction: 'ascending' },
     ]);
   });
 });
@@ -166,12 +169,36 @@ describe('pagination', () => {
   });
 });
 
+describe('old sort direction names', () => {
+  it('turns asc and desc into ascending and descending and leaves the new names alone', () => {
+    const current: DataGridSortItem[] = [{ columnId: 'total', direction: 'ascending' }];
+
+    expect(normalizeSort([{ columnId: 'total', direction: 'asc' }, { columnId: 'id', direction: 'desc' }])).toEqual([
+      { columnId: 'total', direction: 'ascending' },
+      { columnId: 'id', direction: 'descending' },
+    ]);
+    expect(normalizeSort(current)).toBe(current);
+    expect(hasLegacySortDirection([{ columnId: 'total', direction: 'asc' }])).toBe(true);
+    expect(hasLegacySortDirection(current)).toBe(false);
+  });
+
+  it('restores a snapshot saved with the old names in the new ones', () => {
+    const restored = restoreSnapshot(
+      { version: 1, sort: [{ columnId: 'total', direction: 'desc' }], search: '', page: 1, pageSize: 25 },
+      columns,
+      { sort: [], search: '', filter: EMPTY_FILTER, page: 1, pageSize: 25 },
+    );
+
+    expect(restored.sort).toEqual([{ columnId: 'total', direction: 'descending' }]);
+  });
+});
+
 describe('snapshots', () => {
   const fallback: DataGridState = { sort: [], search: '', filter: EMPTY_FILTER, page: 1, pageSize: 25 };
 
   it('round-trips the state', () => {
     const state: DataGridState = {
-      sort: [{ columnId: 'total', direction: 'desc' }],
+      sort: [{ columnId: 'total', direction: 'descending' }],
       search: 'sul',
       filter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'greaterThan', value: 100 }] },
       page: 3,
@@ -191,10 +218,10 @@ describe('snapshots', () => {
       {
         version: 1,
         sort: [
-          { columnId: 'gone', direction: 'asc' },
-          { columnId: 'id', direction: 'asc' },
+          { columnId: 'gone', direction: 'ascending' },
+          { columnId: 'id', direction: 'ascending' },
           { columnId: 'customer', direction: 'sideways' },
-          { columnId: 'total', direction: 'desc' },
+          { columnId: 'total', direction: 'descending' },
         ],
         search: 7,
         filter: {
@@ -214,7 +241,7 @@ describe('snapshots', () => {
     );
 
     expect(restored).toEqual({
-      sort: [{ columnId: 'total', direction: 'desc' }],
+      sort: [{ columnId: 'total', direction: 'descending' }],
       search: '',
       filter: { logic: 'or', conditions: [{ columnId: 'customer', operator: 'contains', value: 'sul' }] },
       page: 2,
@@ -424,12 +451,12 @@ describe('time and datetime columns', () => {
     const loose = [{ id: 'a', at: '9:30' }, { id: 'b', at: '10:00' }, { id: 'c', at: '08:15' }];
     const timeColumn: DataGridColumnModel<(typeof loose)[number]>[] = [{ id: 'at', header: 'Hora', type: 'time' }];
 
-    expect(sortRows(loose, timeColumn, [{ columnId: 'at', direction: 'asc' }]).map((row) => row.id)).toEqual(['c', 'a', 'b']);
-    expect(visitIds(sortRows(visits, cols, [{ columnId: 'at', direction: 'asc' }]))).toEqual(['2', '1', '4', '3']);
+    expect(sortRows(loose, timeColumn, [{ columnId: 'at', direction: 'ascending' }]).map((row) => row.id)).toEqual(['c', 'a', 'b']);
+    expect(visitIds(sortRows(visits, cols, [{ columnId: 'at', direction: 'ascending' }]))).toEqual(['2', '1', '4', '3']);
   });
 
   it('orders by the date and the time', () => {
-    expect(visitIds(sortRows(visits, cols, [{ columnId: 'when', direction: 'asc' }]))).toEqual(['4', '2', '1', '3']);
+    expect(visitIds(sortRows(visits, cols, [{ columnId: 'when', direction: 'ascending' }]))).toEqual(['4', '2', '1', '3']);
   });
 
   it('filters a time with is, before, after and between', () => {

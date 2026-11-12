@@ -86,8 +86,8 @@ describe('DataGrid', () => {
       fireEvent.keyDown(screen.getByRole('columnheader', { name: 'Cliente' }), { key: 'Enter', shiftKey: true });
 
       expect(onSortChange).toHaveBeenLastCalledWith([
-        { columnId: 'total', direction: 'asc' },
-        { columnId: 'customer', direction: 'asc' },
+        { columnId: 'total', direction: 'ascending' },
+        { columnId: 'customer', direction: 'ascending' },
       ]);
     });
   });
@@ -251,7 +251,7 @@ describe('DataGrid', () => {
     fireEvent.click(screen.getByRole('columnheader', { name: 'Total' }));
 
     expect(onQueryChange).toHaveBeenCalledWith({
-      sort: [{ columnId: 'total', direction: 'asc' }],
+      sort: [{ columnId: 'total', direction: 'ascending' }],
       search: '',
       filter: { logic: 'and', conditions: [] },
       page: 1,
@@ -323,10 +323,25 @@ describe('DataGrid', () => {
     expect(screen.getByRole('gridcell', { name: 'Nenhum registro.' }).parentElement).toHaveAttribute('aria-rowindex', '2');
   });
 
+  it('accepts the old asc and desc names, warns in development and reports the new vocabulary', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const onSortChange = vi.fn();
+    renderGrid({ defaultSort: [{ columnId: 'total', direction: 'desc' }], onSortChange });
+
+    expect(firstColumn()).toEqual(['P-2', 'P-1', 'P-3']);
+    expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('aria-sort', 'descending');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("'asc' e 'desc'"));
+
+    fireEvent.click(screen.getByRole('columnheader', { name: 'Total' }));
+
+    expect(onSortChange).toHaveBeenLastCalledWith([]);
+    warn.mockRestore();
+  });
+
   it('restores a saved snapshot and reports the next one', () => {
     const onStateChange = vi.fn();
     renderGrid({
-      initialState: { version: 1, sort: [{ columnId: 'total', direction: 'desc' }], search: '', page: 1, pageSize: 25 },
+      initialState: { version: 1, sort: [{ columnId: 'total', direction: 'descending' }], search: '', page: 1, pageSize: 25 },
       onStateChange,
     });
 
@@ -336,7 +351,7 @@ describe('DataGrid', () => {
 
     expect(onStateChange).toHaveBeenLastCalledWith({
       version: 1,
-      sort: [{ columnId: 'customer', direction: 'asc' }],
+      sort: [{ columnId: 'customer', direction: 'ascending' }],
       search: '',
       filter: { logic: 'and', conditions: [] },
       page: 1,
@@ -870,7 +885,7 @@ describe('DataGrid', () => {
         columns: [columns[0], columns[1], { ...columns[2], summary: 'sum' }],
         defaultColumnState: { hidden: ['customer'] },
         defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'lessThan', value: 1000 }] },
-        defaultSort: [{ columnId: 'total', direction: 'asc' }],
+        defaultSort: [{ columnId: 'total', direction: 'ascending' }],
         exporters: [exporter],
       });
 
@@ -986,7 +1001,7 @@ describe('DataGrid', () => {
     });
 
     it('restores the default columns, order and density', () => {
-      renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'asc' }] });
+      renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'ascending' }] });
 
       fireEvent.click(screen.getByRole('columnheader', { name: 'Cliente' }));
       fireEvent.click(within(openTableSubmenu('Colunas')).getByRole('menuitemcheckbox', { name: 'Total' }));

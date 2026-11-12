@@ -49,6 +49,7 @@ export type {
   DataGridSnapshot,
   DataGridSortDirection,
   DataGridSortItem,
+  DataGridSortItemInput,
 } from './gridState';
 export type { DataGridDetailState } from './scrollRoot';
 export type { DataGridColumnState, DataGridPin } from './columnLayout';
