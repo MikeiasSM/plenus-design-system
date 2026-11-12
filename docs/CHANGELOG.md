@@ -6,18 +6,24 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ## [Não publicado]
 
+### Incompatível
+
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor não vira mais `null` durante a digitação. Antes, a data ou a hora pela metade passava `onValueChange(null)`; agora o valor anterior fica até o texto formar um valor inteiro, e só esvaziar o campo por inteiro passa `null`. Testes ou lógica que esperavam `null` ao digitar pela metade devem esperar o valor anterior, sem nova chamada, e tratar o texto incompleto ao sair do campo, quando ele se completa ou fica inválido, com a mensagem do campo e o `onInvalidText`.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: a barra, os dois pontos e o espaço vêm só da máscara. Digitados, não fazem nada, e o texto colado vale só pelos dígitos. Antes, a barra digitada fechava o grupo, e `1/3/2026` valia 01/03/2026; agora dá 13/20/26, inválido. Testes ou integrações que digitavam ou colavam a data com separador e sem o zero à esquerda devem usar os dígitos com o zero, como `01032026`, ou o texto completo, como `01/03/2026`. A data colada em ISO, como `2026-03-01`, continua aceita no `DatePicker`.
+- `DateTimePicker`: durante a digitação, o valor só grava com a data e a hora completas. Antes, a data inteira sem hora gravava meia-noite na hora; agora a meia-noite vale ao confirmar com Enter ou sair do campo. Testes que esperavam `onValueChange` com meia-noite logo após digitar a data devem confirmar ou sair do campo antes.
+
 ### Adicionado
 
-- `DatePicker`, `TimePicker` e `DateTimePicker`: teclas de atalho. `H` dá a data, a hora ou os dois de agora, e `+` e `-` mudam um dia, uma hora ou um minuto, conforme o campo e a posição do cursor, com a virada de relógio passando para a data. Os campos passam a aceitar só números e o separador.
-- `DatePicker`, `TimePicker` e `DateTimePicker`: o que foi digitado pela metade se completa ao sair do campo ou com Enter, como `215` em 21/05 do ano atual e `830` em 08:30.
-- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor inválido, ou fora de `min` e `max`, fica no campo, com mensagem no lugar do erro e `aria-invalid`, sem mudar o valor. A propriedade `onInvalid` avisa o produto com o texto digitado; o `error` do produto prevalece sobre a mensagem.
-- `DatePickerRange`: com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro, um dia com `←` e `→` e sete dias com `↑` e `↓`. Além de Enter e Espaço, o painel abre com Alt+`↓`.
-- `DataGrid`: as colunas `type: 'time'` (hora, `"HH:mm"`) e `type: 'datetime'` (data e hora, `"AAAA-MM-DDTHH:mm"`). A célula mostra o valor como o campo, a coluna ordena pela hora, ou pela data e hora, e o filtro oferece "É", "Antes de", "Depois de", "Entre", "Vazio" e "Preenchido", com o `TimePicker` ou o `DateTimePicker` no lugar da caixa de texto.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: teclas de atalho. `H` dá a data, a hora ou os dois de agora, e `+` e `-` mudam um dia, uma hora ou um minuto, conforme o campo e a posição do cursor, com a virada de relógio passando para a data. O valor novo é anunciado ao leitor de tela, como "22 de novembro de 2026", "14:37" ou "22 de novembro de 2026, 14:37". Os campos aceitam só números.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o que foi digitado pela metade se completa pelos dígitos ao sair do campo ou com Enter, como `215` em 21/05 do ano atual e `830` em 08:30.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor inválido, ou fora de `min` e `max`, fica no campo, com mensagem no lugar do erro e `aria-invalid`, sem mudar o valor. O `error` do produto prevalece sobre a mensagem.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: a propriedade `onInvalidText(text, reason)` avisa o produto do texto recusado ao confirmar ou sair do campo, com `reason` igual a `'invalid'` ou `'outOfRange'`. O dia barrado por `isDateUnavailable` conta como `'outOfRange'`. O `onInvalid` nativo continua indo ao campo de texto.
+- `DatePickerRange`: com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro, um dia com `←` e `→` e sete dias com `↑` e `↓`. O intervalo novo é anunciado ao leitor de tela como o gatilho o mostra. Além de Enter e Espaço, o painel abre com Alt+`↓`.
+- `DataGrid`: as colunas `type: 'time'` (hora, `"HH:mm"`) e `type: 'datetime'` (data e hora, `"AAAA-MM-DDTHH:mm"`). A célula mostra o valor como o campo, a coluna ordena pela hora, ou pela data e hora, e o filtro oferece "Às" na hora e "Em" na data e hora, "Antes de", "Depois de", "Entre", "Vazio" e "Preenchido", com o `TimePicker` ou o `DateTimePicker` no lugar da caixa de texto.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado
 
-- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor não se apaga mais durante a digitação. Antes, a data ou a hora pela metade passava `onValueChange(null)`; agora só esvaziar o campo por inteiro passa `null`.
 - `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
