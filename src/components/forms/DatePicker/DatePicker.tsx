@@ -7,7 +7,8 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { formatDateInput, parseDateInput } from '../../../utils/formatters';
+import { completeDateInput, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
+import { useCampoDigitado } from '../../../hooks/useCampoDigitado';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
@@ -26,7 +27,7 @@ export type DatePickerSize = 'sm' | 'md' | 'lg';
 export interface DatePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value'
   > {
   /** Data em ISO, `2026-03-09`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -44,6 +45,8 @@ export interface DatePickerProps
   locale?: string;
   max?: string;
   min?: string;
+  /** Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo. */
+  onInvalid?: (texto: string) => void;
   /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -79,6 +82,7 @@ export function DatePicker({
   locale = 'pt-BR',
   max,
   min,
+  onInvalid,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -107,12 +111,10 @@ export function DatePicker({
   const [internalValue, setInternalValue] = useState<CalendarDate | null>(() => readIsoDate(defaultValue) ?? null);
   const controlado = value === undefined ? undefined : (readIsoDate(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
-  const [texto, setTexto] = useState('');
-  const [digitando, setDigitando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDate(defaultValue) ?? null);
-    setDigitando(false);
+    campo.limpar();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -133,12 +135,6 @@ export function DatePicker({
     }
   }, [open]);
 
-  const exibido = digitando
-    ? texto
-    : escolhido
-      ? [String(escolhido.day).padStart(2, '0'), String(escolhido.month).padStart(2, '0'), escolhido.year].join('/')
-      : '';
-
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDate | null) {
     setInternalValue(proximo);
@@ -150,22 +146,40 @@ export function DatePicker({
     setOpen(false);
   }
 
-  function handleChange(entrada: string) {
-    const mascarado = formatDateInput(entrada);
+  const textoDe = (valor?: CalendarDate) =>
+    valor ? [String(valor.day).padStart(2, '0'), String(valor.month).padStart(2, '0'), valor.year].join('/') : '';
+  const campo = useCampoDigitado<CalendarDate>({
+    agora: () => today(getLocalTimeZone()),
+    atual: escolhido,
+    avaliar: (digitado) => {
+      const lido = completeDateInput(digitado, today(getLocalTimeZone()));
 
-    setDigitando(true);
-    setTexto(mascarado);
+      if (!lido) {
+        return { mensagem: 'Data inválida.' };
+      }
 
-    // Data fora dos limites nao se grava: o calendario ja a recusa, e o campo
-    // digitado nao pode ser a porta dos fundos dela.
-    const lido = parseDateInput(mascarado);
-    const permitido = lido && !isUnavailable(lido, limites) ? lido : null;
+      return isUnavailable(lido, limites) ? { mensagem: 'Data fora do intervalo permitido.' } : { valor: lido };
+    },
+    deslocar: (valor, passo) => ({ cursor: 10, valor: valor.add({ days: passo }) }),
+    erro: error,
+    filtrar: keepDateChars,
+    gravar: definir,
+    inputRef,
+    ler: (digitado) => {
+      const lido = parseDateInput(digitado);
 
-    definir(permitido);
-  }
+      return lido && !isUnavailable(lido, limites) ? lido : undefined;
+    },
+    mascarar: formatDateInput,
+    onInvalid,
+    paraTexto: textoDe,
+    permitido: (valor) => !isUnavailable(valor, limites),
+    separadores: '/',
+  });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
+    campo.tratarTecla(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -198,7 +212,7 @@ export function DatePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={campo.erro} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -209,7 +223,7 @@ export function DatePicker({
             value={escolhido?.toString() ?? ''}
           />
           <div
-            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            className={[styles.field, styles[size], campo.erro && styles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -222,16 +236,13 @@ export function DatePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => {
-                setDigitando(false);
-                onBlur?.(event);
-              }}
-              onChange={(event) => handleChange(event.target.value)}
+              onBlur={(event) => campo.sair(event, onBlur)}
+              onChange={(event) => campo.mudar(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={exibido}
+              value={campo.exibido}
             />
             <button
               aria-expanded={open}
@@ -290,7 +301,7 @@ export function DatePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          setDigitando(false);
+                          campo.limpar();
                           fechar();
                         }}
                         size="sm"

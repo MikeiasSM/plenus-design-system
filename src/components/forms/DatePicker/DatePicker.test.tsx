@@ -33,25 +33,40 @@ describe('DatePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith('2026-03-09');
   });
 
-  it('reporta ausencia enquanto a data digitada nao existe', () => {
+  it('nao apaga o valor enquanto a data digitada esta incompleta', () => {
     const mudou = vi.fn();
-    const campo = montar({ onValueChange: mudou });
+    const campo = montar({ value: '2026-03-09', onValueChange: mudou });
 
     fireEvent.change(campo, { target: { value: '3102' } });
 
-    // O valor acompanha o texto: enquanto ele nao e uma data, nao ha data.
+    expect(campo).toHaveValue('31/02');
+    expect(mudou).not.toHaveBeenCalled();
+  });
+
+  it('passa a nulo quando o campo e esvaziado por inteiro', () => {
+    const mudou = vi.fn();
+    const campo = montar({ defaultValue: '2026-03-09', onValueChange: mudou });
+
+    fireEvent.change(campo, { target: { value: '' } });
+
     expect(mudou).toHaveBeenLastCalledWith(null);
   });
 
-  it('recusa por digitacao a data que o calendario ja recusa', () => {
+  it('nao grava por digitacao a data fora dos limites e a recusa ao sair', () => {
     const mudou = vi.fn();
     const campo = montar({ max: '2026-03-31', onValueChange: mudou });
 
     fireEvent.change(campo, { target: { value: '09032026' } });
     expect(mudou).toHaveBeenLastCalledWith('2026-03-09');
 
+    mudou.mockClear();
     fireEvent.change(campo, { target: { value: '09092030' } });
-    expect(mudou).toHaveBeenLastCalledWith(null);
+    expect(mudou).not.toHaveBeenCalled();
+
+    fireEvent.blur(campo);
+    expect(campo).toHaveValue('09/09/2030');
+    expect(screen.getByRole('alert')).toHaveTextContent('Data fora do intervalo permitido.');
+    expect(mudou).not.toHaveBeenCalled();
   });
 
   it('abre o calendario pela seta para baixo e escolhe um dia', () => {
@@ -206,6 +221,151 @@ describe('DatePicker', () => {
       fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+  });
+
+  describe('atalhos e completar', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(2026, 10, 12, 14, 37));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('aceita so numeros e a barra', () => {
+      const campo = montar();
+
+      expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: '5' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: 'Tab' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: 'a', ctrlKey: true })).toBe(true);
+
+      fireEvent.change(campo, { target: { value: '1a2-' } });
+      expect(campo).toHaveValue('12');
+    });
+
+    it('H da a data de hoje, sem escrever a letra, e substitui o que houver', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '2026-03-09', onValueChange: mudou });
+
+      expect(fireEvent.keyDown(campo, { key: 'h' })).toBe(false);
+      expect(mudou).toHaveBeenLastCalledWith('2026-11-12');
+
+      fireEvent.change(campo, { target: { value: '15' } });
+      fireEvent.keyDown(campo, { key: 'H' });
+      expect(campo).toHaveValue('12/11/2026');
+    });
+
+    it('+ e - mudam um dia, tambem os do teclado numerico', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '2026-03-31', onValueChange: mudou });
+
+      expect(fireEvent.keyDown(campo, { key: '+', code: 'NumpadAdd' })).toBe(false);
+      expect(mudou).toHaveBeenLastCalledWith('2026-04-01');
+
+      fireEvent.keyDown(campo, { key: '-', code: 'NumpadSubtract' });
+      fireEvent.keyDown(campo, { key: '-' });
+      expect(mudou).toHaveBeenLastCalledWith('2026-03-30');
+      expect(campo).toHaveValue('30/03/2026');
+    });
+
+    it('com o campo vazio, + e - partem de hoje', () => {
+      const campo = montar();
+
+      fireEvent.keyDown(campo, { key: '+' });
+      expect(campo).toHaveValue('13/11/2026');
+    });
+
+    it('com texto invalido, + parte do ultimo valor valido', () => {
+      const campo = montar({ defaultValue: '2026-03-09' });
+
+      fireEvent.change(campo, { target: { value: '31/02' } });
+      fireEvent.keyDown(campo, { key: '+' });
+
+      expect(campo).toHaveValue('10/03/2026');
+    });
+
+    it('+ nao leva a data para fora dos limites', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '2026-03-31', max: '2026-03-31', onValueChange: mudou });
+
+      fireEvent.keyDown(campo, { key: '+' });
+
+      expect(mudou).not.toHaveBeenCalled();
+      expect(campo).toHaveValue('31/03/2026');
+    });
+
+    it.each([
+      ['1', '01/11/2026'],
+      ['15', '15/11/2026'],
+      ['215', '21/05/2026'],
+      ['112', '11/02/2026'],
+      ['2105', '21/05/2026'],
+      ['260326', '26/03/2026'],
+      ['260350', '26/03/2050'],
+      ['21052026', '21/05/2026'],
+    ])('ao sair, completa %s em %s', (digitado, esperado) => {
+      const mudou = vi.fn();
+      const campo = montar({ onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: digitado } });
+      expect(mudou).not.toHaveBeenCalledWith(null);
+      fireEvent.blur(campo);
+
+      expect(campo).toHaveValue(esperado);
+      expect(mudou).toHaveBeenLastCalledWith(esperado.split('/').reverse().join('-'));
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('Enter completa o que foi digitado', () => {
+      const campo = montar();
+
+      fireEvent.change(campo, { target: { value: '15' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+
+      expect(campo).toHaveValue('15/11/2026');
+    });
+
+    it.each(['12345', '1234567', '32', '3102', '0000'])('ao sair, %s e invalido', (digitado) => {
+      const mudou = vi.fn();
+      const aviso = vi.fn();
+      const campo = montar({ defaultValue: '2026-03-09', onInvalid: aviso, onValueChange: mudou });
+
+      fireEvent.change(campo, { target: { value: digitado } });
+      const texto = (campo as HTMLInputElement).value;
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
+      expect(campo).toHaveAttribute('aria-invalid', 'true');
+      expect(campo).toHaveValue(texto);
+      expect(mudou).not.toHaveBeenCalled();
+      expect(aviso).toHaveBeenCalledTimes(1);
+      expect(aviso).toHaveBeenCalledWith(texto);
+    });
+
+    it('o erro do produto prevalece sobre a mensagem do campo', () => {
+      const campo = montar({ error: 'Obrigatório' });
+
+      fireEvent.change(campo, { target: { value: '32' } });
+      fireEvent.blur(campo);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Obrigatório');
+    });
+
+    it('a mensagem some quando o valor fica valido', () => {
+      const campo = montar();
+
+      fireEvent.change(campo, { target: { value: '32' } });
+      fireEvent.blur(campo);
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+
+      fireEvent.change(campo, { target: { value: '15112026' } });
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(campo).not.toHaveAttribute('aria-invalid');
     });
   });
 });
