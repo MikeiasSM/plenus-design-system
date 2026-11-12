@@ -30,8 +30,8 @@ export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'a
   /** A conta do usuário no rodapé: um `Sidebar.Account`. */
   account?: ReactNode;
   /**
-   * Onde a conta abre. `inline` cresce acima do rodapé e encolhe a lista do módulo;
-   * `cover` ocupa o lugar da lista.
+   * Onde a conta abre. `inline` abre um cartão por cima da lista do módulo, sem encolhê-la;
+   * `cover` ocupa o lugar da lista com as opções.
    */
   accountMode?: SidebarAccountMode;
   /** A marca do produto, no cabeçalho, na altura da marca do trilho. */
@@ -60,7 +60,7 @@ export function SidebarPanel({
   width,
   ...props
 }: SidebarPanelProps) {
-  const { accountOpen, collapsePanel, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
+  const { accountOpen, collapsePanel, setAccountOpen, collapseRef, isPanelVisible, narrow, panelId, setMenuOpen, setPanelKind, submenuOpen } = useSidebarContext();
   const [enteredId, setEnteredId] = useState<string | null>(null);
   const [shownLabel, setShownLabel] = useState(label);
   const hasItems = Children.toArray(children).length > 0;
@@ -77,6 +77,12 @@ export function SidebarPanel({
     setEnteredId(null);
   }
 
+  function handleInnerClick(event: MouseEvent<HTMLDivElement>) {
+    if (accountOpen && accountMode === 'inline' && !(event.target as Element).closest(`.${styles.account}`)) {
+      setAccountOpen(false);
+    }
+  }
+
   return (
     <SidebarPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId }}>
       <div
@@ -87,7 +93,7 @@ export function SidebarPanel({
         inert={!visible}
         style={width === undefined ? style : ({ ...style, '--sidebar-panel-width': typeof width === 'number' ? `${width}px` : width } as CSSProperties)}
       >
-        <div className={styles.inner}>
+        <div className={styles.inner} onClick={handleInnerClick}>
           {hasItems && (
             <nav aria-label={label} className={styles.navigation} data-covered={accountMode === 'cover' && accountOpen}>
               <div className={styles.head}>

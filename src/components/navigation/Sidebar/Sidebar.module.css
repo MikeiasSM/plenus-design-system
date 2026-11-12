@@ -1,4 +1,4 @@
-/* Medidas do modelo: trilho 56px, botao do trilho 38px. */
+/* Medidas do modelo: trilho 56px, botao do trilho 34px. */
 
 .navigation {
   display: flex;
@@ -37,7 +37,7 @@
   box-sizing: border-box;
   width: 56px;
   min-height: 0;
-  padding: 10px 0 8px;
+  padding: 9px 0 8px;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -46,7 +46,7 @@
   display: grid;
   flex: none;
   place-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 24px;
 }
 
 /* A marca sem símbolo não aparece no trilho: o lugar dela some junto, sem deixar a margem. */
@@ -73,8 +73,8 @@
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 0;
   border-radius: var(--pl-radius-md);
@@ -87,12 +87,13 @@
 }
 
 .railItem:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+  background: var(--pl-color-primary-tint-hover);
+  color: var(--pl-color-text);
 }
 
-.railItem[aria-current='page'] {
-  background: var(--pl-color-primary-selected);
+.railItem[aria-current='page'],
+.railItem[aria-current='page']:hover {
+  background: var(--pl-color-primary-tint);
   color: var(--pl-color-on-primary-container);
 }
 

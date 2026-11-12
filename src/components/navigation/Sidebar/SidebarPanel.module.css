@@ -1,4 +1,4 @@
-/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item 34px, filho 30px, cabeçalho na altura da marca do trilho. */
+/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item e filho 34px, cabeçalho na altura da marca do trilho. */
 .panel {
   flex: none;
   width: 0;
@@ -19,7 +19,7 @@
   box-sizing: border-box;
   width: var(--sidebar-panel-width, 256px);
   height: 100%;
-  padding: 11px 8px 4px 12px;
+  padding: 10px 8px 4px 12px;
 }
 
 /* Na gaveta do celular, o submenu largo demais para a tela cede ao lado do trilho, e o conteúdo acompanha. */
@@ -39,7 +39,7 @@
   justify-content: space-between;
   gap: var(--pl-space-2);
   height: 36px;
-  margin-bottom: 8px;
+  margin-bottom: 24px;
 }
 
 .brand {
@@ -63,8 +63,8 @@
 .list {
   flex: 1;
   min-height: 0;
-  margin: 0 -4px;
-  padding: 2px 4px;
+  margin: -3px -4px -3px -10px;
+  padding: 3px 4px 3px 10px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -96,14 +96,16 @@
 }
 
 .groupTitle {
-  display: block;
-  margin: 10px 0 4px 8px;
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-caption-size);
-  font-weight: var(--pl-type-label-weight);
-  line-height: var(--pl-type-caption-line-height);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  height: 34px;
+  margin: 0 0 2px 8px;
+  padding-bottom: 6px;
+  color: var(--pl-color-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
 }
 
 .groupTitle[hidden] {
@@ -111,6 +113,7 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--pl-space-2);
@@ -133,12 +136,8 @@
 }
 
 .item:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
-}
-
-.item:hover .icon {
-  color: var(--pl-color-primary-strong);
+  background: var(--pl-color-primary-tint-hover);
+  color: var(--pl-color-text);
 }
 
 .item:focus-visible {
@@ -146,11 +145,21 @@
   outline-offset: 1px;
 }
 
-.item[aria-current='page'] {
-  border-color: var(--pl-color-primary-line);
-  background: var(--pl-color-primary-selected);
-  box-shadow: var(--pl-sh-1);
+.item[aria-current='page'],
+.item[aria-current='page']:hover {
+  background: var(--pl-color-primary-tint);
   color: var(--pl-color-on-primary-container);
+}
+
+.item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: -8px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--pl-color-primary);
 }
 
 .item[aria-current='page'] .icon {
@@ -218,16 +227,18 @@
 
 .branch[data-expanded='true'] > .nestedWrap > .nested {
   margin-top: 2px;
-  margin-bottom: 4px;
 }
 
 .nested .item {
-  height: 30px;
   font-weight: var(--pl-type-body-weight);
 }
 
 .nested .item[aria-current='page'] {
   font-weight: var(--pl-type-label-weight);
+}
+
+.nested .item[aria-current='page']::before {
+  left: -6px;
 }
 
 .nested[hidden] {
@@ -248,8 +259,7 @@
   gap: 6px;
   box-sizing: border-box;
   width: 100%;
-  height: 30px;
-  margin-bottom: 4px;
+  height: 34px;
   padding: 0 6px;
   border: 0;
   border-radius: var(--pl-radius-md);
@@ -271,6 +281,10 @@
   outline-offset: 1px;
 }
 
+.stacked .groupTitle {
+  margin-bottom: 0;
+}
+
 @keyframes stack-in {
   from {
     transform: translateX(16px);
@@ -278,8 +292,9 @@
   }
 }
 
-/* Conta: um cartão próprio acima do rodapé, que empurra a lista do módulo (inline) ou ocupa o lugar dela (cover). */
+/* Conta: o cartão abre por cima da lista (inline) ou ocupa o lugar dela (cover), sem empurrá-la nem encolhê-la. */
 .account {
+  position: relative;
   display: flex;
   flex: none;
   flex-direction: column;
@@ -291,57 +306,62 @@
 }
 
 .accountCard {
-  display: grid;
-  grid-template-rows: 0fr;
-  min-height: 0;
-  overflow: hidden;
-  transition: grid-template-rows var(--pl-speed-2) var(--pl-ease);
-}
-
-.account[data-open='true'] .accountCard {
-  grid-template-rows: 1fr;
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  z-index: 1;
 }
 
 .account[data-mode='cover'] .accountCard {
-  transition: none;
+  position: static;
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .account[data-mode='cover'][data-open='true'] .accountCard {
-  flex: 1;
+  display: flex;
 }
 
 .accountNav {
-  min-height: 0;
-  margin-top: 0;
-  overflow: hidden;
-  border: 1px solid transparent;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--pl-space-1);
+  border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-up);
   opacity: 0;
-  transform: translateY(24px);
+  visibility: hidden;
+  transform: translateY(8px);
   transition:
     opacity var(--pl-speed-2) var(--pl-ease),
     transform var(--pl-speed-2) var(--pl-ease),
-    margin var(--pl-speed-2) var(--pl-ease);
+    visibility var(--pl-speed-2) var(--pl-ease);
 }
 
 .account[data-open='true'] .accountNav {
-  margin-top: 8px;
-  padding: var(--pl-space-1);
-  overflow-y: auto;
-  border-color: var(--pl-color-border);
-  box-shadow: var(--pl-sh-1);
   opacity: 1;
+  visibility: visible;
   transform: none;
 }
 
-.accountHead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  padding: var(--pl-space-1) var(--pl-space-1) var(--pl-space-3);
-  border-bottom: 1px solid var(--pl-color-border);
+.account[data-mode='cover'] .accountNav {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin: -3px -4px -3px -10px;
+  padding: 3px 4px 3px 10px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: none;
 }
 
 .accountTrigger {
@@ -406,7 +426,6 @@
   .item,
   .chevron,
   .nestedWrap,
-  .accountCard,
   .accountNav,
   .accountChevron {
     transition: none;

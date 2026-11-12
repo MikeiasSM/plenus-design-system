@@ -20,7 +20,7 @@ export const pattern: Pattern = {
     { nome: 'Sidebar.Rail', papel: <>O trilho; o grupo fixo do pé (<code>footer</code>) recebe a conta.</> },
     { nome: 'Sidebar.RailAccount', papel: 'O avatar da conta no trilho. Só aparece com o submenu recolhido e abre o submenu já na conta.' },
     { nome: 'Sidebar.Panel', papel: <>O submenu; a conta entra na propriedade <code>account</code>.</> },
-    { nome: 'Sidebar.Account', papel: 'O bloco da conta no pé do submenu, com avatar, nome e descrição, e o cartão com as opções.' },
+    { nome: 'Sidebar.Account', papel: 'O bloco da conta no pé do submenu, com avatar, nome e descrição, e as opções, num cartão por cima da lista.' },
     { nome: 'Sidebar.Item', papel: 'As opções da conta: links com href, ou botões, como "Sair".' },
     { nome: 'Avatar', papel: 'A representação da pessoa, nos dois lugares.' },
   ],
@@ -46,7 +46,7 @@ export const pattern: Pattern = {
     <>"Sair" é uma operação, então é botão (<code>onClick</code>); as opções que levam a outra tela são links (<code>href</code>).</>,
   ],
   variacoes: [
-    <>A conta cobrindo a lista do módulo, com <code>accountMode="cover"</code> no <code>Sidebar.Panel</code>, e o bloco com avatar e nome no alto do cartão.</>,
+    <>A conta cobrindo a lista do módulo, com <code>accountMode="cover"</code> no <code>Sidebar.Panel</code>, e as opções no mesmo desenho dos itens do submenu.</>,
     <>O avatar com foto, em <code>src</code>, e o ponto de aviso no trilho, que é do produto.</>,
     <>Um módulo sem lista: o submenu fica só como o lugar da conta.</>,
   ],

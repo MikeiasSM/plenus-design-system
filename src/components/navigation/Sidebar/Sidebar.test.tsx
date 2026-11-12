@@ -216,12 +216,58 @@ describe('Sidebar', () => {
       expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('cobrindo a lista, esconde a lista do módulo e traz o cabeçalho da conta', () => {
+    it('cobrindo a lista, esconde a lista do módulo e mostra as opções como itens, sem cabeçalho de identidade', () => {
       render(<Example accountMode="cover" />);
       fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
 
+      const conta = screen.getByRole('navigation', { name: 'Conta' });
       expect(screen.getByRole('navigation', { name: 'Vendas' })).toHaveAttribute('data-covered', 'true');
-      expect(within(screen.getByRole('navigation', { name: 'Conta' })).getByText('Roman Mecânica')).toBeInTheDocument();
+      expect(within(conta).getByRole('link', { name: 'Favoritos' })).toBeVisible();
+      expect(within(conta).queryByText('Roman Mecânica')).not.toBeInTheDocument();
+    });
+
+    it('cobrindo a lista, as opções não levam cartão: sem borda, fundo nem sombra', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get(".account[data-mode='cover'] .accountNav")).toMatchObject({
+        border: '0',
+        background: 'none',
+        'box-shadow': 'none',
+      });
+    });
+
+    it('na altura das opções, o cartão fica por cima da lista, sem empurrá-la nem encolhê-la', () => {
+      const regras = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+      expect(regras.get('.accountCard')).toMatchObject({ position: 'absolute', bottom: '100%', left: '0', right: '0' });
+      expect(regras.get('.account')).toMatchObject({ position: 'relative', flex: 'none' });
+      expect(regras.get('.accountNav')).toMatchObject({ 'box-shadow': 'var(--pl-sh-up)', background: 'var(--pl-color-surface)' });
+      expect(regras.get('.list')?.flex).toBe('1');
+    });
+
+    it('clicar fora do cartão, dentro do submenu, fecha a conta, sem prender o foco', () => {
+      render(<Example />);
+      const trigger = screen.getByRole('button', { name: /Suporte/ });
+      fireEvent.click(trigger);
+      const conta = screen.getByRole('navigation', { name: 'Conta' });
+
+      fireEvent.click(within(conta).getByRole('link', { name: 'Favoritos' }).closest('ul')!);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.click(screen.getByText('Operação'));
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(conta.parentElement).toHaveAttribute('inert');
+    });
+
+    it('com a conta cobrindo, o clique fora do bloco não a fecha', () => {
+      render(<Example accountMode="cover" />);
+      const trigger = screen.getByRole('button', { name: /Suporte/ });
+      fireEvent.click(trigger);
+
+      fireEvent.click(screen.getByText('Gestor'));
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('o avatar do trilho só aparece com o submenu recolhido e o abre já na conta', () => {
@@ -303,6 +349,72 @@ describe('Sidebar', () => {
       });
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('estilo dos itens', () => {
+    const painel = () => regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+    const moldura = () => regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
+
+    it('trilho e submenu andam na grade de 34px mais 2px', () => {
+      expect(moldura().get('.railItem, .railAccount')).toMatchObject({ width: '34px', height: '34px' });
+      expect(painel().get('.item')?.height).toBe('34px');
+      expect(painel().get('.nested .item')?.height).toBeUndefined();
+      expect(painel().get('.items')?.gap).toBe('2px');
+      expect(painel().get('.back')?.height).toBe('34px');
+    });
+
+    it('a marca do trilho e o cabeçalho começam na mesma altura, com 24px até o conteúdo', () => {
+      expect(moldura().get('.rail')?.padding).toBe('9px 0 8px');
+      expect(painel().get('.inner')?.padding).toBe('10px 8px 4px 12px');
+      expect(moldura().get('.brand')?.['margin-bottom']).toBe('24px');
+      expect(painel().get('.head')?.['margin-bottom']).toBe('24px');
+    });
+    it('o título de grupo ocupa uma linha de 34px, em negrito, na cor do texto e sem caixa alta', () => {
+      const titulo = painel().get('.groupTitle')!;
+
+      expect(titulo).toMatchObject({
+        height: '34px',
+        'padding-bottom': '6px',
+        'font-size': '13px',
+        'font-weight': '700',
+        color: 'var(--pl-color-text)',
+      });
+      expect(titulo['text-transform']).toBeUndefined();
+      expect(titulo['letter-spacing']).toBeUndefined();
+    });
+
+    it('o ativo do submenu leva fundo leve e barra solta, sem borda nem sombra', () => {
+      const ativo = painel().get(".item[aria-current='page'], .item[aria-current='page']:hover")!;
+
+      expect(ativo).toMatchObject({ background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-on-primary-container)' });
+      expect(ativo['box-shadow']).toBeUndefined();
+      expect(painel().get(".item[aria-current='page']::before")).toMatchObject({
+        left: '-8px',
+        top: '7px',
+        bottom: '7px',
+        width: '3px',
+        background: 'var(--pl-color-primary)',
+      });
+      expect(painel().get(".nested .item[aria-current='page']::before")?.left).toBe('-6px');
+    });
+
+    it('o hover do submenu e do trilho tinge de leve e mantém o texto na cor normal', () => {
+      expect(painel().get('.item:hover')).toMatchObject({ background: 'var(--pl-color-primary-tint-hover)', color: 'var(--pl-color-text)' });
+      expect(moldura().get('.railItem:hover')).toMatchObject({ background: 'var(--pl-color-primary-tint-hover)', color: 'var(--pl-color-text)' });
+    });
+
+    it('o ativo do trilho usa o fundo leve do submenu, sem barra', () => {
+      const ativo = moldura().get(".railItem[aria-current='page'], .railItem[aria-current='page']:hover")!;
+
+      expect(ativo).toMatchObject({ background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-on-primary-container)' });
+      expect(moldura().get(".railItem[aria-current='page']::before")).toBeUndefined();
+    });
+
+    it('o pai recolhido com filho ativo marca o caminho só pelo texto e pelo ícone, sem fundo', () => {
+      const pai = painel().get(".branch:not([data-expanded='true']):has([aria-current='page']) > .item")!;
+
+      expect(pai).toEqual({ color: 'var(--pl-color-on-primary-container)' });
     });
   });
 

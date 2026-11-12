@@ -16,7 +16,7 @@ export interface SidebarAccountProps extends Omit<ComponentPropsWithRef<'div'>, 
   name: string;
 }
 
-/** Rodapé do submenu: o bloco da conta e o cartão com as opções, que abre acima dele. Vai em `Sidebar.Panel`, na propriedade `account`. */
+/** Rodapé do submenu: o bloco da conta e as opções, que abrem acima dele. Vai em `Sidebar.Panel`, na propriedade `account`. */
 export function SidebarAccount({
   avatar,
   children,
@@ -70,12 +70,6 @@ export function SidebarAccount({
     >
       <div className={styles.accountCard} inert={!accountOpen}>
         <nav aria-label={label} className={styles.accountNav} id={accountId} onClick={handleCardClick} ref={cardRef}>
-          {accountMode === 'cover' && (
-            <div className={styles.accountHead}>
-              {avatar}
-              <AccountIdentity description={description} name={name} />
-            </div>
-          )}
           <ul className={styles.items}>
             <SidebarItemScopeContext value="account">{children}</SidebarItemScopeContext>
           </ul>
