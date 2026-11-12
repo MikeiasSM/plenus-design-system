@@ -478,7 +478,7 @@ function Modos() {
       </dd>
       <dt><code>hideBelow</code></dt>
       <dd>
-        Descarta a coluna abaixo de 900px (<code>sm</code>), 1180px (<code>md</code>) ou 1280px (<code>lg</code>). A célula
+        Descarta a coluna quando a largura da tabela, e não a da janela, chega a 900px (<code>sm</code>), 1180px (<code>md</code>) ou 1280px (<code>lg</code>). A célula
         herda da coluna da mesma posição, como <code>align</code> e <code>numeric</code>.
       </dd>
       <dt><code>help</code></dt>
@@ -799,7 +799,7 @@ export const pagina: Pagina = {
     { nome: 'Table.Column numeric', tipo: 'boolean', padrao: 'false', descricao: 'Valor à direita, em mono com dígitos alinhados.' },
     { nome: 'Table.Column align', tipo: "'start' | 'center' | 'end'", descricao: 'Alinhamento; sem ele, end se numeric, senão start.' },
     { nome: 'Table.Column help', tipo: 'string', descricao: 'Texto da ajuda ao lado do título.' },
-    { nome: 'Table.Column hideBelow', tipo: "'sm' | 'md' | 'lg'", descricao: 'Esconde a coluna abaixo do breakpoint.' },
+    { nome: 'Table.Column hideBelow', tipo: "'sm' | 'md' | 'lg'", descricao: 'Esconde a coluna quando a largura da tabela chega ao breakpoint.' },
     { nome: 'Table.Column width', tipo: 'string', descricao: 'Largura da coluna.' },
     { nome: 'Table.Body items', tipo: 'readonly T[]', descricao: <>Obrigatório. Cada item com <code>id</code>.</> },
     { nome: 'Table.Body children', tipo: '(item: T) => ReactNode', descricao: 'Obrigatório. Desenha a linha de cada item.' },

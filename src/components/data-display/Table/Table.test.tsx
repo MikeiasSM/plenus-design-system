@@ -480,4 +480,12 @@ describe('CSS da Table', () => {
   it('o contêiner de rolagem é posicionado, para o texto absoluto do título não alargar a página', () => {
     expect(bloco(/^\.scroll \{/m)).toContain('position: relative;');
   });
+
+  it('o hideBelow mede a largura do envoltório que rola, por container query, e não a da janela', () => {
+    expect(bloco(/^\.scroll \{/m)).toContain('container-type: inline-size;');
+    expect(css).not.toMatch(/@media \(max-width/);
+    expect(css).toMatch(/@container \(max-width: 900px\) \{\s*\.table \[data-hide-below='sm'\] \{\s*display: none;/);
+    expect(css).toMatch(/@container \(max-width: 1180px\) \{\s*\.table \[data-hide-below='md'\] \{\s*display: none;/);
+    expect(css).toMatch(/@container \(max-width: 1280px\) \{\s*\.table \[data-hide-below='lg'\] \{\s*display: none;/);
+  });
 });
