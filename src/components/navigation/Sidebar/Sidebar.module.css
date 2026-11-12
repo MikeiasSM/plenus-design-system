@@ -1,4 +1,4 @@
-/* Medidas do modelo: trilho 56px, botao do trilho 34px. */
+/* Medidas do modelo: trilho 56px, botao do trilho 34px, todas em variaveis `--sidebar-*`. */
 
 .navigation {
   display: flex;
@@ -15,7 +15,7 @@
 
 /* A gaveta do celular se ajusta ao trilho e ao submenu e usa o fundo da aplicação. */
 .menuSurface.menuSurface {
-  width: auto;
+  width: var(--sidebar-drawer-width, auto);
   max-width: 100%;
   padding: var(--pl-shell-gap);
   background: var(--pl-color-background);
@@ -35,7 +35,7 @@
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  width: 56px;
+  width: var(--sidebar-rail-width, 56px);
   min-height: 0;
   padding: 9px 0 8px;
   overflow-y: auto;
@@ -73,14 +73,14 @@
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  width: 34px;
-  height: 34px;
+  width: var(--sidebar-row, 34px);
+  height: var(--sidebar-row, 34px);
   padding: 0;
   border: 0;
   border-radius: var(--pl-radius-md);
   background: none;
   color: var(--pl-color-text-secondary);
-  font-size: 20px;
+  font-size: var(--sidebar-rail-icon-size, 20px);
   cursor: pointer;
   text-decoration: none;
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
@@ -98,8 +98,6 @@
 }
 
 .railAccount {
-  width: 34px;
-  height: 34px;
   margin-top: 6px;
   font-size: inherit;
 }

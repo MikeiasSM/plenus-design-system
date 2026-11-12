@@ -357,11 +357,11 @@ describe('Sidebar', () => {
     const moldura = () => regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
 
     it('trilho e submenu andam na grade de 34px mais 2px', () => {
-      expect(moldura().get('.railItem, .railAccount')).toMatchObject({ width: '34px', height: '34px' });
-      expect(painel().get('.item')?.height).toBe('34px');
+      expect(moldura().get('.railItem, .railAccount')).toMatchObject({ width: 'var(--sidebar-row, 34px)', height: 'var(--sidebar-row, 34px)' });
+      expect(painel().get('.item')?.height).toBe('var(--sidebar-row, 34px)');
       expect(painel().get('.nested .item')?.height).toBeUndefined();
       expect(painel().get('.items')?.gap).toBe('2px');
-      expect(painel().get('.back')?.height).toBe('34px');
+      expect(painel().get('.back')?.height).toBe('var(--sidebar-row, 34px)');
     });
 
     it('a marca do trilho e o cabeçalho começam na mesma altura, com 24px até o conteúdo', () => {
@@ -370,11 +370,24 @@ describe('Sidebar', () => {
       expect(moldura().get('.brand')?.['margin-bottom']).toBe('24px');
       expect(painel().get('.head')?.['margin-bottom']).toBe('24px');
     });
+
+    it('as medidas vêm de variáveis, com os padrões do modelo', () => {
+      expect(moldura().get('.rail')?.width).toBe('var(--sidebar-rail-width, 56px)');
+      expect(moldura().get('.railItem, .railAccount')?.['font-size']).toBe('var(--sidebar-rail-icon-size, 20px)');
+      expect(moldura().get('.menuSurface.menuSurface')?.width).toBe('var(--sidebar-drawer-width, auto)');
+      expect(painel().get('.icon')?.['font-size']).toBe('var(--sidebar-icon-size, 18px)');
+      expect(painel().get('.head')?.height).toBe('var(--sidebar-brand-size, 36px)');
+      expect(painel().get('.accountAvatar.accountAvatar > *')?.width).toBe('var(--sidebar-avatar-size, 40px)');
+      expect(regrasDaFolha('src/components/navigation/Sidebar/SidebarBrand.module.css').get('.railBrand')?.width).toBe(
+        'var(--sidebar-brand-size, 36px)',
+      );
+    });
+
     it('o título de grupo ocupa uma linha de 34px, em negrito, na cor do texto e sem caixa alta', () => {
       const titulo = painel().get('.groupTitle')!;
 
       expect(titulo).toMatchObject({
-        height: '34px',
+        height: 'var(--sidebar-row, 34px)',
         'padding-bottom': '6px',
         'font-size': '13px',
         'font-weight': '700',
@@ -391,8 +404,8 @@ describe('Sidebar', () => {
       expect(ativo['box-shadow']).toBeUndefined();
       expect(painel().get(".item[aria-current='page']::before")).toMatchObject({
         left: '-8px',
-        top: '7px',
-        bottom: '7px',
+        top: 'calc((var(--sidebar-row, 34px) - 20px) / 2)',
+        bottom: 'calc((var(--sidebar-row, 34px) - 20px) / 2)',
         width: '3px',
         background: 'var(--pl-color-primary)',
       });

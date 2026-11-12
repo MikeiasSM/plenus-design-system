@@ -83,7 +83,7 @@ export function SidebarAccount({
         ref={triggerRef}
         type="button"
       >
-        {avatar}
+        <span className={styles.accountAvatar}>{avatar}</span>
         <AccountIdentity description={description} name={name} />
         <IconChevronUp className={styles.accountChevron} size={15} />
       </button>
