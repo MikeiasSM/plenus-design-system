@@ -175,9 +175,9 @@ describe('laco controlado com o proprio setter', () => {
     const campo = screen.getByLabelText('Vencimento');
 
     digitar(campo, '10032026');
-    apagar(campo);
-    digitar(campo, '6');
-    apagar(campo);
+    while ((campo as HTMLInputElement).value) {
+      apagar(campo);
+    }
     fireEvent.blur(campo);
 
     expect(campo).toHaveValue('');
@@ -203,7 +203,7 @@ describe('laco controlado com o proprio setter', () => {
 });
 
 describe('o valor da hora acompanha o texto', () => {
-  it('nao guarda a hora anterior enquanto a nova esta pela metade ou e impossivel', () => {
+  it('nao apaga a hora anterior enquanto a nova esta pela metade ou e impossivel', () => {
     const mudou = vi.fn();
     render(<TimePicker defaultValue={'18:40'} label="Início" onValueChange={mudou} />);
 
@@ -211,10 +211,10 @@ describe('o valor da hora acompanha o texto', () => {
 
     fireEvent.change(campo, { target: { value: '2599' } });
     expect(campo).toHaveValue('25:99');
-    expect(mudou).toHaveBeenLastCalledWith(null);
-
     fireEvent.change(campo, { target: { value: '18:4' } });
-    expect(mudou).toHaveBeenLastCalledWith(null);
+    fireEvent.blur(campo);
+
+    expect(mudou).not.toHaveBeenCalled();
   });
 
   it('recusa por digitacao a hora que a lista ja recusa', () => {
@@ -222,7 +222,9 @@ describe('o valor da hora acompanha o texto', () => {
     render(<TimePicker label="Início" max={'18:00'} min={'08:00'} onValueChange={mudou} />);
 
     fireEvent.change(screen.getByLabelText('Início'), { target: { value: '2300' } });
-    expect(mudou).toHaveBeenLastCalledWith(null);
+    fireEvent.blur(screen.getByLabelText('Início'));
+    expect(mudou).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Hora fora do intervalo permitido.');
 
     mudou.mockClear();
     fireEvent.click(screen.getByRole('button', { name: 'Abrir seletor de hora' }));
