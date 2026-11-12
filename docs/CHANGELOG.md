@@ -17,6 +17,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `SidePanel`: na janela abaixo de 900 px, onde vira gaveta, `id`, `className`, `data-*`, `aria-*` e as demais propriedades chegam ao painel, como na janela larga. Antes, só chegavam o título, o rodapé, o lado e o tamanho, e o `data-*` do produto sumia.
+- `Dialog` e `Drawer`: o `aria-describedby` dado pelo produto, quando não há a propriedade `description`, chega ao diálogo; antes, era descartado.
 - `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.
 - `CardMetric.Chart`: o botão "Ver como tabela" deixa de aparecer no gráfico do cartão. Antes, a partir de cerca de 300 px de largura, ele tomava parte do espaço e o desenho passava da borda do cartão. Agora o desenho cabe exatamente no espaço que o cartão concede, nas larguras de 200 a 400 px.
 - `Table`: um texto só para leitor de tela no título de uma coluna, como "Ações", deixa de alargar a página inteira quando a tabela rola de lado, por exemplo no celular. Antes, ele se ancorava na página e criava uma rolagem horizontal do documento.
