@@ -36,9 +36,9 @@ export interface SidebarProviderProps {
   onOpenChange?: (open: boolean) => void;
   /** Submenu aberto, no modo controlado. */
   open?: boolean;
-  /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
   /** Atalho que alterna o submenu, ou a gaveta na largura estreita, como `"mod+b"`. Desligado por padrão. */
   shortcut?: string | false;
+  /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
   side?: SidebarSide;
   /** Espera, em ms, das dicas do trilho e da marca. Padrão 150. */
   tooltipDelay?: number;
