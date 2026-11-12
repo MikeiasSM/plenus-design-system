@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
 import { AppShell } from '../AppShell';
@@ -184,6 +184,8 @@ describe('SidebarProvider: gaveta do celular controlável', () => {
 });
 
 describe('SidebarProvider: conta controlável', () => {
+  const submenu = () => screen.getByRole('navigation', { name: 'Vendas' }).closest('[data-visible]');
+
   it('não controlada, começa fechada e avisa a mudança', () => {
     const onAccountOpenChange = vi.fn();
     render(<Frame onAccountOpenChange={onAccountOpenChange} />);
@@ -212,6 +214,112 @@ describe('SidebarProvider: conta controlável', () => {
 
     rerender(<Frame accountOpen onAccountOpenChange={onAccountOpenChange} />);
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('defaultAccountOpen com o submenu recolhido abre o submenu já na conta', () => {
+    const onOpenChange = vi.fn();
+    render(<Frame defaultAccountOpen defaultOpen={false} onOpenChange={onOpenChange} />);
+
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    expect(submenu()).toHaveAttribute('data-visible', 'true');
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('navigation', { name: 'Conta' }).closest('[inert]')).toBeNull();
+  });
+
+  it('abrir a conta controlada com o submenu recolhido abre o submenu e leva o foco ao cartão', () => {
+    const { rerender } = render(<Frame accountOpen={false} defaultOpen={false} />);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+
+    rerender(<Frame accountOpen defaultOpen={false} />);
+
+    expect(submenu()).toHaveAttribute('data-visible', 'true');
+    expect(screen.queryByRole('button', { name: 'Abrir submenu' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Favoritos' })).toHaveFocus();
+  });
+
+  it('com os dois controlados, pede o submenu uma vez só, sem laço, mesmo se o pai não o abrir', () => {
+    const onOpenChange = vi.fn();
+    const { rerender } = render(<Frame accountOpen={false} onOpenChange={onOpenChange} open={false} />);
+
+    rerender(<Frame accountOpen onOpenChange={onOpenChange} open={false} />);
+    rerender(<Frame accountOpen onOpenChange={onOpenChange} open={false} />);
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('com os dois controlados por um pai que segue os avisos, abrir a conta abre o submenu, e recolher fecha os dois', () => {
+    const renders = vi.fn();
+
+    function Pai() {
+      const [open, setOpen] = useState(false);
+      const [accountOpen, setAccountOpen] = useState(false);
+      renders();
+
+      return (
+        <Frame accountOpen={accountOpen} onAccountOpenChange={setAccountOpen} onOpenChange={setOpen} open={open}>
+          <button onClick={() => setAccountOpen(true)} type="button">
+            Abrir conta
+          </button>
+        </Frame>
+      );
+    }
+
+    render(<Pai />);
+    renders.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir conta' }));
+
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(submenu()).toHaveAttribute('data-visible', 'true');
+    expect(renders.mock.calls.length).toBeLessThanOrEqual(3);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Recolher submenu' }));
+    expect(submenu()).toHaveAttribute('data-visible', 'false');
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('o useSidebar vê o submenu aberto quando a conta abre', () => {
+    function Estado() {
+      return <output>{useSidebar().open ? 'aberto' : 'recolhido'}</output>;
+    }
+
+    const { rerender } = render(
+      <Frame accountOpen={false} defaultOpen={false}>
+        <Estado />
+      </Frame>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('recolhido');
+
+    rerender(
+      <Frame accountOpen defaultOpen={false}>
+        <Estado />
+      </Frame>,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('aberto');
+  });
+
+  it('na largura estreita, abrir a conta abre a gaveta já na conta', () => {
+    stubViewport(true);
+    const onMenuOpenChange = vi.fn();
+    const { rerender } = render(<Frame accountOpen={false} onMenuOpenChange={onMenuOpenChange} />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    rerender(<Frame accountOpen onMenuOpenChange={onMenuOpenChange} />);
+
+    expect(onMenuOpenChange).toHaveBeenCalledTimes(1);
+    expect(onMenuOpenChange).toHaveBeenCalledWith(true);
+    const drawer = screen.getByRole('dialog', { name: 'Menu' });
+    expect(within(drawer).getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(within(drawer).getByRole('link', { name: 'Favoritos' })).toHaveFocus();
+  });
+
+  it('na largura estreita, defaultAccountOpen abre a gaveta já na conta', () => {
+    stubViewport(true);
+    render(<Frame defaultAccountOpen />);
+
+    const drawer = screen.getByRole('dialog', { name: 'Menu' });
+    expect(within(drawer).getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(within(drawer).getByRole('link', { name: 'Favoritos' })).toHaveFocus();
   });
 
   it('recolher o submenu fecha a conta e avisa', () => {

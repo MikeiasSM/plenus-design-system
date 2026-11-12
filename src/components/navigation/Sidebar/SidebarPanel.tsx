@@ -84,7 +84,7 @@ export function SidebarPanel({
   }
 
   return (
-    <SidebarPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId }}>
+    <SidebarPanelContext value={{ accountMode, enteredId, label, nestedMode, setEnteredId, visible }}>
       <div
         {...props}
         className={[styles.panel, narrow && styles.narrow, className].filter(Boolean).join(' ')}

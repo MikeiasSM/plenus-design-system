@@ -27,17 +27,22 @@ export function SidebarAccount({
   ...props
 }: SidebarAccountProps) {
   const { accountId, accountOpen, icons, setAccountOpen } = useSidebarContext();
-  const { accountMode } = useSidebarPanel();
+  const { accountMode, visible } = useSidebarPanel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(accountOpen);
+  const pendingFocus = useRef(false);
 
   useEffect(() => {
-    if (accountOpen && !wasOpen.current) {
+    if (accountOpen !== wasOpen.current) {
+      pendingFocus.current = accountOpen;
+    }
+    if (pendingFocus.current && visible) {
       cardRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+      pendingFocus.current = false;
     }
     wasOpen.current = accountOpen;
-  }, [accountOpen]);
+  }, [accountOpen, visible]);
 
   function closeAndReturnFocus() {
     setAccountOpen(false);

@@ -105,6 +105,7 @@ export function SidebarProvider({
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
+  const accountWasOpen = useRef(false);
   const resolvedLabels = mergeDefined(defaultSidebarLabels, labels);
   const resolvedIcons = mergeDefined(defaultSidebarIcons, icons);
   const panelId = useId();
@@ -118,6 +119,17 @@ export function SidebarProvider({
       setMenuOpen(false);
     }
   }, [narrow]);
+
+  useEffect(() => {
+    if (accountOpen && !accountWasOpen.current) {
+      if (narrow) {
+        setMenuOpen(true);
+      } else {
+        setSubmenuOpenState(true);
+      }
+    }
+    accountWasOpen.current = accountOpen;
+  }, [accountOpen]);
 
   useEffect(() => {
     if (!shortcut) {

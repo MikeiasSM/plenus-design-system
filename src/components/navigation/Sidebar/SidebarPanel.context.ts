@@ -12,6 +12,7 @@ export interface SidebarPanelContextValue {
   label: string;
   nestedMode: SidebarNestedMode;
   setEnteredId: (id: string | null) => void;
+  visible: boolean;
 }
 
 export const SidebarPanelContext = createContext<SidebarPanelContextValue | null>(null);

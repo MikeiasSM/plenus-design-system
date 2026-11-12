@@ -17,7 +17,7 @@ export interface SidebarProps {
 
 /** Reúne trilho e submenu. Em largura estreita, os dois passam juntos a uma gaveta com a interação do `Drawer`. */
 function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
-  const { menuOpen, narrow, panelKind, setMenuOpen, side } = useSidebarContext();
+  const { accountId, accountOpen, menuOpen, narrow, panelKind, setMenuOpen, side } = useSidebarContext();
   const previousPanelKind = useRef(panelKind);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -27,8 +27,9 @@ function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
       return;
     }
 
+    const accountOption = accountOpen ? document.getElementById(accountId)?.querySelector<HTMLElement>('a, button') : null;
     const currents = [...(menuRef.current?.querySelectorAll<HTMLElement>('[aria-current="page"]') ?? [])];
-    currents.reverse().find((current) => !current.closest('[inert], [hidden]'))?.focus();
+    (accountOption ?? currents.reverse().find((current) => !current.closest('[inert], [hidden]')))?.focus();
   }, [menuOpen]);
 
   // Quem sai de um módulo com submenu para um sem submenu não tem o que ver na gaveta.
