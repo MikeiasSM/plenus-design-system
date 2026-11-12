@@ -246,3 +246,74 @@ describe('Tooltip', () => {
     aviso.mockRestore();
   });
 });
+
+describe('Escape com o Tooltip aberto', () => {
+  it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
+  ])('fecha só a dica, e não o %s', (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <Tooltip content="Explicacao">
+          <button type="button">Alvo</button>
+        </Tooltip>
+      </Camada>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => alvo.focus());
+
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
+  });
+
+  it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
+  ])('com âncora externa, fecha só a dica, e não o %s', (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    function Celula() {
+      const celula = useRef<HTMLButtonElement>(null);
+      const [aberta, setAberta] = useState(true);
+
+      return (
+        <>
+          <button ref={celula} type="button">
+            Alvo
+          </button>
+          <Tooltip anchorRef={celula} content="Explicacao" id="dica" onOpenChange={setAberta} open={aberta} />
+        </>
+      );
+    }
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <Celula />
+      </Camada>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
+  });
+});
