@@ -1,4 +1,4 @@
-export { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepInputChars } from './completeInput';
+export { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepDigits } from './completeInput';
 export { formatCurrencyInput } from './formatCurrencyInput';
 export { formatDate, formatTime } from './formatDate';
 export type { FormatDateOptions, FormatTimeOptions } from './formatDate';

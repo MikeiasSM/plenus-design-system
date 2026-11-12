@@ -203,13 +203,16 @@ describe('DateTimePicker', () => {
       return fireEvent.keyDown(campo, { key });
     }
 
-    it('aceita so numeros, barra, espaco e dois pontos', () => {
+    it('aceita so numeros; barra, espaco e dois pontos ficam com a mascara', () => {
       const campo = montar();
 
       expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
-      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(true);
-      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(true);
-      expect(fireEvent.keyDown(campo, { key: ' ' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
+      expect(fireEvent.keyDown(campo, { key: ' ' })).toBe(false);
+
+      fireEvent.change(campo, { target: { value: '1/2 3:4' } });
+      expect(campo).toHaveValue('12/34');
     });
 
     it('H da data e hora atuais', () => {

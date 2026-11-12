@@ -188,8 +188,8 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        O campo aceita só números e a barra. A data inteira e válida grava na hora. Pela metade, o valor não se apaga:
-        só esvaziar o campo por inteiro emite <code>null</code>.
+        O campo aceita só números: a barra vem da máscara, e digitá-la não faz nada. A data inteira e válida grava na
+        hora. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
       </dd>
       <dt>Atalhos</dt>
       <dd>

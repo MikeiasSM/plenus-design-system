@@ -234,18 +234,35 @@ describe('DatePicker', () => {
       vi.useRealTimers();
     });
 
-    it('aceita so numeros e a barra', () => {
+    it('aceita so numeros; a barra fica com a mascara', () => {
       const campo = montar();
 
       expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
       expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
       expect(fireEvent.keyDown(campo, { key: '5' })).toBe(true);
-      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: '/' })).toBe(false);
       expect(fireEvent.keyDown(campo, { key: 'Tab' })).toBe(true);
       expect(fireEvent.keyDown(campo, { key: 'a', ctrlKey: true })).toBe(true);
 
       fireEvent.change(campo, { target: { value: '1a2-' } });
       expect(campo).toHaveValue('12');
+
+      fireEvent.change(campo, { target: { value: '1/2' } });
+      expect(campo).toHaveValue('12');
+    });
+
+    it('ignora a barra digitada e completa so pelos digitos', () => {
+      const campo = montar();
+
+      for (const tecla of ['1', '/', '1', '2']) {
+        if (fireEvent.keyDown(campo, { key: tecla })) {
+          fireEvent.change(campo, { target: { value: (campo as HTMLInputElement).value + tecla } });
+        }
+      }
+
+      expect(campo).toHaveValue('11/2');
+      fireEvent.blur(campo);
+      expect(campo).toHaveValue('11/02/2026');
     });
 
     it('somente leitura, os atalhos nao mudam o valor', () => {

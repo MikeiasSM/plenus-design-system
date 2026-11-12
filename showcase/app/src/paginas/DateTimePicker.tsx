@@ -171,7 +171,7 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        Data e hora na mesma máscara, só com números, barra, espaço e dois pontos. Só a data, sem hora alguma, vale
+        Data e hora na mesma máscara, só com números: a barra, o espaço e os dois pontos vêm dela, e digitá-los não faz nada. Só a data, sem hora alguma, vale
         meia-noite. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
       </dd>
       <dt>Atalhos</dt>

@@ -152,8 +152,9 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        O campo aceita só números e os dois pontos. A hora inteira e válida grava na hora. Pela metade, como{' '}
-        <code>18:4</code>, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
+        O campo aceita só números: os dois pontos vêm da máscara, e digitá-los não faz nada. A hora inteira e válida
+        grava na hora. Pela metade, como <code>18:4</code>, o valor não se apaga: só esvaziar o campo por inteiro emite{' '}
+        <code>null</code>.
       </dd>
       <dt>Atalhos</dt>
       <dd>

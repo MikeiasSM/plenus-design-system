@@ -276,30 +276,32 @@ describe('edicao da data digitada', () => {
     const campo = screen.getByLabelText('Vencimento');
 
     fireEvent.change(campo, { target: { value: '1/03/2026' } });
-    expect(campo).toHaveValue('1/03/2026');
+    expect(campo).toHaveValue('10/32/026');
+    expect(mudou).not.toHaveBeenCalled();
 
     fireEvent.change(campo, { target: { value: '15/03/2026' } });
     expect(mudou).toHaveBeenLastCalledWith('2026-03-15');
   });
 
-  it('le dia e mes sem zero a esquerda digitados tecla a tecla', () => {
+  it('os separadores do texto saem e a mascara agrupa so os digitos', () => {
     const mudou = vi.fn();
     render(<DatePicker label="Vencimento" onValueChange={mudou} />);
 
     const campo = screen.getByLabelText('Vencimento');
 
     digitar(campo, '1/3/2026');
-    expect(mudou).toHaveBeenLastCalledWith('2026-03-01');
+    expect(campo).toHaveValue('13/20/26');
+    expect(mudou).not.toHaveBeenCalled();
 
     fireEvent.blur(campo);
-    expect(campo).toHaveValue('01/03/2026');
+    expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
   });
 
-  it('le data e hora coladas sem zero a esquerda', () => {
+  it('le data e hora coladas com os separadores', () => {
     const mudou = vi.fn();
     render(<DateTimePicker label="Agenda" onValueChange={mudou} />);
 
-    fireEvent.change(screen.getByLabelText('Agenda'), { target: { value: '1/3/2026 18:40' } });
+    fireEvent.change(screen.getByLabelText('Agenda'), { target: { value: '01/03/2026 18:40' } });
 
     expect(mudou).toHaveBeenLastCalledWith('2026-03-01T18:40');
   });

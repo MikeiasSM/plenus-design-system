@@ -1,17 +1,11 @@
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
-import { parseDateInput } from './formatDateInput';
-import { parseTimeInput } from './formatTimeInput';
 
-const onlyDigits = (text: string) => text.replace(/\D/g, '');
-
-export function keepInputChars(text: string, separators: string) {
-  return [...text].filter((char) => (char >= '0' && char <= '9') || separators.includes(char)).join('');
-}
+export const keepDigits = (text: string) => text.replace(/\D/g, '');
 
 const ISO_DATE = /^\s*\d{4}[/\-.]\d{1,2}[/\-.]\d{1,2}\s*$/;
 
 export function keepDateChars(text: string) {
-  return ISO_DATE.test(text) ? text : keepInputChars(text, '/');
+  return ISO_DATE.test(text) ? text : keepDigits(text);
 }
 
 function toDate(day: number, month: number, year: number) {
@@ -25,13 +19,7 @@ function toDate(day: number, month: number, year: number) {
 }
 
 export function completeDateInput(text: string, reference: CalendarDate) {
-  const whole = parseDateInput(text);
-
-  if (whole) {
-    return whole;
-  }
-
-  const digits = onlyDigits(text);
+  const digits = keepDigits(text);
   const { month, year } = reference;
 
   switch (digits.length) {
@@ -52,13 +40,7 @@ export function completeDateInput(text: string, reference: CalendarDate) {
 }
 
 export function completeTimeInput(text: string) {
-  const whole = parseTimeInput(text);
-
-  if (whole) {
-    return whole;
-  }
-
-  const digits = onlyDigits(text);
+  const digits = keepDigits(text);
   const hourLength = digits.length === 3 ? 1 : 2;
 
   if (digits.length < 1 || digits.length > 4) {

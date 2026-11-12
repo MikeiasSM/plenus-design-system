@@ -7,7 +7,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeTimeInput, formatTimeInput, keepInputChars, parseTimeInput } from '../../../utils/formatters';
+import { completeTimeInput, formatTimeInput, keepDigits, parseTimeInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
@@ -146,7 +146,7 @@ export function TimePicker({
 
       return isTimeAllowed(parsed, horaMinima, horaMaxima) ? { value: parsed } : { message: 'Hora fora do intervalo permitido.' };
     },
-    filter: (input) => keepInputChars(input, ':'),
+    filter: keepDigits,
     format: paraTextoDeHora,
     inputRef,
     isAllowed: (time) => isTimeAllowed(time, horaMinima, horaMaxima),
@@ -162,7 +162,6 @@ export function TimePicker({
 
       return parsed && isTimeAllowed(parsed, horaMinima, horaMaxima) ? parsed : undefined;
     },
-    separators: ':',
     step: (time, direction, _text, cursor) =>
       cursor <= 2
         ? { cursor: 2, value: time.add({ hours: direction }) }

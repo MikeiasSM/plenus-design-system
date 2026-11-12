@@ -16,7 +16,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { completeDateTimeInput, formatDateTimeInput, keepInputChars, parseDateTimeInput } from '../../../utils/formatters';
+import { completeDateTimeInput, formatDateTimeInput, keepDigits, parseDateTimeInput } from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
@@ -200,7 +200,7 @@ export function DateTimePicker({
         ? { message: 'Data fora do intervalo permitido.' }
         : { value: parsed.value };
     },
-    filter: (input) => keepInputChars(input, '/ :'),
+    filter: keepDigits,
     format: paraTexto,
     inputRef,
     isAllowed: (moment) => !isUnavailable(toCalendarDate(moment), limites),
@@ -212,7 +212,6 @@ export function DateTimePicker({
 
       return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
     },
-    separators: '/ :',
     step: (moment, direction, text, cursor) => {
       const space = text.indexOf(' ');
       const colon = text.indexOf(':');

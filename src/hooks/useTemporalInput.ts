@@ -14,7 +14,6 @@ interface TemporalInputOptions<T> {
   now: () => T;
   onInvalid?: (text: string) => void;
   parse: (text: string) => T | undefined;
-  separators: string;
   step: (value: T, direction: 1 | -1, text: string, cursor: number) => { cursor: number; value: T };
   value: T | undefined;
 }
@@ -31,7 +30,6 @@ export function useTemporalInput<T extends { toString: () => string }>({
   now,
   onInvalid,
   parse,
-  separators,
   step,
   value,
 }: TemporalInputOptions<T>) {
@@ -144,7 +142,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
       );
 
       apply(next.value, next.cursor);
-    } else if (key.length === 1 && !(key >= '0' && key <= '9') && !separators.includes(key)) {
+    } else if (key.length === 1 && !(key >= '0' && key <= '9')) {
       event.preventDefault();
     }
   }

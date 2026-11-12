@@ -172,7 +172,6 @@ export function DatePicker({
 
       return parsed && !isUnavailable(parsed, limites) ? parsed : undefined;
     },
-    separators: '/',
     step: (date, direction) => ({ cursor: 10, value: date.add({ days: direction }) }),
     value: escolhido,
   });

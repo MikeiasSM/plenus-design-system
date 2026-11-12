@@ -148,16 +148,33 @@ describe('TimePicker', () => {
       return fireEvent.keyDown(campo, { key });
     }
 
-    it('aceita so numeros e os dois pontos', () => {
+    it('aceita so numeros; os dois pontos ficam com a mascara', () => {
       const campo = montar();
 
       expect(fireEvent.keyDown(campo, { key: 'a' })).toBe(false);
       expect(fireEvent.keyDown(campo, { key: '/' })).toBe(false);
       expect(fireEvent.keyDown(campo, { key: '5' })).toBe(true);
-      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(true);
+      expect(fireEvent.keyDown(campo, { key: ':' })).toBe(false);
 
       fireEvent.change(campo, { target: { value: '1a2/' } });
       expect(campo).toHaveValue('12');
+
+      fireEvent.change(campo, { target: { value: '8:3' } });
+      expect(campo).toHaveValue('83');
+    });
+
+    it('ignora os dois pontos digitados e completa so pelos digitos', () => {
+      const campo = montar();
+
+      for (const tecla of ['8', ':', '3', '0']) {
+        if (fireEvent.keyDown(campo, { key: tecla })) {
+          fireEvent.change(campo, { target: { value: campo.value + tecla } });
+        }
+      }
+
+      expect(campo).toHaveValue('83:0');
+      fireEvent.blur(campo);
+      expect(campo).toHaveValue('08:30');
     });
 
     it('H da a hora atual exata, sem arredondar para o passo', () => {
