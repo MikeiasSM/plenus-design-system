@@ -330,6 +330,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     if (event.key === 'Escape') {
       if (open) {
         event.preventDefault();
+        event.stopPropagation();
       }
       fechar();
       return;
