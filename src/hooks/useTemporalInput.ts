@@ -39,6 +39,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   const [typing, setTyping] = useState(false);
   const [message, setMessage] = useState<string>();
   const cursorRef = useRef<number | null>(null);
+  const reportedRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     if (cursorRef.current !== null) {
@@ -71,6 +72,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   function change(input: string) {
     const masked = mask(filter(input));
 
+    reportedRef.current = null;
     setTyping(true);
     setText(masked);
 
@@ -102,7 +104,11 @@ export function useTemporalInput<T extends { toString: () => string }>({
 
     if ('message' in evaluated) {
       setMessage(evaluated.message);
-      onInvalid?.(text);
+
+      if (reportedRef.current !== text) {
+        reportedRef.current = text;
+        onInvalid?.(text);
+      }
       return;
     }
 

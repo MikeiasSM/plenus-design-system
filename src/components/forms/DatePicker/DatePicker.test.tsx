@@ -359,6 +359,21 @@ describe('DatePicker', () => {
       expect(aviso).toHaveBeenCalledWith(texto);
     });
 
+    it('avisa o mesmo texto invalido uma vez so, mesmo com Enter e depois a saida', () => {
+      const aviso = vi.fn();
+      const campo = montar({ onInvalid: aviso });
+
+      fireEvent.change(campo, { target: { value: '32' } });
+      fireEvent.keyDown(campo, { key: 'Enter' });
+      fireEvent.blur(campo);
+      expect(aviso).toHaveBeenCalledTimes(1);
+
+      fireEvent.change(campo, { target: { value: '3' } });
+      fireEvent.change(campo, { target: { value: '32' } });
+      fireEvent.blur(campo);
+      expect(aviso).toHaveBeenCalledTimes(2);
+    });
+
     it('o erro do produto prevalece sobre a mensagem do campo', () => {
       const campo = montar({ error: 'Obrigatório' });
 
