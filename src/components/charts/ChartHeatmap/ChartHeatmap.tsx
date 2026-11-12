@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react';
 import { formatNumber } from '../../../utils/formatters';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import {
   CartesianFrame,
   ChartTable,
@@ -345,6 +346,10 @@ export function ChartHeatmap({
   function aoTeclar(event: KeyboardEvent<SVGGElement>) {
     const atual = posicaoDe(event);
     if (atual === null) {
+      return;
+    }
+
+    if (blockRepeatedPress(event)) {
       return;
     }
 

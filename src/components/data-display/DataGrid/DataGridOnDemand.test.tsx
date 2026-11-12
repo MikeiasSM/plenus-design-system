@@ -617,6 +617,24 @@ describe('DataGrid, filter builder', () => {
     expect(screen.getByRole('grid').getAttribute('aria-rowcount')).toBe('6');
   });
 
+  it('ignores the second click of a double click on a remove button, so the next condition stays', () => {
+    renderBuilder({
+      defaultFilter: {
+        logic: 'and',
+        conditions: [
+          { columnId: 'region', operator: 'equals', value: 'Norte' },
+          { columnId: 'region', operator: 'equals', value: 'Sul' },
+        ],
+      },
+    });
+    open();
+
+    fireEvent.click(screen.getAllByRole('button', { name: /^Remover a condição/ })[0], { detail: 1 });
+    fireEvent.click(screen.getAllByRole('button', { name: /^Remover a condição/ })[0], { detail: 2 });
+
+    expect(screen.getAllByRole('button', { name: /^Remover a condição/ })).toHaveLength(1);
+  });
+
   it('follows the controlled filter and waits for Aplicar in the button mode', () => {
     const onFilterChange = vi.fn();
     renderBuilder({ filter: { logic: 'and', conditions: [] }, filterApplyMode: 'button', onFilterChange });

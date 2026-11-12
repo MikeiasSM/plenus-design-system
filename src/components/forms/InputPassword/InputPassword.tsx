@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './InputPassword.module.css';
 
 export type InputPasswordSize = 'sm' | 'md' | 'lg';
@@ -151,6 +152,7 @@ export function InputPassword({
               aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
               disabled={disabled}
               onClick={() => setVisible((current) => !current)}
+              onKeyDown={blockRepeatedPress}
             >
               {visible ? 'Ocultar' : 'Mostrar'}
             </button>

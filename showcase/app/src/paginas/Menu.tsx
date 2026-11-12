@@ -278,6 +278,7 @@ export const pagina: Pagina = {
     { teclas: ['Tab'], acao: 'Fecha o menu, com os submenus, e devolve o foco ao gatilho.' },
   ],
   garantias: [
+    { garantia: 'Pressão', como: <>O item mostra <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
     {
       garantia: 'Popup anunciado',
       como: <>O gatilho recebe <code>aria-haspopup=&quot;menu&quot;</code> e <code>aria-expanded</code>.</>,

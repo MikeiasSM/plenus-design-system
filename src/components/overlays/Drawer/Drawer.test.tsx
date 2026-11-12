@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Drawer } from './Drawer';
 import styles from './Drawer.module.css';
 
@@ -46,6 +46,20 @@ describe('Drawer', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
+  it('a resposta antiga de onBeforeClose não fecha o Drawer reaberto', async () => {
+    let responder: (permitir: boolean) => void = () => {};
+    const onBeforeClose = vi.fn(() => new Promise<boolean>((resolve) => (responder = resolve)));
+    const { rerender } = render(<Drawer onBeforeClose={onBeforeClose} open title="Filtros" />);
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    const antiga = responder;
+    rerender(<Drawer onBeforeClose={onBeforeClose} open={false} title="Filtros" />);
+    rerender(<Drawer onBeforeClose={onBeforeClose} open title="Filtros" />);
+    await act(async () => antiga(true));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('sai do lado pedido, a direita por padrao', () => {
     const { rerender } = render(<Drawer open title="Acesso" />);
     expect(screen.getByRole('dialog').parentElement).toHaveClass(styles.right!);
@@ -83,5 +97,23 @@ describe('Drawer', () => {
 
     rerender(<Drawer flush open title="Acesso">Corpo</Drawer>);
     expect(screen.getByText('Corpo').className).toContain('bodyFlush');
+  });
+
+  it('com description, soma o aria-describedby do produto ao da descricao', () => {
+    const { rerender } = render(
+      <Drawer aria-describedby="nota" description="Ajuste quem ve o painel." open title="Acesso">
+        Corpo
+      </Drawer>,
+    );
+
+    const descricao = screen.getByText('Ajuste quem ve o painel.');
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', `${descricao.id} nota`);
+
+    rerender(
+      <Drawer aria-describedby="nota" open title="Acesso">
+        Corpo
+      </Drawer>,
+    );
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
   });
 });

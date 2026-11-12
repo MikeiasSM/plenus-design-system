@@ -5,7 +5,9 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { withoutRepeat } from '../../../utils/press/press';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Button } from '../../actions/Button';
 import { IconCalendar } from '../../icons';
@@ -88,6 +90,7 @@ export function DatePickerRange({
   max,
   min,
   onClick,
+  onKeyDown,
   onOpenChange,
   onValueChange,
   open: controlledOpen,
@@ -105,6 +108,7 @@ export function DatePickerRange({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const [internalValue, setInternalValue] = useState(() => readRange(defaultValue));
   const resetRef = useFormReset<HTMLButtonElement>(() => setInternalValue(readRange(defaultValue)));
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
@@ -201,6 +205,7 @@ export function DatePickerRange({
               onClick?.(event);
               setOpen(!open);
             }}
+            onKeyDown={withoutRepeat(onKeyDown)}
             ref={mergedRef}
             type="button"
           >

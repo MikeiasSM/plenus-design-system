@@ -67,8 +67,10 @@
   transition: color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease);
 }
 
-.tab:hover:not(:disabled):not(.active) {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .tab:hover:not(:disabled):not(.active) {
+    color: var(--pl-color-text);
+  }
 }
 
 .tab:disabled {
@@ -105,4 +107,9 @@
 .panel:focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;
+}
+
+.tab:active:not(:disabled):not(.active) {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
 }

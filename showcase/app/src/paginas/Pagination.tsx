@@ -234,6 +234,7 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'Vai à página ou dá o passo, exceto na borda ou em disabled.' },
   ],
   garantias: [
+    { garantia: 'Pressão', como: <>A página e os passos mostram <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
     {
       garantia: 'Página atual',
       como: <>Botão da atual com <code>aria-current=&quot;page&quot;</code>.</>,

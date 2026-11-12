@@ -5,7 +5,15 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-right, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
+  --pl-safe-top: 0px;
+  --pl-safe-right: 0px;
+  --pl-safe-bottom: 0px;
+  --pl-safe-left: 0px;
   overflow: hidden;
   background: var(--pl-color-background);
   color: var(--pl-color-text);
@@ -40,7 +48,11 @@
 .menuSurface.menuSurface {
   width: auto;
   max-width: 100%;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    var(--pl-shell-gap)
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
   background: var(--pl-color-background);
 }
 
@@ -100,9 +112,11 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.railItem:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .railItem:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .railItem[aria-current='page'] {
@@ -111,9 +125,11 @@
 }
 
 /* Recolher, abrir e fechar seguem o destaque dos itens. A classe dobrada vence o `ghost` do `ButtonIcon`. */
-.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .railAccount {
@@ -171,8 +187,10 @@
   scrollbar-color: transparent transparent;
 }
 
-.pageBody:hover {
-  scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+@media (hover: hover) {
+  .pageBody:hover {
+    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -180,4 +198,10 @@
   .railAccount {
     transition: none;
   }
+}
+
+.railItem:active,
+.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
 }

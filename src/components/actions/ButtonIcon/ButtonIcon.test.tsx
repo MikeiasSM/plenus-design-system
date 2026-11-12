@@ -47,4 +47,17 @@ describe('ButtonIcon', () => {
     expect(botao).toHaveClass(styles.buttonIcon!, styles.sm!, 'extra');
     expect(botao).toHaveAttribute('data-origem', 'barra');
   });
+
+  it('cancela o Enter repetido, e o onClick que devolve uma Promise não trava o botão', () => {
+    const onClick = vi.fn(() => new Promise<void>(() => {}));
+    render(<ButtonIcon icon={<IconClose />} label="Excluir" onClick={onClick} />);
+    const botao = screen.getByRole('button', { name: 'Excluir' });
+
+    expect(fireEvent.keyDown(botao, { key: 'Enter', repeat: true })).toBe(false);
+    fireEvent.click(botao);
+    fireEvent.click(botao);
+
+    expect(onClick).toHaveBeenCalledTimes(2);
+    expect(botao).not.toHaveAttribute('aria-busy');
+  });
 });

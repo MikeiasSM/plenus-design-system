@@ -1,10 +1,12 @@
-import { useEffect, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '../../actions/Button';
+import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTriangle, IconInfoCircle } from '../../icons';
 import { useChosenPortalContainer } from '../../overlays/Portal/PortalContext';
 import { useToastStore } from './ToastProvider';
 import { MAX_TOAST_ACTIONS, type ToastEntry, type ToastStore } from './toastStore';
+import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import styles from './Toast.module.css';
 
 const VISIBLE_LIMIT = 3;
@@ -39,12 +41,15 @@ export function ToastRegion({ className, portalContainer, ...props }: ToastRegio
 }
 
 function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
+  const ref = useRef<HTMLDivElement>(null);
   const { description, id, title, tone = 'info' } = toast;
   const actions = (toast.actions ?? (toast.action ? [toast.action] : [])).slice(0, MAX_TOAST_ACTIONS);
   const duration = toast.duration === undefined ? (tone === 'danger' ? null : DEFAULT_DURATION) : toast.duration;
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const ToneIcon = TONE_ICONS[tone];
+
+  useFocusNeighborOnRemove(ref);
 
   // Quem esta lendo ou operando o aviso nao o perde: ponteiro ou foco dentro param o tempo, que recomeca ao sair.
   useEffect(() => {
@@ -65,6 +70,7 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
   return (
     <div
       className={[styles.toast, styles[tone]].join(' ')}
+      ref={ref}
       onBlur={handleBlur}
       onFocus={() => setFocused(true)}
       onMouseEnter={() => setHovered(true)}
@@ -79,8 +85,12 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
           <div className={styles.actions}>
             {actions.map((action, index) => (
               <Button
+                data-removes=""
                 key={index}
-                onClick={() => {
+                onClick={(event) => {
+                  if (isRepeatedClick(event)) {
+                    return;
+                  }
                   action.onClick();
                   store.dismiss(id);
                 }}
@@ -93,7 +103,7 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
           </div>
         )}
       </div>
-      <button aria-label="Fechar aviso" className={styles.close} onClick={() => store.dismiss(id)} type="button">
+      <button aria-label="Fechar aviso" data-removes="" className={styles.close} onClick={(event) => !isRepeatedClick(event) && store.dismiss(id)} onKeyDown={blockRepeatedPress} type="button">
         <IconClose />
       </button>
     </div>

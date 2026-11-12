@@ -29,6 +29,7 @@ import { linearScale } from '../scales';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { formatPercent } from '../../../utils/formatters';
 import { formatDuration } from '../../../utils/formatters/formatDuration';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { ChartTimelineTable, type TimelineTableEntry, type TimelineTableRow } from './ChartTimelineTable';
 import {
   layoutTimeline,
@@ -578,6 +579,10 @@ export function ChartTimeline({
     const rowIndex = navigableRows.findIndex((shapes) => shapes.includes(shape));
     const inRow = navigableRows[rowIndex];
     const index = inRow.indexOf(shape);
+
+    if (blockRepeatedPress(event)) {
+      return;
+    }
 
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();

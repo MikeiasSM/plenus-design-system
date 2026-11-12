@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type FocusEvent } from 'react';
 import { getLocalTimeZone, type CalendarDate } from '@internationalized/date';
 import { useCalendar, type CalendarLimits } from '../../../hooks/useCalendar';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { sameDay } from '../../../hooks/useCalendar/calendar';
 import styles from './DatePicker.module.css';
 import { IconChevronLeft, IconChevronRight } from '../../icons';
@@ -61,6 +62,7 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, rangeE
           aria-label="Mês anterior"
           className={styles.navigate}
           onClick={() => calendario.goToMonth(-1)}
+          onKeyDown={blockRepeatedPress}
           type="button"
         >
           <IconChevronLeft size={14} />
@@ -72,6 +74,7 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, rangeE
           aria-label="Próximo mês"
           className={styles.navigate}
           onClick={() => calendario.goToMonth(1)}
+          onKeyDown={blockRepeatedPress}
           type="button"
         >
           <IconChevronRight size={14} />

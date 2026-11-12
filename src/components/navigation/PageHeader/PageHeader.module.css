@@ -31,9 +31,11 @@
   text-decoration: none;
 }
 
-.back:hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .back:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
 .back:focus-visible {

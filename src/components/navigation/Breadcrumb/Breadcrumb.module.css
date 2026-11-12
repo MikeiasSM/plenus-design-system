@@ -24,9 +24,11 @@
   text-decoration: none;
 }
 
-.link:hover {
-  color: var(--pl-color-primary-active);
-  text-decoration: underline;
+@media (hover: hover) {
+  .link:hover {
+    color: var(--pl-color-primary-active);
+    text-decoration: underline;
+  }
 }
 
 /* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */

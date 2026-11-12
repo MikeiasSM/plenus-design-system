@@ -25,6 +25,7 @@ import {
   type DataGridFilterCondition,
   type DataGridFilterLogic,
 } from './filterModel';
+import { isRepeatedClick } from '../../../utils/press/press';
 import styles from './DataGrid.module.css';
 
 /** Mesma espera do funil: no servidor, cada tecla seria uma consulta. */
@@ -230,7 +231,7 @@ function GroupEditor({ columns, group, onAdd, onLogic, onRemove, onReplace, opti
               label={`Remover o grupo ${name}`}
               size="sm"
               variant="ghost"
-              onClick={() => remove(itemPath)}
+              onClick={(event) => !isRepeatedClick(event) && remove(itemPath)}
             />
           </div>
         ) : (
@@ -322,7 +323,7 @@ function ConditionRow({ columns, condition, name, onRemove, onReplace, optionsOf
         label={`Remover a condição ${name}`}
         size="sm"
         variant="ghost"
-        onClick={onRemove}
+        onClick={(event) => !isRepeatedClick(event) && onRemove()}
       />
     </div>
   );

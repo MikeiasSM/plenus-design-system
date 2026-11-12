@@ -157,6 +157,7 @@ export const pagina: Pagina = {
   garantias: [
     { garantia: 'Anunciada', como: <>Uma região <code>role=&quot;status&quot;</code> sempre montada recebe a mensagem ao abrir.</>, teste: 'SaveBar.test.tsx' },
     { garantia: 'Fechada, fora do alcance', como: <>Sem <code>open</code>, os botões ficam <code>inert</code>: nem foco nem leitura.</>, teste: 'SaveBar.test.tsx' },
+    { garantia: 'Safe area', como: <>Presa à borda da janela, respeita a safe area; dentro do AppShell, que já a respeita, o deslocamento é zero.</>, teste: 'mobile.test.ts' },
     { garantia: 'Salvando', como: <>O salvar fica <code>aria-busy</code> e ignora o clique.</>, teste: 'SaveBar.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref.',

@@ -26,8 +26,10 @@
   max-width: none;
 }
 
-.button:not(:disabled):not([aria-disabled='true']):hover {
-  box-shadow: 0 3px 8px color-mix(in srgb, var(--button-hover-shadow) 22%, transparent);
+@media (hover: hover) {
+  .button:not(:disabled):not([aria-disabled='true']):hover {
+    box-shadow: 0 3px 8px color-mix(in srgb, var(--button-hover-shadow) 22%, transparent);
+  }
 }
 
 .button:disabled,
@@ -43,8 +45,10 @@
 
 /* Com foco visível, o anel segue valendo sob o ponteiro: a sombra de hover (inclusive o `none` do ghost) o apagaria.
    A especificidade maior vence as regras de hover de todas as variantes; o fundo de hover é mantido. */
-.button:not(:disabled):not([aria-disabled='true']):hover:focus-visible {
-  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+@media (hover: hover) {
+  .button:not(:disabled):not([aria-disabled='true']):hover:focus-visible {
+    box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+  }
 }
 
 .primary {
@@ -53,8 +57,10 @@
   color: var(--pl-color-on-primary);
 }
 
-.primary:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-primary-hover);
+@media (hover: hover) {
+  .primary:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-primary-hover);
+  }
 }
 
 .secondary {
@@ -64,9 +70,11 @@
   color: var(--pl-color-text);
 }
 
-.secondary:not(:disabled):not([aria-disabled='true']):hover {
-  border-color: var(--pl-control-border-hover);
-  color: var(--pl-color-primary-active);
+@media (hover: hover) {
+  .secondary:not(:disabled):not([aria-disabled='true']):hover {
+    border-color: var(--pl-control-border-hover);
+    color: var(--pl-color-primary-active);
+  }
 }
 
 .soft {
@@ -76,8 +84,10 @@
   color: var(--pl-color-on-primary-container);
 }
 
-.soft:not(:disabled):not([aria-disabled='true']):hover {
-  background: color-mix(in srgb, var(--pl-color-primary-container) 72%, var(--pl-color-surface));
+@media (hover: hover) {
+  .soft:not(:disabled):not([aria-disabled='true']):hover {
+    background: color-mix(in srgb, var(--pl-color-primary-container) 72%, var(--pl-color-surface));
+  }
 }
 
 .ghost {
@@ -86,10 +96,12 @@
 }
 
 /* O ghost só tinge o fundo no hover, sem sombra em nenhum tema. */
-.ghost:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-surface-muted);
-  box-shadow: none;
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .ghost:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-surface-muted);
+    box-shadow: none;
+    color: var(--pl-color-text);
+  }
 }
 
 .danger {
@@ -98,8 +110,10 @@
   color: var(--pl-color-on-danger);
 }
 
-.danger:not(:disabled):not([aria-disabled='true']):hover {
-  filter: brightness(0.9);
+@media (hover: hover) {
+  .danger:not(:disabled):not([aria-disabled='true']):hover {
+    filter: brightness(0.9);
+  }
 }
 
 .dangerSoft {
@@ -109,8 +123,10 @@
   color: var(--pl-color-on-danger-container);
 }
 
-.dangerSoft:not(:disabled):not([aria-disabled='true']):hover {
-  background: color-mix(in srgb, var(--pl-color-danger-container) 72%, var(--pl-color-surface));
+@media (hover: hover) {
+  .dangerSoft:not(:disabled):not([aria-disabled='true']):hover {
+    background: color-mix(in srgb, var(--pl-color-danger-container) 72%, var(--pl-color-surface));
+  }
 }
 
 .dangerGhost {
@@ -119,8 +135,10 @@
   color: var(--pl-color-danger-text);
 }
 
-.dangerGhost:not(:disabled):not([aria-disabled='true']):hover {
-  background: var(--pl-color-danger-container);
+@media (hover: hover) {
+  .dangerGhost:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-danger-container);
+  }
 }
 
 /* Degraus de 4px, 32, 36 e 40: o pequeno e o medio tem a altura dos campos do mesmo tamanho. */
@@ -134,4 +152,32 @@
 
 .lg {
   padding: 9px 24px;
+}
+
+.primary:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-active);
+}
+
+.secondary:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-surface-muted);
+  border-color: var(--pl-control-border-hover);
+  color: var(--pl-color-primary-active);
+}
+
+.soft:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-selected);
+}
+
+.ghost:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-border-strong);
+  color: var(--pl-color-text);
+}
+
+.danger:not(:disabled):not([aria-disabled='true']):active {
+  filter: brightness(0.8);
+}
+
+.dangerSoft:not(:disabled):not([aria-disabled='true']):active,
+.dangerGhost:not(:disabled):not([aria-disabled='true']):active {
+  background: color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid));
 }

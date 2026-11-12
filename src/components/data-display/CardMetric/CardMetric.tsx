@@ -7,6 +7,7 @@ import { CardMetricChart } from './CardMetricChart';
 import { CardMetricContext } from './CardMetricContext';
 import { CardMetricTrend } from './CardMetricTrend';
 import { CardMetricValue } from './CardMetricValue';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './CardMetric.module.css';
 
 export interface CardMetricProps extends ComponentPropsWithRef<'section'> {
@@ -84,6 +85,7 @@ function ActivateButton({ label, onActivate }: { label?: string; onActivate: () 
         aria-labelledby={named ? `${prefixId} ${titleId}` : undefined}
         className={styles.activate}
         onClick={onActivate}
+        onKeyDown={blockRepeatedPress}
         type="button"
       />
     </>

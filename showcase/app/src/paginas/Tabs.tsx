@@ -209,6 +209,7 @@ export const pagina: Pagina = {
     { teclas: ['Home', 'End'], acao: 'Vai à primeira ou à última aba habilitada.' },
   ],
   garantias: [
+    { garantia: 'Pressão', como: <>A aba mostra <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
     {
       garantia: 'Aba ligada ao painel',
       como: <><code>aria-controls</code> só aponta para o painel que existe; o painel leva <code>aria-labelledby</code>.</>,

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { ButtonHTMLAttributes } from 'react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Button } from './Button';
+import { Button, type ButtonProps } from './Button';
 
 describe('Button', () => {
   it('renders its children and uses button semantics', () => {
@@ -113,9 +114,54 @@ describe('hover do Button ghost', () => {
     expect(css).not.toContain(".ghost:not(:disabled):not([aria-disabled='true']):hover:focus-visible");
   });
 
+  it('pressionado com o teclado, nenhuma variante apaga o anel de foco', () => {
+    for (const [, regra] of css.matchAll(/:active \{([^}]*)\}/g)) {
+      expect(regra).not.toContain('box-shadow');
+    }
+  });
+
   it('as outras variantes seguem com a sombra no hover', () => {
     for (const variante of ['primary', 'secondary', 'soft', 'danger']) {
       expect(css.slice(css.indexOf(`.${variante} {`), css.indexOf('}', css.indexOf(`.${variante} {`)))).toContain('--button-hover-shadow');
     }
+  });
+});
+
+describe('Button: cliques repetidos', () => {
+  describe('tecla segurada', () => {
+    it('cancela o Enter e o Espaço repetidos, que o navegador converteria em cliques', () => {
+      render(<Button>Salvar</Button>);
+      const button = screen.getByRole('button', { name: 'Salvar' });
+
+      expect(fireEvent.keyDown(button, { key: 'Enter', repeat: true })).toBe(false);
+      expect(fireEvent.keyDown(button, { key: ' ', repeat: true })).toBe(false);
+      expect(fireEvent.keyDown(button, { key: 'Enter' })).toBe(true);
+    });
+
+    it('repassa a tecla ao onKeyDown do consumidor', () => {
+      const onKeyDown = vi.fn();
+      render(<Button onKeyDown={onKeyDown}>Salvar</Button>);
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Salvar' }), { key: 'Enter', repeat: true });
+
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('o onClick que devolve uma Promise não trava o botão: quem liga loading é o produto', () => {
+    const onClick = vi.fn(() => new Promise<void>(() => {}));
+    render(<Button onClick={onClick}>Salvar</Button>);
+    const button = screen.getByRole('button', { name: 'Salvar' });
+
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    expect(onClick).toHaveBeenCalledTimes(2);
+    expect(button).not.toHaveAttribute('aria-busy');
+    expect(button).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('o onClick tem o tipo nativo do botão', () => {
+    expectTypeOf<ButtonProps['onClick']>().toEqualTypeOf<ButtonHTMLAttributes<HTMLButtonElement>['onClick']>();
   });
 });

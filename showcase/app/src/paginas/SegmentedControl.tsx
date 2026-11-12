@@ -244,6 +244,7 @@ export const pagina: Pagina = {
     { teclas: ['←', '→', '↑', '↓'], acao: 'Move para o segmento vizinho e o escolhe, pulando os desabilitados.' },
   ],
   garantias: [
+    { garantia: 'Pressão', como: <>O segmento mostra <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
     {
       garantia: 'Grupo nomeado',
       como: <><code>role="radiogroup"</code> com o <code>label</code> em <code>aria-label</code>.</>,

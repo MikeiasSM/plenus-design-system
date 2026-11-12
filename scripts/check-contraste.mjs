@@ -31,6 +31,7 @@ const PALETAS = ['orange', 'blue', 'purple'];
 
 const TEXTO_MINIMO = 4.5;
 const CONTROLE_MINIMO = 3;
+const PERIGO_PRESSIONADO = 'color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid))';
 
 /**
  * Pares medidos. Os papeis saem da lista de `TOKENS-REFERENCE-COLORS.md`:
@@ -43,8 +44,24 @@ const PARES = [
   ['--pl-color-text-secondary', '--pl-color-surface', TEXTO_MINIMO, 'texto secundario'],
   ['--pl-color-text-tertiary', '--pl-color-surface', TEXTO_MINIMO, 'texto terciario'],
   ['--pl-color-on-primary', '--pl-color-primary', TEXTO_MINIMO, 'texto sobre primary'],
+  ['--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO, 'texto sobre primary pressionado'],
+  ['--pl-color-text', '--pl-color-surface-muted', TEXTO_MINIMO, 'texto no hover neutro'],
+  ['--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO, 'texto no fundo pressionado neutro'],
+  ['--pl-color-text-secondary', '--pl-color-border-strong', TEXTO_MINIMO, 'texto secundario no fundo pressionado neutro'],
+  ['--pl-color-primary-active', '--pl-color-surface-muted', TEXTO_MINIMO, 'texto primario no fundo pressionado do secundario'],
+  ['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'texto secundario no fundo pressionado'],
+  ['--pl-color-danger-text', '--pl-color-surface-muted', TEXTO_MINIMO, 'erro no fundo pressionado'],
+  ['--pl-color-on-danger', '--pl-color-danger-solid', TEXTO_MINIMO, 'texto sobre perigo'],
+  ['--pl-color-on-danger-container', PERIGO_PRESSIONADO, TEXTO_MINIMO, 'texto no perigo pressionado'],
+  ['--pl-color-danger-text', PERIGO_PRESSIONADO, TEXTO_MINIMO, 'perigo fantasma pressionado'],
   ['--pl-color-on-primary-container', '--pl-color-primary-container', TEXTO_MINIMO, 'texto no container'],
   ['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'texto no item selecionado'],
+  ['--pl-color-text', '--pl-color-primary-selected', TEXTO_MINIMO, 'texto na selecao pressionada'],
+  ['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'resumo da linha pressionada'],
+  ['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'resumo da linha selecionada pressionada'],
+  ['--pl-color-text-secondary', '--pl-color-primary-container', TEXTO_MINIMO, 'texto de apoio no container'],
+  ['--pl-color-text', '--pl-color-primary-selected', TEXTO_MINIMO, 'identidade da conta pressionada'],
+  ['--pl-color-primary-strong', '--pl-color-primary-selected', CONTROLE_MINIMO, 'icone no item pressionado'],
   ['--pl-color-on-ink', '--pl-color-ink', TEXTO_MINIMO, 'texto sobre tinta'],
   ['--pl-color-on-success-container', '--pl-color-success-container', TEXTO_MINIMO, 'mensagem de sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-warning-container', TEXTO_MINIMO, 'mensagem de atencao'],
@@ -161,13 +178,14 @@ function resolver(tokens, nome, visitados = new Set()) {
 }
 
 function resolverValor(tokens, valor, visitados) {
-  const mistura = valor.match(/^color-mix\(in oklab,\s*(.+?)\s+(\d+(?:\.\d+)?)%,\s*(.+)\)$/);
+  const mistura = valor.match(/^color-mix\(in (oklab|srgb),\s*(.+?)\s+(\d+(?:\.\d+)?)%,\s*(.+)\)$/);
 
   if (mistura) {
-    const a = resolverValor(tokens, mistura[1], visitados);
-    const b = resolverValor(tokens, mistura[3], visitados);
+    const a = resolverValor(tokens, mistura[2], visitados);
+    const b = resolverValor(tokens, mistura[4], visitados);
+    const misturar = mistura[1] === 'srgb' ? misturarSrgb : misturarOklab;
 
-    return a && b ? misturarOklab(a, b, Number(mistura[2]) / 100) : undefined;
+    return a && b ? misturar(a, b, Number(mistura[3]) / 100) : undefined;
   }
 
   const referencia = valor.match(/^var\(\s*(--[\w-]+)\s*(?:,\s*(.+))?\)$/);
@@ -209,6 +227,13 @@ function misturarOklab(a, b, parte) {
   const [x, y] = [paraOklab(a), paraOklab(b)];
 
   return deOklab(x.map((valor, indice) => valor * parte + y[indice] * (1 - parte)));
+}
+
+function misturarSrgb(a, b, parte) {
+  const canais = (hex) => [0, 2, 4].map((inicio) => parseInt(hex.replace('#', '').slice(inicio, inicio + 2), 16));
+  const [x, y] = [canais(a), canais(b)];
+
+  return `#${x.map((valor, indice) => Math.round(valor * parte + y[indice] * (1 - parte)).toString(16).padStart(2, '0')).join('')}`;
 }
 
 function canalLinear(valor) {
@@ -254,7 +279,7 @@ for (const [nomeDoTema, tokens] of PALETAS.flatMap((paleta) => {
 })) {
   for (const [frente, fundo, minimo, papel] of PARES) {
     const corFrente = resolver(tokens, frente);
-    const corFundo = resolver(tokens, fundo);
+    const corFundo = fundo.startsWith('--') ? resolver(tokens, fundo) : resolverValor(tokens, fundo, new Set());
     const medida = corFrente && corFundo ? contraste(corFrente, corFundo) : undefined;
 
     if (medida === undefined) {

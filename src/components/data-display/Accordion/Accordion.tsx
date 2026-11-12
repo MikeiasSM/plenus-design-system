@@ -10,6 +10,7 @@ import {
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Accordion.module.css';
 import { IconChevronDown } from '../../icons';
+import { blockRepeatedPress } from '../../../utils/press/press';
 
 export interface AccordionItem {
   content: ReactNode;
@@ -143,7 +144,11 @@ export function Accordion({
                 aria-expanded={aberto}
                 disabled={item.disabled}
                 onClick={() => selection.select(item.key)}
-                onKeyDown={(event) => handleKeyDown(event, item.key)}
+                onKeyDown={(event) => {
+                  if (!blockRepeatedPress(event)) {
+                    handleKeyDown(event, item.key);
+                  }
+                }}
               >
                 <span className={styles.label}>{item.label}</span>
                 <IconChevronDown className={[styles.icon, aberto && styles.iconOpen].filter(Boolean).join(' ')} size={16} />

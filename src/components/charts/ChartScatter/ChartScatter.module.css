@@ -3,8 +3,10 @@
   transition: fill-opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-.bubble:hover {
-  fill-opacity: 1;
+@media (hover: hover) {
+  .bubble:hover {
+    fill-opacity: 1;
+  }
 }
 
 /* Guias do ponto sob o ponteiro, ate cada eixo. */

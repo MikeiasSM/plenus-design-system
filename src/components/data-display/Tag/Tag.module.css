@@ -49,9 +49,11 @@
   padding: 0;
 }
 
-.tag:has(.toggle:not(:disabled)):hover:not(:has(.toggle:focus-visible)) {
-  border-color: var(--pl-control-border-hover);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .tag:has(.toggle:not(:disabled)):hover:not(:has(.toggle:focus-visible)) {
+    border-color: var(--pl-control-border-hover);
+    color: var(--pl-color-text);
+  }
 }
 
 .tag:has(.toggle:focus-visible) {
@@ -81,9 +83,11 @@
   font-size: 0.75em;
 }
 
-.remove:not(:disabled):hover {
-  background: var(--pl-color-surface-muted);
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .remove:not(:disabled):hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
 }
 
 .remove:focus-visible {

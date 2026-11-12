@@ -1,6 +1,7 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
 import { endOfMonth, getLocalTimeZone, startOfMonth, today, type CalendarDate } from '@internationalized/date';
 import { buildMonth, clamp, isUnavailable, moveFocus, sameDay, type CalendarDay, type CalendarLimits } from './calendar';
+import { blockRepeatedPress } from '../../utils/press/press';
 
 export interface UseCalendarOptions extends CalendarLimits {
   locale?: string;
@@ -77,6 +78,10 @@ export function useCalendar({
       );
     },
     handleKeyDown: (event) => {
+      if (blockRepeatedPress(event)) {
+        return;
+      }
+
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         select(focusedDate);

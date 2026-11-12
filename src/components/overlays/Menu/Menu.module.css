@@ -33,9 +33,11 @@
   cursor: pointer;
 }
 
-.item:hover:not(:disabled) {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
+@media (hover: hover) {
+  .item:hover:not(:disabled) {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .item:focus-visible {
@@ -93,9 +95,14 @@
 }
 
 .item[aria-expanded='true'] .submenuMark,
-.item:hover:not(:disabled) .submenuMark,
 .item:focus-visible .submenuMark {
   color: inherit;
+}
+
+@media (hover: hover) {
+  .item:hover:not(:disabled) .submenuMark {
+    color: inherit;
+  }
 }
 
 .danger,
@@ -103,15 +110,26 @@
   color: var(--pl-color-danger-text);
 }
 
-.item.danger:hover:not(:disabled),
 .item.danger:focus-visible {
   background: var(--pl-color-danger-container);
   color: var(--pl-color-on-danger-container);
 }
 
-.item:hover:not(:disabled) .icon,
+@media (hover: hover) {
+  .item.danger:hover:not(:disabled) {
+    background: var(--pl-color-danger-container);
+    color: var(--pl-color-on-danger-container);
+  }
+}
+
 .item:focus-visible .icon {
   color: inherit;
+}
+
+@media (hover: hover) {
+  .item:hover:not(:disabled) .icon {
+    color: inherit;
+  }
 }
 
 .section {
@@ -134,4 +152,19 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.item:active:not(:disabled) {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}
+
+.item:active:not(:disabled) .icon,
+.item:active:not(:disabled) .submenuMark {
+  color: inherit;
+}
+
+.item.danger:active:not(:disabled) {
+  background: color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid));
+  color: var(--pl-color-on-danger-container);
 }

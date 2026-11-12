@@ -1,4 +1,5 @@
-import { forwardRef, type ButtonHTMLAttributes, type MouseEvent } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type KeyboardEvent, type MouseEvent } from 'react';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { Spinner } from '../../feedback/Spinner';
 import styles from './Button.module.css';
 
@@ -19,6 +20,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled = false,
       loading = false,
       onClick,
+      onKeyDown,
       size = 'md',
       type = 'button',
       variant = 'primary',
@@ -38,6 +40,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       onClick?.(event);
     }
 
+    function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+      onKeyDown?.(event);
+      blockRepeatedPress(event);
+    }
+
     return (
       <button
         {...props}
@@ -47,6 +54,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={loading || undefined}
         aria-busy={loading || undefined}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         type={type}
       >
         {loading && <Spinner size={size === 'lg' ? 'md' : 'sm'} />}

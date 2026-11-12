@@ -129,6 +129,17 @@ describe('SidePanel', () => {
     expect(screen.getByRole('button', { name: 'Filtros' })).not.toHaveAttribute('aria-hidden');
   });
 
+  it.each([false, true])('repassa id, className, data-* e aria-* ao elemento do painel, com a janela estreita = %s', (narrow) => {
+    stubViewport(narrow);
+    render(<SidePanel aria-describedby="ajuda" className="meu-painel" data-rad-id="filtros" id="painel" open title="Filtros">Corpo</SidePanel>);
+
+    const painel = screen.getByRole(narrow ? 'dialog' : 'complementary', { name: 'Filtros' });
+    expect(painel).toHaveAttribute('id', 'painel');
+    expect(painel).toHaveAttribute('data-rad-id', 'filtros');
+    expect(painel).toHaveAttribute('aria-describedby', 'ajuda');
+    expect(painel).toHaveClass('meu-painel');
+  });
+
   it('em largura estreita vira gaveta modal, com o lado e o foco do Drawer', () => {
     stubViewport(true);
     render(<WithTrigger />);

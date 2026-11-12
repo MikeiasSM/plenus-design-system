@@ -60,8 +60,10 @@
   scrollbar-color: transparent transparent;
 }
 
-.list:hover {
-  scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+@media (hover: hover) {
+  .list:hover {
+    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
+  }
 }
 
 .navigation[data-covered='true'] .list {
@@ -122,13 +124,15 @@
   transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
 }
 
-.item:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
-}
+@media (hover: hover) {
+  .item:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 
-.item:hover .icon {
-  color: var(--pl-color-primary-strong);
+  .item:hover .icon {
+    color: var(--pl-color-primary-strong);
+  }
 }
 
 .item:focus-visible {
@@ -251,9 +255,11 @@
   cursor: pointer;
 }
 
-.back:hover {
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
+@media (hover: hover) {
+  .back:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .back:focus-visible {
@@ -352,9 +358,14 @@
   cursor: pointer;
 }
 
-.accountTrigger:hover,
 .accountTrigger[aria-expanded='true'] {
   background: var(--pl-color-primary-container);
+}
+
+@media (hover: hover) {
+  .accountTrigger:hover {
+    background: var(--pl-color-primary-container);
+  }
 }
 
 .accountTrigger:focus-visible {
@@ -391,6 +402,16 @@
   white-space: nowrap;
 }
 
+.accountTrigger[aria-expanded='true'] .identity span {
+  color: var(--pl-color-text-secondary);
+}
+
+@media (hover: hover) {
+  .accountTrigger:hover .identity span {
+    color: var(--pl-color-text-secondary);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel,
   .item,
@@ -405,4 +426,22 @@
   .stacked {
     animation: none;
   }
+}
+
+.item:active,
+.back:active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}
+
+.item:active .icon {
+  color: var(--pl-color-primary-strong);
+}
+
+.accountTrigger:active {
+  background: var(--pl-color-primary-selected);
+}
+
+.accountTrigger:active .identity span {
+  color: inherit;
 }

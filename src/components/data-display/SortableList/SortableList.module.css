@@ -13,8 +13,10 @@
   transition: background-color var(--pl-speed-1) var(--pl-ease);
 }
 
-.row:hover {
-  background: var(--pl-color-surface-subtle);
+@media (hover: hover) {
+  .row:hover {
+    background: var(--pl-color-surface-subtle);
+  }
 }
 
 .row:focus-visible {
@@ -22,10 +24,16 @@
   outline-offset: -2px;
 }
 
-.selected,
-.selected:hover {
+.selected {
   background: var(--pl-color-primary-container);
   color: var(--pl-color-on-primary-container);
+}
+
+@media (hover: hover) {
+  .selected:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
 }
 
 .dragging {
@@ -78,8 +86,10 @@
   touch-action: none;
 }
 
-.handle:hover {
-  color: var(--pl-color-text);
+@media (hover: hover) {
+  .handle:hover {
+    color: var(--pl-color-text);
+  }
 }
 
 .handle:focus-visible {
@@ -128,6 +138,10 @@
   line-height: var(--pl-type-caption-line-height);
 }
 
+.selected .excerpt {
+  color: var(--pl-color-text-secondary);
+}
+
 .actions {
   display: inline-flex;
   flex: none;
@@ -147,4 +161,21 @@
   .row {
     transition: none;
   }
+}
+
+.row:active {
+  background: var(--pl-color-surface-muted);
+}
+
+.selected:active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}
+
+.row:active .excerpt {
+  color: var(--pl-color-text-secondary);
+}
+
+.selected:active .excerpt {
+  color: inherit;
 }

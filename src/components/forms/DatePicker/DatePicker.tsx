@@ -5,8 +5,10 @@ import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
 import { formatDateInput, parseDateInput } from '../../../utils/formatters';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
@@ -97,6 +99,7 @@ export function DatePicker({
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  useClickShieldOnClose(open);
   const wasOpenRef = useRef(open);
   const devolverFocoRef = useRef(true);
   const limites: CalendarLimits = {
@@ -240,6 +243,7 @@ export function DatePicker({
               className={styles.trigger}
               disabled={disabled}
               onClick={() => (open ? fechar() : setOpen(true))}
+              onKeyDown={blockRepeatedPress}
               ref={triggerRef}
               type="button"
             >
