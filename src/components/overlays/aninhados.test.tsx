@@ -282,6 +282,82 @@ describe('Escape com o Tooltip aberto', () => {
   it.each([
     ['Dialog', Dialog],
     ['Drawer', Drawer],
+  ])('aberta só pelo ponteiro, com o foco em outro elemento, fecha só a dica, e não o %s', async (_nome, Camada) => {
+    const fechar = vi.fn();
+
+    render(
+      <Camada onOpenChange={fechar} open title="Cadastro">
+        <Tooltip content="Explicacao" delay={0}>
+          <button type="button">Alvo</button>
+        </Tooltip>
+        <button type="button">Outro</button>
+      </Camada>,
+    );
+
+    const outro = screen.getByRole('button', { name: 'Outro' });
+
+    act(() => outro.focus());
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Alvo' }));
+
+    expect(await screen.findByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.keyDown(outro, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(fechar).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(outro, { key: 'Escape' });
+
+    expect(fechar).toHaveBeenCalledWith(false);
+  });
+
+  it('fora de camada, a dica aberta pelo ponteiro fecha, e o foco não se move', async () => {
+    render(
+      <>
+        <Tooltip content="Explicacao" delay={0}>
+          <button type="button">Alvo</button>
+        </Tooltip>
+        <button type="button">Outro</button>
+      </>,
+    );
+
+    const outro = screen.getByRole('button', { name: 'Outro' });
+
+    act(() => outro.focus());
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Alvo' }));
+
+    expect(await screen.findByRole('tooltip')).toBeInTheDocument();
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(outro).toHaveFocus();
+  });
+
+  it('com o foco no gatilho, um Escape chega uma vez só ao onOpenChange', () => {
+    const avisar = vi.fn();
+
+    render(
+      <Tooltip content="Explicacao" onOpenChange={avisar}>
+        <button type="button">Alvo</button>
+      </Tooltip>,
+    );
+
+    const alvo = screen.getByRole('button', { name: 'Alvo' });
+
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => alvo.focus());
+    avisar.mockClear();
+
+    fireEvent.keyDown(alvo, { key: 'Escape' });
+
+    expect(avisar).toHaveBeenCalledTimes(1);
+    expect(avisar).toHaveBeenCalledWith(false);
+  });
+
+  it.each([
+    ['Dialog', Dialog],
+    ['Drawer', Drawer],
   ])('com âncora externa, fecha só a dica, e não o %s', (_nome, Camada) => {
     const fechar = vi.fn();
 
