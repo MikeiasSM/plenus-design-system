@@ -69,9 +69,9 @@ As familias devem ser expostas por tokens globais:
 
 ```css
 :root {
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Montserrat', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --pl-font-heading: 'Poppins', sans-serif;
+  --pl-font-body: 'Montserrat', sans-serif;
+  --pl-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 ```
 
@@ -79,15 +79,15 @@ As familias devem ser expostas por tokens globais:
 
 ```css
 h1, h2, h3, .text-display {
-  font-family: var(--font-heading);
+  font-family: var(--pl-font-heading);
 }
 
 body, input, select, button, textarea {
-  font-family: var(--font-body);
+  font-family: var(--pl-font-body);
 }
 
 .font-mono, .data-number, table .col-currency {
-  font-family: var(--font-mono);
+  font-family: var(--pl-font-mono);
 }
 ```
 
@@ -118,24 +118,21 @@ Cada token tipografico deve definir, no minimo:
 - Peso.
 - Contexto de uso permitido.
 
-Uma implementacao CSS pode expor esses valores como propriedades customizadas agrupadas por funcao:
+O CSS expoe esses valores como propriedades customizadas agrupadas por funcao, em `src/tokens/semantic/typography.css`:
 
 ```css
 :root {
-  --type-display-large-family: var(--font-heading);
-  --type-display-large-size: 36px;
-  --type-display-large-line-height: 44px;
-  --type-display-large-weight: 600;
+  --pl-type-display-large-size: 36px;
+  --pl-type-display-large-line-height: 44px;
+  --pl-type-display-large-weight: 600;
 
-  --type-body-family: var(--font-body);
-  --type-body-size: 14px;
-  --type-body-line-height: 20px;
-  --type-body-weight: 400;
+  --pl-type-body-size: 14px;
+  --pl-type-body-line-height: 20px;
+  --pl-type-body-weight: 400;
 
-  --type-code-family: var(--font-mono);
-  --type-code-size: 12px;
-  --type-code-line-height: 16px;
-  --type-code-weight: 500;
+  --pl-type-code-size: 12px;
+  --pl-type-code-line-height: 16px;
+  --pl-type-code-weight: 500;
 }
 ```
 
@@ -197,9 +194,9 @@ Cada familia deve possuir uma pilha de fallback coerente:
 
 ```css
 :root {
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Montserrat', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --pl-font-heading: 'Poppins', sans-serif;
+  --pl-font-body: 'Montserrat', sans-serif;
+  --pl-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 ```
 
