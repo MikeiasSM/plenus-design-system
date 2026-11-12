@@ -315,17 +315,6 @@
   margin-bottom: 0;
 }
 
-@keyframes stack-in-end {
-  from {
-    transform: translateX(-16px);
-    opacity: 0;
-  }
-}
-
-.panel[data-side='right'] .stacked {
-  animation-name: stack-in-end;
-}
-
 @keyframes stack-in {
   from {
     transform: translateX(16px);
