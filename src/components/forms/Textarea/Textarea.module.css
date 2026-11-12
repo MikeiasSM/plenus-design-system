@@ -68,3 +68,10 @@
 .error:focus-visible {
   box-shadow: 0 0 0 3px var(--pl-color-danger-container);
 }
+
+@media (pointer: coarse) {
+  .textarea,
+  .sm {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}

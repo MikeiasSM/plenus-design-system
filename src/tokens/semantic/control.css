@@ -15,3 +15,15 @@
     0 0 0 3px color-mix(in srgb, var(--pl-color-primary-strong) 14%, transparent),
     0 0 6px 1px color-mix(in srgb, var(--pl-color-primary-strong) 16%, transparent);
 }
+
+
+:root {
+  --pl-control-font-size-touch: 16px;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --pl-control-height-sm: 44px;
+    --pl-control-height-md: 44px;
+  }
+}

@@ -13,3 +13,17 @@
   padding: 9px;
   font-size: 1.25rem;
 }
+
+@media (pointer: coarse) {
+  .buttonIcon.sm {
+    padding: calc((var(--pl-control-height-sm) - 1rem - 2px) / 2);
+  }
+
+  .buttonIcon.md {
+    padding: calc((var(--pl-control-height-md) - 1.125rem - 2px) / 2);
+  }
+
+  .buttonIcon.lg {
+    padding: calc((48px - 1.25rem - 2px) / 2);
+  }
+}

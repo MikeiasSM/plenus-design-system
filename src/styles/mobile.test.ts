@@ -74,6 +74,77 @@ function blocoDaMidia(css: string, consulta: string): string {
   return '';
 }
 
+describe('toque: densidade e fonte dos campos', () => {
+  const controle = ler('tokens/semantic/control.css');
+  const toque = blocoDaMidia(controle, 'pointer: coarse');
+
+  it('com o dedo, o pequeno e o medio sobem a 44px, e o grande segue em 56px', () => {
+    expect(toque).toContain('--pl-control-height-sm: 44px');
+    expect(toque).toContain('--pl-control-height-md: 44px');
+    expect(toque).not.toContain('--pl-control-height-lg');
+    expect(controle).toContain('--pl-control-height-lg: 56px');
+    expect(controle).toMatch(/:root \{\s*--pl-control-height-sm: 32px;\s*--pl-control-height-md: 36px;/);
+  });
+
+  it('a fonte de campo no toque e de 16px, o minimo que evita o zoom de foco do iOS', () => {
+    expect(controle).toContain('--pl-control-font-size-touch: 16px');
+  });
+
+  it.each([
+    'components/forms/Field/Field.module.css',
+    'components/forms/Textarea/Textarea.module.css',
+    'components/forms/ComboBox/ComboBox.module.css',
+    'components/forms/DatePicker/DatePicker.module.css',
+    'components/forms/TimePicker/TimePicker.module.css',
+    'components/forms/InputPassword/InputPassword.module.css',
+    'components/data-display/List/List.module.css',
+    'components/data-display/DataGrid/DataGrid.module.css',
+  ])('%s: o campo de texto passa a 16px no toque', (arquivo) => {
+    expect(blocoDaMidia(ler(arquivo), 'pointer: coarse')).toContain('font-size: var(--pl-control-font-size-touch)');
+  });
+
+  it('o computador não muda: a fonte de toque só é usada dentro da consulta', () => {
+    for (const [, css] of todas) {
+      const fora = css.replace(blocoDaMidia(css, 'pointer: coarse'), '');
+
+      expect(fora).not.toContain('var(--pl-control-font-size-touch)');
+    }
+  });
+
+  it('o botao grande e o botao so de icone acompanham a altura de toque', () => {
+    expect(blocoDaMidia(ler('components/actions/Button/Button.module.css'), 'pointer: coarse')).toContain('48px');
+    expect(blocoDaMidia(ler('components/actions/ButtonIcon/ButtonIcon.module.css'), 'pointer: coarse')).toContain('var(--pl-control-height-md)');
+  });
+});
+
+describe('toque: area de 44px em rádio, caixa, chave e cor', () => {
+  it.each([
+    'components/forms/Checkbox/Checkbox.module.css',
+    'components/forms/RadioGroup/RadioGroup.module.css',
+  ])('%s estende a area da caixa por um pseudo-elemento de 44px', (arquivo) => {
+    const toque = blocoDaMidia(ler(arquivo), 'pointer: coarse');
+
+    expect(toque).toMatch(/\.input::after \{[^}]*width: 44px;[^}]*height: 44px;/);
+    expect(toque).toContain('padding-block: calc((44px - var(--pl-type-body-line-height)) / 2)');
+  });
+
+  it('a chave leva o rótulo a 44px', () => {
+    expect(blocoDaMidia(ler('components/forms/Switch/Switch.module.css'), 'pointer: coarse')).toContain('padding-block: calc((44px - var(--pl-type-body-line-height)) / 2)');
+  });
+
+  it('a amostra de cor estende a area a 44px e afasta as amostras para as areas não se sobreporem', () => {
+    const toque = blocoDaMidia(ler('components/forms/ColorPicker/ColorPicker.module.css'), 'pointer: coarse');
+
+    expect(toque).toMatch(/\.swatch::after \{[^}]*width: 44px;[^}]*height: 44px;/);
+    expect(toque).toContain('calc(44px - var(--color-picker-size))');
+  });
+
+  it.each(['components/forms/RadioGroup/RadioGroup.module.css', 'components/forms/CheckboxGroup/CheckboxGroup.module.css'])('%s cola as linhas, que já medem 44px, e mantém o espaço entre as opções lado a lado', (arquivo) => {
+    expect(blocoDaMidia(ler(arquivo), 'pointer: coarse')).toMatch(/\.options \{\s*row-gap: 0;/);
+    expect(ler(arquivo)).toMatch(/\.horizontal \{[^}]*column-gap: var\(--pl-space-5\);/);
+  });
+});
+
 function soAMidia(css: string, consulta: string): string {
   let resto = css;
   let dentro = '';

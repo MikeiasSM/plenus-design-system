@@ -176,6 +176,12 @@
   text-transform: uppercase;
 }
 
+@media (pointer: coarse) {
+  .search {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}
+
 .option:active:not(.disabled) {
   background: var(--pl-color-primary-selected);
   color: var(--pl-color-on-primary-container);

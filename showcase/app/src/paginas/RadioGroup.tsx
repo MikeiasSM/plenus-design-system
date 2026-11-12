@@ -258,6 +258,7 @@ export const pagina: Pagina = {
     { teclas: ['Espaço'], acao: 'Escolhe a opção em foco, se ainda não estiver marcada.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a área de toque tem 44px, sem mudar o desenho.', teste: 'mobile.test.ts' },
     {
       garantia: 'Grupo nomeado',
       como: <><code>&lt;fieldset&gt;</code> com <code>role="radiogroup"</code> e o rótulo na <code>&lt;legend&gt;</code>.</>,

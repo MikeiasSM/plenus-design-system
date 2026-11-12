@@ -142,6 +142,7 @@ export const pagina: Pagina = {
     { teclas: ['Espaço'], acao: 'Liga ou desliga.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a área de toque tem 44px, sem mudar o desenho.', teste: 'mobile.test.ts' },
     {
       garantia: 'Semântica de switch',
       como: <><code>role="switch"</code> sobre um <code>&lt;input type="checkbox"&gt;</code> nativo.</>,

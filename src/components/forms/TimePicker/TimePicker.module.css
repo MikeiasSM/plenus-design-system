@@ -44,3 +44,9 @@
   justify-content: center;
   padding-inline: var(--pl-space-2);
 }
+
+@media (pointer: coarse) {
+  .slotInput {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}

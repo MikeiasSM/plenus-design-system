@@ -195,6 +195,7 @@ export const pagina: Pagina = {
     { teclas: ['Espaço'], acao: 'Marca ou desmarca.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a área de toque tem 44px, sem mudar o desenho.', teste: 'mobile.test.ts' },
     {
       garantia: 'Semântica nativa',
       como: <>Um <code>&lt;input type="checkbox"&gt;</code> dentro do próprio <code>&lt;label&gt;</code>.</>,

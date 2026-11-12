@@ -108,3 +108,10 @@
 select.control {
   padding-right: 32px;
 }
+
+@media (pointer: coarse) {
+  .control,
+  .sm {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}

@@ -755,6 +755,12 @@
   white-space: nowrap;
 }
 
+@media (pointer: coarse) {
+  .editor {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}
+
 .row.clickable:active:not(.selected) {
   background: var(--pl-color-surface-muted);
 }

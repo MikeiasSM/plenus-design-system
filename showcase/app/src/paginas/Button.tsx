@@ -277,6 +277,7 @@ export const pagina: Pagina = {
   ],
   garantias: [
     { garantia: 'Pressão', como: <>O estado <code>:active</code> vale em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, o pequeno e o médio têm 44px, e o grande, 48px.', teste: 'mobile.test.ts' },
     { garantia: 'Semântica nativa', como: <>Elemento <code>&lt;button&gt;</code>; com <code>href</code>, <code>as</code> ou <code>linkProps</code>, <code>&lt;a href&gt;</code>. Desabilitado, o link fica sem destino, com <code>role=&quot;link&quot;</code> e <code>aria-disabled</code>.</>, teste: 'Button.test.tsx' },
     { garantia: 'Nome acessível', como: 'O texto do botão. Sem texto, ButtonIcon, que exige label.', teste: 'Button.test.tsx' },
     { garantia: 'Estado ocupado', como: <><code>aria-busy</code> e <code>aria-disabled</code> durante o loading.</>, teste: 'Button.test.tsx' },

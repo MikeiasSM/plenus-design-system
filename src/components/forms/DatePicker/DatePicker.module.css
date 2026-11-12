@@ -263,3 +263,10 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+@media (pointer: coarse) {
+  .input,
+  .sm .input {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}

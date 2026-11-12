@@ -215,6 +215,7 @@ export const pagina: Pagina = {
     { teclas: ['Esc'], acao: 'Fecha a dica.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a área de cada amostra tem 44px, e as amostras se afastam para as áreas não se sobreporem.', teste: 'mobile.test.ts' },
     {
       garantia: 'Grupo nomeado',
       como: <><code>role="radiogroup"</code> com o <code>label</code> em <code>aria-label</code>.</>,

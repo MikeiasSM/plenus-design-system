@@ -157,6 +157,12 @@
   padding: 9px 24px;
 }
 
+@media (pointer: coarse) {
+  .lg {
+    padding: calc((48px - var(--pl-type-label-line-height)) / 2 - 1px) 24px;
+  }
+}
+
 .primary:not(:disabled):not([aria-disabled='true']):active {
   background: var(--pl-color-primary-active);
 }

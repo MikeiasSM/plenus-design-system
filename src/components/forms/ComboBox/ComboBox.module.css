@@ -174,3 +174,10 @@
   display: flex;
   gap: var(--pl-space-2);
 }
+
+@media (pointer: coarse) {
+  .input,
+  .sm {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}
