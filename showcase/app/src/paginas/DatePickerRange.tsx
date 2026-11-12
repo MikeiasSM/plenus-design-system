@@ -113,6 +113,13 @@ function Modos() {
         Entra e sai como <code>{'{ start: "2026-03-09", end: "2026-03-13" }'}</code>, com as duas pontas incluídas.{' '}
         <code>null</code> é controlado e vazio.
       </dd>
+      <dt>Atalhos no gatilho</dt>
+      <dd>
+        Com o painel fechado, <code>H</code> marca hoje como início e fim. <code>←</code> e <code>→</code> deslocam o
+        intervalo inteiro um dia, e <code>↑</code> e <code>↓</code>, sete, passando de um mês para o outro. Sem intervalo,
+        as setas partem de hoje. A seta que levaria o intervalo para fora de <code>min</code> e <code>max</code> não faz
+        nada. Cada deslocamento chama <code>onValueChange</code>. O painel abre com Enter, Espaço ou Alt+<code>↓</code>.
+      </dd>
       <dt>Rascunho no painel</dt>
       <dd>
         O primeiro clique marca o início e o segundo o fim; se vier antes, as pontas se invertem. Só{' '}
@@ -166,6 +173,9 @@ export const pagina: Pagina = {
   Modos,
   teclado: [
     { teclas: ['Enter', 'Espaço'], acao: 'No gatilho, abre o painel; na grade, escolhe o dia em foco.' },
+    { teclas: ['Alt', '↓'], acao: 'No gatilho, abre o painel.' },
+    { teclas: ['H'], acao: 'No gatilho fechado, marca hoje como início e fim.' },
+    { teclas: ['←', '→', '↑', '↓'], acao: 'No gatilho fechado, desloca o intervalo um dia ou sete dias.' },
     { teclas: ['←', '→'], acao: 'Na grade, dia anterior ou seguinte.' },
     { teclas: ['↑', '↓'], acao: 'Na grade, mesma data da semana anterior ou seguinte.' },
     { teclas: ['Home', 'End'], acao: 'Primeiro ou último dia do mês.' },
@@ -204,7 +214,7 @@ export const pagina: Pagina = {
   api: [
     { nome: 'value', tipo: 'DateRange | null', descricao: 'Intervalo em ISO, no modo controlado: DateRange é { start, end }, as duas pontas incluídas. null é controlado e vazio.' },
     { nome: 'defaultValue', tipo: 'DateRange', descricao: 'Intervalo inicial, no modo não controlado.' },
-    { nome: 'onValueChange', tipo: '(value: DateRange | null) => void', descricao: 'Chamado em Aplicar, com o intervalo ou null.' },
+    { nome: 'onValueChange', tipo: '(value: DateRange | null) => void', descricao: 'Chamado em Aplicar e a cada atalho de teclado, com o intervalo ou null.' },
     { nome: 'shortcuts', tipo: 'readonly DateRangeShortcut[]', descricao: 'Atalhos do painel, definidos pelo produto: DateRangeShortcut é { label, range }, com range uma função chamada ao abrir. Sem a propriedade, não há atalho.' },
     { nome: 'defaultDateRangeShortcuts', tipo: 'readonly DateRangeShortcut[]', descricao: 'Lista pronta e opcional: Hoje, Ontem, Últimos 7 dias, Últimos 30 dias, Este mês e Mês passado. O produto a passa inteira, filtra ou substitui.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o painel, no modo controlado.' },

@@ -8,10 +8,16 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Adicionado
 
+- `DatePicker`, `TimePicker` e `DateTimePicker`: teclas de atalho. `H` dá a data, a hora ou os dois de agora, e `+` e `-` mudam um dia, uma hora ou um minuto, conforme o campo e a posição do cursor, com a virada de relógio passando para a data. Os campos passam a aceitar só números e o separador.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o que foi digitado pela metade se completa ao sair do campo ou com Enter, como `215` em 21/05 do ano atual e `830` em 08:30.
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor inválido, ou fora de `min` e `max`, fica no campo, com mensagem no lugar do erro e `aria-invalid`, sem mudar o valor. A propriedade `onInvalid` avisa o produto com o texto digitado; o `error` do produto prevalece sobre a mensagem.
+- `DatePickerRange`: com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro, um dia com `←` e `→` e sete dias com `↑` e `↓`.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado
 
+- `DatePicker`, `TimePicker` e `DateTimePicker`: o valor não se apaga mais durante a digitação. Antes, a data ou a hora pela metade passava `onValueChange(null)`; agora só esvaziar o campo por inteiro passa `null`.
+- `DatePickerRange`: a seta para baixo sozinha desloca o intervalo em sete dias, em vez de abrir o painel, que abre com Enter, Espaço ou Alt+`↓`.
 - `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 

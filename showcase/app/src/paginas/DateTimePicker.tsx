@@ -171,8 +171,28 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        Data e hora na mesma máscara. Só a data, sem hora alguma, vale meia-noite; com a hora pela metade, o valor é{' '}
-        <code>null</code> até os quatro dígitos.
+        Data e hora na mesma máscara, só com números, barra, espaço e dois pontos. Só a data, sem hora alguma, vale
+        meia-noite. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
+      </dd>
+      <dt>Atalhos</dt>
+      <dd>
+        <code>H</code> dá a data e a hora atuais. <code>+</code> e <code>-</code> mudam um dia com o cursor na data, uma
+        hora na hora e um minuto no minuto, e a virada passa para a data: 31/12 às 23:30 com <code>+</code> na hora vira
+        01/01 do ano seguinte às 00:30. Com o campo vazio, partem de agora; com texto inválido, do último valor válido.
+      </dd>
+      <dt>Completar ao sair</dt>
+      <dd>
+        Com Enter, Tab ou clique fora, a data se completa como no <code>DatePicker</code> e a hora como no{' '}
+        <code>TimePicker</code>. A hora é a parte depois do espaço: <code>21/05/2026 8</code> vira 21/05/2026 08:00.
+        Sem espaço, o que foi digitado é só a data.
+      </dd>
+      <dt>Valor inválido</dt>
+      <dd>
+        Data ou hora inválida, ou data fora de <code>min</code> e <code>max</code>, mantém o texto no campo, sem mudar o
+        valor nem chamar <code>onValueChange</code>. O campo mostra &quot;Data inválida.&quot;, &quot;Hora
+        inválida.&quot; ou &quot;Data fora do intervalo permitido.&quot; no lugar do erro e recebe{' '}
+        <code>aria-invalid</code>; o <code>error</code> do produto, se houver, prevalece. <code>onInvalid</code> recebe
+        o texto. A mensagem some quando o valor fica válido.
       </dd>
       <dt>Painel</dt>
       <dd>
@@ -215,6 +235,9 @@ export const pagina: Pagina = {
   Modos,
   teclado: [
     { teclas: ['↓'], acao: 'No campo, abre o painel com o foco no dia escolhido.' },
+    { teclas: ['H'], acao: 'No campo, preenche com a data e a hora atuais.' },
+    { teclas: ['+', '-'], acao: 'No campo, avança ou recua um dia, uma hora ou um minuto, conforme o cursor.' },
+    { teclas: ['Enter'], acao: 'No campo, completa e valida o que foi digitado.' },
     { teclas: ['←', '→', '↑', '↓'], acao: 'Na grade, anda por dia e por semana.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Mês anterior ou seguinte; com Shift, ano.' },
     { teclas: ['Tab'], acao: 'Passa da grade ao campo de hora, à lista de horários e ao rodapé.' },
@@ -252,7 +275,8 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o painel, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
-    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data e hora em ISO, ou null sem as duas inteiras e permitidas.' },
+    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data e hora em ISO, ou null ao esvaziar o campo. Texto pela metade ou inválido não chama.' },
+    { nome: 'onInvalid', tipo: '(texto: string) => void', descricao: 'Avisa o texto digitado que não é uma data e hora válidas, ao confirmar ou sair do campo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
     { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },

@@ -188,8 +188,29 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        A máscara aceita barra, traço, ponto ou espaço como separador. Enquanto a data está pela metade, ou cai fora da
-        faixa permitida, o valor emitido é <code>null</code>.
+        O campo aceita só números e a barra. A data inteira e válida grava na hora. Pela metade, o valor não se apaga:
+        só esvaziar o campo por inteiro emite <code>null</code>.
+      </dd>
+      <dt>Atalhos</dt>
+      <dd>
+        <code>H</code> dá a data de hoje e substitui o que houver no campo. <code>+</code> e <code>-</code> mudam um dia:
+        com o campo vazio partem de hoje, e com texto inválido, do último valor válido. Nenhuma das teclas aparece no
+        campo, e a data que sairia de <code>min</code> e <code>max</code> não é aplicada.
+      </dd>
+      <dt>Completar ao sair</dt>
+      <dd>
+        Com Enter, Tab ou clique fora, o que foi digitado pela metade se completa pelos dígitos, e o que sobra vai para o
+        último grupo. Com hoje em 12/11/2026: <code>15</code> vira 15/11/2026, <code>215</code> vira 21/05/2026,{' '}
+        <code>112</code> vira 11/02/2026, <code>2105</code> vira 21/05/2026 e <code>260326</code> vira 26/03/2026. Com
+        seis dígitos o ano é sempre 20xx.
+      </dd>
+      <dt>Data inválida</dt>
+      <dd>
+        Cinco ou sete dígitos, uma data que não existe ou fora de <code>min</code> e <code>max</code> mantêm o texto no
+        campo, sem mudar o valor nem chamar <code>onValueChange</code>. O campo mostra &quot;Data inválida.&quot; ou
+        &quot;Data fora do intervalo permitido.&quot; no lugar do erro e recebe <code>aria-invalid</code>; o{' '}
+        <code>error</code> do produto, se houver, prevalece. <code>onInvalid</code> recebe o texto. A mensagem some quando
+        o valor fica válido.
       </dd>
       <dt>Rascunho no calendário</dt>
       <dd>
@@ -259,6 +280,9 @@ export const pagina: Pagina = {
   Modos,
   teclado: [
     { teclas: ['↓'], acao: 'No campo, abre o calendário com o foco no dia escolhido.' },
+    { teclas: ['H'], acao: 'No campo, preenche com a data de hoje.' },
+    { teclas: ['+', '-'], acao: 'No campo, avança ou recua um dia.' },
+    { teclas: ['Enter'], acao: 'No campo, completa e valida o que foi digitado.' },
     { teclas: ['←', '→'], acao: 'Na grade, dia anterior ou seguinte.' },
     { teclas: ['↑', '↓'], acao: 'Na grade, mesma data da semana anterior ou seguinte.' },
     { teclas: ['Home', 'End'], acao: 'Primeiro ou último dia do mês.' },
@@ -306,7 +330,8 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o calendário, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
-    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null sem data inteira e permitida.' },
+    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null ao esvaziar o campo. Data pela metade ou inválida não chama.' },
+    { nome: 'onInvalid', tipo: '(texto: string) => void', descricao: 'Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
     { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },
