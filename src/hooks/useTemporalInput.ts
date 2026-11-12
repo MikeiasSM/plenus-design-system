@@ -117,7 +117,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     const { altKey, ctrlKey, key, metaKey } = event;
 
-    if (event.defaultPrevented || altKey || ctrlKey || metaKey) {
+    if (event.defaultPrevented || event.currentTarget.readOnly || altKey || ctrlKey || metaKey) {
       return;
     }
 

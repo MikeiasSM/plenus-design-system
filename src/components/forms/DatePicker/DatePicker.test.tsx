@@ -248,6 +248,18 @@ describe('DatePicker', () => {
       expect(campo).toHaveValue('12');
     });
 
+    it('somente leitura, os atalhos nao mudam o valor', () => {
+      const mudou = vi.fn();
+      const campo = montar({ defaultValue: '2026-03-09', onValueChange: mudou, readOnly: true });
+
+      fireEvent.keyDown(campo, { key: 'h' });
+      fireEvent.keyDown(campo, { key: '+' });
+      fireEvent.keyDown(campo, { key: '-' });
+
+      expect(campo).toHaveValue('09/03/2026');
+      expect(mudou).not.toHaveBeenCalled();
+    });
+
     it('H da a data de hoje, sem escrever a letra, e substitui o que houver', () => {
       const mudou = vi.fn();
       const campo = montar({ defaultValue: '2026-03-09', onValueChange: mudou });
