@@ -16,7 +16,8 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { formatDateTimeInput, parseDateTimeInput } from '../../../utils/formatters';
+import { completeDateTimeInput, formatDateTimeInput, keepInputChars, parseDateTimeInput } from '../../../utils/formatters';
+import { useCampoDigitado } from '../../../hooks/useCampoDigitado';
 import { Button } from '../../actions/Button';
 import { Calendar } from '../DatePicker/Calendar';
 import { readIsoDate, readIsoDateTime, toIsoDateTime } from '../DatePicker/iso';
@@ -37,7 +38,7 @@ export type DateTimePickerSize = 'sm' | 'md' | 'lg';
 export interface DateTimePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value' | 'step'
   > {
   /** Data e hora em ISO, `2026-03-09T18:40`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -57,6 +58,8 @@ export interface DateTimePickerProps
   max?: string;
   min?: string;
   step?: number;
+  /** Avisa o texto digitado que não é uma data e hora válidas, ao confirmar ou sair do campo. */
+  onInvalid?: (texto: string) => void;
   /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -105,6 +108,7 @@ export function DateTimePicker({
   max,
   min,
   step = 30,
+  onInvalid,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -133,8 +137,6 @@ export function DateTimePicker({
     min: readIsoDate(min),
   };
   const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(() => readIsoDateTime(defaultValue) ?? null);
-  const [texto, setTexto] = useState('');
-  const [digitando, setDigitando] = useState(false);
   const controlado = value === undefined ? undefined : (readIsoDateTime(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
   const [rascunho, setRascunho] = useState(escolhido);
@@ -142,7 +144,7 @@ export function DateTimePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDateTime(defaultValue) ?? null);
-    setDigitando(false);
+    campo.limpar();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -160,7 +162,6 @@ export function DateTimePicker({
       setRascunho(escolhido);
     }
   }, [open]);
-  const exibido = digitando ? texto : paraTexto(escolhido);
 
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDateTime | null) {
@@ -185,23 +186,51 @@ export function DateTimePicker({
     setOpen(false);
   }
 
-  function handleChange(entrada: string) {
-    const mascarado = formatDateTimeInput(entrada);
+  const campo = useCampoDigitado<CalendarDateTime>({
+    agora: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
+    atual: escolhido,
+    avaliar: (digitado) => {
+      const lido = completeDateTimeInput(digitado, today(getLocalTimeZone()));
 
-    setDigitando(true);
-    setTexto(mascarado);
+      if (lido.invalid) {
+        return { mensagem: lido.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.' };
+      }
 
-    // O texto e o valor tem de concordar. Enquanto o que esta escrito nao e uma
-    // data e hora inteiras, o campo nao tem valor — segurar o ultimo deixava o
-    // consumidor com meia-noite enquanto a tela mostrava `18:4`.
-    const lido = parseDateTimeInput(mascarado);
-    const dia = lido && toCalendarDate(lido);
+      return isUnavailable(toCalendarDate(lido.value), limites)
+        ? { mensagem: 'Data fora do intervalo permitido.' }
+        : { valor: lido.value };
+    },
+    deslocar: (valor, passo, digitado, cursor) => {
+      const espaco = digitado.indexOf(' ');
+      const doisPontos = digitado.indexOf(':');
 
-    definir(lido && dia && !isUnavailable(dia, limites) ? lido : null);
-  }
+      if (espaco < 0 || cursor <= espaco) {
+        return { cursor: 10, valor: valor.add({ days: passo }) };
+      }
+
+      return doisPontos < 0 || cursor <= doisPontos
+        ? { cursor: 13, valor: valor.add({ hours: passo }) }
+        : { cursor: 16, valor: valor.add({ minutes: passo }) };
+    },
+    erro: error,
+    filtrar: (entrada) => keepInputChars(entrada, '/ :'),
+    gravar: definir,
+    inputRef,
+    ler: (digitado) => {
+      const lido = parseDateTimeInput(digitado);
+
+      return lido && !isUnavailable(toCalendarDate(lido), limites) ? lido : undefined;
+    },
+    mascarar: formatDateTimeInput,
+    onInvalid,
+    paraTexto,
+    permitido: (valor) => !isUnavailable(toCalendarDate(valor), limites),
+    separadores: '/ :',
+  });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
+    campo.tratarTecla(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -234,7 +263,7 @@ export function DateTimePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={campo.erro} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -245,7 +274,7 @@ export function DateTimePicker({
             value={escolhido ? toIsoDateTime(escolhido) : ''}
           />
           <div
-            className={[datePickerStyles.field, datePickerStyles[size], error && datePickerStyles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], campo.erro && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -258,16 +287,13 @@ export function DateTimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => {
-                setDigitando(false);
-                onBlur?.(event);
-              }}
-              onChange={(event) => handleChange(event.target.value)}
+              onBlur={(event) => campo.sair(event, onBlur)}
+              onChange={(event) => campo.mudar(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={exibido}
+              value={campo.exibido}
             />
             <button
               aria-expanded={open}
@@ -334,7 +360,7 @@ export function DateTimePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          setDigitando(false);
+                          campo.limpar();
                           fechar();
                         }}
                         size="sm"
