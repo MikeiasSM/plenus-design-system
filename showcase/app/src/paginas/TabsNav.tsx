@@ -85,7 +85,7 @@ function Modos() {
       </dd>
       <dt><code>as</code> e <code>linkProps</code></dt>
       <dd>
-        O link da aplicação, como no <code>Breadcrumb</code>. Para o roteador que pede <code>to</code>, ele vai em{' '}
+        O link da aplicação: <code>as</code> fica na raiz e vale para todas as abas. Para o roteador que pede <code>to</code>, ele vai em{' '}
         <code>linkProps</code>.
       </dd>
       <dt><code>fitted</code></dt>

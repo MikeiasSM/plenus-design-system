@@ -289,7 +289,7 @@ export const pagina: Pagina = {
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo. Como link, tira o destino e o marca com aria-disabled.' },
     { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Envio de formulário só quando pedido. Não vale para link.' },
     { nome: 'href', tipo: 'string', descricao: 'Destino: o Button vira um <a href>, com o mesmo visual. Desabilitado, o link perde o href.' },
-    { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação, para não acoplar o sistema a um roteador, como no Breadcrumb.' },
+    { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação, para não acoplar o sistema a um roteador.' },
     { nome: 'linkProps', tipo: 'Record<string, unknown>', descricao: 'Propriedades entregues inteiras ao componente de link, para o roteador que não usa href, como o to do React Router.' },
   ],
 };
