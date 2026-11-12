@@ -137,20 +137,7 @@ Os overlays em portal (`Dialog`, `Drawer`, `Popover`, `Tooltip`, `Menu`, `Toolba
 
 ## 5. Espaçamento
 
-Componentes devem utilizar a escala oficial de espaçamento.
-
-Exemplo:
-
-- `xs`
-- `sm`
-- `md`
-- `lg`
-- `xl`
-- `2xl`
-
-A escala real deve ser definida em:
-
-- `src/tokens/spacing.ts`
+Componentes devem utilizar a escala oficial de espaçamento, em `src/tokens/primitive/space.css`: de `--pl-space-1` a `--pl-space-7`.
 
 Evitar valores arbitrários quando existir um token equivalente.
 
@@ -174,16 +161,10 @@ Componentes devem utilizar os valores definidos pelo sistema.
 
 ## 7. Raios e elevação
 
-Raios e sombras fazem parte da linguagem visual e devem ser centralizados.
+Raios e sombras fazem parte da linguagem visual e devem ser centralizados:
 
-Exemplo:
-
-- `raio-sm`
-- `raio-md`
-- `raio-lg`
-- `elevacao-sm`
-- `elevacao-md`
-- `elevacao-lg`
+- Raios, em `src/tokens/primitive/radius.css`: `--pl-radius-sm`, `--pl-radius-md` e `--pl-radius-full`.
+- Elevação, em `src/tokens/semantic/elevation.css`: `--pl-sh-1`, `--pl-sh-2` e `--pl-sh-3`.
 
 A ordem das camadas fixas também é token, em `src/tokens/semantic/layer.css`: `--pl-z-fullscreen` (90, o `DataGrid` em tela cheia), `--pl-z-modal` (100, o fundo do `Dialog` e do `Drawer`), `--pl-z-toast` (110), `--pl-z-tooltip` (120, a dica dos gráficos) e `--pl-z-skip-link` (120). Um produto com escala própria redefine esses tokens no `:root` para encaixar a biblioteca, sem sobrescrever classes. Os painéis posicionados pelo React Aria (`Popover`, `Select`, `ComboBox`, os seletores de data e hora, `Menu`, `Tooltip` e a `Toolbar` ancorada) recebem `z-index: 100000` inline e não dependem de token: ficam acima de qualquer escala do produto abaixo desse valor. O `z-index` interno da pilha de um componente, como o da `Toolbar` fixa e o das células do `DataGrid`, continua local.
 
@@ -195,27 +176,20 @@ Motion deve possuir tokens para:
 - Curvas de aceleração.
 - Transições recorrentes.
 
-Exemplo:
-
-- `duracao-rapida`
-- `duracao-normal`
-- `duracao-lenta`
-- `curva-padrao`
-- `curva-entrada`
-- `curva-saida`
+Os tokens ficam em `src/tokens/primitive/motion.css`: `--pl-speed-1` e `--pl-speed-2` para a duração, e `--pl-ease` para a curva.
 
 Componentes não devem criar tempos arbitrários sem justificativa.
 
 ## 9. Breakpoints
 
-Breakpoints devem ser centralizados.
+Breakpoints devem ser centralizados. Os tokens ficam em `src/tokens/primitive/layout.css`:
 
-Exemplo:
+- `--pl-bp-sm`: 900px.
+- `--pl-bp-md`: 1180px.
+- `--pl-bp-lg`: 1280px.
+- `--pl-container`: 1600px, a largura máxima do conteúdo.
 
-- `sm`
-- `md`
-- `lg`
-- `xl`
+Nenhum deles é aplicado por padrão: a aplicação os usa se quiser alinhar o próprio leiaute aos pontos do sistema. Os componentes repetem esses valores nas próprias media queries, porque variável CSS não funciona em `@media`; redefinir um token não muda o comportamento de um componente.
 
 Aplicações e componentes não devem criar escalas paralelas de responsividade.
 
