@@ -43,7 +43,7 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, semAltura
             <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
             <p style={{ color: 'var(--pl-color-text-secondary)' }}>
               {semAlturaDaCaixa
-                ? 'A moldura mede a janela, e não a caixa: ela passa da caixa, e a rolagem da caixa leva a barra e o rodapé para fora de vista.'
+                ? 'A moldura mede a janela, e não a caixa: ela passa da caixa, e a rolagem da caixa leva a barra para fora de vista.'
                 : 'Só este corpo rola. No Showcase, --pl-shell-height vale 100%, e a moldura ocupa a caixa.'}
             </p>
           </div>

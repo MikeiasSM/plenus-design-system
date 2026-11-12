@@ -7,7 +7,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
-   * Componente de link da aplicacao, como no Breadcrumb. Com `as`, `href` ou `linkProps` o Button vira
+   * Componente de link da aplicacao. Com `as`, `href` ou `linkProps` o Button vira
    * link, com o mesmo visual; sem eles continua um `<button>`.
    */
   as?: ElementType;

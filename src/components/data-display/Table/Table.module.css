@@ -267,8 +267,6 @@
   background: var(--pl-color-surface-subtle);
 }
 
-/* Barra acima da tabela. O respiro lateral e o da margem da tabela, para a busca alinhar com a primeira coluna: a
-   barra fica fora do envoltorio que declara --table-inline-padding, entao o passo e repetido aqui. */
 .toolbar {
   display: flex;
   flex-wrap: wrap;

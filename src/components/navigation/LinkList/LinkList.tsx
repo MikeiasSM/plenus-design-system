@@ -6,7 +6,7 @@ export type LinkListLayout = 'list' | 'grid';
 export type LinkListTone = 'neutral' | 'danger';
 
 export interface LinkListProps extends ComponentPropsWithRef<'ul'> {
-  /** Componente de link da aplicação, como no Breadcrumb. */
+  /** Componente de link da aplicação, para todos os itens. */
   as?: ElementType;
   /** `list`, o padrão: linhas com divisória e seta. `grid`: células numa grade que se ajusta à largura. */
   layout?: LinkListLayout;
