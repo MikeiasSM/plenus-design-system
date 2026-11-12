@@ -409,4 +409,112 @@ describe('SidebarProvider: ícones (icons)', () => {
   });
 });
 
+describe('SidebarProvider: atalho de teclado (shortcut)', () => {
+  const ctrlB = { ctrlKey: true, key: 'b' };
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('vem desligado: Ctrl+B não faz nada', () => {
+    render(<Frame />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
+  it('shortcut false também fica desligado', () => {
+    render(<Frame shortcut={false} />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
+  it('com mod+b, Ctrl+B alterna o submenu e chama preventDefault', () => {
+    render(<Frame shortcut="mod+b" />);
+
+    expect(fireEvent.keyDown(document.body, ctrlB)).toBe(false);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
+  it('no Mac, o mod é o Cmd, e o Ctrl não vale', () => {
+    vi.spyOn(navigator, 'platform', 'get').mockReturnValue('MacIntel');
+    render(<Frame shortcut="mod+b" />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+    fireEvent.keyDown(document.body, { key: 'b', metaKey: true });
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+
+  it('aceita outra letra, em maiúscula ou minúscula', () => {
+    render(<Frame shortcut="mod+k" />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+    fireEvent.keyDown(document.body, { ctrlKey: true, key: 'K' });
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+
+  it('sem o modificador, ou com outro a mais, não alterna', () => {
+    render(<Frame shortcut="mod+b" />);
+
+    fireEvent.keyDown(document.body, { key: 'b' });
+    fireEvent.keyDown(document.body, { ctrlKey: true, key: 'b', shiftKey: true });
+    fireEvent.keyDown(document.body, { altKey: true, ctrlKey: true, key: 'b' });
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
+  it('é ignorado num campo editável e deixa o evento seguir', () => {
+    render(
+      <Frame shortcut="mod+b">
+        <input aria-label="nome" />
+        <textarea aria-label="texto" />
+        <div aria-label="editor" contentEditable role="textbox" suppressContentEditableWarning>
+          <span>negrito</span>
+        </div>
+      </Frame>,
+    );
+
+    for (const alvo of [screen.getByLabelText('nome'), screen.getByLabelText('texto'), screen.getByText('negrito')]) {
+      expect(fireEvent.keyDown(alvo, ctrlB)).toBe(true);
+    }
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+  });
+
+  it('na largura estreita, alterna a gaveta', () => {
+    stubViewport(true);
+    render(<Frame shortcut="mod+b" />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('para de ouvir ao desmontar ou ao desligar o atalho', () => {
+    const { rerender, unmount } = render(<Frame shortcut="mod+b" />);
+
+    rerender(<Frame shortcut={undefined} />);
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
+    unmount();
+    expect(fireEvent.keyDown(document.body, ctrlB)).toBe(true);
+  });
+
+  it('o AppShell repassa o atalho', () => {
+    render(
+      <AppShell shortcut="mod+b">
+        <Navigation />
+        <AppShell.Page>
+          <AppShell.PageBar />
+        </AppShell.Page>
+      </AppShell>,
+    );
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+});
+
 export { Frame, Navigation, stubViewport, useSidebar, useState };

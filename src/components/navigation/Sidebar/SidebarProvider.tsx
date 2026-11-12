@@ -11,6 +11,7 @@ import {
   type SidebarPanelKind,
   type SidebarSide,
 } from './Sidebar.context';
+import { isEditableTarget, matchesShortcut } from './Sidebar.shortcut';
 
 export interface SidebarProviderProps {
   /** Conta aberta, no modo controlado. */
@@ -36,6 +37,8 @@ export interface SidebarProviderProps {
   /** Submenu aberto, no modo controlado. */
   open?: boolean;
   /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
+  /** Atalho que alterna o submenu, ou a gaveta na largura estreita, como `"mod+b"`. Desligado por padrão. */
+  shortcut?: string | false;
   side?: SidebarSide;
   /** Espera, em ms, das dicas do trilho e da marca. Padrão 150. */
   tooltipDelay?: number;
@@ -86,6 +89,7 @@ export function SidebarProvider({
   onMenuOpenChange,
   onOpenChange,
   open: controlledOpen,
+  shortcut,
   side = 'left',
   tooltipDelay = 150,
 }: SidebarProviderProps) {
@@ -114,6 +118,28 @@ export function SidebarProvider({
       setMenuOpen(false);
     }
   }, [narrow]);
+
+  useEffect(() => {
+    if (!shortcut) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented || !matchesShortcut(event, shortcut as string) || isEditableTarget(event.target)) {
+        return;
+      }
+
+      event.preventDefault();
+      if (narrow) {
+        setMenuOpen(!menuOpen);
+      } else {
+        setOpenWithoutFocus(!submenuOpen);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  });
 
   // O botão que acionou some com a mudança: o foco vai ao botão que ocupa o lugar dele.
   useEffect(() => {

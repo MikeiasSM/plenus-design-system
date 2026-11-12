@@ -44,6 +44,7 @@ function AppShellRoot({
   onMenuOpenChange,
   onOpenChange,
   open,
+  shortcut,
   side,
   tooltipDelay,
   ...props
@@ -62,6 +63,7 @@ function AppShellRoot({
     onMenuOpenChange,
     onOpenChange,
     open,
+    shortcut,
     side,
     tooltipDelay,
   };
