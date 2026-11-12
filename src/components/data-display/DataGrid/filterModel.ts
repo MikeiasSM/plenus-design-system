@@ -131,9 +131,9 @@ function sequential(
   };
 }
 
-function sequentialOperators(read: (value: unknown) => string): DataGridFilterOperator[] {
+function sequentialOperators(read: (value: unknown) => string, equalsLabel: string): DataGridFilterOperator[] {
   return [
-    sequential(read, 'equals', 'É', (reading, operand) => reading === operand),
+    sequential(read, 'equals', equalsLabel, (reading, operand) => reading === operand),
     sequential(read, 'before', 'Antes de', (reading, operand) => reading < operand),
     sequential(read, 'after', 'Depois de', (reading, operand) => reading > operand),
     {
@@ -195,8 +195,8 @@ export const dataGridFilterOperators: Record<DataGridFilterKind, readonly DataGr
     },
     ...EMPTY_OPERATORS,
   ],
-  time: sequentialOperators(clockOf),
-  datetime: sequentialOperators(momentOf),
+  time: sequentialOperators(clockOf, 'Às'),
+  datetime: sequentialOperators(momentOf, 'Em'),
   boolean: [
     { id: 'true', label: 'Sim', operand: 'none', test: filled((value) => Boolean(value)) },
     { id: 'false', label: 'Não', operand: 'none', test: filled((value) => !value) },

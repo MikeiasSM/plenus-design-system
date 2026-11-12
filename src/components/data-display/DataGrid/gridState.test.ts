@@ -453,7 +453,8 @@ describe('time and datetime columns', () => {
   it('gives each type its own filter kind and operators', () => {
     expect(filterKindOf(cols[0])).toBe('time');
     expect(filterKindOf(cols[1])).toBe('datetime');
-    expect(operatorsOf(cols[0]).map((operator) => operator.label)).toEqual(['É', 'Antes de', 'Depois de', 'Entre', 'Vazio', 'Preenchido']);
+    expect(operatorsOf(cols[0]).map((operator) => operator.label)).toEqual(['Às', 'Antes de', 'Depois de', 'Entre', 'Vazio', 'Preenchido']);
+    expect(operatorsOf(cols[1]).map((operator) => operator.label)).toEqual(['Em', 'Antes de', 'Depois de', 'Entre', 'Vazio', 'Preenchido']);
     expect(operatorsOf(cols[1]).map((operator) => operator.id)).toEqual(['equals', 'before', 'after', 'between', 'empty', 'notEmpty']);
   });
 });
