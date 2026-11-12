@@ -18,6 +18,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.
 - `CardMetric.Chart`: o botão "Ver como tabela" deixa de aparecer no gráfico do cartão. Antes, a partir de cerca de 300 px de largura, ele tomava parte do espaço e o desenho passava da borda do cartão. Agora o desenho cabe exatamente no espaço que o cartão concede, nas larguras de 200 a 400 px.
 - `Table`: um texto só para leitor de tela no título de uma coluna, como "Ações", deixa de alargar a página inteira quando a tabela rola de lado, por exemplo no celular. Antes, ele se ancorava na página e criava uma rolagem horizontal do documento.
 - `ComboBox`: o Escape com a lista aberta fecha só a lista; antes, dentro de um `SidePanel`, fechava o painel junto. O próximo Escape fecha o painel. Com a lista fechada, o Escape segue adiante como antes.

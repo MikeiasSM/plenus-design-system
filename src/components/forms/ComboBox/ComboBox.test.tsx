@@ -345,6 +345,28 @@ describe('ComboBox', () => {
     });
   });
 
+  describe('clique na moldura do campo múltiplo', () => {
+    it('fora do input, nas etiquetas e no respiro, leva o foco ao campo e abre a lista', () => {
+      render(<ComboBox defaultValue={['rj', 'mg']} label="Cidades" options={opcoes} selectionMode="multiple" />);
+      const campo = screen.getByRole('combobox', { name: 'Cidades' });
+      const moldura = campo.parentElement as HTMLElement;
+
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      fireEvent.mouseDown(moldura.querySelector('[aria-hidden="true"]') as Element);
+
+      expect(campo).toHaveFocus();
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('desabilitado, o clique na moldura não abre a lista', () => {
+      render(<ComboBox defaultValue={['rj']} disabled label="Cidades" options={opcoes} selectionMode="multiple" />);
+
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Cidades' }).parentElement as HTMLElement);
+
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+  });
+
   describe('rodapé da seleção múltipla', () => {
     function abrirMultiplo(props: Partial<ComboBoxMultipleProps> = {}) {
       render(<ComboBox label="Cidades" options={opcoes} selectionMode="multiple" {...props} />);

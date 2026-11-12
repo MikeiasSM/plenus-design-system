@@ -72,7 +72,7 @@ const camadas: Camada[] = [
   },
   {
     nome: 'ComboBox múltiplo',
-    montar: () => <ComboBox label="Cidades" multiple options={opcoes} />,
+    montar: () => <ComboBox defaultValue={['sp']} label="Cidades" options={opcoes} selectionMode="multiple" />,
     abrir: () => {
       const campo = screen.getByRole('combobox');
       campo.focus();

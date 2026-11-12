@@ -430,11 +430,14 @@ export function ComboBox(allProps: ComboBoxProps) {
             {multiple ? (
               <div
                 className={[styles.control, styles[size], error && styles.error].filter(Boolean).join(' ')}
-                // O clique na moldura, fora do campo, leva o foco a ele em vez de tira-lo.
+                // O clique na moldura, fora do campo, leva o foco a ele em vez de tira-lo e abre a lista, como o clique no texto.
                 onMouseDown={(event) => {
                   if (event.target !== inputRef.current) {
                     event.preventDefault();
                     inputRef.current?.focus();
+                    if (!disabled) {
+                      setOpen(true);
+                    }
                   }
                 }}
                 ref={controlRef}
