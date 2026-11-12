@@ -2,10 +2,6 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 
 const REMOVE_MARK = 'data-removes';
 
-/**
- * Se o item sai com o foco num botão de remover seu, o foco vai ao próximo botão de remover do mesmo
- * contêiner; sem próximo, ao anterior; sem nenhum, ao contêiner ou ao `fallback`. Nunca fica no `body`.
- */
 export function useFocusNeighborOnRemove(
   ref: RefObject<HTMLElement | null>,
   fallback?: () => HTMLElement | null | undefined,

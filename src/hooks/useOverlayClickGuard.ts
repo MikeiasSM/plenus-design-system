@@ -1,15 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { armClickShield, DISMISS_GUARD_MS } from '../utils/press/clickShield';
 
-/** Ao fechar a camada, o segundo clique do mesmo clique duplo não atravessa para a página. */
 export function useClickShieldOnClose(open: boolean) {
   useEffect(() => (open ? armClickShield : undefined), [open]);
 }
 
-/**
- * Protege o gesto de clique duplo que abre ou fecha uma camada: o segundo clique de quem a fechou não
- * atravessa para a página, e o de quem a abriu não conta como clique fora. Devolve o fechamento protegido.
- */
 export function useOverlayClickGuard(onDismiss: () => void, enabled = true) {
   const openedAt = useRef(0);
   const lastDetail = useRef(0);
