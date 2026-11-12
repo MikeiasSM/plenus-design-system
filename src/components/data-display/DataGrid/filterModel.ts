@@ -2,7 +2,7 @@ import { containsTerm, endsWithTerm, equalsTerm, startsWithTerm } from '../../..
 
 /** Modelo de filtro do DataGrid: dados serializáveis, com grupos E/OU, e os operadores de cada tipo. Sem React. */
 
-export type DataGridFilterKind = 'text' | 'number' | 'date' | 'boolean' | 'set';
+export type DataGridFilterKind = 'text' | 'number' | 'date' | 'time' | 'datetime' | 'boolean' | 'set';
 export type DataGridFilterLogic = 'and' | 'or';
 
 export interface DataGridFilterCondition {
@@ -71,6 +71,25 @@ function dayOf(value: unknown) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+function clockOf(value: unknown) {
+  const match = typeof value === 'string' ? /^(\d{1,2}):(\d{2})/.exec(value) : null;
+  if (match) {
+    return `${match[1].padStart(2, '0')}:${match[2]}`;
+  }
+
+  const date = new Date(value as Date | string);
+  return Number.isNaN(date.getTime()) ? '' : `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function momentOf(value: unknown) {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) {
+    return value.slice(0, 16);
+  }
+
+  const day = dayOf(value);
+  return day === '' ? '' : `${day}T${clockOf(value)}`;
+}
+
 const EMPTY_OPERATORS: DataGridFilterOperator[] = [
   { id: 'empty', label: 'Vazio', operand: 'none', test: (value) => isBlank(value) },
   { id: 'notEmpty', label: 'Preenchido', operand: 'none', test: (value) => !isBlank(value) },
@@ -96,6 +115,39 @@ function daily(id: string, label: string, test: (day: string, operand: string) =
     operand: 'single',
     test: filled((value, operand) => dayOf(value) !== '' && test(dayOf(value), String(operand))),
   };
+}
+
+function sequential(
+  read: (value: unknown) => string,
+  id: string,
+  label: string,
+  test: (reading: string, operand: string) => boolean,
+): DataGridFilterOperator {
+  return {
+    id,
+    label,
+    operand: 'single',
+    test: filled((value, operand) => read(value) !== '' && test(read(value), String(operand))),
+  };
+}
+
+function sequentialOperators(read: (value: unknown) => string): DataGridFilterOperator[] {
+  return [
+    sequential(read, 'equals', 'É', (reading, operand) => reading === operand),
+    sequential(read, 'before', 'Antes de', (reading, operand) => reading < operand),
+    sequential(read, 'after', 'Depois de', (reading, operand) => reading > operand),
+    {
+      id: 'between',
+      label: 'Entre',
+      operand: 'range',
+      test: filled((value, operand) => {
+        const [from, to] = rangeOf(operand).map(String);
+        const reading = read(value);
+        return reading !== '' && reading >= from && reading <= to;
+      }),
+    },
+    ...EMPTY_OPERATORS,
+  ];
 }
 
 /** Operadores de fábrica por tipo. Para estender, a coluna recebe `filterOperators` com a lista do tipo e os seus. */
@@ -143,6 +195,8 @@ export const dataGridFilterOperators: Record<DataGridFilterKind, readonly DataGr
     },
     ...EMPTY_OPERATORS,
   ],
+  time: sequentialOperators(clockOf),
+  datetime: sequentialOperators(momentOf),
   boolean: [
     { id: 'true', label: 'Sim', operand: 'none', test: filled((value) => Boolean(value)) },
     { id: 'false', label: 'Não', operand: 'none', test: filled((value) => !value) },
@@ -155,6 +209,8 @@ const KIND_OF_TYPE: Record<string, DataGridFilterKind> = {
   number: 'number',
   currency: 'number',
   date: 'date',
+  time: 'time',
+  datetime: 'datetime',
   boolean: 'boolean',
 };
 

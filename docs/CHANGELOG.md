@@ -12,6 +12,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `DatePicker`, `TimePicker` e `DateTimePicker`: o que foi digitado pela metade se completa ao sair do campo ou com Enter, como `215` em 21/05 do ano atual e `830` em 08:30.
 - `DatePicker`, `TimePicker` e `DateTimePicker`: o valor inválido, ou fora de `min` e `max`, fica no campo, com mensagem no lugar do erro e `aria-invalid`, sem mudar o valor. A propriedade `onInvalid` avisa o produto com o texto digitado; o `error` do produto prevalece sobre a mensagem.
 - `DatePickerRange`: com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro, um dia com `←` e `→` e sete dias com `↑` e `↓`.
+
+- `DataGrid`: as colunas `type: 'time'` (hora, `"HH:mm"`) e `type: 'datetime'` (data e hora, `"AAAA-MM-DDTHH:mm"`). A célula mostra o valor como o campo, a coluna ordena pela hora, ou pela data e hora, e o filtro oferece "É", "Antes de", "Depois de", "Entre", "Vazio" e "Preenchido", com o `TimePicker` ou o `DateTimePicker` no lugar da caixa de texto.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado

@@ -474,6 +474,32 @@ describe('DataGrid', () => {
       expect(screen.getByRole('status')).toHaveTextContent('1 de 3 linhas após o filtro');
     });
 
+    it('filters a time column with the time field instead of the text box', () => {
+      interface Visit {
+        id: string;
+        at: string;
+      }
+      const visits: Visit[] = [{ id: 'V-1', at: '14:30' }, { id: 'V-2', at: '09:05' }];
+      render(
+        <DataGrid
+          columns={[{ id: 'id', header: 'Nº' }, { id: 'at', header: 'Hora', type: 'time' }]}
+          getRowId={(visit: Visit) => visit.id}
+          label="Visitas"
+          rows={visits}
+        />,
+      );
+
+      const panel = openFilter('Hora');
+      const field = within(panel).getByRole('textbox', { name: 'Valor de Hora' });
+      expect(field).toHaveAttribute('inputmode', 'numeric');
+
+      fireEvent.change(field, { target: { value: '1430' } });
+      fireEvent.blur(field);
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(firstColumn()).toEqual(['V-1']);
+    });
+
     it('offers to clear the filters when nothing is left', () => {
       const onFilterChange = vi.fn();
       renderGrid({
