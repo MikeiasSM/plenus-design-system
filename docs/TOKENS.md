@@ -1,5 +1,7 @@
 # Tokens
 
+Este documento é para quem cria componentes ou tokens do design system. Quem usa o pacote parte do `README.md` e do `docs/COMPONENTS-CATALOG.md`.
+
 Os tokens são a fonte oficial da linguagem visual do Plenustech Design System.
 
 Eles transformam decisões visuais em valores reutilizáveis e permitem que componentes compartilhem a mesma base visual.
@@ -81,15 +83,15 @@ Tokens semânticos representam o papel de um valor.
 
 Exemplos:
 
-- `cor-texto-principal`
-- `cor-texto-secundario`
-- `cor-superficie-principal`
-- `cor-superficie-secundaria`
-- `cor-borda-padrao`
-- `cor-acao-principal`
-- `cor-acao-principal-hover`
-- `cor-erro`
-- `cor-sucesso`
+- `--pl-color-text`
+- `--pl-color-text-secondary`
+- `--pl-color-surface`
+- `--pl-color-surface-muted`
+- `--pl-color-border`
+- `--pl-color-primary`
+- `--pl-color-primary-hover`
+- `--pl-color-danger`
+- `--pl-color-success`
 
 Um token semântico pode apontar para diferentes valores primitivos dependendo do tema.
 
@@ -101,21 +103,21 @@ Exemplo:
 
 ```css
 :root {
-  --cor-superficie-principal: var(--cinza-50);
-  --cor-texto-principal: var(--cinza-900);
+  --pl-color-surface: var(--pl-neutral-white);
+  --pl-color-text: var(--pl-neutral-graphite);
 }
 
 [data-theme='dark'] {
-  --cor-superficie-principal: var(--cinza-900);
-  --cor-texto-principal: var(--cinza-50);
+  --pl-color-surface: #1B1D20;
+  --pl-color-text: #E9EAEB;
 }
 ```
 
 O componente utiliza:
 
 ```css
-color: var(--cor-texto-principal);
-background: var(--cor-superficie-principal);
+color: var(--pl-color-text);
+background: var(--pl-color-surface);
 ```
 
 e não precisa conhecer a implementação do tema.
@@ -199,9 +201,9 @@ Um componente deve consumir tokens semânticos sempre que possível:
 
 ```css
 .card {
-  background: var(--cor-superficie-principal);
-  color: var(--cor-texto-principal);
-  border-color: var(--cor-borda-padrao);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  border-color: var(--pl-color-border);
 }
 ```
 

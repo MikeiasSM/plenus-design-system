@@ -1,5 +1,7 @@
 # Contribuindo
 
+Este documento é para quem cria componentes ou tokens do design system. Quem usa o pacote parte do `README.md` e do `docs/COMPONENTS-CATALOG.md`.
+
 Este documento descreve o processo para desenvolvimento, alteração e manutenção do Plenustech Design System.
 
 ## 1. Antes de começar
@@ -69,8 +71,8 @@ Utilize tokens para decisões visuais:
 
 ```css
 .component {
-  color: var(--cor-texto-principal);
-  background: var(--cor-superficie-principal);
+  color: var(--pl-color-text);
+  background: var(--pl-color-surface);
 }
 ```
 

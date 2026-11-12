@@ -174,7 +174,18 @@ Cada ícone da suíte tem ainda o próprio módulo, para quem não conta com o t
 import { IconStar } from '@plenustech/design-system/icons/IconStar';
 ```
 
-`icons/<Nome>` é sempre o desenho da suíte, e não o do ponto de entrada principal. Oito nomes existem nos dois com desenhos diferentes, como `IconFilter`; a página de ícones do Showcase os lista.
+`icons/<Nome>` é sempre o desenho da suíte, e não o do ponto de entrada principal. Oito nomes existem nas duas entradas com desenhos diferentes. Na lista, cada nome do ponto de entrada principal vem com o nome do mesmo desenho na suíte:
+
+| Ponto de entrada principal | Mesmo desenho na suíte |
+| --- | --- |
+| `IconAlignCenter` | `IconTextCenter` |
+| `IconCalendar` | `IconCalendarFill` |
+| `IconCheck` | `IconCheckLg` |
+| `IconClock` | `IconClockFill` |
+| `IconFile` | `IconFileEarmark` |
+| `IconFilter` | `IconFunnel` |
+| `IconLink` | `IconLink45deg` |
+| `IconPlus` | `IconPlusLg` |
 
 ### Fontes
 
