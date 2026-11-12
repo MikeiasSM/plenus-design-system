@@ -130,6 +130,9 @@ export function SidebarProvider({
       }
 
       event.preventDefault();
+      if (event.repeat) {
+        return;
+      }
       if (narrow) {
         setMenuOpen(!menuOpen);
       } else {

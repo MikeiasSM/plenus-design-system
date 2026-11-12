@@ -435,6 +435,23 @@ describe('SidebarProvider: atalho de teclado (shortcut)', () => {
     expect(screen.getByRole('button', { name: 'Recolher submenu' })).toBeInTheDocument();
   });
 
+  it('segurar a tecla alterna uma vez só: a repetição não alterna, mas segue sem a ação do navegador', () => {
+    render(<Frame shortcut="mod+b" />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    expect(fireEvent.keyDown(document.body, { ...ctrlB, repeat: true })).toBe(false);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+
+  it('na largura estreita, a repetição também não alterna a gaveta', () => {
+    stubViewport(true);
+    render(<Frame shortcut="mod+b" />);
+
+    fireEvent.keyDown(document.body, ctrlB);
+    fireEvent.keyDown(document.body, { ...ctrlB, repeat: true });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('no Mac, o mod é o Cmd, e o Ctrl não vale', () => {
     vi.spyOn(navigator, 'platform', 'get').mockReturnValue('MacIntel');
     render(<Frame shortcut="mod+b" />);
