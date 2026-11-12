@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
   type FocusEvent,
-  type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
@@ -106,6 +105,25 @@ function TooltipOnChild({
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function closeOnEscape(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearTimeout(timer.current);
+        setInternalOpen(false);
+        onOpenChange?.(false);
+      }
+    }
+
+    document.addEventListener('keydown', closeOnEscape, true);
+    return () => document.removeEventListener('keydown', closeOnEscape, true);
+  }, [onOpenChange, open]);
+
   // Só o foco por teclado abre a dica: clique e `focus()` programático não são pedidos de ajuda.
   useEffect(() => {
     if (isFocusVisible) {
@@ -128,14 +146,6 @@ function TooltipOnChild({
     onBlur: chain(props.onBlur as (e: FocusEvent<HTMLElement>) => void, (event) => {
       focusProps.onBlur!(event);
       hide();
-    }),
-    onKeyDown: chain(props.onKeyDown as (e: KeyboardEvent) => void, (event) => {
-      // Só com o balão aberto: o Escape fecha a dica e é consumido, para o painel ou o diálogo em volta ficar aberto.
-      if (event.key === 'Escape' && open && !event.defaultPrevented) {
-        hide();
-        event.preventDefault();
-        event.stopPropagation();
-      }
     }),
   });
 
