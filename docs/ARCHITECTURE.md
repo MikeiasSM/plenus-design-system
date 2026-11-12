@@ -396,9 +396,7 @@ Componentes de navegação devem evitar acoplamento a um roteador específico.
 Quando necessário, a aplicação fornece o componente de link do roteador na prop `as`, e os parâmetros dele em `linkProps`:
 
 ```tsx
-<Button as={Link} linkProps={{ to: '/clientes' }}>
-  Clientes
-</Button>
+<PageHeader.Back as={Link} label="Voltar para clientes" linkProps={{ to: '/clientes' }} />
 ```
 
 Nas coleções, como o `Breadcrumb` e o `TabsNav`, o `as` fica na raiz e vale para todos os itens; cada item leva o seu `linkProps`.
