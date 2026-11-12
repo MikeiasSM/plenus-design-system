@@ -138,6 +138,10 @@
   line-height: var(--pl-type-caption-line-height);
 }
 
+.selected .excerpt {
+  color: var(--pl-color-text-secondary);
+}
+
 .actions {
   display: inline-flex;
   flex: none;
@@ -166,4 +170,12 @@
 .selected:active {
   background: var(--pl-color-primary-selected);
   color: var(--pl-color-on-primary-container);
+}
+
+.row:active .excerpt {
+  color: var(--pl-color-text-secondary);
+}
+
+.selected:active .excerpt {
+  color: inherit;
 }

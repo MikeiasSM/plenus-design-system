@@ -144,4 +144,33 @@ describe('hover e pressão', () => {
     expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-primary-active', '--pl-color-surface-muted', TEXTO_MINIMO");
   });
+
+  it('o texto terciário não fica sobre o fundo pressionado nem sobre o container', () => {
+    const lista = ler('components/data-display/SortableList/SortableList.module.css');
+    const conta = ler('components/navigation/AppShell/AppShellPanel.module.css');
+    const regra = (css: string, seletor: string) => {
+      const inicio = css.indexOf(`${seletor} {`);
+
+      expect(inicio).toBeGreaterThanOrEqual(0);
+      return css.slice(inicio, css.indexOf('}', inicio));
+    };
+
+    expect(regra(lista, '.row:active .excerpt')).toContain('color: var(--pl-color-text-secondary);');
+    expect(regra(lista, '.selected .excerpt')).toContain('color: var(--pl-color-text-secondary);');
+    expect(regra(lista, '.selected:active .excerpt')).toContain('color: inherit;');
+    expect(lista.indexOf('.selected:active .excerpt {')).toBeGreaterThan(lista.indexOf('.row:active .excerpt {'));
+    expect(regra(conta, ".accountTrigger[aria-expanded='true'] .identity span")).toContain('color: var(--pl-color-text-secondary);');
+    expect(regra(soAMidia(conta, 'hover: hover'), '.accountTrigger:hover .identity span')).toContain('color: var(--pl-color-text-secondary);');
+    expect(regra(conta, '.accountTrigger:active .identity span')).toContain('color: inherit;');
+    expect(conta.indexOf('.accountTrigger:active .identity span {')).toBeGreaterThan(conta.indexOf('.accountTrigger:hover .identity span {'));
+  });
+
+  it('o laudo de contraste mede o texto de apoio pressionado e sobre o container', () => {
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+
+    expect(laudo).toContain("['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'resumo da linha pressionada']");
+    expect(laudo).toContain("['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'resumo da linha selecionada pressionada']");
+    expect(laudo).toContain("['--pl-color-text-secondary', '--pl-color-primary-container', TEXTO_MINIMO, 'texto de apoio no container']");
+    expect(laudo).toContain("['--pl-color-text', '--pl-color-primary-selected', TEXTO_MINIMO, 'identidade da conta pressionada']");
+  });
 });

@@ -402,6 +402,16 @@
   white-space: nowrap;
 }
 
+.accountTrigger[aria-expanded='true'] .identity span {
+  color: var(--pl-color-text-secondary);
+}
+
+@media (hover: hover) {
+  .accountTrigger:hover .identity span {
+    color: var(--pl-color-text-secondary);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel,
   .item,
@@ -430,4 +440,8 @@
 
 .accountTrigger:active {
   background: var(--pl-color-primary-selected);
+}
+
+.accountTrigger:active .identity span {
+  color: inherit;
 }

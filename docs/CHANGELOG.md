@@ -20,6 +20,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `SortableList` e `AppShell`: o texto de apoio sobre o fundo da seleção passa do tom terciário ao secundário e chega a 4,5:1. Vale para o resumo da linha selecionada do `SortableList` e para a descrição da conta no gatilho do `AppShell`, no hover e com o menu aberto. Antes, ficava entre 4,13 e 4,49:1 em cinco dos seis temas.
 - `Dialog` e filtro do `DataGrid`: a altura máxima passa a acompanhar a janela visível do celular (`dvh`), com a barra do navegador e o teclado virtual. Antes, usava `vh`, e o rodapé do diálogo podia ficar atrás da barra.
 - `AppShell`, `SaveBar`, `Toast` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda. Novos tokens `--pl-safe-top`, `--pl-safe-right`, `--pl-safe-bottom` e `--pl-safe-left`.
 - `SidePanel`: na janela abaixo de 900 px, onde vira gaveta, `id`, `className`, `data-*`, `aria-*` e as demais propriedades chegam ao painel, como na janela larga. Antes, só chegavam o título, o rodapé, o lado e o tamanho, e o `data-*` do produto sumia.
