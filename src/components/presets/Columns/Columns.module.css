@@ -28,8 +28,6 @@
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-caption-line-height);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .indexList {

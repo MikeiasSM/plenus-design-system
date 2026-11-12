@@ -118,8 +118,6 @@
   color: var(--pl-color-text-secondary);
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
