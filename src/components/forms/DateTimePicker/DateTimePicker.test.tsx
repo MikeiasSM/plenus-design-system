@@ -55,13 +55,44 @@ describe('DateTimePicker', () => {
     expect(mudou).toHaveBeenLastCalledWith('2026-03-09T14:15');
   });
 
-  it('assume meia-noite quando a data vem antes da hora', () => {
+  it('assume meia-noite quando a data vem antes da hora, so ao sair', () => {
     const mudou = vi.fn();
     render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
 
-    fireEvent.change(screen.getByLabelText('Agendamento'), { target: { value: '09032026' } });
+    const campo = screen.getByLabelText('Agendamento');
+    fireEvent.change(campo, { target: { value: '09032026' } });
+    expect(mudou).not.toHaveBeenCalled();
 
+    fireEvent.blur(campo);
     expect(mudou).toHaveBeenLastCalledWith('2026-03-09T00:00');
+  });
+
+  it('digitado tecla a tecla, grava so com a data e a hora completas', () => {
+    const mudou = vi.fn();
+    render(<DateTimePicker defaultValue="2026-01-05T10:00" label="Agendamento" onValueChange={mudou} />);
+
+    const campo = screen.getByLabelText('Agendamento') as HTMLInputElement;
+    fireEvent.change(campo, { target: { value: '' } });
+    mudou.mockClear();
+
+    for (const tecla of '090320261') {
+      if (fireEvent.keyDown(campo, { key: tecla })) {
+        fireEvent.change(campo, { target: { value: campo.value + tecla } });
+      }
+    }
+
+    expect(campo).toHaveValue('09/03/2026 1');
+    expect(mudou).not.toHaveBeenCalled();
+
+    for (const tecla of '415') {
+      if (fireEvent.keyDown(campo, { key: tecla })) {
+        fireEvent.change(campo, { target: { value: campo.value + tecla } });
+      }
+    }
+
+    expect(campo).toHaveValue('09/03/2026 14:15');
+    expect(mudou).toHaveBeenCalledTimes(1);
+    expect(mudou).toHaveBeenLastCalledWith('2026-03-09T14:15');
   });
 
   it('desabilita no calendario os dias fora dos limites', () => {
@@ -263,6 +294,15 @@ describe('DateTimePicker', () => {
       teclar(campo, '+', 0);
 
       expect(campo).toHaveValue('10/03/2026 08:00');
+    });
+
+    it('com so a data digitada, + parte dela a meia-noite', () => {
+      const campo = montar({ defaultValue: '2026-03-09T08:00' });
+
+      fireEvent.change(campo, { target: { value: '21052026' } });
+      teclar(campo, '+', 10);
+
+      expect(campo).toHaveValue('22/05/2026 00:00');
     });
 
     it('+ nao leva a data para fora dos limites', () => {

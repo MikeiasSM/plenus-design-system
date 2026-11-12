@@ -186,6 +186,11 @@ export function DateTimePicker({
     setOpen(false);
   }
 
+  const readMoment = (text: string) => {
+    const parsed = parseDateTimeInput(text);
+
+    return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
+  };
   const entry = useTemporalInput<CalendarDateTime>({
     commit: definir,
     error,
@@ -207,22 +212,19 @@ export function DateTimePicker({
     mask: formatDateTimeInput,
     now: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
     onInvalid,
-    parse: (text) => {
-      const parsed = parseDateTimeInput(text);
-
-      return parsed && !isUnavailable(toCalendarDate(parsed), limites) ? parsed : undefined;
-    },
+    parse: (text) => (text.trim().includes(' ') ? readMoment(text) : undefined),
     step: (moment, direction, text, cursor) => {
+      const base = readMoment(text) ?? moment;
       const space = text.indexOf(' ');
       const colon = text.indexOf(':');
 
       if (space < 0 || cursor <= space) {
-        return { cursor: 10, value: moment.add({ days: direction }) };
+        return { cursor: 10, value: base.add({ days: direction }) };
       }
 
       return colon < 0 || cursor <= colon
-        ? { cursor: 13, value: moment.add({ hours: direction }) }
-        : { cursor: 16, value: moment.add({ minutes: direction }) };
+        ? { cursor: 13, value: base.add({ hours: direction }) }
+        : { cursor: 16, value: base.add({ minutes: direction }) };
     },
     value: escolhido,
   });

@@ -171,8 +171,9 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        Data e hora na mesma máscara, só com números: a barra, o espaço e os dois pontos vêm dela, e digitá-los não faz nada. Só a data, sem hora alguma, vale
-        meia-noite. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
+        Data e hora na mesma máscara, só com números: a barra, o espaço e os dois pontos vêm dela, e digitá-los não faz
+        nada. Durante a digitação, o valor só grava com a data e a hora completas; só a data vale meia-noite ao confirmar
+        ou sair do campo. Pela metade, o valor não se apaga: só esvaziar o campo por inteiro emite <code>null</code>.
       </dd>
       <dt>Atalhos</dt>
       <dd>
