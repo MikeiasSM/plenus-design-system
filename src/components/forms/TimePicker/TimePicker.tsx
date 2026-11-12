@@ -2,12 +2,13 @@ import { useEffect, useId, useRef, useState, type ComponentPropsWithRef, type Ke
 import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
-import type { Time } from '@internationalized/date';
+import { Time, getLocalTimeZone, now } from '@internationalized/date';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
-import { formatTimeInput, parseTimeInput } from '../../../utils/formatters';
+import { completeTimeInput, formatTimeInput, keepInputChars, parseTimeInput } from '../../../utils/formatters';
+import { useCampoDigitado } from '../../../hooks/useCampoDigitado';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import { readIsoTime, toIsoTime } from '../DatePicker/iso';
@@ -25,7 +26,7 @@ export type TimePickerSize = 'sm' | 'md' | 'lg';
 export interface TimePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value' | 'step'
   > {
   /** Hora em `HH:mm`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -42,6 +43,8 @@ export interface TimePickerProps
   max?: string;
   min?: string;
   step?: number;
+  /** Avisa o texto digitado que não é uma hora válida, ao confirmar ou sair do campo. */
+  onInvalid?: (texto: string) => void;
   /** Sem hora inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -76,6 +79,7 @@ export function TimePicker({
   max,
   min,
   step = 30,
+  onInvalid,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -101,15 +105,12 @@ export function TimePicker({
   const horaMinima = readIsoTime(min);
   const horaMaxima = readIsoTime(max);
   const [internalValue, setInternalValue] = useState<Time | null>(() => readIsoTime(defaultValue) ?? null);
-  const [texto, setTexto] = useState('');
-  const [digitando, setDigitando] = useState(false);
   const controlado = value === undefined ? undefined : (readIsoTime(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
-  const exibido = digitando ? texto : paraTextoDeHora(escolhido);
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoTime(defaultValue) ?? null);
-    setDigitando(false);
+    campo.limpar();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -133,20 +134,45 @@ export function TimePicker({
     setOpen(false);
   }
 
-  function handleChange(entrada: string) {
-    const mascarado = formatTimeInput(entrada);
+  const campo = useCampoDigitado<Time>({
+    agora: () => {
+      const agora = now(getLocalTimeZone());
 
-    setDigitando(true);
-    setTexto(mascarado);
+      return new Time(agora.hour, agora.minute);
+    },
+    atual: escolhido,
+    avaliar: (digitado) => {
+      const lido = completeTimeInput(digitado);
 
-    // O valor acompanha o texto: `18:4` ou `25:99` na tela nao convivem com a hora anterior.
-    const lido = parseTimeInput(mascarado);
+      if (!lido) {
+        return { mensagem: 'Hora inválida.' };
+      }
 
-    definir(lido && isTimeAllowed(lido, horaMinima, horaMaxima) ? lido : null);
-  }
+      return isTimeAllowed(lido, horaMinima, horaMaxima) ? { valor: lido } : { mensagem: 'Hora fora do intervalo permitido.' };
+    },
+    deslocar: (valor, passo, _texto, cursor) =>
+      cursor <= 2
+        ? { cursor: 2, valor: valor.add({ hours: passo }) }
+        : { cursor: 5, valor: valor.add({ minutes: passo }) },
+    erro: error,
+    filtrar: (entrada) => keepInputChars(entrada, ':'),
+    gravar: definir,
+    inputRef,
+    ler: (digitado) => {
+      const lido = parseTimeInput(digitado);
+
+      return lido && isTimeAllowed(lido, horaMinima, horaMaxima) ? lido : undefined;
+    },
+    mascarar: formatTimeInput,
+    onInvalid,
+    paraTexto: paraTextoDeHora,
+    permitido: (valor) => isTimeAllowed(valor, horaMinima, horaMaxima),
+    separadores: ':',
+  });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
+    campo.tratarTecla(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -179,7 +205,7 @@ export function TimePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={campo.erro} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -190,7 +216,7 @@ export function TimePicker({
             value={paraTextoDeHora(escolhido)}
           />
           <div
-            className={[datePickerStyles.field, datePickerStyles[size], error && datePickerStyles.error, className].filter(Boolean).join(' ')}
+            className={[datePickerStyles.field, datePickerStyles[size], campo.erro && datePickerStyles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -203,16 +229,13 @@ export function TimePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => {
-                setDigitando(false);
-                onBlur?.(event);
-              }}
-              onChange={(event) => handleChange(event.target.value)}
+              onBlur={(event) => campo.sair(event, onBlur)}
+              onChange={(event) => campo.mudar(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={exibido}
+              value={campo.exibido}
             />
             <button
               aria-expanded={open}
@@ -248,7 +271,7 @@ export function TimePicker({
                     min={horaMinima}
                     onChange={(hora) => {
                       definir(hora);
-                      setDigitando(false);
+                      campo.limpar();
                       fechar();
                     }}
                     step={step}
