@@ -17,6 +17,8 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `Dialog` e filtro do `DataGrid`: a altura máxima passa a acompanhar a janela visível do celular (`dvh`), com a barra do navegador e o teclado virtual. Antes, usava `vh`, e o rodapé do diálogo podia ficar atrás da barra.
+- `AppShell`, `SaveBar`, `Toast` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda. Novos tokens `--pl-safe-top`, `--pl-safe-right`, `--pl-safe-bottom` e `--pl-safe-left`.
 - `SidePanel`: na janela abaixo de 900 px, onde vira gaveta, `id`, `className`, `data-*`, `aria-*` e as demais propriedades chegam ao painel, como na janela larga. Antes, só chegavam o título, o rodapé, o lado e o tamanho, e o `data-*` do produto sumia.
 - `Dialog` e `Drawer`: o `aria-describedby` dado pelo produto, quando não há a propriedade `description`, chega ao diálogo; antes, era descartado.
 - `ComboBox` de seleção múltipla: o clique na moldura do campo, fora do texto, nas etiquetas dos escolhidos e no respiro, abre a lista, como o clique no texto. Antes, só dava foco.

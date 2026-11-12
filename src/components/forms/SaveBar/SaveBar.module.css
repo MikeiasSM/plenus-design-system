@@ -1,7 +1,7 @@
 /* Fechada, a altura vai a zero pela linha da grade, sem medir o conteúdo. Presa ao topo da área de rolagem, ou ao pé em `placement="bottom"`. */
 .bar {
   position: sticky;
-  top: 0;
+  top: var(--pl-safe-top, 0px);
   z-index: 1;
   display: grid;
   grid-template-rows: 0fr;
@@ -10,7 +10,7 @@
 
 .bottom {
   top: auto;
-  bottom: 0;
+  bottom: var(--pl-safe-bottom, 0px);
 }
 
 .open {

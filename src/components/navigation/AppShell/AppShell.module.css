@@ -5,7 +5,15 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-right, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
+  --pl-safe-top: 0px;
+  --pl-safe-right: 0px;
+  --pl-safe-bottom: 0px;
+  --pl-safe-left: 0px;
   overflow: hidden;
   background: var(--pl-color-background);
   color: var(--pl-color-text);
@@ -40,7 +48,11 @@
 .menuSurface.menuSurface {
   width: auto;
   max-width: 100%;
-  padding: var(--pl-shell-gap);
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    var(--pl-shell-gap)
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
   background: var(--pl-color-background);
 }
 

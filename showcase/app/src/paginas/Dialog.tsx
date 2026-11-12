@@ -449,6 +449,7 @@ export const pagina: Pagina = {
       como: 'Menu, Popover, Tooltip e as listas dos campos continuam visíveis ao leitor de tela.',
       teste: 'aninhados.test.tsx',
     },
+    { garantia: 'Altura da janela', como: <>A altura máxima usa <code>dvh</code>: acompanha a barra do navegador e o teclado virtual.</>, teste: 'mobile.test.ts' },
     { garantia: 'Servidor', como: 'Renderiza sem document; o portal nasce na hidratação.', teste: 'servidor.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref vão ao elemento do diálogo; o className soma ao do sistema.',

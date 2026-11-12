@@ -453,6 +453,7 @@ export const pagina: Pagina = {
       teste: 'Drawer.test.tsx',
     },
     { garantia: 'Fechar', como: 'Escape e o botão de fechar chamam onOpenChange(false).', teste: 'Drawer.test.tsx' },
+    { garantia: 'Safe area', como: <>Respeita <code>env(safe-area-inset-*)</code> na borda em que se prende e no topo e no pé, com <code>viewport-fit=cover</code>.</>, teste: 'mobile.test.ts' },
     { garantia: 'Lado', como: 'Sai da direita por padrão, ou da esquerda com side="left".', teste: 'Drawer.test.tsx' },
     {
       garantia: 'Foco e fundo',

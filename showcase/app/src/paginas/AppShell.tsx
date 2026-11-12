@@ -399,6 +399,7 @@ export const pagina: Pagina = {
       como: 'Abre acima do rodapé; Escape ou escolher uma opção fecha e devolve o foco ao bloco. O avatar do trilho só existe com o submenu recolhido.',
       teste: 'AppShell.test.tsx',
     },
+    { garantia: 'Safe area', como: <>Soma <code>env(safe-area-inset-*)</code> ao respiro da borda, com <code>viewport-fit=cover</code>; sem ele, nada muda.</>, teste: 'mobile.test.ts' },
     { garantia: 'Celular', como: 'Gaveta modal com a mecânica do Drawer; escolher um item ou um módulo sem submenu a fecha.', teste: 'AppShell.test.tsx' },
   ],
   notaDaApi: (

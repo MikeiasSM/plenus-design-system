@@ -410,7 +410,7 @@
 /* O construtor cabe no máximo do `Popover`; os grupos aninhados se recuam por uma linha à esquerda. */
 .builderPopover {
   width: 22rem;
-  max-height: 70vh;
+  max-height: 70dvh;
 }
 
 .builderGroup,

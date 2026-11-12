@@ -1,4 +1,8 @@
 /* Respiro entre as folhas do `AppShell` e entre elas e a borda da janela. Fica fora da escala de 4px: 4px apaga a leitura das camadas, e 8px afasta demais as folhas. */
 :root {
   --pl-shell-gap: 6px;
+  --pl-safe-top: env(safe-area-inset-top, 0px);
+  --pl-safe-right: env(safe-area-inset-right, 0px);
+  --pl-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pl-safe-left: env(safe-area-inset-left, 0px);
 }
