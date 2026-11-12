@@ -19,7 +19,7 @@ export interface DialogFrameProps extends DialogBaseProps {
   underlayClassName: string;
 }
 
-/** Mecanica modal do `Dialog` e do `Drawer`: portal, foco preso, rolagem travada, cabecalho, corpo e rodape. Interna. */
+/** Mecanica modal do `Dialog` e do `Drawer`: portal, foco preso, rolagem travada, cabeçalho, corpo e rodapé. Interna. */
 export function DialogFrame({
   defaultOpen = false,
   onBeforeClose,
@@ -39,7 +39,7 @@ export function DialogFrame({
     onOpenChange?.(false);
   }
 
-  // Enquanto a promessa de `onBeforeClose` nao resolve, novos pedidos de fechamento nao abrem outra consulta.
+  // Enquanto a promessa de `onBeforeClose` não resolve, novos pedidos de fechamento não abrem outra consulta.
   async function requestClose() {
     if (awaitingPermission.current) {
       return;
@@ -65,7 +65,7 @@ export function DialogFrame({
     }
   }
 
-  // No servidor nao ha `document` para o portal; o modal nasce na hidratacao.
+  // No servidor não ha `document` para o portal; o modal nasce na hidratação.
   if (!(open ?? internalOpen) || !container) {
     return null;
   }

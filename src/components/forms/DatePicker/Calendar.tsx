@@ -40,14 +40,14 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, rangeE
     }
   }, []);
 
-  // O foco do teclado anda com o dia, mas so se ja estava na grade: o clique no mes seguinte nao o puxa para ca.
+  // O foco do teclado anda com o dia, mas só se já estava na grade: o clique no mes seguinte não o puxa para ca.
   useEffect(() => {
     if (gradeComFoco.current) {
       diaEmFoco.current?.focus();
     }
   }, [chaveEmFoco]);
 
-  // Sem destino, o foco saiu com o dia que deixou a grade na troca de mes, e nao da grade.
+  // Sem destino, o foco saiu com o dia que deixou a grade na troca de mes, e não da grade.
   function handleBlur(event: FocusEvent<HTMLTableElement>) {
     if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) {
       gradeComFoco.current = false;
@@ -105,7 +105,7 @@ export function Calendar({ autoFocus = false, locale = 'pt-BR', onSelect, rangeE
 
                 return (
                   <td className={styles.dayCell} key={dia.date.toString()}>
-                    {/* Dia indisponivel continua focavel, como o teclado o alcanca; quem recusa a escolha e o motor. */}
+                    {/* Dia indisponível continua focável, como o teclado o alcança; quem recusa a escolha e o motor. */}
                     <button
                       aria-current={calendario.isToday(dia.date) ? 'date' : undefined}
                       aria-disabled={dia.unavailable || undefined}

@@ -17,7 +17,7 @@ export interface TimelineRange {
   start: number;
 }
 
-/** Intervalo com as pontas em posicao do eixo. `source` e o que o consumidor recebe de volta. */
+/** Intervalo com as pontas em posição do eixo. `source` e o que o consumidor recebe de volta. */
 export interface TimelineSegment extends TimelineRange {
   id: number;
   label?: string;
@@ -52,8 +52,8 @@ export type TimelineItem =
     };
 
 /**
- * Pontas em posicao do eixo. Em `dayHours`, o fim antes do inicio e o intervalo que cruza a meia-noite: ele termina
- * no dia seguinte, e o desenho o corta no fim do eixo. Instante invalido, ou fim antes do inicio em datas, nao vira
+ * Pontas em posição do eixo. Em `dayHours`, o fim antes do inicio e o intervalo que cruza a meia-noite: ele termina
+ * no dia seguinte, e o desenho o corta no fim do eixo. Instante inválido, ou fim antes do inicio em datas, não vira
  * geometria.
  */
 export function toRange(start: ChartTimelineTime, end: ChartTimelineTime, scale: ChartTimelineScale) {
@@ -90,7 +90,7 @@ export function toTimelineSegments(segments: readonly ChartTimelineSegment[], sc
   });
 }
 
-/** Cada estado vale ate o seguinte da linha, e o ultimo ate `end`. Com `merge`, iguais seguidos viram uma regiao. */
+/** Cada estado vale até o seguinte da linha, e o ultimo até `end`. Com `merge`, iguais seguidos viram uma região. */
 export function statesToSegments(
   states: readonly ChartTimelineState[],
   end: ChartTimelineTime,
@@ -122,7 +122,7 @@ export function statesToSegments(
   return segments;
 }
 
-/** Sub-faixas: cada intervalo entra na primeira cujo ultimo intervalo ja terminou. Em `overlay`, todos na mesma. */
+/** Sub-faixas: cada intervalo entra na primeira cujo ultimo intervalo já terminou. Em `overlay`, todos na mesma. */
 export function placeInLanes(segments: readonly TimelineSegment[], overlap: ChartTimelineOverlap) {
   const ordered = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);
 
@@ -166,11 +166,11 @@ export interface TimelineLayoutOptions {
   rowGap: number;
   rowHeight: number;
   rows: readonly ChartTimelineRow[];
-  /** So os visiveis: a serie desligada nao ocupa sub-faixa. */
+  /** Só os visíveis: a série desligada não ocupa sub-faixa. */
   segments: readonly TimelineSegment[];
 }
 
-/** Ordem e altura de cada linha e cabecalho de grupo. A linha cresce uma sub-faixa por intervalo sobreposto. */
+/** Ordem e altura de cada linha e cabeçalho de grupo. A linha cresce uma sub-faixa por intervalo sobreposto. */
 export function layoutTimeline({
   groupHeight,
   groups,

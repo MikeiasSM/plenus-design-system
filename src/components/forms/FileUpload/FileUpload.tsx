@@ -31,7 +31,7 @@ export interface FileUploadProps extends Omit<ComponentPropsWithRef<'div'>, 'chi
   /** Os tipos aceitos, como no `<input type="file">`: `.pdf,image/*`. */
   accept?: string;
   disabled?: boolean;
-  /** Vence a mensagem de recusa do proprio campo. */
+  /** Vence a mensagem de recusa do próprio campo. */
   error?: string;
   hint?: string;
   items?: readonly FileUploadItem[];
@@ -40,7 +40,7 @@ export interface FileUploadProps extends Omit<ComponentPropsWithRef<'div'>, 'chi
   maxSize?: number;
   multiple?: boolean;
   onCancel?: (id: string) => void;
-  /** Recebe so os arquivos aceitos. */
+  /** Recebe só os arquivos aceitos. */
   onFilesSelected: (files: File[]) => void;
   onFilesRejected?: (rejections: FileRejection[]) => void;
   onRemove?: (id: string) => void;

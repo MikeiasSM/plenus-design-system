@@ -36,8 +36,8 @@ export function useCalendar({
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(anchor));
   const [ultimoValor, setUltimoValor] = useState(value);
 
-  // O mes visivel segue o valor quando ele muda de fora. Sem isto, digitar uma
-  // data e abrir o painel mostrava o mes corrente, e nao o da data digitada.
+  // O mes visível segue o valor quando ele muda de fora. Sem isto, digitar uma
+  // data e abrir o painel mostrava o mes corrente, e não o da data digitada.
   if (value && (!ultimoValor || value.compare(ultimoValor) !== 0)) {
     setUltimoValor(value);
     setVisibleMonth(startOfMonth(value));
@@ -70,7 +70,7 @@ export function useCalendar({
       const destino = startOfMonth(visibleMonth.add({ months: offset }));
 
       setVisibleMonth(destino);
-      // O foco acompanha o mes; parado, a proxima seta devolvia a grade ao mes
+      // O foco acompanha o mes; parado, a próxima seta devolvia a grade ao mes
       // anterior no quadro seguinte.
       setFocusedDate(
         clamp(destino.set({ day: Math.min(focusedDate.day, endOfMonth(destino).day) }), limits),

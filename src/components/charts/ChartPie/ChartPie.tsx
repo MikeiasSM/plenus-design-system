@@ -26,51 +26,52 @@ export type { ChartSlice as ChartPieSlice };
 
 export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
-  /** Fatias ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  /** Fatias ocultas de inicio, enquanto o produto não controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato dos valores no balão. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rotulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rótulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
   hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
   onHiddenSlicesChange?: (hidden: readonly string[]) => void;
-  /** Rotulos ocultos, a cada alternancia da legenda. */
+  /** Rótulos ocultos, a cada alternância da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
-   * Fatia sob o ponteiro, o foco ou a entrada da legenda, ja agrupada, ou `null` ao sair. Da legenda, que nao
+   * Fatia sob o ponteiro, o foco ou a entrada da legenda, já agrupada, ou `null` ao sair. Da legenda, que não
    * tem ponteiro, vem o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
    */
   onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHover`. Aceito até a 0.7.0. */
   onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
+  /** Torna as fatias botões, percorridas pelas setas. Recebe a fatia já agrupada. */
   onMarkClick?: (slice: ChartSlice) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
   onSliceClick?: (slice: ChartSlice) => void;
-  /** Rotulo da fatia que reune as pequenas. `Outros` por padrao. */
+  /** Rótulo da fatia que reúne as pequenas. `Outros` por padrão. */
   otherLabel?: string;
-  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das séries sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botão "Ver como tabela". Ligado por padrão. */
   showTableToggle?: boolean;
-  /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
+  /** Balão com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o próprio `ChartTooltip`. */
   showTooltip?: boolean;
   /** Raio dos cantos de cada fatia. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   slices: readonly ChartSlice[];
-  /** Fracao do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrao. A regra e o `groupSmallSlices`. */
+  /** Fração do total abaixo da qual a fatia entra no agrupamento, 0,02 por padrão. A regra e o `groupSmallSlices`. */
   smallSliceThreshold?: number;
   title: string;
 }
@@ -208,7 +209,7 @@ export function ChartPie({
           const [x, y] = arcCentroid({ ...anel.angles[indice], innerRadius: 0, outerRadius: raio });
           const angulo = anel.angles[indice].endAngle - anel.angles[indice].startAngle;
 
-          // O rotulo so entra quando a fatia o comporta. Ate meia volta a
+          // O rotulo só entra quando a fatia o comporta. Até meia volta a
           // largura disponivel e a corda no centro do arco; dali em diante a
           // corda volta a encolher, e quem manda e o raio.
           const disponivel =

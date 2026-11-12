@@ -8,13 +8,13 @@ export interface ChartTableRow {
 
 export interface ChartTableProps {
   columns: readonly string[];
-  /** Rotulo da coluna de cabecalhos de linha. Sem ele, o canto fica vazio, como numa matriz. */
+  /** Rótulo da coluna de cabecalhos de linha. Sem ele, o canto fica vazio, como numa matriz. */
   corner?: string;
   rows: readonly ChartTableRow[];
   title: string;
 }
 
-/** Leitura medida a medida de um grafico: um cabecalho por linha e um valor escrito em cada coluna. */
+/** Leitura medida a medida de um gráfico: um cabeçalho por linha e um valor escrito em cada coluna. */
 export function ChartTable({ columns, corner, rows, title }: ChartTableProps) {
   return (
     <div aria-label={`Tabela: ${title}`} className={styles.tableScroll} role="region" tabIndex={0}>

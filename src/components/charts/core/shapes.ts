@@ -18,8 +18,8 @@ function curveOf(curve: ChartCurve) {
 }
 
 /**
- * Caminho de uma curva, com interrupcao onde o valor nao existe. Emendar sobre
- * o buraco desenharia um trecho que o dado nao afirma.
+ * Caminho de uma curva, com interrupção onde o valor não existe. Emendar sobre
+ * o buraco desenharia um trecho que o dado não afirma.
  */
 export function linePath(points: readonly (ChartPoint | null)[], curve: ChartCurve) {
   return (
@@ -43,14 +43,14 @@ export function areaPath(bands: readonly (ChartBand | null)[], curve: ChartCurve
   );
 }
 
-/** Raios dos quatro cantos, no sentido horario a partir do superior esquerdo. */
+/** Raios dos quatro cantos, no sentido horário a partir do superior esquerdo. */
 export type CornerRadii = [number, number, number, number];
 
 /**
  * Retangulo com raio por canto, arredondado por curva quadratica com o controle
- * no proprio canto. O atributo `rx` arredonda os quatro de uma vez, e numa barra
+ * no próprio canto. O atributo `rx` arredonda os quatro de uma vez, e numa barra
  * empilhada isso separa os segmentos: a pilha precisa das duas pontas
- * arredondadas e do meio reto, para parecer uma barra so.
+ * arredondadas e do meio reto, para parecer uma barra só.
  */
 export function roundedBarPath(
   x: number,

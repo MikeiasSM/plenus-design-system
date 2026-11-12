@@ -29,7 +29,7 @@
   text-decoration: underline;
 }
 
-/* Anel de foco proprio: o componente nao depende do `reset.css`, que e opcional. */
+/* Anel de foco próprio: o componente não depende do `reset.css`, que e opcional. */
 .link:focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;

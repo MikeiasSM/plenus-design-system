@@ -32,7 +32,7 @@ export interface ChartWaterfallStep extends SeriesAppearance {
   value: number;
 }
 
-/** Passo sob o ponteiro ou clicado: a posicao dele em `steps` e o proprio passo. */
+/** Passo sob o ponteiro ou clicado: a posicao dele em `steps` e o próprio passo. */
 export interface ChartWaterfallMark {
   index: number;
   step: ChartWaterfallStep;
@@ -40,37 +40,38 @@ export interface ChartWaterfallMark {
 
 export interface ChartWaterfallProps extends ChartRootProps {
   emptyMessage?: string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato dos valores no balão. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
   labelAngle?: AxisLabelAngle;
   /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
   /** Passo sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
   onHover?: (mark: ChartWaterfallMark | null) => void;
-  /** @deprecated Use `onHover`, que traz o passo e o indice. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHover`, que traz o passo e o indice. Aceito até a 0.7.0. */
   onHoverStep?: (index: number | null) => void;
-  /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
+  /** Clique no passo. Com ele, as barras viram botões percorridos pelas setas. */
   onMarkClick?: (mark: ChartWaterfallMark) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
   onStepClick?: (step: ChartWaterfallStep, index: number) => void;
-  /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
+  /** Variação acima de cada passo. Em `onHover`, só a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botão "Ver como tabela". Ligado por padrão. */
   showTableToggle?: boolean;
-  /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
+  /** Balão com a variação do passo sob o ponteiro e o acumulado até ele. Desligue para montar o próprio `ChartTooltip`. */
   showTooltip?: boolean;
   steps: readonly ChartWaterfallStep[];
   title: string;
   xAxis?: AxisVisibility;
-  /** Titulo do eixo das categorias, embaixo do desenho. */
+  /** Título do eixo das categorias, embaixo do desenho. */
   xAxisTitle?: string;
   yAxis?: AxisVisibility;
   yAxisRight?: AxisVisibility;
-  /** Titulo do eixo de valor da direita. */
+  /** Título do eixo de valor da direita. */
   yAxisRightTitle?: string;
-  /** Titulo do eixo de valor, a esquerda do desenho. */
+  /** Título do eixo de valor, a esquerda do desenho. */
   yAxisTitle?: string;
 }
 
@@ -81,7 +82,7 @@ interface Trecho {
 
 /**
  * Cada passo ocupa a faixa entre o acumulado anterior e o novo acumulado; o total parte do zero, porque
- * fecha a conta. Passo invalido e ausente: nao se desenha nem move o acumulado.
+ * fecha a conta. Passo inválido e ausente: não se desenha nem move o acumulado.
  */
 function trechosDe(steps: readonly ChartWaterfallStep[]): (Trecho | null)[] {
   let acumulado = 0;
@@ -99,7 +100,7 @@ function trechosDe(steps: readonly ChartWaterfallStep[]): (Trecho | null)[] {
   });
 }
 
-/** Passo sem intencao declarada recebe a do seu sinal. Total e fechamento, nao aporte. */
+/** Passo sem intenção declarada recebe a do seu sinal. Total e fechamento, não aporte. */
 function intencaoDe(step: ChartWaterfallStep): SeriesIntent {
   if (step.intent) {
     return step.intent;
@@ -113,8 +114,8 @@ function intencaoDe(step: ChartWaterfallStep): SeriesIntent {
 }
 
 /**
- * O sinal e do grafico, nao do formatador: ele formata a magnitude. Delegar o
- * sinal perderia a variacao com qualquer formatador que exiba apenas o valor.
+ * O sinal e do gráfico, não do formatador: ele formata a magnitude. Delegar o
+ * sinal perderia a variação com qualquer formatador que exiba apenas o valor.
  */
 function comSinal(value: number, formatValue: (value: number) => string) {
   if (value === 0) {
@@ -202,8 +203,8 @@ export function ChartWaterfall({
 
   const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
 
-  // A faixa e indexada pela posicao, nao pelo rotulo: numa sequencia de passos o
-  // mesmo rotulo pode repetir, e a escala categorica funde dominios iguais.
+  // A faixa e indexada pela posicao, não pelo rótulo: numa sequência de passos o
+  // mesmo rótulo pode repetir, e a escala categorica funde dominios iguais.
   const escalaPassos = useMemo(
     () => bandScale({ domain: steps.map((_, indice) => String(indice)), range: [0, plot.width] }),
     [plot.width, steps],
@@ -212,7 +213,7 @@ export function ChartWaterfall({
   const faixaDe = (indice: number) => escalaPassos(String(indice)) ?? 0;
 
   // A escala alvo fixa as marcas; a animada posiciona o desenho. Sem separar as
-  // duas, as marcas exibiriam valores quebrados durante a transicao.
+  // duas, as marcas exibiriam valores quebrados durante a transição.
   const escalaAlvo = useMemo(
     () => linearScale({ domain: dominio, range: [plot.height, 0] }),
     [dominio, plot.height],
@@ -241,7 +242,7 @@ export function ChartWaterfall({
     return passo.total ? formatValue(passo.value) : comSinal(passo.value, formatValue);
   }
 
-  /** O passo diz quanto mudou; o acumulado, onde a conta ficou. O total ja e o proprio acumulado. */
+  /** O passo diz quanto mudou; o acumulado, onde a conta ficou. O total já e o próprio acumulado. */
   function linhasDoBalao(indice: number | null) {
     if (indice === null || !trechos[indice]) {
       return [];

@@ -26,8 +26,8 @@ describe('reinicio do formulario', () => {
 
     expect(quantidade).toHaveValue('99');
 
-    // `fireEvent.reset` so dispara o evento; quem devolve o DOM ao inicial e o
-    // proprio `reset` do formulario.
+    // `fireEvent.reset` só dispara o evento; quem devolve o DOM ao inicial e o
+    // próprio `reset` do formulario.
     act(() => (screen.getByTestId('formulario') as HTMLFormElement).reset());
 
     expect(nome).toHaveValue('Ana');

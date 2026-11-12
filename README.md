@@ -88,7 +88,7 @@ Sem essa importação os componentes são renderizados sem estilo.
 
 ### CSS só dos componentes que a tela usa
 
-`styles.css` continua sendo a folha inteira (cerca de 25 KB comprimida com gzip). Quem quer carregar só o CSS dos componentes que usa importa a base e uma folha por componente:
+`styles.css` continua sendo a folha inteira (cerca de 26 KB comprimida com gzip). Quem quer carregar só o CSS dos componentes que usa importa a base e uma folha por componente:
 
 ```ts
 import '@plenustech/design-system/styles/base.css';

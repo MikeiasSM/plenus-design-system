@@ -4,7 +4,7 @@ import { labelFontOf, type LabelFont } from './measureText';
 export interface ChartMetrics {
   font: LabelFont;
   height: number;
-  /** Raio dos cantos, lido do token: geometria de caminho nao le variavel CSS. */
+  /** Raio dos cantos, lido do token: geometria de caminho não le variável CSS. */
   radius: number;
   ref: (node: HTMLElement | null) => void;
   width: number;
@@ -21,13 +21,13 @@ function raioDe(node: Element | null) {
 }
 
 /**
- * Mede o espaco em que o grafico sera desenhado: largura, altura e a fonte que
- * os rotulos vao usar. A area de desenho nao entra no fluxo, entao a medida e
- * sempre o que o layout concedeu, e nunca o que o proprio grafico ocupou.
+ * Mede o espaço em que o gráfico sera desenhado: largura, altura e a fonte que
+ * os rótulos vão usar. A área de desenho não entra no fluxo, então a medida e
+ * sempre o que o layout concedeu, e nunca o que o próprio gráfico ocupou.
  *
  * A fonte sai da mesma medida porque as duas vem do elemento e mudam juntas:
- * as margens do grafico dependem da largura dos rotulos, e a largura de um
- * rotulo depende da fonte resolvida ali.
+ * as margens do gráfico dependem da largura dos rótulos, e a largura de um
+ * rótulo depende da fonte resolvida ali.
  */
 export function useChartMetrics(): ChartMetrics {
   const [medida, setMedida] = useState<{

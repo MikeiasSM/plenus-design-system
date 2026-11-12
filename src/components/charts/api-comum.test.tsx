@@ -158,7 +158,7 @@ describe.each(ocultaveis)('%s: hidden, defaultHidden e onHiddenChange', (_, mont
 });
 
 interface CasoDeMarca {
-  /** Nome antigo do clique; o `onMarkClick` do ChartCombo ja era o final. */
+  /** Nome antigo do clique; o `onMarkClick` do ChartCombo já era o final. */
   antigoClique?: string;
   antigoHover?: string;
   esperadoClique: unknown;
@@ -217,7 +217,7 @@ const marcas: CasoDeMarca[] = [
   },
 ];
 
-/** A primeira marca do grafico, dentro do grupo: a legenda fica de fora. */
+/** A primeira marca do gráfico, dentro do grupo: a legenda fica de fora. */
 const primeiraMarca = () => within(screen.getByRole('group')).getAllByRole('button')[0];
 
 describe.each(marcas)('$nome: onMarkClick', ({ antigoClique, esperadoClique, montar }) => {

@@ -7,7 +7,7 @@ export interface ToastProviderProps {
   children: ReactNode;
 }
 
-/** Da a arvore o proprio estado de avisos. O `ToastRegion` dentro dela mostra so os avisos disparados por `useToast`. */
+/** Da a árvore o próprio estado de avisos. O `ToastRegion` dentro dela mostra só os avisos disparados por `useToast`. */
 export function ToastProvider({ children }: ToastProviderProps) {
   const [store] = useState(createToastStore);
 
@@ -21,11 +21,11 @@ export function useToastStore() {
 export interface UseToastResult {
   /** Fecha o aviso antes do tempo. */
   dismissToast: (id: string) => void;
-  /** Mostra o aviso no `ToastRegion` da arvore e devolve o id. */
+  /** Mostra o aviso no `ToastRegion` da árvore e devolve o id. */
   showToast: (options: ToastOptions) => string;
 }
 
-/** Dispara avisos no estado da arvore. Fora de um `ToastProvider`, age no estado global, como o `showToast` solto. */
+/** Dispara avisos no estado da árvore. Fora de um `ToastProvider`, age no estado global, como o `showToast` solto. */
 export function useToast(): UseToastResult {
   const { dismiss, show } = useToastStore();
 

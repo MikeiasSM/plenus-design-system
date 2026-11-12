@@ -1,6 +1,6 @@
 import type { AlertTone } from '../Alert';
 
-/** Quantas acoes um aviso mostra; a terceira em diante e descartada, e o aviso nao e lugar de menu. */
+/** Quantas ações um aviso mostra; a terceira em diante e descartada, e o aviso não e lugar de menu. */
 export const MAX_TOAST_ACTIONS = 2;
 
 export type ToastTone = AlertTone;
@@ -11,12 +11,12 @@ export interface ToastAction {
 }
 
 export interface ToastOptions {
-  /** Botao unico de acao, como tentar de novo. Acionar fecha o aviso. Com `actions`, esta e ignorada. */
+  /** Botão unico de ação, como tentar de novo. Acionar fecha o aviso. Com `actions`, esta e ignorada. */
   action?: ToastAction;
-  /** Ate dois botoes, na ordem dada; os que passam de dois nao aparecem. Acionar um fecha o aviso. */
+  /** Até dois botões, na ordem dada; os que passam de dois não aparecem. Acionar um fecha o aviso. */
   actions?: readonly ToastAction[];
   description?: string;
-  /** Milissegundos ate sumir. `null` mantem ate a pessoa fechar; o padrao e 6s, e o erro fica. */
+  /** Milissegundos até sumir. `null` mantem até a pessoa fechar; o padrão e 6s, e o erro fica. */
   duration?: number | null;
   title: string;
   tone?: ToastTone;
@@ -36,7 +36,7 @@ export interface ToastStore {
 
 const EMPTY: ToastEntry[] = [];
 
-/** Estado dos avisos de uma arvore. O global serve ao `showToast`; cada `ToastProvider` cria o seu. */
+/** Estado dos avisos de uma árvore. O global serve ao `showToast`; cada `ToastProvider` cria o seu. */
 export function createToastStore(): ToastStore {
   let toasts = EMPTY;
   let nextId = 0;
@@ -68,7 +68,7 @@ export function createToastStore(): ToastStore {
 
 export const globalToastStore = createToastStore();
 
-/** Mostra um aviso no `ToastRegion` da pagina e devolve o id para fecha-lo antes do tempo. */
+/** Mostra um aviso no `ToastRegion` da página e devolve o id para fecha-lo antes do tempo. */
 export function showToast(options: ToastOptions) {
   return globalToastStore.show(options);
 }

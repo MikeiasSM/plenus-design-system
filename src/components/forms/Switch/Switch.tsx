@@ -7,7 +7,7 @@ export interface SwitchProps extends Omit<ComponentPropsWithRef<'input'>, 'type'
   hint?: string;
   /** Sem ele, o nome vem de quem rotula o controle por fora, como o `FieldRow`, ou do `aria-label`. */
   label?: string;
-  /** O estado a cada mudanca, ao lado do `onChange` nativo. */
+  /** O estado a cada mudança, ao lado do `onChange` nativo. */
   onCheckedChange?: (checked: boolean) => void;
 }
 

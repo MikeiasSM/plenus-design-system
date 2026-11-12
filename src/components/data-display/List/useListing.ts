@@ -49,7 +49,7 @@ export interface Listing {
   visible: readonly ListingItem[];
 }
 
-/** Teclas que, num campo de texto, editam o texto; nele, a listagem nao as toma para si. */
+/** Teclas que, num campo de texto, editam o texto; nele, a listagem não as toma para si. */
 const TECLAS_DE_EDICAO = ['Home', 'End', ' '];
 
 export function useListing({
@@ -75,8 +75,8 @@ export function useListing({
     [visible],
   );
 
-  // Toda opcao ja vista fica registrada, inclusive a que so chegou pelo valor. Com busca assincrona, `items`
-  // e trocada a cada consulta, e resolver a escolha so contra ela descartava o que veio de outra consulta.
+  // Toda opção já vista fica registrada, inclusive a que só chegou pelo valor. Com busca assincrona, `items`
+  // e trocada a cada consulta, e resolver a escolha só contra ela descartava o que veio de outra consulta.
   const conhecidos = useRef(new Map<string, ListingItem>());
 
   for (const item of [...(defaultValue ?? []), ...(value ?? [])]) {

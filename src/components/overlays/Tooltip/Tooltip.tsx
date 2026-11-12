@@ -34,7 +34,7 @@ interface TooltipOnChildProps extends TooltipCommonProps {
   anchorRef?: never;
   /** O gatilho: o Tooltip o clona, soma os manipuladores e liga a descrição por `aria-describedby`. */
   children: ReactElement<Record<string, unknown>>;
-  /** Aberto no inicio, no modo nao controlado. */
+  /** Aberto no inicio, no modo não controlado. */
   defaultOpen?: boolean;
   delay?: number;
   id?: never;
@@ -56,7 +56,7 @@ interface TooltipOnAnchorProps extends TooltipCommonProps {
 
 export type TooltipProps = TooltipOnChildProps | TooltipOnAnchorProps;
 
-/** Tempo para o ponteiro atravessar a folga entre o gatilho e o balao. */
+/** Tempo para o ponteiro atravessar a folga entre o gatilho e o balão. */
 const TRAVESSIA = 120;
 
 function chain<E>(own: ((event: E) => void) | undefined, next: (event: E) => void) {

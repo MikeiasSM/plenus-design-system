@@ -8,9 +8,9 @@ export interface TagProps extends Omit<ComponentPropsWithRef<'span'>, 'children'
   children: ReactNode;
   defaultSelected?: boolean;
   disabled?: boolean;
-  /** Mostra o botao de remover, nomeado como "Remover" seguido do texto da etiqueta. */
+  /** Mostra o botão de remover, nomeado como "Remover" seguido do texto da etiqueta. */
   onRemove?: () => void;
-  /** Com `selected`, `defaultSelected` ou `onSelectedChange`, a etiqueta vira um botao de alternar, como o filtro que se liga e desliga. */
+  /** Com `selected`, `defaultSelected` ou `onSelectedChange`, a etiqueta vira um botão de alternar, como o filtro que se liga e desliga. */
   onSelectedChange?: (selected: boolean) => void;
   selected?: boolean;
   size?: TagSize;

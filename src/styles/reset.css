@@ -1,11 +1,11 @@
 /* ==========================================================================
    Plenustech Design System — reset.css
-   Base de pagina, opcional. Importe em aplicacao nova, para herdar a
+   Base de página, opcional. Importe em aplicação nova, para herdar a
    tipografia e o cromo do sistema:
 
      import '@plenustech/design-system/reset.css';
 
-   Aplicacao existente pode dispensar: os componentes nao dependem daqui.
+   Aplicação existente pode dispensar: os componentes não dependem daqui.
    ========================================================================== */
 
 html {
@@ -23,7 +23,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* O tamanho de cada titulo e da pagina; a entrelinha acompanha o tamanho, qualquer que seja. */
+/* O tamanho de cada título e da página; a entrelinha acompanha o tamanho, qualquer que seja. */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-family: var(--pl-font-heading);
@@ -34,8 +34,8 @@ h1, h2, h3, h4, h5, h6 {
 p, figure, blockquote { margin: 0; }
 ul, ol { margin: 0; padding: 0; }
 img, svg, video { display: block; }
-/* So a midia encolhe com o conteiner. Icone com teto percentual encolhe ate sumir
-   num espaco apertado, como o botao de uma coluna de tabela. */
+/* Só a midia encolhe com o contêiner. Ícone com teto percentual encolhe até sumir
+   num espaço apertado, como o botão de uma coluna de tabela. */
 img, video { max-width: 100%; }
 
 a {
@@ -66,8 +66,8 @@ select {
   color: var(--pl-color-on-primary);
 }
 
-/* Foco visivel para o que a pagina traz. Os componentes do sistema definem o
-   proprio anel e nao dependem desta regra. */
+/* Foco visível para o que a página traz. Os componentes do sistema definem o
+   próprio anel e não dependem desta regra. */
 :focus-visible {
   outline: 2px solid var(--pl-color-primary-strong);
   outline-offset: 2px;

@@ -94,17 +94,17 @@
   }
 }
 
-/* Texto sobre a superficie escura (`ink`), igual nos dois temas. */
+/* Texto sobre a superfície escura (`ink`), igual nos dois temas. */
 :root {
   --pl-on-ink-2: #A5A8AC;
   --pl-on-ink-3: #7C8085;
 }
 
 /* A cor primaria sai da paleta ativa e do tema. O solido e o preenchimento; o forte e o traco, lido contra a
-   superficie: texto, borda e foco. No escuro, o solido desce ao passo 40, que se le contra a superficie escura em todas
-   as paletas. `light-dark()` escolhe pelo `color-scheme` de quem usa o token, entao a escolha acompanha o tema mais
-   proximo mesmo com a paleta declarada num ancestral ou num descendente dele. O seletor repete-se em cada escopo
-   porque o `color-mix` e calculado onde o token e declarado, contra a superficie daquele escopo. */
+   superfície: texto, borda e foco. No escuro, o solido desce ao passo 40, que se le contra a superfície escura em todas
+   as paletas. `light-dark()` escolhe pelo `color-scheme` de quem usa o token, então a escolha acompanha o tema mais
+   próximo mesmo com a paleta declarada num ancestral ou num descendente dele. O seletor repete-se em cada escopo
+   porque o `color-mix` e calculado onde o token e declarado, contra a superfície daquele escopo. */
 :root,
 [data-theme],
 [data-palette] {
@@ -128,7 +128,7 @@
   --pl-color-on-primary-container: light-dark(var(--pl-palette-80), var(--pl-palette-30));
 }
 
-/* O tema escolhido no elemento vale para a subarvore. Sem `data-theme` em lugar nenhum, o sistema decide. */
+/* O tema escolhido no elemento vale para a subárvore. Sem `data-theme` em lugar nenhum, o sistema decide. */
 :root {
   color-scheme: light dark;
 }

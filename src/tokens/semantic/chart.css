@@ -1,19 +1,19 @@
-/* Cores de serie para graficos. A ordem e fixa: a serie N usa sempre o mesmo
-   token, para que um filtro que reduza as series nao repinte as restantes. */
+/* Cores de série para gráficos. A ordem e fixa: a série N usa sempre o mesmo
+   token, para que um filtro que reduza as series não repinte as restantes. */
 :root,
 [data-theme="light"] {
   --pl-chart-series-1: var(--pl-brand-blue-50);
   --pl-chart-series-2: var(--pl-brand-orange-50);
   --pl-chart-series-3: var(--pl-brand-purple-50);
-  /* O azul claro media 2,55:1 contra a superficie clara, abaixo do piso de 3:1
-     que a WCAG 1.4.11 pede a objeto grafico. O segundo tom desce, como ja
-     acontece no laranja: a serie 5 e a escura da sua matiz. */
+  /* O azul claro media 2,55:1 contra a superfície clara, abaixo do piso de 3:1
+     que a WCAG 1.4.11 pede a objeto gráfico. O segundo tom desce, como já
+     acontece no laranja: a série 5 e a escura da sua matiz. */
   --pl-chart-series-4: var(--pl-brand-blue-70);
   --pl-chart-series-5: var(--pl-brand-orange-70);
   --pl-chart-series-6: var(--pl-brand-purple-40);
 
 
-  /* Texto escrito sobre a propria cor, como a porcentagem dentro da fatia. Cada
+  /* Texto escrito sobre a própria cor, como a porcentagem dentro da fatia. Cada
      cor aponta para o lado que mede mais contraste contra ela, em cada tema. */
   --pl-chart-neutral: var(--pl-neutral-gray);
 
@@ -31,11 +31,11 @@
   --pl-chart-on-neutral: var(--pl-chart-on-dark);
 
   /* Realce da faixa sob o ponteiro. Escurece no tema claro e clareia no
-     escuro: um veu escuro sobre superficie escura nao apareceria. */
+     escuro: um véu escuro sobre superfície escura não apareceria. */
   --pl-chart-cursor: rgba(24, 26, 28, 0.06);
 
   /* Escalas de valor do mapa: mais escuro e maior, nos dois temas. A sequencial
-     sai da rampa azul; a divergente leva as intencoes nas pontas. */
+     sai da rampa azul; a divergente leva as intenções nas pontas. */
   --pl-chart-sequential-1: var(--pl-brand-blue-20);
   --pl-chart-sequential-2: var(--pl-brand-blue-30);
   --pl-chart-sequential-3: var(--pl-brand-blue-40);
@@ -49,13 +49,13 @@
   --pl-chart-diverging-positive-1: #B8DDA9;
   --pl-chart-diverging-positive-3: #3E7D2D;
 
-  /* Ausencia de dado: neutro proprio e o traco da hachura, para nao parecer o menor valor. */
+  /* Ausência de dado: neutro próprio e o traco da hachura, para não parecer o menor valor. */
   --pl-chart-no-data: #EEEFF1;
   --pl-chart-no-data-hatch: #D3D6DA;
 }
 
 /* O tema escuro recebe tons proprios das mesmas rampas. A paleta do claro
-   reprova em contraste contra a superficie escura. */
+   reprova em contraste contra a superfície escura. */
 [data-theme="dark"] {
   --pl-chart-series-1: var(--pl-brand-blue-40);
   --pl-chart-series-2: var(--pl-brand-orange-40);
@@ -64,10 +64,10 @@
   --pl-chart-series-5: var(--pl-brand-orange-50);
   --pl-chart-series-6: var(--pl-brand-purple-30);
 
-  /* O cinza medio some contra a superficie escura, em 2,69:1. */
+  /* O cinza medio some contra a superfície escura, em 2,69:1. */
   --pl-chart-neutral: #9A9DA1;
 
-  /* Os tons do escuro sao todos claros, e o texto sobre eles e o preto. */
+  /* Os tons do escuro são todos claros, e o texto sobre eles e o preto. */
   --pl-chart-on-series-1: var(--pl-chart-on-light);
   --pl-chart-on-series-3: var(--pl-chart-on-light);
   --pl-chart-on-series-4: var(--pl-chart-on-light);
@@ -77,7 +77,7 @@
   --pl-chart-cursor: rgba(233, 234, 235, 0.08);
 
   /* Mais escuro continua sendo maior. O tom mais escuro para no azul 60, que
-     ainda mede 2,17:1 contra a superficie; a borda forte contorna as regioes. */
+     ainda mede 2,17:1 contra a superfície; a borda forte contorna as regioes. */
   --pl-chart-sequential-1: var(--pl-brand-blue-30);
   --pl-chart-sequential-2: #A8B7DC;
   --pl-chart-sequential-3: var(--pl-brand-blue-40);
@@ -103,10 +103,10 @@
     --pl-chart-series-5: var(--pl-brand-orange-50);
     --pl-chart-series-6: var(--pl-brand-purple-30);
 
-    /* O cinza medio some contra a superficie escura, em 2,69:1. */
+    /* O cinza medio some contra a superfície escura, em 2,69:1. */
     --pl-chart-neutral: #9A9DA1;
 
-    /* Os tons do escuro sao todos claros, e o texto sobre eles e o preto. */
+    /* Os tons do escuro são todos claros, e o texto sobre eles e o preto. */
     --pl-chart-on-series-1: var(--pl-chart-on-light);
     --pl-chart-on-series-3: var(--pl-chart-on-light);
     --pl-chart-on-series-4: var(--pl-chart-on-light);
@@ -116,7 +116,7 @@
     --pl-chart-cursor: rgba(233, 234, 235, 0.08);
 
     /* Mais escuro continua sendo maior. O tom mais escuro para no azul 60, que
-       ainda mede 2,17:1 contra a superficie; a borda forte contorna as regioes. */
+       ainda mede 2,17:1 contra a superfície; a borda forte contorna as regioes. */
     --pl-chart-sequential-1: var(--pl-brand-blue-30);
     --pl-chart-sequential-2: #A8B7DC;
     --pl-chart-sequential-3: var(--pl-brand-blue-40);
@@ -137,15 +137,15 @@
 /* Derivados de tokens que mudam com o tema: declarados em cada escopo de tema, para serem recalculados nele. */
 :root,
 [data-theme] {
-  /* Papeis semanticos. Quando a serie declara intenção, a cor carrega
-     significado e nao entra na rotacao categorica. */
+  /* Papeis semanticos. Quando a série declara intenção, a cor carrega
+     significado e não entra na rotação categorica. */
   --pl-chart-positive: var(--pl-color-success);
   --pl-chart-negative: var(--pl-color-danger);
   --pl-chart-warning: var(--pl-color-warning);
 
   --pl-chart-grid: var(--pl-color-border);
-  /* A linha da base separa positivos de negativos, entao ela se destaca da
-     grade — mas so um passo, nao ate a cor do texto do eixo. */
+  /* A linha da base separa positivos de negativos, então ela se destaca da
+     grade — mas só um passo, não até a cor do texto do eixo. */
   --pl-chart-baseline: var(--pl-color-border-strong);
   --pl-chart-axis: var(--pl-color-text-tertiary);
   --pl-chart-label: var(--pl-color-text-secondary);

@@ -1,4 +1,4 @@
-/* Trilho em fundo sutil com o segmento escolhido em superficie elevada, como o grupo de botoes do Untitled UI. */
+/* Trilho em fundo sutil com o segmento escolhido em superfície elevada, como o grupo de botões do Untitled UI. */
 .control {
   display: inline-flex;
   max-width: 100%;
@@ -44,7 +44,7 @@
   line-height: var(--pl-type-label-line-height);
 }
 
-/* A altura do `Button` lg, 40px, e nao a dos campos: o controle fica ao lado de botoes. */
+/* A altura do `Button` lg, 40px, e não a dos campos: o controle fica ao lado de botões. */
 .lg .segment {
   min-height: 32px;
   padding: 3px 16px;

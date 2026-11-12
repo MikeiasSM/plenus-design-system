@@ -108,7 +108,7 @@ describe('hover do Button ghost', () => {
     const geral = ".button:not(:disabled):not([aria-disabled='true']):hover:focus-visible";
 
     expect(bloco(geral)).toContain('box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);');
-    // Uma regra so, mais especifica que o hover de cada variante (inclusive o `none` do ghost).
+    // Uma regra só, mais especifica que o hover de cada variante (inclusive o `none` do ghost).
     expect(css.split(geral).length - 1).toBe(1);
     expect(css).not.toContain(".ghost:not(:disabled):not([aria-disabled='true']):hover:focus-visible");
   });

@@ -23,7 +23,7 @@ export interface TabsProps extends ComponentPropsWithRef<'div'> {
   defaultSelectedKey?: string;
   /** O painel ocupa a altura que sobra nas abas e rola por dentro. As abas precisam de altura, dada por quem as usa. */
   fillHeight?: boolean;
-  /** As abas dividem a largura em partes iguais, em vez de ficar do tamanho do rotulo. */
+  /** As abas dividem a largura em partes iguais, em vez de ficar do tamanho do rótulo. */
   fitted?: boolean;
   items: readonly TabItem[];
   label: string;
@@ -65,7 +65,7 @@ export function Tabs({
   });
   const [ativa] = selection.selectedKeys;
   const painel = items.find((item) => item.key === ativa);
-  // A lista sempre tem uma parada de Tab: com a escolhida inexistente ou desabilitada, nenhuma aba era alcancavel.
+  // A lista sempre tem uma parada de Tab: com a escolhida inexistente ou desabilitada, nenhuma aba era alcançável.
   const parada = collection.some((item) => item.key === ativa && !item.disabled) ? ativa : primeira;
 
   useEffect(() => {
@@ -74,8 +74,8 @@ export function Tabs({
     }
   }, [selection.focusedKey]);
 
-  // Ativacao automatica: mover o foco troca a aba, conforme o padrao do APG
-  // para paineis que carregam instantaneamente.
+  // Ativação automatica: mover o foco troca a aba, conforme o padrão do APG
+  // para painéis que carregam instantaneamente.
   function mover(proxima: string | undefined) {
     if (proxima) {
       selection.select(proxima);

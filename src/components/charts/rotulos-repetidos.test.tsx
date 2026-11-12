@@ -14,7 +14,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-/** Para a legenda, rotulo repetido e a mesma serie, por decisao; no desenho, cada uma continua com a sua marca. */
+/** Para a legenda, rótulo repetido e a mesma serie, por decisão; no desenho, cada uma continua com a sua marca. */
 describe('rotulos repetidos', () => {
   it('desenha cada serie e cada categoria sem colidir a chave do React', () => {
     const erro = vi.spyOn(console, 'error').mockImplementation(() => undefined);

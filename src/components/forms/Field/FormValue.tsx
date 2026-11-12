@@ -3,15 +3,15 @@ import styles from './Field.module.css';
 export interface FormValueProps {
   disabled: boolean;
   name?: string;
-  /** O navegador foca o campo invalido no envio; o foco segue para o controle que a pessoa enxerga. */
+  /** O navegador foca o campo inválido no envio; o foco segue para o controle que a pessoa enxerga. */
   onFocus: () => void;
   required: boolean;
   value: string;
 }
 
 /**
- * Leva ao formulario o valor de um campo sem controle nativo por baixo. Oculto quando basta enviar; obrigatorio, vai
- * num campo que o navegador valida, porque o oculto fica fora da validacao e o envio vazio passava.
+ * Leva ao formulário o valor de um campo sem controle nativo por baixo. Oculto quando basta enviar; obrigatório, vai
+ * num campo que o navegador valida, porque o oculto fica fora da validação e o envio vazio passava.
  */
 export function FormValue({ disabled, name, onFocus, required, value }: FormValueProps) {
   if (required) {

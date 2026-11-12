@@ -122,7 +122,7 @@ describe('ChartTimeline', () => {
     fireEvent.keyDown(afternoon, { key: 'Home' });
     expect(before).toHaveFocus();
 
-    // A linha sem intervalo fica de fora; desce para o intervalo mais proximo no tempo da seguinte.
+    // A linha sem intervalo fica de fora; desce para o intervalo mais próximo no tempo da seguinte.
     fireEvent.keyDown(before, { key: 'ArrowDown' });
     expect(monday).toHaveFocus();
 

@@ -11,10 +11,10 @@ export interface CodeBlockProps extends Omit<ComponentPropsWithRef<'div'>, 'chil
   fileName?: string;
   /** Linhas destacadas, contadas a partir de 1. */
   highlightedLines?: readonly number[];
-  /** Rotulo do cabecalho. Sem ele, vale o nome da sintaxe. */
+  /** Rótulo do cabeçalho. Sem ele, vale o nome da sintaxe. */
   language?: string;
   lineNumbers?: boolean;
-  /** Linguagem do realce de cores. Sem ela, o codigo sai numa cor so. */
+  /** Linguagem do realce de cores. Sem ela, o código sai numa cor só. */
   syntax?: CodeSyntax;
   wrap?: boolean;
 }
@@ -69,7 +69,7 @@ export function CodeBlock({
           </span>
         </div>
       )}
-      {/* Sem quebra, a linha longa rola de lado, e quem usa teclado so a alcanca se o bloco receber foco. */}
+      {/* Sem quebra, a linha longa rola de lado, e quem usa teclado só a alcança se o bloco receber foco. */}
       <pre
         className={[styles.body, wrap && styles.wrap, lineNumbers && styles.numbered].filter(Boolean).join(' ')}
         tabIndex={wrap ? undefined : 0}

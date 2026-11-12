@@ -30,7 +30,7 @@ export interface ChartSankeyFlow {
   value: number;
 }
 
-/** Onde os nos sem saida se encostam, conforme a referencia. */
+/** Onde os nos sem saida se encostam, conforme a referência. */
 export type ChartSankeyAlign = 'left' | 'right' | 'center' | 'justify';
 
 /** De onde a ligacao tira a cor: do no de origem, do de destino, ou de nenhum. */
@@ -38,8 +38,8 @@ export type ChartSankeyFlowColor = 'source' | 'target' | 'neutral';
 
 /**
  * Onde o valor da ligacao e escrito. O rotulo do no ocupa a faixa logo a
- * direita dele, entao `end` e o unico que nunca disputa espaco com o rotulo da
- * propria origem.
+ * direita dele, então `end` e o unico que nunca disputa espaço com o rotulo da
+ * própria origem.
  */
 export type ChartSankeyFlowValuePosition = 'start' | 'middle' | 'end';
 
@@ -58,40 +58,41 @@ export interface ChartSankeyProps extends ChartRootProps {
   accent?: string;
   /** Espécies de marca que viram botão com `onMarkClick`. Sem ela, todas. */
   clickableMarks?: readonly ChartSankeyMark['kind'][];
-  /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo nao representa. */
+  /** Mensagem quando o fluxo tem ciclo, que um diagrama de fluxo não representa. */
   cyclicMessage?: string;
   emptyMessage?: string;
   flowColor?: ChartSankeyFlowColor;
   flowValuePosition?: ChartSankeyFlowValuePosition;
   flows: readonly ChartSankeyFlow[];
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`. */
+  /** Formato dos valores no balão. Sem ele, vale o `formatValue`. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
   nodeAlign?: ChartSankeyAlign;
-  /** Ordem e aparencia dos nos. Sem ela, os nos saem das proprias ligacoes. */
+  /** Ordem e aparência dos nos. Sem ela, os nos saem das proprias ligações. */
   nodes?: readonly ChartSankeyNode[];
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'flow'`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'flow'`. Aceito até a 0.7.0. */
   onFlowClick?: (flow: ChartSankeyFlow) => void;
-  /** Ligacao ou no sob o ponteiro ou em foco pelo teclado, ou `null` ao sair. */
+  /** Ligação ou no sob o ponteiro ou em foco pelo teclado, ou `null` ao sair. */
   onHover?: (mark: ChartSankeyMark | null) => void;
   /**
-   * Clique na ligacao ou no no, que se distinguem por `mark.kind`. Com ele, as ligacoes e os nos viram botoes,
-   * os nos numa linha abaixo das ligacoes.
+   * Clique na ligacao ou no no, que se distinguem por `mark.kind`. Com ele, as ligações e os nos viram botões,
+   * os nos numa linha abaixo das ligações.
    */
   onMarkClick?: (mark: ChartSankeyMark) => void;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'node'`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick` e `mark.kind === 'node'`. Aceito até a 0.7.0. */
   onNodeClick?: (node: ChartSankeyNodeClick) => void;
-  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das séries sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showFlowValues?: boolean;
   showLabels?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botão "Ver como tabela". Ligado por padrão. */
   showTableToggle?: boolean;
-  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
+  /** Balão com o detalhe do que esta sob o ponteiro. Desligue para não mostrar nada além do `<title>` nativo. */
   showTooltip?: boolean;
   title: string;
 }
@@ -109,7 +110,7 @@ function seCruzam(uma: Caixa, outra: Caixa) {
 
 /**
  * Bezier cubica entre a borda de saida e a borda de entrada, com os pontos de
- * controle no meio do vao. E o que da a ligacao a curva que sai e chega na
+ * controle no meio do vão. E o que da a ligacao a curva que sai e chega na
  * horizontal, sem torcer perto dos nos.
  */
 function caminhoDa(ligacao: LigacaoDoSankey) {
@@ -121,7 +122,7 @@ function caminhoDa(ligacao: LigacaoDoSankey) {
 }
 
 /**
- * Busca em profundidade atras de aresta de retorno. Um autolaco tambem conta:
+ * Busca em profundidade atras de aresta de retorno. Um autolaco também conta:
  * o no seria origem e destino do mesmo caminho.
  */
 function temCiclo(flows: readonly ChartSankeyFlow[]) {
@@ -187,7 +188,7 @@ export function ChartSankey({
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const [emFoco, setEmFoco] = useState<number | null>(null);
 
-  /** Os nos saem da ordem declarada, e o que faltar sai das proprias ligacoes. */
+  /** Os nos saem da ordem declarada, e o que faltar sai das proprias ligações. */
   const declarados = useMemo(() => {
     const rotulos = (nodes ?? []).map((no) => no.label);
 
@@ -209,8 +210,8 @@ export function ChartSankey({
   const cores = useMemo(() => resolveSeriesColors(declarados, { accent, palette }), [accent, palette, declarados]);
 
   /**
-   * O rotulo fica sempre a direita do no, como na referencia. So o de saida
-   * precisa de espaco reservado: ele nao tem fluxo a direita para escrever por
+   * O rotulo fica sempre a direita do no, como na referência. Só o de saida
+   * precisa de espaço reservado: ele não tem fluxo a direita para escrever por
    * cima, e sem a reserva o nome sairia pela borda.
    */
   const saidas = useMemo(() => {
@@ -228,8 +229,8 @@ export function ChartSankey({
   const comRotulos = showLabels && !removed.has('labels');
   const bandaDireita = comRotulos ? bandaDosRotulos : 0;
 
-  // Um diagrama de fluxo e aciclico por definicao, e o leiaute lanca ao
-  // encontrar um ciclo. Detectar antes troca a queda da arvore inteira por uma
+  // Um diagrama de fluxo e aciclico por definição, e o leiaute lanca ao
+  // encontrar um ciclo. Detectar antes troca a queda da árvore inteira por uma
   // mensagem, sem descartar ligacao nenhuma pelas costas.
   const ciclico = useMemo(() => temCiclo(flows), [flows]);
   const totalDoFluxo = useMemo(
@@ -260,7 +261,7 @@ export function ChartSankey({
     });
   }, [alturaDoDesenho, bandaDireita, ciclico, declarados, flows, nodeAlign, nodePadding, nodeWidth, totalDoFluxo, width]);
 
-  // As ligacoes ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
+  // As ligações ficam na linha 0 e os nos na 1: as setas verticais passam de uma a outra.
   const marcaDaLigacao = (column: number): ChartSankeyMark => ({ kind: 'flow', ...flows[grafo.links[column].index] });
   const marcaDoNo = (column: number): ChartSankeyMark => ({
     kind: 'node',
@@ -355,7 +356,7 @@ export function ChartSankey({
     return `${styles.link} ${emFoco === indice ? styles.linkOn : styles.linkDim}`;
   }
 
-  /** Vao entre duas colunas, descontados o no e o recuo: e o que o rotulo tem. */
+  /** Vão entre duas colunas, descontados o no e o recuo: e o que o rotulo tem. */
   const larguraDaEtapa = (() => {
     const colunas = [...new Set(grafo.nodes.map((no) => no.x0))].sort((a, b) => a - b);
 
@@ -394,9 +395,9 @@ export function ChartSankey({
   const rotulosDosNos = comRotulos ? grafo.nodes.map(rotuloDoNo) : [];
 
   /**
-   * Valor de uma ligacao, ja posicionado. Ele e omitido quando cruza o rotulo
-   * de algum no: dois textos sobrepostos nao informam nada, e o valor continua
-   * no `title` da propria ligacao.
+   * Valor de uma ligacao, já posicionado. Ele e omitido quando cruza o rotulo
+   * de algum no: dois textos sobrepostos não informam nada, e o valor continua
+   * no `title` da própria ligacao.
    */
   function valorDa(ligacao: LigacaoDoSankey) {
     const texto = formatValue(ligacao.value);
@@ -475,7 +476,7 @@ export function ChartSankey({
               onMouseEnter={() => focarLigacao(indice)}
               onMouseLeave={() => focarLigacao(null)}
               stroke={corDa(ligacao)}
-              // Em estilo, e nao em atributo: o foco troca a cor da faixa, mas nao a largura dela.
+              // Em estilo, e não em atributo: o foco troca a cor da faixa, mas não a largura dela.
               style={{ strokeWidth: Math.max(ligacao.width, 1) }}
             >
               {!showTooltip && <title>{descreverLigacao(ligacao)}</title>}
@@ -524,8 +525,8 @@ export function ChartSankey({
         })}
 
       {/* O rotulo fica sempre a direita do no. No no de saida ele cai na banda
-          reservada; nos demais, sobre o proprio fluxo, e um halo da cor da
-          superficie o separa do que passa por baixo. */}
+          reservada; nos demais, sobre o próprio fluxo, e um halo da cor da
+          superfície o separa do que passa por baixo. */}
       {rotulosDosNos.map((rotulo, indice) => (
         <text
           className={`${styles.label} ${saidas.includes(grafo.nodes[indice].label) ? '' : styles.sobreFluxo}`}

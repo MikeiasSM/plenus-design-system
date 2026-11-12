@@ -13,11 +13,11 @@ export interface PaginationRange {
 }
 
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
-  /** Pagina inicial no modo nao controlado. */
+  /** Pagina inicial no modo não controlado. */
   defaultPage?: number;
-  /** Tamanho de pagina inicial no modo nao controlado. Sem ele, a primeira opcao de `pageSizeOptions`. */
+  /** Tamanho de pagina inicial no modo não controlado. Sem ele, a primeira opcao de `pageSizeOptions`. */
   defaultPageSize?: number;
-  /** Suspende os botoes de pagina, como enquanto a pagina pedida carrega; continuam focaveis. O seletor de tamanho segue ativo. */
+  /** Suspende os botões de pagina, como enquanto a pagina pedida carrega; continuam focáveis. O seletor de tamanho segue ativo. */
   disabled?: boolean;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;
@@ -158,7 +158,7 @@ function PaginationSteps({
           <IconChevronBarLeft size={14} />
         </button>
       )}
-      {/* `aria-disabled`, e nao `disabled`: desabilitado na borda, o botao perdia o foco de quem acabou de usa-lo. */}
+      {/* `aria-disabled`, e não `disabled`: desabilitado na borda, o botão perdia o foco de quem acabou de usa-lo. */}
       <button
         className={styles.step}
         type="button"
@@ -244,8 +244,8 @@ function PaginationRangeText({
 }
 
 /**
- * Primeira e ultima pagina sempre visiveis; null representa a reticencia. A faixa tem sempre as mesmas vagas: perto
- * da ponta a janela encosta nela em vez de encolher, e reticencia nunca esconde uma pagina so.
+ * Primeira e ultima pagina sempre visíveis; null representa a reticência. A faixa tem sempre as mesmas vagas: perto
+ * da ponta a janela encosta nela em vez de encolher, e reticência nunca esconde uma pagina só.
  */
 export function montarFaixa(atual: number, total: number, vizinhos: number): (number | null)[] {
   const vagas = vizinhos * 2 + 5;

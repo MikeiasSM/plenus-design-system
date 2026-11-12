@@ -35,17 +35,17 @@
   white-space: nowrap;
 }
 
-/* O corpo acomoda a legenda em qualquer um dos quatro lados. A area de desenho
-   e quem mede a largura, entao ela precisa poder encolher: sem min-width zero
-   um item flex nunca fica menor que o proprio conteudo. */
+/* O corpo acomoda a legenda em qualquer um dos quatro lados. A área de desenho
+   e quem mede a largura, então ela precisa poder encolher: sem min-width zero
+   um item flex nunca fica menor que o próprio conteúdo. */
 .body {
   display: flex;
   gap: var(--pl-space-3);
   min-width: 0;
 }
 
- /* A area de desenho fica fora do fluxo, para que a medida da altura seja o que
-   o layout concedeu e nao o que o proprio desenho ocupou. Sem isso, medir a
+ /* A área de desenho fica fora do fluxo, para que a medida da altura seja o que
+   o layout concedeu e não o que o próprio desenho ocupou. Sem isso, medir a
    altura do contêiner realimentaria a altura do svg. */
 .plot {
   flex: 1;
@@ -53,7 +53,7 @@
   position: relative;
 }
 
-/* Em `fill` a figura ocupa a altura disponivel; a base de 160px so vale quando nada da altura. */
+/* Em `fill` a figura ocupa a altura disponível; a base de 160px só vale quando nada da altura. */
 .figureFill {
   height: 100%;
   min-height: 0;
@@ -69,7 +69,7 @@
   min-height: 0;
 }
 
-/* Com a altura imposta pelo conteiner, a legenda ao lado que nao cabe rola, em vez de empurrar o grafico para fora.
+/* Com a altura imposta pelo contêiner, a legenda ao lado que não cabe rola, em vez de empurrar o gráfico para fora.
    O respiro afasta os valores da barra e deixa inteiros o realce e o anel de foco das entradas. */
 .figureFill .legendSide {
   max-height: 100%;
@@ -86,7 +86,7 @@
   align-self: stretch;
 }
 
-/* Forma radial com legenda lateral: a area tem a medida da forma e encolhe so quando falta largura.
+/* Forma radial com legenda lateral: a área tem a medida da forma e encolhe só quando falta largura.
    O conjunto fica centralizado, com a legenda encostada. */
 .bodyRow > .plotShape {
   flex: 0 1 auto;
@@ -116,7 +116,7 @@
   overflow: visible;
 }
 
-/* O vazio ocupa a area de desenho, que mantem a altura do grafico: o cartao nao encolhe quando os dados somem. */
+/* O vazio ocupa a área de desenho, que mantem a altura do gráfico: o cartão não encolhe quando os dados somem. */
 .empty {
   position: absolute;
   inset: 0;
@@ -138,7 +138,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Titulo de eixo: o mesmo corpo dos rotulos, com o peso de rotulo para se distinguir das marcas. */
+/* Título de eixo: o mesmo corpo dos rótulos, com o peso de rótulo para se distinguir das marcas. */
 .axisTitle {
   fill: var(--pl-chart-label);
   font-family: var(--pl-font-body);
@@ -168,7 +168,7 @@
   stroke-width: 1;
 }
 
-/* O halo na cor da superficie separa o rotulo do que estiver atras dele: preenchimento, grade ou outra serie. */
+/* O halo na cor da superfície separa o rótulo do que estiver atras dele: preenchimento, grade ou outra série. */
 .valueLabel {
   fill: var(--pl-chart-label);
   font-family: var(--pl-font-body);
@@ -181,7 +181,7 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* Rotulo `onHover` fora da serie sob o ponteiro. */
+/* Rótulo `onHover` fora da série sob o ponteiro. */
 .valueLabelHidden {
   opacity: 0;
 }
@@ -193,9 +193,9 @@
   stroke-linejoin: round;
 }
 
-/* Marcador oculto em repouso, revelado quando o ponteiro entra no grafico e na
-   impressao, onde nao existe hover para revelar o ponto. */
-/* Ponto em anel: miolo na cor da superficie e borda na cor da serie, visivel ate sobre a propria area. */
+/* Marcador oculto em repouso, revelado quando o ponteiro entra no gráfico e na
+   impressao, onde não existe hover para revelar o ponto. */
+/* Ponto em anel: miolo na cor da superfície e borda na cor da série, visível até sobre a própria área. */
 .dot {
   fill: var(--pl-color-surface);
   stroke-width: 2;
@@ -228,7 +228,7 @@
   pointer-events: none;
 }
 
-/* Transparente, e nao `none`: sem pintura a faixa nao recebe o ponteiro. */
+/* Transparente, e não `none`: sem pintura a faixa não recebe o ponteiro. */
 .hoverBand {
   fill: transparent;
 }
@@ -275,13 +275,13 @@
   width: 100%;
 }
 
-/* A serie desligada sai da arvore de acessibilidade mas fica no DOM: e a
-   permanencia que permite a transicao nos dois sentidos.
+/* A série desligada sai da árvore de acessibilidade mas fica no DOM: e a
+   permanência que permite a transição nos dois sentidos.
 
-   Quem recolhe a serie e a **presenca**, no JavaScript: nas barras ela reparte
-   a faixa entre as demais, na area empilhada ela pesa a contribuicao. Uma
-   escala em CSS por cima disso seria uma segunda animacao sobre a primeira, e
-   pivotaria em torno de uma caixa que ja colapsou. Aqui fica so a opacidade. */
+   Quem recolhe a série e a **presenca**, no JavaScript: nas barras ela reparte
+   a faixa entre as demais, na área empilhada ela pesa a contribuição. Uma
+   escala em CSS por cima disso seria uma segunda animação sobre a primeira, e
+   pivotaria em torno de uma caixa que já colapsou. Aqui fica só a opacidade. */
 .series {
   transition: opacity var(--pl-speed-2) var(--pl-ease);
 }
@@ -316,14 +316,14 @@
 }
 
 /* Desligada, a entrada muda de cor em vez de desbotar: opacidade derrubava o
-   contraste abaixo do minimo, e ela precisa continuar legivel para ser o
+   contraste abaixo do mínimo, e ela precisa continuar legível para ser o
    caminho de volta. */
 .legendOff {
   color: var(--pl-color-text-tertiary);
 }
 
 /* A marca sob o ponteiro acende a entrada dela com um fundo, que a sombra estende sem mexer no leiaute. As outras
-   recuam: amostra apagada e texto terciario, que ainda mede o contraste de texto. */
+   recuam: amostra apagada e texto terciário, que ainda mede o contraste de texto. */
 .legendItem[data-active] {
   background: var(--pl-color-surface-muted);
   box-shadow: 0 0 0 var(--pl-space-1) var(--pl-color-surface-muted);
@@ -365,7 +365,7 @@
   border-radius: var(--pl-radius-full);
 }
 
-/* O rotulo cede espaco antes do valor: numa lista estreita e ele que trunca. */
+/* O rótulo cede espaço antes do valor: numa lista estreita e ele que trunca. */
 .legendLabel {
   min-width: 0;
   overflow: hidden;
@@ -400,7 +400,7 @@
   stroke-width: 2.5;
 }
 
-/* Marca que e botao, quando o grafico tem clique na marca. */
+/* Marca que e botão, quando o gráfico tem clique na marca. */
 .interactiveMark {
   cursor: pointer;
   outline: none;
@@ -416,7 +416,7 @@
   opacity: 1;
 }
 
-/* Visao em tabela, a leitura completa de qualquer grafico. */
+/* Visao em tabela, a leitura completa de qualquer gráfico. */
 .tableScroll {
   max-height: 380px;
   overflow: auto;

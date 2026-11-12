@@ -16,7 +16,7 @@ interface ChartMapLegendProps extends Omit<ColorLegendProps, 'children'> {
   onToggleMarkerSeries: (key: string) => void;
 }
 
-/** A legenda da escala de cor, mais as series de marcadores com a chave de tamanho. */
+/** A legenda da escala de cor, mais as séries de marcadores com a chave de tamanho. */
 export function ChartMapLegend({
   markerSeries,
   markerSizes,

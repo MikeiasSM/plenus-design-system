@@ -123,7 +123,7 @@ describe('Card', () => {
   describe('trailingWhenNarrow', () => {
     afterEach(() => Reflect.deleteProperty(HTMLElement.prototype, 'offsetTop'));
 
-    /** O jsdom nao tem layout: a linha de cada elemento vem de fora. */
+    /** O jsdom não tem layout: a linha de cada elemento vem de fora. */
     function trailingDesceDeLinha() {
       Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
         configurable: true,

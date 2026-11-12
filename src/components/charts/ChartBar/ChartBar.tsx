@@ -47,16 +47,16 @@ import { formatNumber } from '../../../utils/formatters';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartBar.module.css';
 
-/** Distancia entre a ponta da barra e o rotulo de dado. */
+/** Distância entre a ponta da barra e o rótulo de dado. */
 const AFASTAMENTO_DO_ROTULO = 6;
 
-/** Piso do teto da coluna de nomes na horizontal: em grafico estreito, o teto proporcional cortaria nomes curtos, como os das UFs. */
+/** Piso do teto da coluna de nomes na horizontal: em gráfico estreito, o teto proporcional cortaria nomes curtos, como os das UFs. */
 const PISO_DA_COLUNA = 128;
 
 export type ChartBarOrientation = 'vertical' | 'horizontal';
 
 export interface ChartBarSeries extends SeriesAppearance {
-  /** Eixo de valor da serie, so na vertical. Com alguma a direita, o eixo da direita ganha escala propria. */
+  /** Eixo de valor da serie, só na vertical. Com alguma a direita, o eixo da direita ganha escala própria. */
   axis?: ChartValueAxis;
   label: string;
   values: readonly number[];
@@ -65,65 +65,66 @@ export interface ChartBarSeries extends SeriesAppearance {
 export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   categories: readonly string[];
-  /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
+  /** Séries ocultas de inicio, enquanto o produto não controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `defaultHidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
   defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
-  /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
+  /** Formato do eixo da direita, dos rótulos e do balão das series dele. Sem ele, vale o `formatValue`. */
   formatRightValue?: (value: number) => string;
-  /** Formato dos valores no balao das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
+  /** Formato dos valores no balão das series da esquerda. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balão, exato. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
+  /** Rótulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
+  /** @deprecated Use `hidden`. Aceito até a 0.7.0; com os dois, vale o novo. */
   hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** Passo minimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
+  /** Passo mínimo entre as marcas do eixo de valor, na unidade do dado: 1 impede marcas fracionarias em contagens. */
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
   onBarClick?: (bar: ChartMarkClick) => void;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHiddenChange`. Aceito até a 0.7.0. */
   onHiddenSeriesChange?: (hidden: readonly string[]) => void;
-  /** Rotulos ocultos, a cada alternancia da legenda. */
+  /** Rótulos ocultos, a cada alternância da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Categoria sob o ponteiro, ou `null` ao sair dela. */
   onHover?: (category: ChartCategoryHover | null) => void;
-  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito até a 0.7.0. */
   onHoverCategory?: (index: number | null) => void;
-  /** Torna as barras botoes, percorridos pelas setas. */
+  /** Torna as barras botões, percorridos pelas setas. */
   onMarkClick?: (mark: ChartMarkClick) => void;
   orientation?: ChartBarOrientation;
-  /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
+  /** Cores das series sem cor própria: lista em rotação ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartBarSeries[];
   /**
-   * Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. Em `onHover`,
-   * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
+   * Valor além da ponta de cada barra; empilhada, o total da categoria além da ponta da pilha. Em `onHover`,
+   * só os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
    */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botão "Ver como tabela". Ligado por padrão. */
   showTableToggle?: boolean;
-  /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
+  /** Balão com o detalhe do que esta sob o ponteiro. Desligue para montar o próprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
-  /** Empilha so as series do mesmo eixo: cada eixo tem a sua pilha, lado a lado na faixa. */
+  /** Empilha só as series do mesmo eixo: cada eixo tem a sua pilha, lado a lado na faixa. */
   stacked?: boolean;
   title: string;
   xAxis?: AxisVisibility;
-  /** Titulo do eixo de baixo, como o `xAxis`: as categorias na vertical, o valor na horizontal. */
+  /** Título do eixo de baixo, como o `xAxis`: as categorias na vertical, o valor na horizontal. */
   xAxisTitle?: string;
   yAxis?: AxisVisibility;
-  /** Titulo do eixo da esquerda, como o `yAxis`: o valor na vertical, as categorias na horizontal. */
+  /** Título do eixo da esquerda, como o `yAxis`: o valor na vertical, as categorias na horizontal. */
   yAxisTitle?: string;
-  /** Padrao: escondido; visivel quando alguma serie esta a direita. */
+  /** Padrão: escondido; visível quando alguma serie esta a direita. */
   yAxisRight?: AxisVisibility;
-  /** Titulo do eixo de valor da direita, so na vertical. */
+  /** Título do eixo de valor da direita, só na vertical. */
   yAxisRightTitle?: string;
 }
 
@@ -208,16 +209,16 @@ export function ChartBar({
   const categoryAxisTitle = vertical ? xAxisTitle : yAxisTitle;
   const valueAxisTitle = vertical ? yAxisTitle : xAxisTitle;
 
-  // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
+  // A cor sai da lista inteira, e não das visiveis: desligar uma serie não pode
   // repintar as demais.
   const cores = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
 
-  // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, entao a
+  // Presenca de cada serie, entre zero e um. E ela que reparte a faixa, então a
   // serie desligada encolhe enquanto as demais ocupam o lugar dela.
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
   const presenca = (indice: number) => presencas[indice] ?? 0;
 
-  // Na horizontal o eixo de valor e unico: `axis` nao vale.
+  // Na horizontal o eixo de valor e unico: `axis` não vale.
   const eixos = useMemo(() => series.map((serie) => (vertical ? axisOf(serie) : 'left')), [series, vertical]);
   const temEixoDireito = eixos.includes('right');
   const formatarDireita = formatRightValue ?? formatValue;
@@ -258,7 +259,7 @@ export function ChartBar({
   const nomesDaColuna =
     vertical || width === 0 ? categories : categories.map((nome) => truncateToWidth(nome, font, larguraMaximaDaColuna));
 
-  /** Valores com rotulo a direita da ponta (o total da pilha, se empilhada); os negativos vao para a esquerda. */
+  /** Valores com rótulo a direita da ponta (o total da pilha, se empilhada); os negativos vao para a esquerda. */
   function valoresRotuladosAdireita() {
     const visiveis = series.filter((serie) => !isHidden(serie.label));
     const porCategoria = categories.map((_, indice) =>
@@ -326,7 +327,7 @@ export function ChartBar({
   const vao = escalaCategorias.bandwidth();
   const faixas = barSlots(vao, presencas);
 
-  // Pilhas de eixos distintos dividem a faixa; com um eixo so, a pilha ocupa a faixa inteira.
+  // Pilhas de eixos distintos dividem a faixa; com um eixo só, a pilha ocupa a faixa inteira.
   const faixasDasPilhas = barSlots(
     vao,
     (['left', 'right'] as const).map((eixo) => Math.max(0, ...presencas.filter((_, indice) => eixos[indice] === eixo))),
@@ -348,7 +349,7 @@ export function ChartBar({
     return posicaoNaFaixa(indiceSerie).offset;
   }
 
-  /** Valor que a serie empilha, ja pesado pela presenca, para a pilha encolher junto; invalido conta zero. */
+  /** Valor que a serie empilha, já pesado pela presenca, para a pilha encolher junto; inválido conta zero. */
   function contribuicao(indiceSerie: number, indiceCategoria: number) {
     const valor = series[indiceSerie].values[indiceCategoria];
     const real = Number.isFinite(valor) ? (valor as number) : 0;
@@ -365,8 +366,8 @@ export function ChartBar({
   }
 
   /**
-   * Cantos de um segmento. Empilhado, so as pontas de cada pilha, a de cima do zero e a de baixo,
-   * sao arredondadas e o meio fica reto, para os segmentos lerem como uma barra so.
+   * Cantos de um segmento. Empilhado, só as pontas de cada pilha, a de cima do zero e a de baixo,
+   * são arredondadas e o meio fica reto, para os segmentos lerem como uma barra só.
    */
   function cantosDa(indiceSerie: number, indiceCategoria: number): CornerRadii {
     const [inicio, fim] = segmentoDa(indiceSerie, indiceCategoria);
@@ -385,7 +386,7 @@ export function ChartBar({
     return vertical ? [maior, maior, menor, menor] : [menor, maior, maior, menor];
   }
 
-  /** Rotulo alem da ponta da barra: no negativo ela esta embaixo, ou a esquerda. */
+  /** Rótulo além da ponta da barra: no negativo ela esta embaixo, ou a esquerda. */
   function rotuloAlemDaPonta(
     valor: number,
     ponta: number,

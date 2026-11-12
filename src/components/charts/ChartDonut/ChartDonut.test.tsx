@@ -146,7 +146,7 @@ describe('ChartDonut', () => {
     fireEvent.mouseEnter(fatias()[1]);
     fireEvent.mouseLeave(fatias()[1]);
 
-    // As tres pequenas viraram uma so, entao o indice 1 do anel nao e o Frete.
+    // As tres pequenas viraram uma só, então o índice 1 do anel não e o Frete.
     expect(vistas).toEqual(['Outros', null]);
   });
 
@@ -257,7 +257,7 @@ describe('ChartDonut: legenda e costura', () => {
     const aoPassar = vi.fn();
     render(<ChartDonut onHover={aoPassar} slices={custos} title="Custos" />);
     const entrada = entradaDe(/CMV/);
-    // O jsdom nao tem PointerEvent, e sem ele as coordenadas se perdem: o evento sai como MouseEvent.
+    // O jsdom não tem PointerEvent, e sem ele as coordenadas se perdem: o evento sai como MouseEvent.
     const ponteiro = (tipo: string, x: number, y: number) =>
       act(() => {
         entrada.dispatchEvent(new MouseEvent(tipo, { bubbles: true, clientX: x, clientY: y }));

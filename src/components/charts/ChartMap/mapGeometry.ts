@@ -4,7 +4,7 @@ import type { Point, Ring } from './polylabel';
 type Position = readonly number[];
 type Polygon = readonly (readonly Position[])[];
 
-/** Feicao GeoJSON. So `Polygon` e `MultiPolygon` se desenham; os demais tipos ficam de fora. */
+/** Feição GeoJSON. Só `Polygon` e `MultiPolygon` se desenham; os demais tipos ficam de fora. */
 export interface ChartMapFeature {
   geometry: { coordinates?: unknown; type: string } | null;
   id?: string | number;
@@ -15,7 +15,7 @@ export interface ChartMapFeatureCollection {
   features: readonly ChartMapFeature[];
 }
 
-/** A feicao como o d3-geo a desenha: sempre multipoligono, com os aneis validos e no sentido dele. */
+/** A feição como o d3-geo a desenha: sempre multipoligono, com os aneis validos e no sentido dele. */
 export interface MapShape {
   geometry: { coordinates: number[][][][]; type: 'MultiPolygon' };
   properties: null;
@@ -27,7 +27,7 @@ export interface MapRegion {
   bounds: readonly [Point, Point];
   feature: ChartMapFeature;
   id: string;
-  /** Texto curto do rotulo no desenho, como a sigla. */
+  /** Texto curto do rótulo no desenho, como a sigla. */
   label: string;
   name: string;
   shape: MapShape;
@@ -44,11 +44,11 @@ export const MAP_PADDING = 12;
 export const MAX_FOCUS_ZOOM = 12;
 /** Teto do enquadramento pelos marcadores, que chega mais perto que o do recorte: os pontos cabem num bairro. */
 export const MAX_MARKER_ZOOM = 100;
-/** Lado minimo, em graus, da caixa dos pontos: uns 11 m. */
+/** Lado mínimo, em graus, da caixa dos pontos: uns 11 m. */
 const MIN_POINT_SPAN = 1e-4;
 const HEMISPHERE = 2 * Math.PI;
 
-/** Le um caminho como `properties.sigla` na feicao. */
+/** Le um caminho como `properties.sigla` na feição. */
 export function valueAt(source: unknown, path: string): unknown {
   return path
     .split('.')
@@ -67,12 +67,12 @@ function polygonsOf(geometry: ChartMapFeature['geometry']): readonly Polygon[] {
 }
 
 /**
- * Anel com menos de quatro posicoes nao fecha um poligono, e o d3-geo falha nele. O d3-geo le o anel externo no
- * sentido horario, o contrario da RFC 7946: no sentido dela, o poligono viraria o globo menos a regiao.
+ * Anel com menos de quatro posições não fecha um poligono, e o d3-geo falha nele. O d3-geo le o anel externo no
+ * sentido horário, o contrário da RFC 7946: no sentido dela, o poligono viraria o globo menos a região.
  */
 function validPolygons(geometry: ChartMapFeature['geometry']) {
   return polygonsOf(geometry).flatMap((polygon) => {
-    // Sem o anel externo, um furo viraria a regiao.
+    // Sem o anel externo, um furo viraria a região.
     if (!((polygon[0]?.length ?? 0) >= 4)) {
       return [];
     }
@@ -102,7 +102,7 @@ function boundsOf(polygons: readonly number[][][][]): readonly [Point, Point] {
   ];
 }
 
-/** Regioes desenhaveis da colecao, cada uma com o identificador, o nome e o rotulo lidos pelos caminhos. */
+/** Regioes desenháveis da coleção, cada uma com o identificador, o nome e o rótulo lidos pelos caminhos. */
 export function regionsOf(collection: ChartMapFeatureCollection, { idKey, labelKey, nameKey }: MapKeys): MapRegion[] {
   return collection.features.flatMap((feature) => {
     const rawId = valueAt(feature, idKey);
@@ -129,7 +129,7 @@ export function regionsOf(collection: ChartMapFeatureCollection, { idKey, labelK
   });
 }
 
-/** As feicoes desenhaveis da colecao, so para contornar: sem identificador, nome nem rotulo. */
+/** As feições desenháveis da coleção, só para contornar: sem identificador, nome nem rótulo. */
 export function outlinesOf(collection: ChartMapFeatureCollection): MapShape[] {
   return collection.features.flatMap((feature) => {
     const coordinates = validPolygons(feature.geometry);
@@ -144,7 +144,7 @@ export function outlinesOf(collection: ChartMapFeatureCollection): MapShape[] {
 export type MapCorners = ReturnType<typeof cornersOf>;
 
 /**
- * Os cantos da caixa das regioes e dos pontos. Na Mercator, longitude e latitude projetam cada uma num eixo, entao
+ * Os cantos da caixa das regioes e dos pontos. Na Mercator, longitude e latitude projetam cada uma num eixo, então
  * enquadrar os cantos e enquadrar o desenho, sem percorrer de novo milhares de vertices.
  */
 export function cornersOf(regions: readonly MapRegion[], points: readonly Point[] = []) {
@@ -165,7 +165,7 @@ export function cornersOf(regions: readonly MapRegion[], points: readonly Point[
     ),
   );
 
-  // Pontos coincidentes dariam caixa sem area, e a projecao nao se ajusta a ela.
+  // Pontos coincidentes dariam caixa sem área, e a projeção não se ajusta a ela.
   const span = points.length > 0 ? MIN_POINT_SPAN : 0;
 
   return {
@@ -177,14 +177,14 @@ export function cornersOf(regions: readonly MapRegion[], points: readonly Point[
   };
 }
 
-/** Caixa projetada da regiao: oeste-norte em cima a esquerda, leste-sul embaixo a direita. */
+/** Caixa projetada da região: oeste-norte em cima a esquerda, leste-sul embaixo a direita. */
 export function projectedBounds(region: MapRegion, projection: GeoProjection): readonly [Point, Point] {
   const [[west, south], [east, north]] = region.bounds;
 
   return [projection([west, north]) ?? [0, 0], projection([east, south]) ?? [0, 0]];
 }
 
-/** Altura que o desenho pede quando ocupa a largura toda: com ela, nao sobra faixa vazia acima e abaixo. */
+/** Altura que o desenho pede quando ocupa a largura toda: com ela, não sobra faixa vazia acima e abaixo. */
 export function naturalHeight(corners: MapCorners, width: number, padding = MAP_PADDING) {
   const projection = geoMercator().fitWidth(Math.max(width - 2 * padding, 1), corners);
   const [[, top], [, bottom]] = corners.coordinates.map((corner) => projection(corner as [number, number]) ?? [0, 0]);
@@ -193,7 +193,7 @@ export function naturalHeight(corners: MapCorners, width: number, padding = MAP_
 }
 
 interface FitOptions {
-  /** Teto da aproximacao, em vezes a do mapa inteiro. Sem ele, a caixa preenche a area. */
+  /** Teto da aproximação, em vezes a do mapa inteiro. Sem ele, a caixa preenche a área. */
   maxZoom?: number;
   padding?: number;
 }
@@ -205,12 +205,12 @@ function extentOf(width: number, height: number, padding: number): [[number, num
   ];
 }
 
-/** Escala da projecao no teto da aproximacao: 100 vezes a do mapa inteiro. */
+/** Escala da projeção no teto da aproximação: 100 vezes a do mapa inteiro. */
 export function zoomCeiling(all: readonly MapRegion[], width: number, height: number, padding = MAP_PADDING) {
   return geoMercator().fitExtent(extentOf(width, height, padding), cornersOf(all)).scale() * MAX_MARKER_ZOOM;
 }
 
-/** Projecao que enquadra a caixa na area, com teto de aproximacao relativo ao mapa inteiro quando pedido. */
+/** Projeção que enquadra a caixa na área, com teto de aproximação relativo ao mapa inteiro quando pedido. */
 export function fitProjection(
   corners: MapCorners,
   all: readonly MapRegion[],
@@ -238,8 +238,8 @@ export function fitProjection(
 }
 
 /**
- * Partes da regiao na tela, sem os vertices a menos de um pixel do anterior: a busca do rotulo percorre centenas de
- * pontos, e nao os milhares da malha.
+ * Partes da região na tela, sem os vertices a menos de um pixel do anterior: a busca do rótulo percorre centenas de
+ * pontos, e não os milhares da malha.
  */
 export function projectedParts(region: MapRegion, projection: GeoProjection): Ring[][] {
   return region.shape.geometry.coordinates.map((polygon) =>

@@ -29,7 +29,7 @@ export interface ColorScaleEntry {
 
 export interface ColorGradient {
   log: boolean;
-  /** Posicao do valor na barra, de 0 a 1. */
+  /** Posição do valor na barra, de 0 a 1. */
   position: (value: number) => number;
   stops: readonly string[];
   ticks: readonly { position: number; value: number }[];
@@ -37,14 +37,14 @@ export interface ColorGradient {
 
 export interface ColorScale {
   entries: readonly ColorScaleEntry[];
-  /** Cor da regiao; `undefined` quando ela fica sem dado. */
+  /** Cor da região; `undefined` quando ela fica sem dado. */
   fillOf: (datum: ColorDatum) => string | undefined;
   gradient?: ColorGradient;
-  /** Chave da faixa ou da categoria da regiao, quando a legenda as controla. */
+  /** Chave da faixa ou da categoria da região, quando a legenda as controla. */
   keyOf: (datum: ColorDatum) => string | undefined;
-  /** Nome da faixa ou da categoria, para o balao e a tabela. */
+  /** Nome da faixa ou da categoria, para o balão e a tabela. */
   labelOf: (datum: ColorDatum) => string | undefined;
-  /** A cor mede um valor; na categorica e na nenhuma, ela so nomeia ou nao diz nada. */
+  /** A cor mede um valor; na categorica e na nenhuma, ela só nomeia ou não diz nada. */
   numeric: boolean;
   /** Cor do texto escrito sobre o preenchimento; `undefined` onde nenhuma cor fixa garante o contraste. */
   textColorOf: (datum: ColorDatum) => string | undefined;
@@ -75,7 +75,7 @@ const DEFAULT_CLASS_COUNT = 5;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
-/** Cor na posicao da rampa de tokens; entre dois passos, a mistura deles, que segue o tema sozinha. */
+/** Cor na posição da rampa de tokens; entre dois passos, a mistura deles, que segue o tema sozinha. */
 export function rampColor(stops: readonly string[], position: number) {
   const scaled = clamp01(position) * (stops.length - 1);
   const index = Math.min(Math.floor(scaled), stops.length - 2);
@@ -204,7 +204,7 @@ function divergingScale(
 ): ColorScale {
   const center = config.center ?? 0;
   const [low = center, high = center] = config.domain ?? extent(values);
-  // O dominio e simetrico em torno do centro: a mesma distancia pinta a mesma intensidade dos dois lados.
+  // O dominio e simetrico em torno do centro: a mesma distância pinta a mesma intensidade dos dois lados.
   const reach = Math.max(Math.abs(low - center), Math.abs(high - center)) || 1;
   const position = (value: number) => clamp01((value - center) / reach / 2 + 0.5);
 
@@ -238,7 +238,7 @@ function categoricalScale(categories: readonly ChartColorCategory[], accent?: st
 }
 
 /**
- * Escala de cor das regioes, sobre os valores validos das regioes em jogo. As cores sao tokens, ou a mistura de dois
+ * Escala de cor das regioes, sobre os valores validos das regioes em jogo. As cores são tokens, ou a mistura de dois
  * deles: a troca de tema repinta o mapa sem calculo algum.
  */
 export function buildColorScale(
@@ -278,7 +278,7 @@ export function buildColorScale(
   const [low = 0, high = 0] = extent(values);
   const fixedClasses = config.type === 'classes' && 'thresholds' in config;
 
-  // Um valor so nao forma escala: uma cor e uma entrada na legenda. So zeros e ausencia de intensidade: o passo mais claro.
+  // Um valor só não forma escala: uma cor e uma entrada na legenda. Só zeros e ausência de intensidade: o passo mais claro.
   if (low === high && config.type !== 'diverging' && !fixedClasses) {
     return classScale([], [], [low, high], format, stops, low === 0 ? 0 : undefined);
   }

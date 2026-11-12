@@ -50,41 +50,42 @@ export interface ChartHeatmapProps extends ChartRootProps {
   cells: readonly ChartHeatmapCell[];
   colorScale?: ChartHeatmapColorScale;
   emptyMessage?: string;
-  /** Formato dos valores no balao. Sem ele, vale o `formatValue`. */
+  /** Formato dos valores no balão. Sem ele, vale o `formatValue`. */
   formatTooltipValue?: (value: number) => string;
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
-  /** Sob o ponteiro ou o foco: so a celula, ou tambem o contorno da linha e da coluna dela. */
+  /** Sob o ponteiro ou o foco: só a celula, ou também o contorno da linha e da coluna dela. */
   highlight?: ChartHeatmapHighlight;
   legend?: ChartHeatmapLegendPosition;
   legendAlign?: ChartLegendAlign;
   noDataLabel?: string;
   noDataStyle?: NoDataStyle;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onMarkClick`. Aceito até a 0.7.0. */
   onCellClick?: (cell: ChartHeatmapCell) => void;
-  /** Celula sob o ponteiro ou o foco, ou `null` ao sair dela. */
+  /** Célula sob o ponteiro ou o foco, ou `null` ao sair dela. */
   onHover?: (cell: ChartHeatmapCell | null) => void;
-  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
+  /** @deprecated Use `onHover`. Aceito até a 0.7.0. */
   onHoverCell?: (cell: ChartHeatmapCell | null) => void;
-  /** Torna as celulas botoes, percorridos pelas setas. */
+  /** Torna as células botões, percorridos pelas setas. */
   onMarkClick?: (cell: ChartHeatmapCell) => void;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botão "Ver como tabela". Ligado por padrão. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Valor escrito na celula, quando cabe nela. */
   showValues?: MarkVisibility;
-  /** Celulas quadradas, como na matriz de correlacao. */
+  /** Células quadradas, como na matriz de correlação. */
   squareCells?: boolean;
   title: string;
-  /** Nome da medida, na legenda e no balao. */
+  /** Nome da medida, na legenda e no balão. */
   valueLabel?: string;
   xAxis?: AxisVisibility;
-  /** Rotulos das colunas embaixo, como no grafico, ou em cima, como na tabela. */
+  /** Rótulos das colunas embaixo, como no gráfico, ou em cima, como na tabela. */
   xAxisPosition?: AxisPosition;
-  /** Ordem das colunas. Sem ela, a ordem em que aparecem nas celulas. */
+  /** Ordem das colunas. Sem ela, a ordem em que aparecem nas células. */
   xCategories?: readonly string[];
   yAxis?: AxisVisibility;
-  /** Ordem das linhas, de cima para baixo. Sem ela, a ordem em que aparecem nas celulas. */
+  /** Ordem das linhas, de cima para baixo. Sem ela, a ordem em que aparecem nas células. */
   yCategories?: readonly string[];
 }
 
@@ -140,7 +141,7 @@ function moveFrom(grade: Grade, position: Position, key: string, toCorner: boole
   return (key === 'Home' ? alvos[0] : alvos.at(-1)) ?? null;
 }
 
-/** Contagem e intensidade honestas: sem `domain`, a sequencial de valores nao negativos parte de zero. */
+/** Contagem e intensidade honestas: sem `domain`, a sequencial de valores não negativos parte de zero. */
 function fromZero(config: ChartHeatmapColorScale, values: readonly number[]): ChartHeatmapColorScale {
   if (config.type !== 'sequential' || config.domain || config.log || values.length === 0 || values.some((value) => value < 0)) {
     return config;
@@ -149,10 +150,9 @@ function fromZero(config: ChartHeatmapColorScale, values: readonly number[]): Ch
   return { ...config, domain: [0, Math.max(...values)] };
 }
 
-/** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
 /**
  * Com celula quadrada, a coluna desenhada e o lado do quadrado, mais estreito que a largura util quando a altura
- * manda. O angulo sai dessa coluna; girar o rotulo come altura, entao a coluna e medida de novo com ele.
+ * manda. O angulo sai dessa coluna; girar o rótulo come altura, então a coluna e medida de novo com ele.
  */
 function anguloDaColunaQuadrada(opcoes: Omit<CartesianLayoutOptions, 'labelAngle'>, linhas: number): AxisLabelAngle {
   const colunas = Math.max(opcoes.bottomLabels.length, 1);
@@ -165,6 +165,7 @@ function anguloDaColunaQuadrada(opcoes: Omit<CartesianLayoutOptions, 'labelAngle
   return bottomLabelRotation(opcoes.bottomLabels, opcoes.font, lado(primeiro));
 }
 
+/** Matriz de calor: a cor de cada celula mede o valor no cruzamento de uma categoria com outra. */
 export function ChartHeatmap({
   cells,
   colorScale = { type: 'sequential' },
@@ -364,7 +365,7 @@ export function ChartHeatmap({
     event.currentTarget.querySelector<SVGElement>(`[data-cell="${destino.row}:${destino.column}"]`)?.focus();
   }
 
-  // Rotulos que se tocariam saem de k em k, e nao todos juntos: a faixa que ficou sem nome se le pelos vizinhos.
+  // Rótulos que se tocariam saem de k em k, e não todos juntos: a faixa que ficou sem nome se le pelos vizinhos.
   const aCada = (passo: number) => Math.max(Math.ceil(font.lineHeight / Math.max(passo, 1)), 1);
   const espacados = (rotulos: readonly string[], escala: typeof escalaX, passo: number): AxisTick[] =>
     rotulos.flatMap((label, indice) =>

@@ -27,7 +27,7 @@
   color: var(--pl-color-text-tertiary);
 }
 
-/* O valor obrigatorio vai ao envio sem aparecer; o balao do navegador nasce logo abaixo do controle. */
+/* O valor obrigatório vai ao envio sem aparecer; o balão do navegador nasce logo abaixo do controle. */
 .formValue {
   position: absolute;
   width: 1px;
@@ -36,7 +36,7 @@
   pointer-events: none;
 }
 
-/* Visual dos campos do sistema, entregue ao controle pela fiacao: quem monta o proprio campo o recebe pronto. */
+/* Visual dos campos do sistema, entregue ao controle pela fiação: quem monta o próprio campo o recebe pronto. */
 .control {
   width: 100%;
   min-height: var(--pl-control-height-md);
@@ -100,7 +100,7 @@
   box-shadow: 0 0 0 3px var(--pl-color-danger-container);
 }
 
-/* Espaco para a seta que o `reset.css` desenha no select nativo. */
+/* Espaço para a seta que o `reset.css` desenha no select nativo. */
 select.control {
   padding-right: 32px;
 }

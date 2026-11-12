@@ -1,4 +1,4 @@
-/* A pista mostra o quanto falta para a meta, entao ela precisa existir mesmo
+/* A pista mostra o quanto falta para a meta, então ela precisa existir mesmo
    com o arco vazio. */
 .track {
   fill: var(--pl-color-surface-muted);

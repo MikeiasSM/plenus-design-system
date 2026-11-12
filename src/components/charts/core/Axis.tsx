@@ -32,8 +32,8 @@ const LINHA_DE_BASE: Record<AxisOrientation, 'hanging' | 'auto' | 'middle'> = {
 };
 
 /**
- * Eixo de um grafico cartesiano. Recebe as marcas ja posicionadas: a conversao
- * de valor em pixel pertence a escala, nao ao desenho.
+ * Eixo de um gráfico cartesiano. Recebe as marcas já posicionadas: a conversão
+ * de valor em pixel pertence a escala, não ao desenho.
  */
 export function Axis({ hideLine = false, labelRotation = 0, length, orientation, ticks }: AxisProps) {
   const horizontal = orientation === 'bottom' || orientation === 'top';

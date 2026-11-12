@@ -97,7 +97,7 @@ describe('ChartRadial', () => {
 
     render(<ChartRadial title="Metas" tracks={muitos} />);
 
-    // O anel que passa do centro vira um ponto, `M0,0Z`: so a espessura cedia, e os ultimos sumiam.
+    // O anel que passa do centro vira um ponto, `M0,0Z`: só a espessura cedia, e os ultimos sumiam.
     const degenerados = pistas().filter((pista) => /^M0,0Z?$/.test(pista.getAttribute('d') ?? ''));
 
     expect(pistas()).toHaveLength(20);

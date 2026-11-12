@@ -1,10 +1,10 @@
 /* Ponto de entrada dos tokens, em `src/tokens`: primitivos, semanticos e os nomes antigos como alias.
-   A norma esta em `TOKENS.md` e nos dois `TOKENS-REFERENCE-*.md`: paleta laranja padrao e tema por subarvore (§4).
+   A norma esta em `TOKENS.md` e nos dois `TOKENS-REFERENCE-*.md`: paleta laranja padrão e tema por subárvore (§4).
 
-   Aguardam promocao ao corpus normativo (proposta em andamento):
-   • Escala tipografica normalizada, sem tamanhos fracionados; UI densa, nao cresce em telas grandes
+   Aguardam promoção ao corpus normativo (proposta em andamento):
+   • Escala tipográfica normalizada, sem tamanhos fracionados; UI densa, não cresce em telas grandes
    • Espacamento em base 4px
-   • Breakpoints 900 / 1180 / 1280 e container maximo de 1600px */
+   • Breakpoints 900 / 1180 / 1280 e container máximo de 1600px */
 
 @import '../tokens/primitive/brand.css';
 @import '../tokens/primitive/neutral.css';
@@ -23,8 +23,8 @@
 @import '../tokens/semantic/shell.css';
 @import '../tokens/semantic/layer.css';
 
-/* Nomes antigos, apontando para os tokens atuais. Declarados em cada escopo de tema e de paleta: uma variavel
-   derivada e calculada onde e declarada e nao se recalcula nos descendentes. */
+/* Nomes antigos, apontando para os tokens atuais. Declarados em cada escopo de tema e de paleta: uma variável
+   derivada e calculada onde e declarada e não se recalcula nos descendentes. */
 :root,
 [data-theme],
 [data-palette] {

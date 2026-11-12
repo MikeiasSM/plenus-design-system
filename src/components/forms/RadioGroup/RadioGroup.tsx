@@ -55,7 +55,7 @@ export function RadioGroup({
 }: RadioGroupProps) {
   const generatedId = useId();
   const name = providedName ?? `radio-group-${generatedId}`;
-  // Do `useId`, e nao do nome: dois grupos com o mesmo nome dividiam o id da mensagem.
+  // Do `useId`, e não do nome: dois grupos com o mesmo nome dividiam o id da mensagem.
   const messageId = `radio-group-${generatedId}-message`;
   const describedBy = [ariaDescribedBy, error || hint ? messageId : undefined].filter(Boolean).join(' ') || undefined;
 

@@ -17,7 +17,7 @@ describe('List com busca assincrona', () => {
     fireEvent.click(screen.getByText('São Paulo'));
     expect(escolhas.at(-1)?.map((item) => item.value)).toEqual(['sp']);
 
-    // A consulta seguinte troca a colecao inteira.
+    // A consulta seguinte troca a coleção inteira.
     rerender(
       <List items={segunda} label="Cidades" onValueChange={(itens) => escolhas.push([...itens])} selectionMode="multiple">
         <List.Options />

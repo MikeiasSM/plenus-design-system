@@ -5,13 +5,13 @@ import styles from './ButtonIcon.module.css';
 
 export interface ButtonIconProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'children'> {
   icon: ReactNode;
-  /** Nome do botao: o leitor de tela o ouve, e a dica o mostra a quem passa o ponteiro ou chega pelo teclado. */
+  /** Nome do botão: o leitor de tela o ouve, e a dica o mostra a quem passa o ponteiro ou chega pelo teclado. */
   label: string;
   ref?: Ref<HTMLButtonElement>;
   size?: ButtonSize;
-  /** Lado da dica. Numa coluna de acoes, `left` ou `right` nao cobre a linha de cima. */
+  /** Lado da dica. Numa coluna de ações, `left` ou `right` não cobre a linha de cima. */
   tooltipPlacement?: TooltipPlacement;
-  /** `secondary` por padrao: um quadrado na cor principal chamaria mais atencao do que uma acao de icone pede. */
+  /** `secondary` por padrão: um quadrado na cor principal chamaria mais atenção do que uma ação de ícone pede. */
   variant?: ButtonVariant;
 }
 

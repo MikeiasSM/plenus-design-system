@@ -66,7 +66,7 @@
   color: var(--pl-color-danger-text);
 }
 
-/* Dois cartoes vazios, inclinados, flutuam devagar atras do icone: o conteudo que ainda nao chegou. */
+/* Dois cartoes vazios, inclinados, flutuam devagar atras do ícone: o conteúdo que ainda não chegou. */
 .card {
   position: absolute;
   top: 50%;

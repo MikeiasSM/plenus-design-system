@@ -141,7 +141,7 @@ describe('CardMetric', () => {
       expect(balao).toHaveTextContent('+R$ 168 k');
       expect(balao).toHaveTextContent('-5,0% vs. meta');
       expect(balao).toHaveTextContent('Revisada em março.');
-      // Sem diferença, o separador sai junto: a linha da meta e so a explicacao.
+      // Sem diferença, o separador sai junto: a linha da meta e só a explicacao.
       expect(balao.textContent).not.toMatch(/·\s*Revisada/);
     });
 

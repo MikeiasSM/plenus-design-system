@@ -9,7 +9,7 @@ const distribuicao: ChartTooltipRow[] = [
 ];
 
 /**
- * O jsdom nao implementa `PointerEvent`, entao `fireEvent.pointerMove` chega sem
+ * O jsdom não implementa `PointerEvent`, então `fireEvent.pointerMove` chega sem
  * coordenada alguma. O evento e montado a mao para que ela chegue.
  */
 function mover(x: number, y: number) {
@@ -23,7 +23,7 @@ function abrir() {
   mover(120, 90);
 }
 
-/** O jsdom nao tem layout: a medida do balao precisa vir de fora. */
+/** O jsdom não tem layout: a medida do balao precisa vir de fora. */
 function fixarMedidaDoBalao(largura: number, altura: number) {
   Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
     configurable: true,
@@ -291,7 +291,7 @@ describe('ChartTooltip', () => {
     montar();
     mover(800, 50);
 
-    // 800 + 16 + 200 = 1016 cabe em 1024 (innerWidth), mas nao em 1007 - 8.
+    // 800 + 16 + 200 = 1016 cabe em 1024 (innerWidth), mas não em 1007 - 8.
     expect(balao()).toHaveStyle({ left: '584px' });
     Reflect.deleteProperty(document.documentElement, 'clientWidth');
   });
@@ -306,7 +306,7 @@ describe('ChartTooltip', () => {
     );
     const balao = () => document.querySelector<HTMLElement>('[class*="tooltip"]')!;
 
-    // Perto da borda direita, so cabe a esquerda do ponto.
+    // Perto da borda direita, só cabe a esquerda do ponto.
     expect(balao().style.left).toBe('684px');
 
     rerender(
@@ -315,7 +315,7 @@ describe('ChartTooltip', () => {
       </ChartTooltip>,
     );
 
-    // Ja caberia a direita, mas segue a esquerda, onde abriu.
+    // Já caberia a direita, mas segue a esquerda, onde abriu.
     expect(balao().style.left).toBe('484px');
     medida.mockRestore();
   });

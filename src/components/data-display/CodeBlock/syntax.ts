@@ -1,7 +1,7 @@
 /**
  * Realce de sintaxe por regras lexicas, sem analisador de linguagem: reconhece o
- * que ajuda a ler o trecho — palavra reservada, texto, numero, comentario,
- * anotacao, chamada, propriedade, tag e atributo — e deixa o resto sem cor.
+ * que ajuda a ler o trecho — palavra reservada, texto, numero, comentário,
+ * anotação, chamada, propriedade, tag e atributo — e deixa o resto sem cor.
  */
 
 export type CodeSyntax = 'java' | 'javascript' | 'jsx' | 'typescript' | 'tsx' | 'sql' | 'json' | 'shell' | 'delphi';
@@ -113,8 +113,8 @@ const TYPESCRIPT: readonly Rule[] = [
 ];
 
 /**
- * Vem antes das regras da linguagem. O `<` colado a um nome e o generico de `useState<string>`, e nao uma tag; o
- * texto entre `>` e `<` e conteudo, e o numero dentro dele nao e literal.
+ * Vem antes das regras da linguagem. O `<` colado a um nome e o generico de `useState<string>`, e não uma tag; o
+ * texto entre `>` e `<` e conteúdo, e o numero dentro dele não e literal.
  */
 const JSX_RULES: readonly Rule[] = [
   [undefined, /(?<=>)[^<>{}\n]+(?=<)/],
@@ -160,7 +160,7 @@ const RULES: Readonly<Record<CodeSyntax, readonly Rule[]>> = {
     ['keyword', SHELL_KEYWORDS],
     ['number', NUMBER],
   ],
-  // A diretiva de compilacao usa a forma do comentario, com `$` na abertura: vem antes dele e sai como anotacao.
+  // A diretiva de compilação usa a forma do comentário, com `$` na abertura: vem antes dele e sai como anotação.
   delphi: [
     ['annotation', /\{\$[^}]*\}?|\(\*\$[\s\S]*?(?:\*\)|$)/],
     ['comment', LINE_COMMENT],
@@ -174,7 +174,7 @@ const RULES: Readonly<Record<CodeSyntax, readonly Rule[]>> = {
   ],
 };
 
-/** SQL e Delphi sao lidos sem distincao de caixa: `select` e `SELECT`, `begin` e `Begin` sao a mesma palavra. */
+/** SQL e Delphi são lidos sem distinção de caixa: `select` e `SELECT`, `begin` e `Begin` são a mesma palavra. */
 const CASE_INSENSITIVE: ReadonlySet<CodeSyntax> = new Set(['sql', 'delphi']);
 
 const grammars = new Map<CodeSyntax, Grammar>();
@@ -221,7 +221,7 @@ export function tokenize(code: string, syntax: CodeSyntax): CodeToken[] {
   return tokens;
 }
 
-/** As linhas do trecho, cada uma com os seus pedacos: o comentario de bloco que atravessa linhas e partido nelas. */
+/** As linhas do trecho, cada uma com os seus pedacos: o comentário de bloco que atravessa linhas e partido nelas. */
 export function tokenizeLines(code: string, syntax?: CodeSyntax): CodeToken[][] {
   const lines: CodeToken[][] = [[]];
 

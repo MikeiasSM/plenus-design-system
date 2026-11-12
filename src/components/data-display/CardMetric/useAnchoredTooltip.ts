@@ -10,7 +10,7 @@ interface TriggerHandlers<T extends Element> {
 }
 
 /**
- * Ponto fixo do balao para o foco e o toque. O ponteiro o `ChartTooltip` ja acompanha sozinho; o teclado e o dedo
+ * Ponto fixo do balão para o foco e o toque. O ponteiro o `ChartTooltip` já acompanha sozinho; o teclado e o dedo
  * precisam de um lugar, e esse lugar e logo abaixo do gatilho. Os manipuladores do consumidor continuam valendo.
  */
 export function useAnchoredTooltip() {

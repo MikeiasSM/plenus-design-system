@@ -18,13 +18,13 @@
   min-width: 0;
 }
 
-/* A altura vem das linhas, e nao de uma medida: a area fica no fluxo e so a largura e medida. */
+/* A altura vem das linhas, e não de uma medida: a área fica no fluxo e só a largura e medida. */
 .plot {
   min-width: 0;
   width: 100%;
 }
 
-/* Em fill a area ocupa a altura imposta; sem altura imposta, vale a das linhas. */
+/* Em fill a área ocupa a altura imposta; sem altura imposta, vale a das linhas. */
 .plotFill {
   display: flex;
   flex: 1 1 auto;
@@ -40,14 +40,14 @@
   padding: var(--pl-space-4);
 }
 
-/* Rotulos e resumo ficam fixos; so o desenho, ao centro, rola de lado. */
+/* Rótulos e resumo ficam fixos; só o desenho, ao centro, rola de lado. */
 .body {
   display: flex;
   align-items: flex-start;
   min-width: 0;
 }
 
-/* Com altura, a area das linhas rola na vertical e rotulos e resumo acompanham pela rolagem do desenho. */
+/* Com altura, a área das linhas rola na vertical e rótulos e resumo acompanham pela rolagem do desenho. */
 .bodySized {
   flex: 1 1 auto;
   align-items: stretch;
@@ -202,14 +202,14 @@
   overscroll-behavior-x: contain;
 }
 
-/* A calha fixa evita que a barra vertical, ao surgir, estreite a area sem que a medida perceba. */
+/* A calha fixa evita que a barra vertical, ao surgir, estreite a área sem que a medida perceba. */
 .scrollSized {
   overflow-y: auto;
   scrollbar-gutter: stable;
   overscroll-behavior-y: contain;
 }
 
-/* O eixo fica fixo no alto ou no pe da area rolavel, e rola de lado com ela. */
+/* O eixo fica fixo no alto ou no pe da área rolável, e rola de lado com ela. */
 .axisTop,
 .axisBottom {
   position: sticky;
@@ -225,7 +225,7 @@
   bottom: 0;
 }
 
-/* A largura e a do eixo: encolher o desenho ao conteiner, como o reset faz com todo svg, achataria as linhas. */
+/* A largura e a do eixo: encolher o desenho ao contêiner, como o reset faz com todo svg, achataria as linhas. */
 .canvas {
   display: block;
   max-width: none;
@@ -276,12 +276,12 @@
   fill: var(--pl-color-surface-subtle);
 }
 
-/* Transparente, e nao `none`: sem pintura a area nao recebe o ponteiro. */
+/* Transparente, e não `none`: sem pintura a área não recebe o ponteiro. */
 .hoverArea {
   fill: transparent;
 }
 
-/* O que so ilustra deixa o ponteiro passar para a linha e o intervalo embaixo. */
+/* O que só ilustra deixa o ponteiro passar para a linha e o intervalo embaixo. */
 .passThrough {
   pointer-events: none;
 }
@@ -336,7 +336,7 @@
   opacity: 0.28;
 }
 
-/* Em `overlay`, o anel da superficie separa o intervalo do que esta embaixo dele. */
+/* Em `overlay`, o anel da superfície separa o intervalo do que esta embaixo dele. */
 .barOverlay {
   stroke: var(--pl-color-surface);
   stroke-width: 1.5;
@@ -366,7 +366,7 @@
   pointer-events: none;
 }
 
-/* A altura do grafico e a lista de linhas: o eixo `onHover` guarda o lugar e so aparece, sem empurrar a pagina. */
+/* A altura do gráfico e a lista de linhas: o eixo `onHover` guarda o lugar e só aparece, sem empurrar a página. */
 .axisOnHover {
   opacity: 0;
   transition: opacity var(--pl-speed-2) var(--pl-ease);

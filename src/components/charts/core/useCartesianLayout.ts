@@ -10,11 +10,11 @@ import type { ChartLegendEntry, ChartLegendPosition } from './ChartLegend';
 import { CHART_MIN_PLOT, legendRoom, plotRoom, useFit } from './decomposition';
 import { useTweenedNumbers } from './useTweenedNumbers';
 
-/** Ponteiro parado sobre o grafico ate os eixos `onHover` entrarem: so atravessar o grafico nao o faz encolher. */
+/** Ponteiro parado sobre o gráfico até os eixos `onHover` entrarem: só atravessar o gráfico não o faz encolher. */
 const ATRASO_DA_REVELACAO = 600;
 const DURACAO_DA_REVELACAO = 240;
 
-/** O grafico com legenda mostra a partir de duas entradas. */
+/** O gráfico com legenda mostra a partir de duas entradas. */
 const MIN_LEGEND_ENTRIES = 2;
 
 export interface AxisReveal {
@@ -26,20 +26,20 @@ export interface AxisReveal {
 export type CartesianAxisSide = 'x' | 'y' | 'yRight';
 
 /**
- * Partes que o grafico cartesiano retira quando a area nao cabe, na ordem: a legenda, os titulos dos eixos, os
- * rotulos de cada eixo de valor, os eixos e, por ultimo, tudo o que acompanha o traco — grade, pontos e rotulos de dado.
+ * Partes que o gráfico cartesiano retira quando a área não cabe, na ordem: a legenda, os títulos dos eixos, os
+ * rótulos de cada eixo de valor, os eixos e, por ultimo, tudo o que acompanha o traco — grade, pontos e rótulos de dado.
  */
 export type CartesianPart = 'legend' | 'titles' | `labels:${CartesianAxisSide}` | 'axes' | 'detail';
 
 export interface CartesianDecomposition {
   fillHeight: boolean;
   legend?: readonly ChartLegendEntry[];
-  /** O que a legenda tira da area, quando ela nao e a lista de series e o grafico ja sabe a medida dela. */
+  /** O que a legenda tira da área, quando ela não e a lista de séries e o gráfico já sabe a medida dela. */
   legendRoom?: ChartPlot;
-  /** Menor area de marcas que cabe, quando o dado pede menos que o padrao, como a matriz de poucas linhas. */
+  /** Menor área de marcas que cabe, quando o dado pede menos que o padrão, como a matriz de poucas linhas. */
   minPlot?: ChartPlot;
   legendPosition: ChartLegendPosition;
-  /** Os eixos de valor, na ordem em que perdem os rotulos. No `ChartCombo`, o direito primeiro. */
+  /** Os eixos de valor, na ordem em que perdem os rótulos. No `ChartCombo`, o direito primeiro. */
   valueAxes: readonly CartesianAxisSide[];
 }
 
@@ -70,10 +70,10 @@ function withoutParts(options: Omit<CartesianLayoutOptions, 'revealed'>, removed
 }
 
 /**
- * Layout cartesiano com os eixos `onHover` e a decomposicao por encaixe. Sem eixos revelados, o desenho ocupa o
- * espaco todo; revelados, ele encolhe ate as calhas, numa transicao so. Dado ou tamanho que mudam reposicionam na
- * hora: o que anima e a revelacao. Quando a area dos tracos fica menor que o minimo, as partes saem na ordem de
- * `CartesianPart`, e o grafico recebe em `removed` o que ja saiu.
+ * Layout cartesiano com os eixos `onHover` e a decomposição por encaixe. Sem eixos revelados, o desenho ocupa o
+ * espaço todo; revelados, ele encolhe até as calhas, numa transição só. Dado ou tamanho que mudam reposicionam na
+ * hora: o que anima e a revelação. Quando a área dos tracos fica menor que o mínimo, as partes saem na ordem de
+ * `CartesianPart`, e o gráfico recebe em `removed` o que já saiu.
  */
 export function useCartesianLayout({ decomposition, ...options }: CartesianLayoutInput) {
   const dinamico = [options.xAxis, options.yAxis, options.yAxisRight].includes('onHover');

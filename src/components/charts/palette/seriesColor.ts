@@ -1,9 +1,9 @@
 import { SERIES_TOKENS, paletteWithAccent, paletteOf, seriesColors, type ChartPalette } from './palette';
 
 /**
- * Papel da serie quando a cor carrega significado. Uma serie com intencao nao
- * entra na rotacao categorica: pintar despesa com a cor de tema do usuario
- * trocaria o significado da barra a cada usuario.
+ * Papel da serie quando a cor carrega significado. Uma serie com intenção não
+ * entra na rotação categorica: pintar despesa com a cor de tema do usuário
+ * trocaria o significado da barra a cada usuário.
  */
 export type SeriesIntent = 'positive' | 'negative' | 'warning' | 'neutral';
 
@@ -17,7 +17,7 @@ export interface ResolveSeriesColorsOptions {
   palette?: ChartPalette;
 }
 
-/** Token de cada intencao. A paleta e quem detem esse mapa. */
+/** Token de cada intenção. A paleta e quem detem esse mapa. */
 export const INTENT_TOKENS: Record<SeriesIntent, string> = {
   positive: 'var(--pl-chart-positive)',
   negative: 'var(--pl-chart-negative)',
@@ -25,10 +25,10 @@ export const INTENT_TOKENS: Record<SeriesIntent, string> = {
   neutral: 'var(--pl-chart-neutral)',
 };
 
-/** Cores da paleta e das intencoes, que tem token de texto proprio, medido em cada tema. */
+/** Cores da paleta e das intenções, que tem token de texto próprio, medido em cada tema. */
 const COR_COM_TEXTO_PROPRIO = /^var\(--pl-chart-(series-\d|positive|negative|warning|neutral)\)$/;
 
-/** Luminancia em que branco e preto medem o mesmo contraste; acima dela, o preto mede mais. */
+/** Luminância em que branco e preto medem o mesmo contraste; acima dela, o preto mede mais. */
 const LUMINANCIA_DE_EMPATE = Math.sqrt(1.05 * 0.05) - 0.05;
 
 function luminanciaDoHexadecimal(cor: string) {
@@ -67,11 +67,11 @@ export function textColorOn(color: string) {
 }
 
 /**
- * Cor de cada serie, em quatro niveis de precedencia: a cor informada pelo
- * implementador vence; depois a intencao semantica; depois a paleta do grafico;
+ * Cor de cada serie, em quatro níveis de precedência: a cor informada pelo
+ * implementador vence; depois a intenção semantica; depois a paleta do gráfico;
  * por fim a paleta categorica, que abre com a cor de tema quando houver.
  *
- * Series com cor ou intencao nao consomem posicao da paleta, para que as
+ * Séries com cor ou intenção não consomem posição da paleta, para que as
  * categoricas sigam a ordem sem deixar buracos.
  */
 export function resolveSeriesColors(

@@ -1,6 +1,6 @@
 import { formatDecimalInput } from './formatDecimalInput';
 
-/** O simbolo da moeda em pt-BR, como o `Intl` escreve: US$ para o dolar. Codigo invalido fica como veio. */
+/** O simbolo da moeda em pt-BR, como o `Intl` escreve: US$ para o dolar. Código inválido fica como veio. */
 function symbolOf(currency: string) {
   try {
     const parts = new Intl.NumberFormat('pt-BR', { currency, style: 'currency' }).formatToParts(0);

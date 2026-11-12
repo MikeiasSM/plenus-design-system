@@ -1,4 +1,4 @@
-/* O separador e a propria superficie mostrando entre as fatias, o que mantem a
+/* O separador e a própria superfície mostrando entre as fatias, o que mantem a
    folga com largura constante em qualquer raio. */
 .slice {
   stroke: var(--pl-color-surface);

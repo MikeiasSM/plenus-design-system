@@ -14,7 +14,7 @@ export type SegmentedControlSize = 'sm' | 'md' | 'lg';
 export interface SegmentedControlProps extends Omit<ComponentPropsWithRef<'div'>, 'defaultValue' | 'onChange'> {
   defaultValue?: string;
   disabled?: boolean;
-  /** Mostra so os icones; o `label` de cada item continua sendo o nome e aparece como dica. */
+  /** Mostra só os ícones; o `label` de cada item continua sendo o nome e aparece como dica. */
   iconOnly?: boolean;
   items: readonly SegmentedControlItem[];
   /** Nome do grupo, para o leitor de tela. */
@@ -25,7 +25,7 @@ export interface SegmentedControlProps extends Omit<ComponentPropsWithRef<'div'>
   value?: string;
 }
 
-/** Escolha unica em poucos segmentos lado a lado. Por baixo sao radios nativos: setas, Tab e formulario vem do navegador. */
+/** Escolha única em poucos segmentos lado a lado. Por baixo são rádios nativos: setas, Tab e formulário vem do navegador. */
 export function SegmentedControl({
   className,
   defaultValue,

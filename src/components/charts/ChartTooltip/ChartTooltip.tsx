@@ -15,9 +15,9 @@ import styles from './ChartTooltip.module.css';
 
 export interface ChartTooltipRow {
   color?: string;
-  /** Realca a linha, como a serie sob o ponteiro entre as demais. */
+  /** Realca a linha, como a série sob o ponteiro entre as demais. */
   emphasis?: boolean;
-  /** Formato dos valores desta linha, quando difere do da coluna, como a serie do eixo da direita. */
+  /** Formato dos valores desta linha, quando difere do da coluna, como a série do eixo da direita. */
   format?: (value: number) => string;
   label: string;
   values: readonly number[];
@@ -32,7 +32,7 @@ export interface ChartTooltipColumn {
 }
 
 export interface ChartTooltipComputed {
-  /** Coluna que serve de base. A ultima por padrao, que e a de valor. */
+  /** Coluna que serve de base. A ultima por padrão, que e a de valor. */
   column?: number;
   /** Valor da linha, a partir do valor dela e do total da coluna base. */
   compute?: (value: number, total: number) => number;
@@ -42,15 +42,15 @@ export interface ChartTooltipComputed {
 }
 
 export interface ChartTooltipProps {
-  /** Ancora fixa do balao, em coordenadas da janela, como a marca em foco pelo teclado ou a entrada da legenda. Vale sobre o ponteiro. */
+  /** Âncora fixa do balão, em coordenadas da janela, como a marca em foco pelo teclado ou a entrada da legenda. Vale sobre o ponteiro. */
   anchor?: ChartAnchorPoint;
   children: ReactNode;
   columns?: readonly ChartTooltipColumn[];
-  /** Coluna ao fim. Percentual sobre a base por padrao; `none` a dispensa. */
+  /** Coluna ao fim. Percentual sobre a base por padrão; `none` a dispensa. */
   computed?: ChartTooltipComputed | 'none';
-  /** Conteudo proprio do balao, no lugar da grade de `rows`, para leituras que nao sao tabela. */
+  /** Conteúdo próprio do balão, no lugar da grade de `rows`, para leituras que não são tabela. */
   content?: ReactNode;
-  /** Largura maxima do balao, em pixels. 360 por padrao; nunca passa da janela. */
+  /** Largura maxima do balão, em pixels. 360 por padrão; nunca passa da janela. */
   maxWidth?: number;
   /** Elemento que recebe o balão. Sem ele vale o `PortalProvider` mais próximo e, sem este, o `document.body`. */
   portalContainer?: HTMLElement | null;
@@ -67,19 +67,19 @@ interface Ponto {
   y: number;
 }
 
-/** Distancia entre o ponteiro e o balao, para o cursor nao cobrir o texto. */
+/** Distância entre o ponteiro e o balão, para o cursor não cobrir o texto. */
 export const TOOLTIP_OFFSET = 16;
 
-/** Com o dedo, o balao sobe acima do toque: a mao cobre o que estiver abaixo e a direita dele. */
+/** Com o dedo, o balão sobe acima do toque: a mao cobre o que estiver abaixo e a direita dele. */
 const TOOLTIP_OFFSET_TOUCH = 48;
 
-/** Folga minima ate a borda da janela. */
+/** Folga mínima até a borda da janela. */
 const MARGEM = 8;
 
-/** Distancia entre o balao e a caixa do elemento a que ele se encosta. */
+/** Distância entre o balão e a caixa do elemento a que ele se encosta. */
 const ESPACO_DA_CAIXA = 8;
 
-/** Largura util do documento, sem a barra de rolagem que ocupa espaco: e nela que o balao cabe ou nao. */
+/** Largura util do documento, sem a barra de rolagem que ocupa espaço: e nela que o balão cabe ou não. */
 function larguraDaJanela() {
   return document.documentElement.clientWidth || window.innerWidth;
 }
@@ -106,7 +106,7 @@ interface Encaixe extends Ponto {
   lado?: Lado;
 }
 
-/** O lado em que o balao ja abriu vale enquanto couber: trocar a cada marca, so porque a largura mudou, desorienta. */
+/** O lado em que o balão já abriu vale enquanto couber: trocar a cada marca, só porque a largura mudou, desorienta. */
 function escolherLado(preferido: Lado | undefined, cabe: Record<Lado, boolean>): Lado {
   if (preferido && cabe[preferido]) {
     return preferido;
@@ -116,7 +116,7 @@ function escolherLado(preferido: Lado | undefined, cabe: Record<Lado, boolean>):
 }
 
 /**
- * Canto do balao a partir do ponteiro. Ele abre para baixo e para a direita
+ * Canto do balão a partir do ponteiro. Ele abre para baixo e para a direita
  * enquanto couber, e vira para o lado oposto ao encostar na borda.
  */
 function encaixar({ touch, x, y }: Ponto, largura: number, altura: number, preferido?: Lado): Encaixe {
@@ -141,8 +141,8 @@ function dentroDaJanela(valor: number, tamanho: number, limite: number) {
 }
 
 /**
- * Canto do balao a partir da caixa do elemento, que termina em `x` e tem `y` a meia altura. Ele encosta a
- * direita da caixa, alinhado ao topo; sem espaco, vai para a esquerda; sem espaco dos dois lados, desce abaixo
+ * Canto do balão a partir da caixa do elemento, que termina em `x` e tem `y` a meia altura. Ele encosta a
+ * direita da caixa, alinhado ao topo; sem espaço, vai para a esquerda; sem espaço dos dois lados, desce abaixo
  * da caixa, alinhado a esquerda, ou sobe acima dela.
  */
 function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: number, altura: number, preferido?: Lado): Encaixe {
@@ -169,12 +169,12 @@ function encostar({ height, width, x, y }: Required<ChartAnchorPoint>, largura: 
 }
 
 /**
- * Leitura das medidas sob o ponteiro, em portal sobre a pagina. Ele acompanha o
- * cursor enquanto este percorre a area e sai a qualquer outra interacao.
+ * Leitura das medidas sob o ponteiro, em portal sobre a página. Ele acompanha o
+ * cursor enquanto este percorre a area e sai a qualquer outra interação.
  *
- * Nao conhece grafico algum: recebe linhas e colunas, e quem as monta e quem o
+ * Não conhece grafico algum: recebe linhas e colunas, e quem as monta e quem o
  * usa. E decorativo para leitor de tela: o desenho e `role="img"`, apresentado
- * como imagem unica, e a leitura medida a medida cabe a visao em tabela.
+ * como imagem única, e a leitura medida a medida cabe a visao em tabela.
  */
 export function ChartTooltip({
   anchor,
@@ -198,9 +198,9 @@ export function ChartTooltip({
   const ponto = ancora ?? ponteiro;
   const visivel = ponto !== null && (content !== undefined || rows.length > 0);
 
-  // Sai por qualquer motivo que nao seja o ponteiro andando pela area: rolagem,
-  // tecla ou a janela mudando de tamanho deixam o balao preso a um lugar que o
-  // desenho ja nao ocupa.
+  // Sai por qualquer motivo que não seja o ponteiro andando pela area: rolagem,
+  // tecla ou a janela mudando de tamanho deixam o balão preso a um lugar que o
+  // desenho já não ocupa.
   useEffect(() => {
     if (!visivel) {
       return;
@@ -211,7 +211,7 @@ export function ChartTooltip({
       setAncoraDispensada(ancora);
     };
     const soltarPonteiro = () => setPonteiro(null);
-    // Com o foco no grafico, na marca ou na legenda, o Escape fecha o balao ancorado e nao segue adiante.
+    // Com o foco no grafico, na marca ou na legenda, o Escape fecha o balão ancorado e não segue adiante.
     // Fora dele, o Escape e de quem tem o foco, como um menu aberto ou um atalho do produto.
     const fecharAncora = (evento: KeyboardEvent) => {
       const grafico = areaRef.current?.closest('figure') ?? areaRef.current;
@@ -241,7 +241,7 @@ export function ChartTooltip({
   return (
     <div
       className={styles.area}
-      // O dedo sai do desenho ao levantar, e e ai que o toque fixa o balao: quem o solta e o grafico, sem linhas.
+      // O dedo sai do desenho ao levantar, e e ai que o toque fixa o balão: quem o solta e o grafico, sem linhas.
       onPointerLeave={(evento) => evento.pointerType !== 'touch' && setPonteiro(null)}
       onPointerMove={acompanhar}
       onPointerUp={(evento) => evento.pointerType === 'touch' && acompanhar(evento)}
@@ -288,7 +288,7 @@ function Balao({
   const [medida, setMedida] = useState({ altura: 0, largura: 0 });
   const ladoAberto = useRef<Lado | undefined>(undefined);
 
-  // A medida entra antes da pintura, entao o balao ja nasce no lugar certo.
+  // A medida entra antes da pintura, então o balão já nasce no lugar certo.
   useLayoutEffect(() => {
     const no = ref.current;
 
@@ -307,7 +307,7 @@ function Balao({
   const colunas: readonly ChartTooltipColumn[] =
     columns ?? Array.from({ length: quantidadeDeColunas }, () => ({}));
 
-  // Sem coluna de onde derivar, nao ha o que calcular: linhas so com rotulo
+  // Sem coluna de onde derivar, não ha o que calcular: linhas só com rótulo
   // renderizariam um percentual tirado do nada.
   const calculada = computed === 'none' || colunas.length === 0 ? undefined : computed ?? {};
   const colunaBase = calculada?.column ?? colunas.length - 1;
@@ -316,7 +316,7 @@ function Balao({
   const formatarCalculada = calculada?.format ?? ((valor: number) => formatPercent(valor, { decimals: 2 }));
 
   const { height, width } = ponteiro;
-  // Sem medida ainda, o lado nao e decidido: o primeiro desenho, de largura zero, caberia em qualquer um.
+  // Sem medida ainda, o lado não e decidido: o primeiro desenho, de largura zero, caberia em qualquer um.
   const preferido = medida.largura > 0 ? ladoAberto.current : undefined;
   const { lado, x, y } =
     height !== undefined && width !== undefined

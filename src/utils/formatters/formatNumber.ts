@@ -2,13 +2,13 @@ import { numberFormat } from './intlCache';
 
 /**
  * `true` compacta na forma da localidade: em pt-BR, `500 mil` e `1,5 mi`. `'symbol'` usa as siglas
- * `k`, `M`, `B` e `T` — `500 k`, `1,5 M` —, com a virgula e o milhar da localidade.
+ * `k`, `M`, `B` e `T` — `500 k`, `1,5 M` —, com a vírgula e o milhar da localidade.
  */
 export type CompactNotation = boolean | 'symbol';
 
 export interface FormatNumberOptions {
   compact?: CompactNotation;
-  /** Sem declarar, quem decide e a localidade — e, na moeda, a propria moeda. */
+  /** Sem declarar, quem decide e a localidade — e, na moeda, a própria moeda. */
   decimals?: number;
   locale?: string;
 }
@@ -27,8 +27,8 @@ function fractionDigits(decimals?: number) {
 }
 
 /**
- * A forma compacta padrao sai da localidade, e nao de um sufixo proprio: em pt-BR um
- * milhao e `1 mi`, nao `1M`. A sigla e outra escolha, pedida por nome.
+ * A forma compacta padrão sai da localidade, e não de um sufixo próprio: em pt-BR um
+ * milhao e `1 mi`, não `1M`. A sigla e outra escolha, pedida por nome.
  */
 function notation(compact?: CompactNotation) {
   return compact === true ? ({ compactDisplay: 'short', notation: 'compact' } as const) : {};
@@ -67,7 +67,7 @@ function withSymbol(value: number, decimals: number | undefined, formatReduced: 
   }
 }
 
-/** Sinal so no negativo de fato: `-0`, e o que arredonda para zero, saiam como `-0`. */
+/** Sinal só no negativo de fato: `-0`, e o que arredonda para zero, saiam como `-0`. */
 const SIGN = { signDisplay: 'negative' } as const;
 
 export function formatNumber(value: number, { compact, decimals, locale = 'pt-BR' }: FormatNumberOptions = {}) {
@@ -85,9 +85,9 @@ export function formatNumber(value: number, { compact, decimals, locale = 'pt-BR
 }
 
 /**
- * Valor monetario. O separador entre simbolo e numero e um espaco nao
- * separavel, escolha do `Intl`: ele impede que a quebra de linha afaste o
- * simbolo do valor. As mascaras de entrada usam espaco comum, e a convergencia
+ * Valor monetário. O separador entre simbolo e numero e um espaço não
+ * separável, escolha do `Intl`: ele impede que a quebra de linha afaste o
+ * simbolo do valor. As mascaras de entrada usam espaço comum, e a convergência
  * das duas ainda esta em aberto.
  */
 export function formatCurrency(
@@ -114,9 +114,9 @@ export function formatCurrency(
 }
 
 /**
- * Percentual a partir da **fracao**: `0.42` vira `42%`. Receber o numero ja
+ * Percentual a partir da **fração**: `0.42` vira `42%`. Receber o numero já
  * multiplicado obrigaria cada consumidor a dividir antes de exibir, e e a
- * fracao que sai de uma divisao de duas medidas.
+ * fração que sai de uma divisão de duas medidas.
  */
 export function formatPercent(value: number, { decimals = 0, locale = 'pt-BR' }: FormatPercentOptions = {}) {
   if (!Number.isFinite(value)) {

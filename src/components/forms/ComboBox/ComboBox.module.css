@@ -61,7 +61,7 @@
   line-height: var(--pl-type-title-line-height);
 }
 
-/* Escolha multipla: a moldura e que tem a aparencia do campo, e o campo de busca vai nu dentro dela. */
+/* Escolha múltipla: a moldura e que tem a aparência do campo, e o campo de busca vai nu dentro dela. */
 .control {
   composes: input;
   gap: var(--pl-space-2);
@@ -114,7 +114,7 @@
   font-size: var(--pl-type-caption-size);
 }
 
-/* So para o leitor de tela: a contagem e os nomes que as etiquetas resumem. */
+/* Só para o leitor de tela: a contagem e os nomes que as etiquetas resumem. */
 .summary {
   position: absolute;
   width: 1px;

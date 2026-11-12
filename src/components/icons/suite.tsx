@@ -1,4 +1,4 @@
-// Gerado por scripts/gerar-icones.mjs a partir do bootstrap-icons 1.11.3. Nao edite a mao.
+// Gerado por scripts/gerar-icones.mjs a partir do bootstrap-icons 1.11.3. Não edite a mao.
 // Bootstrap Icons, sob licenca MIT — Copyright (c) 2019-2024 The Bootstrap Authors.
 import { Icon, type IconProps } from './Icon';
 

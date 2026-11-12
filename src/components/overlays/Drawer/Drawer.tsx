@@ -16,7 +16,7 @@ export type DrawerProps = DialogBaseProps &
     size?: DrawerSize;
   };
 
-/** Painel modal preso a lateral da tela, com a mesma mecanica do `Dialog`: foco preso, Esc fecha, a pagina nao rola. */
+/** Painel modal preso a lateral da tela, com a mesma mecanica do `Dialog`: foco preso, Esc fecha, a página não rola. */
 export function Drawer({ side = 'right', size = 'md', ...props }: DrawerProps) {
   return (
     <DialogFrame

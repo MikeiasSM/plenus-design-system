@@ -91,6 +91,7 @@ export interface ChartGaugeProps extends ChartRootProps {
   formatTooltipValue?: (value: number) => string;
   /** Formato do centro, da escala e da meta. */
   formatValue?: (value: number) => string;
+  /** Altura do desenho, em px ou `'fill'`; o cabeçalho e a legenda ficam fora dela. */
   height?: ChartHeight;
   indicator?: ChartGaugeIndicator;
   intent?: SeriesIntent;
@@ -217,7 +218,7 @@ export function ChartGauge({
   const shownTarget = target && isNumber(target.value) && status !== 'loading' ? target : undefined;
   const majors = majorTicks(domain, tickCount, reading.showsPercent ? base : null);
 
-  /** O que a escala mostra em volta do arco: o compacto e o arco sem espaco para ela retiram as marcas e os rotulos. */
+  /** O que a escala mostra em volta do arco: o compacto e o arco sem espaço para ela retiram as marcas e os rótulos. */
   const scaleParts = (bare: boolean) => {
     const hidden = compact || bare;
     const segmentLabels = hidden ? 'hidden' : showSegmentLabels;

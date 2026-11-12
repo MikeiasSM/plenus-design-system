@@ -15,7 +15,7 @@ export interface CartesianAxis {
   labelRotation?: AxisLabelRotation;
   position?: AxisPosition;
   ticks: readonly AxisTick[];
-  /** Titulo do eixo, fora da area de desenho. Exige `font` na moldura. */
+  /** Título do eixo, fora da área de desenho. Exige `font` na moldura. */
   title?: string;
   visibility?: AxisVisibility;
 }
@@ -35,7 +35,7 @@ export interface CartesianFrameProps {
   empty: boolean;
   emptyMessage: string;
   fillHeight: boolean;
-  /** Fonte dos rotulos, para medir e cortar os titulos dos eixos. */
+  /** Fonte dos rótulos, para medir e cortar os títulos dos eixos. */
   font?: LabelFont;
   grid?: readonly CartesianGrid[];
   height: number;
@@ -46,7 +46,7 @@ export interface CartesianFrameProps {
   margins: ChartMargins;
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
-  /** Partes que a decomposicao por encaixe ja retirou, vindas de `useCartesianLayout`. */
+  /** Partes que a decomposição por encaixe já retirou, vindas de `useCartesianLayout`. */
   removed?: ReadonlySet<CartesianPart>;
   root?: ChartFrameProps['root'];
   showTableToggle?: ChartFrameProps['showTableToggle'];
@@ -98,14 +98,14 @@ function Revelavel({ children, revealed }: { children: ReactNode; revealed: bool
   return <g className={`${styles.dynamicAxis} ${revealed ? styles.dynamicAxisRevealed : ''}`}>{children}</g>;
 }
 
-/** O titulo do eixo `onHover` aparece e some junto com ele; nos outros modos, fica sempre. */
+/** O título do eixo `onHover` aparece e some junto com ele; nos outros modos, fica sempre. */
 function TituloDoEixo({ axis, children, revealed }: { axis: CartesianAxis; children: ReactNode; revealed: boolean }) {
   return axis.visibility === 'onHover' ? <Revelavel revealed={revealed}>{children}</Revelavel> : children;
 }
 
 /**
  * Camada cartesiana sobre a moldura comum: grade, os dois eixos e as marcas,
- * todos dentro das margens ja calculadas a partir dos rotulos.
+ * todos dentro das margens já calculadas a partir dos rótulos.
  */
 export function CartesianFrame({
   axisReveal,

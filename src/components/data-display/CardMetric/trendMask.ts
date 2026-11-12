@@ -1,7 +1,7 @@
 /**
- * Mascara das comparacoes do `CardMetric.Trend`: quais partes aparecem, em que ordem e com que texto entre elas.
- * Cada linha do texto e uma linha da comparacao; `{parte}` e uma parte; `[ ]` e um trecho que aparece inteiro ou nao
- * aparece. Aqui so se le e se resolve a mascara; desenhar as partes e do componente.
+ * Mascara das comparações do `CardMetric.Trend`: quais partes aparecem, em que ordem e com que texto entre elas.
+ * Cada linha do texto e uma linha da comparação; `{parte}` e uma parte; `[ ]` e um trecho que aparece inteiro ou não
+ * aparece. Aqui só se le e se resolve a mascara; desenhar as partes e do componente.
  */
 
 export type CardMetricTrendPart = 'change' | 'description' | 'icon' | 'label' | 'magnitude' | 'value';
@@ -60,7 +60,7 @@ export function parseTrendMask(mask: string): TrendMaskLine[] {
     .filter((line) => line.length > 0);
 }
 
-/** Partes que a mascara cita e a lib nao conhece, para o aviso em desenvolvimento. */
+/** Partes que a mascara cita e a lib não conhece, para o aviso em desenvolvimento. */
 export function unknownTrendParts(lines: readonly TrendMaskLine[]): string[] {
   const unknown = new Set<string>();
   const visit = (items: readonly TrendMaskItem[]) =>
@@ -74,7 +74,7 @@ export function unknownTrendParts(lines: readonly TrendMaskLine[]): string[] {
   return [...unknown];
 }
 
-/** A parte ausente some; o texto entre partes so fica com uma presente de cada lado, e o trecho opcional, com todas. */
+/** A parte ausente some; o texto entre partes só fica com uma presente de cada lado, e o trecho opcional, com todas. */
 export function resolveTrendLine(line: TrendMaskLine, present: (part: CardMetricTrendPart) => boolean): TrendSegment[] {
   const has = (part: string) => isTrendPart(part) && present(part);
   const complete = (items: readonly TrendMaskItem[]): boolean =>
@@ -111,7 +111,7 @@ export function resolveTrendLine(line: TrendMaskLine, present: (part: CardMetric
   });
 }
 
-/** Na tabela, a primeira linha se reparte em celulas nos espacos; partes coladas dividem a celula. */
+/** Na tabela, a primeira linha se reparte em células nos espacos; partes coladas dividem a célula. */
 export function trendCells(line: TrendMaskLine): TrendMaskLine[] {
   const cells: TrendMaskItem[][] = [[]];
 
@@ -127,7 +127,7 @@ export function trendCells(line: TrendMaskLine): TrendMaskLine[] {
   return cells.filter((cell) => cell.length > 0);
 }
 
-/** A celula que leva rotulo ou explicacao e de texto: ocupa a sobra e quebra; as demais sao numeros. */
+/** A célula que leva rótulo ou explicação e de texto: ocupa a sobra e quebra; as demais são números. */
 export function isTextCell(cell: TrendMaskLine): boolean {
   return cell.some(
     (item) =>

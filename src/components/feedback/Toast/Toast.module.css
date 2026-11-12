@@ -1,4 +1,4 @@
-/* Canto inferior direito, o mais recente embaixo. No celular ocupa a largura, com o respiro da pagina. */
+/* Canto inferior direito, o mais recente embaixo. No celular ocupa a largura, com o respiro da página. */
 .region {
   position: fixed;
   right: var(--pl-space-5);
@@ -18,7 +18,7 @@
   }
 }
 
-/* Cartao claro com o icone na cor do tom, como a notificacao do Untitled UI. */
+/* Cartão claro com o ícone na cor do tom, como a notificação do Untitled UI. */
 .toast {
   display: flex;
   gap: var(--pl-space-3);

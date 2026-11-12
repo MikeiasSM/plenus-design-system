@@ -1,4 +1,4 @@
-/** Um degrau da escala tipografica para o valor do centro de um anel. */
+/** Um degrau da escala tipográfica para o valor do centro de um anel. */
 export interface CenterStep {
   display: boolean;
   lineHeight: number;
@@ -9,15 +9,15 @@ export interface LabelFont {
   /** Degraus do valor do centro, do maior ao menor: display, headline e title. */
   centerSteps: readonly CenterStep[];
   family: string;
-  /** Familia de display, usada onde o valor e um KPI. */
+  /** Família de display, usada onde o valor e um KPI. */
   headingFamily: string;
-  /** Peso de `type.label`, o do titulo de eixo. */
+  /** Peso de `type.label`, o do título de eixo. */
   labelWeight: number;
   lineHeight: number;
   size: number;
 }
 
-/** Os papeis de cada degrau do centro e o valor deles na referencia tipografica, para quando nao ha CSS. */
+/** Os papeis de cada degrau do centro e o valor deles na referência tipográfica, para quando não ha CSS. */
 const DEGRAUS_DO_CENTRO = [
   { display: true, papel: 'display-large', size: 36, lineHeight: 44 },
   { display: true, papel: 'headline-medium', size: 24, lineHeight: 32 },
@@ -33,13 +33,13 @@ const PADRAO: LabelFont = {
   size: 12,
 };
 
-/** Proporcao entre a largura media de um caractere e o corpo da fonte. */
+/** Proporção entre a largura media de um caractere e o corpo da fonte. */
 const LARGURA_POR_CARACTERE = 0.58;
 
 const PIXELS = /^-?\d*\.?\d+px$/;
 
 /**
- * Medida de um token de tipografia em pixels. O valor em `px` e lido direto; `rem`, `calc()` ou `clamp()` sao
+ * Medida de um token de tipografia em pixels. O valor em `px` e lido direto; `rem`, `calc()` ou `clamp()` são
  * resolvidos pelo navegador numa sonda dentro do elemento, onde valem a fonte e a janela de quem usa o token.
  */
 function pixelsOf(node: Element, value: string, property: 'font-size' | 'line-height') {
@@ -59,8 +59,8 @@ function pixelsOf(node: Element, value: string, property: 'font-size' | 'line-he
 }
 
 /**
- * Fonte dos rotulos, lida dos tokens no proprio elemento do grafico. Ler do
- * elemento evita repetir em JavaScript um valor que ja pertence ao CSS.
+ * Fonte dos rótulos, lida dos tokens no próprio elemento do gráfico. Ler do
+ * elemento evita repetir em JavaScript um valor que já pertence ao CSS.
  */
 export function labelFontOf(node: Element | null): LabelFont {
   if (!node || typeof getComputedStyle !== 'function') {
@@ -101,8 +101,8 @@ function contextoDeMedida() {
 
 /**
  * Largura do texto na fonte informada. O canvas mede sem inserir nada na
- * pagina; onde ele nao existe, a estimativa por caractere mantem o calculo
- * deterministico, em vez de devolver zero e amontoar os rotulos.
+ * página; onde ele não existe, a estimativa por caractere mantem o calculo
+ * deterministico, em vez de devolver zero e amontoar os rótulos.
  */
 export function measureLabel(text: string, font: LabelFont, weight = 400) {
   const estimativa = text.length * font.size * LARGURA_POR_CARACTERE;
@@ -122,9 +122,9 @@ export function widestLabel(labels: readonly string[], font: LabelFont) {
 }
 
 /**
- * Texto cortado para caber na largura, com reticencia. Onde o desenho e o
- * proprio espaco — o centro de um anel, o retangulo de um mapa de area — nao ha
- * caixa que corte por conta propria.
+ * Texto cortado para caber na largura, com reticência. Onde o desenho e o
+ * próprio espaço — o centro de um anel, o retangulo de um mapa de área — não ha
+ * caixa que corte por conta própria.
  */
 export function truncateToWidth(text: string, font: LabelFont, maxWidth: number, weight?: number) {
   if (maxWidth <= 0) {

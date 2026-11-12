@@ -35,7 +35,7 @@
   transition: box-shadow var(--pl-speed-1) var(--pl-ease);
 }
 
-/* Sem cor: a superficie riscada na diagonal. */
+/* Sem cor: a superfície riscada na diagonal. */
 .none {
   background: linear-gradient(
       to top right,

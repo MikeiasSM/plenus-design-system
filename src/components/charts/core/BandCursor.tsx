@@ -14,7 +14,7 @@ export interface BandCursorProps {
 
 /**
  * Realce da faixa sob o ponteiro, atras das marcas. Na vertical ele e uma
- * coluna e na horizontal uma linha: so o eixo troca.
+ * coluna e na horizontal uma linha: só o eixo troca.
  */
 export function BandCursor({ offset, orientation = 'vertical', plot, size }: BandCursorProps) {
   const vertical = orientation === 'vertical';

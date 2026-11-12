@@ -1,26 +1,26 @@
 import { polylabel, signedDistance, type Point, type Ring } from './polylabel';
 
 export interface LabelCandidate {
-  /** Caixa da regiao na tela; as maiores rotulam primeiro. */
+  /** Caixa da região na tela; as maiores rotulam primeiro. */
   bounds: readonly [Point, Point];
   id: string;
-  /** Partes da regiao na tela, cada uma com o anel externo e os furos. So e lida quando a caixa comporta o rotulo. */
+  /** Partes da região na tela, cada uma com o anel externo e os furos. Só e lida quando a caixa comporta o rótulo. */
   parts: readonly (readonly Ring[])[];
   title: string;
   value?: string;
 }
 
 export interface LabelPlanOptions {
-  /** Leva para a coluna junto ao desenho o rotulo que nao cabe na regiao. */
+  /** Leva para a coluna junto ao desenho o rótulo que não cabe na região. */
   callouts: boolean;
-  /** Distancia entre dois rotulos seguidos na coluna. */
+  /** Distância entre dois rótulos seguidos na coluna. */
   calloutStep: number;
-  /** Altura do desenho, que limita quantos rotulos a coluna comporta. */
+  /** Altura do desenho, que limita quantos rótulos a coluna comporta. */
   height: number;
-  /** Altura de uma linha de texto do rotulo dentro da regiao. */
+  /** Altura de uma linha de texto do rótulo dentro da região. */
   lineHeight: number;
   measure: (text: string) => number;
-  /** Borda direita da area de desenho; a coluna nunca passa dela. */
+  /** Borda direita da área de desenho; a coluna nunca passa dela. */
   right: number;
 }
 
@@ -50,11 +50,11 @@ interface Box {
 
 const BOX_PADDING = 2;
 export const CALLOUT_GAP = 16;
-/** Espaco entre a sigla e o valor na coluna. */
+/** Espaço entre a sigla e o valor na coluna. */
 export const CALLOUT_VALUE_GAP = 5;
 const EDGE = 8;
 
-/** A maior parte da regiao, pela area do anel externo: ilhas, como Fernando de Noronha, nao deslocam o rotulo. */
+/** A maior parte da região, pela área do anel externo: ilhas, como Fernando de Noronha, não deslocam o rótulo. */
 export function largestPart(parts: readonly (readonly Ring[])[]): readonly Ring[] {
   const areaOf = (ring: Ring) =>
     Math.abs(ring.reduce((sum, [x, y], index) => {
@@ -65,14 +65,14 @@ export function largestPart(parts: readonly (readonly Ring[])[]): readonly Ring[
   return parts.reduce((largest, part) => (areaOf(part[0] ?? []) > areaOf(largest[0] ?? []) ? part : largest), parts[0] ?? []);
 }
 
-/** Largura do rotulo na coluna: a sigla e, ao lado, o valor. */
+/** Largura do rótulo na coluna: a sigla e, ao lado, o valor. */
 export function calloutWidth(label: Pick<InsideLabel, 'title' | 'value'>, measure: (text: string) => number) {
   return measure(label.title) + (label.value ? CALLOUT_VALUE_GAP + measure(label.value) : 0);
 }
 
 /**
- * Centro visual para um rotulo largo: o poligono e achatado na proporcao do rotulo antes da busca, e o maior circulo
- * interno vira a maior elipse daquela proporcao. Numa cunha como o Acre, o circulo deixava os cantos de fora.
+ * Centro visual para um rótulo largo: o poligono e achatado na proporção do rótulo antes da busca, e o maior circulo
+ * interno vira a maior elipse daquela proporção. Numa cunha como o Acre, o circulo deixava os cantos de fora.
  */
 function labelCenter(rings: readonly Ring[], aspect: number): Point {
   const [x, y] = polylabel(rings.map((ring) => ring.map(([px, py]): Point => [px, py * aspect])));
@@ -84,9 +84,9 @@ function overlaps(a: Box, b: Box) {
 }
 
 /**
- * Onde vai cada rotulo. Da maior regiao para a menor, entra quem cabe inteiro dentro da propria regiao, pelos quatro
- * cantos, sem tocar outro rotulo; sem espaco para o valor, fica so a sigla; sem espaco nem para ela, o rotulo vai para
- * uma coluna junto ao desenho, com linha guia, se a regiao esta na metade junto a ela. Quando a coluna nao comporta
+ * Onde vai cada rótulo. Da maior região para a menor, entra quem cabe inteiro dentro da própria região, pelos quatro
+ * cantos, sem tocar outro rótulo; sem espaço para o valor, fica só a sigla; sem espaço nem para ela, o rótulo vai para
+ * uma coluna junto ao desenho, com linha guia, se a região esta na metade junto a ela. Quando a coluna não comporta
  * todos, como nos municipios, nenhum vai.
  */
 export function planLabels(candidates: readonly LabelCandidate[], options: LabelPlanOptions): LabelPlan {
@@ -112,7 +112,7 @@ export function planLabels(candidates: readonly LabelCandidate[], options: Label
     x: x - width / 2 - BOX_PADDING,
     y: y - (lineHeight * lines) / 2 - BOX_PADDING / 2,
   });
-  // A folga separa um rotulo do outro; dentro da regiao basta o texto.
+  // A folga separa um rótulo do outro; dentro da região basta o texto.
   const fits = (box: Box, candidate: LabelCandidate) => {
     const [left, top] = [box.x + BOX_PADDING, box.y + BOX_PADDING / 2];
     const [right, bottom] = [box.x + box.width - BOX_PADDING, box.y + box.height - BOX_PADDING / 2];
@@ -132,7 +132,7 @@ export function planLabels(candidates: readonly LabelCandidate[], options: Label
     const titleWidth = measure(candidate.title);
     const [[x0, y0], [x1, y1]] = candidate.bounds;
 
-    // A caixa da regiao menor que a do rotulo dispensa a busca do centro.
+    // A caixa da região menor que a do rótulo dispensa a busca do centro.
     if (x1 - x0 < titleWidth + BOX_PADDING * 2 || y1 - y0 < lineHeight + BOX_PADDING) {
       small.push({ candidate });
       continue;
@@ -162,7 +162,7 @@ export function planLabels(candidates: readonly LabelCandidate[], options: Label
     return { callouts: [], inside };
   }
 
-  // So a metade do desenho junto a coluna vai para ela: do lado oposto, a linha guia cruzaria o mapa inteiro.
+  // Só a metade do desenho junto a coluna vai para ela: do lado oposto, a linha guia cruzaria o mapa inteiro.
   const [left, right] = candidates.reduce(
     ([low, high], { bounds }) => [Math.min(low, bounds[0][0]), Math.max(high, bounds[1][0])],
     [Infinity, -Infinity],
@@ -173,7 +173,7 @@ export function planLabels(candidates: readonly LabelCandidate[], options: Label
     return { callouts: [], inside };
   }
 
-  // A coluna encosta no desenho pela maior parte das regioes, e nao pelas ilhas nem pela borda do conteiner.
+  // A coluna encosta no desenho pela maior parte das regioes, e não pelas ilhas nem pela borda do contêiner.
   const drawingRight = candidates.reduce(
     (right, candidate) => (mainPartOf(candidate)[0] ?? []).reduce((edge, [x]) => Math.max(edge, x), right),
     -Infinity,

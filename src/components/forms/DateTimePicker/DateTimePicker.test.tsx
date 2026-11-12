@@ -97,7 +97,7 @@ describe('DateTimePicker', () => {
 
     fireEvent.change(campo, { target: { value: '09032026184' } });
     expect(campo).toHaveValue('09/03/2026 18:4');
-    // Hora pela metade nao e valor: meia-noite seria uma hora que ninguem digitou.
+    // Hora pela metade não e valor: meia-noite seria uma hora que ninguem digitou.
     expect(mudou).toHaveBeenLastCalledWith(null);
 
     fireEvent.change(campo, { target: { value: '090320261840' } });
@@ -109,7 +109,7 @@ describe('DateTimePicker', () => {
     const mudou = vi.fn();
     render(<DateTimePicker label="Agendamento" onValueChange={mudou} />);
 
-    // Entre um instante e outro o relogio pode virar de minuto: o valor fica entre os dois, e nao igual ao segundo.
+    // Entre um instante e outro o relogio pode virar de minuto: o valor fica entre os dois, e não igual ao segundo.
     const minutoCheio = () => toCalendarDateTime(now(getLocalTimeZone())).toString().slice(0, 16);
     const antes = minutoCheio();
 

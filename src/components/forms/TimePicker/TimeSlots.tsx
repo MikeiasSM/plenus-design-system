@@ -22,12 +22,12 @@ export function paraTextoDeHora(hora?: Time) {
   return hora ? doisDigitos(hora.hour) + ':' + doisDigitos(hora.minute) : '';
 }
 
-/** A hora digitada respeita os limites que a lista ja respeita. */
+/** A hora digitada respeita os limites que a lista já respeita. */
 export function isTimeAllowed(time: Time, min?: Time, max?: Time) {
   return (!min || time.compare(min) >= 0) && (!max || time.compare(max) <= 0);
 }
 
-/** Horarios do dia inteiro, do primeiro ao ultimo que couber no passo. */
+/** Horários do dia inteiro, do primeiro ao ultimo que couber no passo. */
 export function gerarHorarios(step: number, min = new Time(0, 0), max = new Time(23, 59)) {
   if (step <= 0) {
     return [];

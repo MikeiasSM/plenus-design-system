@@ -1,5 +1,5 @@
 :root {
   --pl-speed-1: 120ms;   /* hover de cor e fundo */
-  --pl-speed-2: 180ms;   /* elevacao, paineis, switches */
+  --pl-speed-2: 180ms;   /* elevação, painéis, switches */
   --pl-ease: cubic-bezier(.2, .6, .3, 1);
 }

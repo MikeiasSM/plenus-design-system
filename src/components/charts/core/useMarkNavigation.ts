@@ -1,13 +1,13 @@
 import { useState, type KeyboardEvent, type SyntheticEvent } from 'react';
 import styles from './Chart.module.css';
 
-/** Lugar de uma marca na grade do grafico: a coluna e a categoria ou a fatia; a linha, a serie. */
+/** Lugar de uma marca na grade do gráfico: a coluna e a categoria ou a fatia; a linha, a série. */
 export interface MarkPosition {
   column: number;
   row: number;
 }
 
-/** Argumento do clique numa marca de serie: a barra, o ponto. */
+/** Argumento do clique numa marca de série: a barra, o ponto. */
 export interface ChartMarkClick {
   category: string;
   index: number;
@@ -16,9 +16,9 @@ export interface ChartMarkClick {
 }
 
 /**
- * Onde ancorar o balao, em coordenadas da janela, para quem o monta pela costura. So com o ponto, ele abre no
+ * Onde ancorar o balão, em coordenadas da janela, para quem o monta pela costura. Só com o ponto, ele abre no
  * afastamento do ponteiro; com `width` e `height`, o ponto e a ponta direita da caixa do elemento, a meia altura,
- * e o balao encosta nela.
+ * e o balão encosta nela.
  */
 export interface ChartAnchorPoint {
   height?: number;
@@ -27,18 +27,18 @@ export interface ChartAnchorPoint {
   y: number;
 }
 
-/** Segundo argumento do aviso que vem da legenda, sem ponteiro: a cor desenhada e onde ancorar o balao. */
+/** Segundo argumento do aviso que vem da legenda, sem ponteiro: a cor desenhada e onde ancorar o balão. */
 export interface ChartHoverDetails {
   anchor: ChartAnchorPoint;
   color: string;
 }
 
 export interface MarkNavigationOptions {
-  /** Ativa a marca, pelo clique, por Enter ou por Espaco. Sem ele, as marcas nao sao botoes. */
+  /** Ativa a marca, pelo clique, por Enter ou por Espaço. Sem ele, as marcas não são botões. */
   onActivate?: (position: MarkPosition) => void;
-  /** Marca em foco pelo teclado, ou `null` ao sair, para o grafico realcar e abrir o balao. */
+  /** Marca em foco pelo teclado, ou `null` ao sair, para o gráfico realcar e abrir o balão. */
   onFocusMark?: (position: MarkPosition | null) => void;
-  /** As marcas que existem e estao visiveis. As setas saltam as ausentes. */
+  /** As marcas que existem e estao visíveis. As setas saltam as ausentes. */
   present: readonly MarkPosition[];
 }
 
@@ -62,7 +62,7 @@ function positionFrom(event: SyntheticEvent): MarkPosition | null {
   return Number.isInteger(row) && Number.isInteger(column) ? { column, row } : null;
 }
 
-/** A marca mais proxima na direcao da seta, na mesma linha ou na mesma coluna. */
+/** A marca mais próxima na direção da seta, na mesma linha ou na mesma coluna. */
 function neighbor(present: readonly MarkPosition[], from: MarkPosition, { column, row }: MarkPosition) {
   const candidates = present.filter((mark) =>
     column !== 0
@@ -76,9 +76,9 @@ function neighbor(present: readonly MarkPosition[], from: MarkPosition, { column
 }
 
 /**
- * Marcas como botoes, quando o grafico tem clique na marca: uma parada de
- * tabulacao para o grupo, setas entre as marcas, Home e End nas pontas da
- * linha e Enter ou Espaco para ativar. A marca em foco ancora o balao no centro dela.
+ * Marcas como botões, quando o gráfico tem clique na marca: uma parada de
+ * tabulação para o grupo, setas entre as marcas, Home e End nas pontas da
+ * linha e Enter ou Espaço para ativar. A marca em foco âncora o balão no centro dela.
  */
 export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavigationOptions) {
   const [tabStop, setTabStop] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
   }
 
   return {
-    /** Ancora o balao fora das marcas, como na entrada da legenda; `undefined` o solta. */
+    /** Âncora o balão fora das marcas, como na entrada da legenda; `undefined` o solta. */
     anchorTooltip: setTooltipAnchor,
     groupProps: interactive
       ? {
@@ -150,7 +150,7 @@ export function useMarkNavigation({ onActivate, onFocusMark, present }: MarkNavi
       : {},
     interactive,
     tooltipAnchor,
-    /** Atributos da marca: botao, somando a classe propria dela a de botao, ou simbolo grafico, que admite o `aria-label`. */
+    /** Atributos da marca: botão, somando a classe própria dela a de botão, ou simbolo gráfico, que admite o `aria-label`. */
     markProps: (position: MarkPosition, className?: string) =>
       interactive
         ? {

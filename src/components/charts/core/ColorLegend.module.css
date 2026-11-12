@@ -47,7 +47,7 @@
   flex-direction: column;
 }
 
-/* A lista lateral da legenda comum guarda 45% da largura para o desenho; aqui a coluna ja e so da legenda. */
+/* A lista lateral da legenda comum guarda 45% da largura para o desenho; aqui a coluna já e só da legenda. */
 .legendSide ul {
   max-width: none;
 }

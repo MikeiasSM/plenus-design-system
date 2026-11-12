@@ -4,11 +4,11 @@ export type CardMetricTone = 'success' | 'danger' | 'neutral';
 
 export interface CardMetricComparison {
   label: string;
-  /** Fracao, a unidade do `formatPercent`: 0.124 e 12,4%. */
+  /** Fração, a unidade do `formatPercent`: 0.124 e 12,4%. */
   change?: number;
-  /** Explicacao da comparacao, como o que entra no calculo. Quebra livre no balao e entra no nome acessivel. */
+  /** Explicação da comparação, como o que entra no calculo. Quebra livre no balão e entra no nome acessível. */
   description?: string;
-  /** Diferenca absoluta, mostrada no balao. */
+  /** Diferença absoluta, mostrada no balão. */
   value?: number;
   formatValue?: (value: number) => string;
   polarity?: CardMetricPolarity;

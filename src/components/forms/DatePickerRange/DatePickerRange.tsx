@@ -37,7 +37,7 @@ interface Selection {
   start?: CalendarDate;
 }
 
-/** As propriedades nativas vao ao gatilho, que e o controle; o `className` soma ao do sistema. */
+/** As propriedades nativas vão ao gatilho, que e o controle; o `className` soma ao do sistema. */
 export interface DatePickerRangeProps
   extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'defaultValue' | 'name' | 'onChange' | 'type' | 'value'> {
   defaultOpen?: boolean;
@@ -151,7 +151,7 @@ export function DatePickerRange({
       onClose: () => setOpen(false),
       isDismissable: true,
       shouldCloseOnBlur: false,
-      // O gatilho nao conta como "fora": o clique dele alterna, e o painel nao pode fechar e reabrir.
+      // O gatilho não conta como "fora": o clique dele alterna, e o painel não pode fechar e reabrir.
       shouldCloseOnInteractOutside: (element) => !triggerRef.current?.contains(element),
     },
     panelRef,

@@ -4,8 +4,8 @@
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }
 
-/* Focar uma fatia apaga tudo que nao a originou. O que fica cheio e o caminho
-   dela ate a raiz, que e o que explica de onde ela veio. */
+/* Focar uma fatia apaga tudo que não a originou. O que fica cheio e o caminho
+   dela até a raiz, que e o que explica de onde ela veio. */
 .arcDim {
   opacity: 0.35;
 }

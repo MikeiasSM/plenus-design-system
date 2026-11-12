@@ -20,8 +20,8 @@ export interface CategoricalScaleOptions {
 }
 
 /**
- * Faixa que cobre os valores, com o zero incluido por padrao. Uma barra que
- * nao parte do zero exagera a diferenca entre os valores.
+ * Faixa que cobre os valores, com o zero incluido por padrão. Uma barra que
+ * não parte do zero exagera a diferença entre os valores.
  */
 export function domainOf(values: readonly number[], { includeZero = true } = {}): NumericRange {
   const finitos = values.filter(Number.isFinite);
@@ -39,7 +39,7 @@ export function domainOf(values: readonly number[], { includeZero = true } = {})
 }
 
 /**
- * Pilha divergente: positivos sobem do zero e negativos descem dele, cada sinal com o proprio acumulado.
+ * Pilha divergente: positivos sobem do zero e negativos descem dele, cada sinal com o próprio acumulado.
  * Na soma corrida, `+10` e `-5` desenhavam o negativo por cima do positivo.
  */
 export function stackDiverging(contributions: readonly number[]): [number, number][] {
@@ -61,7 +61,7 @@ export function stackDiverging(contributions: readonly number[]): [number, numbe
   });
 }
 
-/** Une varias series na mesma faixa, para que compartilhem um unico eixo. */
+/** Une varias séries na mesma faixa, para que compartilhem um unico eixo. */
 export function mergeDomains(domains: readonly NumericRange[]): NumericRange {
   if (domains.length === 0) {
     return { min: 0, max: 0 };
@@ -73,12 +73,12 @@ export function mergeDomains(domains: readonly NumericRange[]): NumericRange {
   };
 }
 
-/** Parte da faixa abaixo do zero; sem amplitude, nao ha o que alinhar. */
+/** Parte da faixa abaixo do zero; sem amplitude, não ha o que alinhar. */
 function parteNegativa({ min: menor, max: maior }: NumericRange) {
   return maior > menor ? -menor / (maior - menor) : undefined;
 }
 
-/** Estende a faixa do lado que falta para o zero ficar na altura pedida, em fracao do eixo. */
+/** Estende a faixa do lado que falta para o zero ficar na altura pedida, em fração do eixo. */
 function levarZeroA(faixa: NumericRange, parte: number, altura: number): NumericRange {
   if (parte > altura) {
     return { min: faixa.min, max: (-faixa.min * (1 - altura)) / altura };
@@ -93,7 +93,7 @@ function levarZeroA(faixa: NumericRange, parte: number, altura: number): Numeric
 
 /**
  * Estende dois dominios que contem o zero para que ele caia na mesma altura nos
- * dois eixos. Cada um cresce so do lado que precisa, e a folga sai igual nos dois.
+ * dois eixos. Cada um cresce só do lado que precisa, e a folga sai igual nos dois.
  */
 export function alignZeros(a: NumericRange, b: NumericRange): [NumericRange, NumericRange] {
   const parteA = parteNegativa(a);
@@ -129,9 +129,9 @@ export function pointScale({ domain, padding = 0.5, range }: CategoricalScaleOpt
 }
 
 /**
- * Raio pela raiz do valor, para que a area da bolha acompanhe o dado em vez do
- * raio. Mapeando o valor direto ao raio, a area cresceria com o quadrado dele e
- * exageraria a diferenca.
+ * Raio pela raiz do valor, para que a área da bolha acompanhe o dado em vez do
+ * raio. Mapeando o valor direto ao raio, a área cresceria com o quadrado dele e
+ * exageraria a diferença.
  */
 export function radiusScale(maxValue: number, range: [number, number]) {
   return scaleSqrt().domain([0, maxValue > 0 ? maxValue : 1]).range(range);
@@ -139,9 +139,9 @@ export function radiusScale(maxValue: number, range: [number, number]) {
 
 /**
  * Marcas de um eixo continuo. Sem contagem informada, o eixo decide pelo
- * espaco que tem, para nao amontoar rotulos em area estreita. Com passo minimo,
- * a contagem cai ate o intervalo entre marcas caber nele: valores inteiros nao
- * ganham marcas fracionarias. Em escala categorica as marcas sao o proprio dominio.
+ * espaço que tem, para não amontoar rótulos em área estreita. Com passo mínimo,
+ * a contagem cai até o intervalo entre marcas caber nele: valores inteiros não
+ * ganham marcas fracionarias. Em escala categorica as marcas são o próprio dominio.
  */
 export function ticksFor(
   scale: { ticks: (count?: number) => number[] },

@@ -25,7 +25,7 @@ interface ChartTimelineTableProps {
   title: string;
 }
 
-/** Leitura medida a medida do grafico: uma secao por linha, com o rotulo, a descricao e o resumo no cabecalho dela. */
+/** Leitura medida a medida do gráfico: uma secao por linha, com o rótulo, a descrição e o resumo no cabeçalho dela. */
 export function ChartTimelineTable({ emptyRowLabel, rows, showProgress, title }: ChartTimelineTableProps) {
   const columns = showProgress ? 5 : 4;
 

@@ -1,5 +1,5 @@
-/* O raio de cada canto e desenhado no proprio caminho: numa pilha, so as duas
-   pontas sao arredondadas. */
+/* O raio de cada canto e desenhado no próprio caminho: numa pilha, só as duas
+   pontas são arredondadas. */
 .bar {
   transition: opacity var(--pl-speed-1) var(--pl-ease);
 }

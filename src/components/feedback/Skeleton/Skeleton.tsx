@@ -11,7 +11,7 @@ export interface SkeletonProps extends ComponentPropsWithRef<'span'> {
 }
 
 /**
- * Lugar de um conteudo que ainda carrega. E decorativo e fica fora da leitura:
+ * Lugar de um conteúdo que ainda carrega. E decorativo e fica fora da leitura:
  * quem envolve os esqueletos anuncia o carregamento, com `aria-busy` ou uma mensagem de status.
  */
 export function Skeleton({ className, height, shape = 'line', style, width, ...props }: SkeletonProps) {

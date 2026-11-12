@@ -1,5 +1,5 @@
 export interface FormatFileSizeOptions {
-  /** Sem declarar, ate uma casa: `24,6 MB` e `512 KB`. Bytes saem sempre inteiros. */
+  /** Sem declarar, até uma casa: `24,6 MB` e `512 KB`. Bytes saem sempre inteiros. */
   decimals?: number;
   locale?: string;
 }
@@ -17,7 +17,7 @@ export function formatFileSize(bytes: number, { decimals, locale = 'pt-BR' }: Fo
   const digitsOf = (index: number) => (index === 0 ? 0 : (decimals ?? 1));
   const round = (value: number, places: number) => Math.round(value * 10 ** places) / 10 ** places;
 
-  // O que arredonda para 1024 da unidade sobe para a seguinte: `1.048.575` bytes e `1 MB`, nao `1.024 KB`.
+  // O que arredonda para 1024 da unidade sobe para a seguinte: `1.048.575` bytes e `1 MB`, não `1.024 KB`.
   if (unit < UNITS.length - 1 && round(bytes / BASE ** unit, digitsOf(unit)) >= BASE) {
     unit += 1;
   }

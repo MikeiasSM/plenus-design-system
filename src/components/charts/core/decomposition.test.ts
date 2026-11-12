@@ -10,7 +10,7 @@ const entries = [
 describe('removedParts', () => {
   const order = ['legend', 'titles', 'labels'] as const;
   const minimum = { height: 100, width: 100 };
-  /** Cada parte devolve largura ou altura: a legenda e os titulos, largura; os rotulos, altura. */
+  /** Cada parte devolve largura ou altura: a legenda e os títulos, largura; os rótulos, altura. */
   const medir = (removed: ReadonlySet<string>) => ({
     height: 60 + (removed.has('labels') ? 50 : 0),
     width: 60 + (removed.has('legend') ? 20 : 0) + (removed.has('titles') ? 30 : 0),

@@ -46,12 +46,12 @@
   position: relative;
 }
 
-/* Com zoom, um dedo continua rolando a pagina e dois dedos movem o mapa: a pinca do navegador cederia o lugar. */
+/* Com zoom, um dedo continua rolando a página e dois dedos movem o mapa: a pinca do navegador cederia o lugar. */
 .plotZoomable {
   touch-action: pan-x pan-y;
 }
 
-/* Em `fill` a figura ocupa a altura imposta; a base de 160px so vale sem altura imposta. */
+/* Em `fill` a figura ocupa a altura imposta; a base de 160px só vale sem altura imposta. */
 .figureFill {
   height: 100%;
   min-height: 0;
@@ -78,7 +78,7 @@
   align-self: stretch;
 }
 
-/* O contexto do recorte segue alem da area; o corte o mantem dentro do grafico. */
+/* O contexto do recorte segue além da área; o corte o mantem dentro do gráfico. */
 .canvas {
   display: block;
   overflow: hidden;
@@ -142,7 +142,7 @@
   pointer-events: none;
 }
 
-/* A borda forte separa as regioes e, no tema escuro, contorna o tom mais escuro contra a superficie. */
+/* A borda forte separa as regioes e, no tema escuro, contorna o tom mais escuro contra a superfície. */
 .region {
   stroke: var(--pl-color-border-strong);
   stroke-linejoin: round;
@@ -159,7 +159,7 @@
   opacity: 0.22;
 }
 
-/* O contexto do recorte: so geografia, sem valor nem interacao. */
+/* O contexto do recorte: só geografia, sem valor nem interação. */
 .context {
   fill: var(--pl-color-surface-muted);
   stroke: var(--pl-color-border-strong);
@@ -167,7 +167,7 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* A divisa e a borda da regiao mais fina e esmaecida: sobre qualquer preenchimento, contrasta menos que ela, que a cobre logo acima. */
+/* A divisa e a borda da região mais fina e esmaecida: sobre qualquer preenchimento, contrasta menos que ela, que a cobre logo acima. */
 .subdivision {
   fill: none;
   stroke: var(--pl-color-border-strong);
@@ -220,7 +220,7 @@
   fill-opacity: 1;
 }
 
-/* O halo na cor da superficie garante o contraste do texto sobre qualquer tom da escala, nos dois temas. */
+/* O halo na cor da superfície garante o contraste do texto sobre qualquer tom da escala, nos dois temas. */
 text.label,
 .callout {
   font-family: var(--pl-font-body);
@@ -271,7 +271,7 @@ text.label {
   fill: var(--pl-color-text-secondary);
 }
 
-/* Legenda: a escala vem da ColorLegend; aqui ficam so os marcadores. */
+/* Legenda: a escala vem da ColorLegend; aqui ficam só os marcadores. */
 
 .sizeKey {
   display: flex;

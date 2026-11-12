@@ -17,7 +17,7 @@ function attach<T>(ref: Ref<T> | undefined, node: T | null) {
 }
 
 /**
- * Junta o ref interno ao que veio de fora numa funcao estavel, que devolve a limpeza do React 19.
+ * Junta o ref interno ao que veio de fora numa função estável, que devolve a limpeza do React 19.
  * Nova a cada render, ela desligava e religava o elemento em todo render.
  */
 export function useMergedRefs<T>(...refs: readonly (Ref<T> | undefined)[]) {

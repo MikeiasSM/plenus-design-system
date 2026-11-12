@@ -22,8 +22,8 @@ export function FieldRow({ children, className, description, id: providedId, lab
   const generatedId = useId();
   const id = providedId ?? `field-row-${generatedId}`;
   const descriptionId = `${id}-description`;
-  // O controle que se nomeia pelo conteudo, como um botao, nao le o id: sem ele, o rotulo apontaria para o vazio. A
-  // leitura decide no proprio render, e o HTML do servidor ja sai certo; o controle que monta depois continua ligado.
+  // O controle que se nomeia pelo conteúdo, como um botão, não le o id: sem ele, o rótulo apontaria para o vazio. A
+  // leitura decide no próprio render, e o HTML do servidor já sai certo; o controle que monta depois continua ligado.
   let idRead = false;
   const wiring: FieldRowWiring = {
     describedBy: description ? descriptionId : undefined,

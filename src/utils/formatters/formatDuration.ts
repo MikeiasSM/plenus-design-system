@@ -1,8 +1,8 @@
 const MINUTE = 60_000;
 
 /**
- * Duracao em horas e minutos, arredondada ao minuto: `10h16m`, `1h05m`, `48m`, `12h`. Recebe milissegundos.
- * Duracao em dias fica com quem a exibe: um prazo de projeto e lido em dias, uma jornada nao.
+ * Duração em horas e minutos, arredondada ao minuto: `10h16m`, `1h05m`, `48m`, `12h`. Recebe milissegundos.
+ * Duração em dias fica com quem a exibe: um prazo de projeto e lido em dias, uma jornada não.
  */
 export function formatDuration(milliseconds: number) {
   if (!Number.isFinite(milliseconds) || milliseconds < 0) {

@@ -5,7 +5,7 @@ const OVERSCAN = 6;
 /** Quantos itens entram antes da primeira medida: montar dez mil nos para medir um custava o primeiro render. */
 const PRIMEIRA_JANELA = 24;
 
-/** O passo entre itens inclui o espaco que o container coloca entre eles; so a altura acumulava erro. */
+/** O passo entre itens inclui o espaço que o container coloca entre eles; só a altura acumulava erro. */
 function medirPasso(node: HTMLElement) {
   const proximo = node.nextElementSibling as HTMLElement | null;
 
@@ -17,7 +17,7 @@ export function useVirtualWindow(total: number, height?: number) {
   const firstItem = useRef<HTMLElement | null>(null);
   const firstIndex = useRef(0);
   const observer = useRef<ResizeObserver | null>(null);
-  // `null` e "ainda nao medido"; zero e "sem layout", como no jsdom ou na lista montada escondida.
+  // `null` e "ainda não medido"; zero e "sem layout", como no jsdom ou na lista montada escondida.
   const [itemHeight, setItemHeight] = useState<number | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
 
@@ -67,7 +67,7 @@ export function useVirtualWindow(total: number, height?: number) {
         return;
       }
 
-      // A conta parte do primeiro item montado, e nao do topo: antes dele pode haver o grupo de selecionados.
+      // A conta parte do primeiro item montado, e não do topo: antes dele pode haver o grupo de selecionados.
       const topoDoPrimeiro = primeiro.getBoundingClientRect().top - element.getBoundingClientRect().top + element.scrollTop;
       const top = topoDoPrimeiro + (index - firstIndex.current) * passo;
       const bottom = top + passo;

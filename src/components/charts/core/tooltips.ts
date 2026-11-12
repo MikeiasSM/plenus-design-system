@@ -4,7 +4,7 @@ import type { ChartHoveredNode } from './hoverPath';
 export type ChartFrameTooltip = NonNullable<ChartFrameProps['tooltip']>;
 
 export interface CategoryTooltipSeries {
-  /** Formato desta serie, quando difere do grafico, como a do eixo da direita. */
+  /** Formato desta serie, quando difere do gráfico, como a do eixo da direita. */
   format?: (value: number) => string;
   label: string;
   values: readonly (number | null)[];
@@ -14,7 +14,7 @@ export interface CategoryTooltipOptions {
   categories: readonly string[];
   colors: readonly string[];
   format: (value: number) => string;
-  /** Categoria sob o ponteiro; `null` deixa o balao sem linhas, e ele nao aparece. */
+  /** Categoria sob o ponteiro; `null` deixa o balão sem linhas, e ele não aparece. */
   index: number | null;
   isHidden: (label: string) => boolean;
   series: readonly CategoryTooltipSeries[];
@@ -22,7 +22,7 @@ export interface CategoryTooltipOptions {
   showTotal?: boolean;
 }
 
-/** Balao dos graficos de categoria: uma linha por serie visivel, com a cor dela e o valor naquela categoria. */
+/** Balão dos gráficos de categoria: uma linha por serie visível, com a cor dela e o valor naquela categoria. */
 export function categoryTooltip({
   categories,
   colors,
@@ -58,14 +58,14 @@ export interface SliceTooltipOptions {
   colors: readonly string[];
   formatPercent: (ratio: number) => string;
   formatValue: (value: number) => string;
-  /** Fatia sob o ponteiro; `null` deixa o balao sem linhas. */
+  /** Fatia sob o ponteiro; `null` deixa o balão sem linhas. */
   index: number | null;
   slices: readonly { label: string; value: number }[];
   /** Soma das fatias ligadas, base da porcentagem. */
   total: number;
 }
 
-/** Balao do anel: a fatia sob o ponteiro, com o valor e a parte do total. */
+/** Balão do anel: a fatia sob o ponteiro, com o valor e a parte do total. */
 export function sliceTooltip({ colors, formatPercent, formatValue, index, slices, total }: SliceTooltipOptions): ChartFrameTooltip {
   const fatia = index === null ? undefined : slices[index];
 
@@ -80,14 +80,14 @@ export interface PathTooltipOptions {
   /** Cor do no sob o ponteiro. */
   color?: string;
   format: (value: number) => string;
-  /** Com ele, cada nivel mostra tambem a parte do total. */
+  /** Com ele, cada nivel mostra também a parte do total. */
   formatPercent?: (ratio: number) => string;
-  /** Caminho do grupo ate o no; `null` deixa o balao sem linhas. */
+  /** Caminho do grupo até o no; `null` deixa o balão sem linhas. */
   path: readonly ChartHoveredNode[] | null;
   total?: number;
 }
 
-/** Balao dos hierarquicos: uma linha por nivel do caminho, com o no sob o ponteiro em destaque. */
+/** Balão dos hierarquicos: uma linha por nivel do caminho, com o no sob o ponteiro em destaque. */
 export function pathTooltip({ color, format, formatPercent, path, total = 0 }: PathTooltipOptions): ChartFrameTooltip {
   const niveis = path ?? [];
 

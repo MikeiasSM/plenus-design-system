@@ -14,7 +14,7 @@ import { IconChevronDown } from '../../icons';
 export interface AccordionItem {
   content: ReactNode;
   disabled?: boolean;
-  /** Id do cabecalho, para um link de ancora apontar a secao. */
+  /** Id do cabeçalho, para um link de âncora apontar a secao. */
   id?: string;
   key: string;
   label: string;
@@ -29,23 +29,23 @@ export interface AccordionProps extends ComponentPropsWithRef<'div'> {
   items: readonly AccordionItem[];
   multiple?: boolean;
   onExpandedKeysChange?: (keys: readonly string[]) => void;
-  /** Direita e a convencao da web; esquerda serve a rotulos curtos em coluna estreita. */
+  /** Direita e a convenção da web; esquerda serve a rótulos curtos em coluna estreita. */
   iconPosition?: AccordionIconPosition;
-  /** Divisor entre as secoes, com a folga que ele exige. */
+  /** Divisor entre as seções, com a folga que ele exige. */
   divider?: boolean;
-  /** Nivel do titulo de cada secao, na hierarquia da pagina em que o acordeao esta. */
+  /** Nível do título de cada secao, na hierarquia da página em que o acordeao esta. */
   headingLevel?: AccordionHeadingLevel;
 }
 
 interface PainelProps extends ComponentPropsWithRef<'div'> {
   aberto: boolean;
-  /** Sem ele, o painel fechado fica fora da busca da pagina. */
+  /** Sem ele, o painel fechado fica fora da busca da página. */
   abrir?: () => void;
 }
 
 /**
  * Painel fechado com `hidden="until-found"`: o Ctrl+F do navegador acha o texto dele, e o evento `beforematch`
- * abre a secao. O atributo entra depois da montagem, porque o React so conhece o `hidden` booleano.
+ * abre a secao. O atributo entra depois da montagem, porque o React só conhece o `hidden` booleano.
  */
 function Painel({ aberto, abrir, ...props }: PainelProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -87,7 +87,7 @@ export function Accordion({
   );
   const selection = useSelection({
     // Uma secao aberta fecha ao ser clicada de novo, e nenhuma aberta e um
-    // estado valido do acordeao — ao contrario de uma aba, que sempre tem uma.
+    // estado válido do acordeao — ao contrário de uma aba, que sempre tem uma.
     allowEmpty: true,
     items: collection,
     mode: multiple ? 'multiple' : 'single',

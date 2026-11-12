@@ -1,5 +1,5 @@
 /* Altura, borda no hover e halo de foco dos campos, dos do sistema e dos que quem implementa monta pelo `Field`.
-   O pequeno e o medio sao tambem as alturas do `Button` pequeno e medio, para alinharem numa barra. */
+   O pequeno e o medio são também as alturas do `Button` pequeno e medio, para alinharem numa barra. */
 :root {
   --pl-control-height-sm: 32px;
   --pl-control-height-md: 36px;

@@ -4,7 +4,7 @@ import { seriesInScale } from './useSeriesToggle';
 
 /**
  * Eixo de valor a que a serie pertence. A escolha e sempre do produto: o
- * grafico nunca parte a escala por conta propria.
+ * gráfico nunca parte a escala por conta própria.
  */
 export type ChartValueAxis = 'left' | 'right';
 
@@ -12,7 +12,7 @@ export function axisOf(serie: { axis?: ChartValueAxis }): ChartValueAxis {
   return serie.axis ?? 'left';
 }
 
-/** Sem escolha do produto, o eixo direito se mostra como o esquerdo, e so existe com serie a direita. */
+/** Sem escolha do produto, o eixo direito se mostra como o esquerdo, e só existe com serie a direita. */
 export function rightAxisVisibility(chosen: AxisVisibility | undefined, hasRightSeries: boolean, left: AxisVisibility): AxisVisibility {
   return chosen ?? (hasRightSeries ? left : 'hidden');
 }
@@ -25,18 +25,18 @@ function rounded(domain: NumericRange): NumericRange {
 }
 
 export interface ValueAxisDomainsOptions<T extends { label: string }> {
-  /** Alinha o zero dos dois eixos. Desligue quando o dominio nao precisa conter o zero. */
+  /** Alinha o zero dos dois eixos. Desligue quando o dominio não precisa conter o zero. */
   alignZero?: boolean;
   /** Eixo de cada serie, na ordem de `series`. */
   axes: readonly ChartValueAxis[];
-  /** Dominio de um eixo, calculado so pelas series dele que entram na escala. */
+  /** Dominio de um eixo, calculado só pelas series dele que entram na escala. */
   domainOfSeries: (series: readonly T[]) => NumericRange;
   isOutOfScale: (label: string) => boolean;
   series: readonly T[];
 }
 
 /**
- * Dominio do eixo esquerdo e do direito, cada um formado so pelas series dele.
+ * Dominio do eixo esquerdo e do direito, cada um formado só pelas series dele.
  * Sem serie a direita, o dominio e unico e o eixo direito espelha o esquerdo.
  */
 export function valueAxisDomains<T extends { label: string }>({
@@ -60,7 +60,7 @@ export function valueAxisDomains<T extends { label: string }>({
 }
 
 /**
- * Pilha divergente de cada eixo: uma serie so empilha sobre as do mesmo eixo, porque
+ * Pilha divergente de cada eixo: uma serie só empilha sobre as do mesmo eixo, porque
  * eixos distintos tem unidades distintas. O segmento volta na ordem das series.
  */
 export function stackByAxis(contributions: readonly number[], axes: readonly ChartValueAxis[]): [number, number][] {
