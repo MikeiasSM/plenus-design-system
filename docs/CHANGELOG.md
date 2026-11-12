@@ -8,6 +8,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Adicionado
 
+- `package.json`: o campo `browserslist` declara o piso de navegador do pacote (Chrome, Edge e Chrome Android 123, Firefox 120, Safari e iOS Safari 17.5), para que as ferramentas do produto o leiam sem consulta manual. Ele só informa as ferramentas do produto; o build do pacote não o usa, e a saída é a mesma.
 - `SaveBar`: a propriedade `placement` (`'top'` ou `'bottom'`, padrão `'top'`) escolhe se a barra se prende ao topo ou ao pé da área de rolagem. No pé, a borda passa para cima e a barra deve ser montada depois do conteúdo.
 
 ### Alterado
