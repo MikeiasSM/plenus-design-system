@@ -4,6 +4,10 @@
   font-family: var(--pl-font-body);
 }
 
+:root {
+  --pl-shell-height: 100%;
+}
+
 body {
   min-width: 320px;
 }

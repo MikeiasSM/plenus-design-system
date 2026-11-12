@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import { AppShell, Button, IconChartBar, IconFile, IconCheck, IconStructure, Sidebar } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -8,14 +8,11 @@ interface MolduraProps {
   open?: boolean;
   registrar?: (evento: string) => void;
   rodape?: ReactNode;
-  /** O uso errado do Evite: o pai não dá altura, a moldura cresce com o conteúdo e tudo rola junto. */
-  rolaAPaginaInteira?: boolean;
+  semAlturaDaCaixa?: boolean;
 }
 
-const PEDIDOS_EM_SEPARACAO = Array.from({ length: 14 }, (_, indice) => `Pedido ${1042 + indice} · aguardando separação`);
-
 /** Uma moldura pequena: só a navegação mínima da `Sidebar` para dar o que a página ocupar. */
-function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, rolaAPaginaInteira }: MolduraProps) {
+function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, semAlturaDaCaixa }: MolduraProps) {
   const moldura = (
     <AppShell
       defaultOpen={defaultOpen}
@@ -44,18 +41,11 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, rolaAPagi
         <AppShell.PageBody>
           <div style={{ padding: 18 }}>
             <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
-            {rolaAPaginaInteira ? (
-              <>
-                <p style={{ color: 'var(--pl-color-text-secondary)' }}>
-                  A página inteira rola: a navegação e a barra saem de vista junto com o conteúdo.
-                </p>
-                {PEDIDOS_EM_SEPARACAO.map((pedido) => (
-                  <p key={pedido} style={{ margin: '8px 0' }}>{pedido}</p>
-                ))}
-              </>
-            ) : (
-              <p style={{ color: 'var(--pl-color-text-secondary)' }}>Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.</p>
-            )}
+            <p style={{ color: 'var(--pl-color-text-secondary)' }}>
+              {semAlturaDaCaixa
+                ? 'A moldura mede a janela, e não a caixa: ela passa da caixa, e a rolagem da caixa leva a barra e o rodapé para fora de vista.'
+                : 'Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.'}
+            </p>
           </div>
         </AppShell.PageBody>
         {rodape}
@@ -67,14 +57,14 @@ function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, rolaAPagi
     <div
       style={{
         height: 360,
-        overflow: rolaAPaginaInteira ? 'auto' : 'hidden',
+        overflow: semAlturaDaCaixa ? 'auto' : 'hidden',
         border: '1px solid var(--pl-color-border)',
         borderRadius: 'var(--pl-radius-md)',
+        ...(semAlturaDaCaixa && ({ '--pl-shell-height': '100dvh' } as CSSProperties)),
       }}
-      tabIndex={rolaAPaginaInteira ? 0 : undefined}
+      tabIndex={semAlturaDaCaixa ? 0 : undefined}
     >
-      {/* Sem altura, o pai deixa a moldura crescer com o conteúdo, como numa página sem altura definida. */}
-      {rolaAPaginaInteira ? <div>{moldura}</div> : moldura}
+      {moldura}
     </div>
   );
 }
@@ -142,9 +132,8 @@ function MolduraPadrao() {
   return <Moldura />;
 }
 
-/** O Evite: a moldura num pai sem altura, rolando inteira com o conteúdo. */
-function MolduraRolandoInteira() {
-  return <Moldura defaultOpen={false} rolaAPaginaInteira />;
+function MolduraSemAlturaDaCaixa() {
+  return <Moldura defaultOpen={false} semAlturaDaCaixa />;
 }
 
 /** A coluna do Faça e do Evite é estreita: recolhido, o submenu não espreme a página. */
@@ -244,14 +233,14 @@ export const pagina: Pagina = {
 </AppShell>`,
   },
   evite: {
-    Previa: MolduraRolandoInteira,
+    Previa: MolduraSemAlturaDaCaixa,
     texto: (
       <>
-        Rolar a página inteira. A moldura ocupa a janela: só o <code>AppShell.PageBody</code>, a lista do submenu e os painéis laterais rolam.
+        Embutir a moldura numa caixa de altura fixa sem redefinir <code>--pl-shell-height</code>. A moldura mede a janela, e não a caixa, e transborda
+        dela. Na caixa, ou num ancestral, redefina <code>--pl-shell-height</code>, por exemplo para <code>100%</code>.
       </>
     ),
-    codigo: `{/* Pai sem altura: a moldura cresce com o conteúdo e a página inteira rola. */}
-<div>
+    codigo: `<div style={{ height: 360 }}>
   <AppShell defaultOpen={false}>
     <Sidebar>
       <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar />} name="Gestor" />}>…</Sidebar.Rail>
