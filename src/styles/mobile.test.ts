@@ -20,8 +20,9 @@ describe('altura da janela', () => {
 
   it('o Dialog e o filtro do DataGrid medem em dvh', () => {
     const dialogo = ler('components/overlays/Dialog/Dialog.module.css');
-    expect(dialogo).toContain('max-height: calc(100dvh - max(var(--pl-space-4), var(--pl-safe-top)) - max(var(--pl-space-4), var(--pl-safe-bottom)))');
-    expect(dialogo).toContain('max(var(--pl-space-4), var(--pl-safe-left))');
+    expect(dialogo).toContain('max-height: calc(100dvh - max(var(--pl-space-4), env(safe-area-inset-top, 0px)) - max(var(--pl-space-4), env(safe-area-inset-bottom, 0px)))');
+    expect(dialogo).toContain('max(var(--pl-space-4), env(safe-area-inset-left, 0px))');
+    expect(dialogo).not.toContain('--pl-safe-');
     expect(ler('components/data-display/DataGrid/DataGrid.module.css')).toContain('max-height: 70dvh');
   });
 });
