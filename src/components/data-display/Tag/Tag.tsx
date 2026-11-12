@@ -1,6 +1,6 @@
 import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { IconCheck, IconClose } from '../../icons';
-import { blockRepeatedPress } from '../../../utils/press/press';
+import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import styles from './Tag.module.css';
 
 export type TagSize = 'sm' | 'md';
@@ -69,7 +69,7 @@ export function Tag({
           className={styles.remove}
           disabled={disabled}
           id={removeId}
-          onClick={onRemove}
+          onClick={(event) => !isRepeatedClick(event) && onRemove()}
           onKeyDown={blockRepeatedPress}
           type="button"
         >

@@ -19,7 +19,7 @@ import { usePortalContainer } from '../Portal/PortalContext';
 import type { PopoverPlacement } from '../Popover/Popover';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { IconCheck, IconChevronRight } from '../../icons';
-import { blockRepeatedPress } from '../../../utils/press/press';
+import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
 
@@ -318,7 +318,7 @@ function MenuList({
         className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
         disabled={item.disabled}
         key={item.key}
-        onClick={() => acionar(item)}
+        onClick={(event) => !isRepeatedClick(event) && acionar(item)}
         onKeyDown={blockRepeatedPress}
         onPointerEnter={() => hover(item)}
         ref={(node) => {

@@ -4,6 +4,7 @@ import { ButtonIcon } from '../../actions/ButtonIcon';
 import { Progress } from '../../feedback/Progress';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconFile, IconTrash, IconUpload } from '../../icons';
 import { formatFileSize } from '../../../utils/formatters/formatFileSize';
+import { isRepeatedClick } from '../../../utils/press/press';
 import { Field } from '../Field';
 import styles from './FileUpload.module.css';
 
@@ -249,15 +250,15 @@ function FileUploadRow({ item, onCancel, onRemove, onRetry }: FileUploadRowProps
       </div>
       <div className={styles.actions}>
         {status === 'error' && onRetry && (
-          <Button aria-label={`Tentar de novo: ${name}`} onClick={() => onRetry(id)} size="sm" variant="ghost">
+          <Button aria-label={`Tentar de novo: ${name}`} onClick={(event) => !isRepeatedClick(event) && onRetry(id)} size="sm" variant="ghost">
             Tentar de novo
           </Button>
         )}
         {status === 'uploading' && onCancel && (
-          <ButtonIcon icon={<IconClose />} label={`Cancelar envio de ${name}`} onClick={() => onCancel(id)} size="sm" variant="ghost" />
+          <ButtonIcon icon={<IconClose />} label={`Cancelar envio de ${name}`} onClick={(event) => !isRepeatedClick(event) && onCancel(id)} size="sm" variant="ghost" />
         )}
         {status !== 'uploading' && onRemove && (
-          <ButtonIcon icon={<IconTrash />} label={`Remover ${name}`} onClick={() => onRemove(id)} size="sm" variant="ghost" />
+          <ButtonIcon icon={<IconTrash />} label={`Remover ${name}`} onClick={(event) => !isRepeatedClick(event) && onRemove(id)} size="sm" variant="ghost" />
         )}
       </div>
     </li>
