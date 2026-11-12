@@ -170,7 +170,6 @@
 
 .ghost:not(:disabled):not([aria-disabled='true']):active {
   background: var(--pl-color-border-strong);
-  box-shadow: none;
   color: var(--pl-color-text);
 }
 

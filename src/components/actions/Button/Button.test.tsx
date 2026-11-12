@@ -113,6 +113,12 @@ describe('hover do Button ghost', () => {
     expect(css).not.toContain(".ghost:not(:disabled):not([aria-disabled='true']):hover:focus-visible");
   });
 
+  it('pressionado com o teclado, nenhuma variante apaga o anel de foco', () => {
+    for (const [, regra] of css.matchAll(/:active \{([^}]*)\}/g)) {
+      expect(regra).not.toContain('box-shadow');
+    }
+  });
+
   it('as outras variantes seguem com a sombra no hover', () => {
     for (const variante of ['primary', 'secondary', 'soft', 'danger']) {
       expect(css.slice(css.indexOf(`.${variante} {`), css.indexOf('}', css.indexOf(`.${variante} {`)))).toContain('--button-hover-shadow');
