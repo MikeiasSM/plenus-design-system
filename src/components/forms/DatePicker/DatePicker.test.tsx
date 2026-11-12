@@ -362,7 +362,7 @@ describe('DatePicker', () => {
     it.each(['12345', '1234567', '32', '3102', '0000'])('ao sair, %s e invalido', (digitado) => {
       const mudou = vi.fn();
       const aviso = vi.fn();
-      const campo = montar({ defaultValue: '2026-03-09', onInvalid: aviso, onValueChange: mudou });
+      const campo = montar({ defaultValue: '2026-03-09', onInvalidText: aviso, onValueChange: mudou });
 
       fireEvent.change(campo, { target: { value: digitado } });
       const texto = (campo as HTMLInputElement).value;
@@ -373,12 +373,12 @@ describe('DatePicker', () => {
       expect(campo).toHaveValue(texto);
       expect(mudou).not.toHaveBeenCalled();
       expect(aviso).toHaveBeenCalledTimes(1);
-      expect(aviso).toHaveBeenCalledWith(texto);
+      expect(aviso).toHaveBeenCalledWith(texto, 'invalid');
     });
 
     it('avisa o mesmo texto invalido uma vez so, mesmo com Enter e depois a saida', () => {
       const aviso = vi.fn();
-      const campo = montar({ onInvalid: aviso });
+      const campo = montar({ onInvalidText: aviso });
 
       fireEvent.change(campo, { target: { value: '32' } });
       fireEvent.keyDown(campo, { key: 'Enter' });
@@ -389,6 +389,32 @@ describe('DatePicker', () => {
       fireEvent.change(campo, { target: { value: '32' } });
       fireEvent.blur(campo);
       expect(aviso).toHaveBeenCalledTimes(2);
+    });
+
+    it('avisa como fora do intervalo a data alem dos limites e o dia indisponivel', () => {
+      const aviso = vi.fn();
+      const campo = montar({
+        isDateUnavailable: (data) => data === '2026-03-10',
+        max: '2026-03-31',
+        onInvalidText: aviso,
+      });
+
+      fireEvent.change(campo, { target: { value: '01042026' } });
+      fireEvent.blur(campo);
+      expect(aviso).toHaveBeenLastCalledWith('01/04/2026', 'outOfRange');
+
+      fireEvent.change(campo, { target: { value: '10032026' } });
+      fireEvent.blur(campo);
+      expect(aviso).toHaveBeenLastCalledWith('10/03/2026', 'outOfRange');
+    });
+
+    it('repassa ao campo o onInvalid nativo', () => {
+      const nativo = vi.fn();
+      const campo = montar({ onInvalid: nativo });
+
+      fireEvent.invalid(campo);
+
+      expect(nativo).toHaveBeenCalledTimes(1);
     });
 
     it('o erro do produto prevalece sobre a mensagem do campo', () => {

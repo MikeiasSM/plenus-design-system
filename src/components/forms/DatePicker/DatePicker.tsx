@@ -27,7 +27,7 @@ export type DatePickerSize = 'sm' | 'md' | 'lg';
 export interface DatePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value'
   > {
   /** Data em ISO, `2026-03-09`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -45,8 +45,8 @@ export interface DatePickerProps
   locale?: string;
   max?: string;
   min?: string;
-  /** Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo. */
-  onInvalid?: (text: string) => void;
+  /** Avisa, ao confirmar ou sair do campo, o texto que não é data válida e por quê. */
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -82,7 +82,7 @@ export function DatePicker({
   locale = 'pt-BR',
   max,
   min,
-  onInvalid,
+  onInvalidText,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -155,10 +155,12 @@ export function DatePicker({
       const parsed = completeDateInput(text, today(getLocalTimeZone()));
 
       if (!parsed) {
-        return { message: 'Data inválida.' };
+        return { message: 'Data inválida.', reason: 'invalid' };
       }
 
-      return isUnavailable(parsed, limites) ? { message: 'Data fora do intervalo permitido.' } : { value: parsed };
+      return isUnavailable(parsed, limites)
+        ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
+        : { value: parsed };
     },
     filter: keepDateChars,
     format: textOf,
@@ -166,7 +168,7 @@ export function DatePicker({
     isAllowed: (date) => !isUnavailable(date, limites),
     mask: formatDateInput,
     now: () => today(getLocalTimeZone()),
-    onInvalid,
+    onInvalidText,
     parse: (text) => {
       const parsed = parseDateInput(text);
 

@@ -26,7 +26,7 @@ export type TimePickerSize = 'sm' | 'md' | 'lg';
 export interface TimePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value' | 'step'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
   /** Hora em `HH:mm`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -43,8 +43,8 @@ export interface TimePickerProps
   max?: string;
   min?: string;
   step?: number;
-  /** Avisa o texto digitado que não é uma hora válida, ao confirmar ou sair do campo. */
-  onInvalid?: (text: string) => void;
+  /** Avisa, ao confirmar ou sair do campo, o texto que não é hora válida e por quê. */
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   /** Sem hora inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -79,7 +79,7 @@ export function TimePicker({
   max,
   min,
   step = 30,
-  onInvalid,
+  onInvalidText,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -141,10 +141,12 @@ export function TimePicker({
       const parsed = completeTimeInput(text);
 
       if (!parsed) {
-        return { message: 'Hora inválida.' };
+        return { message: 'Hora inválida.', reason: 'invalid' };
       }
 
-      return isTimeAllowed(parsed, horaMinima, horaMaxima) ? { value: parsed } : { message: 'Hora fora do intervalo permitido.' };
+      return isTimeAllowed(parsed, horaMinima, horaMaxima)
+        ? { value: parsed }
+        : { message: 'Hora fora do intervalo permitido.', reason: 'outOfRange' };
     },
     filter: keepDigits,
     format: paraTextoDeHora,
@@ -156,7 +158,7 @@ export function TimePicker({
 
       return new Time(current.hour, current.minute);
     },
-    onInvalid,
+    onInvalidText,
     parse: (text) => {
       const parsed = parseTimeInput(text);
 

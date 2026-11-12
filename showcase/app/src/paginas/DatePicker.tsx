@@ -209,8 +209,9 @@ function Modos() {
         Cinco ou sete dígitos, uma data que não existe ou fora de <code>min</code> e <code>max</code> mantêm o texto no
         campo, sem mudar o valor nem chamar <code>onValueChange</code>. O campo mostra &quot;Data inválida.&quot; ou
         &quot;Data fora do intervalo permitido.&quot; no lugar do erro e recebe <code>aria-invalid</code>; o{' '}
-        <code>error</code> do produto, se houver, prevalece. <code>onInvalid</code> recebe o texto. A mensagem some quando
-        o valor fica válido.
+        <code>error</code> do produto, se houver, prevalece. <code>onInvalidText</code> recebe o texto e o motivo,{' '}
+        <code>'invalid'</code> ou <code>'outOfRange'</code>, que vale também para o dia barrado por{' '}
+        <code>isDateUnavailable</code>. A mensagem some quando o valor fica válido.
       </dd>
       <dt>Rascunho no calendário</dt>
       <dd>
@@ -331,7 +332,7 @@ export const pagina: Pagina = {
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null ao esvaziar o campo. Data pela metade ou inválida não chama.' },
-    { nome: 'onInvalid', tipo: '(text: string) => void', descricao: 'Avisa o texto digitado que não é uma data válida, ao confirmar ou sair do campo.' },
+    { nome: 'onInvalidText', tipo: "(text: string, reason: 'invalid' | 'outOfRange') => void", descricao: 'Avisa, ao confirmar ou sair do campo, o texto que não é data válida e o motivo. O dia barrado por isDateUnavailable conta como outOfRange.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
     { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },

@@ -38,7 +38,7 @@ export type DateTimePickerSize = 'sm' | 'md' | 'lg';
 export interface DateTimePickerProps
   extends Omit<
     ComponentPropsWithRef<'input'>,
-    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'onInvalid' | 'size' | 'type' | 'value' | 'step'
+    'defaultValue' | 'max' | 'min' | 'name' | 'onChange' | 'size' | 'type' | 'value' | 'step'
   > {
   /** Data e hora em ISO, `2026-03-09T18:40`, como no `FormData`: a API nao expoe tipo de biblioteca de terceiros. */
   defaultValue?: string;
@@ -58,8 +58,8 @@ export interface DateTimePickerProps
   max?: string;
   min?: string;
   step?: number;
-  /** Avisa o texto digitado que não é uma data e hora válidas, ao confirmar ou sair do campo. */
-  onInvalid?: (text: string) => void;
+  /** Avisa, ao confirmar ou sair do campo, o texto que não é data e hora válidas e por quê. */
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   /** Sem data e hora inteiras e permitidas, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -108,7 +108,7 @@ export function DateTimePicker({
   max,
   min,
   step = 30,
-  onInvalid,
+  onInvalidText,
   onValueChange,
   onBlur,
   onOpenChange,
@@ -198,11 +198,11 @@ export function DateTimePicker({
       const parsed = completeDateTimeInput(text, today(getLocalTimeZone()));
 
       if (parsed.invalid) {
-        return { message: parsed.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.' };
+        return { message: parsed.invalid === 'date' ? 'Data inválida.' : 'Hora inválida.', reason: 'invalid' };
       }
 
       return isUnavailable(toCalendarDate(parsed.value), limites)
-        ? { message: 'Data fora do intervalo permitido.' }
+        ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
         : { value: parsed.value };
     },
     filter: keepDigits,
@@ -211,7 +211,7 @@ export function DateTimePicker({
     isAllowed: (moment) => !isUnavailable(toCalendarDate(moment), limites),
     mask: formatDateTimeInput,
     now: () => toCalendarDateTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }),
-    onInvalid,
+    onInvalidText,
     parse: (text) => (text.trim().includes(' ') ? readMoment(text) : undefined),
     step: (moment, direction, text, cursor) => {
       const base = readMoment(text) ?? moment;

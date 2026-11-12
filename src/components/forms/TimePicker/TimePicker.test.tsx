@@ -278,7 +278,7 @@ describe('TimePicker', () => {
     it.each(['25', '1275'])('ao sair, %s e invalido', (digitado) => {
       const mudou = vi.fn();
       const aviso = vi.fn();
-      const campo = montar({ defaultValue: '09:00', onInvalid: aviso, onValueChange: mudou });
+      const campo = montar({ defaultValue: '09:00', onInvalidText: aviso, onValueChange: mudou });
 
       fireEvent.change(campo, { target: { value: digitado } });
       const texto = campo.value;
@@ -288,7 +288,26 @@ describe('TimePicker', () => {
       expect(campo).toHaveAttribute('aria-invalid', 'true');
       expect(campo).toHaveValue(texto);
       expect(mudou).not.toHaveBeenCalled();
-      expect(aviso).toHaveBeenCalledWith(texto);
+      expect(aviso).toHaveBeenCalledWith(texto, 'invalid');
+    });
+
+    it('avisa como fora do intervalo a hora alem dos limites', () => {
+      const aviso = vi.fn();
+      const campo = montar({ max: '18:00', onInvalidText: aviso });
+
+      fireEvent.change(campo, { target: { value: '1900' } });
+      fireEvent.blur(campo);
+
+      expect(aviso).toHaveBeenCalledWith('19:00', 'outOfRange');
+    });
+
+    it('repassa ao campo o onInvalid nativo', () => {
+      const nativo = vi.fn();
+      const campo = montar({ onInvalid: nativo });
+
+      fireEvent.invalid(campo);
+
+      expect(nativo).toHaveBeenCalledTimes(1);
     });
 
     it('recusa a hora fora dos limites e a mensagem some ao corrigir', () => {

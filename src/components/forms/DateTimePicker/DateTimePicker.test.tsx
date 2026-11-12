@@ -353,7 +353,7 @@ describe('DateTimePicker', () => {
     it('recusa a hora invalida com a mensagem da hora', () => {
       const mudou = vi.fn();
       const aviso = vi.fn();
-      const campo = montar({ defaultValue: '2026-03-09T08:00', onInvalid: aviso, onValueChange: mudou });
+      const campo = montar({ defaultValue: '2026-03-09T08:00', onInvalidText: aviso, onValueChange: mudou });
 
       fireEvent.change(campo, { target: { value: '21/05/2026 25' } });
       const texto = campo.value;
@@ -363,19 +363,35 @@ describe('DateTimePicker', () => {
       expect(campo).toHaveAttribute('aria-invalid', 'true');
       expect(campo).toHaveValue(texto);
       expect(mudou).not.toHaveBeenCalled();
-      expect(aviso).toHaveBeenCalledWith(texto);
+      expect(aviso).toHaveBeenCalledWith(texto, 'invalid');
     });
 
     it('recusa a data invalida e a fora dos limites', () => {
-      const campo = montar({ max: '2026-03-31' });
+      const aviso = vi.fn();
+      const campo = montar({ isDateUnavailable: (data) => data === '2026-03-10', max: '2026-03-31', onInvalidText: aviso });
 
       fireEvent.change(campo, { target: { value: '32/01/2026' } });
       fireEvent.blur(campo);
       expect(screen.getByRole('alert')).toHaveTextContent('Data inválida.');
+      expect(aviso).toHaveBeenLastCalledWith('32/01/2026', 'invalid');
 
       fireEvent.change(campo, { target: { value: '09/09/2030 10:00' } });
       fireEvent.blur(campo);
       expect(screen.getByRole('alert')).toHaveTextContent('Data fora do intervalo permitido.');
+      expect(aviso).toHaveBeenLastCalledWith('09/09/2030 10:00', 'outOfRange');
+
+      fireEvent.change(campo, { target: { value: '10/03/2026 10:00' } });
+      fireEvent.blur(campo);
+      expect(aviso).toHaveBeenLastCalledWith('10/03/2026 10:00', 'outOfRange');
+    });
+
+    it('repassa ao campo o onInvalid nativo', () => {
+      const nativo = vi.fn();
+      const campo = montar({ onInvalid: nativo });
+
+      fireEvent.invalid(campo);
+
+      expect(nativo).toHaveBeenCalledTimes(1);
     });
 
     it('a mensagem some ao corrigir', () => {

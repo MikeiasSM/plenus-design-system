@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type RefObject } from 'react';
 
-type Evaluation<T> = { value: T } | { message: string };
+type Evaluation<T> = { value: T } | { message: string; reason: 'invalid' | 'outOfRange' };
 
 interface TemporalInputOptions<T> {
   commit: (value: T | null) => void;
@@ -12,7 +12,7 @@ interface TemporalInputOptions<T> {
   isAllowed: (value: T) => boolean;
   mask: (input: string) => string;
   now: () => T;
-  onInvalid?: (text: string) => void;
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   parse: (text: string) => T | undefined;
   step: (value: T, direction: 1 | -1, text: string, cursor: number) => { cursor: number; value: T };
   value: T | undefined;
@@ -28,7 +28,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
   isAllowed,
   mask,
   now,
-  onInvalid,
+  onInvalidText,
   parse,
   step,
   value,
@@ -105,7 +105,7 @@ export function useTemporalInput<T extends { toString: () => string }>({
 
       if (reportedRef.current !== text) {
         reportedRef.current = text;
-        onInvalid?.(text);
+        onInvalidText?.(text, evaluated.reason);
       }
       return;
     }

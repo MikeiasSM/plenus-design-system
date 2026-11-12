@@ -173,8 +173,8 @@ function Modos() {
         <code>25</code>, <code>1275</code> ou uma hora fora de <code>min</code> e <code>max</code> mantêm o texto no
         campo, sem mudar o valor nem chamar <code>onValueChange</code>. O campo mostra &quot;Hora inválida.&quot; ou
         &quot;Hora fora do intervalo permitido.&quot; no lugar do erro e recebe <code>aria-invalid</code>; o{' '}
-        <code>error</code> do produto, se houver, prevalece. <code>onInvalid</code> recebe o texto. A mensagem some quando
-        o valor fica válido.
+        <code>error</code> do produto, se houver, prevalece. <code>onInvalidText</code> recebe o texto e o motivo,{' '}
+        <code>'invalid'</code> ou <code>'outOfRange'</code>. A mensagem some quando o valor fica válido.
       </dd>
       <dt>Painel</dt>
       <dd>
@@ -269,7 +269,7 @@ export const pagina: Pagina = {
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Hora em HH:mm, ou null ao esvaziar o campo. Hora pela metade ou inválida não chama.' },
-    { nome: 'onInvalid', tipo: '(text: string) => void', descricao: 'Avisa o texto digitado que não é uma hora válida, ao confirmar ou sair do campo.' },
+    { nome: 'onInvalidText', tipo: "(text: string, reason: 'invalid' | 'outOfRange') => void", descricao: 'Avisa, ao confirmar ou sair do campo, o texto que não é hora válida e o motivo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeiro horário permitido, em HH:mm.' },
     { nome: 'max', tipo: 'string', descricao: 'Último horário permitido, em HH:mm.' },
     { nome: 'step', tipo: 'number', padrao: '30', descricao: 'Minutos entre os horários da lista.' },
