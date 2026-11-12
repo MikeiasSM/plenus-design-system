@@ -114,3 +114,11 @@
   background: var(--pl-color-primary-selected);
   color: var(--pl-color-on-primary-container);
 }
+
+@media (pointer: coarse) {
+  .page,
+  .step {
+    min-width: 44px;
+    height: 44px;
+  }
+}

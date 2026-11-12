@@ -152,9 +152,7 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
-  letter-spacing: 0.03em;
   text-align: left;
-  text-transform: uppercase;
 }
 
 .groupButton {
@@ -183,8 +181,6 @@
 .groupCount {
   color: var(--pl-color-text-tertiary);
   font-weight: var(--pl-type-caption-weight);
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .chevron {

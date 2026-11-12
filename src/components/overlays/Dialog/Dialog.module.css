@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--pl-space-4);
+  padding: max(var(--pl-space-4), var(--pl-safe-top)) max(var(--pl-space-4), var(--pl-safe-right)) max(var(--pl-space-4), var(--pl-safe-bottom)) max(var(--pl-space-4), var(--pl-safe-left));
   background: var(--pl-color-scrim);
   backdrop-filter: blur(6px);
   animation: dialog-fade var(--pl-speed-2) var(--pl-ease) both;
@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100dvh - 2 * var(--pl-space-4));
+  max-height: calc(100dvh - max(var(--pl-space-4), var(--pl-safe-top)) - max(var(--pl-space-4), var(--pl-safe-bottom)));
   overflow: hidden;
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
