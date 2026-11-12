@@ -7,7 +7,6 @@ function queryFor(below: number) {
   return `(max-width: ${below - 0.02}px)`;
 }
 
-/** `below` troca o ponto de virada, em pixels. */
 export function useNarrowViewport(below: number = DEFAULT_NARROW_BELOW) {
   const subscribe = useCallback(
     (notify: () => void) => {
