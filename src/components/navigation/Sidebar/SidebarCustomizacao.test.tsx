@@ -1,9 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { useState, type ReactNode } from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
 import { AppShell } from '../AppShell';
 import drawerStyles from '../../overlays/Drawer/Drawer.module.css';
 import { Sidebar } from './Sidebar';
+import panelStyles from './SidebarPanel.module.css';
 import { SidebarProvider, useSidebar, type SidebarProviderProps } from './SidebarProvider';
 
 function stubViewport(narrow: boolean) {
@@ -96,6 +99,49 @@ describe('SidebarProvider: textos (labels)', () => {
     render(<Frame defaultOpen={false} labels={{ openSubmenu: undefined }} />);
 
     expect(screen.getByRole('button', { name: 'Abrir submenu' })).toBeInTheDocument();
+  });
+
+  it('o nome da gaveta, do trilho e da conta vêm do labels, com os padrões de antes', () => {
+    stubViewport(true);
+    const { unmount } = render(<Frame defaultAccountOpen defaultMenuOpen />);
+
+    expect(screen.getByRole('dialog', { name: 'Menu' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Módulos' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Conta' })).toBeInTheDocument();
+    unmount();
+
+    render(<Frame defaultAccountOpen defaultMenuOpen labels={{ account: 'Account', menu: 'Navigation', modules: 'Modules' }} />);
+
+    expect(screen.getByRole('dialog', { name: 'Navigation' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Modules' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Account' })).toBeInTheDocument();
+  });
+
+  it('a propriedade de cada peça ganha do labels', () => {
+    stubViewport(true);
+    render(
+      <SidebarProvider defaultAccountOpen defaultMenuOpen labels={{ account: 'Account', menu: 'Navigation', modules: 'Modules' }}>
+        <Sidebar menuLabel="Principal">
+          <Sidebar.Rail label="Áreas">
+            <Sidebar.RailItem current href="/vendas" icon="V" label="Vendas" />
+          </Sidebar.Rail>
+          <Sidebar.Panel
+            account={
+              <Sidebar.Account avatar="MD" label="Minha conta" name="Suporte">
+                <Sidebar.Item href="/favoritos" label="Favoritos" />
+              </Sidebar.Account>
+            }
+            label="Vendas"
+          >
+            <Sidebar.Item current href="/pedidos" label="Pedidos" />
+          </Sidebar.Panel>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    expect(screen.getByRole('dialog', { name: 'Principal' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Áreas' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Minha conta' })).toBeInTheDocument();
   });
 
   it('o AppShell repassa os textos ao provider que monta', () => {
@@ -339,6 +385,127 @@ function stubWidth(width: number) {
   }));
 }
 
+function AccountReader() {
+  const { accountOpen, setAccountOpen } = useSidebar();
+
+  return (
+    <div>
+      <output data-testid="conta">{String(accountOpen)}</output>
+      <button onClick={() => setAccountOpen(true)} type="button">abrir conta</button>
+      <button onClick={() => setAccountOpen(false)} type="button">fechar conta</button>
+    </div>
+  );
+}
+
+describe('useSidebar: conta', () => {
+  const conta = () => screen.getByTestId('conta');
+
+  it('expõe o estado da conta e o muda pelo setAccountOpen, abrindo o submenu', () => {
+    render(
+      <Frame defaultOpen={false}>
+        <AccountReader />
+      </Frame>,
+    );
+    expect(conta()).toHaveTextContent('false');
+
+    fireEvent.click(screen.getByRole('button', { name: 'abrir conta' }));
+
+    expect(conta()).toHaveTextContent('true');
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('navigation', { name: 'Vendas' }).closest('[data-visible]')).toHaveAttribute('data-visible', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'fechar conta' }));
+    expect(conta()).toHaveTextContent('false');
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('acompanha o clique no bloco da conta', () => {
+    render(
+      <Frame>
+        <AccountReader />
+      </Frame>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
+    expect(conta()).toHaveTextContent('true');
+  });
+
+  it('abrir pelo código leva o foco à primeira opção, como o clique no bloco', () => {
+    render(
+      <Frame>
+        <AccountReader />
+      </Frame>,
+    );
+    const botao = screen.getByRole('button', { name: 'abrir conta' });
+    botao.focus();
+
+    fireEvent.click(botao);
+
+    expect(conta()).toHaveTextContent('true');
+    expect(screen.getByRole('link', { name: 'Favoritos' })).toHaveFocus();
+  });
+
+  it('abrir pelo código com o foco num campo editável não o rouba', () => {
+    render(
+      <Frame>
+        <AccountReader />
+        <input aria-label="Busca" />
+      </Frame>,
+    );
+    const campo = screen.getByLabelText('Busca');
+    campo.focus();
+
+    act(() => {
+      screen.getByRole('button', { name: 'abrir conta' }).click();
+    });
+
+    expect(conta()).toHaveTextContent('true');
+    expect(campo).toHaveFocus();
+  });
+
+  it('abrir pelo clique no bloco leva o foco à primeira opção', () => {
+    render(<Frame />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Suporte/ }));
+
+    expect(screen.getByRole('link', { name: 'Favoritos' })).toHaveFocus();
+  });
+
+  it('no modo controlado, o setAccountOpen só pede a mudança e o pai decide', () => {
+    const onAccountOpenChange = vi.fn();
+    const { rerender } = render(
+      <Frame accountOpen={false} onAccountOpenChange={onAccountOpenChange}>
+        <AccountReader />
+      </Frame>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'abrir conta' }));
+    expect(onAccountOpenChange).toHaveBeenCalledWith(true);
+    expect(conta()).toHaveTextContent('false');
+
+    rerender(
+      <Frame accountOpen onAccountOpenChange={onAccountOpenChange}>
+        <AccountReader />
+      </Frame>,
+    );
+    expect(conta()).toHaveTextContent('true');
+  });
+
+  it('na largura estreita, abrir pelo código abre a gaveta', () => {
+    stubViewport(true);
+    render(
+      <Frame>
+        <AccountReader />
+      </Frame>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'abrir conta' }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(conta()).toHaveTextContent('true');
+  });
+});
+
 describe('SidebarProvider: ponto de virada (narrowBelow)', () => {
   it('o padrão é 900: a 1000px a navegação fica larga e a 899px vira gaveta', () => {
     stubWidth(1000);
@@ -433,14 +600,61 @@ describe('SidebarProvider: lado (side)', () => {
 
     expect(frame.get(".navigation[data-side='right']")).toMatchObject({ 'flex-direction': 'row-reverse' });
     expect(frame.get(".menu[data-side='right']")).toMatchObject({ 'flex-direction': 'row-reverse' });
-    expect(panel.get(".panel[data-side='right'] .item[aria-current='page']::before")).toMatchObject({
-      'inset-inline-end': '-8px',
-      'inset-inline-start': 'auto',
+    expect(panel.get(".panel[data-side='right'] .item[aria-current='page']::before")).toMatchObject({ left: 'auto', right: '-8px' });
+    expect(panel.get('.nested')).toMatchObject({
+      'border-inline-start': '1px solid var(--pl-color-border-strong)',
+      'margin-inline': '16px -8px',
+      'padding-inline': '9px 8px',
     });
-    expect(panel.get(".panel[data-side='right'] .nested")).toEqual({ 'margin-inline-end': '-8px', 'padding-inline-end': '8px' });
-    expect(panel.get(".panel[data-side='right'] .nested .item[aria-current='page']::before")).toBeUndefined();
-    expect(panel.get('.nested')).toMatchObject({ 'border-inline-start': '1px solid var(--pl-color-border-strong)', 'margin-inline-start': '16px' });
-    expect(panel.get(".item[aria-current='page']::before")).toMatchObject({ 'inset-inline-start': '-8px' });
+    expect(panel.get(".item[aria-current='page']::before")).toMatchObject({ left: '-8px' });
+  });
+
+  it('com a escrita da direita para a esquerda, o lado segue físico: a ordem das peças inverte e a barra do item fica junto do trilho', () => {
+    const frame = regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
+    const panel = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+    const shell = regrasDaFolha('src/components/navigation/AppShell/AppShell.module.css');
+
+    expect(frame.get('.navigation:dir(rtl)')).toMatchObject({ 'flex-direction': 'row-reverse' });
+    expect(frame.get(".navigation[data-side='right']:dir(rtl)")).toMatchObject({ 'flex-direction': 'row' });
+    expect(frame.get('.menu:dir(rtl)')).toMatchObject({ 'flex-direction': 'row-reverse' });
+    expect(frame.get(".menu[data-side='right']:dir(rtl)")).toMatchObject({ 'flex-direction': 'row' });
+    expect(shell.get('.appShell:dir(rtl)')).toMatchObject({ 'flex-direction': 'row-reverse' });
+    expect(shell.get(".appShell[data-side='right']:dir(rtl)")).toMatchObject({ 'flex-direction': 'row' });
+    expect(panel.get(".panel[data-side='left'] .nested:dir(rtl) .item[aria-current='page']::before")).toMatchObject({ left: '-8px' });
+    expect(panel.get(".panel[data-side='right'] .nested:dir(rtl) .item[aria-current='page']::before")).toMatchObject({ right: '-6px' });
+  });
+
+  it('com a escrita da direita para a esquerda, o chevron, o link externo e a seta de voltar espelham', () => {
+    const panel = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+
+    expect(panel.get('.chevron:dir(rtl)')).toEqual({ transform: 'rotate(180deg)' });
+    expect(panel.get('.external:dir(rtl)')).toEqual({ transform: 'scaleX(-1)' });
+    expect(panel.get('.backIcon:dir(rtl)')).toEqual({ transform: 'scaleX(-1)' });
+  });
+
+  it('a gaveta também mantém o lado físico com a escrita da direita para a esquerda', () => {
+    const drawer = regrasDaFolha('src/components/overlays/Drawer/Drawer.module.css');
+
+    expect(drawer.get('.right:dir(rtl)')).toEqual({ 'justify-content': 'flex-start' });
+    expect(drawer.get('.left:dir(rtl)')).toEqual({ 'justify-content': 'flex-end' });
+  });
+
+  it('o terceiro nível em pilha entra pelo lado oposto com side right, e sem animação com movimento reduzido', () => {
+    const panel = regrasDaFolha('src/components/navigation/Sidebar/SidebarPanel.module.css');
+    const folha = readFileSync(resolve(process.cwd(), 'src/components/navigation/Sidebar/SidebarPanel.module.css'), 'utf8');
+
+    expect(panel.get(".panel[data-side='right'] .stacked")).toEqual({ 'animation-name': 'stack-in-end' });
+    expect(folha).toMatch(/@keyframes stack-in-end \{\s*from \{\s*transform: translateX\(-16px\)/);
+    expect(folha).toMatch(/@keyframes stack-in \{\s*from \{\s*transform: translateX\(16px\)/);
+    expect(folha).toMatch(/prefers-reduced-motion: reduce\) \{[\s\S]*\.stacked \{\s*animation: none;/);
+  });
+
+  it('o painel em pilha leva o lado que a folha usa para escolher a entrada', () => {
+    render(<Frame nestedMode="stack" side="right" />);
+    fireEvent.click(screen.getByRole('button', { name: /Painéis/ }));
+
+    expect(painel()).toHaveAttribute('data-side', 'right');
+    expect(painel()!.querySelector(`.${panelStyles.stacked}`)).not.toBeNull();
   });
 });
 

@@ -17,6 +17,14 @@
   justify-content: flex-start;
 }
 
+.right:dir(rtl) {
+  justify-content: flex-start;
+}
+
+.left:dir(rtl) {
+  justify-content: flex-end;
+}
+
 /* Altura toda da tela, sem raio: o painel sai da borda. Cabecalho e rodape fixos, o meio rola. */
 .drawer {
   display: flex;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { useSidebarContext } from './Sidebar.context';
+import { isEditableTarget } from './Sidebar.shortcut';
 import { SidebarItemScopeContext, useSidebarPanel } from './SidebarPanel.context';
 import styles from './SidebarPanel.module.css';
 
@@ -21,12 +22,12 @@ export function SidebarAccount({
   children,
   className,
   description,
-  label = 'Conta',
+  label,
   name,
   onKeyDown,
   ...props
 }: SidebarAccountProps) {
-  const { accountId, accountOpen, icons, setAccountOpen } = useSidebarContext();
+  const { accountId, accountOpen, icons, labels, setAccountOpen } = useSidebarContext();
   const { accountMode, visible } = useSidebarPanel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -38,7 +39,9 @@ export function SidebarAccount({
       pendingFocus.current = accountOpen;
     }
     if (pendingFocus.current && visible) {
-      cardRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+      if (!isEditableTarget(document.activeElement)) {
+        cardRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+      }
       pendingFocus.current = false;
     }
     wasOpen.current = accountOpen;
@@ -73,7 +76,7 @@ export function SidebarAccount({
       onKeyDown={handleKeyDown}
     >
       <div className={styles.accountCard} inert={!accountOpen}>
-        <nav aria-label={label} className={styles.accountNav} id={accountId} onClick={handleCardClick} ref={cardRef}>
+        <nav aria-label={label ?? labels.account} className={styles.accountNav} id={accountId} onClick={handleCardClick} ref={cardRef}>
           <ul className={styles.items}>
             <SidebarItemScopeContext value="account">{children}</SidebarItemScopeContext>
           </ul>

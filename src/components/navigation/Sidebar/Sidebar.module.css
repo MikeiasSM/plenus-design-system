@@ -4,12 +4,21 @@
   display: flex;
   flex: none;
   min-height: 0;
-  margin-inline-end: var(--pl-shell-gap);
+  margin-right: var(--pl-shell-gap);
+}
+
+.navigation:dir(rtl) {
+  flex-direction: row-reverse;
 }
 
 .navigation[data-side='right'] {
   flex-direction: row-reverse;
-  margin-inline: var(--pl-shell-gap) 0;
+  margin-right: 0;
+  margin-left: var(--pl-shell-gap);
+}
+
+.navigation[data-side='right']:dir(rtl) {
+  flex-direction: row;
 }
 
 .menu {
@@ -18,8 +27,16 @@
   min-height: 0;
 }
 
+.menu:dir(rtl) {
+  flex-direction: row-reverse;
+}
+
 .menu[data-side='right'] {
   flex-direction: row-reverse;
+}
+
+.menu[data-side='right']:dir(rtl) {
+  flex-direction: row;
 }
 
 /* A gaveta do celular se ajusta ao trilho e ao submenu e usa o fundo da aplicação. */

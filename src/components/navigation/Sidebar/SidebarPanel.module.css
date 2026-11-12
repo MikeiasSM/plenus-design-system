@@ -30,11 +30,13 @@
   width: var(--sidebar-panel-width, 256px);
   height: 100%;
   padding-block: 10px 4px;
-  padding-inline: 12px 8px;
+  padding-right: 8px;
+  padding-left: 12px;
 }
 
 .panel[data-side='right'] .inner {
-  padding-inline: 8px 12px;
+  padding-right: 12px;
+  padding-left: 8px;
 }
 
 /* Na gaveta do celular, o submenu largo demais para a tela cede ao lado do trilho, e o conteúdo acompanha. */
@@ -79,17 +81,21 @@
   flex: 1;
   min-height: 0;
   margin-block: -3px;
-  margin-inline: -10px -4px;
+  margin-right: -4px;
+  margin-left: -10px;
   padding-block: 3px;
-  padding-inline: 10px 4px;
+  padding-right: 4px;
+  padding-left: 10px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
 
 .panel[data-side='right'] .list {
-  margin-inline: -4px -10px;
-  padding-inline: 4px 10px;
+  margin-right: -10px;
+  margin-left: -4px;
+  padding-right: 10px;
+  padding-left: 4px;
 }
 
 @media (hover: hover) {
@@ -187,15 +193,15 @@
   position: absolute;
   top: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
   bottom: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
-  inset-inline-start: -8px;
+  left: -8px;
   width: 3px;
   border-radius: 3px;
   background: var(--pl-color-primary-strong);
 }
 
 .panel[data-side='right'] .item[aria-current='page']::before {
-  inset-inline-start: auto;
-  inset-inline-end: -8px;
+  right: -8px;
+  left: auto;
 }
 
 .item[aria-current='page'] .icon {
@@ -231,6 +237,22 @@
   transition: transform var(--pl-speed-2) var(--pl-ease);
 }
 
+.chevron:dir(rtl) {
+  transform: rotate(180deg);
+}
+
+.external:dir(rtl) {
+  transform: scaleX(-1);
+}
+
+.backIcon {
+  display: inline-flex;
+}
+
+.backIcon:dir(rtl) {
+  transform: scaleX(-1);
+}
+
 .branch[data-expanded='true'] > .item .chevron {
   transform: rotate(90deg);
 }
@@ -260,17 +282,12 @@
   gap: 2px;
   min-height: 0;
   margin: 0;
-  margin-inline-start: 16px;
+  margin-inline: 16px -8px;
   padding: 0;
-  padding-inline-start: 9px;
+  padding-inline: 9px 8px;
   overflow: hidden;
   border-inline-start: 1px solid var(--pl-color-border-strong);
   list-style: none;
-}
-
-.panel[data-side='right'] .nested {
-  margin-inline-end: -8px;
-  padding-inline-end: 8px;
 }
 
 .branch[data-expanded='true'] > .nestedWrap > .nested {
@@ -286,7 +303,15 @@
 }
 
 .nested .item[aria-current='page']::before {
-  inset-inline-start: -6px;
+  left: -6px;
+}
+
+.panel[data-side='left'] .nested:dir(rtl) .item[aria-current='page']::before {
+  left: -8px;
+}
+
+.panel[data-side='right'] .nested:dir(rtl) .item[aria-current='page']::before {
+  right: -6px;
 }
 
 .nested[hidden] {
@@ -333,6 +358,17 @@
 
 .stacked .groupTitle {
   margin-bottom: 0;
+}
+
+@keyframes stack-in-end {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+}
+
+.panel[data-side='right'] .stacked {
+  animation-name: stack-in-end;
 }
 
 @keyframes stack-in {
@@ -405,9 +441,11 @@
   min-height: 0;
   max-height: none;
   margin-block: -3px;
-  margin-inline: -10px -4px;
+  margin-right: -4px;
+  margin-left: -10px;
   padding-block: 3px;
-  padding-inline: 10px 4px;
+  padding-right: 4px;
+  padding-left: 10px;
   border: 0;
   border-radius: 0;
   background: none;
@@ -418,8 +456,10 @@
 }
 
 .panel[data-side='right'] .account[data-mode='cover'] .accountNav {
-  margin-inline: -4px -10px;
-  padding-inline: 4px 10px;
+  margin-right: -10px;
+  margin-left: -4px;
+  padding-right: 10px;
+  padding-left: 4px;
 }
 
 .accountAvatar {

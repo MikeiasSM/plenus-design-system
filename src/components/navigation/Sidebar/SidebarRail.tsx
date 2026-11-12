@@ -15,9 +15,11 @@ export interface SidebarRailProps extends Omit<ComponentPropsWithRef<'nav'>, 'ar
 }
 
 /** Trilho de módulos: folha estreita à esquerda, só com ícones. Os módulos são `Sidebar.RailItem`. */
-export function SidebarRail({ brand, children, className, footer, label = 'Módulos', ...props }: SidebarRailProps) {
+export function SidebarRail({ brand, children, className, footer, label, ...props }: SidebarRailProps) {
+  const { labels } = useSidebarContext();
+
   return (
-    <nav {...props} aria-label={label} className={[styles.rail, className].filter(Boolean).join(' ')}>
+    <nav {...props} aria-label={label ?? labels.modules} className={[styles.rail, className].filter(Boolean).join(' ')}>
       {brand && (
         <div className={styles.brand}>
           <SidebarBrandContext value="rail">{brand}</SidebarBrandContext>

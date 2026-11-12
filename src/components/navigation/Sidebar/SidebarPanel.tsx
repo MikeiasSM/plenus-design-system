@@ -344,7 +344,7 @@ function StackedBranch({
     return (
       <li className={styles.stacked}>
         <button className={styles.back} onClick={() => setEnteredId(null)} ref={backRef} type="button">
-          {icons.back}
+          <span className={styles.backIcon}>{icons.back}</span>
           {panelLabel}
         </button>
         <span className={styles.groupTitle}>{label}</span>

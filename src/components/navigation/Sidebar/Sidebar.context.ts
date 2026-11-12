@@ -10,10 +10,16 @@ export function tooltipPlacement(side: SidebarSide) {
 }
 
 export interface SidebarLabels {
+  /** Nome da conta: a navegação das opções do `Sidebar.Account`. */
+  account: string;
   /** Fecha a gaveta, no celular. */
   closeMenu: string;
   /** Recolhe o submenu, na largura larga. */
   collapseSubmenu: string;
+  /** Nome da gaveta, no celular. */
+  menu: string;
+  /** Nome da navegação entre módulos: o `Sidebar.Rail`. */
+  modules: string;
   /** Abre a gaveta, no celular. */
   openMenu: string;
   /** Abre o submenu recolhido, na largura larga. */
@@ -21,8 +27,11 @@ export interface SidebarLabels {
 }
 
 export const defaultSidebarLabels: SidebarLabels = {
+  account: 'Conta',
   closeMenu: 'Fechar menu',
   collapseSubmenu: 'Recolher submenu',
+  menu: 'Menu',
+  modules: 'Módulos',
   openMenu: 'Abrir menu',
   openSubmenu: 'Abrir submenu',
 };

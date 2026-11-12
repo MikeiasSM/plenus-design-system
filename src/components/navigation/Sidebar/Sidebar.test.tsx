@@ -411,7 +411,7 @@ describe('Sidebar', () => {
 
     it('a marca do trilho e o cabeçalho começam na mesma altura, com 24px até o conteúdo', () => {
       expect(moldura().get('.rail')?.padding).toBe('9px 0 8px');
-      expect(painel().get('.inner')).toMatchObject({ 'padding-block': '10px 4px', 'padding-inline': '12px 8px' });
+      expect(painel().get('.inner')).toMatchObject({ 'padding-block': '10px 4px', 'padding-left': '12px', 'padding-right': '8px' });
       expect(moldura().get('.brand')?.['margin-bottom']).toBe('24px');
       expect(painel().get('.head')?.['margin-bottom']).toBe('24px');
     });
@@ -448,13 +448,13 @@ describe('Sidebar', () => {
       expect(ativo).toMatchObject({ background: 'var(--pl-color-primary-tint)', color: 'var(--pl-color-on-primary-container)' });
       expect(ativo['box-shadow']).toBeUndefined();
       expect(painel().get(".item[aria-current='page']::before")).toMatchObject({
-        'inset-inline-start': '-8px',
+        left: '-8px',
         top: 'calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2)',
         bottom: 'calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2)',
         width: '3px',
         background: 'var(--pl-color-primary-strong)',
       });
-      expect(painel().get(".nested .item[aria-current='page']::before")?.['inset-inline-start']).toBe('-6px');
+      expect(painel().get(".nested .item[aria-current='page']::before")?.left).toBe('-6px');
     });
 
     it('o hover do submenu e do trilho tinge de leve e mantém o texto na cor normal', () => {

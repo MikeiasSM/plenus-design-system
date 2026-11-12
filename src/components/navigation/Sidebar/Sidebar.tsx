@@ -16,8 +16,8 @@ export interface SidebarProps {
 }
 
 /** Reúne trilho e submenu. Em largura estreita, os dois passam juntos a uma gaveta com a interação do `Drawer`. */
-function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
-  const { accountId, accountOpen, menuOpen, narrow, panelKind, setMenuOpen, side } = useSidebarContext();
+function SidebarRoot({ children, menuLabel }: SidebarProps) {
+  const { accountId, accountOpen, labels, menuOpen, narrow, panelKind, setMenuOpen, side } = useSidebarContext();
   const previousPanelKind = useRef(panelKind);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +49,7 @@ function SidebarRoot({ children, menuLabel = 'Menu' }: SidebarProps) {
   }
 
   return (
-    <Drawer aria-label={menuLabel} className={styles.menuSurface} flush onOpenChange={setMenuOpen} open={menuOpen} side={side}>
+    <Drawer aria-label={menuLabel ?? labels.menu} className={styles.menuSurface} flush onOpenChange={setMenuOpen} open={menuOpen} side={side}>
       <div className={styles.menu} data-side={side} ref={menuRef}>{children}</div>
     </Drawer>
   );

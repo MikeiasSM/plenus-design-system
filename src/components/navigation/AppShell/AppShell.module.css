@@ -21,8 +21,16 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+.appShell:dir(rtl) {
+  flex-direction: row-reverse;
+}
+
 .appShell[data-side='right'] {
   flex-direction: row-reverse;
+}
+
+.appShell[data-side='right']:dir(rtl) {
+  flex-direction: row;
 }
 
 /* Folha: o trilho e a página ficam no mesmo nível. */
@@ -49,7 +57,8 @@
   gap: var(--pl-space-2);
   box-sizing: border-box;
   height: 46px;
-  padding: 0 var(--pl-space-2) 0 var(--pl-space-3);
+  padding-block: 0;
+  padding-inline: var(--pl-space-3) var(--pl-space-2);
   border-bottom: 1px solid var(--pl-color-border);
 }
 

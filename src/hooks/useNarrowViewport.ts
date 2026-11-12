@@ -7,6 +7,10 @@ function queryFor(below: number) {
   return `(max-width: ${below - 0.02}px)`;
 }
 
+export function isNarrowNow(below: number = DEFAULT_NARROW_BELOW) {
+  return typeof window.matchMedia === 'function' && window.matchMedia(queryFor(below)).matches;
+}
+
 export function useNarrowViewport(below: number = DEFAULT_NARROW_BELOW) {
   const subscribe = useCallback(
     (notify: () => void) => {
@@ -20,7 +24,7 @@ export function useNarrowViewport(below: number = DEFAULT_NARROW_BELOW) {
     },
     [below],
   );
-  const isNarrow = useCallback(() => typeof window.matchMedia === 'function' && window.matchMedia(queryFor(below)).matches, [below]);
+  const isNarrow = useCallback(() => isNarrowNow(below), [below]);
 
   return useSyncExternalStore(subscribe, isNarrow, () => false);
 }
