@@ -1,5 +1,4 @@
-/* Variavel CSS nao entra em `@media`: os breakpoints documentam os literais usados nas media queries.
-   `--pl-container` e a largura maxima oferecida a aplicacao; nenhum token daqui e aplicado por padrao. */
+/* Variavel CSS nao entra em `@media`: os breakpoints documentam os literais usados nas media queries. */
 :root {
   --pl-bp-sm: 900px;
   --pl-bp-md: 1180px;
