@@ -4,6 +4,11 @@
   font-family: var(--pl-font-body);
 }
 
+/* A moldura do Showcase vive em caixas de altura própria; a da janela (100dvh) é só do produto. */
+:root {
+  --pl-shell-height: 100%;
+}
+
 body {
   min-width: 320px;
 }

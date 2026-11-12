@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { useState } from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { AppShell, type AppShellProps } from './AppShell';
@@ -332,5 +334,16 @@ describe('AppShell', () => {
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('altura da moldura', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/navigation/AppShell/AppShell.module.css'), 'utf8');
+
+  it('ocupa a janela por padrão e aceita a altura de uma caixa por --pl-shell-height', () => {
+    const inicio = css.search(/^\.appShell \{/m);
+    const regra = css.slice(inicio, css.indexOf('}', inicio));
+
+    expect(regra).toContain('height: var(--pl-shell-height, 100dvh);');
   });
 });

@@ -12,6 +12,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Alterado
 
+- `AppShell`: a moldura agora ocupa a janela (`100dvh`) sem o produto dar altura a `html`, `body` e `#root`; antes, sem essa altura, a página inteira rolava e a barra e o rodapé saíam da vista. Para embutir a moldura numa caixa, como num cartão ou numa demonstração, redefina `--pl-shell-height` (por exemplo, `100%`) nela ou num ancestral.
 - `Button` e `ButtonIcon`: na variante `ghost`, o hover só tinge o fundo, sem a sombra, que no tema escuro aparecia como um halo cinza. As demais variantes não mudam.
 - Showcase: toda demonstração das páginas de componente mostra o código que a reproduz, atrás de "Ver código". Valem as variantes, os modos e estados e os quadros de Faça e Evite, além dos exemplos de uso, que já mostravam.
 
