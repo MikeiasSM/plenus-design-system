@@ -1,11 +1,20 @@
-/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item e filho em `--sidebar-row` (34px), cabeçalho na altura da marca do trilho. */
+/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item e filho em `--sidebar-row` (34px, 42px no toque), cabeçalho na altura da marca do trilho. */
 .panel {
+  --_sidebar-row: 34px;
+  --_sidebar-head: 36px;
   flex: none;
   width: 0;
   min-height: 0;
   overflow: hidden;
   opacity: 0;
   transition: width var(--pl-speed-2) var(--pl-ease), opacity var(--pl-speed-2) var(--pl-ease);
+}
+
+@media (pointer: coarse) {
+  .panel {
+    --_sidebar-row: 42px;
+    --_sidebar-head: 44px;
+  }
 }
 
 .panel[data-visible='true'] {
@@ -44,7 +53,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--pl-space-2);
-  height: var(--sidebar-brand-size, 36px);
+  height: var(--sidebar-brand-size, var(--_sidebar-head));
   margin-bottom: 24px;
 }
 
@@ -114,7 +123,7 @@
   display: flex;
   align-items: flex-end;
   box-sizing: border-box;
-  height: var(--sidebar-row, 34px);
+  height: var(--sidebar-row, var(--_sidebar-row));
   margin: 0 0 2px;
   margin-inline-start: 8px;
   padding-bottom: 6px;
@@ -135,7 +144,7 @@
   gap: var(--pl-space-2);
   box-sizing: border-box;
   width: 100%;
-  height: var(--sidebar-row, 34px);
+  height: var(--sidebar-row, var(--_sidebar-row));
   padding: 0 var(--pl-space-2);
   border: 1px solid transparent;
   border-radius: var(--pl-radius-md);
@@ -176,12 +185,12 @@
 .item[aria-current='page']::before {
   content: '';
   position: absolute;
-  top: calc((var(--sidebar-row, 34px) - 20px) / 2);
-  bottom: calc((var(--sidebar-row, 34px) - 20px) / 2);
+  top: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
+  bottom: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
   inset-inline-start: -8px;
   width: 3px;
   border-radius: 3px;
-  background: var(--pl-color-primary);
+  background: var(--pl-color-primary-strong);
 }
 
 .panel[data-side='right'] .item[aria-current='page']::before {
@@ -298,7 +307,7 @@
   gap: 6px;
   box-sizing: border-box;
   width: 100%;
-  height: var(--sidebar-row, 34px);
+  height: var(--sidebar-row, var(--_sidebar-row));
   padding: 0 6px;
   border: 0;
   border-radius: var(--pl-radius-md);

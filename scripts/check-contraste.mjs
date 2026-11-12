@@ -71,6 +71,7 @@ const PARES = [
   ['--pl-color-primary', '--pl-color-background', CONTROLE_MINIMO, 'contorno do botao'],
   ['--pl-color-primary-strong', '--pl-color-surface', TEXTO_MINIMO, 'traco primario'],
   ['--pl-color-primary-strong', '--pl-color-background', TEXTO_MINIMO, 'traco na pagina'],
+  ['--pl-color-primary-strong', '--pl-color-background', CONTROLE_MINIMO, 'barra do item ativo da Sidebar'],
   ['--pl-color-border-strong', '--pl-color-surface', CONTROLE_MINIMO, 'contorno do campo'],
   ['--pl-chart-series-1', '--pl-color-surface', CONTROLE_MINIMO, 'serie 1 no desenho'],
   ['--pl-chart-series-2', '--pl-color-surface', CONTROLE_MINIMO, 'serie 2 no desenho'],

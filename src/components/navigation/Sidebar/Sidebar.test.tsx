@@ -402,11 +402,11 @@ describe('Sidebar', () => {
     const moldura = () => regrasDaFolha('src/components/navigation/Sidebar/Sidebar.module.css');
 
     it('trilho e submenu andam na grade de 34px mais 2px', () => {
-      expect(moldura().get('.railItem, .railAccount')).toMatchObject({ width: 'var(--sidebar-row, 34px)', height: 'var(--sidebar-row, 34px)' });
-      expect(painel().get('.item')?.height).toBe('var(--sidebar-row, 34px)');
+      expect(moldura().get('.railItem, .railAccount')).toMatchObject({ width: 'var(--sidebar-row, var(--_sidebar-row))', height: 'var(--sidebar-row, var(--_sidebar-row))' });
+      expect(painel().get('.item')?.height).toBe('var(--sidebar-row, var(--_sidebar-row))');
       expect(painel().get('.nested .item')?.height).toBeUndefined();
       expect(painel().get('.items')?.gap).toBe('2px');
-      expect(painel().get('.back')?.height).toBe('var(--sidebar-row, 34px)');
+      expect(painel().get('.back')?.height).toBe('var(--sidebar-row, var(--_sidebar-row))');
     });
 
     it('a marca do trilho e o cabeçalho começam na mesma altura, com 24px até o conteúdo', () => {
@@ -421,7 +421,7 @@ describe('Sidebar', () => {
       expect(moldura().get('.railItem, .railAccount')?.['font-size']).toBe('var(--sidebar-rail-icon-size, 20px)');
       expect(moldura().get('.menuSurface.menuSurface')?.width).toBe('var(--sidebar-drawer-width, auto)');
       expect(painel().get('.icon')?.['font-size']).toBe('var(--sidebar-icon-size, 18px)');
-      expect(painel().get('.head')?.height).toBe('var(--sidebar-brand-size, 36px)');
+      expect(painel().get('.head')?.height).toBe('var(--sidebar-brand-size, var(--_sidebar-head))');
       expect(painel().get('.accountAvatar.accountAvatar > *')?.width).toBe('var(--sidebar-avatar-size, 40px)');
       expect(regrasDaFolha('src/components/navigation/Sidebar/SidebarBrand.module.css').get('.railBrand')?.width).toBe(
         'var(--sidebar-brand-size, 36px)',
@@ -432,7 +432,7 @@ describe('Sidebar', () => {
       const titulo = painel().get('.groupTitle')!;
 
       expect(titulo).toMatchObject({
-        height: 'var(--sidebar-row, 34px)',
+        height: 'var(--sidebar-row, var(--_sidebar-row))',
         'padding-bottom': '6px',
         'font-size': '13px',
         'font-weight': '700',
@@ -449,10 +449,10 @@ describe('Sidebar', () => {
       expect(ativo['box-shadow']).toBeUndefined();
       expect(painel().get(".item[aria-current='page']::before")).toMatchObject({
         'inset-inline-start': '-8px',
-        top: 'calc((var(--sidebar-row, 34px) - 20px) / 2)',
-        bottom: 'calc((var(--sidebar-row, 34px) - 20px) / 2)',
+        top: 'calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2)',
+        bottom: 'calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2)',
         width: '3px',
-        background: 'var(--pl-color-primary)',
+        background: 'var(--pl-color-primary-strong)',
       });
       expect(painel().get(".nested .item[aria-current='page']::before")?.['inset-inline-start']).toBe('-6px');
     });

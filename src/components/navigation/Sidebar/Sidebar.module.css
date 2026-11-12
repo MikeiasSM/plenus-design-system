@@ -1,4 +1,4 @@
-/* Medidas do modelo: trilho 56px, botao do trilho 34px, todas em variaveis `--sidebar-*`. */
+/* Medidas do modelo: trilho 56px, botao do trilho 34px (42px no toque), todas em variaveis `--sidebar-*`. */
 
 .navigation {
   display: flex;
@@ -44,6 +44,8 @@
 }
 
 .rail {
+  --_sidebar-row: 34px;
+  --_sidebar-head: 36px;
   border: 1px solid var(--pl-color-border);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
@@ -60,10 +62,18 @@
   scrollbar-width: none;
 }
 
+@media (pointer: coarse) {
+  .rail {
+    --_sidebar-row: 42px;
+    --_sidebar-head: 44px;
+  }
+}
+
 .brand {
   display: grid;
   flex: none;
   place-items: center;
+  height: var(--sidebar-brand-size, var(--_sidebar-head));
   margin-bottom: 24px;
 }
 
@@ -91,8 +101,8 @@
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  width: var(--sidebar-row, 34px);
-  height: var(--sidebar-row, 34px);
+  width: var(--sidebar-row, var(--_sidebar-row));
+  height: var(--sidebar-row, var(--_sidebar-row));
   padding: 0;
   border: 0;
   border-radius: var(--pl-radius-md);
