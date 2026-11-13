@@ -13,7 +13,7 @@ for (const [nomeDoTema, tokens] of PALETAS.flatMap((paleta) => {
   ];
 })) {
   for (const [frente, fundo, minimo, papel] of PARES) {
-    const corFrente = resolver(tokens, frente);
+    const corFrente = frente.startsWith('--') ? resolver(tokens, frente) : resolverValor(tokens, frente, new Set());
     const corFundo = fundo.startsWith('--') ? resolver(tokens, fundo) : resolverValor(tokens, fundo, new Set());
     const medida = corFrente && corFundo ? contraste(corFrente, corFundo) : undefined;
 

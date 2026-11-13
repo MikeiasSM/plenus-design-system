@@ -1,5 +1,5 @@
 /* A cor do polegar da barra de rolagem fina dos contêineres que rolam. Derivada da cor do texto: recalculada em cada escopo de tema. */
 :root,
 [data-theme] {
-  --pl-scrollbar-thumb: color-mix(in srgb, var(--pl-color-text) 18%, transparent);
+  --pl-scrollbar-thumb: color-mix(in srgb, var(--pl-color-text) 54%, transparent);
 }

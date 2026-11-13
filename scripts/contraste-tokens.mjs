@@ -31,6 +31,8 @@ export const PALETAS = ['orange', 'blue', 'purple'];
 
 const TEXTO_MINIMO = 4.5;
 const CONTROLE_MINIMO = 3;
+const POLEGAR = readFileSync(resolve(raiz, 'src/tokens/semantic/scroll.css'), 'utf8').match(/--pl-scrollbar-thumb:[^;]*?(\d+)%/)[1];
+const polegarSobre = (fundo) => `color-mix(in srgb, var(--pl-color-text) ${POLEGAR}%, var(${fundo}))`;
 const PERIGO_PRESSIONADO = 'color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid))';
 
 /**
@@ -81,6 +83,12 @@ export const PARES = [
   ['--pl-chart-series-4', '--pl-color-surface', CONTROLE_MINIMO, 'serie 4 no desenho'],
   ['--pl-chart-series-5', '--pl-color-surface', CONTROLE_MINIMO, 'serie 5 no desenho'],
   ['--pl-chart-series-6', '--pl-color-surface', CONTROLE_MINIMO, 'serie 6 no desenho'],
+  ...['--pl-color-background', '--pl-color-surface'].map((fundo) => [
+    polegarSobre(fundo),
+    fundo,
+    CONTROLE_MINIMO,
+    `polegar da barra de rolagem no fundo ${fundo === '--pl-color-surface' ? 'do cartao e do dialogo' : 'da pagina'}`,
+  ]),
   ...['series-1', 'series-2', 'series-3', 'series-4', 'series-5', 'series-6', 'positive', 'negative', 'warning', 'neutral'].map(
     (cor) => [`--pl-chart-on-${cor}`, `--pl-chart-${cor}`, TEXTO_MINIMO, `texto sobre ${cor}`],
   ),
