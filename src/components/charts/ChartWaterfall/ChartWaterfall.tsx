@@ -49,15 +49,11 @@ export interface ChartWaterfallProps extends ChartRootProps {
   minTickStep?: number;
   /** Passo sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
   onHover?: (mark: ChartWaterfallMark | null) => void;
-  /** @deprecated Use `onHover`, que traz o passo e o indice. Aceito ate a 0.7.0. */
-  onHoverStep?: (index: number | null) => void;
   /** Clique no passo. Com ele, as barras viram botoes percorridos pelas setas. */
   onMarkClick?: (mark: ChartWaterfallMark) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
@@ -132,11 +128,9 @@ export function ChartWaterfall({
   labelAngle = 'auto',
   minTickStep,
   onHover,
-  onHoverStep,
   onMarkClick,
-  onStepClick,
   showDataLabels = 'visible',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   steps,
   title,
@@ -151,23 +145,13 @@ export function ChartWaterfall({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const hoverDoPasso =
-    onHover || onHoverStep
-      ? (index: number | null) => {
-          onHover?.(index === null ? null : { index, step: steps[index] });
-          onHoverStep?.(index);
-        }
-      : undefined;
+    onHover ? (index: number | null) => onHover(index === null ? null : { index, step: steps[index] }) : undefined;
   const { hover: focarPasso, hovered: passoEmFoco } = useHoveredBand(hoverDoPasso);
 
   const trechos = useMemo(() => trechosDe(steps), [steps]);
   const marcas = useMarkNavigation({
     onActivate:
-      onMarkClick || onStepClick
-        ? ({ column }) => {
-            onMarkClick?.({ index: column, step: steps[column] });
-            onStepClick?.(steps[column], column);
-          }
-        : undefined,
+      onMarkClick ? ({ column }) => onMarkClick({ index: column, step: steps[column] }) : undefined,
     onFocusMark: (posicao) => focarPasso(posicao?.column ?? null),
     present: trechos.flatMap((trecho, column) => (trecho ? [{ column, row: 0 }] : [])),
   });

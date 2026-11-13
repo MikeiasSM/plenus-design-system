@@ -12,6 +12,7 @@ import { EmptyState } from '../../feedback/EmptyState';
 import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
 import { IconChartBar } from '../../icons';
 import { TABLE_TOGGLE_MIN_WIDTH } from './decomposition';
+import { useShowTableToggle } from '../ChartsProvider';
 import { useChartMetrics } from './useChartMetrics';
 import { useTouchPin } from './useTouchPin';
 import type { ChartAnchorPoint } from './useMarkNavigation';
@@ -64,7 +65,7 @@ export interface ChartFrameProps {
   swatch?: ChartLegendSwatch;
   /** Leitura medida a medida, no lugar do desenho, pelo botao "Ver como tabela". */
   table?: ReactNode;
-  /** `false` tira o botao "Ver como tabela" e deixa so o desenho. */
+  /** `false` tira o botao "Ver como tabela" e deixa so o desenho; sem a prop, vale o do `ChartsProvider`. */
   showTableToggle?: boolean;
   title: string;
   /** O balao do que esta sob o ponteiro, montado pelo grafico. Sem linhas, nao aparece. */
@@ -98,7 +99,7 @@ export function ChartFrame({
   onPointerLeave,
   onToggleSeries,
   root = {},
-  showTableToggle = true,
+  showTableToggle: showTableToggleProp,
   swatch = 'square',
   table,
   title,
@@ -106,6 +107,7 @@ export function ChartFrame({
   tooltipAnchor,
   width,
 }: ChartFrameProps) {
+  const showTableToggle = useShowTableToggle(showTableToggleProp);
   const tituloId = useId();
   const [emTabela, setEmTabela] = useState(false);
   const toque = useTouchPin();

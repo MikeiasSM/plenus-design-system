@@ -20,6 +20,39 @@ describe('RadioGroup', () => {
     expect(pix.name).toBe(boleto.name);
   });
 
+  it('e vertical por padrao e, com orientation horizontal, poe as opcoes lado a lado com quebra de linha', () => {
+    render(
+      <>
+        <RadioGroup label="Padrao">
+          <Radio label="A" value="a" />
+        </RadioGroup>
+        <RadioGroup label="Lado a lado" orientation="horizontal">
+          <Radio label="B" value="b" />
+          <Radio label="C" value="c" />
+        </RadioGroup>
+      </>,
+    );
+
+    const padrao = screen.getByRole('radio', { name: 'A' }).closest('div[class*="options"]')!;
+    const horizontal = screen.getByRole('radio', { name: 'B' }).closest('div[class*="options"]')!;
+    expect(padrao.className).toContain('vertical');
+    expect(horizontal.className).toContain('horizontal');
+    expect(horizontal.className).not.toContain('vertical');
+  });
+
+  it('com orientation horizontal o grupo continua um radiogroup e a escolha segue trocando a opcao marcada', () => {
+    render(
+      <RadioGroup label="Tipo de pessoa" defaultValue="fisica" orientation="horizontal">
+        <Radio label="Fisica" value="fisica" />
+        <Radio label="Juridica" value="juridica" />
+      </RadioGroup>,
+    );
+
+    expect(screen.getByRole('radiogroup', { name: /Tipo de pessoa/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'Juridica' }));
+    expect(screen.getByRole('radio', { name: 'Juridica' })).toBeChecked();
+  });
+
   it('reports the chosen value to the product', () => {
     const onValueChange = vi.fn();
     render(

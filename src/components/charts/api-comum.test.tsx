@@ -96,23 +96,22 @@ afterEach(() => {
   Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
 });
 
-/** O meio do nome antigo do trio: `onHidden<Series>Change`, `hidden<Series>`. */
-const ocultaveis: [string, Montar, string, string, string][] = [
-  ['ChartBar', montarBar, 'Series', 'Receita', 'Receita'],
-  ['ChartLine', montarLine, 'Series', 'Receita', 'Receita'],
-  ['ChartArea', montarArea, 'Series', 'Receita', 'Receita'],
-  ['ChartCombo', montarCombo, 'Series', 'Receita', 'Receita'],
-  ['ChartScatter', montarScatter, 'Series', 'Receita', 'Receita'],
-  ['ChartPie', montarPie, 'Slices', 'Alfa', 'Alfa'],
-  ['ChartDonut', montarDonut, 'Slices', 'Alfa', 'Alfa'],
-  ['ChartRadial', montarRadial, 'Tracks', 'Alfa', 'Alfa'],
-  ['ChartTreemap', montarTreemap, 'Groups', 'Alfa', 'Alfa'],
-  ['ChartSunburst', montarSunburst, 'Groups', 'Alfa', 'Alfa'],
-  ['ChartTimeline', montarTimeline, 'Series', 'Receita', 'Receita'],
-  ['ChartMap', montarMap, 'Series', 'Regional Norte', 'norte'],
+const ocultaveis: [string, Montar, string, string][] = [
+  ['ChartBar', montarBar, 'Receita', 'Receita'],
+  ['ChartLine', montarLine, 'Receita', 'Receita'],
+  ['ChartArea', montarArea, 'Receita', 'Receita'],
+  ['ChartCombo', montarCombo, 'Receita', 'Receita'],
+  ['ChartScatter', montarScatter, 'Receita', 'Receita'],
+  ['ChartPie', montarPie, 'Alfa', 'Alfa'],
+  ['ChartDonut', montarDonut, 'Alfa', 'Alfa'],
+  ['ChartRadial', montarRadial, 'Alfa', 'Alfa'],
+  ['ChartTreemap', montarTreemap, 'Alfa', 'Alfa'],
+  ['ChartSunburst', montarSunburst, 'Alfa', 'Alfa'],
+  ['ChartTimeline', montarTimeline, 'Receita', 'Receita'],
+  ['ChartMap', montarMap, 'Regional Norte', 'norte'],
 ];
 
-describe.each(ocultaveis)('%s: hidden, defaultHidden e onHiddenChange', (_, montar, antigo, entrada, id) => {
+describe.each(ocultaveis)('%s: hidden, defaultHidden e onHiddenChange', (_, montar, entrada, id) => {
   const legenda = () => screen.getByRole('button', { name: new RegExp(`^${entrada}`) });
 
   it('avisa os rotulos ocultos pelo nome novo', () => {
@@ -124,24 +123,7 @@ describe.each(ocultaveis)('%s: hidden, defaultHidden e onHiddenChange', (_, mont
     expect(onHiddenChange).toHaveBeenCalledWith([id]);
   });
 
-  it('o nome antigo continua avisando, e com os dois os dois avisam', () => {
-    const avisoAntigo = vi.fn();
-    const { unmount } = render(montar({ [`onHidden${antigo}Change`]: avisoAntigo }));
-
-    fireEvent.click(legenda());
-    expect(avisoAntigo).toHaveBeenCalledWith([id]);
-    unmount();
-
-    avisoAntigo.mockClear();
-    const avisoNovo = vi.fn();
-    render(montar({ [`onHidden${antigo}Change`]: avisoAntigo, onHiddenChange: avisoNovo }));
-    fireEvent.click(legenda());
-
-    expect(avisoNovo).toHaveBeenCalledWith([id]);
-    expect(avisoAntigo).toHaveBeenCalledWith([id]);
-  });
-
-  it('obedece hidden e defaultHidden, e os antigos quando os novos nao vem', () => {
+  it('obedece hidden e defaultHidden', () => {
     const desligada = (props: Props) => {
       const { unmount } = render(montar(props));
       const pressionado = legenda().getAttribute('aria-pressed');
@@ -150,17 +132,11 @@ describe.each(ocultaveis)('%s: hidden, defaultHidden e onHiddenChange', (_, mont
     };
 
     expect(desligada({ hidden: [id] })).toBe(true);
-    expect(desligada({ [`hidden${antigo}`]: [id] })).toBe(true);
     expect(desligada({ defaultHidden: [id] })).toBe(true);
-    expect(desligada({ [`defaultHidden${antigo}`]: [id] })).toBe(true);
-    expect(desligada({ hidden: [], [`hidden${antigo}`]: [id] })).toBe(false);
   });
 });
 
 interface CasoDeMarca {
-  /** Nome antigo do clique; o `onMarkClick` do ChartCombo ja era o final. */
-  antigoClique?: string;
-  antigoHover?: string;
   esperadoClique: unknown;
   /** Sem hover, o gráfico fica de fora dos testes de `onHover`. */
   esperadoHover?: unknown;
@@ -175,42 +151,36 @@ const ligacao = { kind: 'flow', source: 'A', target: 'B', value: 1 };
 const celula = { value: 1, x: 'a', y: 'b' };
 
 const marcas: CasoDeMarca[] = [
-  { antigoClique: 'onBarClick', antigoHover: 'onHoverCategory', esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarBar, nome: 'ChartBar' },
-  { antigoClique: 'onPointClick', antigoHover: 'onHoverCategory', esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarLine, nome: 'ChartLine' },
-  { antigoClique: 'onPointClick', antigoHover: 'onHoverCategory', esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarArea, nome: 'ChartArea' },
-  { antigoHover: 'onHoverCategory', esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarCombo, nome: 'ChartCombo' },
+  { esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarBar, nome: 'ChartBar' },
+  { esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarLine, nome: 'ChartLine' },
+  { esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarArea, nome: 'ChartArea' },
+  { esperadoClique: pontoCartesiano, esperadoHover: categoriaJan, montar: montarCombo, nome: 'ChartCombo' },
   {
-    antigoClique: 'onPointClick',
     esperadoClique: { index: 0, point: { x: 1, y: 2 }, series: 'Receita' },
     esperadoHover: { index: 0, point: { x: 1, y: 2 }, series: 'Receita' },
     montar: montarScatter,
     nome: 'ChartScatter',
   },
-  { antigoClique: 'onSliceClick', antigoHover: 'onHoverSlice', esperadoClique: itens[0], esperadoHover: itens[0], montar: montarPie, nome: 'ChartPie' },
-  { antigoClique: 'onSliceClick', antigoHover: 'onHoverSlice', esperadoClique: itens[0], esperadoHover: itens[0], montar: montarDonut, nome: 'ChartDonut' },
-  { antigoClique: 'onTrackClick', esperadoClique: itens[0], esperadoHover: itens[0], montar: montarRadial, nome: 'ChartRadial' },
+  { esperadoClique: itens[0], esperadoHover: itens[0], montar: montarPie, nome: 'ChartPie' },
+  { esperadoClique: itens[0], esperadoHover: itens[0], montar: montarDonut, nome: 'ChartDonut' },
+  { esperadoClique: itens[0], esperadoHover: itens[0], montar: montarRadial, nome: 'ChartRadial' },
   {
-    antigoClique: 'onStepClick',
-    antigoHover: 'onHoverStep',
     esperadoClique: { index: 0, step: itens[0] },
     esperadoHover: { index: 0, step: itens[0] },
     montar: montarWaterfall,
     nome: 'ChartWaterfall',
   },
-  { antigoClique: 'onNodeClick', antigoHover: 'onHoverNode', esperadoClique: caminho('Beta'), esperadoHover: caminho('Beta'), montar: montarTreemap, nome: 'ChartTreemap' },
-  { antigoClique: 'onNodeClick', antigoHover: 'onHoverNode', esperadoClique: caminho('Beta'), esperadoHover: caminho('Beta'), montar: montarSunburst, nome: 'ChartSunburst' },
-  { antigoClique: 'onFlowClick', esperadoClique: ligacao, esperadoHover: ligacao, montar: montarSankey, nome: 'ChartSankey' },
+  { esperadoClique: caminho('Beta'), esperadoHover: caminho('Beta'), montar: montarTreemap, nome: 'ChartTreemap' },
+  { esperadoClique: caminho('Beta'), esperadoHover: caminho('Beta'), montar: montarSunburst, nome: 'ChartSunburst' },
+  { esperadoClique: ligacao, esperadoHover: ligacao, montar: montarSankey, nome: 'ChartSankey' },
   {
-    antigoClique: 'onRegionClick',
-    antigoHover: 'onHoverRegion',
     esperadoClique: expect.objectContaining({ id: 'AA', kind: 'region', name: 'Região' }),
     esperadoHover: expect.objectContaining({ id: 'AA', kind: 'region' }),
     montar: montarMap,
     nome: 'ChartMap',
   },
-  { antigoClique: 'onCellClick', antigoHover: 'onHoverCell', esperadoClique: celula, esperadoHover: celula, montar: montarHeatmap, nome: 'ChartHeatmap' },
+  { esperadoClique: celula, esperadoHover: celula, montar: montarHeatmap, nome: 'ChartHeatmap' },
   {
-    antigoClique: 'onSegmentClick',
     esperadoClique: { row: expect.objectContaining({ key: 'a' }), segment: expect.objectContaining({ series: 'Receita' }) },
     montar: montarTimeline,
     nome: 'ChartTimeline',
@@ -220,7 +190,7 @@ const marcas: CasoDeMarca[] = [
 /** A primeira marca do grafico, dentro do grupo: a legenda fica de fora. */
 const primeiraMarca = () => within(screen.getByRole('group')).getAllByRole('button')[0];
 
-describe.each(marcas)('$nome: onMarkClick', ({ antigoClique, esperadoClique, montar }) => {
+describe.each(marcas)('$nome: onMarkClick', ({ esperadoClique, montar }) => {
   it('avisa a marca clicada pelo nome novo', () => {
     const onMarkClick = vi.fn();
     render(montar({ onMarkClick }));
@@ -230,28 +200,11 @@ describe.each(marcas)('$nome: onMarkClick', ({ antigoClique, esperadoClique, mon
     expect(onMarkClick).toHaveBeenCalledTimes(1);
     expect(onMarkClick).toHaveBeenCalledWith(esperadoClique);
   });
-
-  it.runIf(antigoClique)('o nome antigo continua avisando, e com os dois os dois avisam', () => {
-    const antigo = vi.fn();
-    const { unmount } = render(montar({ [antigoClique!]: antigo }));
-
-    fireEvent.click(primeiraMarca());
-    expect(antigo).toHaveBeenCalledTimes(1);
-    unmount();
-
-    antigo.mockClear();
-    const novo = vi.fn();
-    render(montar({ [antigoClique!]: antigo, onMarkClick: novo }));
-    fireEvent.click(primeiraMarca());
-
-    expect(novo).toHaveBeenCalledTimes(1);
-    expect(antigo).toHaveBeenCalledTimes(1);
-  });
 });
 
 describe.each(marcas.filter(({ esperadoHover }) => esperadoHover !== undefined))(
   '$nome: onHover',
-  ({ antigoHover, esperadoHover, montar }) => {
+  ({ esperadoHover, montar }) => {
     const focarPrimeiraMarca = () => act(() => primeiraMarca().focus());
 
     it('avisa a marca sob o foco pelo nome novo', () => {
@@ -261,23 +214,6 @@ describe.each(marcas.filter(({ esperadoHover }) => esperadoHover !== undefined))
       focarPrimeiraMarca();
 
       expect(onHover).toHaveBeenCalledWith(esperadoHover);
-    });
-
-    it.runIf(antigoHover)('o nome antigo continua avisando, e com os dois os dois avisam', () => {
-      const antigo = vi.fn();
-      const { unmount } = render(montar({ [antigoHover!]: antigo, onMarkClick: vi.fn() }));
-
-      focarPrimeiraMarca();
-      expect(antigo).toHaveBeenCalled();
-      unmount();
-
-      antigo.mockClear();
-      const novo = vi.fn();
-      render(montar({ [antigoHover!]: antigo, onHover: novo, onMarkClick: vi.fn() }));
-      focarPrimeiraMarca();
-
-      expect(novo).toHaveBeenCalledWith(esperadoHover);
-      expect(antigo).toHaveBeenCalled();
     });
   },
 );

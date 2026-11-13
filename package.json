@@ -1,6 +1,6 @@
 {
   "name": "@plenustech/design-system",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "Design System centralizado para os produtos web da Plenustech.",
   "license": "SEE LICENSE IN LICENSE",
   "publishConfig": {
@@ -57,7 +57,12 @@
   ],
   "files": [
     "dist",
-    "docs/CHANGELOG.md"
+    "docs/CHANGELOG.md",
+    "docs/COMPONENTS-CATALOG.md",
+    "docs/CONTRIBUTING.md",
+    "docs/TOKENS.md",
+    "docs/TOKENS-REFERENCE-COLORS.md",
+    "docs/TOKENS-REFERENCE-TYPOGRAPHY.md"
   ],
   "scripts": {
     "dev": "vite",
@@ -96,6 +101,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.10",
     "@types/d3-array": "^3.2.2",
     "@types/d3-shape": "^3.2.0",
     "@types/node": "^22.15.0",

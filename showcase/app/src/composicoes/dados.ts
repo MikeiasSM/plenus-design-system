@@ -4,7 +4,13 @@ import type { BadgeTone } from '@plenustech/design-system';
 
 export type SituacaoDoPedido = 'entregue' | 'separacao' | 'aprovacao' | 'atrasado';
 
-export const SITUACOES: Record<SituacaoDoPedido, { rotulo: string; tom: BadgeTone }> = {
+/** O rótulo e o tom do selo de uma situação. Toda situação do Showcase se escreve assim, e `SeloDaSituacao` a desenha. */
+export interface Situacao {
+  rotulo: string;
+  tom: BadgeTone;
+}
+
+export const SITUACOES: Record<SituacaoDoPedido, Situacao> = {
   entregue: { rotulo: 'Entregue', tom: 'success' },
   separacao: { rotulo: 'Em separação', tom: 'info' },
   aprovacao: { rotulo: 'Aguardando aprovação', tom: 'warning' },
@@ -50,8 +56,11 @@ export const ITENS_DO_PEDIDO = [
   { id: 'KR-0932', nome: 'Kit de reparo de cabeçote', quantidade: 1, unitario: 1260 },
 ];
 
+/** O desconto que o pedido de exemplo recebe, em fração, e o teto acima do qual ele pede aprovação. */
+export const DESCONTO_DO_PEDIDO = 0.05;
+
 export const SUBTOTAL = ITENS_DO_PEDIDO.reduce((soma, item) => soma + item.quantidade * item.unitario, 0);
-export const DESCONTO = Math.round(SUBTOTAL * 5) / 100;
+export const DESCONTO = Math.round(SUBTOTAL * DESCONTO_DO_PEDIDO * 100) / 100;
 export const FRETE = 120;
 export const TOTAL = SUBTOTAL - DESCONTO + FRETE;
 
@@ -111,6 +120,23 @@ export const DEPOSITOS = [
 ];
 
 export type ParDoLancamento = 'ok' | 'sugerido' | 'sem';
+
+export const PARES_DO_LANCAMENTO: Record<ParDoLancamento, Situacao> = {
+  ok: { rotulo: 'Conciliado', tom: 'success' },
+  sugerido: { rotulo: 'Par sugerido', tom: 'warning' },
+  sem: { rotulo: 'Sem par', tom: 'neutral' },
+};
+
+export const TIPOS_DE_DEPOSITO: Record<string, Situacao> = {
+  Principal: { rotulo: 'Principal', tom: 'info' },
+  Loja: { rotulo: 'Loja', tom: 'neutral' },
+  Avarias: { rotulo: 'Avarias', tom: 'neutral' },
+  Virtual: { rotulo: 'Virtual', tom: 'neutral' },
+};
+
+export const CONTA_ATIVA: Situacao = { rotulo: 'Ativa', tom: 'success' };
+
+export const ESTOQUE_ABAIXO_DO_MINIMO: Situacao = { rotulo: 'Abaixo do mínimo', tom: 'danger' };
 
 export const LANCAMENTOS: { id: string; data: Date; descricao: string; par: ParDoLancamento; referencia: string; valor: number }[] = [
   { id: '1', data: diasAtras(0), descricao: 'TED recebida · Auto Center Aurora', valor: 2840, par: 'ok', referencia: 'Pedido #48198' },

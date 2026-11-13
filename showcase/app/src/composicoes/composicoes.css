@@ -29,31 +29,36 @@
   margin-top: var(--pl-space-2);
 }
 
-/* A moldura da aplicação ocupa a janela inteira; o botão passa para a barra da página. */
-.palco-controle-janela {
-  position: fixed;
-  top: 9px;
-  left: 50%;
-  z-index: calc(var(--pl-z-fullscreen) + 1);
-  margin: 0;
-  transform: translateX(-50%);
+.palco-moldura {
+  height: 100%;
 }
 
-@media (max-width: 900px) {
-  .palco-controle-janela {
-    top: auto;
-    bottom: 12px;
-  }
-}
-
+/* A moldura da aplicação ocupa a janela inteira. Uma faixa própria no alto leva o botão de sair: ele não cobre a barra da página. */
 .palco-janela {
   position: fixed;
   inset: 0;
   z-index: var(--pl-z-fullscreen);
+  display: flex;
+  flex-direction: column;
   height: auto;
   margin: 0;
   border: 0;
   border-radius: 0;
+}
+
+.palco-janela-barra {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  padding: var(--pl-space-2) var(--pl-space-4);
+  border-bottom: 1px solid var(--pl-color-border);
+  background: var(--pl-color-surface);
+}
+
+.palco-janela > .palco-moldura {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
 }
 
 .apoio {
@@ -90,245 +95,5 @@
 
   .palco:not(.palco-janela) {
     height: 680px;
-  }
-}
-
-/* ---- Moldura de exemplo --------------------------------------------------- */
-
-.moldura-marca {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border-radius: var(--pl-radius-md);
-  background: var(--pl-color-primary);
-  color: var(--pl-color-on-primary);
-}
-
-.moldura-marca-texto {
-  display: grid;
-  line-height: 1.15;
-}
-
-.moldura-marca-texto strong {
-  font-family: var(--pl-font-heading);
-  font-size: 17px;
-}
-
-.moldura-marca-texto span {
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-micro-size);
-}
-
-/* ---- Colunas e grades da página -------------------------------------------- */
-
-.coluna {
-  box-sizing: border-box;
-  max-width: calc(var(--largura, 100%) + 2 * var(--pl-space-5));
-  margin-inline: auto;
-  padding: var(--pl-space-5);
-}
-
-.grade {
-  display: grid;
-  gap: var(--pl-space-4);
-  align-items: start;
-}
-
-.grade-coluna {
-  display: grid;
-  gap: var(--pl-space-4);
-  min-width: 0;
-  align-content: start;
-}
-
-.grade-uma,
-.grade-duas,
-.grade-painel,
-.grade-cartoes {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.grade-painel {
-  align-items: stretch;
-}
-
-.grade-painel > * {
-  min-width: 0;
-}
-
-/* ---- Linhas, tabelas e totais ------------------------------------------------ */
-
-.detalhe-da-linha {
-  display: block;
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-caption-size);
-  line-height: var(--pl-type-caption-line-height);
-}
-
-.ferramentas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--pl-space-2);
-  padding: var(--pl-space-3) var(--pl-space-4);
-}
-
-.ferramentas > :first-child {
-  flex: 1 1 220px;
-  max-width: 360px;
-}
-
-.definicoes {
-  display: grid;
-  gap: var(--pl-space-3);
-  margin: 0;
-}
-
-.definicoes dt {
-  color: var(--pl-color-text-tertiary);
-  font-size: var(--pl-type-caption-size);
-}
-
-.definicoes dd {
-  margin: 0;
-}
-
-.totais {
-  display: grid;
-  gap: var(--pl-space-1);
-  width: 100%;
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.totais div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--pl-space-3);
-}
-
-.totais dt {
-  color: var(--pl-color-text-secondary);
-}
-
-.totais dd {
-  margin: 0;
-}
-
-.totais-total {
-  padding-top: var(--pl-space-2);
-  border-top: 1px solid var(--pl-color-border);
-  font-weight: var(--pl-type-label-weight);
-}
-
-.pessoa {
-  display: flex;
-  align-items: center;
-  gap: var(--pl-space-3);
-}
-
-.pessoa > span {
-  display: grid;
-}
-
-.rodape-espaco {
-  margin-right: auto;
-}
-
-/* ---- Campos ------------------------------------------------------------------ */
-
-.campos {
-  display: grid;
-  gap: var(--pl-space-4);
-  grid-template-columns: minmax(0, 1fr);
-}
-
-@container (min-width: 520px) {
-  .campos-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .campos-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.so-leitor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* ---- Arranjos da seção de configuração ----------------------------------------- */
-
-.anotado {
-  display: grid;
-  gap: var(--pl-space-6);
-}
-
-.anotado-linha {
-  display: grid;
-  gap: var(--pl-space-3);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.anotado-nota h2 {
-  margin: 0 0 var(--pl-space-1);
-  font-family: var(--pl-font-heading);
-  font-size: var(--pl-type-title-size);
-  line-height: var(--pl-type-title-line-height);
-}
-
-.anotado-nota p {
-  margin: 0 0 var(--pl-space-3);
-  color: var(--pl-color-text-secondary);
-}
-
-.com-indice {
-  display: grid;
-  gap: var(--pl-space-5);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.nesta-pagina {
-  display: none;
-  position: sticky;
-  top: var(--pl-space-4);
-  gap: var(--pl-space-1);
-}
-
-/* Larguras medidas pela folha da página, não pela janela. Ficam por último para vencer as regras de base. */
-@container (min-width: 820px) {
-  .grade-duas {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  }
-
-  .grade-cartoes {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-
-  .grade-painel {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .painel-metade {
-    grid-column: span 2;
-  }
-
-  .anotado-linha {
-    grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr);
-  }
-
-  .com-indice {
-    grid-template-columns: minmax(0, 1fr) 168px;
-  }
-
-  .nesta-pagina {
-    display: grid;
   }
 }

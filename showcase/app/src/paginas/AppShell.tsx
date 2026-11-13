@@ -1,170 +1,54 @@
-import { useState, type ReactNode } from 'react';
-import {
-  AppShell,
-  Avatar,
-  IconChartBar,
-  IconClock,
-  IconFile,
-  IconFilter,
-  IconSliders,
-  IconStar,
-  IconStructure,
-  type AppShellAccountMode,
-  type AppShellNestedMode,
-} from '@plenustech/design-system';
+import { useState, type CSSProperties, type ReactNode } from 'react';
+import { AppShell, Button, IconChartBar, IconFile, IconCheck, IconStructure, Sidebar } from '@plenustech/design-system';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
-const MODOS_DO_TERCEIRO_NIVEL = ['expand', 'stack'] as const;
-const MODOS_DA_CONTA = ['inline', 'cover'] as const;
-
-interface Modulo {
-  icone: ReactNode;
-  itens: readonly string[];
-  nome: string;
-}
-
-const MODULOS: readonly Modulo[] = [
-  { nome: 'Início', icone: <IconStructure size={20} />, itens: [] },
-  { nome: 'Vendas', icone: <IconChartBar size={20} />, itens: ['Visão geral', 'Pedidos', 'Painéis', 'Relatórios'] },
-  { nome: 'Clientes', icone: <IconFile size={20} />, itens: ['Base de clientes', 'Segmentos'] },
-  { nome: 'Financeiro', icone: <IconFilter size={20} />, itens: ['Contas', 'Conciliação'] },
-];
-
-const PAINEIS = ['Geral', 'Por vendedor', 'Por região'];
-
 interface MolduraProps {
-  accountMode?: AppShellAccountMode;
   defaultOpen?: boolean;
-  initialModule?: string;
-  nestedMode?: AppShellNestedMode;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
   registrar?: (evento: string) => void;
-  /** O uso errado do Evite: o pai não dá altura, a moldura cresce com o conteúdo e tudo rola junto. */
-  rolaAPaginaInteira?: boolean;
+  rodape?: ReactNode;
+  semAlturaDaCaixa?: boolean;
 }
 
-const PEDIDOS_EM_SEPARACAO = Array.from({ length: 14 }, (_, indice) => `Pedido ${1042 + indice} · aguardando separação`);
-
-function Marca() {
-  return (
-    <span
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        width: 36,
-        height: 36,
-        borderRadius: 'var(--pl-radius-md)',
-        background: 'var(--pl-color-primary)',
-        color: 'var(--pl-color-on-primary)',
-      }}
-    >
-      <IconChartBar size={20} />
-    </span>
-  );
-}
-
-function MarcaDoSubmenu() {
-  return (
-    <span style={{ display: 'grid', lineHeight: 1.15 }}>
-      <strong style={{ fontFamily: 'var(--pl-font-heading)', fontSize: 17 }}>Gestor</strong>
-      <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 11 }}>by Plenustech</span>
-    </span>
-  );
-}
-
-/** Uma aplicação pequena: módulos, itens, terceiro nível e conta. A navegação é estado local; a biblioteca não faz roteamento. */
-function Moldura({
-  accountMode,
-  defaultOpen,
-  initialModule = 'Vendas',
-  nestedMode,
-  registrar,
-  rolaAPaginaInteira,
-}: MolduraProps) {
-  const [moduloAtual, setModuloAtual] = useState(initialModule);
-  const [itemAtual, setItemAtual] = useState('Pedidos');
-  const modulo = MODULOS.find((m) => m.nome === moduloAtual) ?? MODULOS[1];
-
-  function irPara(item: string) {
-    setItemAtual(item);
-    registrar?.(`navegar: ${modulo.nome} › ${item}`);
-  }
-
+/** Uma moldura pequena: só a navegação mínima da `Sidebar` para dar o que a página ocupar. */
+function Moldura({ defaultOpen, onOpenChange, open, registrar, rodape, semAlturaDaCaixa }: MolduraProps) {
   const moldura = (
-    <AppShell defaultOpen={defaultOpen} onOpenChange={(aberto) => registrar?.(`onOpenChange: ${aberto}`)}>
-      <AppShell.Navigation>
-        <AppShell.Rail
-          brand={<Marca />}
-          footer={
-            <>
-              <AppShell.RailItem icon={<IconSliders size={20} />} label="Configurações" />
-              <AppShell.RailAccount label="Conta: Suporte, Mecânica Irmãos Duarte">
-                <Avatar name="Mecânica Irmãos Duarte" size="sm" />
-              </AppShell.RailAccount>
-            </>
-          }
-        >
-          {MODULOS.map((m) => (
-            <AppShell.RailItem
-              current={m.nome === modulo.nome}
-              icon={m.icone}
-              key={m.nome}
-              label={m.nome}
-              onClick={() => {
-                setModuloAtual(m.nome);
-                setItemAtual(m.itens[0] ?? m.nome);
-              }}
-            />
-          ))}
-        </AppShell.Rail>
-        <AppShell.Panel
-            account={
-              <AppShell.Account avatar={<Avatar name="Mecânica Irmãos Duarte" />} description="Mecânica Irmãos Duarte Ltda" name="Suporte">
-                <AppShell.PanelItem icon={<IconStar size={18} />} label="Favoritos" />
-                <AppShell.PanelItem icon={<IconClock size={18} />} label="Atividade recente" />
-                <AppShell.PanelItem icon={<IconSliders size={18} />} label="Preferências" />
-              </AppShell.Account>
-            }
-            accountMode={accountMode}
-            brand={<MarcaDoSubmenu />}
-            label={modulo.nome}
-            nestedMode={nestedMode}
-          >
-            {modulo.itens.map((item) =>
-              item === 'Painéis' ? (
-                <AppShell.PanelItem defaultExpanded={nestedMode === 'stack' ? undefined : true} icon={<IconChartBar size={18} />} key={item} label={item}>
-                  {PAINEIS.map((painel) => (
-                    <AppShell.PanelItem current={itemAtual === painel} key={painel} label={painel} onClick={() => irPara(painel)} />
-                  ))}
-                </AppShell.PanelItem>
-              ) : (
-                <AppShell.PanelItem current={itemAtual === item} icon={<IconFile size={18} />} key={item} label={item} onClick={() => irPara(item)} />
-              ),
-            )}
-          </AppShell.Panel>
-      </AppShell.Navigation>
+    <AppShell
+      defaultOpen={defaultOpen}
+      onOpenChange={(aberto) => {
+        registrar?.(`onOpenChange: ${aberto}`);
+        onOpenChange?.(aberto);
+      }}
+      open={open}
+    >
+      <Sidebar>
+        <Sidebar.Rail>
+          <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
+          <Sidebar.RailItem icon={<IconStructure size={20} />} label="Início" />
+        </Sidebar.Rail>
+        <Sidebar.Panel label="Vendas">
+          <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
+          <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
+        </Sidebar.Panel>
+      </Sidebar>
       <AppShell.Page>
         <AppShell.PageBar>
           <span style={{ color: 'var(--pl-color-text-tertiary)', fontSize: 12, fontWeight: 600 }}>
-            {modulo.nome} › <span style={{ color: 'var(--pl-color-text)' }}>{itemAtual}</span>
+            Vendas › <span style={{ color: 'var(--pl-color-text)' }}>Pedidos</span>
           </span>
         </AppShell.PageBar>
         <AppShell.PageBody>
           <div style={{ padding: 18 }}>
-            <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>{itemAtual}</h3>
-            {rolaAPaginaInteira ? (
-              <>
-                <p style={{ color: 'var(--pl-color-text-secondary)' }}>
-                  A página inteira rola: o trilho, o submenu e a barra saem de vista junto com o conteúdo.
-                </p>
-                {PEDIDOS_EM_SEPARACAO.map((pedido) => (
-                  <p key={pedido} style={{ margin: '8px 0' }}>{pedido}</p>
-                ))}
-              </>
-            ) : (
-              <p style={{ color: 'var(--pl-color-text-secondary)' }}>Só este corpo rola. A moldura ocupa o espaço que o pai lhe dá.</p>
-            )}
+            <h3 style={{ margin: 0, fontFamily: 'var(--pl-font-heading)' }}>Pedidos</h3>
+            <p style={{ color: 'var(--pl-color-text-secondary)' }}>
+              {semAlturaDaCaixa
+                ? 'A moldura mede a janela, e não a caixa: ela passa da caixa, e a rolagem da caixa leva a barra para fora de vista.'
+                : 'Só este corpo rola. No Showcase, --pl-shell-height vale 100%, e a moldura ocupa a caixa.'}
+            </p>
           </div>
         </AppShell.PageBody>
+        {rodape}
       </AppShell.Page>
     </AppShell>
   );
@@ -172,81 +56,84 @@ function Moldura({
   return (
     <div
       style={{
-        height: 480,
-        overflow: rolaAPaginaInteira ? 'auto' : 'hidden',
+        height: 360,
+        overflow: semAlturaDaCaixa ? 'auto' : 'hidden',
         border: '1px solid var(--pl-color-border)',
         borderRadius: 'var(--pl-radius-md)',
+        ...(semAlturaDaCaixa && ({ '--pl-shell-height': '100dvh' } as CSSProperties)),
       }}
-      tabIndex={rolaAPaginaInteira ? 0 : undefined}
+      tabIndex={semAlturaDaCaixa ? 0 : undefined}
     >
-      {/* Sem altura, o pai deixa a moldura crescer com o conteúdo, como numa página sem altura definida. */}
-      {rolaAPaginaInteira ? <div>{moldura}</div> : moldura}
+      {moldura}
     </div>
   );
 }
 
 const playground = definirPlayground({
   emJanela: true,
-  inicial: { nestedMode: 'expand', accountMode: 'inline', defaultOpen: true },
-  controles: [
-    { tipo: 'opcoes', nome: 'nestedMode', opcoes: MODOS_DO_TERCEIRO_NIVEL },
-    { tipo: 'opcoes', nome: 'accountMode', opcoes: MODOS_DA_CONTA },
-    { tipo: 'booleano', nome: 'defaultOpen' },
-  ],
+  inicial: { defaultOpen: true },
+  controles: [{ tipo: 'booleano', nome: 'defaultOpen' }],
   renderizar: (valores, registrar) => (
-    <Moldura
-      accountMode={valores.accountMode as AppShellAccountMode}
-      defaultOpen={Boolean(valores.defaultOpen)}
-      key={`${valores.nestedMode}-${valores.accountMode}-${valores.defaultOpen}`}
-      nestedMode={valores.nestedMode as AppShellNestedMode}
-      registrar={registrar}
-    />
+    <Moldura defaultOpen={Boolean(valores.defaultOpen)} key={String(valores.defaultOpen)} registrar={registrar} />
   ),
   codigo: (valores) =>
     [
       `<AppShell${valores.defaultOpen ? '' : ' defaultOpen={false}'}>`,
-      '  <AppShell.Navigation>',
-      '    <AppShell.Rail brand={<Marca />} footer={<AppShell.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></AppShell.RailAccount>}>',
-      '      <AppShell.RailItem current icon={<IconChartBar />} label="Vendas" href="/vendas" as={Link} />',
-      '    </AppShell.Rail>',
-      '    <AppShell.Panel',
-      '      label="Vendas"',
-      '      brand={<Marca />}',
-      ...(valores.nestedMode === 'stack' ? ['      nestedMode="stack"'] : []),
-      ...(valores.accountMode === 'cover' ? ['      accountMode="cover"'] : []),
-      '      account={<AppShell.Account avatar={<Avatar name="Suporte" />} name="Suporte" description="Empresa">',
-      '        <AppShell.PanelItem icon={<IconStar />} label="Favoritos" />',
-      '      </AppShell.Account>}',
-      '    >',
-      '      <AppShell.PanelItem current icon={<IconFile />} label="Pedidos" href="/pedidos" as={Link} />',
-      '      <AppShell.PanelItem icon={<IconChartBar />} label="Painéis">',
-      '        <AppShell.PanelItem label="Geral" href="/paineis" as={Link} />',
-      '      </AppShell.PanelItem>',
-      '    </AppShell.Panel>',
-      '  </AppShell.Navigation>',
+      '  <Sidebar>…</Sidebar>',
       '  <AppShell.Page>',
       '    <AppShell.PageBar><Breadcrumb items={caminho} /></AppShell.PageBar>',
       '    <AppShell.PageBody>{conteudo}</AppShell.PageBody>',
       '  </AppShell.Page>',
       '</AppShell>',
     ].join('\n'),
-  verificar: (valores) => {
-    const verificacoes: Verificacao[] = [
-      { nivel: 'ok', titulo: 'Navegações nomeadas', detalhe: 'O trilho é <nav> "Módulos"; o submenu, <nav> com o nome do módulo; a conta, <nav> "Conta".' },
-      { nivel: 'ok', titulo: 'Página atual', detalhe: 'aria-current="page" no módulo e no item atuais.' },
-      { nivel: 'ok', titulo: 'Recolher', detalhe: 'aria-expanded e aria-controls no botão; recolhido, o submenu fica inerte e o foco vai ao botão de abrir.' },
-    ];
-
-    if (valores.nestedMode === 'stack') {
-      verificacoes.push({ nivel: 'ok', titulo: 'Pilha', detalhe: 'Entrar leva o foco ao caminho de volta; voltar o devolve ao item.' });
-    }
-
-    return verificacoes;
-  },
+  verificar: () =>
+    [
+      { nivel: 'ok', titulo: 'Página', detalhe: 'O AppShell.Page é o <main>; só o AppShell.PageBody rola.' },
+      { nivel: 'ok', titulo: 'Barra da página', detalhe: 'Com o submenu recolhido, a barra traz o botão de abrir, e o foco troca de botão com o recolher.' },
+    ] satisfies Verificacao[],
 });
+
+function MolduraComRodape() {
+  const [salvo, setSalvo] = useState<string>();
+  const [salvando, setSalvando] = useState(false);
+
+  function alterar() {
+    setSalvando(true);
+    setTimeout(() => {
+      setSalvando(false);
+      setSalvo(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+    }, 600);
+  }
+
+  const situacao = salvando ? (
+    'Salvando rascunho…'
+  ) : salvo ? (
+    <>
+      <IconCheck size={14} style={{ color: 'var(--pl-color-success)' }} />
+      Rascunho salvo às {salvo}
+    </>
+  ) : (
+    'Nenhuma alteração ainda'
+  );
+
+  return (
+    <Moldura
+      rodape={
+        <AppShell.PageFooter status={situacao}>
+          <Button size="sm" variant="secondary">Cancelar</Button>
+          <Button onClick={alterar} size="sm">Salvar cliente</Button>
+        </AppShell.PageFooter>
+      }
+    />
+  );
+}
 
 function MolduraPadrao() {
   return <Moldura />;
+}
+
+function MolduraSemAlturaDaCaixa() {
+  return <Moldura defaultOpen={false} semAlturaDaCaixa />;
 }
 
 /** A coluna do Faça e do Evite é estreita: recolhido, o submenu não espreme a página. */
@@ -254,21 +141,17 @@ function MolduraRecolhida() {
   return <Moldura defaultOpen={false} />;
 }
 
-function MolduraEmPilha() {
-  return <Moldura nestedMode="stack" />;
-}
+function MolduraControlada() {
+  const [aberto, setAberto] = useState(true);
 
-function MolduraComContaCobrindo() {
-  return <Moldura accountMode="cover" />;
-}
-
-/** O Evite: a moldura num pai sem altura, rolando inteira com o conteúdo. */
-function MolduraRolandoInteira() {
-  return <Moldura defaultOpen={false} rolaAPaginaInteira />;
-}
-
-function ModuloSemSubmenu() {
-  return <Moldura initialModule="Início" />;
+  return (
+    <div style={{ display: 'grid', gap: 12 }}>
+      <Button onClick={() => setAberto(!aberto)} size="sm" variant="secondary">
+        {aberto ? 'Recolher submenu' : 'Abrir submenu'}
+      </Button>
+      <Moldura onOpenChange={setAberto} open={aberto} />
+    </div>
+  );
 }
 
 function Modos() {
@@ -276,27 +159,28 @@ function Modos() {
     <dl className="modes">
       <dt><code>open</code>, <code>defaultOpen</code> e <code>onOpenChange</code></dt>
       <dd>
-        O submenu. Aberto empurra a página; recolhido devolve a largura e o botão de abrir aparece na barra da página.
-        O módulo atual no trilho alterna o submenu.
+        O submenu da <code>Sidebar</code>. O <code>AppShell</code> monta por dentro o <code>SidebarProvider</code>, que guarda o estado. Aberto empurra a
+        página; recolhido devolve a largura e o botão de abrir aparece na barra da página. Com um <code>SidebarProvider</code> por fora, o{' '}
+        <code>AppShell</code> usa o dele e ignora estas propriedades.
       </dd>
-      <dt>Conta</dt>
+      <dt><code>AppShell.PageBar</code></dt>
       <dd>
-        Abre dentro do submenu, pelo bloco do rodapé. Com o submenu recolhido, o avatar do trilho abre o submenu já na conta.
+        Barra de 46px no topo da página. Traz o botão de abrir o submenu recolhido e, abaixo de 900px, o botão que abre a gaveta; o que o produto puser
+        nela fica ao lado.
       </dd>
-      <dt>Celular</dt>
+      <dt><code>AppShell.PageBody</code></dt>
+      <dd>A única área da página que rola. Mede a largura da folha para as regras de container do produto.</dd>
+      <dt><code>AppShell.PageFooter</code></dt>
       <dd>
-        Abaixo de 900px, o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>.
-        A prévia acima mede a janela do navegador: estreite a janela para ver a gaveta.
+        Rodapé fixo, sempre à vista, fora da área que rola: a situação à esquerda (<code>status</code>, anunciada ao leitor de tela) e as ações à direita.
+        A fronteira com a <code>SaveBar</code> é o momento: a <code>SaveBar</code> aparece quando há alteração por salvar; o rodapé fica sempre lá.
       </dd>
-      <dt><code>nestedMode</code></dt>
+      <dt>Nomes antigos</dt>
       <dd>
-        <code>expand</code> abre os filhos no lugar, com recuo e linha-guia; <code>stack</code> troca a lista pelo nível de baixo, com o caminho de volta.
-        Mais fundo que três níveis, o restante vai para o <code>TabsNav</code> na página.
+        A navegação passou à <code>Sidebar</code>. <code>AppShell.Navigation</code>, <code>.Rail</code>, <code>.RailItem</code>,{' '}
+        <code>.RailAccount</code>, <code>.Panel</code>, <code>.PanelGroup</code>, <code>.PanelItem</code> e <code>.Account</code> continuam aceitos como
+        aliases obsoletos até a 0.8.0.
       </dd>
-      <dt><code>accountMode</code></dt>
-      <dd><code>inline</code> cresce acima do rodapé e encolhe a lista; <code>cover</code> ocupa o lugar da lista.</dd>
-      <dt>Módulo sem submenu</dt>
-      <dd>O <code>AppShell.Panel</code> vem sem itens: a página encosta no trilho, e o submenu fica só como lugar da conta.</dd>
     </dl>
   );
 }
@@ -305,49 +189,43 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
-      titulo: 'Moldura completa',
-      descricao: 'Trilho de módulos, submenu com terceiro nível expandido no lugar, conta e página. Clique no módulo atual para recolher.',
+      titulo: 'Moldura com navegação',
+      descricao: 'A Sidebar e a página no mesmo AppShell. A navegação completa está na página da Sidebar.',
       largo: true,
       Previa: MolduraPadrao,
       codigo:
-        '<AppShell>\n  <AppShell.Navigation>\n    <AppShell.Rail brand={<Marca />} footer={<AppShell.RailAccount label="Conta: Suporte"><Avatar name="Suporte" size="sm" /></AppShell.RailAccount>}>\n      <AppShell.RailItem current as={Link} href="/vendas" icon={<IconChartBar />} label="Vendas" />\n    </AppShell.Rail>\n    <AppShell.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>\n      <AppShell.PanelItem current as={Link} href="/pedidos" icon={<IconFile />} label="Pedidos" />\n      <AppShell.PanelItem icon={<IconChartBar />} label="Painéis">\n        <AppShell.PanelItem as={Link} href="/paineis/geral" label="Geral" />\n      </AppShell.PanelItem>\n    </AppShell.Panel>\n  </AppShell.Navigation>\n  <AppShell.Page>\n    <AppShell.PageBar>…</AppShell.PageBar>\n    <AppShell.PageBody>…</AppShell.PageBody>\n  </AppShell.Page>\n</AppShell>',
+        '<AppShell>\n  <Sidebar>\n    <Sidebar.Rail>…</Sidebar.Rail>\n    <Sidebar.Panel label="Vendas">…</Sidebar.Panel>\n  </Sidebar>\n  <AppShell.Page>\n    <AppShell.PageBar>…</AppShell.PageBar>\n    <AppShell.PageBody>…</AppShell.PageBody>\n  </AppShell.Page>\n</AppShell>',
     },
     {
-      titulo: 'Terceiro nível em pilha',
-      descricao: 'nestedMode="stack": o painel troca pelo nível de baixo, com o nome do módulo como caminho de volta.',
+      titulo: 'Rodapé fixo',
+      descricao: 'A situação do rascunho à esquerda e as ações à direita. Clique em Salvar cliente para ver a situação mudar.',
       largo: true,
-      Previa: MolduraEmPilha,
-      codigo: '<AppShell.Panel label="Vendas" nestedMode="stack">\n  <AppShell.PanelItem label="Painéis">\n    <AppShell.PanelItem as={Link} href="/paineis/geral" label="Geral" />\n  </AppShell.PanelItem>\n</AppShell.Panel>',
+      Previa: MolduraComRodape,
+      codigo:
+        '<AppShell.Page>\n  <AppShell.PageBody>…</AppShell.PageBody>\n  <AppShell.PageFooter status="Rascunho salvo às 14:32">\n    <Button variant="secondary">Cancelar</Button>\n    <Button>Salvar cliente</Button>\n  </AppShell.PageFooter>\n</AppShell.Page>',
     },
     {
-      titulo: 'Conta cobrindo a lista',
-      descricao: 'accountMode="cover": o cartão da conta ocupa o lugar da lista do módulo, com o cabeçalho da conta.',
+      titulo: 'Estado controlado',
+      descricao: 'open e onOpenChange: o produto decide quando o submenu abre ou recolhe.',
       largo: true,
-      Previa: MolduraComContaCobrindo,
-      codigo: '<AppShell.Panel label="Vendas" accountMode="cover" account={<MinhaConta />}>…</AppShell.Panel>',
-    },
-    {
-      titulo: 'Módulo sem submenu',
-      descricao: 'O AppShell.Panel sem itens: a página encosta no trilho, não há botão de abrir o submenu, e o avatar do trilho abre a conta.',
-      largo: true,
-      Previa: ModuloSemSubmenu,
-      codigo: '<AppShell.Panel account={<MinhaConta />} label="Início" />',
+      Previa: MolduraControlada,
+      codigo: 'const [aberto, setAberto] = useState(true);\n\n<AppShell open={aberto} onOpenChange={setAberto}>…</AppShell>',
     },
   ],
   faca: {
     Previa: MolduraRecolhida,
-    texto: 'AppShell uma vez, na raiz da aplicação, com os módulos, os links e a conta vindos do produto.',
+    texto: 'AppShell uma vez, na raiz da aplicação, com a Sidebar e a página como filhos.',
     codigo: `<AppShell defaultOpen={false}>
-  <AppShell.Navigation>
-    <AppShell.Rail brand={<Marca />}>
-      <AppShell.RailItem current icon={<IconChartBar />} label="Vendas" />
+  <Sidebar>
+    <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar />} name="Gestor" />}>
+      <Sidebar.RailItem current icon={<IconChartBar />} label="Vendas" />
       …
-    </AppShell.Rail>
-    <AppShell.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>
-      <AppShell.PanelItem current icon={<IconFile />} label="Pedidos" />
+    </Sidebar.Rail>
+    <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>
+      <Sidebar.Item current icon={<IconFile />} label="Pedidos" />
       …
-    </AppShell.Panel>
-  </AppShell.Navigation>
+    </Sidebar.Panel>
+  </Sidebar>
   <AppShell.Page>
     <AppShell.PageBar>…</AppShell.PageBar>
     <AppShell.PageBody>…</AppShell.PageBody>
@@ -355,20 +233,19 @@ export const pagina: Pagina = {
 </AppShell>`,
   },
   evite: {
-    Previa: MolduraRolandoInteira,
+    Previa: MolduraSemAlturaDaCaixa,
     texto: (
       <>
-        Rolar a página inteira. A moldura ocupa a janela: só o <code>AppShell.PageBody</code>, a lista do submenu e os
-        painéis laterais rolam.
+        Embutir a moldura numa caixa de altura fixa sem redefinir <code>--pl-shell-height</code>. A moldura mede a janela, e não a caixa, e transborda
+        dela. Na caixa, ou num ancestral, redefina <code>--pl-shell-height</code>, por exemplo para <code>100%</code>.
       </>
     ),
-    codigo: `{/* Pai sem altura: a moldura cresce com o conteúdo e a página inteira rola. */}
-<div>
+    codigo: `<div style={{ height: 360 }}>
   <AppShell defaultOpen={false}>
-    <AppShell.Navigation>
-      <AppShell.Rail brand={<Marca />}>…</AppShell.Rail>
-      <AppShell.Panel label="Vendas" brand={<Marca />} account={<MinhaConta />}>…</AppShell.Panel>
-    </AppShell.Navigation>
+    <Sidebar>
+      <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar />} name="Gestor" />}>…</Sidebar.Rail>
+      <Sidebar.Panel label="Vendas" brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} account={<MinhaConta />}>…</Sidebar.Panel>
+    </Sidebar>
     <AppShell.Page>
       <AppShell.PageBar>…</AppShell.PageBar>
       <AppShell.PageBody>{pedidos}</AppShell.PageBody>
@@ -378,55 +255,33 @@ export const pagina: Pagina = {
   },
   Modos,
   teclado: [
-    { teclas: ['Tab', 'Shift+Tab'], acao: 'Percorre trilho, submenu, conta e página; o submenu recolhido não recebe foco.' },
-    { teclas: ['Enter', 'Espaço'], acao: 'Aciona o módulo, o item, o recolher ou o bloco da conta.' },
-    { teclas: ['Esc'], acao: 'Fecha a conta aberta, devolvendo o foco ao bloco; no celular, fecha a gaveta.' },
+    { teclas: ['Tab', 'Shift+Tab'], acao: 'Percorre a navegação e a página; a barra da página traz o botão de abrir o submenu recolhido.' },
+    { teclas: ['Enter', 'Espaço'], acao: 'Aciona o botão de abrir o submenu ou a gaveta.' },
   ],
   garantias: [
     {
-      garantia: 'Navegações nomeadas',
-      como: <>Trilho e submenu em <code>nav</code> com nome; <code>aria-current=&quot;page&quot;</code> no módulo e no item atuais.</>,
+      garantia: 'Barra da página',
+      como: 'Abrir e recolher o submenu trocam o foco entre o botão da barra e o do submenu; no celular, a barra traz o botão do menu.',
       teste: 'AppShell.test.tsx',
     },
-    {
-      garantia: 'Recolher',
-      como: 'aria-expanded e aria-controls no botão; recolhido, o submenu fica inerte e o foco passa ao botão de abrir, e volta.',
-      teste: 'AppShell.test.tsx',
-    },
-    { garantia: 'Terceiro nível', como: 'Expandido no lugar com aria-expanded/aria-controls, ou em pilha com foco no caminho de volta.', teste: 'AppShell.test.tsx' },
-    {
-      garantia: 'Conta',
-      como: 'Abre acima do rodapé; Escape ou escolher uma opção fecha e devolve o foco ao bloco. O avatar do trilho só existe com o submenu recolhido.',
-      teste: 'AppShell.test.tsx',
-    },
+    { garantia: 'Estado controlado', como: 'Com open, clicar pede a mudança e o estado segue o valor recebido.', teste: 'AppShell.test.tsx' },
+    { garantia: 'Estrutura da página', como: <>O <code>AppShell.Page</code> é o <code>main</code>, com a barra e o corpo.</>, teste: 'AppShell.test.tsx' },
+    { garantia: 'Nomes antigos', como: 'As peças da navegação seguem aceitas como aliases obsoletos da Sidebar.', teste: 'AppShell.test.tsx' },
     { garantia: 'Safe area', como: <>Soma <code>env(safe-area-inset-*)</code> ao respiro da borda, com <code>viewport-fit=cover</code>; sem ele, nada muda.</>, teste: 'mobile.test.ts' },
-    { garantia: 'Celular', como: 'Gaveta modal com a mecânica do Drawer; escolher um item ou um módulo sem submenu a fecha.', teste: 'AppShell.test.tsx' },
   ],
   notaDaApi: (
     <>
-      Peças: <code>AppShell.Navigation</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Panel</code>,{' '}
-      <code>.PanelGroup</code>, <code>.PanelItem</code>, <code>.Account</code>, <code>.Page</code>, <code>.PageBar</code> e <code>.PageBody</code>. Os links
-      seguem o <code>Breadcrumb</code>: <code>as</code>, <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento
-      raiz de cada peça.
+      Peças da moldura: <code>AppShell</code>, <code>.Page</code>, <code>.PageBar</code>, <code>.PageBody</code> e <code>.PageFooter</code>. A navegação é a{' '}
+      <code>Sidebar</code>; os nomes antigos dela no <code>AppShell</code> são aliases obsoletos. O ref e as propriedades nativas vão ao elemento raiz de
+      cada peça.
     </>
   ),
   api: [
-    { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'true', descricao: 'Submenu aberto.' },
-    { nome: 'Navigation · menuLabel', tipo: 'string', padrao: "'Menu'", descricao: 'Nome da gaveta no celular.' },
-    { nome: 'Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: 'Módulos'", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
-    { nome: 'RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
-    { nome: 'RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
-    { nome: 'Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },
-    { nome: 'Panel · nestedMode', tipo: "AppShellNestedMode: 'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
-    { nome: 'Panel · accountMode', tipo: "AppShellAccountMode: 'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
-    { nome: 'PanelGroup · label', tipo: 'string', descricao: 'Título que reúne itens.' },
-    {
-      nome: 'PanelItem · label / icon / current / external / trailing',
-      tipo: 'string · ReactNode · boolean · boolean · ReactNode',
-      descricao: 'Item do submenu. Com children, abre o terceiro nível; external abre em outra aba.',
-    },
-    { nome: 'PanelItem · expanded / defaultExpanded / onExpandedChange', tipo: 'boolean · boolean · (expanded: boolean) => void', descricao: 'Filhos abertos. Na pilha, defaultExpanded entra no nível no início.' },
-    { nome: 'Account · avatar / name / description / label', tipo: 'ReactNode · string · string · string', padrao: "label: 'Conta'", descricao: 'Bloco da conta no rodapé; os filhos são as opções (PanelItem).' },
-    { nome: 'Page, PageBar, PageBody', tipo: 'main · div · div', descricao: 'Folha da página, barra de 46px (com o botão de abrir o submenu ou a gaveta) e o corpo, que rola.' },
+    { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não, repassado ao SidebarProvider que o AppShell monta. Ignorado quando já há um SidebarProvider por fora.' },
+    { nome: 'AppShell · labels / icons / side / narrowBelow / tooltipDelay / shortcut / menuOpen / accountOpen', tipo: 'as props do SidebarProvider', descricao: 'A personalização da Sidebar, repassada ao SidebarProvider que o AppShell monta e descrita na página da Sidebar. Ignorada quando já há um SidebarProvider por fora.' },
+    { nome: 'AppShell.Page', tipo: "ComponentPropsWithRef<'main'>", descricao: 'Folha da página: ocupa o que sobra ao lado da navegação.' },
+    { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
+    { nome: 'AppShell.PageBody', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Corpo da página, a única área que rola.' },
+    { nome: 'AppShell.PageFooter · status', tipo: 'ReactNode', descricao: 'Situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. Os filhos são as ações, à direita.' },
   ],
 };

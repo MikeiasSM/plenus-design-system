@@ -1,8 +1,8 @@
-import type { CSSProperties, ReactNode } from 'react';
-import { AppShell, Badge, Breadcrumb, Card } from '@plenustech/design-system';
-import { SITUACOES, type SituacaoDoPedido } from './dados';
+import type { ReactNode } from 'react';
+import { AppShell, Badge, Breadcrumb, Container } from '@plenustech/design-system';
+import type { Situacao } from './dados';
 
-/** Larguras da coluna de conteúdo, de APPSHELL.md: total, larga (1120), do índice (1000) e estreita (760). */
+/** Larguras da coluna de conteúdo: total, larga (1120), do índice (1000) e estreita (760). */
 export type LarguraDaColuna = 'total' | 760 | 1000 | 1120;
 
 export function larguraCss(largura: LarguraDaColuna) {
@@ -12,60 +12,38 @@ export function larguraCss(largura: LarguraDaColuna) {
 interface PaginaProps {
   caminho: readonly string[];
   children: ReactNode;
+  /** O rodapé fixo, depois do corpo. */
+  rodape?: ReactNode;
 }
 
-/** A folha da página: a barra com o caminho e o corpo, a única área que rola. */
-export function Pagina({ caminho, children }: PaginaProps) {
+/** A folha da página: a barra com o caminho, o corpo, a única área que rola, e o rodapé, quando há. */
+export function Pagina({ caminho, children, rodape }: PaginaProps) {
   return (
     <AppShell.Page>
       <AppShell.PageBar>
         <Breadcrumb items={caminho.map((label) => ({ label }))} />
       </AppShell.PageBar>
       <AppShell.PageBody>{children}</AppShell.PageBody>
+      {rodape}
     </AppShell.Page>
   );
 }
 
 interface ColunaProps {
   children: ReactNode;
-  className?: string;
   largura: LarguraDaColuna;
 }
 
-/** A coluna do conteúdo, centrada na largura da folha. O cabeçalho da página recebe a mesma largura. */
-export function Coluna({ children, className, largura }: ColunaProps) {
+/** A coluna do conteúdo, centrada na largura da folha. O cabeçalho da página recebe a mesma largura. O respiro vertical é daqui: o `Container` só cuida do lateral. */
+export function Coluna({ children, largura }: ColunaProps) {
   return (
-    <div className={['coluna', className].filter(Boolean).join(' ')} style={{ '--largura': larguraCss(largura) ?? '100%' } as CSSProperties}>
+    <Container maxWidth={larguraCss(largura)} style={{ paddingBlock: 'var(--pl-space-5)' }}>
       {children}
-    </div>
+    </Container>
   );
 }
 
-export function SeloDaSituacao({ situacao }: { situacao: SituacaoDoPedido }) {
-  const { rotulo, tom } = SITUACOES[situacao];
-
+/** O único caminho da situação ao tom do selo: a tela passa a `Situacao` que `dados.ts` guarda e não decide tom. */
+export function SeloDaSituacao({ situacao: { rotulo, tom } }: { situacao: Situacao }) {
   return <Badge tone={tom}>{rotulo}</Badge>;
-}
-
-interface AnotacaoProps {
-  acao?: ReactNode;
-  children: ReactNode;
-  explicacao: string;
-  titulo: string;
-}
-
-/** O arranjo anotado: título e explicação num trilho à esquerda, o cartão à direita. */
-export function Anotacao({ acao, children, explicacao, titulo }: AnotacaoProps) {
-  return (
-    <div className="anotado-linha">
-      <div className="anotado-nota">
-        <h2>{titulo}</h2>
-        <p>{explicacao}</p>
-        {acao}
-      </div>
-      <Card aria-label={titulo}>
-        {children}
-      </Card>
-    </div>
-  );
 }

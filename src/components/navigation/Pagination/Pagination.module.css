@@ -1,18 +1,56 @@
-/* Sem largura para tudo numa linha, o intervalo, o seletor e os passos descem um abaixo do outro, em vez de vazar.
-   Onde cabe, a linha é a mesma. */
+/* A largura que vale é a que o pai concede: o `nav` encolhe no pai flex e acompanha o pai que se ajusta ao conteúdo. O
+   intervalo, o seletor e os passos descem um abaixo do outro quando não cabem. Os passos ficam numa linha só: quem
+   encolhe é o componente, tirando as vizinhas e, por fim, os números. */
 .pagination {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.linha {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--pl-space-1);
 }
 
-/* Anterior, páginas e próxima andam juntos: é a lista que quebra, entre os dois passos. */
-.steps {
+.copia {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.copia > * {
+  width: max-content;
+}
+
+.copiaLinha {
   display: flex;
   align-items: center;
   gap: var(--pl-space-1);
+}
+
+.copia [data-texto]::before {
+  content: attr(data-texto);
+}
+
+/* Anterior, páginas e próxima andam juntos: é a lista que quebra, entre os dois passos. */
+.steps {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--pl-space-1);
   min-width: 0;
+}
+
+.compactText {
+  padding: 0 var(--pl-space-2);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Ocupa a sobra da linha: o intervalo fica à esquerda e os botões, à direita. */
@@ -41,7 +79,7 @@
 
 .list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--pl-space-1);
   margin: 0;
@@ -113,4 +151,12 @@
 .step:active:not([aria-disabled='true']) {
   background: var(--pl-color-primary-selected);
   color: var(--pl-color-on-primary-container);
+}
+
+@media (pointer: coarse) {
+  .page,
+  .step {
+    min-width: 44px;
+    height: 44px;
+  }
 }

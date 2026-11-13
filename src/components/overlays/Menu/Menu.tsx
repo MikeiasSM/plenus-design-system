@@ -24,6 +24,7 @@ import { IconCheck, IconChevronRight } from '../../icons';
 import { blockRepeatedPress, isRepeatedClick } from '../../../utils/press/press';
 import { toAriaKeyShortcuts } from './keyShortcuts';
 import styles from './Menu.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface MenuItem {
   /** Com ele, o item e de marcar e mostra o visto quando marcado, como o tipo atual de um bloco. */
@@ -390,7 +391,7 @@ function MenuList({
       data-menu-owner={ownerId}
       data-react-aria-top-layer="true"
       ref={mergedRef}
-      className={styles.menu}
+      className={[styles.menu, thinScrollbar].join(' ')}
       style={{ ...positionProps.style, maxHeight: alturaMaxima }}
       role="menu"
       aria-label={label}

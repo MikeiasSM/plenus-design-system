@@ -1,22 +1,30 @@
-import { useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 /** Abaixo de 900px (`--pl-bp-sm`): onde nao ha espaco para empurrar a pagina e o painel vira gaveta. */
-const NARROW_VIEWPORT = '(max-width: 899.98px)';
+const DEFAULT_NARROW_BELOW = 900;
 
-function subscribe(notify: () => void) {
-  if (typeof window.matchMedia !== 'function') {
-    return () => {};
-  }
-
-  const query = window.matchMedia(NARROW_VIEWPORT);
-  query.addEventListener('change', notify);
-  return () => query.removeEventListener('change', notify);
+function queryFor(below: number) {
+  return `(max-width: ${below - 0.02}px)`;
 }
 
-function isNarrow() {
-  return typeof window.matchMedia === 'function' && window.matchMedia(NARROW_VIEWPORT).matches;
+export function isNarrowNow(below: number = DEFAULT_NARROW_BELOW) {
+  return typeof window.matchMedia === 'function' && window.matchMedia(queryFor(below)).matches;
 }
 
-export function useNarrowViewport() {
+export function useNarrowViewport(below: number = DEFAULT_NARROW_BELOW) {
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      if (typeof window.matchMedia !== 'function') {
+        return () => {};
+      }
+
+      const query = window.matchMedia(queryFor(below));
+      query.addEventListener('change', notify);
+      return () => query.removeEventListener('change', notify);
+    },
+    [below],
+  );
+  const isNarrow = useCallback(() => isNarrowNow(below), [below]);
+
   return useSyncExternalStore(subscribe, isNarrow, () => false);
 }

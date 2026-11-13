@@ -9,7 +9,8 @@ import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
-import { formatDateInput, parseDateInput } from '../../../utils/formatters';
+import { closeDateInput, completeDateInput, formatDate, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
+import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
 import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
@@ -46,6 +47,8 @@ export interface DatePickerProps
   locale?: string;
   max?: string;
   min?: string;
+  /** Avisa, ao confirmar ou sair do campo, o texto que não é data válida e por quê. */
+  onInvalidText?: (text: string, reason: 'invalid' | 'outOfRange') => void;
   /** Sem data inteira e permitida, o valor e `null`, que mantem o campo controlado e vazio. */
   onValueChange?: (value: string | null) => void;
   placeholder?: string;
@@ -81,10 +84,12 @@ export function DatePicker({
   locale = 'pt-BR',
   max,
   min,
+  onInvalidText,
   onValueChange,
   onBlur,
   onOpenChange,
   onKeyDown,
+  onPaste,
   open: controlledOpen,
   portalContainer,
   placeholder = 'dd/mm/aaaa',
@@ -110,12 +115,10 @@ export function DatePicker({
   const [internalValue, setInternalValue] = useState<CalendarDate | null>(() => readIsoDate(defaultValue) ?? null);
   const controlado = value === undefined ? undefined : (readIsoDate(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
-  const [texto, setTexto] = useState('');
-  const [digitando, setDigitando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
     setInternalValue(readIsoDate(defaultValue) ?? null);
-    setDigitando(false);
+    entry.reset();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
 
@@ -136,12 +139,6 @@ export function DatePicker({
     }
   }, [open]);
 
-  const exibido = digitando
-    ? texto
-    : escolhido
-      ? [String(escolhido.day).padStart(2, '0'), String(escolhido.month).padStart(2, '0'), escolhido.year].join('/')
-      : '';
-
   // O interno acompanha mesmo controlado: se o consumidor devolver `undefined`, nao ressurge um valor velho.
   function definir(proximo: CalendarDate | null) {
     setInternalValue(proximo);
@@ -153,22 +150,43 @@ export function DatePicker({
     setOpen(false);
   }
 
-  function handleChange(entrada: string) {
-    const mascarado = formatDateInput(entrada);
+  const textOf = (date?: CalendarDate) =>
+    date ? [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/') : '';
+  const entry = useTemporalInput<CalendarDate>({
+    announce: (date) => formatDate(date.toString(), { format: 'long', locale }),
+    close: closeDateInput,
+    commit: definir,
+    error,
+    evaluate: (text) => {
+      const parsed = completeDateInput(text, today(getLocalTimeZone()));
 
-    setDigitando(true);
-    setTexto(mascarado);
+      if (!parsed) {
+        return { message: 'Data inválida.', reason: 'invalid' };
+      }
 
-    // Data fora dos limites nao se grava: o calendario ja a recusa, e o campo
-    // digitado nao pode ser a porta dos fundos dela.
-    const lido = parseDateInput(mascarado);
-    const permitido = lido && !isUnavailable(lido, limites) ? lido : null;
+      return isUnavailable(parsed, limites)
+        ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
+        : { value: parsed };
+    },
+    filter: keepDateChars,
+    format: textOf,
+    inputRef,
+    isAllowed: (date) => !isUnavailable(date, limites),
+    mask: formatDateInput,
+    now: () => today(getLocalTimeZone()),
+    onInvalidText,
+    parse: (text) => {
+      const parsed = parseDateInput(text);
 
-    definir(permitido);
-  }
+      return parsed && !isUnavailable(parsed, limites) ? parsed : undefined;
+    },
+    step: (date, direction) => ({ cursor: 10, value: date.add({ days: direction }) }),
+    value: escolhido,
+  });
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     onKeyDown?.(event);
+    entry.handleKeyDown(event);
 
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
@@ -201,7 +219,7 @@ export function DatePicker({
   });
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field aria-describedby={ariaDescribedBy} error={entry.error} hint={hint} id={providedId} label={label} required={required}>
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -212,7 +230,7 @@ export function DatePicker({
             value={escolhido?.toString() ?? ''}
           />
           <div
-            className={[styles.field, styles[size], error && styles.error, className].filter(Boolean).join(' ')}
+            className={[styles.field, styles[size], entry.error && styles.error, className].filter(Boolean).join(' ')}
             ref={fieldRef}
           >
             <input
@@ -225,16 +243,14 @@ export function DatePicker({
               disabled={disabled}
               id={id}
               inputMode="numeric"
-              onBlur={(event) => {
-                setDigitando(false);
-                onBlur?.(event);
-              }}
-              onChange={(event) => handleChange(event.target.value)}
+              onBlur={(event) => entry.handleBlur(event, onBlur)}
+              onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={(event) => entry.handlePaste(event, onPaste)}
               placeholder={placeholder}
               ref={mergedRef}
               type="text"
-              value={exibido}
+              value={entry.text}
             />
             <button
               aria-expanded={open}
@@ -250,6 +266,9 @@ export function DatePicker({
               <IconCalendar size={15} />
             </button>
           </div>
+          <span className={styles.visuallyHidden} role="status">
+            {entry.announcement}
+          </span>
           {open &&
             container &&
             createPortal(
@@ -294,7 +313,7 @@ export function DatePicker({
                       <Button
                         onClick={() => {
                           definir(rascunho ?? null);
-                          setDigitando(false);
+                          entry.reset();
                           fechar();
                         }}
                         size="sm"

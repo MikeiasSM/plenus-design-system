@@ -4,6 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   gap: var(--pl-space-2);
   border: 1px solid transparent;
   border-radius: var(--pl-radius-md);
@@ -11,6 +12,8 @@
   font-size: var(--pl-type-label-size);
   font-weight: var(--pl-type-label-weight);
   line-height: var(--pl-type-label-line-height);
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
   transition:
     background var(--pl-speed-1) var(--pl-ease),
@@ -112,7 +115,7 @@
 
 @media (hover: hover) {
   .danger:not(:disabled):not([aria-disabled='true']):hover {
-    filter: brightness(0.9);
+    background: var(--pl-color-danger-hover);
   }
 }
 
@@ -154,6 +157,12 @@
   padding: 9px 24px;
 }
 
+@media (pointer: coarse) {
+  .lg {
+    padding: calc((48px - var(--pl-type-label-line-height)) / 2 - 1px) 24px;
+  }
+}
+
 .primary:not(:disabled):not([aria-disabled='true']):active {
   background: var(--pl-color-primary-active);
 }
@@ -174,7 +183,7 @@
 }
 
 .danger:not(:disabled):not([aria-disabled='true']):active {
-  filter: brightness(0.8);
+  background: var(--pl-color-danger-active);
 }
 
 .dangerSoft:not(:disabled):not([aria-disabled='true']):active,

@@ -31,9 +31,10 @@ A situação indica a existência do componente, não a cobertura integral do pa
 
 O `ButtonIcon` existe para quando o texto não cabe ou repetiria o que o contexto já diz: o filtro ao lado da busca, o fechar, a ação de uma linha. O nome é obrigatório e vai em `label`, que o leitor de tela ouve e a dica mostra a quem passa o ponteiro ou chega pelo teclado. Havendo espaço para o texto, o `Button` com texto é a escolha: ícone sozinho pede que a pessoa adivinhe.
 
+Quando a ação leva a outra página, `Button` e `ButtonIcon` recebem o destino em `href` (ou o componente de link da aplicação em `as`, com `linkProps`) e viram link de verdade, com o mesmo visual: abrem em outra aba, têm o endereço copiável e o leitor de tela anuncia "link". Operação que muda dados continua sendo botão.
 O `Button` leva o ícone como filho, antes do texto: `<Button><IconPlus />Novo pedido</Button>`.
 
-O realce de hover vale só onde há ponteiro que paira (`@media (hover: hover)`), em todos os componentes, para não ficar preso depois de um toque. Os controles interativos — `Button`, `ButtonIcon`, `ButtonTile`, os itens de `Menu`, de `List`, de `Tabs`, de `Pagination` e do `SegmentedControl`, o item do `AppShell`, o `CardMetric` com `onActivate` e as linhas clicáveis do `DataGrid` e do `SortableList` — mostram o estado pressionado (`:active`) em qualquer ponteiro, um passo mais forte que o hover: o fundo `--pl-color-primary-active` no botão primário, e o fundo selecionado ou o neutro mais escuro nos demais. O texto sobre o fundo pressionado mantém 4,5:1, medido por `npm run check:contraste`. O que só aparece no hover, como as ações do título de coluna do `DataGrid`, o eixo `onHover` do `ChartTimeline` e os rótulos `onHover` do `ChartGauge`, fica sempre visível onde não há hover.
+O realce de hover vale só onde há ponteiro que paira (`@media (hover: hover)`), em todos os componentes, para não ficar preso depois de um toque. Os controles interativos — `Button`, `ButtonIcon`, `ButtonTile`, os itens de `Menu`, de `List`, de `Tabs`, de `Pagination` e do `SegmentedControl`, os itens do trilho e do submenu da `Sidebar`, o `CardMetric` com `onActivate` e as linhas clicáveis do `DataGrid` e do `SortableList` — mostram o estado pressionado (`:active`) em qualquer ponteiro, um passo mais forte que o hover: o fundo `--pl-color-primary-active` no botão primário; nos itens da `Sidebar`, o fundo leve do item atual (`--pl-color-primary-tint`), sem valer no item atual nem no desabilitado; e o fundo selecionado ou o neutro mais escuro nos demais. O texto sobre o fundo pressionado mantém 4,5:1, medido por `npm run check:contraste`. O que só aparece no hover, como as ações do título de coluna do `DataGrid`, o eixo `onHover` do `ChartTimeline` e os rótulos `onHover` do `ChartGauge`, fica sempre visível onde não há hover.
 
 Numa ação assíncrona, o produto liga `loading` de forma síncrona no próprio handler do `onClick`, antes de esperar a resposta, e o desliga quando ela termina, com sucesso ou falha; na `SaveBar`, faz o mesmo com `saving`. Com `loading`, o botão mostra o indicador, mantém o foco e ignora o clique seguinte. O `Button` não lê o valor que o `onClick` devolve. O resto também é do produto: descartar a resposta que chega fora de ordem, como na busca remota do `ComboBox`, e tornar a operação idempotente no servidor, pois há reenvio por timeout e duas abas.
 
@@ -65,6 +66,7 @@ A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação
 | `FileUpload` | Seleção de arquivos, por clique ou arrasto, com a lista dos envios. | Disponível |
 | `FieldRow` | Linha de ajuste: rótulo e explicação de um lado, o controle do outro. | Disponível |
 | `SaveBar` | Barra de alterações não salvas, com descartar e salvar. | Disponível |
+| `SaveStatus` | Texto curto da situação do salvamento, com o indicador do estado. | Disponível |
 
 `Field` é a moldura que os campos deste catálogo já usam por dentro, exposta para quem precisa montar um campo que o Design System não entrega — uma máscara de documento, um seletor de arquivo, um autocompletar de endereço. Ele recebe uma função e devolve o `id`, a descrição acessível já montada, o estado de inválido e a classe com o visual dos campos do sistema, no tamanho pedido; o controle continua sendo de quem o escreve, e a classe própria dele, somada à entregue, vence.
 
@@ -76,19 +78,47 @@ O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma
 
 `CheckboxGroup` está para o `Checkbox` como o `RadioGroup` está para o `Radio`: a legenda, a ajuda, o erro e o valor do conjunto ficam no grupo, e cada `Checkbox` com `value` dentro dele lê o próprio estado dali. A fronteira com o `RadioGroup` é a quantidade: lá a escolha é uma só; aqui são quantas a pessoa quiser. Com lista longa ou que pede busca, a escolha é o `ComboBox` múltiplo.
 
+O `RadioGroup` e o `CheckboxGroup` aceitam `orientation`: na vertical, o padrão, uma opção por linha; na horizontal, lado a lado e com quebra de linha quando não couberem, para poucas opções curtas.
+
+O `InputNumber` aceita `unit`, a unidade ou o sufixo ao fim do campo — `%`, `kg`, `dias`. Ela fica fora do rótulo e do valor, e o leitor de tela a ouve como descrição do campo.
+
 `DatePickerRange` é um componente à parte do `DatePicker`, e não um modo dele, porque o valor é outro, `{ start, end }` em ISO, e o campo é um gatilho que abre o painel, sem texto a digitar. O nome segue o tipo e depois a especialização. O primeiro clique no calendário marca o início e o segundo o fim, trocando as pontas se vier antes; só `Aplicar` grava o valor, e `Limpar` o esvazia. Os atalhos, como "Últimos 7 dias" e "Este mês", são do produto: `shortcuts` recebe `{ label, range }`, e `range` é uma função, chamada com o painel aberto, para que "Hoje" valha o dia da escolha. Sem a propriedade não há atalho. `defaultDateRangeShortcuts` é uma lista pronta e opcional (Hoje, Ontem, Últimos 7 dias, Últimos 30 dias, Este mês e Mês passado) que o produto passa inteira, filtra ou substitui. O atalho cujo intervalo sai de `min` e `max` fica desabilitado.
+
+`DatePicker`, `TimePicker` e `DateTimePicker` aceitam números e os separadores: a `/` da data, os `:` da hora e, no `DateTimePicker`, o espaço entre as duas. Sem separador digitado, a máscara o insere quando chega o dígito do grupo seguinte: `2105` mostra `21/05`. O separador digitado fecha o grupo em andamento: o grupo de um dígito ganha o zero à esquerda e o cursor passa ao seguinte, então `1/3` mostra `01/3` e `8:3` mostra `08:3`. O separador no começo do campo, logo depois de outro, fora do grupo em que cabe ou depois do último grupo não faz nada. O espaço só fecha a data com o ano de 2 ou 4 dígitos; antes disso, é ignorado. O texto colado é lido do mesmo jeito, `1/3/2026` como 01/03/2026, e a data em ISO, como `2026-03-09`, continua aceita. Os separadores ficam no texto, e reescrever um grupo no meio, como o dia de 09/03/2026, preserva o resto. Os campos têm teclas de atalho que não aparecem no campo: `H` ou `h`, `+` e `-`, inclusive os do teclado numérico. O valor inteiro e válido grava na hora, e no `DateTimePicker` isso pede a data e a hora completas; durante a digitação o valor nunca se apaga, e só esvaziar o campo por inteiro passa `onValueChange(null)`. Ao confirmar com Enter ou sair do campo, o que foi digitado pela metade é completado e validado: sem separador digitado, pelos dígitos; com ele, por grupo. Quando um atalho troca o valor, o novo é anunciado numa região de status oculta: a data por extenso, "22 de novembro de 2026", a hora, "14:37", ou as duas, "22 de novembro de 2026, 14:37". A digitação comum não é anunciada.
+
+| Campo | `H` | `+` e `-` | Completa ao sair |
+|---|---|---|---|
+| `DatePicker` | Hoje, no lugar do que houver. | Um dia; vazio parte de hoje, e texto inválido, do último valor válido. | `1` é o dia 1 do mês e ano atuais, `215` é 21/05, `112` é 11/02, `2105` é 21/05 e `260326` é 26/03/2026. Seis dígitos têm ano 20xx. Cinco ou sete dígitos e data inexistente são inválidos. Com a barra digitada, `1/3` é 01/03, `1/12` é 01/12 e `1/3/26` é 01/03/2026; o ano precisa ter 2 ou 4 dígitos, e `1/3/2` e `1/3/202` são inválidos. |
+| `TimePicker` | A hora atual exata, sem arredondar para `step`. | Uma hora com o cursor na hora, um minuto com o cursor no minuto, com a virada de relógio; vazio parte da hora atual. | `8` é 08:00, `14` é 14:00, `830` é 08:30 e `1430` é 14:30. Com os dois pontos digitados, o dígito único depois deles é a dezena do minuto: `8:` é 08:00 e `8:3` é 08:30. `25`, `1275` e cinco dígitos ou mais são inválidos. |
+| `DateTimePicker` | Data e hora atuais. | Um dia, uma hora ou um minuto, conforme o cursor, e a virada passa para a data. | A data como no `DatePicker` e a hora, depois do espaço, como no `TimePicker`; sem espaço, o texto é só a data, e a hora é 00:00, gravada só ao confirmar ou sair. `1/3/2026 8:3` é 01/03/2026 08:30. |
+
+O valor inválido, incluindo o que cai fora de `min` e `max`, não muda o valor nem chama `onValueChange`: o texto fica no campo, para a pessoa corrigir, o campo recebe `aria-invalid` e mostra a mensagem do componente no lugar do erro, como "Data inválida." ou "Data fora do intervalo permitido.", e "Hora inválida." e "Hora fora do intervalo permitido." na hora. O `error` do produto prevalece sobre ela, e a mensagem some quando o valor fica válido. `onInvalidText(text, reason)` recebe o texto inválido ao confirmar ou sair do campo, com o motivo: `'invalid'` para o texto que não é data ou hora, e `'outOfRange'` para o que cai fora de `min` e `max` ou num dia barrado por `isDateUnavailable`. O `onInvalid` nativo continua indo ao `<input>`.
+
+No `DatePickerRange`, com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro: `←` e `→` um dia, `↑` e `↓` sete, e sem intervalo partem de hoje. A seta que levaria o intervalo para fora de `min` e `max` não faz nada, e cada deslocamento chama `onValueChange` e é anunciado numa região de status oculta, no formato do gatilho, "10/11/2026 – 16/11/2026". O painel abre com Enter, Espaço ou Alt+`↓`.
 
 O `ColorPicker` escolhe entre amostras que o produto define, cada uma com nome — a cor de uma etiqueta, o destaque de um bloco. Não é seletor livre de cor: não há espectro nem campo hexadecimal. Por baixo são rádios nativos, e o nome de cada amostra é o que o leitor de tela ouve. Uma opção "Padrão", sem cor, é opcional.
 
 O `FileUpload` cuida da escolha dos arquivos e da lista que mostra o andamento, e não envia nada: o produto recebe os arquivos aceitos, faz o envio e informa a cada item o progresso, a conclusão ou o erro. Tipo e tamanho são conferidos na escolha, e o que for recusado volta ao produto com o motivo. Quem não arrasta escolhe pelo seletor de arquivos nativo, que é o que recebe o foco.
 
+Com o dedo como ponteiro principal (`@media (pointer: coarse)`), os formulários se ajustam sozinhos, sem opção de desligar: os campos de texto passam a 16px, para o iOS não dar zoom ao focar; as alturas pequena e média sobem a 44px, e o `Button` grande, o `ButtonIcon` grande e o `SegmentedControl` grande, a 48px; os números e as setas da `Pagination` passam a 44px; e `Checkbox`, `Radio`, `Switch` e as amostras do `ColorPicker` ganham área de toque de 44px sem mudar o desenho. Para isso, os itens de um grupo de `Checkbox` ou `Radio` ficam sem espaço entre as linhas, as opções lado a lado mantêm o espaço entre si, e as amostras de cor se afastam. O computador não muda.
+
 O `FieldRow` é a linha de uma lista de ajustes: o rótulo e a explicação à esquerda, o controle à direita, descendo para sob o texto quando a linha estreita. Ele rotula e descreve um controle só, o que o `Field` também faz, e a fronteira é o desenho: o `Field` empilha rótulo, controle e mensagem, para formulário; o `FieldRow` alinha em linha, para ajustes que valem na hora, como chaves e limites, em cartão sem respiro. A `SaveBar` serve ao formulário inteiro, no lugar do salvar por cartão: o produto diz quando há alteração pendente, e ela oferece descartar e salvar, presa ao topo ou ao pé da área de rolagem em que for montada, conforme o `placement`. Fora do `AppShell`, presa à borda da janela, ela respeita a safe area (`--pl-safe-top` e `--pl-safe-bottom`); dentro dele, que já a respeita, o deslocamento é zero. O que ela não faz é guardar o estado do formulário ou saber o que mudou. Fechada, ela tira os botões do foco, e o foco que estava num deles cai no `body`: ao salvar ou descartar, o produto o devolve a um ponto do formulário, como o campo editado.
 
-O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy }`. Os dois valores vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
+O `SaveStatus` é o texto curto da situação do salvamento, no lugar do texto montado à mão num rodapé ou numa barra: o `status` (`idle`, `dirty`, `saving`, `saved` ou `error`) escolhe o indicador e o produto escreve o texto, como "Rascunho salvo às 10:42". `saving` mostra o `Spinner` pequeno, `saved` o sinal de pronto no tom de sucesso e `error` o de erro no tom de perigo; `idle` e `dirty` ficam só com o texto, porque a alteração pendente não é erro nem aviso e o texto já a diz sem depender de cor. O texto tem o tamanho de legenda, em tom terciário, numa região `role="status"` sempre montada, para a mudança ser lida sem tirar o foco. Na situação do `AppShell.PageFooter`, que já é uma região de status, ela não cria a sua, e o texto é lido uma vez só. A fronteira com a `SaveBar` é a ação: a `SaveStatus` só informa e não tem botão, e cabe no `start` do `Card.Footer` ou no rodapé da página. Quem salva, e quando, é do produto.
+
+O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy, labelId }`. O `id` e o `describedBy` vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
 
 ```tsx
 <FieldRow label="Desconto sem aprovação" description="Até este valor, o pedido segue direto.">
   {({ describedBy, id }) => <InputNumber id={id} aria-describedby={describedBy} />}
+</FieldRow>
+```
+
+O `SegmentedControl`, o `RadioGroup` e o `CheckboxGroup` são grupos, não campos: o `<label for>` não nomeia o `div` ou o `fieldset`. Para eles, a função entrega o `labelId`, o id do rótulo da linha, que vai ao `aria-labelledby` do grupo; o `label` do grupo fica de fora, e a linha o nomeia uma vez só, sem a legenda repetida. O `labelId` não lido não põe id no rótulo. Sem `label`, `aria-labelledby` nem `aria-label`, o grupo avisa no console em desenvolvimento.
+
+```tsx
+<FieldRow label="Frequência">
+  {({ labelId }) => <SegmentedControl aria-labelledby={labelId} items={periodos} />}
 </FieldRow>
 ```
 
@@ -117,6 +147,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
+| `AvatarItem` | Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura. | Disponível |
 | `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
 | `CardMetric` | Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
@@ -124,7 +155,10 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | `Accordion` | Seções expansíveis de conteúdo. | Disponível |
 | `CodeBlock` | Trecho de código para leitura, com cópia, numeração e destaque de linhas. | Disponível |
 | `Timeline` | Histórico de estados de um registro, com datas e o estado atual destacado. | Disponível |
+| `ActivityFeed` | Registro do que aconteceu, do mais recente ao mais antigo, com comentários. | Disponível |
+| `NumberedList` | Sequência numerada de passos que explica como algo funciona, sem etapa atual. | Disponível |
 | `SortableList` | Lista reordenável por arrasto ou teclado, com seleção de um item. | Disponível |
+| `DescriptionList` | Pares de termo e descrição, empilhados ou em linha, com destaque para o total. | Disponível |
 | `Table` | Tabela básica, em HTML semântico. | Disponível |
 | `DataGrid` | Grade completa, com ordenação, paginação, seleção, virtualização e demais comportamentos de grade. | Disponível |
 
@@ -142,9 +176,13 @@ O `DataGrid` traz os recursos de grade como mecanismo, e nenhum é regra de prod
 - **Virtualização de colunas.** `virtualizeColumns` desenha só as colunas que cruzam a tela, junto da janela de linhas que a grade sempre tem.
 - **Exportação.** O CSV vem no núcleo. XLSX, PDF ou outro formato entram por `exporters`, sem dependência na biblioteca: o exportador do produto recebe as colunas visíveis e as linhas do escopo, já filtradas e ordenadas, com o texto exibido e o valor cru, e `apiRef` entrega o mesmo modelo fora do menu.
 
-O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima. A dica do `help` do título abre embaixo dele, onde cobre só o respiro da primeira linha, e não os filtros e o cabeçalho de página que costumam ficar em cima da tabela; sem espaço embaixo, ela inverte sozinha. A `Table` não rola na vertical: com muitas linhas em altura limitada, como o corpo de um `Card` de altura imposta, o excesso é cortado. Para esse caso, use o `DataGrid` com `height="fill"`. A coluna com `hideBelow` sai abaixo do breakpoint do sistema que ele nomeia, medido na janela, e não na largura da tabela: `sm` é 900px, `md` é 1180px e `lg` é 1280px.
+O `Table` não desenha contorno externo. O contorno pertence a quem o envolve, normalmente um `Card`. Fora de um contêiner com borda, a tabela fica solta na página: a faixa do cabeçalho não tem linha em cima. A dica do `help` do título abre embaixo dele, onde cobre só o respiro da primeira linha, e não os filtros e o cabeçalho de página que costumam ficar em cima da tabela; sem espaço embaixo, ela inverte sozinha. A `Table` não rola na vertical: com muitas linhas em altura limitada, como o corpo de um `Card` de altura imposta, o excesso é cortado. Para esse caso, use o `DataGrid` com `height="fill"`. A coluna com `hideBelow` sai quando a largura da própria tabela, a do envoltório que rola e que vem do elemento pai, chega ao breakpoint do sistema que ele nomeia, medido por container query e não na janela: `sm` é 900px, `md` é 1180px e `lg` é 1280px. Uma tabela de 745px numa janela de 1280px esconde a coluna `lg`. O envoltório é o contêiner da medida, então uma `Table` dentro de um pai que se ajusta ao conteúdo, como uma coluna `auto` de `grid` ou um item flex sem largura, encolhe a zero: dê ao pai a largura, como `width: 100%` ou `flex: 1` com `min-width: 0` no item flex. O HTML sai com a coluna escondida pelo CSS, sem JavaScript, no servidor e na hidratação.
 
-O `CardMetric` é o `Card` de um indicador. O produto o monta com o `Card.Header` e as partes `Body`, `Value`, `Trend`, `Bar` e `Chart`, e põe no cabeçalho as ações que quiser; o componente não conhece nenhuma delas. A `Bar` mostra a composição de um total, e o `Chart`, a evolução, só em área ou linha: outros gráficos não se leem nesse tamanho. Um painel de gráfico com eixos e legenda é um `Card` com o gráfico no corpo.
+A `Table.Toolbar` é a barra acima da tabela, com a busca e as ações dela. Ela pode vir como irmã antes da `Table` ou como filha dela; como filha, a `Table` a desenha antes do `<table>`, no mesmo contêiner, e o HTML segue válido; nos dois casos, ela fica parada quando a tabela rola de lado. É um grupo rotulado (`label`), e não `role="toolbar"`, que pede navegação por setas entre os controles e impede o uso do campo de texto da busca. O primeiro filho, em geral a busca, cresce até 360px; os demais ficam ao lado, e tudo quebra de linha quando falta espaço. Os itens se alinham pela base, para o campo com rótulo visível não esticar os controles ao lado. O respiro lateral é o da margem da tabela, para a busca alinhar com a primeira coluna.
+
+O `Card.Footer` leva à esquerda o que vier no `start`, como uma ação secundária ou a `SaveStatus`, e à direita os filhos, juntos, que podem faltar. Com `start`, o rodapé quebra a linha quando o `start` e os filhos não cabem juntos, e os filhos descem para a direita. Sem `start`, o rodapé não quebra e os filhos ficam nas pontas, e só um filho sozinho vai ao fim; para o texto à esquerda ao lado de uma `Pagination`, use o `start`.
+
+O `CardMetric` é o `Card` de um indicador. O produto o monta com o `Card.Header` e as partes `Body`, `Value`, `Trend`, `Bar` e `Chart`, e põe no cabeçalho as ações que quiser; o componente não conhece nenhuma delas. Vários indicadores cabem num cartão só, um `CardMetric.Body` para cada, com o `label` do `Value` nomeando o indicador: os corpos seguidos se separam por uma linha e se empilham a partir do topo. A `Bar` mostra a composição de um total, e o `Chart`, a evolução, só em área ou linha: outros gráficos não se leem nesse tamanho. Um painel de gráfico com eixos e legenda é um `Card` com o gráfico no corpo.
 
 A fronteira entre `Badge` e `Tag` é o controle. O `Badge` só rotula um estado ou uma categoria e não responde a nada. A `Tag` é operada: removida, como o filtro ativo de uma busca, ou ligada e desligada, como o papel escolhido entre vários.
 
@@ -152,7 +190,15 @@ O `CodeBlock` exibe código e não o edita: um editor de documento mantém a pr�
 
 A `Timeline` mostra por onde um registro passou — criado, enviado, aprovado — com a data de cada estado. A fronteira com `Steps` é o tempo: as etapas indicam onde se está num processo a cumprir, e a pessoa pode navegar entre elas; a linha do tempo registra o que já aconteceu e não é navegável.
 
+O `ActivityFeed` registra o que aconteceu, do mais recente ao mais antigo: quem fez o quê, quando, e os comentários deixados no caminho. A fronteira com a `Timeline` é o estado: a linha do tempo mostra por quais estados um registro passou e destaca o atual; o feed lista acontecimentos, sem estado atual, e cada um pode trazer um comentário citado. Cada `ActivityFeed.Item` recebe o texto do acontecimento, o momento em `time`, com `dateTime` para a data legível por máquina, e o comentário em `comment`, quando houver. A ordem é a que o produto passar.
+
+A `NumberedList` explica uma sequência, como os passos de uma primeira vez: cada `NumberedList.Item` traz o número, o título e uma descrição opcional. Em `layout="list"`, o padrão, os passos descem um abaixo do outro; em `layout="grid"`, viram ladrilhos numa grade que se ajusta à largura. A fronteira com `Steps` é o estado: as etapas indicam onde se está num processo e podem navegar; a lista numerada só explica, sem etapa atual.
+
 A `SortableList` existe para a ordem: as seções de um documento, as colunas de um relatório. Arrastar reordena, e pelo teclado `Alt` com as setas faz o mesmo, com o anúncio da nova posição. A fronteira com a `List` é a tarefa: na `List` a pessoa escolhe itens; na `SortableList`, ela os ordena. Como cada linha pode trazer ações próprias, a marcação é de grade, com uma célula por linha, e não de `listbox`, que não admite controles dentro das opções.
+
+O `DescriptionList` mostra pares de termo e descrição na marcação semântica de lista de descrição, sem o produto repetir `dl`, `dt` e `dd`: cada `DescriptionList.Item` recebe o `term` e, como filhos, a descrição. Em `layout="stacked"`, o padrão, o termo fica em cima, em texto de apoio, e a descrição embaixo, como nos dados de um cliente ou de uma entrega; em `layout="inline"`, o termo fica à esquerda e a descrição à direita, na mesma linha, com algarismos tabulares, como nos totais de um pedido. O destaque de total é `emphasis` no item: a linha ganha um separador acima e o peso de rótulo, e é a forma de marcar o total de uma lista de valores.
+
+O `AvatarItem` é a linha de uma pessoa ou entidade: o `avatar`, normalmente um `Avatar`, à esquerda, o `title` e, abaixo dele, a `description` opcional. Texto longo vira reticências em vez de estourar a largura, e a linha mantém a altura do avatar. Serve a células de tabela, listas de membros e cabeçalhos de contato; o `AvatarItem` não é um controle e não responde a clique.
 
 ## 6. Gráficos
 
@@ -188,7 +234,7 @@ A fronteira com `Tooltip` é o conteúdo, não o gráfico: `Tooltip` descreve **
 
 Cada marca carrega a própria descrição em `aria-label`. Com o balão desligado e sem costura, a mesma descrição vai também no `<title>` da marca, que o navegador mostra quando o ponteiro repousa sobre ela; com balão, integrado ou montado pela costura, o `<title>` fica de fora, porque seria um segundo balão sobre o `ChartTooltip`. `ChartScatter`, `ChartRadial` e `ChartSankey` têm balão integrado, mas não costura: o ponto com as medidas nomeadas, o anel com valor, meta e quanto foi atingido, e a ligação com o fluxo e a parte dele na saída da origem.
 
-Todo gráfico com marca traz o botão "Ver como tabela", que troca o desenho pela leitura medida a medida, e `showTableToggle` (ligado por padrão) o tira. A tabela é a mesma leitura do desenho, sem o filtro da legenda: a série desligada continua nela, e a legenda, que liga e desliga só o desenho, sai enquanto a tabela está aberta. Nos cartesianos, uma linha por categoria e uma coluna por série, no formato do eixo dela; na cascata, a variação com sinal e o acumulado; na dispersão, um ponto por linha; no anel, o valor e a parte do total; no `ChartRadial`, o valor, a meta e quanto foi atingido; no `ChartTreemap` e no `ChartSunburst`, um nó por linha, com o caminho do grupo até ele e a parte do total da raiz; no `ChartSankey`, uma ligação por linha, com o fluxo e a parte da saída da origem. `ChartMap`, `ChartTimeline` e `ChartHeatmap` têm a tabela do seu dado, com busca e ordenação no mapa. O `ChartGauge` fica sem ela: o medidor já diz o valor, a faixa e a meta no texto. A estrutura é do core, `ChartTable`, e cada gráfico só monta as linhas.
+Todo gráfico com marca traz o botão "Ver como tabela", que troca o desenho pela leitura medida a medida, e `showTableToggle` (ligado por padrão) o tira. A tabela é a mesma leitura do desenho, sem o filtro da legenda: a série desligada continua nela, e a legenda, que liga e desliga só o desenho, sai enquanto a tabela está aberta. Nos cartesianos, uma linha por categoria e uma coluna por série, no formato do eixo dela; na cascata, a variação com sinal e o acumulado; na dispersão, um ponto por linha; no anel, o valor e a parte do total; no `ChartRadial`, o valor, a meta e quanto foi atingido; no `ChartTreemap` e no `ChartSunburst`, um nó por linha, com o caminho do grupo até ele e a parte do total da raiz; no `ChartSankey`, uma ligação por linha, com o fluxo e a parte da saída da origem. `ChartMap`, `ChartTimeline` e `ChartHeatmap` têm a tabela do seu dado, com busca e ordenação no mapa. O `ChartGauge` fica sem ela: o medidor já diz o valor, a faixa e a meta no texto. A estrutura é do core, `ChartTable`, e cada gráfico só monta as linhas. A tabela é a alternativa acessível ao desenho, para quem não o enxerga ou prefere ler os números: deixe o botão ligado onde o gráfico é a leitura principal, e desligue só onde a mesma informação já está em tabela ou texto ao lado, ou onde o espaço é curto demais para o botão. Para desligar em todo o produto, o `ChartsProvider` recebe `showTableToggle={false}` e vale para os gráficos da árvore, sem repetir a prop em cada um; o provider mais próximo vale, e o `showTableToggle` do gráfico, `true` ou `false`, vale mais que ele. Sem provider, o botão fica ligado. O `CardMetric.Chart` não traz o botão em caso algum.
 
 No toque, o dedo não paira, então o gráfico faz com ele o que faz com o ponteiro, e o mantém até outro toque. Tocar numa marca a fixa, com o realce e o balão, que sobe acima do dedo para a mão não cobri-lo; tocar em outra troca a fixada; tocar fora do desenho, na legenda ou rolar a página solta. O primeiro toque só fixa: `onHover` avisa a marca, e `onMarkClick` não é chamado. Tocar de novo na marca já fixada ativa, e aí `onMarkClick` avisa, como o clique do mouse. O clique do mouse e o do teclado ativam de primeira. A rolagem fica intacta: o gráfico não cancela o gesto nem muda o `touch-action`, e o toque que o navegador toma para rolar, ou em que o dedo anda além da folga, não fixa nada. Mouse e caneta seguem o ponteiro de sempre. A exceção é o `ChartMap` com `zoomable`: a área do mapa deixa a rolagem com um dedo e toma a pinça, com dois dedos, para aproximar e arrastar o desenho.
 
@@ -252,7 +298,7 @@ Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` ma
 
 A fronteira entre `Skeleton`, `Spinner` e `Progress` é o que se sabe do resultado. O `Skeleton` desenha a forma do conteúdo que vai chegar, e serve quando essa forma é conhecida — linhas de uma tabela, um cartão. O `Spinner` diz só que há atividade; o `Progress`, quanto falta. O `Skeleton` é decorativo: quem o envolve anuncia o carregamento.
 
-A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica junto do conteúdo de que fala, até a situação mudar. O `Toast` aparece no canto da tela, fala de algo que acabou de acontecer — salvo, publicado, falhou — e sai sozinho, exceto o erro, que espera ser fechado. É exibido pelo `ToastRegion`, montado uma vez na raiz da aplicação, e disparado por `showToast` de qualquer lugar. Quando duas aplicações dividem a página, ou cada teste precisa do próprio estado, o `ToastProvider` dá à árvore o estado próprio: o `ToastRegion` dentro dele mostra só os avisos disparados por `useToast()` na mesma árvore, e o `showToast` solto continua indo ao estado global. O provider não renderiza o canto; ele é só o estado, e o `ToastRegion` continua sendo posto pelo produto. Com `portalContainer` no `ToastRegion`, ou o `PortalProvider` acima dele, o canto é renderizado dentro de um elemento escolhido, e herda o tema dele. O canto respeita a safe area da janela (`env(safe-area-inset-right)` e `-bottom`), que só vale com `viewport-fit=cover`.
+A fronteira entre `Toast` e `Alert` é o lugar e a duração. O `Alert` fica junto do conteúdo de que fala, até a situação mudar. O `Toast` aparece no canto da tela, fala de algo que acabou de acontecer — salvo, publicado, falhou — e sai sozinho, exceto o erro, que espera ser fechado. É exibido pelo `ToastRegion`, montado uma vez na raiz da aplicação, e disparado por `showToast` de qualquer lugar. Quando duas aplicações dividem a página, ou cada teste precisa do próprio estado, o `ToastProvider` dá à árvore o estado próprio: o `ToastRegion` dentro dele mostra só os avisos disparados por `useToast()` na mesma árvore, e o `showToast` solto continua indo ao estado global. O provider não renderiza o canto; ele é só o estado, e o `ToastRegion` continua sendo posto pelo produto. Com `portalContainer` no `ToastRegion`, ou o `PortalProvider` acima dele, o canto é renderizado dentro de um elemento escolhido, e herda o tema dele. O canto respeita a safe area da janela (`env(safe-area-inset-right)` e `-bottom`), que só vale com `viewport-fit=cover`. Ao acionar uma ação de um aviso, ou fechá-lo, o foco passa ao próximo aviso e, se não houver, volta ao elemento que o tinha antes de entrar no canto, desde que ainda esteja na página.
 
 O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e "Ver detalhes"; a terceira em diante não aparece, porque o aviso é breve e não é lugar de menu. Acionar qualquer uma fecha o aviso. `action`, a forma de uma ação só, continua valendo.
 
@@ -265,26 +311,92 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
 | `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
-| `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
-| `AppShell` | Moldura de tela em camadas: trilho de módulos, submenu do módulo e página. | Disponível |
+| `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
+| `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
 | `PageHeader` | Cabeçalho de página: título, descrição, selos de situação e ações. | Disponível |
+| `LinkList` | Lista de links em que cada item leva a uma página, em linhas ou em grade. | Disponível |
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
 
 A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens por página e os passos para a primeira e a última página. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual, para não perder o lugar de quem lia.
 
+A `Pagination` mede a largura do contêiner e mantém os passos numa linha só: primeiro tira as páginas vizinhas da atual, até `siblings=0`, e, se ainda não couber, vira o modo compacto, com anterior, o texto `3 de 12` e próxima. O texto traz `aria-current="page"`, e `formatCompact` o traduz. Sem largura nem para o texto compacto, sobram só as setas, anterior e próxima, e o `3 de 12` (ou o `formatCompact`) fica só para o leitor de tela. `compact` força o modo compacto. No servidor, o HTML inicial mostra a forma completa, e a hidratação a ajusta à largura; sem servidor, a forma ajustada já sai na primeira pintura. A medida vem de uma cópia invisível das formas, e não da largura do próprio `nav`: ele encolhe no pai flex e no `Card.Footer`, e volta a crescer quando o pai alarga, sem exigir contêiner de largura própria. Com `totalItems`, só o intervalo é anunciado, e o `3 de 12` fica visível fora da região viva, ou só para o leitor de tela quando restam as setas.
+
 `Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
 
-O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h1`, e a linha que o separa do conteúdo vai de borda a borda do elemento que o contém. Voltar é um link da aplicação, recebido conforme a seção "Link da aplicação", abaixo; a trilha do caminho continua sendo o `Breadcrumb`, e o cabeçalho de um cartão, o `Card.Header`. A ação principal fica à direita, com até duas secundárias antes dela, e o excedente num `Menu`; o sistema não impõe o limite. Fixar ou compactar ao rolar é do produto.
+O `PageHeader` é o cabeçalho da página, não de um cartão: o título é o `h1`, e a linha que o separa do conteúdo vai de borda a borda do elemento que o contém. Voltar é um link da aplicação, recebido conforme a seção "Link da aplicação", abaixo, posto acima do título, com a seta e o texto visível; o `label` é o nome acessível e deve conter esse texto; a trilha do caminho continua sendo o `Breadcrumb`, e o cabeçalho de um cartão, o `Card.Header`. A ação principal fica à direita, com até duas secundárias antes dela, e o excedente num `Menu`; o sistema não impõe o limite. Fixar ou compactar ao rolar é do produto.
 
-O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. Ele ocupa a altura do elemento que o contém: para tomar a janela, `html`, `body` e o elemento raiz da aplicação precisam de `height: 100%`, e o `body`, de margem zero, que o `reset.css` já zera. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura. O terceiro nível do submenu tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, de baixo para cima, também em duas formas: na altura das opções, que é o padrão, ou cobrindo a lista do módulo. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`. Na janela com recorte, como um celular com entalhe ou barra de gestos, a moldura soma `env(safe-area-inset-*)` ao respiro da borda; isso só tem efeito quando o produto declara `viewport-fit=cover` na meta `viewport`, e sem isso o inset vale 0 e nada muda. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
+O `AppShell` é a moldura da aplicação e ocupa a janela inteira; só as áreas internas rolam. A moldura ocupa a janela sozinha: o `body` precisa de margem zero, que o `reset.css` já zera, e quem embute a moldura numa caixa redefine `--pl-shell-height`, por exemplo `100%`, nela ou num ancestral. Na janela com recorte, como um celular com entalhe ou barra de gestos, a moldura soma `env(safe-area-inset-*)` ao respiro da borda; isso só tem efeito quando o produto declara `viewport-fit=cover` na meta `viewport`, e sem isso o inset vale 0 e nada muda. Ele tem três camadas: a base é o fundo da aplicação, o trilho de módulos e a página são folhas no mesmo nível, e o submenu do módulo fica na base, entre as duas. A navegação é a `Sidebar`, e a página é o `AppShell.Page`, com a barra (`PageBar`), o corpo (`PageBody`), a única área da página que rola, e, quando a tela pede, o rodapé fixo (`PageFooter`). O rodapé fica sempre à vista, fora da área que rola: a situação à esquerda (`status`), como a do rascunho salvo sozinho, anunciada ao leitor de tela, e as ações à direita. A fronteira com a `SaveBar` é o momento: a `SaveBar` aparece quando há alteração por salvar, e o rodapé fica sempre lá. O estado da navegação fica no `SidebarProvider`, que o `AppShell` monta por dentro, ou usa o de fora quando já existe um. A barra da página já traz o botão de abrir o submenu e a gaveta, e o produto não acrescenta outro: o `Sidebar.Trigger` avulso é só de quem monta a própria moldura.
+
+A moldura é montada uma vez, na raiz da aplicação, e a página entra como filha: cada rota renderiza o seu próprio `AppShell.Page`, com a `PageBar`, o `PageBody` e, quando houver, o `PageFooter`. O `SidePanel` é irmão do `AppShell.Page`, dentro do `AppShell`.
+
+```tsx
+import { useState, type ReactNode } from 'react';
+import { AppShell, Breadcrumb, Button, IconFile, IconStructure, Sidebar, SidePanel } from '@plenustech/design-system';
+
+function Moldura({ children }: { children: ReactNode }) {
+  return (
+    <AppShell>
+      <Sidebar>
+        <Sidebar.Rail brand={<Sidebar.Brand logo={<IconStructure size={20} />} name="Gestor" />}>
+          <Sidebar.RailItem current href="/vendas" icon={<IconFile size={20} />} label="Vendas" />
+        </Sidebar.Rail>
+        <Sidebar.Panel brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} label="Vendas">
+          <Sidebar.Group label="Pedidos">
+            <Sidebar.Item current href="/vendas/pedidos" icon={<IconFile size={18} />} label="Todos os pedidos" />
+            <Sidebar.Item href="/vendas/devolucoes" icon={<IconFile size={18} />} label="Devoluções" />
+          </Sidebar.Group>
+        </Sidebar.Panel>
+      </Sidebar>
+      {children}
+    </AppShell>
+  );
+}
+
+function PaginaDePedidos() {
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+
+  return (
+    <>
+      <AppShell.Page>
+        <AppShell.PageBar>
+          <Breadcrumb items={[{ label: 'Vendas' }, { label: 'Pedidos' }]} />
+        </AppShell.PageBar>
+        <AppShell.PageBody>
+          <Button onClick={() => setFiltrosAbertos(true)} variant="secondary">
+            Filtros
+          </Button>
+        </AppShell.PageBody>
+        <AppShell.PageFooter status="Rascunho salvo">
+          <Button>Concluir</Button>
+        </AppShell.PageFooter>
+      </AppShell.Page>
+      <SidePanel onOpenChange={setFiltrosAbertos} open={filtrosAbertos} title="Filtros">
+        Campos dos filtros
+      </SidePanel>
+    </>
+  );
+}
+
+function Aplicacao() {
+  return (
+    <Moldura>
+      <PaginaDePedidos />
+    </Moldura>
+  );
+}
+```
+
+A `Sidebar` reúne todas as formas de navegação da aplicação. O trilho traz os módulos, só com ícone e dica, e um grupo fixo no pé para os itens de sistema e a conta. O submenu é a lista do módulo: itens com ícone, complemento ao fim da linha, como uma contagem, e links que saem da aplicação, em grupos com título. Abrir o submenu empurra a página, sem sobrepô-la, e recolher devolve a largura; a largura do submenu é do produto, pelo `width` do `Sidebar.Panel`, e todos os painéis devem usar o mesmo valor para a página não mudar de largura ao trocar de módulo; o módulo atual no trilho também alterna o submenu, e um módulo sem lista deixa o submenu só como lugar da conta. O terceiro nível tem duas formas: expandir os filhos no lugar, que é o padrão, ou trocar o painel pelo nível de baixo, com o caminho de volta. A conta do usuário abre dentro do submenu, também em duas formas: na altura das opções, que é o padrão, em um cartão que surge por cima da lista, sem empurrá-la nem encolhê-la, com sombra em degradê que sobe do cartão e fecha ao clicar fora dele, dentro do submenu, sem acionar o que está embaixo, ou cobrindo a lista do módulo, com as opções no mesmo desenho e na mesma grade dos itens do submenu, sem cartão; com o submenu recolhido, o avatar no trilho a abre. As medidas da `Sidebar` são variáveis CSS que o produto redefine no `:root`, no mesmo padrão do `--sidebar-panel-width`: `--sidebar-rail-width` (largura do trilho, 56px), `--sidebar-row` (altura da linha da grade, 34px, ou 42px quando o ponteiro é o dedo, para o item do trilho, o item do submenu, o subnível e a linha do título de grupo; o intervalo segue em 2px e o passo é a linha mais o intervalo, 36px ou 44px no toque), `--sidebar-icon-size` (ícone do item do submenu, 18px), `--sidebar-rail-icon-size` (ícone do trilho, 20px), `--sidebar-brand-size` (quadrado da marca e altura do cabeçalho do submenu, 36px, ou 44px no toque, sem mudar o quadrado da marca), `--sidebar-avatar-size` (avatar da conta no rodapé, 40px) e `--sidebar-drawer-width` (largura da gaveta no celular, que por padrão se ajusta ao trilho e ao submenu); um valor do produto vale em qualquer ponteiro, e só o padrão muda no toque; a marca e o cabeçalho seguem alinhados, e o espaço de 24px até o conteúdo se mantém, com qualquer valor. A marca do produto fica no alto do trilho e do submenu, com o `Sidebar.Brand`: no trilho, só o símbolo, num quadrado na cor principal ou puro; no submenu, o nome e a descrição, ou o logotipo de cada tema, claro e escuro; com `href`, leva ao início da aplicação. Em largura estreita, o trilho e o submenu passam a uma gaveta com a interação do `Drawer`, que soma a safe area ao respiro no topo, no pé e na borda em que se prende. A `Sidebar` funciona dentro do `AppShell` ou de um `SidebarProvider`: quem monta a própria moldura usa o provider, o `useSidebar()` para ler e mudar o estado e o `Sidebar.Trigger` como botão de abrir. O resto da `Sidebar` também é do produto, no `SidebarProvider` ou, quando é o `AppShell` que o monta, nas mesmas propriedades do `AppShell`: `labels` troca os nomes acessíveis dos botões (`openMenu`, `openSubmenu`, `closeMenu` e `collapseSubmenu`) e os nomes da gaveta (`menu`), da navegação do trilho (`modules`) e da conta (`account`), em português por padrão, e só os passados mudam, com a propriedade de cada peça (`menuLabel`, e `label` do `Sidebar.Rail` e do `Sidebar.Account`) valendo mais que o `labels`; a gaveta do celular e a conta são controláveis, como o submenu, por `menuOpen`, `defaultMenuOpen` e `onMenuOpenChange` e por `accountOpen`, `defaultAccountOpen` e `onAccountOpenChange`; `narrowBelow` é a largura, em pixels, abaixo da qual a navegação vira gaveta (900 por padrão), e o `AppShell` segue o mesmo valor; `side` põe o trilho e o submenu à esquerda ou à direita da página, com a gaveta, as dicas, a barra do item atual e a entrada do terceiro nível em pilha espelhadas, e o recuo e a guia do subnível no início do texto; o lado é físico, também com `dir="rtl"`, e nessa escrita o chevron, o ícone de link externo e a seta de voltar espelham e a barra do item atual fica junto do trilho; `useSidebar()` devolve `open`, `setOpen`, `openMobile`, `setOpenMobile`, `isMobile`, `toggleSidebar`, `accountOpen` e `setAccountOpen`, e abrir a conta pelo código abre o submenu (ou a gaveta) e leva o foco à primeira opção, como o clique no bloco, menos com o foco num campo editável; `icons` troca os ícones de abrir, recolher, fechar, voltar, link externo e seta da conta, e só os passados mudam; `tooltipDelay` é a espera, em milissegundos, das dicas do trilho e da marca (150 por padrão); e `shortcut`, desligado por padrão, liga um atalho como `"mod+b"`, que alterna o submenu, ou a gaveta em largura estreita, e é ignorado enquanto o foco está num campo editável. Os módulos, os links e o conteúdo da conta são do produto; o link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
+
+A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido conforme a seção "Link da aplicação", abaixo, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
 
 ### Link da aplicação
 
 Os componentes de navegação não conhecem o roteador: a aplicação entrega o componente de link, e o sistema cuida da aparência e da acessibilidade.
 
-- Nas coleções, `Breadcrumb` e `TabsNav`, o `as` fica na raiz e vale para todos os itens. Cada item leva o próprio `href` ou `linkProps`.
-- Nos elementos avulsos, o `as` fica no próprio elemento: `PageHeader.Back`, `AppShell.RailItem` e `AppShell.PanelItem`.
+- Nas coleções, `Breadcrumb`, `TabsNav` e `LinkList`, o `as` fica na raiz e vale para todos os itens. Cada item leva o próprio `href` ou `linkProps`.
+- Nos elementos avulsos, o `as` fica no próprio elemento, com `href` ou `linkProps`: `Button`, `ButtonIcon`, `PageHeader.Back`, `Sidebar.Item`, `Sidebar.RailItem` e `Sidebar.Brand`. `AppShell.RailItem` e `AppShell.PanelItem` são apelidos antigos, obsoletos até a 0.8.0, de `Sidebar.RailItem` e `Sidebar.Item`.
 - Sem `as`, o link é um `<a>`.
 
 O componente em `as` recebe o `href`, as props de `linkProps` espalhadas e as demais props do elemento, como `className`, `aria-current`, `aria-label` e os filhos. O `linkProps` serve ao roteador que não usa `href`: o do React Router pede `to`.
@@ -301,6 +413,10 @@ import { Link } from 'react-router-dom';
 />
 
 <PageHeader.Back as={Link} label="Voltar para Pedidos" linkProps={{ to: '/pedidos' }} />
+
+<Button as={Link} linkProps={{ to: '/pedidos/novo' }}>
+  Novo pedido
+</Button>
 ```
 
 ## 9. Sobreposições
@@ -314,7 +430,7 @@ import { Link } from 'react-router-dom';
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
 | `Menu` | Lista de ações disparada por um gatilho. | Disponível |
 
-`Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. Ao abrir, o foco vai ao primeiro elemento focável, que, com `title`, é o botão Fechar do cabeçalho; para começar num campo, dê `autoFocus` a ele. Ao fechar, o foco volta a quem abriu. O `Dialog` limita a altura a `100dvh` menos o respiro, e acompanha a barra do navegador e o teclado virtual no celular; o `Drawer` respeita a safe area na borda em que se prende, no topo e no pé. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é o `SidePanel`. Ele abre de qualquer lado e empurra o conteúdo, que continua usável, sem foco preso nem fundo inerte. Em largura estreita, abaixo de 900px, onde não há espaço para empurrar, o `SidePanel` passa a ser modal, como o `Drawer`: foco preso, fundo inerte, Escape fecha e a página não rola. As propriedades (`id`, `className`, `data-*`, `aria-*` e as demais) chegam ao elemento do painel nas duas larguras.
+`Drawer` e `Dialog` são a mesma interação modal — foco preso, fundo inerte, Escape fecha — e dividem a mecânica. Ao abrir, o foco vai ao primeiro elemento focável, que, com `title`, é o botão Fechar do cabeçalho; para começar num campo, dê `autoFocus` a ele. Ao fechar, o foco volta a quem abriu. O `Dialog` mantém em volta do cartão um respiro de 16px ou a safe area, o que for maior, limita a altura a `100dvh` menos esse respiro, e acompanha a barra do navegador e o teclado virtual no celular; o `Drawer` respeita a safe area na borda em que se prende, no topo e no pé. A fronteira é a tarefa: o `Dialog` interrompe para uma decisão ou um formulário curto; o `Drawer` abre ao lado da página para editar ou detalhar um item sem sair da página, e comporta conteúdo longo. Um painel que fica ao lado do conteúdo sem bloquear a página não é `Drawer`: é o `SidePanel`. Ele abre de qualquer lado e empurra o conteúdo, que continua usável, sem foco preso nem fundo inerte. Em largura estreita, abaixo de 900px, onde não há espaço para empurrar, o `SidePanel` passa a ser modal, como o `Drawer`: foco preso, fundo inerte, Escape fecha e a página não rola. As propriedades (`id`, `className`, `data-*`, `aria-*` e as demais) chegam ao elemento do painel nas duas larguras.
 
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 
@@ -342,7 +458,66 @@ A biblioteca tem duas entradas. O ponto de entrada principal traz os ícones de 
 
 Um ícone sem `label` é decorativo e sai da árvore de acessibilidade, que é o caso sempre que houver texto ao lado dizendo a mesma coisa. Com `label`, ele ganha nome acessível e passa a ser anunciado.
 
-## 11. Fora do escopo
+## 11. Tipografia
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `Text` | Texto com papel tipográfico e tom, em uma linha ou truncado. | Disponível |
+
+O `Text` aplica um papel tipográfico dos tokens (`body`, `label`, `caption`, `micro`, `title` ou `code`) e um tom (`default`, `secondary`, `tertiary` ou `danger`) a um trecho de texto, para o produto não repetir tamanho, entrelinha e cor em cada tela. Por padrão renderiza um `span`; `as` troca o elemento, como `p` ou `div`, quando o texto precisa de bloco. `truncate` mantém o texto numa linha e corta o excesso com reticências, e `numeric` usa algarismos tabulares. O `Text` não é título de página nem de seção: o nível de cabeçalho é de quem escreve a estrutura, como no `PageHeader` e no `Card.Header`.
+
+## 12. Acessibilidade
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `VisuallyHidden` | Texto que só o leitor de tela lê, para dar nome ao que a tela mostra só por ícone, cor ou posição, como uma coluna de ações sem título. | Disponível |
+| `SkipLink` | Atalho para o conteúdo principal, para quem navega por teclado. | Disponível |
+
+Os componentes de acessibilidade existem para quem não usa a tela como ela é vista: quem ouve o leitor de tela ou navega só pelo teclado. O `VisuallyHidden` tira o conteúdo da vista e o mantém na árvore de acessibilidade, para o leitor de tela ler o que a interface mostra só por ícone ou posição, como o rótulo de uma coluna de ações. Não serve para esconder o que ninguém deve ler: para isso, o conteúdo sai da página. O `SkipLink` é o primeiro destino do Tab, que leva direto ao conteúdo principal, sem passar pela navegação.
+
+Todo contêiner que rola dentro de um componente do pacote segue o mesmo padrão de barra: fina (`scrollbar-width: thin`) e com o polegar transparente em repouso, que aparece quando o ponteiro paira sobre o contêiner (`@media (hover: hover)`) ou quando o foco está dentro dele, para quem usa teclado, na cor do token `--pl-scrollbar-thumb`, nos temas claro e escuro. A rolagem continua por roda, toque e teclado, e onde não há ponteiro que paire a barra fica escondida, como nas barras de sobreposição dos sistemas de toque. Valem o padrão a `Table`, o `DataGrid` e o filtro de valores dele, o `CodeBlock`, a `List` e as listas de opções do `Select` e do `ComboBox`, o `Menu`, o `Popover`, o corpo do `Dialog`, do `Drawer` e do `SidePanel`, as `Tabs`, a `TabsNav`, o `SegmentedControl`, a legenda lateral dos gráficos, as tabelas de leitura dos gráficos, a área rolável do `ChartTimeline`, o corpo do `AppShell` e o submenu e a conta da `Sidebar`. A barra da página inteira (`html` e `body`) é do produto. Para um contêiner que rola e é do produto, a barra do `reset.css` (`::-webkit-scrollbar`) segue valendo, e o produto pode adotar o mesmo padrão com os dois `scrollbar-*` e o token.
+
+## 13. Leiaute
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `Stack` | Pilha flex que espaça os filhos num eixo. | Disponível |
+| `Grid` | Grade de colunas iguais que se ajusta à própria largura. | Disponível |
+| `Container` | Coluna de conteúdo centrada, com largura máxima. | Disponível |
+
+Os componentes de leiaute arranjam o que o produto já tem, sem conteúdo nem aparência próprios, com os espaçamentos do `--pl-space-N`. A `Stack` espaça os filhos num eixo, na vertical por padrão e na horizontal com `direction="horizontal"`, com `gap`, `align`, `justify` e `wrap`. A `Grid` reparte a largura em colunas iguais e mede a si mesma, e não a janela: entram quantas colunas couberem, cada uma com ao menos `minColumnWidth`, e `columns` limita o máximo. O `Grid.Item` com `span` ocupa várias colunas, e numa grade com menos colunas que o `span` passa a ocupar a linha inteira. Quando o número de colunas não é múltiplo do `span`, como itens de duas colunas numa grade que caiu para três, sobra espaço vazio na linha, como em toda grade CSS: para conteúdos de larguras diferentes, use uma `Grid` para cada grupo, como os indicadores numa e os gráficos noutra. O `Container` centra a coluna de conteúdo com um `maxWidth` e o respiro lateral dos tokens; com o mesmo valor no `PageHeader`, os dois alinham na mesma borda. O respiro vertical é de quem usa o `Container`.
+
+As predefinições da seção seguinte arranjam a página; estes componentes arranjam um trecho dela. A fronteira com as predefinições é o conteúdo: as predefinições conhecem partes com papel próprio, como o trilho e a coluna lateral, e o leiaute só distribui.
+
+## 14. Predefinições
+
+| Componente | Papel | Situação |
+| --- | --- | --- |
+| `AnnotatedSection` | Seção com título e explicação num trilho à esquerda e o conteúdo à direita. | Disponível |
+| `Columns` | Conteúdo principal com uma coluna lateral ou com o índice da página. | Disponível |
+
+As predefinições são arranjos de página prontos, montados com os demais componentes, para o produto partir deles em vez de refazer o leiaute em cada tela. Elas arranjam o conteúdo sem impô-lo: o que vai em cada parte é do produto. Cada uma mede a própria largura, e não a da janela, e abaixo de 900px, o `--pl-bp-sm`, passa a uma coluna.
+
+A `AnnotatedSection` serve às telas de configuração e aos formulários por assunto. O título nomeia a seção, que é uma região da página, e sai em `h2`, com `headingLevel` para outro nível; a explicação e uma ação opcional ficam abaixo dele. Seções vizinhas se separam por uma linha. Em uma coluna, o trilho fica acima do conteúdo.
+
+O `Columns` arranja o conteúdo da página em duas colunas e não é a navegação da aplicação, que é a `Sidebar`. Ao lado do `Columns.Main` vai uma de duas partes. O `Columns.Aside` é a coluna de complemento, como um resumo ou os dados de apoio, em um terço da largura; em uma coluna, desce para baixo do conteúdo. O `Columns.Index` é o índice "Nesta página": um link para cada seção, pelo `id` dela, fixo enquanto a página rola e com a seção à vista marcada. Escolher um link rola até a seção, sem animação quando o sistema pede menos movimento, leva o foco para ela e não altera o endereço. Em uma coluna, o índice some.
+
+As montagens que se repetem sem pedir componente próprio, como o painel de filtros, o menu de ações do cabeçalho e o controle do usuário, são patterns (`COMPONENTS.md` §16). Elas respeitam os papéis e as fronteiras deste catálogo. Cada pattern abaixo diz o que resolve, os componentes que monta e a regra principal.
+
+- **Folha de página.** A folha de toda tela da aplicação: a barra com o caminho, o corpo que rola, o cabeçalho e o conteúdo na mesma coluna e, quando a tela salva, o rodapé fixo. Monta `AppShell`, `Sidebar`, `AppShell.Page`, `AppShell.PageBar`, `Breadcrumb`, `AppShell.PageBody`, `PageHeader`, `Container` e `AppShell.PageFooter`. Regra: o `maxWidth` do `PageHeader` e o do `Container` são o mesmo, para alinharem na borda; só o corpo rola; o rodapé fixo e a `SaveBar` são alternativas, e a tela escolhe uma.
+- **Painel de filtros.** Uma lista com mais de um critério, em que a pessoa vê o resultado mudar enquanto escolhe. Monta `Button` (gatilho "Filtros"), `Badge` (a contagem), `SidePanel`, `Select`, `Tag` e `EmptyState`. Regra: o filtro se aplica na hora, ao mudar o campo; "Concluir" só fecha o painel e "Limpar" volta ao padrão sem fechá-lo; o `SidePanel` é irmão da página dentro do `AppShell`, e cada filtro ativo fica à vista como etiqueta com o nome do campo.
+- **Barra da tabela.** Uma tabela com busca, filtro, seleção e paginação numa moldura só. Monta `Card`, `Card.Body` com `flush`, `Table.Toolbar`, `InputText`, `Button`, `Tag`, `Table`, `Card.Footer`, `Pagination` e `EmptyState`. Regra: buscar ou filtrar volta à primeira página; a barra continua à vista com o resultado vazio; o rodapé mostra a seleção quando há e a quantidade de resultados quando não há. Para uma grade completa, com virtualização, a escolha é a `DataGrid`.
+- **Visões salvas.** A mesma lista lida pelos recortes que a equipe usa sempre, como todas, em aberto e atrasadas, cada um numa aba com a contagem no rótulo. Monta `Card`, `Tabs` e `Table`. Regra: o corpo é sempre a mesma lista, e as contagens e as listas saem da mesma fonte; abas de conteúdos diferentes não são este pattern.
+- **Salvar por cartão.** Numa página de ajustes com cartões independentes, cada cartão salva por si. Monta `Card`, `Card.Footer`, `SaveStatus`, `Button`, `InputText` e `Stack`. Regra: "Descartar" e "Salvar" só ficam ativos com alteração em relação ao último valor salvo; a situação vai em `start` do rodapé, sempre escrita, e o `Salvar` leva `loading` enquanto grava.
+- **Bloco de ajustes.** Título e explicação, linhas de rótulo e controle, uma ação do bloco e, no fim, o cartão de perigo. Monta `Card.Header`, `AnnotatedSection`, `Card.Body` com `flush`, `FieldRow`, `InputNumber`, `Switch`, `Button` e `Dialog`. Regra: a ação do bloco fica no cabeçalho (`trailing` ou `action`), e não dentro das linhas; o cartão de perigo vai por último, e a ação destrutiva sempre pede confirmação, num `alertdialog`.
+- **Coluna de ação de linha.** A ação própria de cada linha da tabela, como remover ou editar, num botão só de ícone numa coluna sem título visível, à direita. Monta `Table.Column` com `align="end"`, `VisuallyHidden`, `ButtonIcon`, `AvatarItem` e `Table.Body`. Regra: o `label` de cada botão é único e diz a linha, como "Remover Ana Ribeiro"; ao remover, o foco passa ao botão da linha que tomou o lugar, e a lista vazia mostra o vazio da própria tabela.
+- **Totais no rodapé.** O subtotal, os ajustes e o total no rodapé do cartão dos itens, como num pedido, numa fatura ou numa proposta. Monta `Card`, `Table`, `InputNumber`, `Card.Footer`, `DescriptionList` com `layout="inline"` e `DescriptionList.Item`. Regra: o resumo é calculado dos mesmos dados da tabela, nunca guardado à parte; a ordem é a da conta, com o total por último, e só ele leva `emphasis`; os valores usam `formatCurrency` e `formatPercent`.
+- **Assistente.** Um processo em etapas, com ordem, dentro de um cartão: o indicador no alto, o título da etapa, o corpo e, no rodapé, voltar e avançar. Monta `Card`, `Steps`, `Card.Header`, `Card.Body`, `Card.Footer`, `EmptyState`, `InputText` e `RadioGroup`. Regra: "Próximo" fica desabilitado enquanto a etapa não tem o que precisa, e "Voltar" desabilita na primeira, sem sumir; na última etapa o botão diz a ação concreta; voltar não perde o que foi preenchido, e "Salvar e sair" guarda o rascunho. Painéis equivalentes e sem ordem são `Tabs`.
+- **Vazio da primeira vez.** A primeira visita a uma lista ainda sem registros, que explica o ganho e mostra os primeiros passos em vez de uma tabela vazia. Monta `Card`, `EmptyState`, `NumberedList` com `layout="grid"`, `Button` e `Table`. Regra: a descrição diz o ganho, e não só que está vazio; no máximo duas ações, a secundária antes da principal; a ação de "novo" do cabeçalho só aparece quando a lista tem itens. O vazio por busca ou filtro é outro caso, do `EmptyState` pequeno.
+- **Controle do usuário.** A conta da pessoa na navegação, com o avatar no trilho quando o submenu está recolhido e o painel da conta no pé do submenu. Monta `AppShell`, `Sidebar.Rail`, `Sidebar.RailAccount`, `Sidebar.Panel`, `Sidebar.Account`, `Sidebar.Item` e `Avatar`. Regra: o nome, a empresa e o avatar vêm de uma só fonte, e as duas entradas nunca divergem; as opções são da pessoa, e não do módulo; "Sair" é operação e vai em `onClick`, e as opções que levam a outra tela são links, com `href`.
+- **Menu de ações do cabeçalho.** As ações da página no cabeçalho: a principal por último, até duas secundárias antes dela e o excedente num menu. Monta `PageHeader`, `PageHeader.Actions`, `PageHeader.Badges`, `Menu`, `ButtonIcon`, `Button`, `Badge`, `Dialog` e `showToast`. Regra: a principal é uma só; a ação que leva a outra página é link, com `href`, e a que muda dados é botão; a que destrói leva `tone="danger"` no item do menu e pede confirmação; a que não vale no momento fica desabilitada no mesmo lugar, e o selo diz por quê.
+
+## 15. Fora do escopo
 
 O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 
@@ -352,3 +527,45 @@ O Design System não cobre, conforme `ARCHITECTURE.md` seções 9.2, 11 e 15:
 - Roteamento. Componentes de navegação recebem a abstração de link da aplicação.
 
 Uma necessidade que caia em qualquer um desses casos permanece na aplicação consumidora.
+
+## 16. Hooks
+
+| Hook | Papel | Situação |
+| --- | --- | --- |
+| `useColorScheme` | Escolha do esquema de cor da aplicação: claro, escuro ou o do sistema. | Disponível |
+
+O `useColorScheme` dá e troca a escolha entre `'light'`, `'dark'` e `'system'`, e é a forma de o produto oferecer o seletor de tema. Devolve `colorScheme`, o que a pessoa escolheu; `resolvedColorScheme`, o que vale na tela (`'light'` ou `'dark'`, que em `'system'` é o do sistema e acompanha o `prefers-color-scheme` quando ele muda); e `setColorScheme`. As opções são `defaultColorScheme`, a escolha de quem nunca escolheu (`'system'` por padrão), e `storageKey`, a chave do `localStorage` onde a escolha fica guardada (`'pl-color-scheme'` por padrão). A escolha guardada vale na visita seguinte e nas outras abas abertas, que a seguem pelo evento `storage`. Sem acesso ao `localStorage`, ela vale até a página fechar.
+
+O hook aplica o atributo de tema que o pacote já documenta no `README.md`: `data-theme="light"` ou `data-theme="dark"` no `<html>`, e nenhum atributo em `'system'`, para o `prefers-color-scheme` decidir pela folha de estilo. O atributo posto à mão num elemento interno continua valendo sobre o do `<html>` naquela subárvore. No servidor, a escolha é a `defaultColorScheme` e `resolvedColorScheme` é `'light'`, e a hidratação corrige o que a pessoa guardou.
+
+```tsx
+import { SegmentedControl, useColorScheme, type ColorScheme } from '@plenustech/design-system';
+
+function SeletorDeTema() {
+  const { colorScheme, setColorScheme } = useColorScheme();
+
+  return (
+    <SegmentedControl
+      items={[
+        { label: 'Claro', value: 'light' },
+        { label: 'Escuro', value: 'dark' },
+        { label: 'Sistema', value: 'system' },
+      ]}
+      label="Tema"
+      onValueChange={(valor) => setColorScheme(valor as ColorScheme)}
+      value={colorScheme}
+    />
+  );
+}
+```
+
+O hook só roda depois da hidratação, e a página pintada antes dele sairia no tema do sistema, piscando para quem escolheu o outro. Para isso não acontecer, o `<head>` leva um script curto e síncrono, antes da folha de estilo e do corpo, que põe o atributo da escolha guardada. Em `'system'` não há o que fazer, porque a folha de estilo já segue o sistema. Quem muda a `storageKey` troca a chave também no script, e quem passa `defaultColorScheme` `'light'` ou `'dark'` aplica esse valor quando nada foi guardado, ou a primeira visita pisca:
+
+```html
+<script>
+  try {
+    var tema = localStorage.getItem('pl-color-scheme');
+    if (tema === 'light' || tema === 'dark') document.documentElement.setAttribute('data-theme', tema);
+  } catch (erro) {}
+</script>
+```

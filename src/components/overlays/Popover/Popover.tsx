@@ -6,6 +6,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Popover.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export type PopoverPlacement =
   | 'top'
@@ -96,7 +97,7 @@ function PopoverContent({
         {...props}
         {...overlayProps}
         ref={mergedRef}
-        className={[styles.popover, className].filter(Boolean).join(' ')}
+        className={[styles.popover, thinScrollbar, className].filter(Boolean).join(' ')}
         // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
         data-react-aria-top-layer="true"
         style={{ ...style, ...positionProps.style }}

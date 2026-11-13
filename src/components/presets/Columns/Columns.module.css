@@ -1,0 +1,96 @@
+.columns {
+  container-type: inline-size;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--pl-space-4);
+  align-items: start;
+}
+
+.main,
+.aside {
+  min-width: 0;
+}
+
+.index {
+  display: none;
+  position: sticky;
+  top: var(--pl-space-4);
+  gap: var(--pl-space-1);
+}
+
+.indexLabel {
+  display: block;
+  margin: 0 0 var(--pl-space-1) var(--pl-space-2);
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.indexList {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.indexLink {
+  display: block;
+  box-sizing: border-box;
+  padding: var(--pl-space-1) var(--pl-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--pl-radius-md);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  text-decoration: none;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+@media (hover: hover) {
+  .indexLink:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
+}
+
+.indexLink:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+.indexLink[aria-current='true'] {
+  border-color: var(--pl-color-primary-line);
+  background: var(--pl-color-primary-selected);
+  box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-on-primary-container);
+  font-weight: var(--pl-type-label-weight);
+}
+
+/* 900px e o --pl-bp-sm; variavel CSS nao entra em @container. */
+@container (min-width: 900px) {
+  .layout:has(> .aside) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  .layout:has(> .index) {
+    grid-template-columns: minmax(0, 1fr) 200px;
+    column-gap: var(--pl-space-6);
+  }
+
+  .index {
+    display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indexLink {
+    transition: none;
+  }
+}

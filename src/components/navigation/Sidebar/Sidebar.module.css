@@ -1,0 +1,193 @@
+/* Medidas do modelo: trilho 56px, botao do trilho 34px (42px no toque), todas em variaveis `--sidebar-*`. */
+
+.navigation {
+  display: flex;
+  flex: none;
+  min-height: 0;
+  margin-right: var(--pl-shell-gap);
+}
+
+.navigation:dir(rtl) {
+  flex-direction: row-reverse;
+}
+
+.navigation[data-side='right'] {
+  flex-direction: row-reverse;
+  margin-right: 0;
+  margin-left: var(--pl-shell-gap);
+}
+
+.navigation[data-side='right']:dir(rtl) {
+  flex-direction: row;
+}
+
+.menu {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.menu:dir(rtl) {
+  flex-direction: row-reverse;
+}
+
+.menu[data-side='right'] {
+  flex-direction: row-reverse;
+}
+
+.menu[data-side='right']:dir(rtl) {
+  flex-direction: row;
+}
+
+/* A gaveta do celular se ajusta ao trilho e ao submenu e usa o fundo da aplicação. */
+.menuSurface.menuSurface {
+  width: var(--sidebar-drawer-width, auto);
+  max-width: 100%;
+  padding:
+    calc(var(--pl-shell-gap) + env(safe-area-inset-top, 0px))
+    var(--pl-shell-gap)
+    calc(var(--pl-shell-gap) + env(safe-area-inset-bottom, 0px))
+    calc(var(--pl-shell-gap) + env(safe-area-inset-left, 0px));
+  background: var(--pl-color-background);
+}
+
+.menuSurface.menuSurface:has(.menu[data-side='right']) {
+  padding-right: calc(var(--pl-shell-gap) + env(safe-area-inset-right, 0px));
+  padding-left: var(--pl-shell-gap);
+}
+
+.menu .rail {
+  margin-inline-end: 0;
+}
+
+.rail {
+  --_sidebar-row: 34px;
+  --_sidebar-head: 36px;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: var(--sidebar-rail-width, 56px);
+  min-height: 0;
+  padding: 9px 0 8px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+@media (pointer: coarse) {
+  .rail {
+    --_sidebar-row: 42px;
+    --_sidebar-head: 44px;
+  }
+}
+
+.brand {
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: var(--sidebar-brand-size, var(--_sidebar-head));
+  margin-bottom: 24px;
+}
+
+/* A marca sem símbolo não aparece no trilho: o lugar dela some junto, sem deixar a margem. */
+.brand:empty {
+  display: none;
+}
+
+.railGroup {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railFooter {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.railItem,
+.railAccount {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--sidebar-row, var(--_sidebar-row));
+  height: var(--sidebar-row, var(--_sidebar-row));
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-md);
+  background: none;
+  color: var(--pl-color-text-secondary);
+  font-size: var(--sidebar-rail-icon-size, 20px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+@media (hover: hover) {
+  .railItem:hover {
+    background: var(--pl-color-primary-tint-hover);
+    color: var(--pl-color-text);
+  }
+}
+
+.railItem:not([aria-current='page']):not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-tint);
+  color: var(--pl-color-text);
+}
+
+.railItem[aria-current='page'] {
+  background: var(--pl-color-primary-tint);
+  color: var(--pl-color-on-primary-container);
+}
+
+.railAccount {
+  margin-top: 6px;
+  font-size: inherit;
+}
+
+.railAccountAvatar {
+  display: grid;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.railItem:focus-visible,
+.railAccount:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .railItem,
+  .railAccount {
+    transition: none;
+  }
+}
+
+/* Recolher, abrir e fechar seguem o destaque dos itens. A classe dobrada vence o `ghost` do `ButtonIcon`. */
+@media (hover: hover) {
+  .frameButton.frameButton:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-primary-strong);
+  }
+}
+
+.frameButton.frameButton:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}

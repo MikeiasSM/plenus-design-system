@@ -167,4 +167,108 @@ describe('DatePickerRange', () => {
     expect(dados.get('inicio')).toBe('2026-03-09');
     expect(dados.get('fim')).toBe('2026-03-13');
   });
+
+  describe('atalhos de teclado', () => {
+    it('H marca hoje como inicio e fim', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({ onValueChange });
+
+      expect(fireEvent.keyDown(gatilho, { key: 'h' })).toBe(false);
+
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-15', end: '2026-03-15' });
+      expect(gatilho).toHaveTextContent('15/03/2026 – 15/03/2026');
+    });
+
+    it('as setas deslocam o intervalo inteiro, um dia ou sete', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({ defaultValue: { start: '2026-03-30', end: '2026-04-02' }, onValueChange });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-31', end: '2026-04-03' });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowDown' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-04-07', end: '2026-04-10' });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowLeft' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-04-06', end: '2026-04-09' });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowUp' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-30', end: '2026-04-02' });
+      expect(onValueChange).toHaveBeenCalledTimes(4);
+      expect(gatilho).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('sem intervalo, as setas partem de hoje', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({ onValueChange });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-16', end: '2026-03-16' });
+    });
+
+    it('a seta que levaria o intervalo para fora dos limites nao faz nada', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({
+        defaultValue: { start: '2026-03-10', end: '2026-03-12' },
+        max: '2026-03-12',
+        min: '2026-03-10',
+        onValueChange,
+      });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      fireEvent.keyDown(gatilho, { key: 'ArrowLeft' });
+      fireEvent.keyDown(gatilho, { key: 'ArrowDown' });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('a seta que levaria uma ponta para um dia indisponivel nao faz nada', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({
+        defaultValue: { start: '2026-03-10', end: '2026-03-12' },
+        isDateUnavailable: (data) => data === '2026-03-13',
+        onValueChange,
+      });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowLeft' });
+      expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-09', end: '2026-03-11' });
+    });
+
+    it('anuncia o intervalo novo quando H ou as setas o deslocam', () => {
+      const gatilho = montar({ defaultValue: { start: '2026-03-10', end: '2026-03-16' } });
+      const anuncio = screen.getByRole('status');
+
+      expect(anuncio).toHaveTextContent(/^$/);
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+      expect(anuncio).toHaveTextContent('11/03/2026 – 17/03/2026');
+
+      fireEvent.keyDown(gatilho, { key: 'h' });
+      expect(anuncio).toHaveTextContent('15/03/2026 – 15/03/2026');
+    });
+
+    it('Alt+seta para baixo abre o painel, e a seta sozinha nao', () => {
+      const gatilho = montar({ defaultValue: { start: '2026-03-10', end: '2026-03-12' } });
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowDown' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      fireEvent.keyDown(gatilho, { key: 'ArrowDown', altKey: true });
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('com o painel aberto, os atalhos nao agem', () => {
+      const onValueChange = vi.fn();
+      const gatilho = montar({ onValueChange });
+
+      fireEvent.click(gatilho);
+      fireEvent.keyDown(gatilho, { key: 'h' });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
 });

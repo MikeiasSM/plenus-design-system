@@ -1,4 +1,5 @@
 import styles from './Chart.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface ChartTableRow {
   cells: readonly string[];
@@ -17,7 +18,7 @@ export interface ChartTableProps {
 /** Leitura medida a medida de um grafico: um cabecalho por linha e um valor escrito em cada coluna. */
 export function ChartTable({ columns, corner, rows, title }: ChartTableProps) {
   return (
-    <div aria-label={`Tabela: ${title}`} className={styles.tableScroll} role="region" tabIndex={0}>
+    <div aria-label={`Tabela: ${title}`} className={[styles.tableScroll, thinScrollbar].join(' ')} role="region" tabIndex={0}>
       <table className={styles.table}>
         <caption className={styles.visuallyHidden}>{title}</caption>
         <thead>

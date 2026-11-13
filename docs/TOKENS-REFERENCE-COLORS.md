@@ -210,6 +210,8 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 | `color.primary-container` | `palette.10` | `palette.40` a 16% sobre a superficie |
 | `color.primary-selected` | `palette.20` | `palette.40` a 26% sobre a superficie |
 | `color.primary-line` | `palette.30` | `palette.40` a 34% sobre a superficie |
+| `color.primary-tint` | `color.primary` a 8%, sobre transparente | `color.primary` a 12%, sobre transparente |
+| `color.primary-tint-hover` | `color.primary` a 4%, sobre transparente | `color.primary` a 6%, sobre transparente |
 | `color.on-primary` | `palette.on-solid` | `palette.on-40` |
 | `color.on-primary-container` | `palette.80` | `palette.30` |
 

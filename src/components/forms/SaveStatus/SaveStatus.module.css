@@ -1,0 +1,21 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/* O ícone tem o tom da situação; o texto segue terciário, e a situação não depende só da cor. */
+.saved {
+  flex: none;
+  color: var(--pl-color-success);
+}
+
+.error {
+  flex: none;
+  color: var(--pl-color-danger);
+}

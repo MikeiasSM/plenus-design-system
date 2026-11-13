@@ -118,8 +118,6 @@
   color: var(--pl-color-text-secondary);
   font-size: var(--pl-type-caption-size);
   font-weight: var(--pl-type-label-weight);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -753,6 +751,30 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  .editor {
+    font-size: var(--pl-control-font-size-touch);
+  }
+
+  .resizer {
+    right: -12px;
+    z-index: 1;
+    width: 24px;
+  }
+
+  .resizer::after {
+    right: 15px;
+  }
+
+  .headerActions {
+    right: var(--pl-space-4);
+  }
+
+  .end:not(.withControls) > .headerActions {
+    left: var(--pl-space-4);
+  }
 }
 
 .row.clickable:active:not(.selected) {

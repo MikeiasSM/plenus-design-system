@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
+import { excecoesAceitasDoTema } from './contraste-tokens.mjs';
 
 /**
  * Instala o tarball de `npm pack` em apps minimos, fora do repositorio, e confere o consumo real: Vite com React
@@ -15,6 +16,7 @@ const base = resolve(process.env.CONSUMO_DIR ?? 'F:/temp/agente-testes-pacote');
 const pacote = '@plenustech/design-system';
 const resultados = [];
 const violacoesAxe = [];
+let omitidosPorExcecao = 0;
 let tarball = '';
 
 function executar(comando, args, pasta) {
@@ -205,11 +207,31 @@ async function consumoVite() {
       problemas.push('--pl-color-primary (light-dark) nao mudou na subarvore escura');
     }
 
-    const varrer = async (cenario) => {
+    const varrer = async (cenario, escolhido) => {
+      await pagina.evaluate(() =>
+        Promise.all(document.getAnimations().filter((a) => a instanceof CSSTransition || a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))),
+      );
       const { violations } = await pagina.evaluate(() => axe.run(document, { resultTypes: ['violations'] }));
 
+      const excecoes = excecoesAceitasDoTema(escolhido);
+      const jaAceito = (no) =>
+        no.any.length > 0 &&
+        no.any.every(
+          ({ data }) =>
+            data &&
+            excecoes.some(
+              (e) => e.frente === data.fgColor?.toLowerCase() && e.fundo === data.bgColor?.toLowerCase() && Math.abs(e.medida - data.contrastRatio) <= 0.01,
+            ),
+        );
+
       for (const v of violations) {
-        violacoesAxe.push({ cenario, regra: v.id, impacto: v.impact, ocorrencias: v.nodes.length, alvo: v.nodes[0].target.join(' ') });
+        const nos = v.id === 'color-contrast' ? v.nodes.filter((no) => !jaAceito(no)) : v.nodes;
+
+        omitidosPorExcecao += v.nodes.length - nos.length;
+
+        if (nos.length > 0) {
+          violacoesAxe.push({ cenario, regra: v.id, impacto: v.impact, ocorrencias: nos.length, alvo: nos[0].target.join(' ') });
+        }
       }
     };
 
@@ -217,10 +239,10 @@ async function consumoVite() {
       await pagina.reload({ waitUntil: 'networkidle0' });
       await pagina.addScriptTag({ path: caminhoAxe });
       await pagina.evaluate((t) => { document.documentElement.dataset.theme = t; }, escolhido);
-      await varrer(`pagina, tema ${escolhido}`);
+      await varrer(`pagina, tema ${escolhido}`, escolhido);
       await pagina.evaluate(() => [...document.querySelectorAll('button')].find((b) => b.textContent === 'Abrir dialogo').click());
       await pagina.waitForSelector('[role=dialog]');
-      await varrer(`dialogo aberto, tema ${escolhido}`);
+      await varrer(`dialogo aberto, tema ${escolhido}`, escolhido);
     }
 
     return {
@@ -375,6 +397,10 @@ await rodar('CommonJS', consumoCommonJs);
 
 for (const r of resultados) {
   console.log(`${r.ok ? 'OK    ' : 'FALHOU'} ${r.nome}: ${r.texto}`);
+}
+
+if (omitidosPorExcecao > 0) {
+  console.log(`\n${omitidosPorExcecao} aviso(s) de color-contrast omitido(s) por ja serem excecao aceita em check-contraste.mjs.`);
 }
 
 if (violacoesAxe.length > 0) {

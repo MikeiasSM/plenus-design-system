@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentPropsWithRef } from 'react';
 import { Button } from '../../actions/Button';
 import styles from './CodeBlock.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 import { SYNTAX_LABELS, tokenizeLines, type CodeSyntax } from './syntax';
 
 const COPY_FEEDBACK_MS = 2000;
@@ -71,7 +72,7 @@ export function CodeBlock({
       )}
       {/* Sem quebra, a linha longa rola de lado, e quem usa teclado so a alcanca se o bloco receber foco. */}
       <pre
-        className={[styles.body, wrap && styles.wrap, lineNumbers && styles.numbered].filter(Boolean).join(' ')}
+        className={[styles.body, wrap && styles.wrap, lineNumbers && styles.numbered, !wrap && thinScrollbar].filter(Boolean).join(' ')}
         tabIndex={wrap ? undefined : 0}
       >
         <code className={styles.code}>

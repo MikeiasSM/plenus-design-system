@@ -23,3 +23,17 @@ export function maskParts(value: string, limits: readonly number[], separators: 
 
   return parts.map((part, index) => (index === 0 ? part : separators[index - 1] + part)).join('');
 }
+
+export function closePart(text: string, key: string, limits: readonly number[], separators: readonly string[]) {
+  const parts = text.split(/\D/);
+  const index = parts.length - 1;
+  const part = parts[index];
+  const limit = limits[index];
+  const year = limit === 4;
+
+  if (part === '' || key !== separators[index] || (year && part.length !== 2 && part.length !== 4)) {
+    return undefined;
+  }
+
+  return text.slice(0, text.length - part.length) + (year ? part : part.padStart(limit, '0')) + key;
+}

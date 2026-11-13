@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Badge, Card, EmptyState, InputText, PageHeader, Table } from '@plenustech/design-system';
-import { IconSearch } from '@plenustech/design-system/icons';
+import { Card, EmptyState, IconSearch, InputText, LinkList, PageHeader, Stack } from '@plenustech/design-system';
 import { CAMINHO_DAS_COMPOSICOES } from '../menu';
 import { GRUPOS_DE_CONFIGURACAO } from '../dados';
 import { Coluna, Pagina } from '../Pagina';
@@ -32,35 +31,34 @@ export function Configuracoes() {
           />
         </PageHeader.Search>
       </PageHeader>
-      <Coluna className="grade grade-uma" largura={1120}>
-        {grupos.map((grupo) => (
-          <Card key={grupo.nome}>
-            <Card.Header headingLevel={2} title={grupo.nome} />
-            <Card.Body flush>
-              <Table label={grupo.nome} size="sm">
-                <Table.Header>
-                  <Table.Column id="nome" width="40%">Configuração</Table.Column>
-                  <Table.Column id="estado">Estado</Table.Column>
-                </Table.Header>
-                <Table.Body items={grupo.itens.map(([nome, estado, alerta]) => ({ id: nome, nome, estado, alerta }))}>
-                  {(item) => (
-                    <Table.Row id={item.id}>
-                      <Table.Cell>
-                        <a
-                          href={`${CAMINHO_DAS_COMPOSICOES}/${item.nome === 'Descontos e aprovação' ? 'configuracao-anotada' : 'configuracoes'}`}
-                        >
-                          {item.nome}
-                        </a>
-                      </Table.Cell>
-                      <Table.Cell>{item.alerta ? <Badge tone="danger">{item.estado}</Badge> : item.estado}</Table.Cell>
-                    </Table.Row>
-                  )}
-                </Table.Body>
-              </Table>
-            </Card.Body>
-          </Card>
-        ))}
-        {grupos.length === 0 && <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />}
+      <Coluna largura={1120}>
+        <Stack>
+          {grupos.map((grupo) => (
+            <Card key={grupo.nome}>
+              <Card.Header headingLevel={2} title={grupo.nome} />
+              <Card.Body flush>
+                <LinkList aria-label={grupo.nome} layout="grid">
+                  {grupo.itens.map(([nome, estado, alerta]) => (
+                    <LinkList.Item
+                      description={estado}
+                      href={`${CAMINHO_DAS_COMPOSICOES}/${nome === 'Descontos e aprovação' ? 'configuracao-anotada' : 'configuracoes'}`}
+                      key={nome}
+                      title={nome}
+                      tone={alerta ? 'danger' : 'neutral'}
+                    />
+                  ))}
+                </LinkList>
+              </Card.Body>
+            </Card>
+          ))}
+          {grupos.length === 0 && (
+            <Card>
+              <Card.Body>
+                <EmptyState description="Tente outro termo." size="sm" title="Nenhuma configuração com esse nome" />
+              </Card.Body>
+            </Card>
+          )}
+        </Stack>
       </Coluna>
     </Pagina>
   );

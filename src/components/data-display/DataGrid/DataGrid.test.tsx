@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { DataGrid, type DataGridColumn, type DataGridColumnDefinition, type DataGridDetailContext } from '.';
 import styles from './DataGrid.module.css';
@@ -37,6 +39,92 @@ function bodyRows() {
 function firstColumn() {
   return bodyRows().map((row) => within(row).getAllByRole('gridcell')[0].textContent);
 }
+
+describe('DataGrid, redimensionar a coluna', () => {
+  function resizer(coluna: string) {
+    return screen.getByRole('columnheader', { name: coluna }).querySelector<HTMLElement>(`.${styles.resizer}`)!;
+  }
+
+  function lastWidth(onColumnStateChange: ReturnType<typeof vi.fn>, coluna: string) {
+    const calls = onColumnStateChange.mock.calls;
+
+    return calls[calls.length - 1][0].widths[coluna] as number;
+  }
+
+  const originais = {
+    capture: Element.prototype.setPointerCapture,
+    pointerEvent: window.PointerEvent,
+    range: Range.prototype.getBoundingClientRect,
+  };
+
+  afterEach(() => {
+    Element.prototype.setPointerCapture = originais.capture;
+    window.PointerEvent = originais.pointerEvent;
+    Range.prototype.getBoundingClientRect = originais.range;
+  });
+
+  beforeEach(() => {
+    vi.useRealTimers();
+    Element.prototype.setPointerCapture = vi.fn();
+    window.PointerEvent ??= class extends MouseEvent {
+      pointerId: number;
+      pointerType: string;
+
+      constructor(type: string, init: PointerEventInit = {}) {
+        super(type, init);
+        this.pointerId = init.pointerId ?? 0;
+        this.pointerType = init.pointerType ?? '';
+      }
+    } as typeof PointerEvent;
+    Range.prototype.getBoundingClientRect = () => new DOMRect(0, 0, 90, 20);
+  });
+
+  it.each(['mouse', 'touch'])('arrasta a borda com o ponteiro %s, com o ponteiro capturado, e nunca abaixo do mínimo', (pointerType) => {
+    const onColumnStateChange = vi.fn();
+    renderGrid({ onColumnStateChange });
+    const borda = resizer('Cliente');
+
+    fireEvent.pointerDown(borda, { clientX: 100, pointerId: 7, pointerType });
+    expect(borda.setPointerCapture).toHaveBeenCalledWith(7);
+    fireEvent.pointerMove(borda, { clientX: 130, pointerId: 7, pointerType });
+    const curta = lastWidth(onColumnStateChange, 'customer');
+    fireEvent.pointerMove(borda, { clientX: 190, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer') - curta).toBe(60);
+    fireEvent.pointerMove(borda, { clientX: -5000, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer')).toBe(48);
+    fireEvent.pointerUp(borda, { clientX: 190, pointerId: 7, pointerType });
+    fireEvent.pointerMove(borda, { clientX: 400, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer')).toBe(48);
+  });
+
+  it('o duplo clique na borda ajusta a coluna ao conteúdo, sem ordenar', () => {
+    const onColumnStateChange = vi.fn();
+    const onSortChange = vi.fn();
+    renderGrid({ columns: columns.map((column) => ({ ...column, sortable: true })), onColumnStateChange, onSortChange });
+
+    fireEvent.doubleClick(resizer('Cliente'));
+
+    expect(onColumnStateChange).toHaveBeenCalledWith(expect.objectContaining({ widths: expect.objectContaining({ customer: expect.any(Number) }) }));
+    expect(onSortChange).not.toHaveBeenCalled();
+  });
+
+  it('a borda não deixa o gesto virar rolagem nem seleção e, no toque, tem ao menos 24px', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/DataGrid/DataGrid.module.css'), 'utf8');
+    const base = css.match(/\.resizer \{[^}]*\}/)![0];
+    const toque = css.match(/@media \(pointer: coarse\) \{[\s\S]*?\.resizer \{[^}]*\}/)![0];
+
+    expect(base).toContain('touch-action: none');
+    expect(toque).toMatch(/width: 24px/);
+  });
+
+  it('no toque, os botões do título ficam fora da área da borda, dos dois lados', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/DataGrid/DataGrid.module.css'), 'utf8');
+    const toque = css.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/)![0];
+
+    expect(toque).toMatch(/\.headerActions \{\s*right: var\(--pl-space-4\);/);
+    expect(toque).toMatch(/\.end:not\(\.withControls\) > \.headerActions \{\s*left: var\(--pl-space-4\);/);
+  });
+});
 
 describe('DataGrid', () => {
   it('exposes a named grid with the real row count and formatted cells', () => {
@@ -86,8 +174,8 @@ describe('DataGrid', () => {
       fireEvent.keyDown(screen.getByRole('columnheader', { name: 'Cliente' }), { key: 'Enter', shiftKey: true });
 
       expect(onSortChange).toHaveBeenLastCalledWith([
-        { columnId: 'total', direction: 'asc' },
-        { columnId: 'customer', direction: 'asc' },
+        { columnId: 'total', direction: 'ascending' },
+        { columnId: 'customer', direction: 'ascending' },
       ]);
     });
   });
@@ -251,7 +339,7 @@ describe('DataGrid', () => {
     fireEvent.click(screen.getByRole('columnheader', { name: 'Total' }));
 
     expect(onQueryChange).toHaveBeenCalledWith({
-      sort: [{ columnId: 'total', direction: 'asc' }],
+      sort: [{ columnId: 'total', direction: 'ascending' }],
       search: '',
       filter: { logic: 'and', conditions: [] },
       page: 1,
@@ -323,10 +411,25 @@ describe('DataGrid', () => {
     expect(screen.getByRole('gridcell', { name: 'Nenhum registro.' }).parentElement).toHaveAttribute('aria-rowindex', '2');
   });
 
+  it('accepts the old asc and desc names, warns in development and reports the new vocabulary', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const onSortChange = vi.fn();
+    renderGrid({ defaultSort: [{ columnId: 'total', direction: 'desc' }], onSortChange });
+
+    expect(firstColumn()).toEqual(['P-2', 'P-1', 'P-3']);
+    expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('aria-sort', 'descending');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("'asc' e 'desc'"));
+
+    fireEvent.click(screen.getByRole('columnheader', { name: 'Total' }));
+
+    expect(onSortChange).toHaveBeenLastCalledWith([]);
+    warn.mockRestore();
+  });
+
   it('restores a saved snapshot and reports the next one', () => {
     const onStateChange = vi.fn();
     renderGrid({
-      initialState: { version: 1, sort: [{ columnId: 'total', direction: 'desc' }], search: '', page: 1, pageSize: 25 },
+      initialState: { version: 1, sort: [{ columnId: 'total', direction: 'descending' }], search: '', page: 1, pageSize: 25 },
       onStateChange,
     });
 
@@ -336,7 +439,7 @@ describe('DataGrid', () => {
 
     expect(onStateChange).toHaveBeenLastCalledWith({
       version: 1,
-      sort: [{ columnId: 'customer', direction: 'asc' }],
+      sort: [{ columnId: 'customer', direction: 'ascending' }],
       search: '',
       filter: { logic: 'and', conditions: [] },
       page: 1,
@@ -472,6 +575,64 @@ describe('DataGrid', () => {
       expect(screen.getByRole('columnheader', { name: 'Cliente filtrada' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Filtrar Cliente, filtro ativo' })).toBeInTheDocument();
       expect(screen.getByRole('status')).toHaveTextContent('1 de 3 linhas após o filtro');
+    });
+
+    it('filters a time column with the time field instead of the text box', () => {
+      interface Visit {
+        id: string;
+        at: string;
+      }
+      const visits: Visit[] = [{ id: 'V-1', at: '14:30' }, { id: 'V-2', at: '09:05' }];
+      render(
+        <DataGrid
+          columns={[{ id: 'id', header: 'Nº' }, { id: 'at', header: 'Hora', type: 'time' }]}
+          getRowId={(visit: Visit) => visit.id}
+          label="Visitas"
+          rows={visits}
+        />,
+      );
+
+      const panel = openFilter('Hora');
+      const field = within(panel).getByRole('textbox', { name: 'Valor de Hora' });
+      expect(field).toHaveAttribute('inputmode', 'numeric');
+
+      fireEvent.change(field, { target: { value: '1430' } });
+      fireEvent.blur(field);
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(firstColumn()).toEqual(['V-1']);
+    });
+
+    it('filters a datetime column with the date and time field', () => {
+      interface Visit {
+        id: string;
+        when: string;
+      }
+      const visits: Visit[] = [
+        { id: 'V-1', when: '2026-05-21T14:30' },
+        { id: 'V-2', when: '2026-05-21T09:05' },
+        { id: 'V-3', when: '2026-05-22T14:30' },
+      ];
+      render(
+        <DataGrid
+          columns={[{ id: 'id', header: 'Nº' }, { id: 'when', header: 'Quando', type: 'datetime' }]}
+          getRowId={(visit: Visit) => visit.id}
+          label="Visitas"
+          rows={visits}
+        />,
+      );
+
+      const panel = openFilter('Quando');
+      expect(within(panel).getByRole('combobox', { name: /de Quando$/ })).toHaveTextContent('Em');
+
+      const field = within(panel).getByRole('textbox', { name: 'Valor de Quando' });
+      expect(field).toHaveAttribute('placeholder', 'dd/mm/aaaa hh:mm');
+
+      fireEvent.change(field, { target: { value: '210520261430' } });
+      act(() => vi.advanceTimersByTime(300));
+
+      expect(field).toHaveValue('21/05/2026 14:30');
+      expect(firstColumn()).toEqual(['V-1']);
     });
 
     it('offers to clear the filters when nothing is left', () => {
@@ -812,7 +973,7 @@ describe('DataGrid', () => {
         columns: [columns[0], columns[1], { ...columns[2], summary: 'sum' }],
         defaultColumnState: { hidden: ['customer'] },
         defaultFilter: { logic: 'and', conditions: [{ columnId: 'total', operator: 'lessThan', value: 1000 }] },
-        defaultSort: [{ columnId: 'total', direction: 'asc' }],
+        defaultSort: [{ columnId: 'total', direction: 'ascending' }],
         exporters: [exporter],
       });
 
@@ -928,7 +1089,7 @@ describe('DataGrid', () => {
     });
 
     it('restores the default columns, order and density', () => {
-      renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'asc' }] });
+      renderWithMenu({ defaultSort: [{ columnId: 'total', direction: 'ascending' }] });
 
       fireEvent.click(screen.getByRole('columnheader', { name: 'Cliente' }));
       fireEvent.click(within(openTableSubmenu('Colunas')).getByRole('menuitemcheckbox', { name: 'Total' }));

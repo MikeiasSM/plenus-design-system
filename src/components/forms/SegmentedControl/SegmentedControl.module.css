@@ -108,6 +108,12 @@
   white-space: nowrap;
 }
 
+@media (pointer: coarse) {
+  .lg .segment {
+    min-height: 40px;
+  }
+}
+
 .segment:active:not(:has(.input:disabled)) {
   background: var(--pl-color-border-strong);
   color: var(--pl-color-text);

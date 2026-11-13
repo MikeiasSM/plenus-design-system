@@ -192,3 +192,38 @@ describe('InputNumber', () => {
     expect(new FormData(screen.getByTestId('form') as HTMLFormElement).get('valor')).toBe('');
   });
 });
+
+describe('InputNumber com unidade', () => {
+  it('mostra a unidade ao fim do campo, fora do nome e do valor', () => {
+    render(<InputNumber label="Desconto" unit="%" defaultValue={12} />);
+
+    const input = screen.getByRole('textbox', { name: 'Desconto' });
+    expect(input).toHaveValue('12');
+    expect(screen.getByText('%')).toBeInTheDocument();
+    expect(screen.getByText('%')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('liga a unidade ao campo como descricao, depois da ajuda', () => {
+    render(<InputNumber hint="Ate 100" label="Desconto" unit="%" />);
+
+    const input = screen.getByRole('textbox', { name: 'Desconto' });
+    expect(input).toHaveAccessibleDescription('Ate 100 %');
+  });
+
+  it('nao entra no valor enviado nem altera o numero', () => {
+    const onValueChange = vi.fn();
+    render(<InputNumber label="Peso" name="peso" onValueChange={onValueChange} unit="kg" decimalScale={1} />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Peso' }), { target: { value: '7,5' } });
+
+    expect(onValueChange).toHaveBeenLastCalledWith(7.5);
+    expect(document.querySelector<HTMLInputElement>('input[name="peso"]')?.value).toBe('7.5');
+  });
+
+  it('sem unidade nada muda: sem envoltorio e sem descricao', () => {
+    const { container } = render(<InputNumber label="Quantidade" />);
+
+    expect(container.querySelector('[class*="unit"]')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Quantidade' })).not.toHaveAttribute('aria-describedby');
+  });
+});

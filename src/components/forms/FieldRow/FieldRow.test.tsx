@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import { renderToString } from 'react-dom/server';
 import { Button } from '../../actions/Button';
 import { InputNumber } from '../InputNumber';
+import { CheckboxGroup } from '../CheckboxGroup';
+import { Checkbox } from '../Checkbox';
+import { Radio, RadioGroup } from '../RadioGroup';
+import { SegmentedControl } from '../SegmentedControl';
 import { Select } from '../Select';
 import { Switch } from '../Switch';
 import { FieldRow } from './FieldRow';
@@ -105,5 +109,69 @@ describe('FieldRow', () => {
     );
 
     expect(screen.getByLabelText('Limite')).toHaveAttribute('id', 'limite');
+  });
+
+  it('nomeia o SegmentedControl pelo rotulo da linha, uma vez so, e o rotulo nao aponta para a div', () => {
+    render(
+      <FieldRow description="Quando o resumo chega." label="Frequencia">
+        {({ describedBy, labelId }) => (
+          <SegmentedControl
+            aria-describedby={describedBy}
+            aria-labelledby={labelId}
+            items={[
+              { label: 'Dia', value: 'dia' },
+              { label: 'Semana', value: 'semana' },
+            ]}
+          />
+        )}
+      </FieldRow>,
+    );
+
+    const grupo = screen.getByRole('radiogroup', { name: 'Frequencia' });
+
+    expect(grupo).not.toHaveAttribute('aria-label');
+    expect(grupo).toHaveAccessibleDescription('Quando o resumo chega.');
+    expect(screen.getByText('Frequencia').closest('label')).not.toHaveAttribute('for');
+    expect(screen.getAllByText('Frequencia')).toHaveLength(1);
+  });
+
+  it('nomeia o RadioGroup e o CheckboxGroup pelo rotulo da linha, sem legenda repetida', () => {
+    render(
+      <>
+        <FieldRow label="Plano">
+          {({ labelId }) => (
+            <RadioGroup aria-labelledby={labelId}>
+              <Radio label="Mensal" value="m" />
+            </RadioGroup>
+          )}
+        </FieldRow>
+        <FieldRow label="Avisos">
+          {({ labelId }) => (
+            <CheckboxGroup aria-labelledby={labelId}>
+              <Checkbox label="E-mail" value="email" />
+            </CheckboxGroup>
+          )}
+        </FieldRow>
+      </>,
+    );
+
+    expect(screen.getByRole('radiogroup', { name: 'Plano' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Avisos' })).toBeInTheDocument();
+    expect(screen.getAllByText('Plano')).toHaveLength(1);
+    expect(screen.getAllByText('Avisos')).toHaveLength(1);
+  });
+
+  it('so poe id no rotulo quando a funcao le o labelId', () => {
+    render(<FieldRow label="Nome">{({ id }) => <input id={id} />}</FieldRow>);
+
+    expect(screen.getByText('Nome').closest('label')).not.toHaveAttribute('id');
+  });
+
+  it('avisa em desenvolvimento o grupo sem nome nenhum', () => {
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    render(<SegmentedControl items={[{ label: 'Dia', value: 'dia' }]} />);
+
+    expect(aviso).toHaveBeenCalledWith(expect.stringContaining('SegmentedControl'));
+    aviso.mockRestore();
   });
 });

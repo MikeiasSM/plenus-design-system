@@ -1,0 +1,14 @@
+.thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.thin:focus-within {
+  scrollbar-color: var(--pl-scrollbar-thumb) transparent;
+}
+
+@media (hover: hover) {
+  .thin:hover {
+    scrollbar-color: var(--pl-scrollbar-thumb) transparent;
+  }
+}

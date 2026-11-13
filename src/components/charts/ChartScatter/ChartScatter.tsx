@@ -46,8 +46,6 @@ export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   formatX?: (value: number) => string;
   formatY?: (value: number) => string;
@@ -61,28 +59,22 @@ export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenSeries?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
   /** Passo minimo entre as marcas do eixo horizontal, na unidade do dado. */
   minXTickStep?: number;
   /** Passo minimo entre as marcas dos eixos verticais, na unidade do dado. */
   minYTickStep?: number;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Ponto sob o ponteiro ou em foco pelo teclado, ou `null` ao sair dele. */
   onHover?: (point: ChartScatterPointClick | null) => void;
   /** Clique no ponto. Com ele, os pontos viram botoes percorridos pelas setas, na ordem da lista. */
   onMarkClick?: (point: ChartScatterPointClick) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onPointClick?: (point: ChartScatterPointClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -118,7 +110,6 @@ function zValido(ponto: ChartScatterPoint) {
 export function ChartScatter({
   accent,
   defaultHidden,
-  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatX = formatNumber,
   formatY = formatNumber,
@@ -126,19 +117,16 @@ export function ChartScatter({
   height = 280,
   includeZero = true,
   hidden,
-  hiddenSeries,
   legend = 'bottom',
   legendAlign,
   minXTickStep,
   minYTickStep,
   onHiddenChange,
-  onHiddenSeriesChange,
   onHover,
   onMarkClick,
-  onPointClick,
   palette,
   series,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   title,
   xLabel = 'X',
@@ -155,13 +143,10 @@ export function ChartScatter({
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHidden: defaultHidden ?? defaultHiddenSeries,
-    hidden: hidden ?? hiddenSeries,
+    defaultHidden,
+    hidden,
     labels: series.map((serie) => serie.label),
-    onHiddenChange: (ocultas) => {
-      onHiddenChange?.(ocultas);
-      onHiddenSeriesChange?.(ocultas);
-    },
+    onHiddenChange,
   });
   const [guia, setGuia] = useState<Guia | null>(null);
   const [emFoco, setEmFoco] = useState<{ ponto: number; serie: number } | null>(null);
@@ -236,13 +221,6 @@ export function ChartScatter({
     () => linearScale({ domain: { min: minY, max: maxY }, nice: false, range: [plot.height, 0] }),
     [maxY, minY, plot.height],
   );
-  const aoClicarNoPonto =
-    onMarkClick || onPointClick
-      ? (ponto: ChartScatterPointClick) => {
-          onMarkClick?.(ponto);
-          onPointClick?.(ponto);
-        }
-      : undefined;
 
   function focarPonto(foco: { ponto: number; serie: number } | null) {
     setEmFoco(foco);
@@ -250,8 +228,8 @@ export function ChartScatter({
   }
 
   const marcas = useMarkNavigation({
-    onActivate: aoClicarNoPonto && (({ column, row }) =>
-      aoClicarNoPonto({ index: column, point: series[row].points[column], series: series[row].label })),
+    onActivate: onMarkClick && (({ column, row }) =>
+      onMarkClick({ index: column, point: series[row].points[column], series: series[row].label })),
     onFocusMark: (posicao) => {
       const ponto = posicao && series[posicao.row].points[posicao.column];
       setGuia(ponto ? { x: escalaX(ponto.x), y: escalaY(ponto.y) } : null);

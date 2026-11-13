@@ -1,6 +1,7 @@
 import { createContext, useContext, useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useAvisoDeGrupoSemNome } from '../../../hooks/useAvisoDeGrupoSemNome';
 import fieldStyles from '../Field/Field.module.css';
 import radioGroupStyles from '../RadioGroup/RadioGroup.module.css';
 import styles from './CheckboxGroup.module.css';
@@ -29,9 +30,10 @@ export interface CheckboxGroupProps extends Omit<ComponentPropsWithRef<'fieldset
   disabled?: boolean;
   error?: string;
   hint?: string;
-  label: string;
+  /** Opcional quando o grupo já é nomeado por `aria-labelledby` ou `aria-label`; sem ele, a legenda não aparece. */
+  label?: string;
   name?: string;
-  onValueChange?: (values: string[]) => void;
+  onValueChange?: (values: readonly string[]) => void;
   orientation?: CheckboxGroupOrientation;
   /** Exige ao menos uma caixa marcada no envio. */
   required?: boolean;
@@ -40,6 +42,8 @@ export interface CheckboxGroupProps extends Omit<ComponentPropsWithRef<'fieldset
 
 export function CheckboxGroup({
   'aria-describedby': ariaDescribedBy,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   children,
   className,
   defaultValue = [],
@@ -55,6 +59,7 @@ export function CheckboxGroup({
   value,
   ...props
 }: CheckboxGroupProps) {
+  useAvisoDeGrupoSemNome('CheckboxGroup', { ariaLabel, ariaLabelledby, label });
   const generatedId = useId();
   const name = providedName ?? `checkbox-group-${generatedId}`;
   const messageId = `checkbox-group-${generatedId}-message`;
@@ -80,12 +85,16 @@ export function CheckboxGroup({
         {...props}
         ref={mergedRef}
         className={[radioGroupStyles.group, className].filter(Boolean).join(' ')}
+        aria-label={ariaLabelledby ? undefined : ariaLabel}
+        aria-labelledby={ariaLabelledby}
         aria-describedby={describedBy}
       >
-        <legend className={radioGroupStyles.legend}>
-          {label}
-          {required && <span className={radioGroupStyles.required} aria-hidden="true">*</span>}
-        </legend>
+        {label && (
+          <legend className={radioGroupStyles.legend}>
+            {label}
+            {required && <span className={radioGroupStyles.required} aria-hidden="true">*</span>}
+          </legend>
+        )}
         <div className={[styles.options, styles[orientation]].join(' ')}>{children}</div>
         {(error || hint) && (
           <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>

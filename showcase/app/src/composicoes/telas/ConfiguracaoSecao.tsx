@@ -1,20 +1,27 @@
 import { useState, type ReactNode } from 'react';
 import {
+  AnnotatedSection,
   Avatar,
+  AvatarItem,
   Badge,
   Button,
   ButtonIcon,
   Card,
+  Columns,
   FieldRow,
-  IconClose,
   IconPlus,
+  IconTrash,
   InputNumber,
   PageHeader,
+  SaveStatus,
+  Stack,
   Switch,
   Table,
+  VisuallyHidden,
+  formatPercent,
 } from '@plenustech/design-system';
 import { APROVADORES } from '../dados';
-import { Anotacao, Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
+import { Coluna, Pagina, type LarguraDaColuna } from '../Pagina';
 
 export type Arranjo = 'anotado' | 'empilhado' | 'indice';
 
@@ -30,8 +37,13 @@ interface RodapeProps {
 /** Salvar por cartão: descartar e salvar ficam ativos só com alteração pendente, e a situação diz em que pé está. */
 function RodapeDeSalvar({ alterado, descartar, salvar, salvo }: RodapeProps) {
   return (
-    <Card.Footer>
-      <span className="detalhe-da-linha rodape-espaco">{alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}</span>
+    <Card.Footer
+      start={
+        <SaveStatus status={alterado ? 'dirty' : salvo ? 'saved' : 'idle'}>
+          {alterado ? 'Alterações não salvas' : salvo ? 'Salvo agora' : 'Sem alterações'}
+        </SaveStatus>
+      }
+    >
       <Button disabled={!alterado} onClick={descartar} size="sm" variant="secondary">Descartar</Button>
       <Button disabled={!alterado} onClick={salvar} size="sm">Salvar</Button>
     </Card.Footer>
@@ -66,15 +78,15 @@ function Limites() {
 
   return (
     <>
-      <Card.Body>
-        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação (%)">
+      <Card.Body flush>
+        <FieldRow description="Até este valor, o pedido segue direto para separação." label="Desconto sem aprovação">
           {({ describedBy, id }) => (
-            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(semAprovacao) => alterar({ semAprovacao })} value={valores.semAprovacao} />
+            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(semAprovacao) => alterar({ semAprovacao })} unit="%" value={valores.semAprovacao} />
           )}
         </FieldRow>
-        <FieldRow description="Acima dele, o pedido é recusado mesmo com aprovação." label="Desconto máximo (%)">
+        <FieldRow description="Acima dele, o pedido é recusado mesmo com aprovação." label="Desconto máximo">
           {({ describedBy, id }) => (
-            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(maximo) => alterar({ maximo })} value={valores.maximo} />
+            <InputNumber aria-describedby={describedBy} id={id} onValueChange={(maximo) => alterar({ maximo })} unit="%" value={valores.maximo} />
           )}
         </FieldRow>
         <FieldRow description="Cada carteira define os próprios limites; estes viram o padrão." label="Limites por carteira">
@@ -97,24 +109,18 @@ function QuemAprova() {
         <Table.Header>
           <Table.Column id="nome">Aprovador</Table.Column>
           <Table.Column id="limite" numeric>Libera até</Table.Column>
-          <Table.Column align="end" id="remover"><span className="so-leitor">Remover</span></Table.Column>
+          <Table.Column align="end" id="remover"><VisuallyHidden>Remover</VisuallyHidden></Table.Column>
         </Table.Header>
         <Table.Body items={aprovadores}>
           {(aprovador) => (
             <Table.Row id={aprovador.id}>
               <Table.Cell>
-                <span className="pessoa">
-                  <Avatar name={aprovador.nome} size="sm" />
-                  <span>
-                    <strong>{aprovador.nome}</strong>
-                    <span className="detalhe-da-linha">{aprovador.papel}</span>
-                  </span>
-                </span>
+                <AvatarItem avatar={<Avatar name={aprovador.nome} size="sm" />} description={aprovador.papel} title={aprovador.nome} />
               </Table.Cell>
-              <Table.Cell>{aprovador.limite}%</Table.Cell>
+              <Table.Cell>{formatPercent(aprovador.limite / 100)}</Table.Cell>
               <Table.Cell>
                 <ButtonIcon
-                  icon={<IconClose />}
+                  icon={<IconTrash />}
                   label={`Remover ${aprovador.nome}`}
                   onClick={() => setAprovadores(aprovadores.filter((candidato) => candidato.id !== aprovador.id))}
                   size="sm"
@@ -142,7 +148,7 @@ function Avisos() {
 
   return (
     <>
-      <Card.Body>
+      <Card.Body flush>
         {linha('aprovador', 'Avisar o aprovador por e-mail', 'Assim que o pedido entra na fila.')}
         {linha('vendedor', 'Avisar o vendedor da decisão', 'Aprovado ou recusado, com o comentário do aprovador.')}
         {linha('resumo', 'Resumo diário para a gerência', 'Às 18h, os pedidos aprovados e recusados no dia.')}
@@ -154,7 +160,7 @@ function Avisos() {
 
 function DesligarAprovacao() {
   return (
-    <Card.Body>
+    <Card.Body flush>
       <FieldRow description="Os 14 pedidos aguardando seguem para separação com o desconto que têm." label="Pedidos na fila">
         {({ describedBy }) => <Button aria-describedby={describedBy} variant="danger">Desligar aprovação</Button>}
       </FieldRow>
@@ -200,53 +206,33 @@ function CartaoComTitulo({ secao }: { secao: Secao }) {
   );
 }
 
-/** A lista "Nesta página", presa ao lado das seções enquanto a folha rola. */
-function NestaPagina() {
-  return (
-    <nav aria-label="Nesta página" className="nesta-pagina">
-      <span className="detalhe-da-linha">Nesta página</span>
-      {SECOES.map(({ id, titulo }) => (
-        <a
-          href={`#secao-${id}`}
-          key={id}
-          onClick={(evento) => {
-            evento.preventDefault();
-            document.getElementById(`secao-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-        >
-          {titulo}
-        </a>
-      ))}
-    </nav>
-  );
-}
-
 function Secoes({ arranjo }: { arranjo: Arranjo }) {
   if (arranjo === 'anotado') {
-    return (
-      <div className="anotado">
-        {SECOES.map((secao) => (
-          <Anotacao acao={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined} explicacao={secao.explicacao} key={secao.id} titulo={secao.titulo}>
-            {secao.corpo}
-          </Anotacao>
-        ))}
-      </div>
-    );
+    return SECOES.map((secao) => (
+      <AnnotatedSection
+        action={secao.acao ? <BotaoDaAcao rotulo={secao.acao} /> : undefined}
+        description={secao.explicacao}
+        key={secao.id}
+        title={secao.titulo}
+      >
+        <Card>{secao.corpo}</Card>
+      </AnnotatedSection>
+    ));
   }
 
   const empilhadas = (
-    <div className="grade-coluna">
+    <Stack>
       {SECOES.map((secao) => (
         <CartaoComTitulo key={secao.id} secao={secao} />
       ))}
-    </div>
+    </Stack>
   );
 
   return arranjo === 'indice' ? (
-    <div className="com-indice">
-      {empilhadas}
-      <NestaPagina />
-    </div>
+    <Columns>
+      <Columns.Main>{empilhadas}</Columns.Main>
+      <Columns.Index items={SECOES.map(({ id, titulo }) => ({ id: `secao-${id}`, label: titulo }))} />
+    </Columns>
   ) : (
     empilhadas
   );

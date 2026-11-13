@@ -21,6 +21,8 @@
   --pl-color-on-warning-container: #7A4F00;
   --pl-color-danger: var(--pl-status-red);
   --pl-color-danger-solid: #B01B20;
+  --pl-color-danger-hover: #9E181D;
+  --pl-color-danger-active: #8E1519;
   --pl-color-on-danger: var(--pl-neutral-white);
   --pl-color-danger-container: #FBECEA;
   --pl-color-danger-text: #A31419;
@@ -52,6 +54,8 @@
   --pl-color-on-warning-container: var(--pl-color-warning);
   --pl-color-danger: #E8776B;
   --pl-color-danger-solid: #C0392B;
+  --pl-color-danger-hover: #AD3327;
+  --pl-color-danger-active: #A12F23;
   --pl-color-on-danger: var(--pl-neutral-white);
   --pl-color-danger-container: #2A1917;
   --pl-color-danger-text: var(--pl-color-danger);
@@ -84,6 +88,8 @@
     --pl-color-on-warning-container: var(--pl-color-warning);
     --pl-color-danger: #E8776B;
     --pl-color-danger-solid: #C0392B;
+    --pl-color-danger-hover: #AD3327;
+    --pl-color-danger-active: #A12F23;
     --pl-color-on-danger: var(--pl-neutral-white);
     --pl-color-danger-container: #2A1917;
     --pl-color-danger-text: var(--pl-color-danger);
@@ -123,6 +129,14 @@
   --pl-color-primary-line: light-dark(
     var(--pl-palette-30),
     color-mix(in oklab, var(--pl-palette-40) 34%, var(--pl-color-surface))
+  );
+  --pl-color-primary-tint: light-dark(
+    color-mix(in srgb, var(--pl-color-primary) 8%, transparent),
+    color-mix(in srgb, var(--pl-color-primary) 12%, transparent)
+  );
+  --pl-color-primary-tint-hover: light-dark(
+    color-mix(in srgb, var(--pl-color-primary) 4%, transparent),
+    color-mix(in srgb, var(--pl-color-primary) 6%, transparent)
   );
   --pl-color-on-primary: light-dark(var(--pl-palette-on-solid), var(--pl-palette-on-40));
   --pl-color-on-primary-container: light-dark(var(--pl-palette-80), var(--pl-palette-30));

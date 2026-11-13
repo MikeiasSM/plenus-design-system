@@ -152,8 +152,31 @@ function Modos() {
       </dd>
       <dt>Digitação</dt>
       <dd>
-        A hora só vale com os quatro dígitos: <code>18:4</code> ainda emite <code>null</code>, para não fixar o minuto
-        antes de completá-lo. Hora fora da faixa também emite <code>null</code>.
+        O campo aceita números e os dois pontos. Sem eles digitados, a máscara os insere: <code>830</code> mostra{' '}
+        <code>83:0</code> e vale 08:30. Os dois pontos digitados fecham a hora, com o zero à esquerda, e o dígito único
+        depois deles é a dezena do minuto: <code>8:3</code> mostra <code>08:3</code> e vale 08:30. A hora inteira e
+        válida grava na hora. Pela metade, como <code>18:4</code>, o valor não se apaga: só esvaziar o campo por inteiro emite{' '}
+        <code>null</code>.
+      </dd>
+      <dt>Atalhos</dt>
+      <dd>
+        <code>H</code> dá a hora atual exata, sem arredondar para <code>step</code>. <code>+</code> e <code>-</code>{' '}
+        mudam uma hora com o cursor na hora e um minuto com o cursor no minuto, e a virada é de relógio: 14:59 vira 15:00,
+        e 00:00 com <code>-</code> no minuto vira 23:59. Com o campo vazio, partem da hora atual. Nenhuma das teclas
+        aparece no campo. A hora nova é anunciada ao leitor de tela, como &quot;14:37&quot;.
+      </dd>
+      <dt>Completar ao sair</dt>
+      <dd>
+        Com Enter, Tab ou clique fora: <code>8</code> vira 08:00, <code>14</code> vira 14:00, <code>830</code> vira
+        08:30 e <code>1430</code> vira 14:30.
+      </dd>
+      <dt>Hora inválida</dt>
+      <dd>
+        <code>25</code>, <code>1275</code> ou uma hora fora de <code>min</code> e <code>max</code> mantêm o texto no
+        campo, sem mudar o valor nem chamar <code>onValueChange</code>. O campo mostra &quot;Hora inválida.&quot; ou
+        &quot;Hora fora do intervalo permitido.&quot; no lugar do erro e recebe <code>aria-invalid</code>; o{' '}
+        <code>error</code> do produto, se houver, prevalece. <code>onInvalidText</code> recebe o texto e o motivo,{' '}
+        <code>'invalid'</code> ou <code>'outOfRange'</code>. A mensagem some quando o valor fica válido.
       </dd>
       <dt>Painel</dt>
       <dd>
@@ -172,7 +195,7 @@ export const pagina: Pagina = {
   exemplos: [
     {
       titulo: 'Controlado',
-      descricao: 'Digite ou escolha na lista: o valor é texto HH:mm, ou null enquanto a hora está incompleta.',
+      descricao: 'Digite ou escolha na lista: o valor é texto HH:mm, ou null ao esvaziar o campo.',
       Previa: Controlado,
       codigo: "const [inicio, setInicio] = useState<string | null>('09:30');\n\n<TimePicker label=\"Início\" value={inicio} onValueChange={setInicio} />",
     },
@@ -208,6 +231,9 @@ export const pagina: Pagina = {
   Modos,
   teclado: [
     { teclas: ['↓'], acao: 'No campo, abre o painel com o foco na lista, a partir do horário escolhido.' },
+    { teclas: ['H'], acao: 'No campo, preenche com a hora atual.' },
+    { teclas: ['+', '-'], acao: 'No campo, avança ou recua uma hora, ou um minuto com o cursor no minuto.' },
+    { teclas: ['Enter'], acao: 'No campo, completa e valida o que foi digitado.' },
     { teclas: ['↑', '↓'], acao: 'Na lista, horário anterior ou seguinte.' },
     { teclas: ['Home', 'End'], acao: 'Primeiro ou último horário.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Escolhe o horário em foco e fecha.' },
@@ -244,7 +270,8 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha a lista de horas, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
-    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Hora em HH:mm, ou null sem hora inteira e permitida.' },
+    { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Hora em HH:mm, ou null ao esvaziar o campo. Hora pela metade ou inválida não chama.' },
+    { nome: 'onInvalidText', tipo: "(text: string, reason: 'invalid' | 'outOfRange') => void", descricao: 'Avisa, ao confirmar ou sair do campo, o texto que não é hora válida e o motivo.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeiro horário permitido, em HH:mm.' },
     { nome: 'max', tipo: 'string', descricao: 'Último horário permitido, em HH:mm.' },
     { nome: 'step', tipo: 'number', padrao: '30', descricao: 'Minutos entre os horários da lista.' },

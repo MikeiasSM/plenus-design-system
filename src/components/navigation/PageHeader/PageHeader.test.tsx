@@ -41,6 +41,28 @@ describe('PageHeader', () => {
     expect(screen.getByRole('link', { name: 'Voltar para Pedidos' })).toHaveAttribute('href', '/pedidos');
   });
 
+  it('mostra o texto visivel dos children e mantem o label como nome acessivel', () => {
+    render(
+      <PageHeader>
+        <PageHeader.Back href="/pedidos" label="Voltar para Pedidos">
+          Pedidos
+        </PageHeader.Back>
+        <PageHeader.Title>Pedido 1042</PageHeader.Title>
+      </PageHeader>,
+    );
+
+    const link = screen.getByRole('link', { name: 'Voltar para Pedidos' });
+
+    expect(link).toHaveTextContent('Pedidos');
+    expect(link).toHaveAttribute('aria-label', 'Voltar para Pedidos');
+  });
+
+  it('sem children, mostra o label como texto visivel', () => {
+    cabecalho();
+
+    expect(screen.getByRole('link', { name: 'Voltar para Pedidos' })).toHaveTextContent('Voltar para Pedidos');
+  });
+
   it('usa o link da aplicacao, com as propriedades que o roteador pede', () => {
     render(
       <PageHeader>

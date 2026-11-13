@@ -1,0 +1,16 @@
+/* A regra do useVisuallyHidden do React Aria e do VisuallyHidden do Radix: fora da vista e do fluxo, sem a borda,
+   o respiro ou a margem do elemento mudarem a caixa de 1px, e ainda lido pelo leitor de tela. O clip fica como reserva
+   do clip-path, e o overflow-wrap normal, do Radix, impede a quebra que deixaria o texto vazar do recorte. */
+.root {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}

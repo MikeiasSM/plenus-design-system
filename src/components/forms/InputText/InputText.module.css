@@ -35,3 +35,37 @@
   left: 16px;
   font-size: 1.25rem;
 }
+
+/* A unidade fica sobre o fim do campo: o recuo do texto leva a largura dela, estimada pelo numero de caracteres. */
+.control > input.withUnit {
+  padding-right: calc(12px + var(--unit-chars, 1) * 1ch + 8px);
+}
+
+.unit {
+  position: absolute;
+  right: 12px;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  pointer-events: none;
+}
+
+.sm > input.withUnit {
+  padding-right: calc(10px + var(--unit-chars, 1) * 1ch + 8px);
+}
+
+.sm .unit {
+  right: 10px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.lg > input.withUnit {
+  padding-right: calc(16px + var(--unit-chars, 1) * 1ch + 8px);
+}
+
+.lg .unit {
+  right: 16px;
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}

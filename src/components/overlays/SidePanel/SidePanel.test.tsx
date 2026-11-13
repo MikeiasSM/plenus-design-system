@@ -19,7 +19,23 @@ function WithTrigger() {
   );
 }
 
-afterEach(() => vi.unstubAllGlobals());
+function transbordar() {
+  vi.stubGlobal('ResizeObserver', class {
+    constructor(private aviso: () => void) {}
+    observe() {
+      this.aviso();
+    }
+    disconnect() {}
+  });
+  Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 400 });
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 100 });
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  Reflect.deleteProperty(HTMLElement.prototype, 'scrollHeight');
+  Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+});
 
 describe('SidePanel', () => {
   it('fechado, fica inerte; aberto, é uma região nomeada pelo título, sem fundo inerte nem foco preso', () => {
@@ -151,5 +167,24 @@ describe('SidePanel', () => {
 
     fireEvent.keyDown(drawer, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  describe('corpo que rola', () => {
+    it('fica focável e nomeado quando transborda', () => {
+      transbordar();
+      render(<SidePanel open title="Filtros">Texto longo.</SidePanel>);
+
+      expect(screen.getByRole('region', { name: 'Conteúdo de Filtros' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('não ganha tabindex quando cabe nem quando há algo focável dentro', () => {
+      const { unmount } = render(<SidePanel open title="Filtros">Texto curto.</SidePanel>);
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+      unmount();
+
+      transbordar();
+      render(<SidePanel open title="Filtros"><input aria-label="Empresa" /></SidePanel>);
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
   });
 });

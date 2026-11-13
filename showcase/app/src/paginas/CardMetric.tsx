@@ -288,6 +288,20 @@ const CODIGO_DA_BARRA_VERTICAL = `<CardMetric>
   </CardMetric.Body>
 </CardMetric>`;
 
+const CODIGO_DE_VARIOS_INDICADORES = `<CardMetric>
+  <Card.Header title="Como o negócio está" />
+  <CardMetric.Body>
+    <CardMetric.Value value={412380} label="Vendas do mês" formatValue={moeda} />
+    <CardMetric.Trend comparisons={[{ label: 'vs. mês anterior', change: 0.082 }]} />
+  </CardMetric.Body>
+  <CardMetric.Body>
+    <CardMetric.Value value={187.4} label="Ticket médio" formatValue={moeda} />
+  </CardMetric.Body>
+  <CardMetric.Body>
+    <CardMetric.Value value={38950} label="Contas a receber vencidas" formatValue={moeda} />
+  </CardMetric.Body>
+</CardMetric>`;
+
 function Modos() {
   return (
     <div className="stack">
@@ -357,6 +371,29 @@ function Modos() {
           flui; em tabela a primeira linha vira colunas alinhadas. Passe o ponteiro ou o foco no selo para abrir o balão.
         </p>
         <VerCodigo codigo={CODIGO_DA_MASCARA} />
+      </div>
+      <div className="subsection">
+        <h3>Vários indicadores num cartão</h3>
+        <div style={{ maxWidth: 320 }}>
+          <CardMetric>
+            <Card.Header title="Como o negócio está" />
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Vendas do mês" value={412380} />
+              <CardMetric.Trend comparisons={[{ change: 0.082, label: 'vs. mês anterior' }]} />
+            </CardMetric.Body>
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Ticket médio" value={187.4} />
+            </CardMetric.Body>
+            <CardMetric.Body>
+              <CardMetric.Value formatValue={moeda} label="Contas a receber vencidas" value={38950} />
+            </CardMetric.Body>
+          </CardMetric>
+        </div>
+        <p className="note">
+          Cada indicador é um <code>CardMetric.Body</code> com o próprio <code>CardMetric.Value</code>, nomeado pelo{' '}
+          <code>label</code>. Os corpos se empilham do topo, separados por uma linha.
+        </p>
+        <VerCodigo codigo={CODIGO_DE_VARIOS_INDICADORES} />
       </div>
       <div className="subsection">
         <h3>Barra vertical</h3>

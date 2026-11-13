@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconChevronRight, IconSearch, InputText, SegmentedControl, SkipLink, ToastRegion } from '@plenustech/design-system';
+import {
+  IconChevronRight,
+  IconSearch,
+  InputText,
+  SegmentedControl,
+  SkipLink,
+  ToastRegion,
+  useColorScheme,
+  type ColorScheme,
+} from '@plenustech/design-system';
 import { version } from '../../../package.json';
 import { familias } from './catalogo';
 import { Composicoes } from './composicoes/Composicoes';
@@ -9,33 +18,18 @@ import { CHAVE_DO_TEMA } from './estrutura/janela';
 import { PaginaDoComponente } from './estrutura/PaginaDoComponente';
 import { VisaoGeral } from './estrutura/VisaoGeral';
 import { Fundamentos } from './fundamentos/Fundamentos';
-
-type Tema = 'light' | 'dark' | 'system';
-
-/** A escolha guardada vence; sem ela, o sistema decide e o documento fica sem `data-theme`. */
-function lerTema(): Tema {
-  try {
-    const guardado = localStorage.getItem(CHAVE_DO_TEMA);
-
-    if (guardado === 'dark' || guardado === 'light') {
-      return guardado;
-    }
-  } catch {
-    // Sem acesso ao armazenamento, quem decide e o sistema.
-  }
-
-  return 'system';
-}
+import { CAMINHO_DOS_PATTERNS, ROTA_DOS_PATTERNS, patterns } from './patterns/catalogo';
+import { Patterns } from './patterns/Patterns';
 
 /** Ignora caixa e acento, para "formularios" achar "Formulários". */
 function normalizar(texto: string) {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-/** `#/button/playground`: o componente e, opcionalmente, a secao da pagina. */
+/** `#/button/playground`: o componente e, opcionalmente, a secao da pagina. `#/patterns/assistente/exemplo` leva ainda a parte do pattern. */
 function lerRota() {
-  const [componente = '', secao = ''] = window.location.hash.replace(/^#\/?/, '').split('/');
-  return { componente, secao };
+  const [componente = '', secao = '', parte = ''] = window.location.hash.replace(/^#\/?/, '').split('/');
+  return { componente, parte, secao };
 }
 
 function useRota() {
@@ -51,7 +45,7 @@ function useRota() {
 }
 
 export function App() {
-  const [tema, setTema] = useState(lerTema);
+  const { colorScheme: tema, setColorScheme: setTema } = useColorScheme({ storageKey: CHAVE_DO_TEMA });
   const [busca, setBusca] = useState('');
   const campoDeBusca = useRef<HTMLInputElement>(null);
   const rota = useRota();
@@ -82,11 +76,14 @@ export function App() {
 
   const noComposicoes = rota.componente === ROTA_DAS_COMPOSICOES;
   const noFundamentos = rota.componente === 'fundamentos';
+  const noPatterns = rota.componente === ROTA_DOS_PATTERNS;
   // A moldura demonstrada traz o proprio `main`, no `AppShell.Page`: o conteudo do Showcase nao pode ser outro em volta.
   const demonstraMoldura =
     (noComposicoes && telas.some((tela) => tela.id === rota.secao)) || atual?.componente.nome === 'AppShell';
   const Conteudo = demonstraMoldura ? 'div' : 'main';
   const telasFiltradas = telas.filter((tela) => !termo || [tela.nome, tela.resumo, 'composições'].some((texto) => normalizar(texto).includes(termo)));
+
+  const patternsFiltrados = patterns.filter((pattern) => !termo || [pattern.nome, pattern.resumo, 'patterns'].some((texto) => normalizar(texto).includes(termo)));
 
   const filtradas = familias
     .map((familia) => ({
@@ -100,32 +97,15 @@ export function App() {
     .filter((familia) => familia.componentes.length > 0);
 
   useEffect(() => {
-    if (tema === 'system') {
-      delete document.documentElement.dataset.theme;
-    } else {
-      document.documentElement.dataset.theme = tema;
-    }
-
-    try {
-      if (tema === 'system') {
-        localStorage.removeItem(CHAVE_DO_TEMA);
-      } else {
-        localStorage.setItem(CHAVE_DO_TEMA, tema);
-      }
-    } catch {
-      // Guardar a escolha e conveniencia, nao requisito.
-    }
-  }, [tema]);
-
-  useEffect(() => {
-    const alvo = rota.secao ? document.getElementById(rota.secao) : null;
+    const idDoAlvo = noPatterns ? rota.parte : rota.secao;
+    const alvo = idDoAlvo ? document.getElementById(idDoAlvo) : null;
 
     if (alvo) {
       alvo.scrollIntoView();
     } else {
       window.scrollTo(0, 0);
     }
-  }, [rota.componente, rota.secao]);
+  }, [noPatterns, rota.componente, rota.parte, rota.secao]);
 
   useEffect(() => {
     function atalho(evento: KeyboardEvent) {
@@ -149,7 +129,8 @@ export function App() {
           document.getElementById('conteudo')?.focus();
         }}
       />
-      <ToastRegion />
+      {/* Fora do fundo inerte da janela inteira das composicoes: o aviso de uma tela precisa ser ouvido e fechado. */}
+      <ToastRegion data-fora-do-modal="" />
       <header className="topbar">
         <a className="brand" href="#/">
           <span aria-hidden="true" className="brand-mark">P</span>
@@ -176,7 +157,7 @@ export function App() {
               { label: 'Escuro', value: 'dark' },
             ]}
             label="Tema"
-            onValueChange={(valor) => setTema(valor as Tema)}
+            onValueChange={(valor) => setTema(valor as ColorScheme)}
             size="sm"
             value={tema}
           />
@@ -185,7 +166,7 @@ export function App() {
 
       <div className="body">
         <nav aria-label="Componentes" className="sidebar">
-          <a aria-current={atual || noComposicoes || noFundamentos ? undefined : 'page'} className="sidebar-home" href="#/">
+          <a aria-current={atual || noComposicoes || noFundamentos || noPatterns ? undefined : 'page'} className="sidebar-home" href="#/">
             Visão geral
           </a>
           <a aria-current={noFundamentos ? 'page' : undefined} className="sidebar-home" href="#/fundamentos">
@@ -206,6 +187,26 @@ export function App() {
                     key={tela.id}
                   >
                     {tela.nome}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {patternsFiltrados.length > 0 && (
+            <div className="sidebar-group">
+              <a aria-current={noPatterns && !rota.secao ? 'page' : undefined} className="sidebar-title sidebar-title-link" href={CAMINHO_DOS_PATTERNS}>
+                <span>Patterns</span>
+                <span className="sidebar-count">{patternsFiltrados.length}</span>
+              </a>
+              <div className="sidebar-items">
+                {patternsFiltrados.map((pattern) => (
+                  <a
+                    aria-current={noPatterns && rota.secao === pattern.id ? 'page' : undefined}
+                    className="sidebar-item"
+                    href={`${CAMINHO_DOS_PATTERNS}/${pattern.id}`}
+                    key={pattern.id}
+                  >
+                    {pattern.nome}
                   </a>
                 ))}
               </div>
@@ -251,6 +252,8 @@ export function App() {
         <Conteudo className={noComposicoes ? 'main main-composicao' : 'main'} id="conteudo" tabIndex={-1}>
           {noComposicoes ? (
             <Composicoes tela={rota.secao} />
+          ) : noPatterns ? (
+            <Patterns pattern={rota.secao} />
           ) : noFundamentos ? (
             <Fundamentos />
           ) : atual ? (

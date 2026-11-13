@@ -4,6 +4,10 @@
   font-family: var(--pl-font-body);
 }
 
+:root {
+  --pl-shell-height: 100%;
+}
+
 body {
   min-width: 320px;
 }
@@ -137,9 +141,7 @@ body {
   font: inherit;
   font-size: var(--pl-type-caption-size);
   font-weight: 700;
-  letter-spacing: 0.06em;
   text-align: left;
-  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -191,7 +193,6 @@ body {
   color: var(--pl-color-text-tertiary);
   font-size: 10px;
   font-weight: 700;
-  text-transform: uppercase;
 }
 
 .sidebar-empty {
@@ -266,8 +267,6 @@ body {
   margin: 0 0 var(--pl-space-2);
   color: var(--pl-color-text-tertiary);
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .toc a {
@@ -483,8 +482,6 @@ body {
   color: var(--pl-color-text-secondary);
   font-size: var(--pl-type-caption-size);
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .pg-summary {
@@ -713,8 +710,6 @@ body {
   color: var(--pl-color-text-tertiary);
   font-size: var(--pl-type-caption-size);
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .modes {

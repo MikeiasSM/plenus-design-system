@@ -1,5 +1,5 @@
 import { ButtonIcon } from '../../actions/ButtonIcon';
-import { IconFullscreen, IconZoomIn, IconZoomOut } from '../../icons/suite';
+import { IconFullscreen, IconZoomIn, IconZoomOut } from '../../icons/icons';
 import styles from './ChartMap.module.css';
 
 interface ChartMapZoomControlsProps {

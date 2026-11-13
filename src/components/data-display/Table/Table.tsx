@@ -14,12 +14,14 @@ import {
   type ReactNode,
 } from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import checkboxStyles from '../../forms/Checkbox/Checkbox.module.css';
 import radioGroupStyles from '../../forms/RadioGroup/RadioGroup.module.css';
 import switchStyles from '../../forms/Switch/Switch.module.css';
 import styles from './Table.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 import { EmptyState } from '../../feedback/EmptyState';
 import { Skeleton } from '../../feedback/Skeleton';
 import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
@@ -181,13 +183,16 @@ export function Table({
 
     observador.observe(envoltorio);
 
-    if (envoltorio.firstElementChild) {
-      observador.observe(envoltorio.firstElementChild);
+    const tabela = envoltorio.querySelector(':scope > table');
+
+    if (tabela) {
+      observador.observe(tabela);
     }
 
     return () => observador.disconnect();
   }, []);
-  const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, ref);
+  const rolagem = useScrollFocusable();
+  const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, rolagem.ref, ref);
 
   // A coluna se registra enquanto esta na tela e sai quando sai: registrada para sempre, o vazio ocupava colunas
   // que nao existiam mais.
@@ -269,6 +274,10 @@ export function Table({
     sort: currentSort,
   };
 
+  const filhos = Children.toArray(children);
+  const barras = filhos.filter((filho) => isValidElement(filho) && filho.type === TableToolbar);
+  const corpo = filhos.filter((filho) => !barras.includes(filho));
+
   const classes = [
     styles.table,
     styles[size],
@@ -281,12 +290,16 @@ export function Table({
 
   return (
     <div
+      aria-label={rolagem.focusable ? (label ? `Tabela: ${label}` : 'Tabela') : undefined}
+      role={rolagem.focusable ? 'region' : undefined}
+      tabIndex={rolagem.focusable ? 0 : undefined}
       {...props}
-      className={[styles.scroll, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
+      className={[styles.scroll, thinScrollbar, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
       ref={envoltorioRef}
     >
+      {barras}
       <table aria-busy={loading || undefined} aria-label={label} className={classes}>
-        <TableContext.Provider value={context}>{children}</TableContext.Provider>
+        <TableContext.Provider value={context}>{corpo}</TableContext.Provider>
       </table>
       {loading && (
         <p className={styles.visuallyHidden} role="status">
@@ -533,8 +546,27 @@ function TableCell({ align, children, hideBelow, numeric }: TableCellProps) {
   );
 }
 
+export interface TableToolbarProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
+  /** Nome do grupo, como "Ferramentas da tabela de pedidos". Sem ele, a barra não é anunciada como um conjunto. */
+  label: string;
+}
+
+/**
+ * Barra acima da tabela, com a busca e as ações dela. O primeiro filho, em geral o campo de busca, cresce até uma
+ * largura limitada; os demais ficam ao lado, e tudo quebra de linha quando falta espaço. É um grupo rotulado, e não
+ * `role="toolbar"`: esse papel pede navegação por setas entre os controles, que o campo de texto da busca impede.
+ */
+function TableToolbar({ children, className, label, ...props }: TableToolbarProps) {
+  return (
+    <div {...props} aria-label={label} className={[styles.toolbar, className].filter(Boolean).join(' ')} role="group">
+      {children}
+    </div>
+  );
+}
+
 Table.Header = TableHeader;
 Table.Column = TableColumn;
 Table.Body = TableBody;
 Table.Row = TableRow;
 Table.Cell = TableCell;
+Table.Toolbar = TableToolbar;

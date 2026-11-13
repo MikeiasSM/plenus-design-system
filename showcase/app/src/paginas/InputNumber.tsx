@@ -75,7 +75,7 @@ function ValorParaOProduto() {
 
   return (
     <div className="stack" style={{ width: '100%' }}>
-      <InputNumber decimalScale={2} label="Peso líquido (kg)" onValueChange={setValor} value={valor} />
+      <InputNumber decimalScale={2} label="Peso líquido" unit="kg" onValueChange={setValor} value={valor} />
       <p className="note">
         onValueChange: <code>{String(valor)}</code> · tipo: <code>{typeof valor}</code>
       </p>
@@ -136,17 +136,27 @@ export const pagina: Pagina = {
       descricao: 'A vírgula decide os decimais; a terceira casa não entra.',
       Previa: () => (
         <div style={{ width: '100%' }}>
-          <InputNumber decimalScale={2} hint="Use vírgula para os decimais." label="Desconto (%)" />
+          <InputNumber decimalScale={2} hint="Use vírgula para os decimais." label="Desconto" unit="%" />
         </div>
       ),
-      codigo: '<InputNumber\n  label="Desconto (%)"\n  hint="Use vírgula para os decimais."\n  decimalScale={2}\n/>',
+      codigo: '<InputNumber\n  label="Desconto"\n  unit="%"\n  hint="Use vírgula para os decimais."\n  decimalScale={2}\n/>',
+    },
+    {
+      titulo: 'Com unidade',
+      descricao: 'A unidade fica ao fim do campo, fora do rótulo e do valor; o leitor de tela a ouve como descrição.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <InputNumber decimalScale={1} defaultValue={7.5} label="Peso" unit="kg" />
+        </div>
+      ),
+      codigo: '<InputNumber label="Peso" unit="kg" decimalScale={1} defaultValue={7.5} />',
     },
     {
       titulo: 'Do texto ao número',
       descricao: 'O texto pt-BR fica no campo; o produto recebe número, ou null quando vazio.',
       Previa: ValorParaOProduto,
       codigo:
-        "const [peso, setPeso] = useState<number | null>(1234.5);\n\n<InputNumber\n  label=\"Peso líquido (kg)\"\n  decimalScale={2}\n  value={peso}\n  onValueChange={setPeso}\n/>",
+        "const [peso, setPeso] = useState<number | null>(1234.5);\n\n<InputNumber\n  label=\"Peso líquido\"\n  unit=\"kg\"\n  decimalScale={2}\n  value={peso}\n  onValueChange={setPeso}\n/>",
     },
   ],
   Modos,
@@ -175,6 +185,7 @@ export const pagina: Pagina = {
     },
     { nome: 'name', tipo: 'string', descricao: 'Envia o número com ponto decimal no formulário, ou texto vazio.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
+    { nome: 'unit', tipo: 'string', descricao: 'Unidade ou sufixo ao fim do campo, como % ou kg. Só visual: não entra no valor e o leitor de tela a ouve como descrição.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro.' },
     { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: 'Altura do campo.' },

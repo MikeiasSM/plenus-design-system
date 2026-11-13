@@ -1,5 +1,6 @@
 import type { ChartTimelineSummary } from './ChartTimeline';
 import styles from './ChartTimeline.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface TimelineTableEntry {
   color: string;
@@ -30,7 +31,7 @@ export function ChartTimelineTable({ emptyRowLabel, rows, showProgress, title }:
   const columns = showProgress ? 5 : 4;
 
   return (
-    <div aria-label={`Tabela: ${title}`} className={styles.tableScroll} role="region" tabIndex={0}>
+    <div aria-label={`Tabela: ${title}`} className={[styles.tableScroll, thinScrollbar].join(' ')} role="region" tabIndex={0}>
       <table className={styles.table}>
         <caption className={styles.visuallyHidden}>{title}</caption>
         <thead>

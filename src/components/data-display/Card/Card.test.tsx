@@ -1,7 +1,55 @@
 import { render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { regrasDaFolha } from '../../../test/folha';
 import { Card } from './Card';
+
+describe('Card.Header: estilo', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Card/Card.module.css'), 'utf8');
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('o corpo logo depois do cabecalho perde o respiro de cima, e o sem cabecalho o mantem', () => {
+    expect(bloco('.body')).toContain('padding-block-start: var(--card-body-start, var(--card-gap));');
+    expect(bloco('.header + .body')).toContain('--card-body-start: 0;');
+    expect(bloco('.card')).toContain('--card-body-start: initial;');
+    expect(css).not.toMatch(/.bodyFlush[^{]*{[^}]*--card-body-start/);
+  });
+
+  it('o selo segue o fim do titulo, numa caixa da altura de uma linha dele', () => {
+    expect(bloco('.header:not(.headerSm) .titleRow')).toContain('display: block;');
+    expect(bloco('.header:not(.headerSm) .titleRow')).toContain('line-height: var(--pl-type-title-line-height);');
+    expect(bloco('.header:not(.headerSm) .title')).toContain('display: inline;');
+    expect(bloco('.badge')).toContain('min-height: var(--pl-type-title-line-height);');
+    expect(bloco('.badge')).toContain('vertical-align: top;');
+  });
+
+  it('o respiro fica no fim do titulo, e o selo que desce de linha comeca rente a ele', () => {
+    expect(bloco('.header:not(.headerSm) .title:has(+ .badge)')).toContain('margin-inline-end: var(--pl-space-2);');
+    expect(bloco('.badge')).not.toContain('margin');
+  });
+
+  it('no sm, o selo continua ao lado do titulo cortado', () => {
+    expect(bloco('.headerSm .badge')).toContain('display: contents;');
+  });
+
+  it('na grade, o centro do trailing fica no centro da primeira linha do titulo, sem mudar a altura do cabecalho', () => {
+    const regra = bloco('.header:not(.flowing) > .trailing');
+
+    expect(regra).toContain('translate: 0');
+    expect(regra).toContain('calc(var(--pl-type-title-line-height) / 2 - 50%)');
+  });
+
+  it('o trailing mais alto que o maior controle nao sobe para fora do cabecalho', () => {
+    expect(bloco('.header:not(.flowing) > .trailing')).toContain(
+      'calc((var(--pl-type-title-line-height) - var(--pl-control-height-lg)) / 2)',
+    );
+  });
+});
 
 describe('Card', () => {
   it('nomeia a regiao pelo titulo do cabecalho', () => {
@@ -52,6 +100,19 @@ describe('Card', () => {
     expect(screen.getByText('Gerencie quem tem acesso.')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Convidar' })).toBeInTheDocument();
+  });
+
+  it('poe o selo logo depois do titulo, fora do nome dele', () => {
+    render(
+      <Card>
+        <Card.Header badge={<span>12</span>} title="Membros" />
+      </Card>,
+    );
+
+    const titulo = screen.getByRole('heading', { name: 'Membros' });
+
+    expect(titulo.nextElementSibling).toContainElement(screen.getByText('12'));
+    expect(screen.getByRole('region', { name: 'Membros' })).toBeInTheDocument();
   });
 
   it('encosta o conteudo nas bordas quando pedido', () => {
@@ -153,6 +214,113 @@ describe('Card', () => {
       );
 
       expect(screen.getByRole('button', { name: '+14,6%' }).parentElement?.className).not.toMatch(/trailingHidden/);
+    });
+  });
+
+  describe('Card.Footer com start', () => {
+    it('poe o start a esquerda e os filhos num bloco a direita', () => {
+      render(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Salvo agora</span>}>
+            <button type="button">Voltar</button>
+            <button type="button">Proximo</button>
+          </Card.Footer>
+        </Card>,
+      );
+
+      const rodape = screen.getByTestId('rodape');
+      const [esquerda, direita] = Array.from(rodape.children);
+      expect(rodape.children).toHaveLength(2);
+      expect(esquerda).toHaveTextContent('Salvo agora');
+      expect(direita).toContainElement(screen.getByRole('button', { name: 'Voltar' }));
+      expect(direita).toContainElement(screen.getByRole('button', { name: 'Proximo' }));
+    });
+
+    it('sem start, os filhos continuam diretos no rodape', () => {
+      render(
+        <Card>
+          <Card.Footer data-testid="rodape">
+            <span>Atualizado</span>
+            <button type="button">Ver todos</button>
+          </Card.Footer>
+        </Card>,
+      );
+
+      const rodape = screen.getByTestId('rodape');
+      expect(rodape.children).toHaveLength(2);
+      expect(rodape.children[0].tagName).toBe('SPAN');
+      expect(rodape.children[1].tagName).toBe('BUTTON');
+    });
+
+    it('so o rodape com start quebra a linha', () => {
+      const { rerender } = render(
+        <Card>
+          <Card.Footer data-testid="rodape">Rodape</Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').className).not.toMatch(/footerWrap/);
+
+      rerender(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>}>
+            Rodape
+          </Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').className).toMatch(/footerWrap/);
+    });
+
+    it('com so o start, dispensa os filhos e nao cria o bloco da direita', () => {
+      const { rerender } = render(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>} />
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').children).toHaveLength(1);
+      expect(screen.getByTestId('rodape')).toHaveTextContent('Situacao');
+
+      rerender(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>}>
+            {null}
+            {false}
+          </Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').children).toHaveLength(1);
+    });
+  });
+
+  describe('na folha de estilo do rodape', () => {
+    const regras = regrasDaFolha('src/components/data-display/Card/Card.module.css');
+
+    it('sem start, o rodape tem as regras da v0.6.3: sem quebra e so o filho unico vai ao fim', () => {
+      expect(regras.get('.footer')).toEqual({
+        display: 'flex',
+        'align-items': 'center',
+        'justify-content': 'space-between',
+        gap: 'var(--pl-space-4)',
+        padding: 'var(--pl-space-4) var(--card-gap)',
+        'border-top': '1px solid var(--pl-color-border)',
+      });
+      expect(regras.get(':where(.footer > :only-child)')).toEqual({ 'margin-inline-start': 'auto' });
+      expect(regras.has(':where(.footer > :last-child)')).toBe(false);
+    });
+
+    it('o start cresce e fica no comeco, mesmo sendo filho unico', () => {
+      expect(regras.get('.footerStart')).toMatchObject({ flex: '1 1 auto', 'margin-inline-start': '0' });
+    });
+
+    it('o rodape quebra a linha quando o start e os filhos nao cabem juntos', () => {
+      expect(regras.get('.footerWrap')).toEqual({ 'flex-wrap': 'wrap' });
+    });
+
+    it('os filhos, com o start, ficam juntos no fim da linha', () => {
+      expect(regras.get('.footerEnd')).toMatchObject({ flex: '0 1 auto', 'min-width': '0', 'margin-inline-start': 'auto' });
     });
   });
 });

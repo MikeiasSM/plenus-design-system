@@ -14,4 +14,5 @@ export type {
   TableSelectionMode,
   TableSize,
   TableSort,
+  TableToolbarProps,
 } from './Table';

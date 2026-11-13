@@ -7,6 +7,7 @@ import {
   type ChartTimelineSegment,
   type ChartTimelineSeries,
 } from './ChartTimeline';
+import { ChartsProvider } from '../ChartsProvider';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartTimeline.module.css';
 
@@ -503,5 +504,25 @@ describe('ChartTimeline', () => {
 
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
+  });
+});
+
+describe('ChartTimeline: ChartsProvider', () => {
+  beforeEach(() => setWidth());
+
+  const botao = () => screen.queryByRole('button', { name: 'Ver como tabela' });
+
+  it('o provider desliga o botão, e a prop do gráfico vale mais que ele', () => {
+    const { rerender } = render(<ChartsProvider showTableToggle={false}>{journey()}</ChartsProvider>);
+
+    expect(botao()).toBeNull();
+
+    rerender(<ChartsProvider showTableToggle={false}>{journey({ showTableToggle: true })}</ChartsProvider>);
+
+    expect(botao()).toBeInTheDocument();
+
+    rerender(<ChartsProvider showTableToggle>{journey({ showTableToggle: false })}</ChartsProvider>);
+
+    expect(botao()).toBeNull();
   });
 });

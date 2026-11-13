@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import styles from './Tabs.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface TabItem {
   content: ReactNode;
@@ -110,7 +111,7 @@ export function Tabs({
         .join(' ')}
     >
       <div
-        className={styles.list}
+        className={[styles.list, orientation === 'horizontal' && thinScrollbar].filter(Boolean).join(' ')}
         role="tablist"
         aria-label={label}
         aria-orientation={orientation}
@@ -142,7 +143,7 @@ export function Tabs({
       </div>
       {painel && (
         <div
-          className={styles.panel}
+          className={[styles.panel, fillHeight && thinScrollbar].filter(Boolean).join(' ')}
           role="tabpanel"
           id={`${baseId}-${painel.key}-panel`}
           aria-labelledby={`${baseId}-${painel.key}`}

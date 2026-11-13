@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { IconPlus } from '@plenustech/design-system';
 import {
   IconBank,
   IconBoxSeam,
@@ -9,7 +10,6 @@ import {
   IconHouse,
   IconListUl,
   IconPeople,
-  IconPlusLg,
   IconTable,
   IconTruck,
 } from '@plenustech/design-system/icons';
@@ -54,7 +54,7 @@ export const MODULOS: readonly Modulo[] = [
         itens: [
           { rota: 'pedidos', nome: 'Pedidos', icone: icone(IconListUl) },
           { rota: 'pedido', nome: 'Pedido #48211', icone: icone(IconFileEarmarkText) },
-          { rota: 'novo-pedido', nome: 'Novo pedido', icone: icone(IconPlusLg) },
+          { rota: 'novo-pedido', nome: 'Novo pedido', icone: icone(IconPlus) },
         ],
       },
     ],
@@ -66,8 +66,8 @@ export const MODULOS: readonly Modulo[] = [
     grupos: [
       {
         itens: [
-          { rota: 'clientes-base', nome: 'Base de Clientes', icone: icone(IconGrid) },
-          { rota: 'novo-cliente', nome: 'Novo cliente', icone: icone(IconPlusLg) },
+          { rota: 'clientes-base', nome: 'Base de clientes', icone: icone(IconGrid) },
+          { rota: 'novo-cliente', nome: 'Novo cliente', icone: icone(IconPlus) },
         ],
       },
     ],

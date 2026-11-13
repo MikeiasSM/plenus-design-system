@@ -113,7 +113,7 @@ describe('DataGrid, pinned rows', () => {
   const pinned: Order[] = [{ id: 'T', customer: 'Resumo', region: '-', total: 1650 }];
 
   it('draws them under the title, outside the sort, and numbers the rows after them', () => {
-    renderGrid({ pinnedRows: pinned, defaultSort: [{ columnId: 'total', direction: 'asc' }] });
+    renderGrid({ pinnedRows: pinned, defaultSort: [{ columnId: 'total', direction: 'ascending' }] });
     const rows = screen.getAllByRole('row');
 
     expect(rows[1]).toHaveTextContent('Resumo');
@@ -721,7 +721,7 @@ describe('DataGrid, export access', () => {
     renderGrid({
       apiRef: api,
       defaultSearch: 'Sul',
-      defaultSort: [{ columnId: 'total', direction: 'desc' }],
+      defaultSort: [{ columnId: 'total', direction: 'descending' }],
       columns: [columns[0], columns[3], { ...columns[1], pinned: 'start' }],
     });
 

@@ -9,18 +9,42 @@ import {
   type DataGridFilterOperator,
 } from './filterModel';
 import { aggregatorOf, type DataGridAggregator, type DataGridAggregatorId } from './summaries';
-import { formatCurrency, formatDate, formatNumber } from '../../../utils/formatters';
+import { formatCurrency, formatDate, formatNumber, formatTime } from '../../../utils/formatters';
 import { containsTerm } from '../../../utils/textSearch';
 
 /** State Motor do DataGrid: estado em fatias, estágios do pipeline de linhas e foco. Sem React e sem DOM. */
 
-export type DataGridColumnType = 'text' | 'number' | 'currency' | 'date' | 'boolean';
+export type DataGridColumnType = 'text' | 'number' | 'currency' | 'date' | 'time' | 'datetime' | 'boolean';
 export type DataGridAlign = 'start' | 'center' | 'end';
-export type DataGridSortDirection = 'asc' | 'desc';
+export type DataGridSortDirection = 'ascending' | 'descending';
 
 export interface DataGridSortItem {
   columnId: string;
   direction: DataGridSortDirection;
+}
+
+/** Entrada de `sort` e `defaultSort`: aceita também os nomes antigos `'asc'` e `'desc'`. */
+export interface DataGridSortItemInput {
+  columnId: string;
+  /** `'asc'` e `'desc'` são obsoletos: use `'ascending'` e `'descending'`. Aceitos até a 0.8.0. */
+  direction: DataGridSortDirection | 'asc' | 'desc';
+}
+
+const LEGACY_DIRECTIONS = { asc: 'ascending', desc: 'descending' } as const;
+
+export function hasLegacySortDirection(sort: readonly DataGridSortItemInput[] | undefined) {
+  return sort?.some((item) => item.direction === 'asc' || item.direction === 'desc') ?? false;
+}
+
+export function normalizeSort(sort: readonly DataGridSortItemInput[]): readonly DataGridSortItem[] {
+  if (!hasLegacySortDirection(sort)) {
+    return sort as readonly DataGridSortItem[];
+  }
+
+  return sort.map((item) => ({
+    columnId: item.columnId,
+    direction: item.direction === 'asc' || item.direction === 'desc' ? LEGACY_DIRECTIONS[item.direction] : item.direction,
+  }));
 }
 
 /** O que o motor sabe de uma coluna. A interface soma os slots de desenho. */
@@ -100,11 +124,30 @@ function timeOf(value: unknown) {
   return new Date(value as Date | string).getTime();
 }
 
+function minutesOf(value: unknown) {
+  if (typeof value === 'string') {
+    const match = /^(\d{1,2}):(\d{2})/.exec(value);
+
+    if (match) {
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+  }
+
+  const date = new Date(value as Date | string);
+  return date.getHours() * 60 + date.getMinutes();
+}
+
 const columnTypes: Record<DataGridColumnType, ColumnTypeDefinition> = {
   text: { align: 'start', compare: (a, b) => collator.compare(String(a), String(b)), format: String },
   number: { align: 'end', compare: compareNumbers, format: (value) => formatNumber(Number(value)) },
   currency: { align: 'end', compare: compareNumbers, format: (value) => formatCurrency(Number(value)) },
   date: { align: 'start', compare: (a, b) => compareMeasures(timeOf(a), timeOf(b)), format: (value) => formatDate(value as Date | string) },
+  time: { align: 'start', compare: (a, b) => compareMeasures(minutesOf(a), minutesOf(b)), format: (value) => formatTime(value as Date | string) },
+  datetime: {
+    align: 'start',
+    compare: (a, b) => compareMeasures(timeOf(a), timeOf(b)),
+    format: (value) => `${formatDate(value as Date | string)} ${formatTime(value as Date | string)}`,
+  },
   boolean: { align: 'center', compare: compareNumbers, format: (value) => (value ? 'Sim' : 'Não') },
 };
 
@@ -222,7 +265,7 @@ export function sortRows<Row>(
       return [];
     }
 
-    return [{ column, compare: column.compare ?? typeOf(column).compare, sign: item.direction === 'asc' ? 1 : -1 }];
+    return [{ column, compare: column.compare ?? typeOf(column).compare, sign: item.direction === 'ascending' ? 1 : -1 }];
   });
 
   if (criteria.length === 0) {
@@ -261,14 +304,14 @@ export function sortBy(sort: readonly DataGridSortItem[], columnId: string, dire
 export function toggleSort(sort: readonly DataGridSortItem[], columnId: string, stack = false): DataGridSortItem[] {
   const current = sort.find((item) => item.columnId === columnId);
   const next: DataGridSortDirection | undefined =
-    current === undefined ? 'asc' : current.direction === 'asc' ? 'desc' : undefined;
+    current === undefined ? 'ascending' : current.direction === 'ascending' ? 'descending' : undefined;
 
   if (!stack) {
     return next ? [{ columnId, direction: next }] : [];
   }
 
   if (!current) {
-    return [...sort, { columnId, direction: 'asc' }];
+    return [...sort, { columnId, direction: 'ascending' }];
   }
 
   return sort.flatMap((item) => (item.columnId !== columnId ? [item] : next ? [{ columnId, direction: next }] : []));
@@ -323,9 +366,15 @@ export function restoreSnapshot<Row>(
   const saved = snapshot as Partial<Record<keyof DataGridState, unknown>>;
   const sortable = new Set(columns.filter((column) => column.sortable !== false).map((column) => column.id));
   const sort = Array.isArray(saved.sort)
-    ? saved.sort.filter(
-        (item): item is DataGridSortItem =>
-          sortable.has(item?.columnId) && (item.direction === 'asc' || item.direction === 'desc'),
+    ? normalizeSort(
+        saved.sort.filter(
+          (item): item is DataGridSortItemInput =>
+            sortable.has(item?.columnId) &&
+            (item.direction === 'ascending' ||
+              item.direction === 'descending' ||
+              item.direction === 'asc' ||
+              item.direction === 'desc'),
+        ),
       )
     : fallback.sort;
 

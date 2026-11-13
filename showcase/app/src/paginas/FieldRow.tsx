@@ -1,4 +1,4 @@
-import { Button, Card, FieldRow, InputNumber, Select, Switch } from '@plenustech/design-system';
+import { Button, Card, FieldRow, InputNumber, SegmentedControl, Select, Switch } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -97,6 +97,24 @@ const playground = definirPlayground({
 function Modos() {
   return (
     <div className="stack">
+      <div className="subsection">
+        <h3>Grupo de opções</h3>
+        <Card>
+          <Card.Body flush>
+            <FieldRow description="Quando o resumo chega." label="Frequência dos resumos">
+              {({ describedBy, labelId }) => (
+                <SegmentedControl aria-describedby={describedBy} aria-labelledby={labelId} defaultValue="semanal" items={PERIODOS} />
+              )}
+            </FieldRow>
+          </Card.Body>
+        </Card>
+        <VerCodigo codigo={`<FieldRow label="Frequência dos resumos" description="Quando o resumo chega.">
+  {({ describedBy, labelId }) => (
+    <SegmentedControl aria-labelledby={labelId} aria-describedby={describedBy} items={periodos} />
+  )}
+</FieldRow>`} />
+        <p className="note">O grupo de opções é um <code>div</code>, e o rótulo não o nomeia por <code>htmlFor</code>: o controle recebe o <code>labelId</code> em <code>aria-labelledby</code>, sem repetir o rótulo.</p>
+      </div>
       <div className="subsection">
         <h3>Várias linhas</h3>
         <Card>
@@ -205,6 +223,7 @@ export const pagina: Pagina = {
   garantias: [
     { garantia: 'Rótulo ligado ao controle', como: <>O rótulo aponta para o <code>id</code> entregue; clicar nele aciona o controle.</>, teste: 'FieldRow.test.tsx' },
     { garantia: 'Explicação anunciada', como: <><code>describedBy</code> liga a explicação por <code>aria-describedby</code>; sem explicação, fica indefinido.</>, teste: 'FieldRow.test.tsx' },
+    { garantia: 'Grupo nomeado pela linha', como: <>O <code>labelId</code> vai ao <code>aria-labelledby</code> do <code>SegmentedControl</code>, do <code>RadioGroup</code> e do <code>CheckboxGroup</code>, que não têm rótulo próprio na tela: o nome é o da linha, uma vez só.</>, teste: 'FieldRow.test.tsx' },
     { garantia: 'Botão com nome próprio', como: <>Quem se nomeia pelo conteúdo usa só <code>describedBy</code>.</>, teste: 'FieldRow.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref.',
@@ -214,7 +233,7 @@ export const pagina: Pagina = {
     {
       nome: 'children',
       tipo: 'ReactNode | ((wiring: FieldRowWiring) => ReactNode)',
-      descricao: <>O controle. A função recebe <code>{'{ id, describedBy }'}</code>.</>,
+      descricao: <>O controle. A função recebe <code>{'{ id, describedBy, labelId }'}</code>.</>,
     },
     { nome: 'id', tipo: 'string', padrao: 'gerado', descricao: 'Id do controle, para o consumidor manter o próprio.' },
   ],

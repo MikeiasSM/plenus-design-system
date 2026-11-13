@@ -69,7 +69,7 @@ export function CardMetricChart({
               hideTitle
               includeZero={false}
               legend="none"
-              onPointClick={onPointClick}
+              onMarkClick={onPointClick}
               series={[{ label: title, values }]}
               showDots="hidden"
               showGrid={false}

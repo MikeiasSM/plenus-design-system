@@ -43,3 +43,14 @@
   align-self: flex-end;
   min-width: 0;
 }
+
+/* Varios indicadores num cartao: corpos com conteudo seguidos se separam por uma linha e se empilham do topo. */
+.body:not(:empty):has(+ .body:not(:empty)),
+.body:not(:empty) + .body:not(:empty) {
+  flex: none;
+}
+
+.body:not(:empty) + .body:not(:empty) {
+  padding-top: var(--pl-space-4);
+  border-top: 1px solid var(--pl-color-border);
+}

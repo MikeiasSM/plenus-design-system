@@ -67,8 +67,6 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   categories: readonly string[];
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
   formatRightValue?: (value: number) => string;
@@ -78,8 +76,6 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
@@ -87,16 +83,10 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onBarClick?: (bar: ChartMarkClick) => void;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Categoria sob o ponteiro, ou `null` ao sair dela. */
   onHover?: (category: ChartCategoryHover | null) => void;
-  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
-  onHoverCategory?: (index: number | null) => void;
   /** Torna as barras botoes, percorridos pelas setas. */
   onMarkClick?: (mark: ChartMarkClick) => void;
   orientation?: ChartBarOrientation;
@@ -108,7 +98,7 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
    * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
    */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
@@ -131,30 +121,25 @@ export function ChartBar({
   accent,
   categories,
   defaultHidden,
-  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatRightValue,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
   hidden,
-  hiddenSeries,
   labelAngle = 'auto',
   legend = 'bottom',
   legendAlign,
   minRightTickStep,
   minTickStep,
-  onBarClick,
   onHiddenChange,
-  onHiddenSeriesChange,
   onHover,
-  onHoverCategory,
   onMarkClick,
   orientation = 'vertical',
   palette,
   series,
   showDataLabels = 'hidden',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   stacked = false,
   title,
@@ -169,33 +154,20 @@ export function ChartBar({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHidden: defaultHidden ?? defaultHiddenSeries,
-    hidden: hidden ?? hiddenSeries,
+    defaultHidden,
+    hidden,
     labels: series.map((serie) => serie.label),
-    onHiddenChange: (ocultas) => {
-      onHiddenChange?.(ocultas);
-      onHiddenSeriesChange?.(ocultas);
-    },
+    onHiddenChange,
   });
   const hoverDaCategoria =
-    onHover || onHoverCategory
-      ? (index: number | null) => {
-          onHover?.(index === null ? null : { category: categories[index], index });
-          onHoverCategory?.(index);
-        }
+    onHover
+      ? (index: number | null) => onHover(index === null ? null : { category: categories[index], index })
       : undefined;
   const { hover: focarFaixa, hovered: faixaEmFoco } = useHoveredBand(hoverDaCategoria);
-  const aoClicarNaBarra =
-    onMarkClick || onBarClick
-      ? (barra: ChartMarkClick) => {
-          onMarkClick?.(barra);
-          onBarClick?.(barra);
-        }
-      : undefined;
   const [serieEmFoco, setSerieEmFoco] = useState<number | null>(null);
   const marcas = useMarkNavigation({
-    onActivate: aoClicarNaBarra && (({ column, row }) =>
-      aoClicarNaBarra({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] })),
+    onActivate: onMarkClick && (({ column, row }) =>
+      onMarkClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] })),
     onFocusMark: (posicao) => {
       focarFaixa(posicao?.column ?? null);
       setSerieEmFoco(posicao?.row ?? null);

@@ -363,6 +363,7 @@ const [cru, setCru] = useState('');
   Variantes,
   Modos,
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a fonte passa a 16px, sem zoom de foco no iOS, e a altura a 44px.', teste: 'mobile.test.ts' },
     { garantia: 'Rótulo associado', como: <>O <code>label</code> nomeia o <code>&lt;input&gt;</code> nativo.</>, teste: 'InputText.test.tsx' },
     {
       garantia: 'Obrigatório',

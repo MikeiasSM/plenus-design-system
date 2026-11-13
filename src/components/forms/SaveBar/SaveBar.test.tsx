@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { SaveBar, type SaveBarProps } from './SaveBar';
 
 function barra(props: Partial<SaveBarProps> = {}) {
@@ -82,5 +83,63 @@ describe('SaveBar', () => {
 
   it('o onSave tem o tipo original', () => {
     expectTypeOf<SaveBarProps['onSave']>().toEqualTypeOf<() => void>();
+  });
+
+  it('devolve o foco ao campo editado quando salvar fecha a barra', () => {
+    function Tela() {
+      const [aberta, setAberta] = useState(false);
+
+      return (
+        <>
+          <input aria-label="Nome" onChange={() => setAberta(true)} />
+          <SaveBar onDiscard={() => setAberta(false)} onSave={() => setAberta(false)} open={aberta} />
+        </>
+      );
+    }
+    render(<Tela />);
+    const campo = screen.getByLabelText('Nome');
+    act(() => campo.focus());
+    fireEvent.change(campo, { target: { value: 'a' } });
+    act(() => screen.getByRole('button', { name: 'Salvar' }).focus());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(campo).toHaveFocus();
+  });
+
+  it('sem o campo de origem, o foco vai ao contêiner de rolagem', () => {
+    const { rerender } = render(
+      <div data-testid="area" style={{ overflowY: 'auto' }}>
+        <SaveBar onDiscard={vi.fn()} onSave={vi.fn()} open />
+      </div>,
+    );
+    act(() => screen.getByRole('button', { name: 'Salvar' }).focus());
+
+    rerender(
+      <div data-testid="area" style={{ overflowY: 'auto' }}>
+        <SaveBar onDiscard={vi.fn()} onSave={vi.fn()} open={false} />
+      </div>,
+    );
+
+    expect(screen.getByTestId('area')).toHaveFocus();
+  });
+
+  it('não move o foco quando ele não estava na barra', () => {
+    const { rerender } = render(
+      <>
+        <input aria-label="Nome" />
+        <SaveBar onDiscard={vi.fn()} onSave={vi.fn()} open />
+      </>,
+    );
+    act(() => screen.getByLabelText('Nome').focus());
+
+    rerender(
+      <>
+        <input aria-label="Nome" />
+        <SaveBar onDiscard={vi.fn()} onSave={vi.fn()} open={false} />
+      </>,
+    );
+
+    expect(screen.getByLabelText('Nome')).toHaveFocus();
   });
 });

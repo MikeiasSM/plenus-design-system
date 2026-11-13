@@ -2,6 +2,7 @@ import type { PointerEvent, SyntheticEvent } from 'react';
 import type { ChartAnchorPoint } from './useMarkNavigation';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Chart.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
 
@@ -65,7 +66,7 @@ export function ChartLegend({
   return (
     // A saida e da lista, e nao da entrada: o ponteiro que cruza o espaco entre duas entradas mantem o realce.
     <ul
-      className={`${styles.legend} ${lateral ? styles.legendSide : ALINHAMENTO[align]}`}
+      className={`${styles.legend} ${lateral ? `${styles.legendSide} ${thinScrollbar}` : ALINHAMENTO[align]}`}
       onPointerLeave={
         onHighlight &&
         (() => {

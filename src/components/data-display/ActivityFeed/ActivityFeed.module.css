@@ -1,0 +1,80 @@
+/* Marcador e linha seguem a Timeline: a mesma familia, sem estado atual. */
+.feed {
+  --feed-marker: 0.625rem;
+  --feed-marker-offset: calc((var(--pl-type-body-line-height) - var(--feed-marker)) / 2);
+  margin: 0;
+  padding: 0;
+  font-family: var(--pl-font-body);
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--feed-marker) minmax(0, 1fr);
+  column-gap: var(--pl-space-3);
+  padding-bottom: var(--pl-space-5);
+}
+
+.item:last-child {
+  padding-bottom: 0;
+}
+
+/* A linha desce do marcador ate o proximo; o ultimo item nao tem. */
+.item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--feed-marker-offset) + var(--feed-marker) + var(--pl-space-1));
+  bottom: calc(var(--pl-space-1) - var(--feed-marker-offset));
+  left: calc(var(--feed-marker) / 2 - 0.5px);
+  width: 1px;
+  background: var(--pl-color-border-strong);
+}
+
+.marker {
+  box-sizing: border-box;
+  width: var(--feed-marker);
+  height: var(--feed-marker);
+  margin-top: var(--feed-marker-offset);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-primary);
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+/* Com comentario, o marcador fica oco. */
+.item[data-comment] .marker {
+  border: 1.5px solid var(--pl-color-primary);
+  background: var(--pl-color-surface);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.event {
+  color: var(--pl-color-text);
+  font-size: var(--pl-type-body-size);
+  font-weight: var(--pl-type-body-weight);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.time {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.comment {
+  margin: var(--pl-space-2) 0 0;
+  padding: var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-subtle);
+  color: var(--pl-color-text);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}

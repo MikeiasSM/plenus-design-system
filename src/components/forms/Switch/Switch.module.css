@@ -89,3 +89,9 @@
 
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
 
+
+@media (pointer: coarse) {
+  .control {
+    padding-block: calc((44px - var(--pl-type-body-line-height)) / 2);
+  }
+}

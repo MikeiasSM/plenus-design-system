@@ -1,8 +1,8 @@
-import type { ComponentPropsWithRef } from 'react';
-import { ButtonIcon } from '../../actions/ButtonIcon';
-import { IconSidebar } from '../../icons';
-import { useAppShell } from './AppShell.context';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
+import { LiveRegionContext } from '../../../hooks/useInsideLiveRegion';
+import { Sidebar } from '../Sidebar';
 import styles from './AppShell.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export type AppShellPageProps = ComponentPropsWithRef<'main'>;
 
@@ -13,37 +13,9 @@ export function AppShellPage({ className, ...props }: AppShellPageProps) {
 
 /** Barra de 46px no topo da página. Abre o submenu recolhido, ou a gaveta no celular, e leva o que o produto puser ao lado. */
 export function AppShellPageBar({ children, className, ...props }: ComponentPropsWithRef<'div'>) {
-  const { expandPanel, expandRef, menuOpen, narrow, panelId, panelKind, setMenuOpen, submenuOpen } = useAppShell();
-  const showsMenuButton = narrow;
-  const showsExpandButton = !narrow && panelKind === 'items' && !submenuOpen;
-
   return (
     <div {...props} className={[styles.pageBar, className].filter(Boolean).join(' ')}>
-      {showsMenuButton && (
-        <ButtonIcon
-          aria-expanded={menuOpen}
-          aria-haspopup="dialog"
-          className={styles.frameButton}
-          icon={<IconSidebar />}
-          label="Abrir menu"
-          onClick={() => setMenuOpen(true)}
-          size="sm"
-          variant="ghost"
-        />
-      )}
-      {showsExpandButton && (
-        <ButtonIcon
-          aria-controls={panelId}
-          aria-expanded={false}
-          className={styles.frameButton}
-          icon={<IconSidebar />}
-          label="Abrir submenu"
-          onClick={expandPanel}
-          ref={expandRef}
-          size="sm"
-          variant="ghost"
-        />
-      )}
+      <Sidebar.Trigger />
       {children}
     </div>
   );
@@ -51,5 +23,25 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
 
 /** Corpo da página: a única área que rola. Mede a largura da folha para as regras de container do produto. */
 export function AppShellPageBody({ className, ...props }: ComponentPropsWithRef<'div'>) {
-  return <div {...props} className={[styles.pageBody, className].filter(Boolean).join(' ')} />;
+  return <div {...props} className={[styles.pageBody, thinScrollbar, className].filter(Boolean).join(' ')} />;
+}
+
+export interface AppShellPageFooterProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * A situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. O espaço já é a
+   * região de status: a `SaveStatus` posta aqui não cria a dela.
+   */
+  status?: ReactNode;
+}
+
+/** Rodapé fixo da página, sempre à vista, fora da área que rola. A situação fica à esquerda e as ações (`children`), à direita. */
+export function AppShellPageFooter({ children, className, status, ...props }: AppShellPageFooterProps) {
+  return (
+    <div {...props} className={[styles.pageFooter, className].filter(Boolean).join(' ')}>
+      <div className={styles.pageFooterStatus} role="status">
+        <LiveRegionContext.Provider value>{status}</LiveRegionContext.Provider>
+      </div>
+      <div className={styles.pageFooterActions}>{children}</div>
+    </div>
+  );
 }

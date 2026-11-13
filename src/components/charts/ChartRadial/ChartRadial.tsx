@@ -37,8 +37,6 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   centerLabel?: string;
   /** Aneis ocultos de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenTracks?: readonly string[];
   emptyMessage?: string;
   /** Angulo final da volta, em graus a partir do topo. Meia-lua usa 180. */
   endAngle?: number;
@@ -48,12 +46,8 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos dos aneis desligados pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenTracks?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenTracksChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
@@ -63,13 +57,11 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   onHover?: (track: ChartRadialTrack | null, details?: ChartHoverDetails) => void;
   /** Clique no anel. Com ele, os aneis viram botoes percorridos pelas setas. */
   onMarkClick?: (track: ChartRadialTrack) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onTrackClick?: (track: ChartRadialTrack) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -96,24 +88,20 @@ export function ChartRadial({
   accent,
   centerLabel,
   defaultHidden,
-  defaultHiddenTracks,
   emptyMessage = 'Sem dados no período',
   endAngle = 360,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
   hidden,
-  hiddenTracks,
   legend = 'bottom',
   legendAlign,
   onHiddenChange,
-  onHiddenTracksChange,
   onHover,
   onMarkClick,
-  onTrackClick,
   palette,
   showCenter = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   startAngle = 0,
   thickness = 16,
@@ -125,12 +113,9 @@ export function ChartRadial({
   const { font, height: alturaMedida, radius: raioDoCanto, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, toggle } = useSeriesToggle({
-    defaultHidden: defaultHidden ?? defaultHiddenTracks,
-    hidden: hidden ?? hiddenTracks,
-    onHiddenChange: (ocultos) => {
-      onHiddenChange?.(ocultos);
-      onHiddenTracksChange?.(ocultos);
-    },
+    defaultHidden,
+    hidden,
+    onHiddenChange,
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar um anel nao pode
@@ -166,15 +151,8 @@ export function ChartRadial({
     }
   }
 
-  const aoClicarNoAnel =
-    onMarkClick || onTrackClick
-      ? (anel: ChartRadialTrack) => {
-          onMarkClick?.(anel);
-          onTrackClick?.(anel);
-        }
-      : undefined;
   const marcas = useMarkNavigation({
-    onActivate: aoClicarNoAnel && (({ column }) => aoClicarNoAnel(tracks[column])),
+    onActivate: onMarkClick && (({ column }) => onMarkClick(tracks[column])),
     onFocusMark: (posicao) => focarAnel(posicao?.column ?? null),
     present: tracks.flatMap((anel, column) => (isHidden(anel.label) || !valido(anel) ? [] : [{ column, row: 0 }])),
   });

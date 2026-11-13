@@ -289,7 +289,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem nós, um EmptyState no lugar do desenho.', teste: 'ChartSunburst.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     {
       nome: 'nodes',
@@ -307,20 +307,15 @@ export const pagina: Pagina = {
     { nome: 'legend', tipo: "'top' | 'bottom' | 'left' | 'right' | 'none'", padrao: "'bottom'", descricao: 'Posição da legenda, com os grupos do nível zero.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
     { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos, pelo rótulo, no modo controlado.' },
-    { nome: 'hiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
     { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Grupos ocultos de início, no modo não controlado.' },
-    { nome: 'defaultHiddenGroups', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
     { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHiddenGroupsChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     {
       nome: 'onHover',
       tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void',
       descricao: <>Caminho do grupo ao arco sob o ponteiro, o foco ou a entrada da legenda, com o maior entre o valor próprio e a soma dos filhos em cada nível; costura para o ChartTooltip. Da legenda vem o segundo argumento: <code>color</code>, a cor desenhada do grupo, e <code>anchor</code>, o ponto da janela onde ancorar o balão.</>,
     },
-    { nome: 'onHoverNode', tipo: '(path: readonly ChartHoveredNode[] | null, details?: ChartHoverDetails) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onMarkClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: 'Torna os arcos botões; o clique entrega o caminho do grupo até o nó.' },
-    { nome: 'onNodeClick', tipo: '(path: readonly ChartHoveredNode[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
   ],
 };

@@ -1,6 +1,8 @@
 import { Fragment, useId, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { useAvisoDeGrupoSemNome } from '../../../hooks/useAvisoDeGrupoSemNome';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './SegmentedControl.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface SegmentedControlItem {
   disabled?: boolean;
@@ -17,8 +19,8 @@ export interface SegmentedControlProps extends Omit<ComponentPropsWithRef<'div'>
   /** Mostra so os icones; o `label` de cada item continua sendo o nome e aparece como dica. */
   iconOnly?: boolean;
   items: readonly SegmentedControlItem[];
-  /** Nome do grupo, para o leitor de tela. */
-  label: string;
+  /** Nome do grupo, para o leitor de tela. Opcional quando o grupo já é nomeado por `aria-labelledby` ou `aria-label`. */
+  label?: string;
   name?: string;
   onValueChange?: (value: string) => void;
   size?: SegmentedControlSize;
@@ -37,8 +39,11 @@ export function SegmentedControl({
   onValueChange,
   size = 'md',
   value,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   ...props
 }: SegmentedControlProps) {
+  useAvisoDeGrupoSemNome('SegmentedControl', { ariaLabel, ariaLabelledby, label });
   const generatedName = `segmented-control-${useId()}`;
   const name = providedName ?? generatedName;
   const controlled = value !== undefined;
@@ -46,8 +51,9 @@ export function SegmentedControl({
   return (
     <div
       {...props}
-      aria-label={label}
-      className={[styles.control, styles[size], className].filter(Boolean).join(' ')}
+      aria-label={ariaLabelledby ? undefined : (label ?? ariaLabel)}
+      aria-labelledby={ariaLabelledby}
+      className={[styles.control, styles[size], thinScrollbar, className].filter(Boolean).join(' ')}
       role="radiogroup"
     >
       {items.map((item) => {

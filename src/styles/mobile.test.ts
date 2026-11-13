@@ -19,7 +19,10 @@ describe('altura da janela', () => {
   });
 
   it('o Dialog e o filtro do DataGrid medem em dvh', () => {
-    expect(ler('components/overlays/Dialog/Dialog.module.css')).toContain('max-height: calc(100dvh - 2 * var(--pl-space-4))');
+    const dialogo = ler('components/overlays/Dialog/Dialog.module.css');
+    expect(dialogo).toContain('max-height: calc(100dvh - max(var(--pl-space-4), env(safe-area-inset-top, 0px)) - max(var(--pl-space-4), env(safe-area-inset-bottom, 0px)))');
+    expect(dialogo).toContain('max(var(--pl-space-4), env(safe-area-inset-left, 0px))');
+    expect(dialogo).not.toContain('--pl-safe-');
     expect(ler('components/data-display/DataGrid/DataGrid.module.css')).toContain('max-height: 70dvh');
   });
 });
@@ -33,6 +36,7 @@ describe('safe area', () => {
 
   it.each([
     ['components/navigation/AppShell/AppShell.module.css', 'safe-area-inset-top'],
+    ['components/navigation/Sidebar/Sidebar.module.css', 'safe-area-inset-left'],
     ['components/feedback/Toast/Toast.module.css', 'safe-area-inset-bottom'],
     ['components/overlays/Drawer/Drawer.module.css', 'safe-area-inset-bottom'],
   ])('%s respeita %s', (arquivo, inset) => {
@@ -55,6 +59,14 @@ describe('safe area', () => {
     expect(moldura).toMatch(/--pl-safe-top: 0px;[\s\S]*--pl-safe-bottom: 0px;/);
     expect(ler('tokens/semantic/shell.css')).toContain('--pl-safe-top: env(safe-area-inset-top, 0px)');
   });
+
+  it('o Drawer zera os tokens do recorte que já soma no próprio padding, para a SaveBar não somar de novo', () => {
+    const css = ler('components/overlays/Drawer/Drawer.module.css');
+
+    expect(css).toMatch(/.drawer {[^}]*--pl-safe-top: 0px;[^}]*--pl-safe-bottom: 0px;/);
+    expect(css).toMatch(/.right .drawer {[^}]*--pl-safe-right: 0px;/);
+    expect(css).toMatch(/.left .drawer {[^}]*--pl-safe-left: 0px;/);
+  });
 });
 
 
@@ -72,6 +84,77 @@ function blocoDaMidia(css: string, consulta: string): string {
 
   return '';
 }
+
+describe('toque: densidade e fonte dos campos', () => {
+  const controle = ler('tokens/semantic/control.css');
+  const toque = blocoDaMidia(controle, 'pointer: coarse');
+
+  it('com o dedo, o pequeno e o medio sobem a 44px, e o grande segue em 56px', () => {
+    expect(toque).toContain('--pl-control-height-sm: 44px');
+    expect(toque).toContain('--pl-control-height-md: 44px');
+    expect(toque).not.toContain('--pl-control-height-lg');
+    expect(controle).toContain('--pl-control-height-lg: 56px');
+    expect(controle).toMatch(/:root \{\s*--pl-control-height-sm: 32px;\s*--pl-control-height-md: 36px;/);
+  });
+
+  it('a fonte de campo no toque e de 16px, o minimo que evita o zoom de foco do iOS', () => {
+    expect(controle).toContain('--pl-control-font-size-touch: 16px');
+  });
+
+  it.each([
+    'components/forms/Field/Field.module.css',
+    'components/forms/Textarea/Textarea.module.css',
+    'components/forms/ComboBox/ComboBox.module.css',
+    'components/forms/DatePicker/DatePicker.module.css',
+    'components/forms/TimePicker/TimePicker.module.css',
+    'components/forms/InputPassword/InputPassword.module.css',
+    'components/data-display/List/List.module.css',
+    'components/data-display/DataGrid/DataGrid.module.css',
+  ])('%s: o campo de texto passa a 16px no toque', (arquivo) => {
+    expect(blocoDaMidia(ler(arquivo), 'pointer: coarse')).toContain('font-size: var(--pl-control-font-size-touch)');
+  });
+
+  it('o computador não muda: a fonte de toque só é usada dentro da consulta', () => {
+    for (const [, css] of todas) {
+      const fora = css.replace(blocoDaMidia(css, 'pointer: coarse'), '');
+
+      expect(fora).not.toContain('var(--pl-control-font-size-touch)');
+    }
+  });
+
+  it('o botao grande e o botao so de icone acompanham a altura de toque', () => {
+    expect(blocoDaMidia(ler('components/actions/Button/Button.module.css'), 'pointer: coarse')).toContain('48px');
+    expect(blocoDaMidia(ler('components/actions/ButtonIcon/ButtonIcon.module.css'), 'pointer: coarse')).toContain('var(--pl-control-height-md)');
+  });
+});
+
+describe('toque: area de 44px em rádio, caixa, chave e cor', () => {
+  it.each([
+    'components/forms/Checkbox/Checkbox.module.css',
+    'components/forms/RadioGroup/RadioGroup.module.css',
+  ])('%s estende a area da caixa por um pseudo-elemento de 44px', (arquivo) => {
+    const toque = blocoDaMidia(ler(arquivo), 'pointer: coarse');
+
+    expect(toque).toMatch(/\.input::after \{[^}]*width: 44px;[^}]*height: 44px;/);
+    expect(toque).toContain('padding-block: calc((44px - var(--pl-type-body-line-height)) / 2)');
+  });
+
+  it('a chave leva o rótulo a 44px', () => {
+    expect(blocoDaMidia(ler('components/forms/Switch/Switch.module.css'), 'pointer: coarse')).toContain('padding-block: calc((44px - var(--pl-type-body-line-height)) / 2)');
+  });
+
+  it('a amostra de cor estende a area a 44px e afasta as amostras para as areas não se sobreporem', () => {
+    const toque = blocoDaMidia(ler('components/forms/ColorPicker/ColorPicker.module.css'), 'pointer: coarse');
+
+    expect(toque).toMatch(/\.swatch::after \{[^}]*width: 44px;[^}]*height: 44px;/);
+    expect(toque).toContain('calc(44px - var(--color-picker-size))');
+  });
+
+  it.each(['components/forms/RadioGroup/RadioGroup.module.css', 'components/forms/CheckboxGroup/CheckboxGroup.module.css'])('%s cola as linhas, que já medem 44px, e mantém o espaço entre as opções lado a lado', (arquivo) => {
+    expect(blocoDaMidia(ler(arquivo), 'pointer: coarse')).toMatch(/\.options \{\s*row-gap: 0;/);
+    expect(ler(arquivo)).toMatch(/\.horizontal \{[^}]*column-gap: var\(--pl-space-5\);/);
+  });
+});
 
 function soAMidia(css: string, consulta: string): string {
   let resto = css;
@@ -115,8 +198,8 @@ describe('hover e pressão', () => {
     'components/data-display/CardMetric/CardMetric.module.css',
     'components/data-display/DataGrid/DataGrid.module.css',
     'components/data-display/SortableList/SortableList.module.css',
-    'components/navigation/AppShell/AppShell.module.css',
-    'components/navigation/AppShell/AppShellPanel.module.css',
+    'components/navigation/Sidebar/Sidebar.module.css',
+    'components/navigation/Sidebar/SidebarPanel.module.css',
   ])('%s: tem :active, que não depende de hover: hover', (arquivo) => {
     const css = ler(arquivo);
 
@@ -138,7 +221,7 @@ describe('hover e pressão', () => {
   });
 
   it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {
-    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
     expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
@@ -147,7 +230,7 @@ describe('hover e pressão', () => {
 
   it('o texto terciário não fica sobre o fundo pressionado nem sobre o container', () => {
     const lista = ler('components/data-display/SortableList/SortableList.module.css');
-    const conta = ler('components/navigation/AppShell/AppShellPanel.module.css');
+    const conta = ler('components/navigation/Sidebar/SidebarPanel.module.css');
     const regra = (css: string, seletor: string) => {
       const inicio = css.indexOf(`${seletor} {`);
 
@@ -166,7 +249,7 @@ describe('hover e pressão', () => {
   });
 
   it('o laudo de contraste mede o texto de apoio pressionado e sobre o container', () => {
-    const laudo = readFileSync(resolve(process.cwd(), 'scripts/check-contraste.mjs'), 'utf8');
+    const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
     expect(laudo).toContain("['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'resumo da linha pressionada']");
     expect(laudo).toContain("['--pl-color-on-primary-container', '--pl-color-primary-selected', TEXTO_MINIMO, 'resumo da linha selecionada pressionada']");

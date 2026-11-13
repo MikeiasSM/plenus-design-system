@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { ChartsProvider } from './ChartsProvider';
 import { ChartArea } from './ChartArea';
 import { ChartBar } from './ChartBar';
 import { ChartCombo } from './ChartCombo';
@@ -202,5 +204,69 @@ describe('o conteúdo da tabela', () => {
     abrir();
 
     expect(linhas()).toEqual(['PreçoVendas', 'A, p112']);
+  });
+});
+
+describe.each(graficos)('%s: ChartsProvider', (_, montar) => {
+  const botao = () => screen.queryByRole('button', { name: 'Ver como tabela' });
+
+  it('sem provider, o botão aparece', () => {
+    render(montar({}));
+
+    expect(botao()).toBeInTheDocument();
+  });
+
+  it('com showTableToggle={false}, o botão some', () => {
+    render(<ChartsProvider showTableToggle={false}>{montar({})}</ChartsProvider>);
+
+    expect(botao()).not.toBeInTheDocument();
+  });
+
+  it('a prop true vale mais que o provider false', () => {
+    render(<ChartsProvider showTableToggle={false}>{montar({ showTableToggle: true })}</ChartsProvider>);
+
+    expect(botao()).toBeInTheDocument();
+  });
+
+  it('a prop false vale mais que o provider true', () => {
+    render(<ChartsProvider showTableToggle>{montar({ showTableToggle: false })}</ChartsProvider>);
+
+    expect(botao()).not.toBeInTheDocument();
+  });
+
+  it('o provider mais próximo vale', () => {
+    render(
+      <ChartsProvider showTableToggle={false}>
+        <ChartsProvider showTableToggle>{montar({})}</ChartsProvider>
+      </ChartsProvider>,
+    );
+
+    expect(botao()).toBeInTheDocument();
+  });
+});
+
+describe('ChartsProvider', () => {
+  it('um provider sem a prop herda o de fora', () => {
+    render(
+      <ChartsProvider showTableToggle={false}>
+        <ChartsProvider>
+          <ChartBar categories={categorias} series={serie} title="Gráfico" />
+        </ChartsProvider>
+      </ChartsProvider>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Ver como tabela' })).not.toBeInTheDocument();
+  });
+
+  it('renderiza no servidor com o padrão do provider', () => {
+    const comBotao = renderToString(<ChartBar categories={categorias} series={serie} title="Gráfico" />);
+    const semBotao = renderToString(
+      <ChartsProvider showTableToggle={false}>
+        <ChartBar categories={categorias} series={serie} title="Gráfico" />
+      </ChartsProvider>,
+    );
+
+    expect(comBotao).toContain('Ver como tabela');
+    expect(semBotao).not.toContain('Ver como tabela');
   });
 });

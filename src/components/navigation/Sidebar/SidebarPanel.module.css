@@ -1,0 +1,565 @@
+/* Medidas do modelo: submenu 256px por padrão (a largura é do produto, pelo `width` do `Sidebar.Panel`), item e filho em `--sidebar-row` (34px, 42px no toque), cabeçalho na altura da marca do trilho. */
+.panel {
+  --_sidebar-row: 34px;
+  --_sidebar-head: 36px;
+  flex: none;
+  width: 0;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width var(--pl-speed-2) var(--pl-ease), opacity var(--pl-speed-2) var(--pl-ease);
+}
+
+@media (pointer: coarse) {
+  .panel {
+    --_sidebar-row: 42px;
+    --_sidebar-head: 44px;
+  }
+}
+
+.panel[data-visible='true'] {
+  width: var(--sidebar-panel-width, 256px);
+  opacity: 1;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--sidebar-panel-width, 256px);
+  height: 100%;
+  padding-block: 10px 4px;
+  padding-right: 8px;
+  padding-left: 12px;
+}
+
+.panel[data-side='right'] .inner {
+  padding-right: 12px;
+  padding-left: 8px;
+}
+
+/* Na gaveta do celular, o submenu largo demais para a tela cede ao lado do trilho, e o conteúdo acompanha. */
+.panel.narrow {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.narrow .inner {
+  max-width: 100%;
+}
+
+.head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-2);
+  height: var(--sidebar-brand-size, var(--_sidebar-head));
+  margin-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* A navegação do módulo leva a marca e o recolher, para nada do submenu ficar fora de uma região. */
+.navigation {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.navigation[data-covered='true'] {
+  flex: none;
+}
+
+.list {
+  flex: 1;
+  min-height: 0;
+  margin-block: -3px;
+  margin-right: -4px;
+  margin-left: -10px;
+  padding-block: 3px;
+  padding-right: 4px;
+  padding-left: 10px;
+  overflow-y: auto;
+}
+
+.panel[data-side='right'] .list {
+  margin-right: -10px;
+  margin-left: -4px;
+  padding-right: 10px;
+  padding-left: 4px;
+}
+
+.navigation[data-covered='true'] .list {
+  display: none;
+}
+
+.items {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group {
+  list-style: none;
+}
+
+.group:not(:has(li)) {
+  display: none;
+}
+
+.groupTitle {
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  height: var(--sidebar-row, var(--_sidebar-row));
+  margin: 0 0 2px;
+  margin-inline-start: 8px;
+  padding-bottom: 6px;
+  color: var(--pl-color-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.groupTitle[hidden] {
+  display: none;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--sidebar-row, var(--_sidebar-row));
+  padding: 0 var(--pl-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--pl-radius-md);
+  background: none;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--pl-speed-1) var(--pl-ease), color var(--pl-speed-1) var(--pl-ease);
+}
+
+@media (hover: hover) {
+  .item:hover {
+    background: var(--pl-color-primary-tint-hover);
+    color: var(--pl-color-text);
+  }
+}
+
+.item:not([aria-current='page']):not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-color-primary-tint);
+  color: var(--pl-color-text);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+.item[aria-current='page'] {
+  background: var(--pl-color-primary-tint);
+  color: var(--pl-color-on-primary-container);
+}
+
+.item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
+  bottom: calc((var(--sidebar-row, var(--_sidebar-row)) - 20px) / 2);
+  left: -8px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--pl-color-primary-strong);
+}
+
+.panel[data-side='right'] .item[aria-current='page']::before {
+  right: -8px;
+  left: auto;
+}
+
+.item[aria-current='page'] .icon {
+  color: var(--pl-color-primary-strong);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  font-size: var(--sidebar-icon-size, 18px);
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.external,
+.chevron {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--pl-color-text-tertiary);
+}
+
+.external,
+.accountChevron {
+  display: inline-flex;
+}
+
+.chevron {
+  transition: transform var(--pl-speed-2) var(--pl-ease);
+}
+
+.chevron:dir(rtl) {
+  transform: rotate(180deg);
+}
+
+.external:dir(rtl) {
+  transform: scaleX(-1);
+}
+
+.backIcon {
+  display: inline-flex;
+}
+
+.backIcon:dir(rtl) {
+  transform: scaleX(-1);
+}
+
+.branch[data-expanded='true'] > .item .chevron {
+  transform: rotate(90deg);
+}
+
+/* Recolhido, o pai marca o caminho em destaque, sem fundo. */
+.branch:not([data-expanded='true']):has([aria-current='page']) > .item {
+  color: var(--pl-color-on-primary-container);
+}
+
+.branch:not([data-expanded='true']):has([aria-current='page']) > .item .icon {
+  color: var(--pl-color-primary-strong);
+}
+
+/* Terceiro nível, expandido no lugar: recuo e linha-guia. */
+.nestedWrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--pl-speed-2) var(--pl-ease);
+}
+
+.branch[data-expanded='true'] > .nestedWrap {
+  grid-template-rows: 1fr;
+}
+
+.nested {
+  display: grid;
+  gap: 2px;
+  min-height: 0;
+  margin: 0;
+  margin-inline: 16px -8px;
+  padding: 0;
+  padding-inline: 9px 8px;
+  overflow: hidden;
+  border-inline-start: 1px solid var(--pl-color-border-strong);
+  list-style: none;
+}
+
+.branch[data-expanded='true'] > .nestedWrap > .nested {
+  margin-top: 2px;
+}
+
+.nested .item {
+  font-weight: var(--pl-type-body-weight);
+}
+
+.nested .item[aria-current='page'] {
+  font-weight: var(--pl-type-label-weight);
+}
+
+.nested .item[aria-current='page']::before {
+  left: -6px;
+}
+
+.panel[data-side='left'] .nested:dir(rtl) .item[aria-current='page']::before {
+  left: -8px;
+}
+
+.panel[data-side='right'] .nested:dir(rtl) .item[aria-current='page']::before {
+  right: -6px;
+}
+
+.nested[hidden] {
+  display: none;
+}
+
+/* Terceiro nível em pilha: o painel troca pelo nível de baixo, com o caminho de volta. */
+.stacked {
+  display: grid;
+  gap: 2px;
+  list-style: none;
+  animation: stack-in var(--pl-speed-2) var(--pl-ease);
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--sidebar-row, var(--_sidebar-row));
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--pl-radius-md);
+  background: none;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .back:hover {
+    background: var(--pl-color-primary-container);
+    color: var(--pl-color-on-primary-container);
+  }
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+.stacked .groupTitle {
+  margin-bottom: 0;
+}
+
+@keyframes stack-in-end {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+}
+
+.panel[data-side='right'] .stacked {
+  animation-name: stack-in-end;
+}
+
+@keyframes stack-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+}
+
+/* Conta: o cartão abre por cima da lista (inline) ou ocupa o lugar dela (cover), sem empurrá-la nem encolhê-la. */
+.account {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+}
+
+.account[data-mode='cover'][data-open='true'] {
+  flex: 1;
+  min-height: 0;
+}
+
+.accountShield {
+  position: absolute;
+  inset: 0;
+}
+
+.accountCard {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  z-index: 1;
+}
+
+.account[data-mode='cover'] .accountCard {
+  position: static;
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.account[data-mode='cover'][data-open='true'] .accountCard {
+  display: flex;
+}
+
+.accountNav {
+  max-height: 60dvh;
+  overflow-y: auto;
+  padding: var(--pl-space-1);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-up);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--pl-speed-2) var(--pl-ease),
+    transform var(--pl-speed-2) var(--pl-ease);
+}
+
+.account[data-open='true'] .accountNav {
+  opacity: 1;
+  transform: none;
+}
+
+.account[data-mode='cover'] .accountNav {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin-block: -3px;
+  margin-right: -4px;
+  margin-left: -10px;
+  padding-block: 3px;
+  padding-right: 4px;
+  padding-left: 10px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.panel[data-side='right'] .account[data-mode='cover'] .accountNav {
+  margin-right: -10px;
+  margin-left: -4px;
+  padding-right: 10px;
+  padding-left: 4px;
+}
+
+.accountAvatar {
+  display: flex;
+  flex: none;
+}
+
+.accountAvatar.accountAvatar > * {
+  width: var(--sidebar-avatar-size, 40px);
+  height: var(--sidebar-avatar-size, 40px);
+}
+
+.accountTrigger {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-2);
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 6px;
+  padding: var(--pl-space-1);
+  border: 0;
+  border-radius: var(--pl-radius-md);
+  background: none;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  text-align: start;
+  cursor: pointer;
+}
+
+.accountTrigger[aria-expanded='true'] {
+  background: var(--pl-color-primary-container);
+}
+
+@media (hover: hover) {
+  .accountTrigger:hover {
+    background: var(--pl-color-primary-container);
+  }
+}
+
+.accountTrigger:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 1px;
+}
+
+.accountChevron {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--pl-color-text-tertiary);
+  transition: transform var(--pl-speed-2) var(--pl-ease);
+}
+
+.accountTrigger[aria-expanded='true'] .accountChevron {
+  transform: rotate(180deg);
+}
+
+.identity {
+  display: grid;
+  min-width: 0;
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.identity strong {
+  font-weight: var(--pl-type-label-weight);
+}
+
+.identity span {
+  overflow: hidden;
+  color: var(--pl-color-text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountTrigger[aria-expanded='true'] .identity span {
+  color: var(--pl-color-text-secondary);
+}
+
+@media (hover: hover) {
+  .accountTrigger:hover .identity span {
+    color: var(--pl-color-text-secondary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .item,
+  .chevron,
+  .nestedWrap,
+  .accountNav,
+  .accountChevron {
+    transition: none;
+  }
+
+  .stacked {
+    animation: none;
+  }
+}
+
+.back:active {
+  background: var(--pl-color-primary-selected);
+  color: var(--pl-color-on-primary-container);
+}
+
+.accountTrigger:active {
+  background: var(--pl-color-primary-selected);
+}
+
+.accountTrigger:active .identity span {
+  color: inherit;
+}

@@ -55,6 +55,7 @@ export const familias: readonly Familia[] = [
       componente('FileUpload', 'Seleção de arquivos, por clique ou arrasto, com a lista dos envios.'),
       componente('FieldRow', 'Linha de ajuste: rótulo e explicação de um lado, o controle do outro.'),
       componente('SaveBar', 'Barra de alterações não salvas, com descartar e salvar.'),
+      componente('SaveStatus', 'Texto curto da situação do salvamento, com o indicador do estado.'),
     ],
   },
   {
@@ -69,6 +70,7 @@ export const familias: readonly Familia[] = [
     nome: 'Dados',
     componentes: [
       componente('Avatar', 'Representação visual de uma pessoa ou entidade.'),
+      componente('AvatarItem', 'Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura.'),
       componente('Card', 'Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios.'),
       componente('CardMetric', 'Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe.'),
       componente('Badge', 'Rótulo curto de estado ou categoria.'),
@@ -76,7 +78,10 @@ export const familias: readonly Familia[] = [
       componente('Accordion', 'Seções expansíveis de conteúdo.'),
       componente('CodeBlock', 'Trecho de código para leitura, com cópia, numeração e destaque de linhas.'),
       componente('Timeline', 'Histórico de estados de um registro, com datas e o estado atual destacado.'),
+      componente('ActivityFeed', 'Registro do que aconteceu, do mais recente ao mais antigo, com comentários.'),
+      componente('NumberedList', 'Sequência numerada de passos que explica como algo funciona, sem etapa atual.'),
       componente('SortableList', 'Lista reordenável por arrasto ou teclado, com seleção de um item.'),
+      componente('DescriptionList', 'Pares de termo e descrição, empilhados ou em linha, com destaque para o total.'),
       componente('Table', 'Tabela básica, em HTML semântico.'),
       componente('DataGrid', 'Grade completa, com ordenação, paginação, seleção e virtualização.'),
     ],
@@ -125,8 +130,9 @@ export const familias: readonly Familia[] = [
       componente('Tabs', 'Alternância entre painéis de conteúdo.'),
       componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
-      componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
-      componente('AppShell', 'Moldura de tela em camadas: trilho de módulos, submenu do módulo e página.'),
+      componente('AppShell', 'Moldura de tela em camadas: a navegação da Sidebar e a página.'),
+      componente('Sidebar', 'Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular.'),
+      componente('LinkList', 'Lista de links em que cada item leva a uma página, em linhas ou em grade.'),
     ],
   },
   {
@@ -142,10 +148,38 @@ export const familias: readonly Familia[] = [
   },
   {
     nome: 'Fundamentos',
-    componentes: [componente('Paletas', 'Paletas de marca prontas e próprias, por data-palette e createPalette.', { importa: 'createPalette' })],
+    componentes: [componente('Paletas', 'Paletas de marca prontas e próprias, por data-palette e createPalette, e o esquema de cor, por useColorScheme.', { importa: 'createPalette' })],
   },
   {
     nome: 'Ícones',
     componentes: [componente('Icon', 'Biblioteca oficial de ícones do Design System.', { importa: 'IconSearch' })],
+  },
+  {
+    nome: 'Tipografia',
+    componentes: [
+      componente('Text', 'Texto com papel tipográfico e tom, em uma linha ou truncado.'),
+    ],
+  },
+  {
+    nome: 'Acessibilidade',
+    componentes: [
+      componente('VisuallyHidden', 'Acessibilidade: texto que só o leitor de tela lê, para dar nome ao que a tela mostra só por ícone, cor ou posição, como uma coluna de ações sem título.'),
+      componente('SkipLink', 'Atalho para o conteúdo principal, para quem navega por teclado.'),
+    ],
+  },
+  {
+    nome: 'Leiaute',
+    componentes: [
+      componente('Stack', 'Pilha flex que espaça os filhos num eixo.'),
+      componente('Grid', 'Grade de colunas iguais que se ajusta à própria largura.'),
+      componente('Container', 'Coluna de conteúdo centrada, com largura máxima.'),
+    ],
+  },
+  {
+    nome: 'Predefinições',
+    componentes: [
+      componente('AnnotatedSection', 'Seção com título e explicação num trilho à esquerda e o conteúdo à direita.'),
+      componente('Columns', 'Conteúdo principal com uma coluna lateral ou com o índice da página.'),
+    ],
   },
 ];

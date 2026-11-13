@@ -359,7 +359,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem células, um EmptyState no lugar do desenho.', teste: 'ChartHeatmap.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'cells', tipo: 'readonly ChartHeatmapCell[]', descricao: <><code>{'{ x, y, value }'}</code>, uma por cruzamento; <code>value: null</code> é sem dado e o cruzamento sem célula fica em branco.</> },
     { nome: 'xCategories', tipo: 'readonly string[]', descricao: 'Ordem das colunas. Sem ela, a ordem em que aparecem nas células.' },
@@ -370,9 +370,7 @@ export const pagina: Pagina = {
     { nome: 'formatTooltipValue', tipo: '(value: number) => string', descricao: 'Formato do balão. Sem ele, vale o formatValue.' },
     { nome: 'showValues', tipo: "'visible' | 'onHover' | 'hidden'", padrao: "'visible'", descricao: 'Valor escrito na célula, quando cabe nela.' },
     { nome: 'onMarkClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: 'Torna as células botões, percorridos pelas setas.' },
-    { nome: 'onCellClick', tipo: '(cell: ChartHeatmapCell) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
     { nome: 'onHover', tipo: '(cell: ChartHeatmapCell | null) => void', descricao: 'Célula sob o ponteiro ou o foco, ou null ao sair.' },
-    { nome: 'onHoverCell', tipo: '(cell: ChartHeatmapCell | null) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHover</code>. Com os dois, os dois avisam.</> },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão com as duas categorias e o valor.' },
     { nome: 'noDataLabel', tipo: 'string', padrao: "'Sem dado'", descricao: 'Texto da célula sem valor, na legenda e na descrição.' },
     { nome: 'noDataStyle', tipo: "'hatch' | 'neutral'", padrao: "'hatch'", descricao: 'Hachura ou cinza liso na célula sem valor, como no ChartMap.' },

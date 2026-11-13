@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
-import { Badge, Button, InputText, Menu, PageHeader, IconMore, IconSearch } from '@plenustech/design-system';
+import { Badge, Button, ButtonIcon, InputText, Menu, PageHeader, IconMore, IconSearch } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -27,9 +27,7 @@ function Acoes({ modo, registrar }: { modo: (typeof ACOES)[number]; registrar: (
     <PageHeader.Actions>
       {modo === 'com menu de mais ações' && (
         <Menu items={MAIS_ACOES.map((item) => ({ ...item, onSelect: () => registrar(`${item.key}: onSelect`) }))} label="Mais ações">
-          <Button aria-label="Mais ações" variant="secondary">
-            <IconMore />
-          </Button>
+          <ButtonIcon icon={<IconMore />} label="Mais ações" />
         </Menu>
       )}
       {modo !== 'principal' && <Button variant="secondary">Imprimir</Button>}
@@ -62,7 +60,7 @@ const playground = definirPlayground({
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
       <PageHeader maxWidth={valores.maxWidth === 'total' ? undefined : valores.maxWidth}>
-        {valores.back && <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos" />}
+        {valores.back && <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>}
         <PageHeader.Title>{valores.title}</PageHeader.Title>
         {valores.badges && (
           <PageHeader.Badges>
@@ -88,7 +86,7 @@ const playground = definirPlayground({
   ),
   codigo: (valores) => {
     const filhos = [
-      valores.back && gerarJsx('PageHeader.Back', [['as', expr('Link')], ['href', '/pedidos'], ['label', 'Voltar para Pedidos']]),
+      valores.back && gerarJsx('PageHeader.Back', [['as', expr('Link')], ['href', '/pedidos'], ['label', 'Voltar para Pedidos']], 'Pedidos'),
       gerarJsx('PageHeader.Title', [], valores.title),
       valores.badges && gerarJsx('PageHeader.Badges', [], '<Badge tone="success">Pago</Badge>'),
       valores.description && gerarJsx('PageHeader.Description', [], valores.description),
@@ -107,7 +105,7 @@ const playground = definirPlayground({
     ];
 
     if (valores.back) {
-      verificacoes.push({ nivel: 'ok', titulo: 'Voltar nomeado', detalhe: 'O link só mostra a seta; o nome vem de label.' });
+      verificacoes.push({ nivel: 'ok', titulo: 'Voltar nomeado', detalhe: 'O link mostra a seta e o texto visível; o nome acessível vem de label e contém esse texto.' });
     }
 
     return verificacoes;
@@ -118,9 +116,7 @@ const CODIGO_DE_MAIS_DE_DUAS_ACOES = `<PageHeader>
   <PageHeader.Title>Pedido 1042</PageHeader.Title>
   <PageHeader.Actions>
     <Menu label="Mais ações" items={maisAcoes}>
-      <Button aria-label="Mais ações" variant="secondary">
-        <IconMore />
-      </Button>
+      <ButtonIcon icon={<IconMore />} label="Mais ações" />
     </Menu>
     <Button variant="secondary">Imprimir</Button>
     <Button>Aprovar pedido</Button>
@@ -128,7 +124,7 @@ const CODIGO_DE_MAIS_DE_DUAS_ACOES = `<PageHeader>
 </PageHeader>`;
 
 const CODIGO_DA_LARGURA_ESTREITA = `<PageHeader>
-  <PageHeader.Back as={Link} href="/pedidos" label="Voltar para Pedidos" />
+  <PageHeader.Back as={Link} href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>
   <PageHeader.Title>Pedido 1042</PageHeader.Title>
   <PageHeader.Badges>
     <Badge tone="success">Pago</Badge>
@@ -149,9 +145,7 @@ function Modos() {
           <PageHeader.Title>Pedido 1042</PageHeader.Title>
           <PageHeader.Actions>
             <Menu items={MAIS_ACOES} label="Mais ações">
-              <Button aria-label="Mais ações" variant="secondary">
-                <IconMore />
-              </Button>
+              <ButtonIcon icon={<IconMore />} label="Mais ações" />
             </Menu>
             <Button variant="secondary">Imprimir</Button>
             <Button>Aprovar pedido</Button>
@@ -167,7 +161,7 @@ function Modos() {
         <h3>Largura estreita</h3>
         <div style={{ maxWidth: 420 }}>
           <PageHeader>
-            <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos" />
+            <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>
             <PageHeader.Title>Pedido 1042</PageHeader.Title>
             <PageHeader.Badges>
               <Badge tone="success">Pago</Badge>
@@ -198,7 +192,7 @@ export const pagina: Pagina = {
       Previa: () => (
         <div style={{ width: '100%' }}>
         <PageHeader>
-          <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos" />
+          <PageHeader.Back as={LinkDaDemonstracao} href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>
           <PageHeader.Title>Pedido 1042</PageHeader.Title>
           <PageHeader.Badges>
             <Badge tone="success">Pago</Badge>
@@ -215,7 +209,7 @@ export const pagina: Pagina = {
         </div>
       ),
       codigo:
-        '<PageHeader>\n  <PageHeader.Back as={Link} href="/pedidos" label="Voltar para Pedidos" />\n  <PageHeader.Title>Pedido 1042</PageHeader.Title>\n  <PageHeader.Badges>\n    <Badge tone="success">Pago</Badge>\n  </PageHeader.Badges>\n  <PageHeader.Context>\n    <span>Criado por Rui Teixeira</span>\n    <span>Atualizado há 5 minutos</span>\n  </PageHeader.Context>\n  <PageHeader.Actions>\n    <Button variant="secondary">Imprimir</Button>\n    <Button>Aprovar pedido</Button>\n  </PageHeader.Actions>\n</PageHeader>',
+        '<PageHeader>\n  <PageHeader.Back as={Link} href="/pedidos" label="Voltar para Pedidos">Pedidos</PageHeader.Back>\n  <PageHeader.Title>Pedido 1042</PageHeader.Title>\n  <PageHeader.Badges>\n    <Badge tone="success">Pago</Badge>\n  </PageHeader.Badges>\n  <PageHeader.Context>\n    <span>Criado por Rui Teixeira</span>\n    <span>Atualizado há 5 minutos</span>\n  </PageHeader.Context>\n  <PageHeader.Actions>\n    <Button variant="secondary">Imprimir</Button>\n    <Button>Aprovar pedido</Button>\n  </PageHeader.Actions>\n</PageHeader>',
     },
     {
       titulo: 'Listagem com busca',
@@ -251,7 +245,7 @@ export const pagina: Pagina = {
   ),
   api: [
     { nome: 'maxWidth', tipo: 'CSSProperties["maxWidth"]', descricao: <>Largura da coluna do texto, para acompanhar a do conteúdo (<code>760px</code>, <code>1120px</code>). Sem ela, usa a largura toda.</> },
-    { nome: 'PageHeader.Back', tipo: 'label: string; as?: ElementType; linkProps?: Record<string, unknown>', descricao: 'Link de voltar, só com a seta. O label é o nome acessível.' },
+    { nome: 'PageHeader.Back', tipo: 'children?: ReactNode; label: string; as?: ElementType; linkProps?: Record<string, unknown>', descricao: 'Link de voltar acima do título, com a seta e o texto visível (children; sem eles, o label). O label é o nome acessível e deve conter o texto visível, como children "Pedidos" e label "Voltar para Pedidos".' },
     { nome: 'PageHeader.Title', tipo: "ComponentPropsWithRef<'h1'>", descricao: 'O título da página.' },
     { nome: 'PageHeader.Badges', tipo: "ComponentPropsWithRef<'div'>", descricao: <>Selos de situação ao lado do título, por exemplo <code>Badge</code>.</> },
     { nome: 'PageHeader.Description', tipo: "ComponentPropsWithRef<'p'>", descricao: 'Descrição, na largura toda.' },

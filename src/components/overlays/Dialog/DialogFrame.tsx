@@ -3,12 +3,14 @@ import { createPortal } from 'react-dom';
 import { FocusScope } from '@react-aria/focus';
 import { ariaHideOutside, useOverlay, usePreventScroll } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { IconClose } from '../../icons';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Dialog.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface DialogFrameProps extends DialogBaseProps {
   'aria-label'?: string;
@@ -112,6 +114,8 @@ function DialogFrameContent({
   const generatedId = useId();
   const titleId = `${generatedId}-title`;
   const descriptionId = `${generatedId}-description`;
+  const scroll = useScrollFocusable();
+  const dialogLabel = title ?? props['aria-label'];
 
   const dismiss = useOverlayClickGuard(onClose);
   const { overlayProps, underlayProps } = useOverlay(
@@ -159,7 +163,17 @@ function DialogFrameContent({
               )}
             </header>
           )}
-          {children && <div className={[styles.body, flush && styles.bodyFlush].filter(Boolean).join(' ')}>{children}</div>}
+          {children && (
+            <div
+              aria-label={scroll.focusable ? `Conteúdo${dialogLabel ? ` de ${dialogLabel}` : ''}` : undefined}
+              className={[styles.body, flush && styles.bodyFlush, thinScrollbar].filter(Boolean).join(' ')}
+              ref={scroll.ref}
+              role={scroll.focusable ? 'region' : undefined}
+              tabIndex={scroll.focusable ? 0 : undefined}
+            >
+              {children}
+            </div>
+          )}
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>
       </FocusScope>

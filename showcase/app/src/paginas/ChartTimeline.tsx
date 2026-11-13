@@ -1111,7 +1111,7 @@ const dias = jornadaDoMes(mes);
     { garantia: 'Duração', como: <><code>formatDuration</code>: <code>10h16m</code>, <code>48m</code>, <code>12h</code>.</>, teste: 'formatDuration.test.ts' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do desenho.' },
     { nome: 'rows', tipo: 'readonly ChartTimelineRow[]', descricao: <><code>{'{ key, label, description?, group? }'}</code>, na ordem de exibição. A key identifica; o label pode repetir.</> },
     { nome: 'series', tipo: 'readonly ChartTimelineSeries[]', descricao: <><code>{'{ label, color?, intent? }'}</code>. Servem a intervalos, faixas e marcas.</> },
@@ -1151,11 +1151,8 @@ const dias = jornadaDoMes(mes);
     { nome: 'legend', tipo: "'top' | 'bottom' | 'none'", padrao: "'top'", descricao: 'Posição da legenda, que aparece a partir de duas séries.' },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'left'", descricao: 'Apoio da legenda.' },
     { nome: 'hidden', tipo: 'readonly string[]', descricao: 'Séries ocultas, pelo rótulo, no modo controlado.' },
-    { nome: 'hiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>hidden</code>. Com os dois, vale o novo.</> },
     { nome: 'defaultHidden', tipo: 'readonly string[]', descricao: 'Séries ocultas de início, no modo não controlado.' },
-    { nome: 'defaultHiddenSeries', tipo: 'readonly string[]', descricao: <>Obsoleto até a 0.7.0: use <code>defaultHidden</code>. Com os dois, vale o novo.</> },
     { nome: 'onHiddenChange', tipo: '(hidden: readonly string[]) => void', descricao: 'Avisa cada mudança feita pela legenda.' },
-    { nome: 'onHiddenSeriesChange', tipo: '(hidden: readonly string[]) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onHiddenChange</code>. Com os dois, os dois avisam.</> },
     { nome: 'showTooltip', tipo: 'boolean', padrao: 'true', descricao: 'Balão: no intervalo, série, período e duração; na linha, os totais por série.' },
     { nome: 'highlightOnHover', tipo: 'boolean', padrao: 'false', descricao: 'Esmaece as outras séries sob o ponteiro ou o foco.' },
     { nome: 'formatValue', tipo: '(durationMs: number) => string', padrao: 'formatDuration', descricao: 'Formato das durações no rótulo, na descrição e na tabela.' },
@@ -1163,7 +1160,6 @@ const dias = jornadaDoMes(mes);
     { nome: 'formatTime', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Instantes no balão, na descrição e na tabela: 07:12 ou 05/10 14:00.' },
     { nome: 'formatTick', tipo: '(time: Date) => string', padrao: 'por escala', descricao: 'Marcas do eixo: 6h, 05/10 ou Seg 05/10.' },
     { nome: 'onMarkClick', tipo: '(mark: ChartTimelineMark) => void', descricao: <>Clique, Enter ou Espaço num intervalo: <code>{'{ segment, row }'}</code>. Com ele, os intervalos viram botões.</> },
-    { nome: 'onSegmentClick', tipo: '(segment, row) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code>. Com os dois, os dois avisam.</> },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
   ],
 };

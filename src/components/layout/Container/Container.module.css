@@ -1,0 +1,9 @@
+/* Ocupa a largura do pai, como o Container do Chakra: sem o width, as margens auto o encolheriam ao conteúdo num pai
+   flex em coluna, como o Stack. O respiro lateral é o do PageHeader e fica dentro da caixa; o maxWidth, que mede só o
+   conteúdo, ganha os dois respiros no estilo em linha. Assim a borda do conteúdo é a do PageHeader de mesmo maxWidth. */
+.root {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--pl-space-5);
+}

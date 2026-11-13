@@ -48,6 +48,31 @@ describe('ButtonIcon', () => {
     expect(botao).toHaveAttribute('data-origem', 'barra');
   });
 
+  it('com href vira link com o label como nome, o icone fora da leitura e a ref no elemento', () => {
+    const ref = createRef<HTMLAnchorElement>();
+    const { container } = render(<ButtonIcon href="/ajuda" icon={<IconClose />} label="Ajuda" ref={ref} />);
+
+    const link = screen.getByRole('link', { name: 'Ajuda' });
+    expect(link).toHaveAttribute('href', '/ajuda');
+    expect(link).toBe(ref.current);
+    expect(link).toHaveClass(styles.buttonIcon!);
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('como link, aceita as e linkProps e desabilitado perde o destino', () => {
+    render(
+      <>
+        <ButtonIcon as="a" icon={<IconClose />} label="Um" linkProps={{ href: '/um', 'data-rota': '/um' }} />
+        <ButtonIcon disabled href="/dois" icon={<IconClose />} label="Dois" />
+      </>,
+    );
+
+    expect(screen.getByRole('link', { name: 'Um' })).toHaveAttribute('data-rota', '/um');
+    expect(screen.getByRole('link', { name: 'Dois' })).not.toHaveAttribute('href');
+    expect(screen.getByRole('link', { name: 'Dois' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
   it('cancela o Enter repetido, e o onClick que devolve uma Promise não trava o botão', () => {
     const onClick = vi.fn(() => new Promise<void>(() => {}));
     render(<ButtonIcon icon={<IconClose />} label="Excluir" onClick={onClick} />);

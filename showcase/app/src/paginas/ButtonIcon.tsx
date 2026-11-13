@@ -211,6 +211,18 @@ export const pagina: Pagina = {
         '{pessoas.map((pessoa) => (\n  <ButtonIcon\n    key={pessoa.id}\n    icon={<IconMinusCircle />}\n    label={`Remover ${pessoa.nome}`}\n    size="sm"\n    variant="ghost"\n    onClick={() => remover(pessoa)}\n  />\n))}',
     },
     {
+      titulo: 'Como link',
+      descricao: 'Com href, o ButtonIcon é um <a>: o label segue como nome do link e como dica.',
+      Previa: () => (
+        <>
+          <ButtonIcon href="#/buttonicon" icon={<IconChartBar />} label="Abrir relatórios" />
+          <ButtonIcon href="#/buttonicon" icon={<IconSearch />} label="Abrir busca" variant="ghost" />
+        </>
+      ),
+      codigo:
+        '<ButtonIcon href="/relatorios" icon={<IconChartBar />} label="Abrir relatórios" />\n<ButtonIcon\n  as={Link}\n  linkProps={{ to: \'/busca\' }}\n  icon={<IconSearch />}\n  label="Abrir busca"\n  variant="ghost"\n/>',
+    },
+    {
       titulo: 'Ao lado da busca',
       descricao: 'Na altura do InputText médio, o botão fecha a barra sem texto repetido.',
       Previa: () => (
@@ -262,9 +274,9 @@ export const pagina: Pagina = {
     },
     { garantia: 'Dica no teclado', como: 'O label aparece como dica também a quem chega pelo foco.', teste: 'ButtonIcon.test.tsx' },
     { garantia: 'Dica dispensável', como: 'Escape e a saída do foco fecham a dica.', teste: 'Tooltip.test.tsx' },
-    { garantia: 'Semântica nativa', como: <>Elemento <code>&lt;button&gt;</code>, composto do Button.</>, teste: 'ButtonIcon.test.tsx' },
+    { garantia: 'Semântica nativa', como: <>Elemento <code>&lt;button&gt;</code>, composto do Button; com <code>href</code>, <code>as</code> ou <code>linkProps</code>, <code>&lt;a href&gt;</code>, com o <code>label</code> como nome.</>, teste: 'ButtonIcon.test.tsx' },
   ],
-  notaDaApi: 'Além destas, as propriedades nativas de <button>, exceto aria-label e children, e o ref.',
+  notaDaApi: 'Além destas, as propriedades nativas de <button>, exceto aria-label e children, e o ref (do <a>, quando é link).',
   api: [
     { nome: 'icon', tipo: 'ReactNode', descricao: 'O ícone. Obrigatório; fica fora da leitura.' },
     { nome: 'label', tipo: 'string', descricao: 'Nome do botão, obrigatório: vai ao leitor de tela e à dica.' },
@@ -282,6 +294,9 @@ export const pagina: Pagina = {
       descricao: 'Lado do botão em que a dica aparece.',
     },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o botão nativo.' },
-    { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Herdado do Button: envio só quando pedido.' },
+    { nome: 'type', tipo: "'button' | 'submit' | 'reset'", padrao: "'button'", descricao: 'Herdado do Button: envio só quando pedido. Não vale para link.' },
+    { nome: 'href', tipo: 'string', descricao: 'Herdado do Button: vira um <a href>, com o label como nome.' },
+    { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Herdado do Button: componente de link da aplicação.' },
+    { nome: 'linkProps', tipo: 'Record<string, unknown>', descricao: 'Herdado do Button: propriedades entregues ao componente de link.' },
   ],
 };

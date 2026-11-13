@@ -68,14 +68,6 @@
   min-height: 0;
   padding: var(--pl-space-1) 2px var(--pl-space-3);
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-@media (hover: hover) {
-  .body:hover {
-    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
-  }
 }
 
 .footer {

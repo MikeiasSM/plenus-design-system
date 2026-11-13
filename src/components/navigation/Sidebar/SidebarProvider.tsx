@@ -1,0 +1,251 @@
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { isNarrowNow, useNarrowViewport } from '../../../hooks/useNarrowViewport';
+import { useOpenState } from '../../../hooks/useOpenState';
+import { IconChevronLeft, IconChevronUp, IconClose, IconExternalLink, IconSidebar } from '../../icons';
+import { IconLayoutSidebarInset } from '../../icons/icons';
+import {
+  defaultSidebarLabels,
+  SidebarContext,
+  useSidebarContext,
+  type SidebarIcons,
+  type SidebarLabels,
+  type SidebarPanelKind,
+  type SidebarSide,
+} from './Sidebar.context';
+import { isEditableTarget, matchesShortcut } from './Sidebar.shortcut';
+
+export interface SidebarProviderProps {
+  /** Conta aberta, no modo controlado. */
+  accountOpen?: boolean;
+  children: ReactNode;
+  /** Conta aberta no início, no modo não controlado. */
+  defaultAccountOpen?: boolean;
+  /** Gaveta do celular aberta no início, no modo não controlado. */
+  defaultMenuOpen?: boolean;
+  /** Submenu aberto no início, no modo não controlado. */
+  defaultOpen?: boolean;
+  /** Ícones trocáveis; só os passados trocam o padrão. */
+  icons?: Partial<SidebarIcons>;
+  /** Textos fixos dos botões; só os passados trocam o padrão em português. */
+  labels?: Partial<SidebarLabels>;
+  /** Gaveta do celular aberta, no modo controlado. */
+  menuOpen?: boolean;
+  /** Largura, em pixels, abaixo da qual a navegação vira gaveta. Padrão 900. */
+  narrowBelow?: number;
+  onAccountOpenChange?: (open: boolean) => void;
+  onMenuOpenChange?: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
+  /** Submenu aberto, no modo controlado. */
+  open?: boolean;
+  /** Atalho que alterna o submenu, ou a gaveta na largura estreita, como `"mod+b"`. Desligado por padrão. */
+  shortcut?: string | false;
+  /** Lado da página em que ficam o trilho e o submenu, e de onde a gaveta abre. Padrão `left`. */
+  side?: SidebarSide;
+  /** Espera, em ms, das dicas do trilho e da marca. Padrão 150. */
+  tooltipDelay?: number;
+}
+
+/** O que `useSidebar()` devolve: o estado público da navegação e os meios de mudá-lo. */
+export interface UseSidebarResult {
+  /** Conta aberta: as opções acima do bloco do rodapé. */
+  accountOpen: boolean;
+  /** Largura estreita: o trilho e o submenu passam a uma gaveta. */
+  isMobile: boolean;
+  /** Submenu aberto, na largura larga. */
+  open: boolean;
+  /** Gaveta aberta, na largura estreita. */
+  openMobile: boolean;
+  /** Abre ou fecha a conta. Ao abrir, abre também o submenu, ou a gaveta na largura estreita, e leva o foco à primeira opção, exceto com o foco num campo editável. */
+  setAccountOpen: (open: boolean) => void;
+  /** Abre ou recolhe o submenu sem mexer no foco. Ao recolher, fecha a conta. */
+  setOpen: (open: boolean) => void;
+  setOpenMobile: (open: boolean) => void;
+  /** Na largura estreita alterna a gaveta; na larga, o submenu. */
+  toggleSidebar: () => void;
+}
+
+function defaultSidebarIcons(side: 'left' | 'right'): SidebarIcons {
+  const panel = side === 'left' ? <IconLayoutSidebarInset /> : <IconSidebar />;
+
+  return {
+    account: <IconChevronUp size={15} />,
+    back: <IconChevronLeft size={14} />,
+    close: <IconClose />,
+    collapse: panel,
+    external: <IconExternalLink size={15} />,
+    open: panel,
+  };
+}
+
+function mergeDefined<T extends object>(defaults: T, overrides?: Partial<T>): T {
+  const entries = Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined);
+
+  return { ...defaults, ...Object.fromEntries(entries) };
+}
+
+/** Guarda o estado da navegação (`Sidebar`) e o reparte com quem estiver dentro, sem desenhar nada. O `AppShell` monta um por dentro. */
+export function SidebarProvider({
+  accountOpen: controlledAccountOpen,
+  children,
+  defaultAccountOpen,
+  defaultMenuOpen,
+  defaultOpen = true,
+  icons,
+  labels,
+  menuOpen: controlledMenuOpen,
+  narrowBelow,
+  onAccountOpenChange,
+  onMenuOpenChange,
+  onOpenChange,
+  open: controlledOpen,
+  shortcut,
+  side = 'left',
+  tooltipDelay = 150,
+}: SidebarProviderProps) {
+  const narrow = useNarrowViewport(narrowBelow);
+  const [submenuOpen, setSubmenuOpenState] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
+  const [menuOpen, setMenuOpen] = useOpenState({ defaultOpen: defaultMenuOpen, onOpenChange: onMenuOpenChange, open: controlledMenuOpen });
+  const [accountOpen, setAccountOpen] = useOpenState({
+    defaultOpen: defaultAccountOpen,
+    onOpenChange: onAccountOpenChange,
+    open: controlledAccountOpen,
+  });
+  const [panelKind, setPanelKind] = useState<SidebarPanelKind>('none');
+  const collapseRef = useRef<HTMLButtonElement>(null);
+  const expandRef = useRef<HTMLButtonElement>(null);
+  const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
+  const accountWasOpen = useRef(false);
+  const resolvedLabels = mergeDefined(defaultSidebarLabels, labels);
+  const resolvedIcons = mergeDefined(defaultSidebarIcons(side), icons);
+  const panelId = useId();
+  const accountId = useId();
+
+  const isPanelVisible = (kind: SidebarPanelKind) => (kind === 'items' ? narrow || submenuOpen : kind === 'account' && accountOpen);
+
+  // A gaveta é coisa do celular: ao voltar à largura, ela não fica aberta à espera.
+  useEffect(() => {
+    if (!narrow && !isNarrowNow(narrowBelow)) {
+      setMenuOpen(false);
+    }
+  }, [narrow]);
+
+  useEffect(() => {
+    if (accountOpen && !accountWasOpen.current) {
+      if (narrow || isNarrowNow(narrowBelow)) {
+        setMenuOpen(true);
+      } else {
+        setSubmenuOpenState(true);
+      }
+    }
+    accountWasOpen.current = accountOpen;
+  }, [accountOpen]);
+
+  useEffect(() => {
+    if (!shortcut) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented || !matchesShortcut(event, shortcut as string) || isEditableTarget(event.target)) {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.repeat) {
+        return;
+      }
+      if (narrow) {
+        setMenuOpen(!menuOpen);
+      } else {
+        setOpenWithoutFocus(!submenuOpen);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  });
+
+  // O botão que acionou some com a mudança: o foco vai ao botão que ocupa o lugar dele.
+  useEffect(() => {
+    const target = focusAfterChange.current === 'expand' ? expandRef.current : collapseRef.current;
+
+    if (focusAfterChange.current) {
+      target?.focus();
+      focusAfterChange.current = null;
+    }
+  }, [submenuOpen]);
+
+  function setSubmenuOpen(next: boolean) {
+    if (!next) {
+      setAccountOpen(false);
+    }
+    setSubmenuOpenState(next);
+  }
+
+  function collapsePanel() {
+    focusAfterChange.current = 'expand';
+    setSubmenuOpen(false);
+  }
+
+  function expandPanel() {
+    focusAfterChange.current = 'collapse';
+    setSubmenuOpen(true);
+  }
+
+  function openAccountFromRail() {
+    setSubmenuOpen(true);
+    setAccountOpen(true);
+  }
+
+  // O `setOpen` público descarta o foco pendente de um recolher ou expandir que o pai controlado ainda não aplicou.
+  function setOpenWithoutFocus(next: boolean) {
+    focusAfterChange.current = null;
+    setSubmenuOpen(next);
+  }
+
+  return (
+    <SidebarContext
+      value={{
+        accountId,
+        accountOpen,
+        collapsePanel,
+        collapseRef,
+        expandPanel,
+        expandRef,
+        icons: resolvedIcons,
+        isPanelVisible,
+        labels: resolvedLabels,
+        menuOpen,
+        narrow,
+        openAccountFromRail,
+        panelId,
+        panelKind,
+        setAccountOpen,
+        setMenuOpen,
+        setPanelKind,
+        setSubmenuOpen: setOpenWithoutFocus,
+        side,
+        submenuOpen,
+        tooltipDelay,
+      }}
+    >
+      {children}
+    </SidebarContext>
+  );
+}
+
+/** Lê e muda o estado da navegação. Só funciona dentro de `<SidebarProvider>` ou de `<AppShell>`. */
+export function useSidebar(): UseSidebarResult {
+  const { accountOpen, menuOpen, narrow, setAccountOpen, setMenuOpen, setSubmenuOpen, submenuOpen } = useSidebarContext();
+
+  return {
+    accountOpen,
+    isMobile: narrow,
+    open: submenuOpen,
+    openMobile: menuOpen,
+    setAccountOpen,
+    setOpen: setSubmenuOpen,
+    setOpenMobile: setMenuOpen,
+    toggleSidebar: () => (narrow ? setMenuOpen(!menuOpen) : setSubmenuOpen(!submenuOpen)),
+  };
+}

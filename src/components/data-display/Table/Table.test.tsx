@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { regrasDaFolha } from '../../../test/folha';
 import { Table } from './Table';
 import styles from './Table.module.css';
 
@@ -390,6 +392,80 @@ describe('Table', () => {
       expect(celula('Pago')).not.toHaveClass(styles.center!);
     });
   });
+
+  describe('Table.Toolbar', () => {
+    it('e um grupo rotulado, e nao uma toolbar', () => {
+      render(
+        <Table.Toolbar label="Ferramentas da tabela">
+          <input aria-label="Buscar" type="search" />
+          <button type="button">Filtros</button>
+        </Table.Toolbar>,
+      );
+
+      const grupo = screen.getByRole('group', { name: 'Ferramentas da tabela' });
+      expect(grupo.tagName).toBe('DIV');
+      expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
+      expect(grupo).toContainElement(screen.getByRole('searchbox', { name: 'Buscar' }));
+      expect(grupo).toContainElement(screen.getByRole('button', { name: 'Filtros' }));
+    });
+
+    it('como filha da Table, sai antes da tabela e nao vira filha dela', () => {
+      const { container } = render(
+        <Table label="Membros">
+          <Table.Toolbar label="Ferramentas">
+            <input aria-label="Buscar" type="search" />
+          </Table.Toolbar>
+          <Table.Header>
+            <Table.Column id="nome">Nome</Table.Column>
+          </Table.Header>
+          <Table.Body items={[]}>{() => null}</Table.Body>
+        </Table>,
+      );
+
+      const tabela = screen.getByRole('table', { name: 'Membros' });
+      const grupo = screen.getByRole('group', { name: 'Ferramentas' });
+      expect(container.querySelector('table > div')).toBeNull();
+      expect(tabela).not.toContainElement(grupo);
+      expect(grupo.parentElement).toBe(tabela.parentElement);
+      expect(grupo.compareDocumentPosition(tabela) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('entrega propriedades nativas, className e ref a raiz', () => {
+      const ref = createRef<HTMLDivElement>();
+      render(<Table.Toolbar className="extra" data-testid="barra" label="Ferramentas" ref={ref} />);
+
+      const barra = screen.getByTestId('barra');
+      expect(barra).toHaveClass('extra');
+      expect(ref.current).toBe(barra);
+    });
+
+    describe('na folha de estilo', () => {
+      const regras = regrasDaFolha('src/components/data-display/Table/Table.module.css');
+
+      it('quebra de linha e espaca os filhos', () => {
+        expect(regras.get('.toolbar')).toMatchObject({ display: 'flex', 'flex-wrap': 'wrap', gap: 'var(--pl-space-2)' });
+      });
+
+      it('alinha os itens pela base, para o campo com rotulo nao esticar os controles', () => {
+        expect(regras.get('.toolbar')).toMatchObject({ 'align-items': 'flex-end' });
+      });
+
+      it('como filha, fica parada quando a tabela rola de lado', () => {
+        expect(regras.get('.scroll > .toolbar')).toEqual({ position: 'sticky', 'inset-inline-start': '0' });
+      });
+
+      it('alinha o respiro lateral com o da primeira coluna da tabela', () => {
+        const margemDaTabela = regras.get('.scroll')?.['--table-inline-padding'];
+
+        expect(margemDaTabela).toBeDefined();
+        expect(regras.get('.toolbar')?.padding).toBe('var(--pl-space-3) ' + margemDaTabela);
+      });
+
+      it('deixa o primeiro filho crescer ate um limite', () => {
+        expect(regras.get('.toolbar > :first-child')).toEqual({ flex: '1 1 220px', 'max-width': '360px' });
+      });
+    });
+  });
 });
 
 describe('CSS da Table', () => {
@@ -403,5 +479,73 @@ describe('CSS da Table', () => {
 
   it('o contêiner de rolagem é posicionado, para o texto absoluto do título não alargar a página', () => {
     expect(bloco(/^\.scroll \{/m)).toContain('position: relative;');
+  });
+
+  it('o hideBelow mede a largura do envoltório que rola, por container query, e não a da janela', () => {
+    expect(bloco(/^\.scroll \{/m)).toContain('container-type: inline-size;');
+    expect(css).not.toMatch(/@media \(max-width/);
+    expect(css).toMatch(/@container \(max-width: 900px\) \{\s*\.table \[data-hide-below='sm'\] \{\s*display: none;/);
+    expect(css).toMatch(/@container \(max-width: 1180px\) \{\s*\.table \[data-hide-below='md'\] \{\s*display: none;/);
+    expect(css).toMatch(/@container \(max-width: 1280px\) \{\s*\.table \[data-hide-below='lg'\] \{\s*display: none;/);
+  });
+
+  describe('envoltório que rola', () => {
+    class Observador {
+      constructor(private aviso: () => void) {}
+      observe() {
+        this.aviso();
+      }
+      disconnect() {}
+    }
+
+    function simples() {
+      return (
+        <Table label="Membros" rows={membros}>
+          <Table.Header>
+            <Table.Column id="nome">Nome</Table.Column>
+          </Table.Header>
+          <Table.Body items={membros}>
+            {(membro) => (
+              <Table.Row id={membro.id}>
+                <Table.Cell>{membro.nome}</Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
+      );
+    }
+
+    function transbordar(transborda: boolean) {
+      vi.stubGlobal('ResizeObserver', Observador);
+      Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, value: transborda ? 800 : 100 });
+      Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 100 });
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+      Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    });
+
+    it('fica focável e nomeado quando transborda', () => {
+      transbordar(true);
+      render(simples());
+
+      expect(screen.getByRole('region', { name: 'Tabela: Membros' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('não ganha tabindex quando a tabela cabe', () => {
+      transbordar(false);
+      render(simples());
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
+
+    it('não ganha tabindex quando há algo focável dentro', () => {
+      transbordar(true);
+      montar();
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
   });
 });

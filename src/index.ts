@@ -98,7 +98,7 @@ export type {
 } from './components/forms/FileUpload';
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
-export type { RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
+export type { RadioGroupOrientation, RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
 export { SegmentedControl } from './components/forms/SegmentedControl';
 export type {
   SegmentedControlItem,
@@ -111,6 +111,8 @@ export { FieldRow } from './components/forms/FieldRow';
 export type { FieldRowProps, FieldRowWiring } from './components/forms/FieldRow';
 export { SaveBar } from './components/forms/SaveBar';
 export type { SaveBarProps } from './components/forms/SaveBar';
+export { SaveStatus } from './components/forms/SaveStatus';
+export type { SaveStatusProps, SaveStatusValue } from './components/forms/SaveStatus';
 export { Alert } from './components/feedback/Alert';
 export type { AlertProps, AlertTone } from './components/feedback/Alert';
 export { Progress } from './components/feedback/Progress';
@@ -151,14 +153,37 @@ export type {
   PageHeaderSearchProps,
   PageHeaderTitleProps,
 } from './components/navigation/PageHeader';
+export { LinkList } from './components/navigation/LinkList';
+export type { LinkListItemProps, LinkListLayout, LinkListProps, LinkListTone } from './components/navigation/LinkList';
 export { Pagination } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { AppShell } from './components/navigation/AppShell';
+export { Sidebar, SidebarProvider, useSidebar } from './components/navigation/Sidebar';
+export type {
+  SidebarAccountMode,
+  SidebarAccountProps,
+  SidebarBrandProps,
+  SidebarGroupProps,
+  SidebarIcons,
+  SidebarItemProps,
+  SidebarLabels,
+  SidebarNestedMode,
+  SidebarPanelProps,
+  SidebarProps,
+  SidebarProviderProps,
+  SidebarRailAccountProps,
+  SidebarRailItemProps,
+  SidebarRailProps,
+  SidebarSide,
+  SidebarTriggerProps,
+  UseSidebarResult,
+} from './components/navigation/Sidebar';
 export type {
   AppShellAccountMode,
   AppShellAccountProps,
   AppShellNavigationProps,
   AppShellNestedMode,
+  AppShellPageFooterProps,
   AppShellPageProps,
   AppShellPanelGroupProps,
   AppShellPanelItemProps,
@@ -202,6 +227,10 @@ export { Tag } from './components/data-display/Tag';
 export type { TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
+export { AvatarItem } from './components/data-display/AvatarItem';
+export type { AvatarItemProps } from './components/data-display/AvatarItem';
+export { DescriptionList } from './components/data-display/DescriptionList';
+export type { DescriptionListItemProps, DescriptionListLayout, DescriptionListProps } from './components/data-display/DescriptionList';
 export { List } from './components/data-display/List';
 export type {
   ListEmptyProps,
@@ -243,6 +272,10 @@ export { SortableList } from './components/data-display/SortableList';
 export type { SortableListItem, SortableListProps } from './components/data-display/SortableList';
 export { Timeline } from './components/data-display/Timeline';
 export type { TimelineItem, TimelineProps, TimelineSize } from './components/data-display/Timeline';
+export { ActivityFeed } from './components/data-display/ActivityFeed';
+export type { ActivityFeedItemProps, ActivityFeedProps } from './components/data-display/ActivityFeed';
+export { NumberedList } from './components/data-display/NumberedList';
+export type { NumberedListItemProps, NumberedListLayout, NumberedListProps } from './components/data-display/NumberedList';
 export type { CodeBlockProps, CodeSyntax } from './components/data-display/CodeBlock';
 export { Table } from './components/data-display/Table';
 export type {
@@ -260,6 +293,7 @@ export type {
   TableSelectionMode,
   TableSize,
   TableSort,
+  TableToolbarProps,
 } from './components/data-display/Table';
 export {
   DataGrid,
@@ -314,6 +348,7 @@ export type {
   DataGridSnapshot,
   DataGridSortDirection,
   DataGridSortItem,
+  DataGridSortItemInput,
   DataGridToolbarProps,
 } from './components/data-display/DataGrid';
 export { DatePicker } from './components/forms/DatePicker';
@@ -347,8 +382,12 @@ export type {
   FormatPercentOptions,
   FormatTimeOptions,
 } from './utils/formatters';
+export { useColorScheme } from './hooks/useColorScheme';
+export type { ColorScheme, ResolvedColorScheme, UseColorSchemeOptions, UseColorSchemeResult } from './hooks/useColorScheme';
 export { createPalette, nearestPaletteColor } from './utils/palette';
 export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
+export { ChartsProvider } from './components/charts/ChartsProvider';
+export type { ChartsProviderProps } from './components/charts/ChartsProvider';
 export { ChartBar } from './components/charts/ChartBar';
 export type { ChartBarOrientation, ChartBarProps, ChartBarSeries } from './components/charts/ChartBar';
 export { ChartLine } from './components/charts/ChartLine';
@@ -483,3 +522,23 @@ export type {
 export { paletteWithAccent, resolveSeriesColors, seriesColors } from './components/charts/palette';
 export type { ChartPalette, SeriesAppearance, SeriesIntent } from './components/charts/palette';
 export type { ChartColorCategory, ChartColorScale } from './components/charts/scales';
+export { AnnotatedSection } from './components/presets/AnnotatedSection';
+export type { AnnotatedSectionProps } from './components/presets/AnnotatedSection';
+export { Columns } from './components/presets/Columns';
+export type {
+  ColumnsAsideProps,
+  ColumnsIndexItem,
+  ColumnsIndexProps,
+  ColumnsMainProps,
+  ColumnsProps,
+} from './components/presets/Columns';
+export { Text } from './components/typography/Text';
+export type { TextProps, TextTone, TextVariant } from './components/typography/Text';
+export { VisuallyHidden } from './components/accessibility/VisuallyHidden';
+export type { VisuallyHiddenProps } from './components/accessibility/VisuallyHidden';
+export { Container } from './components/layout/Container';
+export type { ContainerProps } from './components/layout/Container';
+export { Grid } from './components/layout/Grid';
+export type { GridAlign, GridGap, GridItemProps, GridProps } from './components/layout/Grid';
+export { Stack } from './components/layout/Stack';
+export type { StackAlign, StackDirection, StackGap, StackJustify, StackProps } from './components/layout/Stack';

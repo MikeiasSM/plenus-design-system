@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Checkbox, InputText, Switch, Tabs, createPalette } from '@plenustech/design-system';
+import { Button, Checkbox, InputText, SegmentedControl, Switch, Tabs, createPalette, useColorScheme, type ColorScheme } from '@plenustech/design-system';
+import { CHAVE_DO_TEMA } from '../estrutura/janela';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
 const PRONTAS = ['orange', 'blue', 'purple'];
@@ -129,9 +130,57 @@ function CoresDeMarca() {
   );
 }
 
+function EsquemaDeCor() {
+  const { colorScheme, resolvedColorScheme, setColorScheme } = useColorScheme({ storageKey: CHAVE_DO_TEMA });
+
+  return (
+    <div className="stack">
+      <SegmentedControl
+        items={[
+          { label: 'Sistema', value: 'system' },
+          { label: 'Claro', value: 'light' },
+          { label: 'Escuro', value: 'dark' },
+        ]}
+        label="Esquema de cor"
+        onValueChange={(valor) => setColorScheme(valor as ColorScheme)}
+        value={colorScheme}
+      />
+      <p>
+        Escolha: <code>{colorScheme}</code>. Vale na tela: <code>{resolvedColorScheme}</code>.
+      </p>
+    </div>
+  );
+}
+
+const CODIGO_DO_ESQUEMA = `const { colorScheme, resolvedColorScheme, setColorScheme } = useColorScheme();
+
+<SegmentedControl
+  items={[
+    { label: 'Sistema', value: 'system' },
+    { label: 'Claro', value: 'light' },
+    { label: 'Escuro', value: 'dark' },
+  ]}
+  label="Esquema de cor"
+  onValueChange={(valor) => setColorScheme(valor as ColorScheme)}
+  value={colorScheme}
+/>
+
+<script>
+  try {
+    var tema = localStorage.getItem('pl-color-scheme');
+    if (tema === 'light' || tema === 'dark') document.documentElement.setAttribute('data-theme', tema);
+  } catch (erro) {}
+</script>`;
+
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Esquema de cor da aplicação',
+      descricao: 'useColorScheme dá e troca claro, escuro ou sistema, guarda a escolha e põe data-theme no html. O script no head evita o piscar na carga. Aqui ele troca o tema do próprio Showcase.',
+      Previa: EsquemaDeCor,
+      codigo: CODIGO_DO_ESQUEMA,
+    },
     {
       titulo: 'Paleta numa subárvore',
       descricao: 'data-palette vale em qualquer elemento; o resto da página segue a paleta de fora.',
@@ -168,8 +217,9 @@ export const pagina: Pagina = {
       teste: 'createPalette.test.ts',
     },
   ],
-  notaDaApi: 'createPalette devolve o atributo data-palette e as variáveis --pl-palette-*, para espalhar num elemento.',
+  notaDaApi: 'createPalette devolve o atributo data-palette e as variáveis --pl-palette-*, para espalhar num elemento. useColorScheme guarda o esquema de cor e aplica data-theme no html.',
   api: [
+    { nome: 'useColorScheme({ defaultColorScheme, storageKey })', tipo: 'UseColorSchemeResult', descricao: 'Devolve colorScheme (a escolha: light, dark ou system), resolvedColorScheme (light ou dark, o que vale na tela) e setColorScheme. Padrões: system e pl-color-scheme.' },
     { nome: 'cor', tipo: 'string', descricao: 'Cor da marca em hexadecimal. É o preenchimento: fundo do botão primário, do interruptor e da seleção.' },
     {
       nome: 'onSolid',

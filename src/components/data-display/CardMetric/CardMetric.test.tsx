@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { ChartsProvider } from '../../charts/ChartsProvider';
 import { Card } from '../Card';
 import { CardMetric, type CardMetricProps } from './CardMetric';
 
@@ -230,6 +231,25 @@ describe('CardMetric', () => {
     expect(onActivate).toHaveBeenCalledTimes(1);
   });
 
+  it('varios indicadores no mesmo cartao mostram cada valor com seu rotulo', () => {
+    render(
+      <CardMetric>
+        <Card.Header title="Como o negócio está" />
+        <CardMetric.Body>
+          <CardMetric.Value label="Vendas do mês" value={412380} />
+        </CardMetric.Body>
+        <CardMetric.Body>
+          <CardMetric.Value label="Ticket médio" value={187} />
+        </CardMetric.Body>
+      </CardMetric>,
+    );
+
+    expect(screen.getByText('Vendas do mês')).toBeInTheDocument();
+    expect(screen.getByText('Ticket médio')).toBeInTheDocument();
+    expect(screen.getByText(/412\.380/)).toBeInTheDocument();
+    expect(screen.getByText(/187/)).toBeInTheDocument();
+  });
+
   it('o grafico não traz o botão "Ver como tabela", que tomaria o espaço medido do desenho', () => {
     const altura = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(48);
     const largura = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(226);
@@ -243,6 +263,25 @@ describe('CardMetric', () => {
     );
 
     expect(screen.getByRole('img', { name: /Ticket diário/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ver como tabela' })).not.toBeInTheDocument();
+    altura.mockRestore();
+    largura.mockRestore();
+  });
+
+  it('o grafico segue sem o botão "Ver como tabela" mesmo com o ChartsProvider ligado', () => {
+    const altura = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(48);
+    const largura = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(226);
+
+    render(
+      <ChartsProvider showTableToggle>
+        <CardMetric>
+          <CardMetric.Body>
+            <CardMetric.Chart categories={['01/10', '02/10']} title="Ticket diário" values={[172, 168]} />
+          </CardMetric.Body>
+        </CardMetric>
+      </ChartsProvider>,
+    );
+
     expect(screen.queryByRole('button', { name: 'Ver como tabela' })).not.toBeInTheDocument();
     altura.mockRestore();
     largura.mockRestore();

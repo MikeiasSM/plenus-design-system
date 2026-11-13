@@ -209,6 +209,18 @@ export const pagina: Pagina = {
         '<RadioGroup\n  label="Forma de pagamento"\n  hint={`Selecionado: ${pagamento}`}\n  value={pagamento}\n  onValueChange={setPagamento}\n>\n  <Radio label="Pix" value="pix" />\n  <Radio label="Boleto" value="boleto" />\n  <Radio label="Cartão de crédito" value="cartao" />\n</RadioGroup>',
     },
     {
+      titulo: 'Na horizontal',
+      descricao: 'Poucas opções curtas, lado a lado; quando não cabem, quebram de linha. As setas trocam a opção nos dois eixos.',
+      Previa: () => (
+        <RadioGroup defaultValue="fisica" label="Tipo de pessoa" orientation="horizontal">
+          <Radio label="Pessoa física" value="fisica" />
+          <Radio label="Pessoa jurídica" value="juridica" />
+        </RadioGroup>
+      ),
+      codigo:
+        '<RadioGroup label="Tipo de pessoa" orientation="horizontal" defaultValue="fisica">\n  <Radio label="Pessoa física" value="fisica" />\n  <Radio label="Pessoa jurídica" value="juridica" />\n</RadioGroup>',
+    },
+    {
       titulo: 'Obrigatório no formulário',
       descricao: 'Clique em Assinar sem escolher: o navegador barra o envio. Escolhido, o valor vai pelo name.',
       Previa: Obrigatorio,
@@ -246,6 +258,7 @@ export const pagina: Pagina = {
     { teclas: ['Espaço'], acao: 'Escolhe a opção em foco, se ainda não estiver marcada.' },
   ],
   garantias: [
+    { garantia: 'Toque', como: 'Com o dedo como ponteiro principal, a área de toque tem 44px, sem mudar o desenho.', teste: 'mobile.test.ts' },
     {
       garantia: 'Grupo nomeado',
       como: <><code>&lt;fieldset&gt;</code> com <code>role="radiogroup"</code> e o rótulo na <code>&lt;legend&gt;</code>.</>,
@@ -266,12 +279,13 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'label', tipo: 'string', descricao: 'Pergunta do grupo, na legend. Obrigatório.' },
+    { nome: 'label', tipo: 'string', descricao: 'Pergunta do grupo, na legend. Opcional quando há aria-labelledby ou aria-label; sem ele, a legend não aparece.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'As opções, em Radio.' },
     { nome: 'value', tipo: 'string', descricao: 'Valor escolhido, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Valor inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa a opção escolhida.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
+    { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Direção das opções: uma por linha ou lado a lado, com quebra de linha quando não couberem. O mesmo nome do CheckboxGroup.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo das opções.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Exige uma escolha no envio.' },

@@ -31,3 +31,7 @@ export function armClickShield() {
 }
 
 export const DISMISS_GUARD_MS = WINDOW_MS;
+
+export function disarmClickShield() {
+  disarm?.();
+}

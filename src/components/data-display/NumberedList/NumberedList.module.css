@@ -1,0 +1,72 @@
+.root {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pl-font-body);
+  counter-reset: numbered-list-step;
+}
+
+.root[data-layout='list'] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-4);
+}
+
+.root[data-layout='grid'] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: var(--pl-space-3);
+}
+
+.item {
+  display: grid;
+  counter-increment: numbered-list-step;
+}
+
+/* O numero vem do contador, para a ol manter a semantica de lista. */
+.item::before {
+  content: counter(numbered-list-step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pl-space-5);
+  height: var(--pl-space-5);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-label-weight);
+}
+
+.item[data-layout='list'] {
+  grid-template-columns: auto 1fr;
+  gap: var(--pl-space-3);
+}
+
+.item[data-layout='grid'] {
+  align-content: start;
+  gap: var(--pl-space-2);
+  padding: var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-subtle);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-weight: var(--pl-type-label-weight);
+  color: var(--pl-color-text);
+}
+
+.description {
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  color: var(--pl-color-text-secondary);
+}

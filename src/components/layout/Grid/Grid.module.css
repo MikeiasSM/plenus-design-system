@@ -1,0 +1,75 @@
+/* Sem limite de colunas, entram quantas couberem. Com `columns`, cada coluna tem ao menos a largura
+   que ela teria numa grade de `columns` colunas, e então nunca passam desse número.
+   O min(100%, ...) impede a coluna de estourar uma grade mais estreita que a largura mínima.
+   As variáveis são locais, como o --card-gap do Card. Os padrões ficam declarados aqui, e não só no estilo em linha,
+   para uma grade aninhada não herdar a medida da de fora. */
+.root {
+  --grid-gap: var(--pl-space-4);
+  --grid-min: 240px;
+  --grid-columns: 1;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-min)), 1fr));
+  gap: var(--grid-gap);
+}
+
+.root[data-limited] {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(
+        100%,
+        max(var(--grid-min), calc((100% - (var(--grid-columns) - 1) * var(--grid-gap)) / var(--grid-columns)))
+      ),
+      1fr
+    )
+  );
+}
+
+.root[data-gap='1'] {
+  --grid-gap: var(--pl-space-1);
+}
+
+.root[data-gap='2'] {
+  --grid-gap: var(--pl-space-2);
+}
+
+.root[data-gap='3'] {
+  --grid-gap: var(--pl-space-3);
+}
+
+.root[data-gap='5'] {
+  --grid-gap: var(--pl-space-5);
+}
+
+.root[data-gap='6'] {
+  --grid-gap: var(--pl-space-6);
+}
+
+.root[data-gap='7'] {
+  --grid-gap: var(--pl-space-7);
+}
+
+.root[data-align='start'] {
+  align-items: start;
+}
+
+.root[data-align='center'] {
+  align-items: center;
+}
+
+.root[data-align='end'] {
+  align-items: end;
+}
+
+.root[data-align='stretch'] {
+  align-items: stretch;
+}
+
+.root[data-align='baseline'] {
+  align-items: baseline;
+}
+
+.item {
+  min-width: 0;
+}

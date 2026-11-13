@@ -2,10 +2,12 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { Button } from '../../actions/Button';
 import { Checkbox } from '../../forms/Checkbox';
 import { DatePicker } from '../../forms/DatePicker';
+import { DateTimePicker } from '../../forms/DateTimePicker';
 import { InputNumber } from '../../forms/InputNumber';
 import { InputText } from '../../forms/InputText';
 import { SegmentedControl } from '../../forms/SegmentedControl';
 import { Select } from '../../forms/Select';
+import { TimePicker } from '../../forms/TimePicker';
 import { IconSearch } from '../../icons';
 import { containsTerm } from '../../../utils/textSearch';
 import {
@@ -19,6 +21,7 @@ import {
   type DataGridFilterOperator,
 } from './filterModel';
 import styles from './DataGrid.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 /** Mesma espera da busca: no servidor, cada tecla seria uma consulta. */
 const APPLY_DELAY = 250;
@@ -309,6 +312,12 @@ function OperandEditor({ kind, label, onChange, value }: OperandEditorProps) {
   if (kind === 'date') {
     return <DatePicker aria-label={label} size="sm" value={typeof value === 'string' && value ? value : null} onValueChange={(next) => onChange(next ?? '')} />;
   }
+  if (kind === 'time') {
+    return <TimePicker aria-label={label} size="sm" value={typeof value === 'string' && value ? value : null} onValueChange={(next) => onChange(next ?? '')} />;
+  }
+  if (kind === 'datetime') {
+    return <DateTimePicker aria-label={label} size="sm" value={typeof value === 'string' && value ? value : null} onValueChange={(next) => onChange(next ?? '')} />;
+  }
   if (kind === 'number') {
     return <InputNumber aria-label={label} decimalScale={4} placeholder="Valor" size="sm" value={operandNumber(value)} onValueChange={(next) => onChange(next ?? '')} />;
   }
@@ -375,7 +384,7 @@ export function SetEditor({ header, onSelectedChange, options: optionsOf, select
         value={term}
         onValueChange={setTerm}
       />
-      <div className={styles.filterOptions} id={listId} onKeyDown={moveAmongOptions}>
+      <div className={[styles.filterOptions, thinScrollbar].join(' ')} id={listId} onKeyDown={moveAmongOptions}>
         <Checkbox
           checked={allFound && found.length > 0}
           indeterminate={someFound && !allFound}

@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef, ElementType } from 'react';
 import tabsStyles from '../Tabs/Tabs.module.css';
 import styles from './TabsNav.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface TabsNavItem {
   href?: string;
@@ -25,7 +26,7 @@ export interface TabsNavProps extends Omit<ComponentPropsWithRef<'nav'>, 'aria-l
 export function TabsNav({ as: Link = 'a', className, current, fitted = false, items, label, ...props }: TabsNavProps) {
   return (
     <nav {...props} aria-label={label} className={[styles.tabsNav, fitted && styles.fitted, className].filter(Boolean).join(' ')}>
-      <ul className={styles.list}>
+      <ul className={[styles.list, thinScrollbar].join(' ')}>
         {items.map((item) => {
           const atual = item.key === current;
 

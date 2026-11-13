@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, type CSSProperties, type KeyboardEven
 import type { Listing, ListingItem } from './useListing';
 import { useVirtualWindow } from './useVirtualWindow';
 import styles from './List.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface ListingOptionsProps {
   baseId: string;
@@ -109,7 +110,7 @@ export function ListingOptions({
     return (
       <ul
         aria-busy={loading || undefined}
-        className={[styles.options, className].filter(Boolean).join(' ')}
+        className={[styles.options, thinScrollbar, className].filter(Boolean).join(' ')}
         id={baseId + '-options'}
         onScroll={onScroll}
         ref={attachElement}
@@ -181,7 +182,7 @@ export function ListingOptions({
       aria-busy={loading || undefined}
       aria-label={label}
       aria-multiselectable={selectionMode === 'multiple' || undefined}
-      className={[styles.options, className].filter(Boolean).join(' ')}
+      className={[styles.options, thinScrollbar, className].filter(Boolean).join(' ')}
       id={baseId + '-options'}
       onKeyDown={onKeyDown}
       onScroll={onScroll}

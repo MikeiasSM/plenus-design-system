@@ -44,7 +44,9 @@ import {
 import { autoDomain, durationMs, formatPosition, timeTicks, toDate, toPosition } from './timelineTime';
 import { timelineTooltip, type TimelineMarker, type TimelineRowBand, type TimelineTarget } from './timelineTooltip';
 import chartStyles from '../core/Chart.module.css';
+import { useShowTableToggle } from '../ChartsProvider';
 import styles from './ChartTimeline.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 /** Em `calendar`, `Date` ou milissegundos desde a epoca; em `dayHours`, `Date` pela hora do dia ou a hora decimal. */
 export type ChartTimelineTime = Date | number;
@@ -146,8 +148,6 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   defaultCollapsedGroups?: readonly string[];
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenSeries?: readonly string[];
   density?: ChartTimelineDensity;
   /** Faixa fixa do eixo. Sem ela, do primeiro ao ultimo instante, arredondada a hora ou ao dia. */
   domain?: readonly [ChartTimelineTime, ChartTimelineTime];
@@ -163,8 +163,6 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenSeries?: readonly string[];
   highlightOnHover?: boolean;
   legend?: 'top' | 'bottom' | 'none';
   legendAlign?: ChartLegendAlign;
@@ -175,12 +173,8 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   onCollapsedGroupsChange?: (collapsed: readonly string[]) => void;
   /** Rotulos das series ocultas, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Com ele, os intervalos viram botoes e entram no teclado. */
   onMarkClick?: (mark: ChartTimelineMark) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onSegmentClick?: (segment: ChartTimelineSegment, row: ChartTimelineRow) => void;
   overlap?: ChartTimelineOverlap;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
@@ -198,7 +192,7 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   showGrid?: boolean;
   showProgress?: boolean;
   showSegmentLabels?: ChartTimelineSegmentLabels;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Alternativa a `segments`: cada mudanca de estado vale ate a seguinte. */
@@ -306,7 +300,6 @@ export function ChartTimeline({
   compactSummary = 'below',
   defaultCollapsedGroups,
   defaultHidden,
-  defaultHiddenSeries,
   density = 'md',
   domain,
   emptyMessage = 'Sem dados no período',
@@ -318,7 +311,6 @@ export function ChartTimeline({
   groups = [],
   height,
   hidden,
-  hiddenSeries,
   highlightOnHover = false,
   legend = 'top',
   legendAlign = 'left',
@@ -327,9 +319,7 @@ export function ChartTimeline({
   minPlotWidth = 360,
   onCollapsedGroupsChange,
   onHiddenChange,
-  onHiddenSeriesChange,
   onMarkClick,
-  onSegmentClick,
   overlap = 'stack',
   palette,
   referenceLines = [],
@@ -345,7 +335,7 @@ export function ChartTimeline({
   showGrid = true,
   showProgress = true,
   showSegmentLabels = 'auto',
-  showTableToggle = true,
+  showTableToggle: showTableToggleProp,
   showTooltip = true,
   states,
   statesEnd,
@@ -354,6 +344,7 @@ export function ChartTimeline({
   xAxis = 'visible',
   ...root
 }: ChartTimelineProps) {
+  const showTableToggle = useShowTableToggle(showTableToggleProp);
   const titleId = useId();
   const hintId = useId();
   const patternPrefix = useId().replace(/[^\w-]/g, '');
@@ -361,12 +352,9 @@ export function ChartTimeline({
   const plot = useChartMetrics();
   const touch = useTouchPin();
   const seriesToggle = useSeriesToggle({
-    defaultHidden: defaultHidden ?? defaultHiddenSeries,
-    hidden: hidden ?? hiddenSeries,
-    onHiddenChange: (ocultas) => {
-      onHiddenChange?.(ocultas);
-      onHiddenSeriesChange?.(ocultas);
-    },
+    defaultHidden,
+    hidden,
+    onHiddenChange,
   });
   // Recolher grupo e o mesmo controle da legenda: estado proprio ou do produto, pela chave.
   const groupToggle = useSeriesToggle({
@@ -384,13 +372,9 @@ export function ChartTimeline({
   const scrollNode = useRef<HTMLDivElement>(null);
   const scrollRef = useMergedRefs(plot.ref, scrollNode);
   const [horizontalBarHeight, setHorizontalBarHeight] = useState(0);
-  const clickSegment =
-    onMarkClick || onSegmentClick
-      ? (segment: ChartTimelineSegment, row: ChartTimelineRow) => {
-          onMarkClick?.({ row, segment });
-          onSegmentClick?.(segment, row);
-        }
-      : undefined;
+  const clickSegment = onMarkClick
+    ? (segment: ChartTimelineSegment, row: ChartTimelineRow) => onMarkClick({ row, segment })
+    : undefined;
   const interactive = clickSegment !== undefined;
 
   const colors = useMemo(() => resolveSeriesColors(series, { accent, palette }), [accent, palette, series]);
@@ -1119,7 +1103,7 @@ export function ChartTimeline({
 
       <div
         aria-label={scrolls && !interactive ? `${title}, ${scrollsDown ? 'área rolável' : 'área rolável de lado'}` : undefined}
-        className={`${styles.scroll} ${sized ? styles.scrollSized : ''}`}
+        className={`${styles.scroll} ${thinScrollbar} ${sized ? styles.scrollSized : ''}`}
         {...touch.props}
         onScroll={sized ? scrollAlongside : undefined}
         ref={scrollRef}
