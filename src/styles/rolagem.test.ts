@@ -25,7 +25,7 @@ describe('barra de rolagem dos contêineres', () => {
   });
 
   it('o token é recalculado em cada escopo de tema', () => {
-    expect(ler('tokens/semantic/scroll.css')).toMatch(/:root,\s*\[data-theme\] \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 18%, transparent\)/);
+    expect(ler('tokens/semantic/scroll.css')).toMatch(/:root,\s*\[data-theme\] \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 54%, transparent\)/);
     expect(ler('styles/tokens.css')).toContain("@import '../tokens/semantic/scroll.css';");
   });
 
