@@ -16,6 +16,7 @@ describe('Card.Header: estilo', () => {
   it('o corpo logo depois do cabecalho perde o respiro de cima, e o sem cabecalho o mantem', () => {
     expect(bloco('.body')).toContain('padding-block-start: var(--card-body-start, var(--card-gap));');
     expect(bloco('.header + .body')).toContain('--card-body-start: 0;');
+    expect(bloco('.card')).toContain('--card-body-start: initial;');
     expect(css).not.toMatch(/.bodyFlush[^{]*{[^}]*--card-body-start/);
   });
 

@@ -1,6 +1,7 @@
 /* O respiro é declarado em cada cartão: o `sm` de fora não chega a um `Card` aninhado. */
 .card {
   --card-gap: var(--pl-space-5);
+  --card-body-start: initial;
   display: flex;
   flex-direction: column;
   overflow: hidden;
