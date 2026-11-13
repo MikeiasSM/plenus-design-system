@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
+import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconClose } from '../../icons';
 import { Drawer, type DrawerProps } from '../Drawer';
@@ -48,6 +49,7 @@ export function SidePanel({
   const narrow = useNarrowViewport();
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const panelRef = useRef<HTMLDivElement>(null);
+  const scroll = useScrollFocusable();
   const titleId = useId();
   const wasOpen = useRef(open);
   const previousFocus = useRef<HTMLElement | null>(null);
@@ -108,7 +110,15 @@ export function SidePanel({
           <h2 className={styles.title} id={titleId}>{title}</h2>
           <ButtonIcon icon={<IconClose />} label="Fechar" onClick={() => setOpen(false)} size="sm" variant="ghost" />
         </header>
-        <div className={[styles.body, thinScrollbar].join(' ')}>{children}</div>
+        <div
+          aria-label={scroll.focusable ? `Conteúdo de ${title}` : undefined}
+          className={[styles.body, thinScrollbar].join(' ')}
+          ref={scroll.ref}
+          role={scroll.focusable ? 'region' : undefined}
+          tabIndex={scroll.focusable ? 0 : undefined}
+        >
+          {children}
+        </div>
         {footer && <div className={styles.footer}>{footer}</div>}
       </div>
     </aside>

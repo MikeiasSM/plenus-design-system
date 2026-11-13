@@ -4,6 +4,24 @@ import { Button } from '../../actions/Button';
 import { Dialog } from './Dialog';
 import styles from './Dialog.module.css';
 
+function transbordar() {
+  vi.stubGlobal('ResizeObserver', class {
+    constructor(private aviso: () => void) {}
+    observe() {
+      this.aviso();
+    }
+    disconnect() {}
+  });
+  Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 400 });
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, value: 100 });
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  Reflect.deleteProperty(HTMLElement.prototype, 'scrollHeight');
+  Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+});
+
 function Host({ dismissable = true }: { dismissable?: boolean }) {
   const [open, setOpen] = useState(false);
 
@@ -312,5 +330,30 @@ describe('Dialog', () => {
       </Dialog>,
     );
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
+  });
+
+  describe('corpo que rola', () => {
+    it('fica focável e nomeado quando transborda, sem tirar o foco inicial do botão de fechar', () => {
+      transbordar();
+      render(<Dialog open title="Termos">Texto longo.</Dialog>);
+
+      const corpo = screen.getByRole('region', { name: 'Conteúdo de Termos' });
+
+      expect(corpo).toHaveAttribute('tabindex', '0');
+      expect(screen.getByRole('button', { name: 'Fechar' })).toHaveFocus();
+    });
+
+    it('não ganha tabindex quando o conteúdo cabe', () => {
+      render(<Dialog open title="Termos">Texto curto.</Dialog>);
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
+
+    it('não ganha tabindex quando há algo focável dentro', () => {
+      transbordar();
+      render(<Dialog open title="Termos"><input aria-label="Nome" /></Dialog>);
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
   });
 });

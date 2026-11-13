@@ -89,6 +89,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 ### Corrigido
 
+- `Dialog`, `Drawer`, `SidePanel` e `Table`: o corpo ou o envoltório que rola passa a receber foco do teclado, como região nomeada ("Conteúdo de" seguido do título, ou "Tabela:" seguido do rótulo), enquanto transborda e não tem nada focável dentro, para quem usa só o teclado alcançar o que está fora da vista e rolar com as setas. Conteúdo que cabe, ou que já tem algo focável dentro, não ganha `tabindex`. O foco inicial do `Dialog` e do `Drawer` continua no botão de fechar.
 - `SortableList` e `Sidebar`: o texto de apoio sobre o fundo da seleção passa do tom terciário ao secundário e chega a 4,5:1. Vale para o resumo da linha selecionada do `SortableList` e para a descrição da conta no gatilho da `Sidebar`, no hover e com o menu aberto. Antes, ficava entre 4,13 e 4,49:1 em cinco dos seis temas.
 - `Dialog` e filtro do `DataGrid`: a altura máxima passa a acompanhar a janela visível do celular (`dvh`), com a barra do navegador e o teclado virtual. Antes, usava `vh`, e o rodapé do diálogo podia ficar atrás da barra.
 - `AppShell`, a gaveta da `Sidebar`, `SaveBar`, `Toast`, `Dialog` e `Drawer`: o que encosta na borda da janela respeita a safe area (`env(safe-area-inset-*)`), somada ao respiro de antes, para não ficar sob o entalhe nem a barra de gestos. No `Dialog`, o respiro de 16 px em volta do cartão passa a ser o maior entre ele e a safe area, dentro ou fora do `AppShell`. Só tem efeito com `viewport-fit=cover` na meta `viewport` do produto; sem isso, nada muda.

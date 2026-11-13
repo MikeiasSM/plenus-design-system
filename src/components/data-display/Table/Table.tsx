@@ -14,6 +14,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
+import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
 import { Tooltip } from '../../overlays/Tooltip';
 import checkboxStyles from '../../forms/Checkbox/Checkbox.module.css';
@@ -190,7 +191,8 @@ export function Table({
 
     return () => observador.disconnect();
   }, []);
-  const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, ref);
+  const rolagem = useScrollFocusable();
+  const envoltorioRef = useMergedRefs(stickyHeader ? observarTransbordo : undefined, rolagem.ref, ref);
 
   // A coluna se registra enquanto esta na tela e sai quando sai: registrada para sempre, o vazio ocupava colunas
   // que nao existiam mais.
@@ -288,6 +290,9 @@ export function Table({
 
   return (
     <div
+      aria-label={rolagem.focusable ? (label ? `Tabela: ${label}` : 'Tabela') : undefined}
+      role={rolagem.focusable ? 'region' : undefined}
+      tabIndex={rolagem.focusable ? 0 : undefined}
       {...props}
       className={[styles.scroll, thinScrollbar, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
       ref={envoltorioRef}

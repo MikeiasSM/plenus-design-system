@@ -488,4 +488,64 @@ describe('CSS da Table', () => {
     expect(css).toMatch(/@container \(max-width: 1180px\) \{\s*\.table \[data-hide-below='md'\] \{\s*display: none;/);
     expect(css).toMatch(/@container \(max-width: 1280px\) \{\s*\.table \[data-hide-below='lg'\] \{\s*display: none;/);
   });
+
+  describe('envoltório que rola', () => {
+    class Observador {
+      constructor(private aviso: () => void) {}
+      observe() {
+        this.aviso();
+      }
+      disconnect() {}
+    }
+
+    function simples() {
+      return (
+        <Table label="Membros" rows={membros}>
+          <Table.Header>
+            <Table.Column id="nome">Nome</Table.Column>
+          </Table.Header>
+          <Table.Body items={membros}>
+            {(membro) => (
+              <Table.Row id={membro.id}>
+                <Table.Cell>{membro.nome}</Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
+      );
+    }
+
+    function transbordar(transborda: boolean) {
+      vi.stubGlobal('ResizeObserver', Observador);
+      Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, value: transborda ? 800 : 100 });
+      Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 100 });
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+      Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    });
+
+    it('fica focável e nomeado quando transborda', () => {
+      transbordar(true);
+      render(simples());
+
+      expect(screen.getByRole('region', { name: 'Tabela: Membros' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('não ganha tabindex quando a tabela cabe', () => {
+      transbordar(false);
+      render(simples());
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
+
+    it('não ganha tabindex quando há algo focável dentro', () => {
+      transbordar(true);
+      montar();
+
+      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    });
+  });
 });
