@@ -2,6 +2,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { LiveRegionContext } from '../../../hooks/useInsideLiveRegion';
 import { Sidebar } from '../Sidebar';
 import styles from './AppShell.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export type AppShellPageProps = ComponentPropsWithRef<'main'>;
 
@@ -22,7 +23,7 @@ export function AppShellPageBar({ children, className, ...props }: ComponentProp
 
 /** Corpo da página: a única área que rola. Mede a largura da folha para as regras de container do produto. */
 export function AppShellPageBody({ className, ...props }: ComponentPropsWithRef<'div'>) {
-  return <div {...props} className={[styles.pageBody, className].filter(Boolean).join(' ')} />;
+  return <div {...props} className={[styles.pageBody, thinScrollbar, className].filter(Boolean).join(' ')} />;
 }
 
 export interface AppShellPageFooterProps extends ComponentPropsWithRef<'div'> {

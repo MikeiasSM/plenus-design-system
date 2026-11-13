@@ -3,6 +3,7 @@ import { useSidebarContext } from './Sidebar.context';
 import { isEditableTarget } from './Sidebar.shortcut';
 import { SidebarItemScopeContext, useSidebarPanel } from './SidebarPanel.context';
 import styles from './SidebarPanel.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface SidebarAccountProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** O avatar do usuário. */
@@ -76,7 +77,7 @@ export function SidebarAccount({
       onKeyDown={handleKeyDown}
     >
       <div className={styles.accountCard} inert={!accountOpen}>
-        <nav aria-label={label ?? labels.account} className={styles.accountNav} id={accountId} onClick={handleCardClick} ref={cardRef}>
+        <nav aria-label={label ?? labels.account} className={[styles.accountNav, thinScrollbar].join(' ')} id={accountId} onClick={handleCardClick} ref={cardRef}>
           <ul className={styles.items}>
             <SidebarItemScopeContext value="account">{children}</SidebarItemScopeContext>
           </ul>

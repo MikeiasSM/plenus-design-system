@@ -9,6 +9,7 @@ import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Dialog.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface DialogFrameProps extends DialogBaseProps {
   'aria-label'?: string;
@@ -159,7 +160,7 @@ function DialogFrameContent({
               )}
             </header>
           )}
-          {children && <div className={[styles.body, flush && styles.bodyFlush].filter(Boolean).join(' ')}>{children}</div>}
+          {children && <div className={[styles.body, flush && styles.bodyFlush, thinScrollbar].filter(Boolean).join(' ')}>{children}</div>}
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>
       </FocusScope>

@@ -21,6 +21,7 @@ import {
   type DataGridFilterOperator,
 } from './filterModel';
 import styles from './DataGrid.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 /** Mesma espera da busca: no servidor, cada tecla seria uma consulta. */
 const APPLY_DELAY = 250;
@@ -383,7 +384,7 @@ export function SetEditor({ header, onSelectedChange, options: optionsOf, select
         value={term}
         onValueChange={setTerm}
       />
-      <div className={styles.filterOptions} id={listId} onKeyDown={moveAmongOptions}>
+      <div className={[styles.filterOptions, thinScrollbar].join(' ')} id={listId} onKeyDown={moveAmongOptions}>
         <Checkbox
           checked={allFound && found.length > 0}
           indeterminate={someFound && !allFound}

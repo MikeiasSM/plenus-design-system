@@ -2,6 +2,7 @@ import { Fragment, useId, type ComponentPropsWithRef, type ReactNode } from 'rea
 import { useAvisoDeGrupoSemNome } from '../../../hooks/useAvisoDeGrupoSemNome';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './SegmentedControl.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface SegmentedControlItem {
   disabled?: boolean;
@@ -52,7 +53,7 @@ export function SegmentedControl({
       {...props}
       aria-label={ariaLabelledby ? undefined : (label ?? ariaLabel)}
       aria-labelledby={ariaLabelledby}
-      className={[styles.control, styles[size], className].filter(Boolean).join(' ')}
+      className={[styles.control, styles[size], thinScrollbar, className].filter(Boolean).join(' ')}
       role="radiogroup"
     >
       {items.map((item) => {

@@ -20,6 +20,7 @@ import checkboxStyles from '../../forms/Checkbox/Checkbox.module.css';
 import radioGroupStyles from '../../forms/RadioGroup/RadioGroup.module.css';
 import switchStyles from '../../forms/Switch/Switch.module.css';
 import styles from './Table.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 import { EmptyState } from '../../feedback/EmptyState';
 import { Skeleton } from '../../feedback/Skeleton';
 import { IconArrowUp, IconChevronExpand, IconQuestionCircle } from '../../icons';
@@ -288,7 +289,7 @@ export function Table({
   return (
     <div
       {...props}
-      className={[styles.scroll, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
+      className={[styles.scroll, thinScrollbar, stickyHeader && !precisaRolar && styles.noScroll, className].filter(Boolean).join(' ')}
       ref={envoltorioRef}
     >
       {barras}

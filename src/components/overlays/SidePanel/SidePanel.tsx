@@ -5,6 +5,7 @@ import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconClose } from '../../icons';
 import { Drawer, type DrawerProps } from '../Drawer';
 import styles from './SidePanel.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export type SidePanelSide = 'left' | 'right';
 export type SidePanelSize = 'sm' | 'md' | 'lg';
@@ -107,7 +108,7 @@ export function SidePanel({
           <h2 className={styles.title} id={titleId}>{title}</h2>
           <ButtonIcon icon={<IconClose />} label="Fechar" onClick={() => setOpen(false)} size="sm" variant="ghost" />
         </header>
-        <div className={styles.body}>{children}</div>
+        <div className={[styles.body, thinScrollbar].join(' ')}>{children}</div>
         {footer && <div className={styles.footer}>{footer}</div>}
       </div>
     </aside>

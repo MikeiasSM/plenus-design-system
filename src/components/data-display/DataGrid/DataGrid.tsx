@@ -116,6 +116,7 @@ import { DataGridHeaderCell, MIN_COLUMN_WIDTH } from './DataGridHeaderCell';
 import { buildRowLayout, rowAt, totalHeight, visibleWindow } from './rowLayout';
 import { DataGridScrollRoot } from './scrollRoot';
 import styles from './DataGrid.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 const OVERSCAN = 6;
 const DEFAULT_HEIGHT = 480;
@@ -2430,7 +2431,7 @@ export function DataGrid<Row>({
           {children}
           <div className={styles.viewport}>
             <div
-              className={styles.scroller}
+              className={[styles.scroller, thinScrollbar].join(' ')}
               data-scrolled-end={edges.end || undefined}
               data-scrolled-start={edges.start || undefined}
               ref={scrollerRef}

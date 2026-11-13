@@ -3,6 +3,7 @@ import { Button } from '../../actions/Button';
 import { InputText } from '../../forms/InputText';
 import { IconSearch } from '../../icons';
 import styles from './ChartMap.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface MapTableRegionRow {
   classLabel?: string;
@@ -145,7 +146,7 @@ export function ChartMapTable({
 
       <div
         aria-label={`Tabela: ${title}`}
-        className={styles.tableScroll}
+        className={[styles.tableScroll, thinScrollbar].join(' ')}
         role="region"
         style={{ maxHeight }}
         tabIndex={0}

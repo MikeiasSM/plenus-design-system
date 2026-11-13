@@ -45,6 +45,7 @@ import { autoDomain, durationMs, formatPosition, timeTicks, toDate, toPosition }
 import { timelineTooltip, type TimelineMarker, type TimelineRowBand, type TimelineTarget } from './timelineTooltip';
 import chartStyles from '../core/Chart.module.css';
 import styles from './ChartTimeline.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 /** Em `calendar`, `Date` ou milissegundos desde a epoca; em `dayHours`, `Date` pela hora do dia ou a hora decimal. */
 export type ChartTimelineTime = Date | number;
@@ -1119,7 +1120,7 @@ export function ChartTimeline({
 
       <div
         aria-label={scrolls && !interactive ? `${title}, ${scrollsDown ? 'área rolável' : 'área rolável de lado'}` : undefined}
-        className={`${styles.scroll} ${sized ? styles.scrollSized : ''}`}
+        className={`${styles.scroll} ${thinScrollbar} ${sized ? styles.scrollSized : ''}`}
         {...touch.props}
         onScroll={sized ? scrollAlongside : undefined}
         ref={scrollRef}

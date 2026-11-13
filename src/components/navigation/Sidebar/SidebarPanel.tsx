@@ -25,6 +25,7 @@ import { SidebarBrandContext } from './SidebarBrand.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
 import frameStyles from './Sidebar.module.css';
 import styles from './SidebarPanel.module.css';
+import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label'> {
   /** A conta do usuário no rodapé: um `Sidebar.Account`. */
@@ -125,7 +126,7 @@ export function SidebarPanel({
                   />
                 )}
               </div>
-              <div className={styles.list}>
+              <div className={[styles.list, thinScrollbar].join(' ')}>
                 <ul className={styles.items}>{children}</ul>
               </div>
             </nav>
