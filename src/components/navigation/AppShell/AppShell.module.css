@@ -69,12 +69,6 @@
   container-type: inline-size;
 }
 
-@media (hover: hover) {
-  .pageBody:hover {
-    scrollbar-color: color-mix(in srgb, var(--pl-color-text) 18%, transparent) transparent;
-  }
-}
-
 .pageFooter {
   display: flex;
   flex: none;

@@ -29,6 +29,12 @@ describe('barra de rolagem dos contêineres', () => {
     expect(ler('styles/tokens.css')).toContain("@import '../tokens/semantic/scroll.css';");
   });
 
+  it('a cor e a largura da barra ficam só na classe comum', () => {
+    const avulsas = arquivos(resolve(raiz, 'components'), '.module.css').filter((caminho) => /scrollbar-color|scrollbar-width:(?!\s*none)/.test(readFileSync(caminho, 'utf8')));
+
+    expect(avulsas.map((caminho) => relative(raiz, caminho).split(sep).join('/'))).toEqual([]);
+  });
+
   it.each(rolam.map((caminho) => [relative(raiz, caminho).split(sep).join('/'), caminho] as const))('%s: o componente que rola usa a classe da barra', (nome, caminho) => {
     if (SEM_BARRA.includes(nome)) {
       return;
