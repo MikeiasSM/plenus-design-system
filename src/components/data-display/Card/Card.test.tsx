@@ -283,11 +283,15 @@ describe('Card', () => {
     });
 
     it('o start cresce e fica no comeco, mesmo sendo filho unico', () => {
-      expect(regras.get('.footerStart')).toMatchObject({ flex: '1', 'margin-inline-start': '0' });
+      expect(regras.get('.footerStart')).toMatchObject({ flex: '1 1 auto', 'margin-inline-start': '0' });
+    });
+
+    it('o rodape quebra a linha quando o start e os filhos nao cabem juntos', () => {
+      expect(regras.get('.footer')).toMatchObject({ 'flex-wrap': 'wrap' });
     });
 
     it('os filhos, com o start, ficam juntos no fim da linha', () => {
-      expect(regras.get('.footerEnd')).toMatchObject({ flex: 'none', 'margin-inline-start': 'auto' });
+      expect(regras.get('.footerEnd')).toMatchObject({ flex: '0 1 auto', 'min-width': '0', 'margin-inline-start': 'auto' });
     });
   });
 });

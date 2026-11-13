@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type RefObject } from 'react';
+import { useLayoutEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { Select } from '../../forms/Select';
@@ -22,7 +22,7 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   defaultPageSize?: number;
   /** Suspende os botoes de pagina, como enquanto a pagina pedida carrega; continuam focaveis. O seletor de tamanho segue ativo. */
   disabled?: boolean;
-  /** Troca o texto do modo compacto, que por padrão é `3 de 12`; o devolvido é também o que se anuncia. */
+  /** Troca o texto do modo compacto, que por padrão é `3 de 12`; o devolvido é anunciado só sem `totalItems`, pois com ele o intervalo já é anunciado. */
   formatCompact?: (page: number, pageCount: number) => string;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;
@@ -71,66 +71,68 @@ export function Pagination({
   const totalDePaginas = pageCount ?? (totalItems !== undefined && tamanho ? Math.ceil(totalItems / tamanho) : 0);
   const renderiza = totalDePaginas > 1 || Boolean(pageSizeOptions);
   const temPassos = totalDePaginas > 1;
-  const passos = useRef<HTMLDivElement>(null);
-  const nivelMedido = useRef<number | null>(null);
-  const [largura, setLargura] = useState(-1);
-  const [ajuste, setAjuste] = useState({ chave: '', nivel: 0 });
+  const linha = useRef<HTMLDivElement>(null);
+  const copia = useRef<HTMLDivElement>(null);
+  const seletor = useRef<HTMLSpanElement>(null);
+  const [medidas, setMedidas] = useState<Medidas | null>(null);
   const ultimo = siblings + 1 + (showFirstLast ? 1 : 0);
-  const chaveDe = (medida: number) => `${medida}|${totalDePaginas}|${siblings}|${showFirstLast}|${compact}`;
-  const chave = chaveDe(largura);
-  const nivel = ajuste.chave === chave ? ajuste.nivel : compact ? siblings + 1 : 0;
-
-  useEffect(() => {
-    const nav = passos.current?.parentElement;
-
-    if (!nav || typeof ResizeObserver === 'undefined') {
-      return;
-    }
-
-    const observador = new ResizeObserver(() => setLargura(Math.round(nav.getBoundingClientRect().width)));
-    observador.observe(nav);
-
-    return () => observador.disconnect();
-  }, [temPassos]);
+  const atual = Math.min(Math.max(page ?? internalPage, 1), Math.max(totalDePaginas, 1));
+  const intervalo =
+    totalItems && tamanho
+      ? { start: (atual - 1) * tamanho + 1, end: Math.min(atual * tamanho, totalItems), total: totalItems }
+      : undefined;
+  const textoCompacto = (formatCompact ?? formatarCompacto)(atual, totalDePaginas);
+  const textoIntervalo = intervalo ? (formatRange ?? formatarIntervalo)(intervalo) : undefined;
+  const chaveCopia = [
+    totalDePaginas,
+    atual,
+    siblings,
+    showFirstLast,
+    textoCompacto,
+    textoIntervalo,
+    tamanho,
+    temPassos,
+    Boolean(pageSizeOptions),
+  ].join('|');
+  const nivel = escolherNivel(medidas, ultimo, compact ? siblings + 1 : 0);
 
   useLayoutEffect(() => {
-    const nav = passos.current?.parentElement;
+    const nav = linha.current?.parentElement;
+    const formas = copia.current;
 
-    if (!passos.current || !nav) {
-      nivelMedido.current = null;
+    if (!nav || !formas) {
       return;
     }
 
-    const medida = Math.round(nav.getBoundingClientRect().width);
-    const nivelMudou = nivelMedido.current !== null && nivelMedido.current !== nivel;
-    nivelMedido.current = nivel;
+    const medir = () => {
+      const proximas: Medidas = {
+        disponivel: Math.round(nav.getBoundingClientRect().width),
+        formas: Array.from(formas.querySelectorAll<HTMLElement>('[data-forma]')).map((forma) =>
+          Math.round(forma.getBoundingClientRect().width),
+        ),
+        seletor: Math.round(seletor.current?.lastElementChild?.getBoundingClientRect().width ?? 0),
+      };
+      setMedidas((antes) => (antes && mesmaMedida(antes, proximas) ? antes : proximas));
+    };
 
-    if (medida !== largura) {
-      setLargura(medida);
+    medir();
 
-      if (nivelMudou) {
-        setAjuste({ chave: chaveDe(medida), nivel });
-      }
-
+    if (typeof ResizeObserver === 'undefined') {
       return;
     }
 
-    if (nivel < ultimo && passos.current.getBoundingClientRect().width > nav.getBoundingClientRect().width + 0.5) {
-      setAjuste({ chave, nivel: nivel + 1 });
-    }
-  });
+    const observador = new ResizeObserver(medir);
+    observador.observe(nav);
+    formas.querySelectorAll('[data-forma]').forEach((forma) => observador.observe(forma));
+
+    return () => observador.disconnect();
+  }, [chaveCopia]);
 
   if (!renderiza) {
     return null;
   }
 
-  const atual = Math.min(Math.max(page ?? internalPage, 1), Math.max(totalDePaginas, 1));
   const modoCompacto = nivel > siblings;
-  const paginas = montarFaixa(atual, totalDePaginas, Math.max(siblings - nivel, 0));
-  const intervalo =
-    totalItems && tamanho
-      ? { start: (atual - 1) * tamanho + 1, end: Math.min(atual * tamanho, totalItems), total: totalItems }
-      : undefined;
 
   function mudarPagina(pagina: number) {
     if (page === undefined) {
@@ -156,57 +158,174 @@ export function Pagination({
     }
   }
 
+
   return (
     <nav {...props} aria-label={label} className={[styles.pagination, className].filter(Boolean).join(' ')}>
-      {intervalo && <PaginationRangeText formatRange={formatRange} range={intervalo} />}
-      {pageSizeOptions && (
-        <span className={styles.pageSize}>
-          <span aria-hidden="true">Itens por página</span>
-          <Select
-            aria-label="Itens por página"
-            options={pageSizeOptions.map((opcao) => ({ value: String(opcao), label: formatNumber(opcao) }))}
-            size="sm"
-            value={tamanho === undefined ? undefined : String(tamanho)}
-            onValueChange={(valor) => trocarTamanho(Number(valor))}
+      <div className={styles.linha} ref={linha}>
+        {intervalo && <PaginationRangeText formatRange={formatRange} range={intervalo} />}
+        {pageSizeOptions && (
+          <span className={styles.pageSize} ref={seletor}>
+            <span aria-hidden="true">Itens por página</span>
+            <Select
+              aria-label="Itens por página"
+              options={pageSizeOptions.map((opcao) => ({ value: String(opcao), label: formatNumber(opcao) }))}
+              size="sm"
+              value={tamanho === undefined ? undefined : String(tamanho)}
+              onValueChange={(valor) => trocarTamanho(Number(valor))}
+            />
+          </span>
+        )}
+        {temPassos && (
+          <PaginationSteps
+            anunciaCompacto={intervalo === undefined}
+            atual={atual}
+            compactText={modoCompacto ? textoCompacto : undefined}
+            disabled={disabled}
+            irPara={irPara}
+            paginas={montarFaixa(atual, totalDePaginas, Math.max(siblings - nivel, 0))}
+            showFirstLast={showFirstLast && nivel <= siblings + 1}
+            totalDePaginas={totalDePaginas}
           />
-        </span>
-      )}
-      {totalDePaginas > 1 && (
-        <PaginationSteps
-          atual={atual}
-          compactText={modoCompacto ? (formatCompact ?? formatarCompacto)(atual, totalDePaginas) : undefined}
-          disabled={disabled}
-          irPara={irPara}
-          paginas={paginas}
-          passos={passos}
-          showFirstLast={showFirstLast && nivel <= siblings + 1}
-          totalDePaginas={totalDePaginas}
-        />
+        )}
+      </div>
+      {temPassos && (
+        <div className={styles.copia} aria-hidden="true" inert ref={copia}>
+          <div className={styles.copiaLinha}>
+            {textoIntervalo !== undefined && <span className={styles.range} data-texto={textoIntervalo} />}
+            {pageSizeOptions && (
+              <span className={styles.pageSize}>
+                <span data-texto="Itens por página" />
+                <span style={{ width: medidas?.seletor }} />
+              </span>
+            )}
+            <PaginationStepsCopy
+              atual={atual}
+              forma={0}
+              paginas={montarFaixa(atual, totalDePaginas, siblings)}
+              showFirstLast={showFirstLast}
+            />
+          </div>
+          {Array.from({ length: ultimo }, (_, indice) => indice + 1).map((forma) => (
+            <PaginationStepsCopy
+              atual={atual}
+              forma={forma}
+              key={forma}
+              paginas={montarFaixa(atual, totalDePaginas, Math.max(siblings - forma, 0))}
+              showFirstLast={showFirstLast && forma <= siblings + 1}
+              texto={forma > siblings ? textoCompacto : undefined}
+            />
+          ))}
+        </div>
       )}
     </nav>
   );
+}
+
+interface Medidas {
+  disponivel: number;
+  formas: number[];
+  seletor: number;
+}
+
+function mesmaMedida(a: Medidas, b: Medidas) {
+  return (
+    a.disponivel === b.disponivel &&
+    a.seletor === b.seletor &&
+    a.formas.length === b.formas.length &&
+    a.formas.every((largura, indice) => largura === b.formas[indice])
+  );
+}
+
+function escolherNivel(medidas: Medidas | null, ultimo: number, minimo: number) {
+  if (!medidas || medidas.formas.length !== ultimo + 1) {
+    return minimo;
+  }
+
+  for (let nivel = minimo; nivel < ultimo; nivel++) {
+    if (medidas.formas[nivel] <= medidas.disponivel + 0.5) {
+      return nivel;
+    }
+  }
+
+  return ultimo;
 }
 
 function formatarCompacto(pagina: number, total: number) {
   return `${formatNumber(pagina)} de ${formatNumber(total)}`;
 }
 
+function formatarIntervalo({ start, end, total }: PaginationRange) {
+  return `${formatNumber(start)}–${formatNumber(end)} de ${formatNumber(total)}`;
+}
+
+function PaginationStepsCopy({
+  atual,
+  forma,
+  paginas,
+  showFirstLast,
+  texto,
+}: {
+  atual: number;
+  forma: number;
+  paginas: (number | null)[];
+  showFirstLast: boolean;
+  texto?: string;
+}) {
+  return (
+    <div className={styles.steps} data-forma={forma}>
+      {showFirstLast && (
+        <span className={styles.step}>
+          <IconChevronBarLeft size={14} />
+        </span>
+      )}
+      <span className={styles.step}>
+        <IconChevronLeft size={14} />
+      </span>
+      {texto === undefined ? (
+        <span className={styles.list}>
+          {paginas.map((numero, indice) =>
+            numero === null ? (
+              <span className={styles.gap} data-texto="…" key={`gap-${indice}`} />
+            ) : (
+              <span
+                className={[styles.page, numero === atual && styles.current].filter(Boolean).join(' ')}
+                data-texto={numero}
+                key={numero}
+              />
+            ),
+          )}
+        </span>
+      ) : (
+        <span className={styles.compactText} data-texto={texto} />
+      )}
+      <span className={styles.step}>
+        <IconChevronRight size={14} />
+      </span>
+      {showFirstLast && (
+        <span className={styles.step}>
+          <IconChevronBarRight size={14} />
+        </span>
+      )}
+    </div>
+  );
+}
+
 function PaginationSteps({
+  anunciaCompacto,
   atual,
   compactText,
   disabled,
   irPara,
   paginas,
-  passos,
   showFirstLast,
   totalDePaginas,
 }: {
+  anunciaCompacto: boolean;
   atual: number;
   compactText?: string;
   disabled: boolean;
   irPara: (pagina: number) => void;
   paginas: (number | null)[];
-  passos: RefObject<HTMLDivElement | null>;
   showFirstLast: boolean;
   totalDePaginas: number;
 }) {
@@ -214,7 +333,7 @@ function PaginationSteps({
   const noFim = disabled || atual === totalDePaginas || undefined;
 
   return (
-    <div className={styles.steps} ref={passos}>
+    <div className={styles.steps}>
       {showFirstLast && (
         <button
           className={styles.step}
@@ -263,7 +382,7 @@ function PaginationSteps({
           )}
         </ol>
       ) : (
-        <span className={styles.compactText} role="status">
+        <span className={styles.compactText} role={anunciaCompacto ? 'status' : undefined}>
           <span aria-current="page">{compactText}</span>
         </span>
       )}
