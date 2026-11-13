@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { isNarrowNow, useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { IconChevronLeft, IconChevronUp, IconClose, IconExternalLink, IconSidebar } from '../../icons';
+import { IconLayoutSidebarInset } from '../../icons/suite';
 import {
   defaultSidebarLabels,
   SidebarContext,
@@ -63,14 +64,18 @@ export interface UseSidebarResult {
   toggleSidebar: () => void;
 }
 
-const defaultSidebarIcons: SidebarIcons = {
-  account: <IconChevronUp size={15} />,
-  back: <IconChevronLeft size={14} />,
-  close: <IconClose />,
-  collapse: <IconSidebar />,
-  external: <IconExternalLink size={15} />,
-  open: <IconSidebar />,
-};
+function defaultSidebarIcons(side: 'left' | 'right'): SidebarIcons {
+  const panel = side === 'left' ? <IconLayoutSidebarInset /> : <IconSidebar />;
+
+  return {
+    account: <IconChevronUp size={15} />,
+    back: <IconChevronLeft size={14} />,
+    close: <IconClose />,
+    collapse: panel,
+    external: <IconExternalLink size={15} />,
+    open: panel,
+  };
+}
 
 function mergeDefined<T extends object>(defaults: T, overrides?: Partial<T>): T {
   const entries = Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined);
@@ -111,7 +116,7 @@ export function SidebarProvider({
   const focusAfterChange = useRef<'collapse' | 'expand' | null>(null);
   const accountWasOpen = useRef(false);
   const resolvedLabels = mergeDefined(defaultSidebarLabels, labels);
-  const resolvedIcons = mergeDefined(defaultSidebarIcons, icons);
+  const resolvedIcons = mergeDefined(defaultSidebarIcons(side), icons);
   const panelId = useId();
   const accountId = useId();
 

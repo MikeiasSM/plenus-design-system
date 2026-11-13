@@ -4,6 +4,8 @@ import { useState, type ReactNode } from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
 import { AppShell } from '../AppShell';
+import { IconSidebar } from '../../icons';
+import { IconLayoutSidebarInset } from '../../icons/suite';
 import drawerStyles from '../../overlays/Drawer/Drawer.module.css';
 import { Sidebar } from './Sidebar';
 import panelStyles from './SidebarPanel.module.css';
@@ -666,6 +668,25 @@ describe('SidebarProvider: ícones (icons)', () => {
 
     expect(screen.getByRole('button', { name: 'Abrir submenu' }).querySelector('svg')).toBeInTheDocument();
     expect(screen.queryByTestId('abrir')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['left', <IconLayoutSidebarInset key="esquerda" />],
+    ['right', <IconSidebar key="direita" />],
+  ] as const)('desenha o painel do lado físico da Sidebar, side=%s, no abrir e no recolher', (side, esperado) => {
+    const desenho = render(esperado).container.innerHTML;
+    const { unmount } = render(<Frame defaultOpen={false} side={side} />);
+    expect(screen.getByRole('button', { name: 'Abrir submenu' }).querySelector('svg')!.outerHTML).toBe(desenho);
+    unmount();
+
+    render(<Frame side={side} />);
+    expect(screen.getByRole('button', { name: 'Recolher submenu' }).querySelector('svg')!.outerHTML).toBe(desenho);
+  });
+
+  it('o IconSidebar público segue com o painel à direita', () => {
+    const { container } = render(<IconSidebar />);
+
+    expect(container.querySelector('svg')!.innerHTML).toContain('M13 4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v8');
   });
 
   it('troca o ícone de abrir, no submenu recolhido e na gaveta', () => {
