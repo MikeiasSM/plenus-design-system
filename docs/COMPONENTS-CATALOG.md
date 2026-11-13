@@ -106,7 +106,7 @@ O `FieldRow` é a linha de uma lista de ajustes: o rótulo e a explicação à e
 
 O `SaveStatus` é o texto curto da situação do salvamento, no lugar do texto montado à mão num rodapé ou numa barra: o `status` (`idle`, `dirty`, `saving`, `saved` ou `error`) escolhe o indicador e o produto escreve o texto, como "Rascunho salvo às 10:42". `saving` mostra o `Spinner` pequeno, `saved` o sinal de pronto no tom de sucesso e `error` o de erro no tom de perigo; `idle` e `dirty` ficam só com o texto, porque a alteração pendente não é erro nem aviso e o texto já a diz sem depender de cor. O texto tem o tamanho de legenda, em tom terciário, numa região `role="status"` sempre montada, para a mudança ser lida sem tirar o foco. Na situação do `AppShell.PageFooter`, que já é uma região de status, ela não cria a sua, e o texto é lido uma vez só. A fronteira com a `SaveBar` é a ação: a `SaveStatus` só informa e não tem botão, e cabe no `start` do `Card.Footer` ou no rodapé da página. Quem salva, e quando, é do produto.
 
-O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy, labelId }`. Os dois valores vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
+O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy, labelId }`. O `id` e o `describedBy` vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
 
 ```tsx
 <FieldRow label="Desconto sem aprovação" description="Até este valor, o pedido segue direto.">
@@ -320,7 +320,7 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 
 A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens por página e os passos para a primeira e a última página. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual, para não perder o lugar de quem lia.
 
-A `Pagination` mede a largura do contêiner e mantém os passos numa linha só: primeiro tira as páginas vizinhas da atual, até `siblings=0`, e, se ainda não couber, vira o modo compacto, com anterior, o texto `3 de 12` e próxima. O texto traz `aria-current="page"`, e `formatCompact` o traduz. `compact` força o modo compacto. No servidor, o HTML inicial mostra a forma completa, e a medida ajusta a forma antes da primeira pintura, na hidratação. O contêiner precisa ter largura própria, e não a do conteúdo.
+A `Pagination` mede a largura do contêiner e mantém os passos numa linha só: primeiro tira as páginas vizinhas da atual, até `siblings=0`, e, se ainda não couber, vira o modo compacto, com anterior, o texto `3 de 12` e próxima. O texto traz `aria-current="page"`, e `formatCompact` o traduz. `compact` força o modo compacto. No servidor, o HTML inicial mostra a forma completa, e a hidratação a ajusta à largura; sem servidor, a forma ajustada já sai na primeira pintura. O contêiner precisa ter largura própria, e não a do conteúdo.
 
 `Tabs` e `TabsNav` têm o mesmo desenho, e a fronteira é o endereço. As `Tabs` trocam o painel na mesma página, com as setas entre as abas, como pede o padrão de abas do WAI-ARIA. No `TabsNav` cada aba é um link para uma página própria: recarregar ou abrir em outra guia leva à mesma aba, e voltar no navegador volta à anterior. Por isso ele é navegação, com `aria-current="page"` na aba atual e o Tab passando por todas, e não `role="tab"`, que prometeria as setas e um painel. O link é o da aplicação, recebido conforme a seção "Link da aplicação", abaixo.
 
