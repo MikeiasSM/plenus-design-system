@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentPropsWithRef, type FocusEvent, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '../../actions/Button';
 import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
@@ -25,14 +25,25 @@ export interface ToastRegionProps extends ComponentPropsWithRef<'div'> {
 }
 
 /** Canto onde os avisos aparecem: os de `showToast`, ou os do `ToastProvider` mais proximo. Montado uma vez na arvore. */
-export function ToastRegion({ className, portalContainer, ...props }: ToastRegionProps) {
+export function ToastRegion({ className, onFocus, portalContainer, ...props }: ToastRegionProps) {
+  const returnTo = useRef<HTMLElement | null>(null);
   const store = useToastStore();
   const container = useChosenPortalContainer(portalContainer);
   const toasts = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const region = (
-    <div {...props} className={[styles.region, className].filter(Boolean).join(' ')}>
+    <div
+      {...props}
+      className={[styles.region, className].filter(Boolean).join(' ')}
+      onFocus={(event) => {
+        onFocus?.(event);
+
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          returnTo.current = event.relatedTarget instanceof HTMLElement ? event.relatedTarget : null;
+        }
+      }}
+    >
       {toasts.slice(-VISIBLE_LIMIT).map((toast) => (
-        <Toast key={toast.id} store={store} toast={toast} />
+        <Toast key={toast.id} returnTo={returnTo} store={store} toast={toast} />
       ))}
     </div>
   );
@@ -40,7 +51,7 @@ export function ToastRegion({ className, portalContainer, ...props }: ToastRegio
   return container ? createPortal(region, container) : region;
 }
 
-function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
+function Toast({ returnTo, store, toast }: { returnTo: RefObject<HTMLElement | null>; store: ToastStore; toast: ToastEntry }) {
   const ref = useRef<HTMLDivElement>(null);
   const { description, id, title, tone = 'info' } = toast;
   const actions = (toast.actions ?? (toast.action ? [toast.action] : [])).slice(0, MAX_TOAST_ACTIONS);
@@ -49,7 +60,15 @@ function Toast({ store, toast }: { store: ToastStore; toast: ToastEntry }) {
   const [focused, setFocused] = useState(false);
   const ToneIcon = TONE_ICONS[tone];
 
-  useFocusNeighborOnRemove(ref);
+  useFocusNeighborOnRemove(
+    ref,
+    () => {
+      const target = returnTo.current;
+
+      return target?.isConnected && !target.matches(':disabled') && !ref.current?.parentElement?.contains(target) ? target : null;
+    },
+    false,
+  );
 
   // Quem esta lendo ou operando o aviso nao o perde: ponteiro ou foco dentro param o tempo, que recomeca ao sair.
   useEffect(() => {

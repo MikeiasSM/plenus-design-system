@@ -125,6 +125,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `Card`: no cabeçalho, a descrição com uma palavra longa sem espaço, como um código, um e-mail ou um endereço, quebra dentro da própria caixa em vez de passar da borda do cartão ou cobrir a ação ao lado. No `size="sm"`, ela continua cortada na segunda linha. Descrições que já cabiam não mudam.
 - Showcase: a coluna "Remover" de Novo pedido e da seção de configuração perde a largura fixa de 56 px, que não cabia o botão, e alinha à direita, como na página da `Table`.
 - Showcase: nos quadros Evite de `Tabs`, `Toast`, `Alert`, `CheckboxGroup`, `Timeline`, `ChartGauge` e `AppShell`, a prévia e o código mostram o uso que o texto desaconselha. Antes, mostravam a alternativa certa embaixo do "Evite".
+- `Toast`: ao acionar uma ação de um aviso ou fechá-lo pelo teclado, o foco volta ao elemento que o tinha antes de entrar na região de avisos, como no Radix Toast, quando não há outro aviso para receber o foco e o elemento ainda está na página e habilitado. Antes, o foco ia para o contêiner de avisos, que ficava vazio quando o último aviso saía. Com outro aviso na região, o foco segue para ele, como antes; sem elemento de origem válido, o foco não é prendido na região vazia.
 
 ## [0.6.3] — 2026-11-06
 

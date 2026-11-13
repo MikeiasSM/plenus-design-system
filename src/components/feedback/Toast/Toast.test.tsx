@@ -179,4 +179,58 @@ describe('ToastProvider', () => {
     expect(destino).toContainElement(screen.getByLabelText('regiao'));
     destino.remove();
   });
+
+  it('devolve o foco a quem o tinha antes do aviso quando o ultimo aviso sai', () => {
+    render(
+      <>
+        <button type="button">Excluir</button>
+        <ToastRegion />
+      </>,
+    );
+    const origem = screen.getByRole('button', { name: 'Excluir' });
+    origem.focus();
+    show({ action: { label: 'Desfazer', onClick: () => undefined }, title: 'Registro removido' });
+
+    screen.getByRole('button', { name: 'Desfazer' }).focus();
+    fireEvent.click(screen.getByRole('button', { name: 'Desfazer' }));
+
+    expect(origem).toHaveFocus();
+  });
+
+  it('sem origem valida nao prende o foco na regiao vazia', () => {
+    render(
+      <>
+        <button type="button">Excluir</button>
+        <ToastRegion aria-label="regiao" />
+      </>,
+    );
+    const origem = screen.getByRole('button', { name: 'Excluir' });
+    origem.focus();
+    show({ title: 'Registro removido' });
+    screen.getByRole('button', { name: 'Fechar aviso' }).focus();
+    origem.disabled = true;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar aviso' }));
+
+    expect(screen.getByLabelText('regiao')).toBeEmptyDOMElement();
+    expect(screen.getByLabelText('regiao')).not.toHaveFocus();
+  });
+
+  it('com outro aviso o foco vai ao proximo, e nao a origem', () => {
+    render(
+      <>
+        <button type="button">Excluir</button>
+        <ToastRegion />
+      </>,
+    );
+    screen.getByRole('button', { name: 'Excluir' }).focus();
+    show({ duration: null, title: 'Primeiro' });
+    show({ duration: null, title: 'Segundo' });
+    const [fecharPrimeiro, fecharSegundo] = screen.getAllByRole('button', { name: 'Fechar aviso' });
+    fecharPrimeiro.focus();
+
+    fireEvent.click(fecharPrimeiro);
+
+    expect(fecharSegundo).toHaveFocus();
+  });
 });
