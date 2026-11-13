@@ -320,6 +320,8 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 
 ## Documentação
 
+O pacote instalado traz, em `docs/`, o `CHANGELOG.md`, o `COMPONENTS-CATALOG.md`, o `TOKENS.md` e as duas referências de tokens; os demais documentos ficam só no repositório.
+
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — princípios e decisões arquiteturais.
 - [COMPONENTS.md](docs/COMPONENTS.md) — padrões para criação e organização de componentes.
 - [COMPONENTS-CATALOG.md](docs/COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.

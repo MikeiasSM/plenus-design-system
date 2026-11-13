@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
@@ -270,6 +271,30 @@ try {
   exigir(typeof require(`../dist/icons/${amostra}.cjs`)[amostra] === 'function', `${amostra} nao e exportado pelo modulo CommonJS`);
 } catch (erro) {
   falhas.push(`o modulo CommonJS de um icone nao carregou: ${erro.message}`);
+}
+
+const DOCS_DO_PACOTE = [
+  'docs/CHANGELOG.md',
+  'docs/COMPONENTS-CATALOG.md',
+  'docs/TOKENS.md',
+  'docs/TOKENS-REFERENCE-COLORS.md',
+  'docs/TOKENS-REFERENCE-TYPOGRAPHY.md',
+];
+const DOCS_DE_QUEM_MANTEM = ['docs/ARCHITECTURE.md', 'docs/COMPONENTS.md', 'docs/CONTRIBUTING.md'];
+
+try {
+  const [pacote] = JSON.parse(execSync('npm pack --dry-run --json --ignore-scripts', { cwd: raiz, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+  const caminhos = new Set(pacote.files.map((arquivo) => arquivo.path));
+
+  for (const doc of DOCS_DO_PACOTE) {
+    exigir(caminhos.has(doc), `o pacote nao leva ${doc}`);
+  }
+
+  for (const doc of DOCS_DE_QUEM_MANTEM) {
+    exigir(!caminhos.has(doc), `o pacote leva ${doc}, que e de quem mantem`);
+  }
+} catch (erro) {
+  falhas.push(`nao foi possivel listar o conteudo do pacote: ${erro.message}`);
 }
 
 if (falhas.length > 0) {

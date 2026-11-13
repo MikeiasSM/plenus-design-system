@@ -57,7 +57,11 @@
   ],
   "files": [
     "dist",
-    "docs/CHANGELOG.md"
+    "docs/CHANGELOG.md",
+    "docs/COMPONENTS-CATALOG.md",
+    "docs/TOKENS.md",
+    "docs/TOKENS-REFERENCE-COLORS.md",
+    "docs/TOKENS-REFERENCE-TYPOGRAPHY.md"
   ],
   "scripts": {
     "dev": "vite",
