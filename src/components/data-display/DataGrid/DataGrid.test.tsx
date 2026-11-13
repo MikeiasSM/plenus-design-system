@@ -116,6 +116,14 @@ describe('DataGrid, redimensionar a coluna', () => {
     expect(base).toContain('touch-action: none');
     expect(toque).toMatch(/width: 24px/);
   });
+
+  it('no toque, os botões do título ficam fora da área da borda, dos dois lados', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/DataGrid/DataGrid.module.css'), 'utf8');
+    const toque = css.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/)![0];
+
+    expect(toque).toMatch(/\.headerActions \{\s*right: var\(--pl-space-4\);/);
+    expect(toque).toMatch(/\.end:not\(\.withControls\) > \.headerActions \{\s*left: var\(--pl-space-4\);/);
+  });
 });
 
 describe('DataGrid', () => {

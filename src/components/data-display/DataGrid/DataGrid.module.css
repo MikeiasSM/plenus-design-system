@@ -767,6 +767,14 @@
   .resizer::after {
     right: 15px;
   }
+
+  .headerActions {
+    right: var(--pl-space-4);
+  }
+
+  .end:not(.withControls) > .headerActions {
+    left: var(--pl-space-4);
+  }
 }
 
 .row.clickable:active:not(.selected) {
