@@ -276,11 +276,12 @@ try {
 const DOCS_DO_PACOTE = [
   'docs/CHANGELOG.md',
   'docs/COMPONENTS-CATALOG.md',
+  'docs/CONTRIBUTING.md',
   'docs/TOKENS.md',
   'docs/TOKENS-REFERENCE-COLORS.md',
   'docs/TOKENS-REFERENCE-TYPOGRAPHY.md',
 ];
-const DOCS_DE_QUEM_MANTEM = ['docs/ARCHITECTURE.md', 'docs/COMPONENTS.md', 'docs/CONTRIBUTING.md'];
+const DOCS_DE_QUEM_MANTEM = ['docs/ARCHITECTURE.md', 'docs/COMPONENTS.md'];
 
 try {
   const [pacote] = JSON.parse(execSync('npm pack --dry-run --json --ignore-scripts', { cwd: raiz, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
