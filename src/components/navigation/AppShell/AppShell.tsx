@@ -93,24 +93,24 @@ function AppShellRoot({
 }
 
 export const AppShell = Object.assign(AppShellRoot, {
-  /** @deprecated Use `Sidebar.Account`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.Account`. Aceito ate a 0.8.0. */
   Account: Sidebar.Account,
-  /** @deprecated Use `Sidebar`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar`. Aceito ate a 0.8.0. */
   Navigation: Sidebar,
   Page: AppShellPage,
   PageBar: AppShellPageBar,
   PageBody: AppShellPageBody,
   PageFooter: AppShellPageFooter,
-  /** @deprecated Use `Sidebar.Panel`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.Panel`. Aceito ate a 0.8.0. */
   Panel: Sidebar.Panel,
-  /** @deprecated Use `Sidebar.Group`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.Group`. Aceito ate a 0.8.0. */
   PanelGroup: Sidebar.Group,
-  /** @deprecated Use `Sidebar.Item`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.Item`. Aceito ate a 0.8.0. */
   PanelItem: Sidebar.Item,
-  /** @deprecated Use `Sidebar.Rail`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.Rail`. Aceito ate a 0.8.0. */
   Rail: Sidebar.Rail,
-  /** @deprecated Use `Sidebar.RailAccount`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.RailAccount`. Aceito ate a 0.8.0. */
   RailAccount: Sidebar.RailAccount,
-  /** @deprecated Use `Sidebar.RailItem`. Aceito ate a versao menor seguinte. */
+  /** @deprecated Use `Sidebar.RailItem`. Aceito ate a 0.8.0. */
   RailItem: Sidebar.RailItem,
 });

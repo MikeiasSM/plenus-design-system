@@ -179,7 +179,7 @@ function Modos() {
       <dd>
         A navegação passou à <code>Sidebar</code>. <code>AppShell.Navigation</code>, <code>.Rail</code>, <code>.RailItem</code>,{' '}
         <code>.RailAccount</code>, <code>.Panel</code>, <code>.PanelGroup</code>, <code>.PanelItem</code> e <code>.Account</code> continuam aceitos como
-        aliases obsoletos até a versão menor seguinte.
+        aliases obsoletos até a 0.8.0.
       </dd>
     </dl>
   );

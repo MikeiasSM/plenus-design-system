@@ -26,7 +26,7 @@ export interface DataGridSortItem {
 /** Entrada de `sort` e `defaultSort`: aceita também os nomes antigos `'asc'` e `'desc'`. */
 export interface DataGridSortItemInput {
   columnId: string;
-  /** `'asc'` e `'desc'` são obsoletos: use `'ascending'` e `'descending'`. Aceitos até a versão menor seguinte. */
+  /** `'asc'` e `'desc'` são obsoletos: use `'ascending'` e `'descending'`. Aceitos até a 0.8.0. */
   direction: DataGridSortDirection | 'asc' | 'desc';
 }
 
