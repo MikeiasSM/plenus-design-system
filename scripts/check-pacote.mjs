@@ -284,7 +284,7 @@ const DOCS_DO_PACOTE = [
 const DOCS_DE_QUEM_MANTEM = ['docs/ARCHITECTURE.md', 'docs/COMPONENTS.md'];
 
 try {
-  const [pacote] = JSON.parse(execSync('npm pack --dry-run --json --ignore-scripts', { cwd: raiz, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+  const [pacote] = JSON.parse(execSync('npm pack --dry-run --json --ignore-scripts', { cwd: raiz, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] }));
   const caminhos = new Set(pacote.files.map((arquivo) => arquivo.path));
 
   for (const doc of DOCS_DO_PACOTE) {
