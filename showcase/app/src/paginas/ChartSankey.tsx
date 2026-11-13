@@ -314,9 +314,7 @@ export const pagina: Pagina = {
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados no período'", descricao: 'Texto do estado vazio.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
     { nome: 'onMarkClick', tipo: '(mark: ChartSankeyMark) => void', descricao: <>Torna as ligações e os nós botões, os nós numa linha abaixo das ligações; <code>mark.kind</code> os distingue: <code>{"{ kind: 'flow', source, target, value }"}</code> ou <code>{"{ kind: 'node', label, value }"}</code>, com o total que passa pelo nó. O foco na ligação realça a faixa e abre o balão.</> },
-    { nome: 'clickableMarks', tipo: "readonly ('flow' | 'node')[]", padrao: "['flow', 'node']", descricao: <>Espécies de marca que viram botão e chamam <code>onMarkClick</code>, e também os obsoletos <code>onFlowClick</code> e <code>onNodeClick</code>. As demais seguem só desenhadas, fora da tabulação.</> },
+    { nome: 'clickableMarks', tipo: "readonly ('flow' | 'node')[]", padrao: "['flow', 'node']", descricao: <>Espécies de marca que viram botão e chamam <code>onMarkClick</code>. As demais seguem só desenhadas, fora da tabulação.</> },
     { nome: 'onHover', tipo: '(mark: ChartSankeyMark | null) => void', descricao: 'Ligação ou nó sob o ponteiro ou o foco, ou null ao sair; costura para o ChartTooltip.' },
-    { nome: 'onFlowClick', tipo: '(flow: ChartSankeyFlow) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code> e <code>mark.kind === &apos;flow&apos;</code>. Torna só as ligações botões. Com os dois, os dois avisam.</> },
-    { nome: 'onNodeClick', tipo: '(node: ChartSankeyNodeClick) => void', descricao: <>Obsoleto até a 0.7.0: use <code>onMarkClick</code> e <code>mark.kind === &apos;node&apos;</code>. Torna só os nós botões. Com os dois, os dois avisam.</> },
   ],
 };

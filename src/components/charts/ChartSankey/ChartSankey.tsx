@@ -74,8 +74,6 @@ export interface ChartSankeyProps extends ChartRootProps {
   /** Folga vertical entre dois nos da mesma coluna. */
   nodePadding?: number;
   nodeWidth?: number;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'flow'`. Aceito ate a 0.7.0. */
-  onFlowClick?: (flow: ChartSankeyFlow) => void;
   /** Ligacao ou no sob o ponteiro ou em foco pelo teclado, ou `null` ao sair. */
   onHover?: (mark: ChartSankeyMark | null) => void;
   /**
@@ -83,8 +81,6 @@ export interface ChartSankeyProps extends ChartRootProps {
    * os nos numa linha abaixo das ligacoes.
    */
   onMarkClick?: (mark: ChartSankeyMark) => void;
-  /** @deprecated Use `onMarkClick` e `mark.kind === 'node'`. Aceito ate a 0.7.0. */
-  onNodeClick?: (node: ChartSankeyNodeClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showFlowValues?: boolean;
@@ -171,10 +167,8 @@ export function ChartSankey({
   nodes,
   nodePadding = 12,
   nodeWidth = 12,
-  onFlowClick,
   onHover,
   onMarkClick,
-  onNodeClick,
   palette,
   showFlowValues = false,
   showLabels = true,
@@ -274,19 +268,9 @@ export function ChartSankey({
   }
 
   const aoClicarNaLigacao =
-    clickableMarks.includes('flow') && (onMarkClick || onFlowClick)
-      ? (column: number) => {
-          onMarkClick?.(marcaDaLigacao(column));
-          onFlowClick?.(flows[grafo.links[column].index]);
-        }
-      : undefined;
+    clickableMarks.includes('flow') && onMarkClick ? (column: number) => onMarkClick(marcaDaLigacao(column)) : undefined;
   const aoClicarNoNo =
-    clickableMarks.includes('node') && (onMarkClick || onNodeClick)
-      ? (column: number) => {
-          onMarkClick?.(marcaDoNo(column));
-          onNodeClick?.({ label: grafo.nodes[column].label, value: grafo.nodes[column].value });
-        }
-      : undefined;
+    clickableMarks.includes('node') && onMarkClick ? (column: number) => onMarkClick(marcaDoNo(column)) : undefined;
 
   const marcas = useMarkNavigation({
     onActivate:

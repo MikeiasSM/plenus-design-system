@@ -28,8 +28,6 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   accent?: string;
   /** Fatias ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenSlices?: readonly string[];
   emptyMessage?: string;
   formatPercent?: (ratio: number) => string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
@@ -38,12 +36,8 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos das fatias desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenSlices?: readonly string[];
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenSlicesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /**
@@ -51,12 +45,8 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
    * tem ponteiro, vem o segundo argumento: a cor desenhada e o ponto onde ancorar o `ChartTooltip`.
    */
   onHover?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
-  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
-  onHoverSlice?: (slice: ChartSlice | null, details?: ChartHoverDetails) => void;
   /** Torna as fatias botoes, percorridas pelas setas. Recebe a fatia ja agrupada. */
   onMarkClick?: (slice: ChartSlice) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onSliceClick?: (slice: ChartSlice) => void;
   /** Rotulo da fatia que reune as pequenas. `Outros` por padrao. */
   otherLabel?: string;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
@@ -78,22 +68,17 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
 export function ChartPie({
   accent,
   defaultHidden,
-  defaultHiddenSlices,
   emptyMessage = 'Sem dados no período',
   formatPercent = (fracao) => `${Math.round(fracao * 100)}%`,
   formatTooltipValue,
   formatValue = formatNumber,
   height = 260,
   hidden,
-  hiddenSlices,
   legend = 'bottom',
   legendAlign,
   onHiddenChange,
-  onHiddenSlicesChange,
   onHover,
-  onHoverSlice,
   onMarkClick,
-  onSliceClick,
   otherLabel,
   palette,
   showDataLabels = false,
@@ -112,26 +97,11 @@ export function ChartPie({
   const anel = useSliceRing({
     accent,
     palette,
-    defaultHidden: defaultHidden ?? defaultHiddenSlices,
-    hidden: hidden ?? hiddenSlices,
-    onHiddenChange: (ocultas) => {
-      onHiddenChange?.(ocultas);
-      onHiddenSlicesChange?.(ocultas);
-    },
-    onHover:
-      onHover || onHoverSlice
-        ? (...aviso) => {
-            onHover?.(...aviso);
-            onHoverSlice?.(...aviso);
-          }
-        : undefined,
-    onMarkClick:
-      onMarkClick || onSliceClick
-        ? (fatia) => {
-            onMarkClick?.(fatia);
-            onSliceClick?.(fatia);
-          }
-        : undefined,
+    defaultHidden,
+    hidden,
+    onHiddenChange,
+    onHover,
+    onMarkClick,
     otherLabel,
     slices,
     smallSliceThreshold,

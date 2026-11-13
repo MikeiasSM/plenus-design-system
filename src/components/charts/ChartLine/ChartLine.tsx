@@ -64,8 +64,6 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   curve?: ChartCurve;
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];
-  /** @deprecated Use `defaultHidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  defaultHiddenSeries?: readonly string[];
   emptyMessage?: string;
   /** Formato do eixo da direita, dos rotulos e do balao das series dele. Sem ele, vale o `formatValue`. */
   formatRightValue?: (value: number) => string;
@@ -81,8 +79,6 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   height?: ChartHeight;
   /** Rotulos das series desligadas pela legenda (controlado). Substitui o `hidden` nativo da figure. */
   hidden?: readonly string[];
-  /** @deprecated Use `hidden`. Aceito ate a 0.7.0; com os dois, vale o novo. */
-  hiddenSeries?: readonly string[];
   labelAngle?: AxisLabelAngle;
   legend?: ChartLegendPosition;
   legendAlign?: ChartLegendAlign;
@@ -90,18 +86,12 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   minTickStep?: number;
   /** O mesmo para o eixo da direita. */
   minRightTickStep?: number;
-  /** @deprecated Use `onHiddenChange`. Aceito ate a 0.7.0. */
-  onHiddenSeriesChange?: (hidden: readonly string[]) => void;
   /** Rotulos ocultos, a cada alternancia da legenda. */
   onHiddenChange?: (hidden: readonly string[]) => void;
   /** Categoria mais proxima do ponteiro, ou `null` ao sair. */
   onHover?: (category: ChartCategoryHover | null) => void;
-  /** @deprecated Use `onHover`, que traz a categoria e o indice. Aceito ate a 0.7.0. */
-  onHoverCategory?: (index: number | null) => void;
   /** Torna os pontos botoes, percorridos pelas setas; o clique na faixa vale pelo ponto mais proximo. */
   onMarkClick?: (mark: ChartMarkClick) => void;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onPointClick?: (point: ChartMarkClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartLineSeries[];
@@ -136,7 +126,6 @@ export function ChartLine({
   categories,
   curve = 'smooth',
   defaultHidden,
-  defaultHiddenSeries,
   emptyMessage = 'Sem dados no período',
   formatRightValue,
   formatTooltipValue,
@@ -144,18 +133,14 @@ export function ChartLine({
   height = 260,
   includeZero = true,
   hidden,
-  hiddenSeries,
   labelAngle = 'auto',
   minRightTickStep,
   minTickStep,
   legend = 'bottom',
   legendAlign,
   onHiddenChange,
-  onHiddenSeriesChange,
   onHover,
-  onHoverCategory,
   onMarkClick,
-  onPointClick,
   palette,
   series,
   showDataLabels = 'hidden',
@@ -175,13 +160,10 @@ export function ChartLine({
   const { font, height: alturaMedida, ref, width } = useChartMetrics();
   const { fillHeight, value: alturaDoDesenho } = chartHeight(height, alturaMedida);
   const { isHidden, isOutOfScale, toggle } = useSeriesToggle({
-    defaultHidden: defaultHidden ?? defaultHiddenSeries,
-    hidden: hidden ?? hiddenSeries,
+    defaultHidden,
+    hidden,
     labels: series.map((serie) => serie.label),
-    onHiddenChange: (ocultas) => {
-      onHiddenChange?.(ocultas);
-      onHiddenSeriesChange?.(ocultas);
-    },
+    onHiddenChange,
   });
 
   // A cor sai da lista inteira, e nao das visiveis: desligar uma serie nao pode
@@ -236,27 +218,17 @@ export function ChartLine({
   );
 
   const hoverDaCategoria =
-    onHover || onHoverCategory
-      ? (index: number | null) => {
-          onHover?.(index === null ? null : { category: categories[index], index });
-          onHoverCategory?.(index);
-        }
+    onHover
+      ? (index: number | null) => onHover(index === null ? null : { category: categories[index], index })
       : undefined;
   const { hover: focarCategoria, hovered: categoriaEmFoco } = useHoveredBand(hoverDaCategoria);
-  const aoClicarNoPonto =
-    onMarkClick || onPointClick
-      ? (ponto: ChartMarkClick) => {
-          onMarkClick?.(ponto);
-          onPointClick?.(ponto);
-        }
-      : undefined;
   const visibilidadeDosPontos = removed.has('detail') ? 'hidden' : showDots;
   const rotulosDeDado = removed.has('detail') ? 'hidden' : showDataLabels;
   const [alturaDoPonteiro, setAlturaDoPonteiro] = useState<number | null>(null);
   const comFaixas =
     showTooltip ||
     hoverDaCategoria !== undefined ||
-    aoClicarNoPonto !== undefined ||
+    onMarkClick !== undefined ||
     showDots === 'onHover' ||
     showDataLabels === 'onHover';
 
@@ -290,9 +262,9 @@ export function ChartLine({
   );
 
   const clicarNoPonto =
-    aoClicarNoPonto &&
+    onMarkClick &&
     (({ column, row }: MarkPosition) =>
-      aoClicarNoPonto({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 }));
+      onMarkClick({ category: categories[column], index: column, series: series[row].label, value: series[row].values[column] ?? 0 }));
   const pontos = useMarkNavigation({
     onActivate: clicarNoPonto,
     onFocusMark: (posicao) => {

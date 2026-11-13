@@ -61,12 +61,8 @@ export interface ChartHeatmapProps extends ChartRootProps {
   legendAlign?: ChartLegendAlign;
   noDataLabel?: string;
   noDataStyle?: NoDataStyle;
-  /** @deprecated Use `onMarkClick`. Aceito ate a 0.7.0. */
-  onCellClick?: (cell: ChartHeatmapCell) => void;
   /** Celula sob o ponteiro ou o foco, ou `null` ao sair dela. */
   onHover?: (cell: ChartHeatmapCell | null) => void;
-  /** @deprecated Use `onHover`. Aceito ate a 0.7.0. */
-  onHoverCell?: (cell: ChartHeatmapCell | null) => void;
   /** Torna as celulas botoes, percorridos pelas setas. */
   onMarkClick?: (cell: ChartHeatmapCell) => void;
   /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
@@ -178,9 +174,7 @@ export function ChartHeatmap({
   legendAlign = 'center',
   noDataLabel = 'Sem dado',
   noDataStyle = 'hatch',
-  onCellClick,
   onHover,
-  onHoverCell,
   onMarkClick,
   showTableToggle,
   showTooltip = true,
@@ -203,18 +197,7 @@ export function ChartHeatmap({
   const [faixaEmDestaque, setFaixaEmDestaque] = useState<string | null>(null);
   const faixas = useSeriesToggle({});
   const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;
-  const aoClicarNaCelula =
-    onMarkClick || onCellClick
-      ? (celula: ChartHeatmapCell) => {
-          onMarkClick?.(celula);
-          onCellClick?.(celula);
-        }
-      : undefined;
-  const avisarHover = (celula: ChartHeatmapCell | null) => {
-    onHover?.(celula);
-    onHoverCell?.(celula);
-  };
-  const interativo = aoClicarNaCelula !== undefined;
+  const interativo = onMarkClick !== undefined;
 
   const colunas = useMemo(() => xCategories ?? firstSeen(cells.map((cell) => cell.x)), [cells, xCategories]);
   const linhas = useMemo(() => yCategories ?? firstSeen(cells.map((cell) => cell.y)), [cells, yCategories]);
@@ -314,7 +297,7 @@ export function ChartHeatmap({
 
   function focar(position: Position | null) {
     setEmFoco(position);
-    avisarHover(celulaEm(position) ?? null);
+    onHover?.(celulaEm(position) ?? null);
   }
 
   function posicaoDe(event: SyntheticEvent): Position | null {
@@ -355,7 +338,7 @@ export function ChartHeatmap({
 
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      aoClicarNaCelula?.(celulaEm(atual)!);
+      onMarkClick?.(celulaEm(atual)!);
       return;
     }
 
@@ -462,7 +445,7 @@ export function ChartHeatmap({
           const position = posicaoDe(event);
           if (interativo && position !== null) {
             setParada(position);
-            aoClicarNaCelula?.(celulaEm(position)!);
+            onMarkClick?.(celulaEm(position)!);
           }
         }}
         onFocus={(event) => {
