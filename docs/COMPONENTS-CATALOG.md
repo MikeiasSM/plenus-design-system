@@ -557,7 +557,7 @@ function SeletorDeTema() {
 }
 ```
 
-O hook só roda depois da hidratação, e a página pintada antes dele sairia no tema do sistema, piscando para quem escolheu o outro. Para isso não acontecer, o `<head>` leva um script curto e síncrono, antes da folha de estilo e do corpo, que põe o atributo da escolha guardada. Em `'system'` não há o que fazer, porque a folha de estilo já segue o sistema. Quem muda a `storageKey` troca a chave também no script:
+O hook só roda depois da hidratação, e a página pintada antes dele sairia no tema do sistema, piscando para quem escolheu o outro. Para isso não acontecer, o `<head>` leva um script curto e síncrono, antes da folha de estilo e do corpo, que põe o atributo da escolha guardada. Em `'system'` não há o que fazer, porque a folha de estilo já segue o sistema. Quem muda a `storageKey` troca a chave também no script, e quem passa `defaultColorScheme` `'light'` ou `'dark'` aplica esse valor quando nada foi guardado, ou a primeira visita pisca:
 
 ```html
 <script>
