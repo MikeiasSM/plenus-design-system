@@ -188,10 +188,10 @@ describe('ToastProvider', () => {
       </>,
     );
     const origem = screen.getByRole('button', { name: 'Excluir' });
-    origem.focus();
+    act(() => origem.focus());
     show({ action: { label: 'Desfazer', onClick: () => undefined }, title: 'Registro removido' });
 
-    screen.getByRole('button', { name: 'Desfazer' }).focus();
+    act(() => screen.getByRole('button', { name: 'Desfazer' }).focus());
     fireEvent.click(screen.getByRole('button', { name: 'Desfazer' }));
 
     expect(origem).toHaveFocus();
@@ -205,10 +205,10 @@ describe('ToastProvider', () => {
       </>,
     );
     const origem = screen.getByRole('button', { name: 'Excluir' });
-    origem.focus();
+    act(() => origem.focus());
     show({ title: 'Registro removido' });
-    screen.getByRole('button', { name: 'Fechar aviso' }).focus();
-    origem.disabled = true;
+    act(() => screen.getByRole('button', { name: 'Fechar aviso' }).focus());
+    (origem as HTMLButtonElement).disabled = true;
 
     fireEvent.click(screen.getByRole('button', { name: 'Fechar aviso' }));
 
@@ -223,11 +223,11 @@ describe('ToastProvider', () => {
         <ToastRegion />
       </>,
     );
-    screen.getByRole('button', { name: 'Excluir' }).focus();
+    act(() => screen.getByRole('button', { name: 'Excluir' }).focus());
     show({ duration: null, title: 'Primeiro' });
     show({ duration: null, title: 'Segundo' });
     const [fecharPrimeiro, fecharSegundo] = screen.getAllByRole('button', { name: 'Fechar aviso' });
-    fecharPrimeiro.focus();
+    act(() => fecharPrimeiro.focus());
 
     fireEvent.click(fecharPrimeiro);
 
