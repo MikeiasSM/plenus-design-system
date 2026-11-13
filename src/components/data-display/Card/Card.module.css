@@ -162,6 +162,11 @@
 
 .body {
   padding: var(--card-gap);
+  padding-block-start: var(--card-body-start, var(--card-gap));
+}
+
+.header + .body {
+  --card-body-start: 0;
 }
 
 .bodyFlush {

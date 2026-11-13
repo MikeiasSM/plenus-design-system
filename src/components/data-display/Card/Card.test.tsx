@@ -13,6 +13,12 @@ describe('Card.Header: estilo', () => {
     return css.slice(inicio, css.indexOf('}', inicio));
   };
 
+  it('o corpo logo depois do cabecalho perde o respiro de cima, e o sem cabecalho o mantem', () => {
+    expect(bloco('.body')).toContain('padding-block-start: var(--card-body-start, var(--card-gap));');
+    expect(bloco('.header + .body')).toContain('--card-body-start: 0;');
+    expect(css).not.toMatch(/.bodyFlush[^{]*{[^}]*--card-body-start/);
+  });
+
   it('o selo segue o fim do titulo, numa caixa da altura de uma linha dele', () => {
     expect(bloco('.header:not(.headerSm) .titleRow')).toContain('display: block;');
     expect(bloco('.header:not(.headerSm) .titleRow')).toContain('line-height: var(--pl-type-title-line-height);');
