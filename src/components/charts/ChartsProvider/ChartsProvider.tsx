@@ -15,7 +15,6 @@ export function ChartsProvider({ children, showTableToggle }: ChartsProviderProp
   return <ChartsContext value={showTableToggle ?? inherited}>{children}</ChartsContext>;
 }
 
-/** O `showTableToggle` do gráfico, depois o do `ChartsProvider` mais próximo, depois ligado. */
 export function useShowTableToggle(showTableToggle?: boolean): boolean {
   const provided = useContext(ChartsContext);
 
