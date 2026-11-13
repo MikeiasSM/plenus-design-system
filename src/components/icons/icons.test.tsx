@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
+import * as curados from './icons';
 import { IconCalendar, IconChevronDown, IconClose, IconStar, IconStarFill } from './icons';
+import * as suite from './suite';
 import { IconCircleFill, IconFolder } from './suite';
 
 describe('icones', () => {
@@ -69,4 +71,14 @@ describe('icones', () => {
 
     expect(screen.getByRole('img', { name: 'Gravando' }).querySelector('circle')).toHaveAttribute('r', '8');
   });
+
+  it.each(['IconFullscreen', 'IconLayoutSidebarInset', 'IconZoomIn', 'IconZoomOut'] as const)(
+    'o %s curado desenha o mesmo que o da suíte, que o Sidebar e o ChartMap importam sem carregá-la',
+    (nome) => {
+      const Curado = curados[nome];
+      const Suite = suite[nome];
+
+      expect(render(<Curado />).container.innerHTML).toBe(render(<Suite />).container.innerHTML);
+    },
+  );
 });

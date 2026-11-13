@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { isNarrowNow, useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { IconChevronLeft, IconChevronUp, IconClose, IconExternalLink, IconSidebar } from '../../icons';
-import { IconLayoutSidebarInset } from '../../icons/suite';
+import { IconLayoutSidebarInset } from '../../icons/icons';
 import {
   defaultSidebarLabels,
   SidebarContext,
