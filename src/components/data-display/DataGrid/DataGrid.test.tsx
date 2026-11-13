@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { DataGrid, type DataGridColumn, type DataGridColumnDefinition, type DataGridDetailContext } from '.';
 import styles from './DataGrid.module.css';
@@ -37,6 +39,72 @@ function bodyRows() {
 function firstColumn() {
   return bodyRows().map((row) => within(row).getAllByRole('gridcell')[0].textContent);
 }
+
+describe('DataGrid, redimensionar a coluna', () => {
+  function resizer(coluna: string) {
+    return screen.getByRole('columnheader', { name: coluna }).querySelector<HTMLElement>(`.${styles.resizer}`)!;
+  }
+
+  function lastWidth(onColumnStateChange: ReturnType<typeof vi.fn>, coluna: string) {
+    const calls = onColumnStateChange.mock.calls;
+
+    return calls[calls.length - 1][0].widths[coluna] as number;
+  }
+
+  beforeEach(() => {
+    vi.useRealTimers();
+    Element.prototype.setPointerCapture = vi.fn();
+    window.PointerEvent ??= class extends MouseEvent {
+      pointerId: number;
+      pointerType: string;
+
+      constructor(type: string, init: PointerEventInit = {}) {
+        super(type, init);
+        this.pointerId = init.pointerId ?? 0;
+        this.pointerType = init.pointerType ?? '';
+      }
+    } as typeof PointerEvent;
+    Range.prototype.getBoundingClientRect = () => new DOMRect(0, 0, 90, 20);
+  });
+
+  it.each(['mouse', 'touch'])('arrasta a borda com o ponteiro %s, com o ponteiro capturado, e nunca abaixo do mínimo', (pointerType) => {
+    const onColumnStateChange = vi.fn();
+    renderGrid({ onColumnStateChange });
+    const borda = resizer('Cliente');
+
+    fireEvent.pointerDown(borda, { clientX: 100, pointerId: 7, pointerType });
+    expect(borda.setPointerCapture).toHaveBeenCalledWith(7);
+    fireEvent.pointerMove(borda, { clientX: 130, pointerId: 7, pointerType });
+    const curta = lastWidth(onColumnStateChange, 'customer');
+    fireEvent.pointerMove(borda, { clientX: 190, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer') - curta).toBe(60);
+    fireEvent.pointerMove(borda, { clientX: -5000, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer')).toBe(48);
+    fireEvent.pointerUp(borda, { clientX: 190, pointerId: 7, pointerType });
+    fireEvent.pointerMove(borda, { clientX: 400, pointerId: 7, pointerType });
+    expect(lastWidth(onColumnStateChange, 'customer')).toBe(48);
+  });
+
+  it('o duplo clique na borda ajusta a coluna ao conteúdo, sem ordenar', () => {
+    const onColumnStateChange = vi.fn();
+    const onSortChange = vi.fn();
+    renderGrid({ columns: columns.map((column) => ({ ...column, sortable: true })), onColumnStateChange, onSortChange });
+
+    fireEvent.doubleClick(resizer('Cliente'));
+
+    expect(onColumnStateChange).toHaveBeenCalledWith(expect.objectContaining({ widths: expect.objectContaining({ customer: expect.any(Number) }) }));
+    expect(onSortChange).not.toHaveBeenCalled();
+  });
+
+  it('a borda não deixa o gesto virar rolagem nem seleção e, no toque, tem ao menos 24px', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/DataGrid/DataGrid.module.css'), 'utf8');
+    const base = css.match(/\.resizer \{[^}]*\}/)![0];
+    const toque = css.match(/@media \(pointer: coarse\) \{\s*\.resizer \{[^}]*\}/)![0];
+
+    expect(base).toContain('touch-action: none');
+    expect(toque).toMatch(/width: 24px/);
+  });
+});
 
 describe('DataGrid', () => {
   it('exposes a named grid with the real row count and formatted cells', () => {

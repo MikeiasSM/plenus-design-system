@@ -537,6 +537,18 @@
   opacity: 0;
 }
 
+@media (pointer: coarse) {
+  .resizer {
+    right: -12px;
+    z-index: 1;
+    width: 24px;
+  }
+
+  .resizer::after {
+    right: 15px;
+  }
+}
+
 @media (hover: hover) {
   .headerCell:hover > .resizer::after {
     opacity: 0.35;
