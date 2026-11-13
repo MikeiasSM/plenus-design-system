@@ -176,7 +176,6 @@
 
 .footer {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--pl-space-4);
@@ -184,10 +183,13 @@
   border-top: 1px solid var(--pl-color-border);
 }
 
-/* O último filho vai ao fim da linha, como as ações do Dialog, e continua à direita ao descer por falta de espaço. Sem
-   especificidade, para a classe do consumidor vencer. */
-:where(.footer > :last-child) {
+/* Um filho só vai ao fim da linha, como as ações do Dialog. Sem especificidade, para a classe do consumidor vencer. */
+:where(.footer > :only-child) {
   margin-inline-start: auto;
+}
+
+.footerWrap {
+  flex-wrap: wrap;
 }
 
 /* Com `start`, o bloco da esquerda toma o espaço que sobra e o dos filhos fica no fim. Sozinho, o da esquerda também

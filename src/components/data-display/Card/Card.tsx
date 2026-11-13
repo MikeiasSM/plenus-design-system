@@ -206,10 +206,11 @@ function CardFooter({ children, className, start, ...props }: CardFooterProps) {
   // Com `start`, a esquerda e a direita viram dois blocos: o da esquerda toma o espaço que sobra e o dos filhos fica
   // no fim da linha, e só existe quando há filho a mostrar. Sem ele, os filhos continuam diretos no rodapé, como antes.
   const temFilhos = Children.toArray(children).length > 0;
+  const temStart = start != null && start !== false;
 
   return (
-    <footer {...props} className={join(styles.footer, className)}>
-      {start != null && start !== false ? (
+    <footer {...props} className={join(styles.footer, temStart && styles.footerWrap, className)}>
+      {temStart ? (
         <>
           <div className={styles.footerStart}>{start}</div>
           {temFilhos && <div className={styles.footerEnd}>{children}</div>}

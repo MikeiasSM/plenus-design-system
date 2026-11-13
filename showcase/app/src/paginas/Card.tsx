@@ -49,8 +49,7 @@ const playground = definirPlayground({
           {valores.flush ? <p style={{ margin: 0 }}>Conteúdo encostado nas bordas, como uma tabela.</p> : 'Doze pessoas com acesso, três delas administradoras.'}
         </Card.Body>
         {valores.rodape && (
-          <Card.Footer>
-            <span>Atualizado há 5 minutos</span>
+          <Card.Footer start={<span>Atualizado há 5 minutos</span>}>
             <Button onClick={() => registrar('Ver todos: onClick')} size="sm" variant="secondary">Ver todos</Button>
           </Card.Footer>
         )}

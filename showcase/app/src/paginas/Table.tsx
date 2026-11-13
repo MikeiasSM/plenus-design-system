@@ -288,8 +288,7 @@ function EquipeEmCartao() {
             </Table.Body>
           </Table>
         </Card.Body>
-        <Card.Footer>
-          <span className="note">{escolhidos.length} selecionados</span>
+        <Card.Footer start={<span className="note">{escolhidos.length} selecionados</span>}>
           <Pagination onPageChange={setPagina} page={pagina} pageCount={5} />
         </Card.Footer>
       </Card>
@@ -606,8 +605,7 @@ export const pagina: Pagina = {
       </Table.Body>
     </Table>
   </Card.Body>
-  <Card.Footer>
-    <span>{escolhidos.length} selecionados</span>
+  <Card.Footer start={<span>{escolhidos.length} selecionados</span>}>
     <Pagination page={pagina} pageCount={5} onPageChange={setPagina} />
   </Card.Footer>
 </Card>`,

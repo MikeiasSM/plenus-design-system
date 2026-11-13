@@ -252,6 +252,26 @@ describe('Card', () => {
       expect(rodape.children[1].tagName).toBe('BUTTON');
     });
 
+    it('so o rodape com start quebra a linha', () => {
+      const { rerender } = render(
+        <Card>
+          <Card.Footer data-testid="rodape">Rodape</Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').className).not.toMatch(/footerWrap/);
+
+      rerender(
+        <Card>
+          <Card.Footer data-testid="rodape" start={<span>Situacao</span>}>
+            Rodape
+          </Card.Footer>
+        </Card>,
+      );
+
+      expect(screen.getByTestId('rodape').className).toMatch(/footerWrap/);
+    });
+
     it('com so o start, dispensa os filhos e nao cria o bloco da direita', () => {
       const { rerender } = render(
         <Card>
@@ -278,8 +298,17 @@ describe('Card', () => {
   describe('na folha de estilo do rodape', () => {
     const regras = regrasDaFolha('src/components/data-display/Card/Card.module.css');
 
-    it('mantem o ultimo filho no fim da linha, mesmo quando desce, sem especificidade', () => {
-      expect(regras.get(':where(.footer > :last-child)')).toEqual({ 'margin-inline-start': 'auto' });
+    it('sem start, o rodape tem as regras da v0.6.3: sem quebra e so o filho unico vai ao fim', () => {
+      expect(regras.get('.footer')).toEqual({
+        display: 'flex',
+        'align-items': 'center',
+        'justify-content': 'space-between',
+        gap: 'var(--pl-space-4)',
+        padding: 'var(--pl-space-4) var(--card-gap)',
+        'border-top': '1px solid var(--pl-color-border)',
+      });
+      expect(regras.get(':where(.footer > :only-child)')).toEqual({ 'margin-inline-start': 'auto' });
+      expect(regras.has(':where(.footer > :last-child)')).toBe(false);
     });
 
     it('o start cresce e fica no comeco, mesmo sendo filho unico', () => {
@@ -287,7 +316,7 @@ describe('Card', () => {
     });
 
     it('o rodape quebra a linha quando o start e os filhos nao cabem juntos', () => {
-      expect(regras.get('.footer')).toMatchObject({ 'flex-wrap': 'wrap' });
+      expect(regras.get('.footerWrap')).toEqual({ 'flex-wrap': 'wrap' });
     });
 
     it('os filhos, com o start, ficam juntos no fim da linha', () => {
