@@ -757,6 +757,16 @@
   .editor {
     font-size: var(--pl-control-font-size-touch);
   }
+
+  .resizer {
+    right: -12px;
+    z-index: 1;
+    width: 24px;
+  }
+
+  .resizer::after {
+    right: 15px;
+  }
 }
 
 .row.clickable:active:not(.selected) {

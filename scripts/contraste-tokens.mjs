@@ -52,6 +52,7 @@ export const PARES = [
   ['--pl-color-text-secondary', '--pl-color-surface-muted', TEXTO_MINIMO, 'texto secundario no fundo pressionado'],
   ['--pl-color-danger-text', '--pl-color-surface-muted', TEXTO_MINIMO, 'erro no fundo pressionado'],
   ['--pl-color-on-danger', '--pl-color-danger-solid', TEXTO_MINIMO, 'texto sobre perigo'],
+  ['--pl-color-on-danger', '--pl-color-danger-active', TEXTO_MINIMO, 'texto sobre perigo pressionado'],
   ['--pl-color-on-danger-container', PERIGO_PRESSIONADO, TEXTO_MINIMO, 'texto no perigo pressionado'],
   ['--pl-color-danger-text', PERIGO_PRESSIONADO, TEXTO_MINIMO, 'perigo fantasma pressionado'],
   ['--pl-color-on-primary-container', '--pl-color-primary-container', TEXTO_MINIMO, 'texto no container'],

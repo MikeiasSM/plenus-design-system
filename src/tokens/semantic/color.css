@@ -21,6 +21,7 @@
   --pl-color-on-warning-container: #7A4F00;
   --pl-color-danger: var(--pl-status-red);
   --pl-color-danger-solid: #B01B20;
+  --pl-color-danger-active: #8E1519;
   --pl-color-on-danger: var(--pl-neutral-white);
   --pl-color-danger-container: #FBECEA;
   --pl-color-danger-text: #A31419;
@@ -52,6 +53,7 @@
   --pl-color-on-warning-container: var(--pl-color-warning);
   --pl-color-danger: #E8776B;
   --pl-color-danger-solid: #C0392B;
+  --pl-color-danger-active: #A12F23;
   --pl-color-on-danger: var(--pl-neutral-white);
   --pl-color-danger-container: #2A1917;
   --pl-color-danger-text: var(--pl-color-danger);
@@ -84,6 +86,7 @@
     --pl-color-on-warning-container: var(--pl-color-warning);
     --pl-color-danger: #E8776B;
     --pl-color-danger-solid: #C0392B;
+    --pl-color-danger-active: #A12F23;
     --pl-color-on-danger: var(--pl-neutral-white);
     --pl-color-danger-container: #2A1917;
     --pl-color-danger-text: var(--pl-color-danger);

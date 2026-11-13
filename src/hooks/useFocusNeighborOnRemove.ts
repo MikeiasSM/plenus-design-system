@@ -5,6 +5,7 @@ const REMOVE_MARK = 'data-removes';
 export function useFocusNeighborOnRemove(
   ref: RefObject<HTMLElement | null>,
   fallback?: () => HTMLElement | null | undefined,
+  focusContainer = true,
 ) {
   const fallbackRef = useRef(fallback);
 
@@ -28,7 +29,7 @@ export function useFocusNeighborOnRemove(
       );
       const next = others.find((button) => item.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING);
       const previous = others.filter((button) => item.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_PRECEDING).pop();
-      const target = next ?? previous ?? fallbackRef.current?.() ?? container;
+      const target = next ?? previous ?? fallbackRef.current?.() ?? (focusContainer ? container : null);
 
       if (target && !target.hasAttribute('tabindex') && !target.matches('a[href], button, input, select, textarea')) {
         target.tabIndex = -1;

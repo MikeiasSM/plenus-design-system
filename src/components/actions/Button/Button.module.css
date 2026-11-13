@@ -183,7 +183,7 @@
 }
 
 .danger:not(:disabled):not([aria-disabled='true']):active {
-  filter: brightness(0.8);
+  background: var(--pl-color-danger-active);
 }
 
 .dangerSoft:not(:disabled):not([aria-disabled='true']):active,
