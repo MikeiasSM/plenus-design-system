@@ -279,7 +279,7 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
-    { nome: 'label', tipo: 'string', descricao: 'Pergunta do grupo, na legend. Obrigatório.' },
+    { nome: 'label', tipo: 'string', descricao: 'Pergunta do grupo, na legend. Opcional quando há aria-labelledby ou aria-label; sem ele, a legend não aparece.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'As opções, em Radio.' },
     { nome: 'value', tipo: 'string', descricao: 'Valor escolhido, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Valor inicial, no modo não controlado.' },

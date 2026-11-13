@@ -265,7 +265,7 @@ export const pagina: Pagina = {
       tipo: '{ label: string; value: string; icon?: ReactNode; disabled?: boolean }[]',
       descricao: 'Os segmentos. O label é o nome, mesmo com iconOnly.',
     },
-    { nome: 'label', tipo: 'string', descricao: 'Nome do grupo, para o leitor de tela. Obrigatório.' },
+    { nome: 'label', tipo: 'string', descricao: 'Nome do grupo, para o leitor de tela. Opcional quando há aria-labelledby ou aria-label.' },
     { nome: 'value', tipo: 'string', descricao: 'Valor escolhido, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Valor inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa o segmento escolhido.' },

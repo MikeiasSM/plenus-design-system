@@ -7,6 +7,8 @@ export interface FieldRowWiring {
   describedBy: string | undefined;
   /** Id do controle, ao qual o rótulo da linha aponta. O rótulo só aponta para ele quando a função o lê. */
   id: string;
+  /** Id do rótulo da linha, para o grupo que ele não nomeia por `htmlFor`, como o `SegmentedControl`, o `RadioGroup` e o `CheckboxGroup`: vai ao `aria-labelledby` do grupo. */
+  labelId: string;
 }
 
 export interface FieldRowProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
@@ -25,11 +27,16 @@ export function FieldRow({ children, className, description, id: providedId, lab
   // O controle que se nomeia pelo conteudo, como um botao, nao le o id: sem ele, o rotulo apontaria para o vazio. A
   // leitura decide no proprio render, e o HTML do servidor ja sai certo; o controle que monta depois continua ligado.
   let idRead = false;
+  let labelIdRead = false;
   const wiring: FieldRowWiring = {
     describedBy: description ? descriptionId : undefined,
     get id() {
       idRead = true;
       return id;
+    },
+    get labelId() {
+      labelIdRead = true;
+      return `${id}-label`;
     },
   };
   const control = typeof children === 'function' ? children(wiring) : children;
@@ -38,7 +45,7 @@ export function FieldRow({ children, className, description, id: providedId, lab
   return (
     <div {...props} className={[styles.row, className].filter(Boolean).join(' ')}>
       <div className={styles.text}>
-        <Label className={styles.label} htmlFor={labelTarget}>
+        <Label className={styles.label} htmlFor={labelTarget} id={labelIdRead ? `${id}-label` : undefined}>
           {label}
         </Label>
         {description && (

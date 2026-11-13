@@ -106,11 +106,19 @@ O `FieldRow` é a linha de uma lista de ajustes: o rótulo e a explicação à e
 
 O `SaveStatus` é o texto curto da situação do salvamento, no lugar do texto montado à mão num rodapé ou numa barra: o `status` (`idle`, `dirty`, `saving`, `saved` ou `error`) escolhe o indicador e o produto escreve o texto, como "Rascunho salvo às 10:42". `saving` mostra o `Spinner` pequeno, `saved` o sinal de pronto no tom de sucesso e `error` o de erro no tom de perigo; `idle` e `dirty` ficam só com o texto, porque a alteração pendente não é erro nem aviso e o texto já a diz sem depender de cor. O texto tem o tamanho de legenda, em tom terciário, numa região `role="status"` sempre montada, para a mudança ser lida sem tirar o foco. Na situação do `AppShell.PageFooter`, que já é uma região de status, ela não cria a sua, e o texto é lido uma vez só. A fronteira com a `SaveBar` é a ação: a `SaveStatus` só informa e não tem botão, e cabe no `start` do `Card.Footer` ou no rodapé da página. Quem salva, e quando, é do produto.
 
-O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy }`. Os dois valores vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
+O controle do `FieldRow` vem como função filha, que recebe `{ id, describedBy, labelId }`. Os dois valores vão ao controle um a um, como `id={id}` e `aria-describedby={describedBy}`, e não espalhados nele:
 
 ```tsx
 <FieldRow label="Desconto sem aprovação" description="Até este valor, o pedido segue direto.">
   {({ describedBy, id }) => <InputNumber id={id} aria-describedby={describedBy} />}
+</FieldRow>
+```
+
+O `SegmentedControl`, o `RadioGroup` e o `CheckboxGroup` são grupos, não campos: o `<label for>` não nomeia o `div` ou o `fieldset`. Para eles, a função entrega o `labelId`, o id do rótulo da linha, que vai ao `aria-labelledby` do grupo; o `label` do grupo fica de fora, e a linha o nomeia uma vez só, sem a legenda repetida. O `labelId` não lido não põe id no rótulo. Sem `label`, `aria-labelledby` nem `aria-label`, o grupo avisa no console em desenvolvimento.
+
+```tsx
+<FieldRow label="Frequência">
+  {({ labelId }) => <SegmentedControl aria-labelledby={labelId} items={periodos} />}
 </FieldRow>
 ```
 
