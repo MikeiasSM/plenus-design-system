@@ -397,6 +397,25 @@ describe('Pagination: largura', () => {
     expect(container.querySelector('[aria-label="Primeira página"]')).not.toBeNull();
   });
 
+  it('sem largura nem para o texto, ficam so as setas, e o "3 de 12" so se anuncia', () => {
+    larguraDoNav = 100;
+    render(<Pagination defaultPage={3} pageCount={12} />);
+
+    expect(screen.getByRole('button', { name: 'Página anterior' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Próxima página' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Página 3' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('3 de 12');
+    expect(screen.getByText('3 de 12').parentElement?.className).not.toMatch(/compactText/);
+  });
+
+  it('so com as setas e com o total de itens, quem anuncia e o intervalo', () => {
+    larguraDoNav = 100;
+    render(<Pagination defaultPage={3} pageCount={12} pageSize={10} totalItems={120} />);
+
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent('Itens 21 a 30 de 120');
+  });
+
   it('a decisao nao depende do nivel atual: reduz uma vez e para, sem laco de renderizacao', () => {
     larguraDoNav = 240;
     const renderizacoes = vi.fn();

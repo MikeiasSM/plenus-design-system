@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
 import { formatNumber } from '../../../utils/formatters';
 import { blockRepeatedPress } from '../../../utils/press/press';
+import { VisuallyHidden } from '../../accessibility/VisuallyHidden';
 import { Select } from '../../forms/Select';
 import stepsStyles from '../Steps/Steps.module.css';
 import styles from './Pagination.module.css';
@@ -75,7 +76,7 @@ export function Pagination({
   const copia = useRef<HTMLDivElement>(null);
   const seletor = useRef<HTMLSpanElement>(null);
   const [medidas, setMedidas] = useState<Medidas | null>(null);
-  const ultimo = siblings + 1 + (showFirstLast ? 1 : 0);
+  const ultimo = siblings + 2 + (showFirstLast ? 1 : 0);
   const atual = Math.min(Math.max(page ?? internalPage, 1), Math.max(totalDePaginas, 1));
   const intervalo =
     totalItems && tamanho
@@ -133,6 +134,7 @@ export function Pagination({
   }
 
   const modoCompacto = nivel > siblings;
+  const soSetas = nivel === ultimo;
 
   function mudarPagina(pagina: number) {
     if (page === undefined) {
@@ -184,6 +186,7 @@ export function Pagination({
             irPara={irPara}
             paginas={montarFaixa(atual, totalDePaginas, Math.max(siblings - nivel, 0))}
             showFirstLast={showFirstLast && nivel <= siblings + 1}
+            soSetas={soSetas}
             totalDePaginas={totalDePaginas}
           />
         )}
@@ -203,6 +206,7 @@ export function Pagination({
               forma={0}
               paginas={montarFaixa(atual, totalDePaginas, siblings)}
               showFirstLast={showFirstLast}
+              soSetas={false}
             />
           </div>
           {Array.from({ length: ultimo }, (_, indice) => indice + 1).map((forma) => (
@@ -212,6 +216,7 @@ export function Pagination({
               key={forma}
               paginas={montarFaixa(atual, totalDePaginas, Math.max(siblings - forma, 0))}
               showFirstLast={showFirstLast && forma <= siblings + 1}
+              soSetas={forma === ultimo}
               texto={forma > siblings ? textoCompacto : undefined}
             />
           ))}
@@ -263,12 +268,14 @@ function PaginationStepsCopy({
   forma,
   paginas,
   showFirstLast,
+  soSetas,
   texto,
 }: {
   atual: number;
   forma: number;
   paginas: (number | null)[];
   showFirstLast: boolean;
+  soSetas: boolean;
   texto?: string;
 }) {
   return (
@@ -281,7 +288,7 @@ function PaginationStepsCopy({
       <span className={styles.step}>
         <IconChevronLeft size={14} />
       </span>
-      {texto === undefined ? (
+      {soSetas ? null : texto === undefined ? (
         <span className={styles.list}>
           {paginas.map((numero, indice) =>
             numero === null ? (
@@ -318,6 +325,7 @@ function PaginationSteps({
   irPara,
   paginas,
   showFirstLast,
+  soSetas,
   totalDePaginas,
 }: {
   anunciaCompacto: boolean;
@@ -327,6 +335,7 @@ function PaginationSteps({
   irPara: (pagina: number) => void;
   paginas: (number | null)[];
   showFirstLast: boolean;
+  soSetas: boolean;
   totalDePaginas: number;
 }) {
   const noInicio = disabled || atual === 1 || undefined;
@@ -381,6 +390,10 @@ function PaginationSteps({
             ),
           )}
         </ol>
+      ) : soSetas ? (
+        <VisuallyHidden role={anunciaCompacto ? 'status' : undefined}>
+          <span aria-current="page">{compactText}</span>
+        </VisuallyHidden>
       ) : (
         <span className={styles.compactText} role={anunciaCompacto ? 'status' : undefined}>
           <span aria-current="page">{compactText}</span>

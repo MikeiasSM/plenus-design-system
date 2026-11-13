@@ -166,7 +166,7 @@ function Modos() {
       <dt>Largura</dt>
       <dd>
         Os passos ficam numa linha só. Sem largura para os números, o componente tira as vizinhas da atual, até{' '}
-        <code>siblings=0</code>, e, se ainda não couber, vira o modo compacto: anterior, <code>3 de 12</code> e próxima.
+        <code>siblings=0</code>, e, se ainda não couber, vira o modo compacto: anterior, <code>3 de 12</code> e próxima; sem largura nem para o texto, ficam só as setas, e o <code>3 de 12</code> fica só para o leitor de tela.
         O texto leva <code>aria-current=&quot;page&quot;</code>, e <code>formatCompact</code> o traduz. <code>compact</code>{' '}
         força o modo compacto.
       </dd>
