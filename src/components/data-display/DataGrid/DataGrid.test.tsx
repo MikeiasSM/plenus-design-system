@@ -99,7 +99,7 @@ describe('DataGrid, redimensionar a coluna', () => {
   it('a borda não deixa o gesto virar rolagem nem seleção e, no toque, tem ao menos 24px', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/DataGrid/DataGrid.module.css'), 'utf8');
     const base = css.match(/\.resizer \{[^}]*\}/)![0];
-    const toque = css.match(/@media \(pointer: coarse\) \{\s*\.resizer \{[^}]*\}/)![0];
+    const toque = css.match(/@media \(pointer: coarse\) \{[\s\S]*?\.resizer \{[^}]*\}/)![0];
 
     expect(base).toContain('touch-action: none');
     expect(toque).toMatch(/width: 24px/);
