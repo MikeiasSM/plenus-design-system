@@ -380,7 +380,7 @@ function Modos() {
       <dt>Gaveta no celular</dt>
       <dd>
         Abaixo de 900px (ou do <code>narrowBelow</code>), o trilho e o submenu passam juntos a uma gaveta com a interação do <code>Drawer</code>, aberta pelo botão da barra da página (<code>Sidebar.Trigger</code>).
-        A prévia acima mede a janela do navegador, e não a própria largura: estreite a janela para ver a gaveta.
+        Na prévia acima, escolha Tablet ou Celular em Largura da prévia para ver a gaveta, numa janela própria dessa largura; em Livre, a prévia segue a janela do navegador.
       </dd>
     </dl>
   );

@@ -1047,7 +1047,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'view', tipo: 'ChartMapView', descricao: <><code>{'{ center: [longitude, latitude], scale }'}</code>, no modo controlado. <code>scale</code> 1 é o enquadramento inicial (o de <code>focus</code> e <code>focusMarkers</code>), no mínimo; o máximo é 100 vezes o mapa inteiro.</> },
     { nome: 'defaultView', tipo: 'ChartMapView', descricao: 'A vista de início, no modo não controlado. Sem ela, o enquadramento inicial.' },
     { nome: 'onViewChange', tipo: '(view: ChartMapView) => void', descricao: 'A vista nova, a cada aproximação, afastamento ou arraste.' },
-    { nome: 'clickableMarks', tipo: "readonly ('region' | 'marker')[]", padrao: "['region', 'marker']", descricao: <>Espécies que viram botão e avisam <code>onMarkClick</code>. As demais seguem como desenho, fora do Tab. Vale também para <code>onRegionClick</code> e <code>onMarkerClick</code>.</> },
+    { nome: 'clickableMarks', tipo: "readonly ('region' | 'marker')[]", padrao: "['region', 'marker']", descricao: <>Espécies que viram botão e avisam <code>onMarkClick</code>. As demais seguem como desenho, fora do Tab.</> },
     { nome: 'selectedRegion', tipo: 'string | null', descricao: 'Região com contorno de seleção, no modo controlado.' },
     { nome: 'defaultSelectedRegion', tipo: 'string | null', descricao: 'Região escolhida de início, no modo não controlado. Com ela, as regiões viram botões.' },
     { nome: 'onSelectedRegionChange', tipo: '(id: string | null) => void', descricao: 'O clique escolhe a região, ou desfaz a escolha na já escolhida. Com ela, as regiões viram botões.' },
