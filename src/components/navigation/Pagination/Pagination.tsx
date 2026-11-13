@@ -1,4 +1,4 @@
-import { useState, type ComponentPropsWithRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type RefObject } from 'react';
 import { formatNumber } from '../../../utils/formatters';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import { Select } from '../../forms/Select';
@@ -14,12 +14,16 @@ export interface PaginationRange {
 }
 
 export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
+  /** Força o modo compacto: anterior, o texto "3 de 12" e próxima. Sem ele, o modo compacto vem sozinho quando a largura não comporta os números. */
+  compact?: boolean;
   /** Pagina inicial no modo nao controlado. */
   defaultPage?: number;
   /** Tamanho de pagina inicial no modo nao controlado. Sem ele, a primeira opcao de `pageSizeOptions`. */
   defaultPageSize?: number;
   /** Suspende os botoes de pagina, como enquanto a pagina pedida carrega; continuam focaveis. O seletor de tamanho segue ativo. */
   disabled?: boolean;
+  /** Troca o texto do modo compacto, que por padrão é `3 de 12`; o devolvido é também o que se anuncia. */
+  formatCompact?: (page: number, pageCount: number) => string;
   /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
   formatRange?: (range: PaginationRange) => string;
   label?: string;
@@ -43,9 +47,11 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
 
 export function Pagination({
   className,
+  compact = false,
   defaultPage = 1,
   defaultPageSize,
   disabled = false,
+  formatCompact,
   formatRange,
   label = 'Paginação',
   onPageChange,
@@ -63,13 +69,53 @@ export function Pagination({
   const [internalPageSize, setInternalPageSize] = useState(defaultPageSize ?? pageSizeOptions?.[0]);
   const tamanho = pageSize ?? internalPageSize;
   const totalDePaginas = pageCount ?? (totalItems !== undefined && tamanho ? Math.ceil(totalItems / tamanho) : 0);
+  const renderiza = totalDePaginas > 1 || Boolean(pageSizeOptions);
+  const passos = useRef<HTMLDivElement>(null);
+  const [largura, setLargura] = useState(-1);
+  const [ajuste, setAjuste] = useState({ chave: '', nivel: 0 });
+  const ultimo = siblings + 1 + (showFirstLast ? 1 : 0);
+  const chave = `${largura}|${totalDePaginas}|${siblings}|${showFirstLast}|${compact}`;
+  const nivel = ajuste.chave === chave ? ajuste.nivel : compact ? siblings + 1 : 0;
 
-  if (totalDePaginas <= 1 && !pageSizeOptions) {
+  useEffect(() => {
+    const nav = passos.current?.parentElement;
+
+    if (!nav || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observador = new ResizeObserver(() => setLargura(Math.round(nav.getBoundingClientRect().width)));
+    observador.observe(nav);
+
+    return () => observador.disconnect();
+  }, [renderiza]);
+
+  useLayoutEffect(() => {
+    const nav = passos.current?.parentElement;
+
+    if (!passos.current || !nav) {
+      return;
+    }
+
+    const medida = Math.round(nav.getBoundingClientRect().width);
+
+    if (medida !== largura) {
+      setLargura(medida);
+      return;
+    }
+
+    if (nivel < ultimo && passos.current.getBoundingClientRect().width > nav.getBoundingClientRect().width + 0.5) {
+      setAjuste({ chave, nivel: nivel + 1 });
+    }
+  });
+
+  if (!renderiza) {
     return null;
   }
 
   const atual = Math.min(Math.max(page ?? internalPage, 1), Math.max(totalDePaginas, 1));
-  const paginas = montarFaixa(atual, totalDePaginas, siblings);
+  const modoCompacto = nivel > siblings;
+  const paginas = montarFaixa(atual, totalDePaginas, Math.max(siblings - nivel, 0));
   const intervalo =
     totalItems && tamanho
       ? { start: (atual - 1) * tamanho + 1, end: Math.min(atual * tamanho, totalItems), total: totalItems }
@@ -117,10 +163,12 @@ export function Pagination({
       {totalDePaginas > 1 && (
         <PaginationSteps
           atual={atual}
+          compactText={modoCompacto ? (formatCompact ?? formatarCompacto)(atual, totalDePaginas) : undefined}
           disabled={disabled}
           irPara={irPara}
           paginas={paginas}
-          showFirstLast={showFirstLast}
+          passos={passos}
+          showFirstLast={showFirstLast && nivel <= siblings + 1}
           totalDePaginas={totalDePaginas}
         />
       )}
@@ -128,18 +176,26 @@ export function Pagination({
   );
 }
 
+function formatarCompacto(pagina: number, total: number) {
+  return `${formatNumber(pagina)} de ${formatNumber(total)}`;
+}
+
 function PaginationSteps({
   atual,
+  compactText,
   disabled,
   irPara,
   paginas,
+  passos,
   showFirstLast,
   totalDePaginas,
 }: {
   atual: number;
+  compactText?: string;
   disabled: boolean;
   irPara: (pagina: number) => void;
   paginas: (number | null)[];
+  passos: RefObject<HTMLDivElement | null>;
   showFirstLast: boolean;
   totalDePaginas: number;
 }) {
@@ -147,7 +203,7 @@ function PaginationSteps({
   const noFim = disabled || atual === totalDePaginas || undefined;
 
   return (
-    <div className={styles.steps}>
+    <div className={styles.steps} ref={passos}>
       {showFirstLast && (
         <button
           className={styles.step}
@@ -171,29 +227,35 @@ function PaginationSteps({
       >
         <IconChevronLeft size={14} />
       </button>
-      <ol className={styles.list}>
-        {paginas.map((numero, indice) =>
-          numero === null ? (
-            <li className={styles.gap} key={`gap-${indice}`} aria-hidden="true">
-              &hellip;
-            </li>
-          ) : (
-            <li key={numero}>
-              <button
-                className={[styles.page, numero === atual && styles.current].filter(Boolean).join(' ')}
-                type="button"
-                aria-label={`Página ${numero}`}
-                aria-current={numero === atual ? 'page' : undefined}
-                aria-disabled={disabled || undefined}
-                onClick={() => irPara(numero)}
-                onKeyDown={blockRepeatedPress}
-              >
-                {numero}
-              </button>
-            </li>
-          ),
-        )}
-      </ol>
+      {compactText === undefined ? (
+        <ol className={styles.list}>
+          {paginas.map((numero, indice) =>
+            numero === null ? (
+              <li className={styles.gap} key={`gap-${indice}`} aria-hidden="true">
+                &hellip;
+              </li>
+            ) : (
+              <li key={numero}>
+                <button
+                  className={[styles.page, numero === atual && styles.current].filter(Boolean).join(' ')}
+                  type="button"
+                  aria-label={`Página ${numero}`}
+                  aria-current={numero === atual ? 'page' : undefined}
+                  aria-disabled={disabled || undefined}
+                  onClick={() => irPara(numero)}
+                  onKeyDown={blockRepeatedPress}
+                >
+                  {numero}
+                </button>
+              </li>
+            ),
+          )}
+        </ol>
+      ) : (
+        <span className={styles.compactText} role="status">
+          <span aria-current="page">{compactText}</span>
+        </span>
+      )}
       <button
         className={styles.step}
         type="button"

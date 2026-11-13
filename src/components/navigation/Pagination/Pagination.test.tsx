@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Pagination, montarFaixa } from './Pagination';
@@ -12,11 +13,11 @@ describe('Pagination: estilo', () => {
     return css.slice(inicio, css.indexOf('}', inicio));
   };
 
-  it('quebra as paginas entre os passos quando nao cabem numa linha, em vez de vazar', () => {
+  it('o intervalo e o seletor descem de linha, e os passos ficam numa linha so, sem encolher', () => {
     expect(bloco('.pagination')).toContain('flex-wrap: wrap;');
-    expect(bloco('.steps')).toContain('min-width: 0;');
+    expect(bloco('.steps')).toContain('flex: 0 0 auto;');
     expect(bloco('.steps')).not.toContain('flex-wrap');
-    expect(bloco('.list')).toContain('flex-wrap: wrap;');
+    expect(bloco('.list')).toContain('flex-wrap: nowrap;');
   });
 
   it('anterior, paginas e proxima ficam num grupo so, que desce inteiro', () => {
@@ -269,5 +270,91 @@ describe('Pagination', () => {
 
       expect(screen.getByRole('listbox', { name: 'Itens por página' })).toBeInTheDocument();
     });
+  });
+});
+
+describe('Pagination: largura', () => {
+  const original = HTMLElement.prototype.getBoundingClientRect;
+  let larguraDoNav = 400;
+
+  beforeEach(() => {
+    HTMLElement.prototype.getBoundingClientRect = function medir(this: HTMLElement) {
+      const largura =
+        this.tagName === 'NAV'
+          ? larguraDoNav
+          : this.querySelector('ol, [aria-current]') && this.tagName === 'DIV'
+            ? this.querySelectorAll('button').length * 44 + (this.querySelector('[role="status"]') ? 60 : 0)
+            : 0;
+
+      return { width: largura, height: 32, top: 0, left: 0, right: largura, bottom: 32, x: 0, y: 0, toJSON: () => ({}) };
+    };
+  });
+
+  afterEach(() => {
+    HTMLElement.prototype.getBoundingClientRect = original;
+  });
+
+  it('cabendo, mostra todos os numeros', () => {
+    larguraDoNav = 400;
+    render(<Pagination defaultPage={10} pageCount={20} />);
+
+    expect(screen.getByRole('button', { name: 'Página 11' })).toBeInTheDocument();
+    expect(screen.queryByText('10 de 20')).not.toBeInTheDocument();
+  });
+
+  it('sem largura para os vizinhos, tira os vizinhos da atual antes de virar compacto', () => {
+    larguraDoNav = 240;
+    render(<Pagination defaultPage={10} pageCount={20} />);
+
+    expect(screen.getByRole('button', { name: 'Página 10' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Página 11' })).not.toBeInTheDocument();
+    expect(screen.queryByText('10 de 20')).not.toBeInTheDocument();
+  });
+
+  it('sem largura para os numeros, vira anterior, "3 de 12" e proxima, que a pagina atual e o total anunciam', () => {
+    larguraDoNav = 160;
+    render(<Pagination defaultPage={3} pageCount={12} />);
+
+    expect(screen.getByText('3 de 12')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Página anterior' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Próxima página' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Página 3' })).not.toBeInTheDocument();
+  });
+
+  it('compact forca o modo compacto mesmo com largura de sobra, e a pagina muda pelos passos', () => {
+    larguraDoNav = 800;
+    const onPageChange = vi.fn();
+    render(<Pagination compact page={3} pageCount={12} onPageChange={onPageChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próxima página' }));
+
+    expect(screen.getByText('3 de 12')).toBeInTheDocument();
+    expect(onPageChange).toHaveBeenCalledWith(4);
+  });
+
+  it('no servidor, o HTML inicial traz a forma completa, sem erro', () => {
+    const html = renderToString(<Pagination defaultPage={10} pageCount={20} />);
+
+    expect(html).toContain('aria-label="Página 11"');
+    expect(html).not.toContain('10 de 20');
+  });
+
+  it('formatCompact troca o texto do modo compacto', () => {
+    render(<Pagination compact formatCompact={(pagina, total) => `Page ${pagina} of ${total}`} page={3} pageCount={12} />);
+
+    expect(screen.getByText('Page 3 of 12')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('com as pontas, o compacto as perde so se ainda nao couber', () => {
+    larguraDoNav = 200;
+    render(<Pagination compact page={3} pageCount={12} showFirstLast />);
+
+    expect(screen.queryByRole('button', { name: 'Primeira página' })).not.toBeInTheDocument();
+    expect(screen.getByText('3 de 12')).toBeInTheDocument();
+
+    larguraDoNav = 260;
+    const { container } = render(<Pagination compact page={3} pageCount={12} showFirstLast />);
+
+    expect(container.querySelector('[aria-label="Primeira página"]')).not.toBeNull();
   });
 });

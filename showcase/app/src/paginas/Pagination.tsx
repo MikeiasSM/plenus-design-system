@@ -5,6 +5,7 @@ import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/t
 import { VerCodigo } from '../estrutura/VerCodigo';
 
 function PaginacaoDoPlayground({
+  compact,
   disabled,
   pageCount,
   pageSize,
@@ -12,6 +13,7 @@ function PaginacaoDoPlayground({
   siblings,
   totalItems,
 }: {
+  compact: boolean;
   disabled: boolean;
   pageCount: number;
   pageSize?: number;
@@ -23,6 +25,7 @@ function PaginacaoDoPlayground({
 
   return (
     <Pagination
+      compact={compact}
       disabled={disabled}
       onPageChange={(escolhida) => {
         registrar(`onPageChange: ${escolhida}`);
@@ -43,16 +46,18 @@ function paginasDo(valores: { pageCount: number; pageSize: number; totalItems: n
 }
 
 const playground = definirPlayground({
-  inicial: { pageCount: 20, totalItems: 0, pageSize: 25, siblings: 1, disabled: false },
+  inicial: { pageCount: 20, totalItems: 0, pageSize: 25, siblings: 1, compact: false, disabled: false },
   controles: [
     { tipo: 'numero', nome: 'pageCount', min: 0, max: 200 },
     { tipo: 'numero', nome: 'totalItems', min: 0, max: 10000 },
     { tipo: 'numero', nome: 'pageSize', min: 1, max: 500 },
     { tipo: 'numero', nome: 'siblings', min: 0, max: 4 },
+    { tipo: 'booleano', nome: 'compact' },
     { tipo: 'booleano', nome: 'disabled' },
   ],
   renderizar: (valores, registrar) => (
     <PaginacaoDoPlayground
+      compact={valores.compact}
       disabled={valores.disabled}
       pageCount={paginasDo(valores)}
       pageSize={valores.totalItems > 0 ? valores.pageSize : undefined}
@@ -68,6 +73,7 @@ const playground = definirPlayground({
       ['totalItems', valores.totalItems > 0 ? valores.totalItems : undefined],
       ['pageSize', valores.totalItems > 0 ? valores.pageSize : undefined],
       ['siblings', valores.siblings, 1],
+      ['compact', valores.compact, false],
       ['disabled', valores.disabled, false],
       ['onPageChange', expr('setPagina')],
     ]),
@@ -156,6 +162,13 @@ function Modos() {
       <dd>
         Quando todas as páginas cabem nas vagas — sete, com <code>siblings=1</code> —, a reticência some, porque não
         economizaria espaço.
+      </dd>
+      <dt>Largura</dt>
+      <dd>
+        Os passos ficam numa linha só. Sem largura para os números, o componente tira as vizinhas da atual, até{' '}
+        <code>siblings=0</code>, e, se ainda não couber, vira o modo compacto: anterior, <code>3 de 12</code> e próxima.
+        O texto leva <code>aria-current=&quot;page&quot;</code>, e <code>formatCompact</code> o traduz. <code>compact</code>{' '}
+        força o modo compacto.
       </dd>
       <dt>Uma página</dt>
       <dd>Com <code>pageCount</code> até 1, não renderiza nada.</dd>
@@ -263,6 +276,13 @@ export const pagina: Pagina = {
     { nome: 'pageCount', tipo: 'number', descricao: 'Total de páginas. Sem ela, sai de totalItems e pageSize.' },
     { nome: 'onPageChange', tipo: '(page: number) => void', descricao: 'Recebe a página escolhida.' },
     { nome: 'siblings', tipo: 'number', padrao: '1', descricao: 'Páginas mostradas de cada lado da atual.' },
+    { nome: 'compact', tipo: 'boolean', padrao: 'false', descricao: 'Força o modo compacto: anterior, "3 de 12" e próxima. Sem ele, o modo vem sozinho quando a largura não comporta os números.' },
+    {
+      nome: 'formatCompact',
+      tipo: '(page: number, pageCount: number) => string',
+      padrao: "'3 de 12'",
+      descricao: 'Troca o texto do modo compacto; o devolvido é também o anunciado.',
+    },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Suspende a troca; os botões continuam focáveis.' },
     { nome: 'label', tipo: 'string', padrao: "'Paginação'", descricao: 'Nome da região de navegação.' },
     { nome: 'totalItems', tipo: 'number', descricao: 'Total de itens. Com pageSize, mostra o intervalo da página.' },

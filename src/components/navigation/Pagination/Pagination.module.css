@@ -1,5 +1,6 @@
 /* Sem largura para tudo numa linha, o intervalo, o seletor e os passos descem um abaixo do outro, em vez de vazar.
-   Onde cabe, a linha é a mesma. */
+   Onde cabe, a linha é a mesma. Os passos ficam numa linha só: quem encolhe é o componente, tirando as vizinhas e,
+   por fim, os números. */
 .pagination {
   display: flex;
   flex-wrap: wrap;
@@ -10,9 +11,19 @@
 /* Anterior, páginas e próxima andam juntos: é a lista que quebra, entre os dois passos. */
 .steps {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: var(--pl-space-1);
   min-width: 0;
+}
+
+.compactText {
+  padding: 0 var(--pl-space-2);
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Ocupa a sobra da linha: o intervalo fica à esquerda e os botões, à direita. */
@@ -41,7 +52,7 @@
 
 .list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--pl-space-1);
   margin: 0;
