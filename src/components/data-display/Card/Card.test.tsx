@@ -278,8 +278,8 @@ describe('Card', () => {
   describe('na folha de estilo do rodape', () => {
     const regras = regrasDaFolha('src/components/data-display/Card/Card.module.css');
 
-    it('mantem o filho unico no fim da linha, sem especificidade', () => {
-      expect(regras.get(':where(.footer > :only-child)')).toEqual({ 'margin-inline-start': 'auto' });
+    it('mantem o ultimo filho no fim da linha, mesmo quando desce, sem especificidade', () => {
+      expect(regras.get(':where(.footer > :last-child)')).toEqual({ 'margin-inline-start': 'auto' });
     });
 
     it('o start cresce e fica no comeco, mesmo sendo filho unico', () => {

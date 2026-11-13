@@ -184,8 +184,9 @@
   border-top: 1px solid var(--pl-color-border);
 }
 
-/* Um filho só vai ao fim da linha, como as ações do Dialog. Sem especificidade, para a classe do consumidor vencer. */
-:where(.footer > :only-child) {
+/* O último filho vai ao fim da linha, como as ações do Dialog, e continua à direita ao descer por falta de espaço. Sem
+   especificidade, para a classe do consumidor vencer. */
+:where(.footer > :last-child) {
   margin-inline-start: auto;
 }
 
