@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { ChartMap, type ChartMapProps } from './ChartMap';
+import { ChartsProvider } from '../ChartsProvider';
 import type { ChartMapFeature } from './mapGeometry';
 import legendStyles from '../core/ColorLegend.module.css';
 import styles from './ChartMap.module.css';
@@ -805,5 +806,25 @@ describe('ChartMap', () => {
       expect(screen.queryByRole('button', { name: 'Aproximar' })).toBeNull();
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
+  });
+});
+
+describe('ChartMap: ChartsProvider', () => {
+  beforeEach(() => setSize());
+
+  const botao = () => screen.queryByRole('button', { name: 'Ver como tabela' });
+
+  it('o provider desliga o botão, e a prop do gráfico vale mais que ele', () => {
+    const { rerender } = render(<ChartsProvider showTableToggle={false}>{map()}</ChartsProvider>);
+
+    expect(botao()).toBeNull();
+
+    rerender(<ChartsProvider showTableToggle={false}>{map({ showTableToggle: true })}</ChartsProvider>);
+
+    expect(botao()).toBeInTheDocument();
+
+    rerender(<ChartsProvider showTableToggle>{map({ showTableToggle: false })}</ChartsProvider>);
+
+    expect(botao()).toBeNull();
   });
 });
