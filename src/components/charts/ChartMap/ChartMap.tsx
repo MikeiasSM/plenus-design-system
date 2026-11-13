@@ -186,7 +186,6 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Parte do total no balao e na tabela. So faz sentido em grandeza somavel. */
   showShare?: boolean;
-  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** O rotulo que nao cabe na regiao vai para uma coluna junto ao desenho, com linha guia, ou some. */
