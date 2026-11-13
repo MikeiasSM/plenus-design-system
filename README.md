@@ -50,7 +50,7 @@ O `showcase/` é uma aplicação consumidora utilizada para demonstração, docu
 
 O Showcase não define componentes oficiais, não contém regras de negócio do Design System e não fornece código que seja importado pela biblioteca.
 
-Para conhecer as decisões arquiteturais em detalhes, consulte [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Para conhecer as decisões arquiteturais em detalhes, consulte [ARCHITECTURE.md](https://github.com/MikeiasSM/plenus-design-system/blob/main/docs/ARCHITECTURE.md).
 
 ## Instalação
 
@@ -320,16 +320,16 @@ Formatadores de apresentação podem fazer parte do Design System. Regras de neg
 
 ## Documentação
 
-O pacote instalado traz, em `docs/`, o `CHANGELOG.md`, o `COMPONENTS-CATALOG.md`, o `TOKENS.md` e as duas referências de tokens; os demais documentos ficam só no repositório.
+O pacote instalado traz, em `docs/`, o `CHANGELOG.md`, o `COMPONENTS-CATALOG.md`, o `CONTRIBUTING.md`, o `TOKENS.md` e as duas referências de tokens; os demais documentos ficam só no repositório.
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — princípios e decisões arquiteturais.
-- [COMPONENTS.md](docs/COMPONENTS.md) — padrões para criação e organização de componentes.
+- [ARCHITECTURE.md](https://github.com/MikeiasSM/plenus-design-system/blob/main/docs/ARCHITECTURE.md) — princípios e decisões arquiteturais.
+- [COMPONENTS.md](https://github.com/MikeiasSM/plenus-design-system/blob/main/docs/COMPONENTS.md) — padrões para criação e organização de componentes.
 - [COMPONENTS-CATALOG.md](docs/COMPONENTS-CATALOG.md) — escopo de componentes, papel de cada um e fronteiras.
 - [TOKENS.md](docs/TOKENS.md) — padrões para criação e gerencia de tokens visuais.
 - [TOKENS-REFERENCE-COLORS.md](docs/TOKENS-REFERENCE-COLORS.md) e [TOKENS-REFERENCE-TYPOGRAPHY.md](docs/TOKENS-REFERENCE-TYPOGRAPHY.md) — referência de cores, paletas e tipografia.
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) — processo de desenvolvimento e contribuição.
 - [CHANGELOG.md](docs/CHANGELOG.md) — mudanças de cada versão publicada.
-- [roadmap/](docs/roadmap/) — o que cada versão menor planeja levar.
+- [roadmap/](https://github.com/MikeiasSM/plenus-design-system/tree/main/docs/roadmap) — o que cada versão menor planeja levar.
 
 Os documentos normativos ficam na raiz de `docs/`; o roadmap de cada versão menor, em `docs/roadmap/`.
 
