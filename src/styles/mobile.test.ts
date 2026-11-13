@@ -59,6 +59,14 @@ describe('safe area', () => {
     expect(moldura).toMatch(/--pl-safe-top: 0px;[\s\S]*--pl-safe-bottom: 0px;/);
     expect(ler('tokens/semantic/shell.css')).toContain('--pl-safe-top: env(safe-area-inset-top, 0px)');
   });
+
+  it('o Drawer zera os tokens do recorte que já soma no próprio padding, para a SaveBar não somar de novo', () => {
+    const css = ler('components/overlays/Drawer/Drawer.module.css');
+
+    expect(css).toMatch(/.drawer {[^}]*--pl-safe-top: 0px;[^}]*--pl-safe-bottom: 0px;/);
+    expect(css).toMatch(/.right .drawer {[^}]*--pl-safe-right: 0px;/);
+    expect(css).toMatch(/.left .drawer {[^}]*--pl-safe-left: 0px;/);
+  });
 });
 
 
