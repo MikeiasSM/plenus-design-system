@@ -70,11 +70,14 @@ export function Pagination({
   const tamanho = pageSize ?? internalPageSize;
   const totalDePaginas = pageCount ?? (totalItems !== undefined && tamanho ? Math.ceil(totalItems / tamanho) : 0);
   const renderiza = totalDePaginas > 1 || Boolean(pageSizeOptions);
+  const temPassos = totalDePaginas > 1;
   const passos = useRef<HTMLDivElement>(null);
+  const nivelMedido = useRef<number | null>(null);
   const [largura, setLargura] = useState(-1);
   const [ajuste, setAjuste] = useState({ chave: '', nivel: 0 });
   const ultimo = siblings + 1 + (showFirstLast ? 1 : 0);
-  const chave = `${largura}|${totalDePaginas}|${siblings}|${showFirstLast}|${compact}`;
+  const chaveDe = (medida: number) => `${medida}|${totalDePaginas}|${siblings}|${showFirstLast}|${compact}`;
+  const chave = chaveDe(largura);
   const nivel = ajuste.chave === chave ? ajuste.nivel : compact ? siblings + 1 : 0;
 
   useEffect(() => {
@@ -88,19 +91,27 @@ export function Pagination({
     observador.observe(nav);
 
     return () => observador.disconnect();
-  }, [renderiza]);
+  }, [temPassos]);
 
   useLayoutEffect(() => {
     const nav = passos.current?.parentElement;
 
     if (!passos.current || !nav) {
+      nivelMedido.current = null;
       return;
     }
 
     const medida = Math.round(nav.getBoundingClientRect().width);
+    const nivelMudou = nivelMedido.current !== null && nivelMedido.current !== nivel;
+    nivelMedido.current = nivel;
 
     if (medida !== largura) {
       setLargura(medida);
+
+      if (nivelMudou) {
+        setAjuste({ chave: chaveDe(medida), nivel });
+      }
+
       return;
     }
 

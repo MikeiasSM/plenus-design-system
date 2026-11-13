@@ -357,4 +357,45 @@ describe('Pagination: largura', () => {
 
     expect(container.querySelector('[aria-label="Primeira página"]')).not.toBeNull();
   });
+
+  it('num pai que se ajusta ao conteudo, reduz uma vez e para, sem laco de renderizacao', () => {
+    larguraDoNav = 240;
+    const medirPassos = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function medir(this: HTMLElement) {
+      if (this.tagName !== 'NAV') {
+        return medirPassos.call(this);
+      }
+
+      const passos = this.querySelector<HTMLElement>('div:has(> button)');
+      const largura = Math.min(larguraDoNav, passos ? medirPassos.call(passos).width : 0);
+
+      return { width: largura, height: 32, top: 0, left: 0, right: largura, bottom: 32, x: 0, y: 0, toJSON: () => ({}) };
+    };
+
+    render(<Pagination defaultPage={10} pageCount={20} />);
+
+    expect(screen.getByRole('button', { name: 'Página 10' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Página 11' })).not.toBeInTheDocument();
+  });
+
+  it('observa a largura tambem quando as paginas chegam depois da montagem', () => {
+    const observados: Element[] = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe(alvo: Element) {
+          observados.push(alvo);
+        }
+        disconnect() {}
+      },
+    );
+    const { rerender } = render(<Pagination pageSize={25} pageSizeOptions={[25, 50]} totalItems={0} />);
+
+    expect(observados).toHaveLength(0);
+
+    rerender(<Pagination pageSize={25} pageSizeOptions={[25, 50]} totalItems={2000} />);
+
+    expect(observados.map((alvo) => alvo.tagName)).toEqual(['NAV']);
+    vi.unstubAllGlobals();
+  });
 });
