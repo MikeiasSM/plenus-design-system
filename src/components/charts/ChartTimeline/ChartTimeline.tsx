@@ -44,6 +44,7 @@ import {
 import { autoDomain, durationMs, formatPosition, timeTicks, toDate, toPosition } from './timelineTime';
 import { timelineTooltip, type TimelineMarker, type TimelineRowBand, type TimelineTarget } from './timelineTooltip';
 import chartStyles from '../core/Chart.module.css';
+import { useShowTableToggle } from '../ChartsProvider';
 import styles from './ChartTimeline.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
@@ -199,7 +200,7 @@ export interface ChartTimelineProps extends Omit<ChartRootProps, 'hidden'> {
   showGrid?: boolean;
   showProgress?: boolean;
   showSegmentLabels?: ChartTimelineSegmentLabels;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Alternativa a `segments`: cada mudanca de estado vale ate a seguinte. */
@@ -346,7 +347,7 @@ export function ChartTimeline({
   showGrid = true,
   showProgress = true,
   showSegmentLabels = 'auto',
-  showTableToggle = true,
+  showTableToggle: showTableToggleProp,
   showTooltip = true,
   states,
   statesEnd,
@@ -355,6 +356,7 @@ export function ChartTimeline({
   xAxis = 'visible',
   ...root
 }: ChartTimelineProps) {
+  const showTableToggle = useShowTableToggle(showTableToggleProp);
   const titleId = useId();
   const hintId = useId();
   const patternPrefix = useId().replace(/[^\w-]/g, '');

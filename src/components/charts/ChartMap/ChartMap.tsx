@@ -57,6 +57,7 @@ import { useMapGestures } from './useMapGestures';
 import { buildColorScale, type ChartColorScale, type ColorScale } from '../scales/colorScale';
 import type { Point, Ring } from './polylabel';
 import chartStyles from '../core/Chart.module.css';
+import { useShowTableToggle } from '../ChartsProvider';
 import styles from './ChartMap.module.css';
 
 export interface ChartMapRegionDatum {
@@ -185,6 +186,7 @@ export interface ChartMapProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Parte do total no balao e na tabela. So faz sentido em grandeza somavel. */
   showShare?: boolean;
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** O rotulo que nao cabe na regiao vai para uma coluna junto ao desenho, com linha guia, ou some. */
@@ -422,7 +424,7 @@ export function ChartMap({
   selectedRegion,
   showDataLabels = 'hidden',
   showShare = false,
-  showTableToggle = true,
+  showTableToggle: showTableToggleProp,
   showTooltip = true,
   smallRegionLabels = 'callout',
   subtitle,
@@ -433,6 +435,7 @@ export function ChartMap({
   zoomable = false,
   ...root
 }: ChartMapProps) {
+  const showTableToggle = useShowTableToggle(showTableToggleProp);
   const titleId = useId();
   const summaryId = useId();
   const hatchId = `${useId().replace(/[^\w-]/g, '')}-hatch`;

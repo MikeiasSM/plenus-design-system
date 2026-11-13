@@ -379,7 +379,7 @@ const cores = resolveSeriesColors(series);
     { garantia: 'Ausência anunciada', como: 'Sem séries ou categorias, um EmptyState no lugar do desenho.', teste: 'ChartArea.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo de baixo.' },
     { nome: 'series', tipo: 'readonly ChartAreaSeries[]', descricao: <><code>{'{ label, values, axis?, color?, intent? }'}</code>; <code>null</code> marca valor ausente. <code>axis</code> padrão <code>'left'</code>; com série em <code>'right'</code>, o eixo da direita ganha escala própria e fica visível.</> },

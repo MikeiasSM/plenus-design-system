@@ -82,7 +82,7 @@ export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   series: readonly ChartScatterSeries[];
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -138,7 +138,7 @@ export function ChartScatter({
   onPointClick,
   palette,
   series,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   title,
   xLabel = 'X',

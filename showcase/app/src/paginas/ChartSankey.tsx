@@ -296,7 +296,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem ligações, ou com todas valendo zero, um EmptyState.', teste: 'ChartSankey.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'flows', tipo: 'readonly ChartSankeyFlow[]', descricao: <><code>{'{ source, target, value }'}</code>, uma por ligação.</> },
     { nome: 'nodes', tipo: 'readonly ChartSankeyNode[]', descricao: <>Ordem e aparência dos nós, <code>{'{ label, color?, intent? }'}</code>. Sem ela, saem das ligações.</> },

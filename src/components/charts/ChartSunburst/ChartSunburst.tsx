@@ -83,7 +83,7 @@ export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
   /** Raio das pontas de cada arco. Sem valor, o token de raio pequeno. */
   sliceRadius?: number;
   showLabels?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /**
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
@@ -157,7 +157,7 @@ export function ChartSunburst({
   palette,
   ringGap = 2,
   showLabels = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   sliceRadius,
   title,

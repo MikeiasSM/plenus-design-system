@@ -109,7 +109,7 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Pontos de cada valor: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDots?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /**
    * Balao com as series da categoria mais proxima do ponteiro. Desligue para montar o proprio
@@ -160,7 +160,7 @@ export function ChartLine({
   series,
   showDataLabels = 'hidden',
   showDots = 'onHover',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   title,
   xAxis = 'visible',

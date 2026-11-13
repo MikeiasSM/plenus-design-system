@@ -108,7 +108,7 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
    * so os da serie da barra sob o ponteiro, ou o total da pilha sob ele.
    */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para montar o proprio `ChartTooltip` pela costura. */
   showTooltip?: boolean;
@@ -154,7 +154,7 @@ export function ChartBar({
   palette,
   series,
   showDataLabels = 'hidden',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   stacked = false,
   title,

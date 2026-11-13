@@ -63,7 +63,7 @@ export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
   palette?: ChartPalette;
   showDataLabels?: boolean;
   showLegendValues?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
@@ -98,7 +98,7 @@ export function ChartPie({
   palette,
   showDataLabels = false,
   showLegendValues = false,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   sliceRadius,
   slices,

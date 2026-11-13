@@ -69,7 +69,7 @@ export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
   palette?: ChartPalette;
   /** Valor no centro. Ele reserva o proprio espaco, ate metade do raio: com muitos aneis, quem cede e a espessura deles. */
   showCenter?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -113,7 +113,7 @@ export function ChartRadial({
   onTrackClick,
   palette,
   showCenter = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   startAngle = 0,
   thickness = 16,

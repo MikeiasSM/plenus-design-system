@@ -114,7 +114,7 @@ export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   showDataLabels?: MarkVisibility;
   /** Pontos das linhas. Em `onHover`, os da categoria sob o ponteiro. */
   showDots?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com as series da categoria sob o ponteiro, cada uma no formato do seu eixo. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
@@ -166,7 +166,7 @@ export function ChartCombo({
   palette,
   series,
   showDataLabels = 'hidden',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   showDots = 'onHover',
   title,

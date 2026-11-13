@@ -237,7 +237,7 @@ export const pagina: Pagina = {
     { garantia: 'Ausência anunciada', como: 'Sem anéis, um EmptyState no lugar do desenho.', teste: 'ChartRadial.test.tsx' },
   ],
   api: [
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'tracks', tipo: 'readonly ChartRadialTrack[]', descricao: <><code>{'{ label, value, max?, color?, intent? }'}</code>, um por anel, de fora para dentro.</> },
     { nome: 'startAngle', tipo: 'number', padrao: '0', descricao: 'Início da volta, em graus a partir do topo.' },

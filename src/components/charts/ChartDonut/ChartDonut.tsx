@@ -66,7 +66,7 @@ export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
   sliceRadius?: number;
   showCenter?: boolean;
   showLegendValues?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com a fatia sob o ponteiro, o valor e a parte do total. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
@@ -102,7 +102,7 @@ export function ChartDonut({
   palette,
   showCenter = true,
   showLegendValues = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   sliceRadius,
   slices,

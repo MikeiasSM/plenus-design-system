@@ -69,7 +69,7 @@ export interface ChartHeatmapProps extends ChartRootProps {
   onHoverCell?: (cell: ChartHeatmapCell | null) => void;
   /** Torna as celulas botoes, percorridos pelas setas. */
   onMarkClick?: (cell: ChartHeatmapCell) => void;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   showTooltip?: boolean;
   /** Valor escrito na celula, quando cabe nela. */
@@ -182,7 +182,7 @@ export function ChartHeatmap({
   onHover,
   onHoverCell,
   onMarkClick,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   showValues = 'visible',
   squareCells = false,

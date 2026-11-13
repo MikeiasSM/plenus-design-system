@@ -1063,7 +1063,7 @@ const contexto = malhaDasUfs.features.filter((feicao) =>
     { nome: 'legend', tipo: "'top' | 'bottom' | 'right' | 'none'", padrao: "'bottom'", descricao: "Abaixo de 640px, 'right' cai para 'bottom'." },
     { nome: 'legendAlign', tipo: "'left' | 'center' | 'right'", padrao: "'center'", descricao: 'Apoio da legenda horizontal.' },
     { nome: 'height', tipo: "number | 'fill'", padrao: '440', descricao: 'Altura máxima, ou a do contêiner. A largura estreita encolhe a altura até a proporção da geometria.' },
-    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Com a tabela aberta, a legenda sai.' },
+    { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Sem dados'", descricao: 'Quando nenhuma região tem valor.' },
     { nome: 'palette', tipo: 'ChartPalette', descricao: <>Lista de cores em rotação, ou <code>{'{ base }'}</code>, que gera os tons. Vence o <code>accent</code>.</> },
   ],

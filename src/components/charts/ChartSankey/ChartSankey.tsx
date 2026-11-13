@@ -89,7 +89,7 @@ export interface ChartSankeyProps extends ChartRootProps {
   palette?: ChartPalette;
   showFlowValues?: boolean;
   showLabels?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com o detalhe do que esta sob o ponteiro. Desligue para nao mostrar nada alem do `<title>` nativo. */
   showTooltip?: boolean;
@@ -178,7 +178,7 @@ export function ChartSankey({
   palette,
   showFlowValues = false,
   showLabels = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   title,
   ...root

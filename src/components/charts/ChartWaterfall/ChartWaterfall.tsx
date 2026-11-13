@@ -57,7 +57,7 @@ export interface ChartWaterfallProps extends ChartRootProps {
   onStepClick?: (step: ChartWaterfallStep, index: number) => void;
   /** Variacao acima de cada passo. Em `onHover`, so a do passo sob o ponteiro. */
   showDataLabels?: MarkVisibility;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /** Balao com a variacao do passo sob o ponteiro e o acumulado ate ele. Desligue para montar o proprio `ChartTooltip`. */
   showTooltip?: boolean;
@@ -136,7 +136,7 @@ export function ChartWaterfall({
   onMarkClick,
   onStepClick,
   showDataLabels = 'visible',
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   steps,
   title,

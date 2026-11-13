@@ -81,7 +81,7 @@ export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
   showDataLabels?: boolean;
-  /** Botao "Ver como tabela". Ligado por padrao. */
+  /** Botao "Ver como tabela". Sem a prop, vale o do `ChartsProvider`, ligado por padrao. */
   showTableToggle?: boolean;
   /**
    * Balao com o caminho ate o no sob o ponteiro. Desligue para montar o proprio `ChartTooltip`
@@ -120,7 +120,7 @@ export function ChartTreemap({
   onNodeClick,
   palette,
   showDataLabels = true,
-  showTableToggle = true,
+  showTableToggle,
   showTooltip = true,
   title,
   ...root
