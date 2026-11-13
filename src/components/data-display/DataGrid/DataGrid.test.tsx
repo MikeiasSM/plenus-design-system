@@ -51,6 +51,18 @@ describe('DataGrid, redimensionar a coluna', () => {
     return calls[calls.length - 1][0].widths[coluna] as number;
   }
 
+  const originais = {
+    capture: Element.prototype.setPointerCapture,
+    pointerEvent: window.PointerEvent,
+    range: Range.prototype.getBoundingClientRect,
+  };
+
+  afterEach(() => {
+    Element.prototype.setPointerCapture = originais.capture;
+    window.PointerEvent = originais.pointerEvent;
+    Range.prototype.getBoundingClientRect = originais.range;
+  });
+
   beforeEach(() => {
     vi.useRealTimers();
     Element.prototype.setPointerCapture = vi.fn();
