@@ -24,8 +24,12 @@ describe('barra de rolagem dos contêineres', () => {
     expect(css).not.toContain('::-webkit-scrollbar');
   });
 
-  it('o token é recalculado em cada escopo de tema', () => {
-    expect(ler('tokens/semantic/scroll.css')).toMatch(/:root,\s*\[data-theme\] \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 54%, transparent\)/);
+  it('o token tem um valor por tema, recalculado em cada escopo', () => {
+    const scroll = ler('tokens/semantic/scroll.css');
+
+    expect(scroll).toMatch(/:root,\s*\[data-theme="light"\] \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 55%, transparent\)/);
+    expect(scroll).toMatch(/\[data-theme="dark"\] \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 37%, transparent\)/);
+    expect(scroll).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme\]\) \{\s*--pl-scrollbar-thumb: color-mix\(in srgb, var\(--pl-color-text\) 37%, transparent\)/);
     expect(ler('styles/tokens.css')).toContain("@import '../tokens/semantic/scroll.css';");
   });
 

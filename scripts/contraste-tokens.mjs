@@ -23,6 +23,7 @@ const ARQUIVOS = [
   'src/tokens/semantic/chart.css',
   'src/tokens/semantic/code.css',
   'src/tokens/semantic/control.css',
+  'src/tokens/semantic/scroll.css',
   'src/styles/tokens.css',
 ];
 
@@ -31,8 +32,6 @@ export const PALETAS = ['orange', 'blue', 'purple'];
 
 const TEXTO_MINIMO = 4.5;
 const CONTROLE_MINIMO = 3;
-const POLEGAR = readFileSync(resolve(raiz, 'src/tokens/semantic/scroll.css'), 'utf8').match(/--pl-scrollbar-thumb:[^;]*?(\d+)%/)[1];
-const polegarSobre = (fundo) => `color-mix(in srgb, var(--pl-color-text) ${POLEGAR}%, var(${fundo}))`;
 const PERIGO_PRESSIONADO = 'color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid))';
 
 /**
@@ -84,7 +83,7 @@ export const PARES = [
   ['--pl-chart-series-5', '--pl-color-surface', CONTROLE_MINIMO, 'serie 5 no desenho'],
   ['--pl-chart-series-6', '--pl-color-surface', CONTROLE_MINIMO, 'serie 6 no desenho'],
   ...['--pl-color-background', '--pl-color-surface'].map((fundo) => [
-    polegarSobre(fundo),
+    `--pl-scrollbar-thumb-sobre-${fundo.slice('--pl-color-'.length)}`,
     fundo,
     CONTROLE_MINIMO,
     `polegar da barra de rolagem no fundo ${fundo === '--pl-color-surface' ? 'do cartao e do dialogo' : 'da pagina'}`,
@@ -171,6 +170,14 @@ export function declaracoesPorTema(paleta) {
           alvo.set(declaracao[1], alvo === escuro ? doEscuro : doClaro);
         }
       }
+    }
+  }
+
+  for (const tokens of [claro, escuro]) {
+    const polegar = tokens.get('--pl-scrollbar-thumb');
+
+    for (const fundo of ['background', 'surface']) {
+      tokens.set(`--pl-scrollbar-thumb-sobre-${fundo}`, polegar.replace('transparent', `var(--pl-color-${fundo})`));
     }
   }
 
