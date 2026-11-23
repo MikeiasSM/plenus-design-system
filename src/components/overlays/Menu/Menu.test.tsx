@@ -238,6 +238,60 @@ describe('Menu', () => {
     expect(screen.getByRole('menuitem', { name: 'Buscar' })).toHaveAttribute('aria-keyshortcuts', 'Meta+K Control+K');
   });
 
+  it('o Esc avisa o fechamento uma vez só', () => {
+    const mudou = vi.fn();
+    render(<Menu items={itens} label="Acoes do modulo" onOpenChange={mudou}><Button>Acoes</Button></Menu>);
+    fireEvent.click(screen.getByRole('button', { name: 'Acoes' }));
+    mudou.mockClear();
+
+    fireEvent.keyDown(screen.getByRole('menuitem', { name: 'Editar' }), { key: 'Escape' });
+
+    expect(mudou.mock.calls).toEqual([[false]]);
+  });
+
+  describe('foco nos itens sem rolar a página', () => {
+    const muitos: MenuItem[] = Array.from({ length: 10 }, (_, indice) => ({ key: `item-${indice}`, label: `Item ${indice}` }));
+    const scrollIntoView = vi.fn();
+
+    beforeEach(() => {
+      HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    afterEach(() => {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+    });
+
+    function medir(menu: HTMLElement) {
+      // Itens de 40px num painel de 120px de altura.
+      Object.defineProperty(menu, 'clientHeight', { configurable: true, value: 120 });
+      screen.getAllByRole('menuitem').forEach((item, indice) => {
+        Object.defineProperty(item, 'offsetTop', { configurable: true, value: indice * 40 });
+        Object.defineProperty(item, 'offsetHeight', { configurable: true, value: 40 });
+      });
+    }
+
+    it('foca com preventScroll e rola só o painel para manter o item à vista', () => {
+      const focar = vi.spyOn(HTMLElement.prototype, 'focus');
+      render(<Menu items={muitos} label="Lista"><Button>Lista</Button></Menu>);
+      fireEvent.click(screen.getByRole('button', { name: 'Lista' }));
+      const menu = screen.getByRole('menu');
+      medir(menu);
+      focar.mockClear();
+
+      fireEvent.keyDown(menu, { key: 'End' });
+
+      expect(screen.getByRole('menuitem', { name: 'Item 9' })).toHaveFocus();
+      expect(focar).toHaveBeenCalledWith({ preventScroll: true });
+      expect(menu.scrollTop).toBe(9 * 40 + 40 - 120);
+
+      fireEvent.keyDown(menu, { key: 'Home' });
+
+      expect(menu.scrollTop).toBe(0);
+      expect(scrollIntoView).not.toHaveBeenCalled();
+      focar.mockRestore();
+    });
+  });
+
   describe('submenu', () => {
     const exportar = vi.fn();
     const comSubmenu: MenuItem[] = [

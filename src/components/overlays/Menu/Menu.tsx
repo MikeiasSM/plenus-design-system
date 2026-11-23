@@ -240,7 +240,8 @@ function MenuList({
     },
     ref,
   );
-  const { overlayProps: positionProps } = useOverlayPosition({
+  // Sem `onClose`: o react-aria fecharia o painel também quando a página rola. O fechamento pela rolagem é o abaixo.
+  const { overlayProps: positionProps, updatePosition } = useOverlayPosition({
     targetRef: anchorRef,
     overlayRef: ref,
     placement: isSubmenu ? 'end top' : placement,
@@ -248,8 +249,41 @@ function MenuList({
     crossOffset: isSubmenu ? -5 : 0,
     containerPadding: 8,
     isOpen: true,
-    onClose: isSubmenu ? onBack : () => onClose(true),
+    onClose: null,
   });
+
+  const onScroll = useRef({ close: () => {}, follow: () => {} });
+
+  useEffect(() => {
+    onScroll.current = { close: isSubmenu ? onBack : () => onClose(true), follow: updatePosition };
+  });
+
+  // Rolar a página não fecha o menu: o painel a acompanha, como a lista nativa. Rolar um contêiner interno que
+  // contém a âncora fecha, porque o painel ficaria solto dela, que pode até sair da área visível do contêiner. No
+  // submenu, a âncora é o item pai, e rolar o menu de fora fecha só o submenu.
+  useEffect(() => {
+    function handleScroll(event: Event) {
+      const target = event.target;
+      const doc = anchorRef.current?.ownerDocument ?? document;
+
+      if (!(target instanceof Element) || target === doc.documentElement || target === doc.body) {
+        onScroll.current.follow();
+        return;
+      }
+
+      // O campo rola o próprio texto para mostrar o cursor, sem a página mexer.
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (anchorRef.current && target.contains(anchorRef.current)) {
+        onScroll.current.close();
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, [anchorRef]);
 
   const alturaMaxima = Math.min(Number(positionProps.style?.maxHeight) || 360, 360);
 
@@ -267,9 +301,29 @@ function MenuList({
 
   useEffect(() => {
     if (focusedKey) {
-      nodes.current.get(focusedKey)?.focus();
+      focusItem(focusedKey);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedKey]);
+
+  // O foco não rola a página nem os contêineres em volta, como o `scrollIntoView` faria: só o painel rola, o bastante
+  // para o item ficar à vista.
+  function focusItem(key: string) {
+    const node = nodes.current.get(key);
+    const panel = ref.current;
+
+    node?.focus({ preventScroll: true });
+
+    if (!node || !panel) {
+      return;
+    }
+
+    if (node.offsetTop < panel.scrollTop) {
+      panel.scrollTop = node.offsetTop;
+    } else if (node.offsetTop + node.offsetHeight > panel.scrollTop + panel.clientHeight) {
+      panel.scrollTop = node.offsetTop + node.offsetHeight - panel.clientHeight;
+    }
+  }
 
   function openSubmenu(item: MenuItem, initial: InitialFocus) {
     clearTimeout(hoverTimer.current);
@@ -282,7 +336,7 @@ function MenuList({
   function returnFocusFromSubmenu() {
     if (submenu && submenuList.current?.contains(document.activeElement)) {
       focus(submenu.key);
-      nodes.current.get(submenu.key)?.focus();
+      focusItem(submenu.key);
     }
   }
 
@@ -402,7 +456,13 @@ function MenuList({
         }
         // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
         handleKeyDown(event);
-        overlayProps.onKeyDown?.(event);
+        // O Esc já fechou acima, devolvendo o foco; o do `useOverlay` fecharia de novo e avisaria o produto duas vezes.
+        // A tecla para aqui, como pararia nele: não chega à camada em volta, como um Dialog, pela árvore do React.
+        if (event.key === 'Escape') {
+          event.stopPropagation();
+        } else {
+          overlayProps.onKeyDown?.(event);
+        }
       }}
       onPointerEnter={onPointerEnter}
     >
