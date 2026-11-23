@@ -52,9 +52,13 @@
 }
 
 .left .drawer {
-  padding-left: env(safe-area-inset-left, 0px);
   --pl-safe-left: 0px;
   animation: drawer-from-left var(--pl-speed-2) var(--pl-ease) both;
+}
+
+/* O respiro da borda esquerda pesa como uma classe só: a superfície que redefine o padding vence em qualquer ordem das folhas. */
+:where(.left) .drawer {
+  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .sm {
