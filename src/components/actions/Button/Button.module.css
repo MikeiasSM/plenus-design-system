@@ -6,7 +6,7 @@
   justify-content: center;
   box-sizing: border-box;
   gap: var(--pl-space-2);
-  border: 1px solid transparent;
+  border: 1px solid var(--pl-button-border, transparent);
   border-radius: var(--pl-radius-md);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
@@ -35,6 +35,10 @@
   }
 }
 
+/* Ganchos de aparencia: `--pl-button-bg`, `--pl-button-fg`, `--pl-button-border`, `--pl-button-bg-hover`,
+   `--pl-button-bg-active` e `--pl-button-bg-pressed` sao lidos com o valor da variante como reserva, e nunca
+   declarados aqui; o produto os define no proprio botao ou num ancestral. */
+
 .button:disabled,
 .button[aria-disabled='true'] {
   opacity: 0.55;
@@ -56,25 +60,26 @@
 
 .primary {
   --button-hover-shadow: var(--pl-color-primary);
-  background: var(--pl-color-primary);
-  color: var(--pl-color-on-primary);
+  background: var(--pl-button-bg, var(--pl-color-primary));
+  color: var(--pl-button-fg, var(--pl-color-on-primary));
 }
 
 @media (hover: hover) {
   .primary:not(:disabled):not([aria-disabled='true']):hover {
-    background: var(--pl-color-primary-fill-hover);
+    background: var(--pl-button-bg-hover, var(--pl-color-primary-fill-hover));
   }
 }
 
 .secondary {
   --button-hover-shadow: var(--pl-color-primary);
-  background: var(--pl-color-surface);
-  border-color: var(--pl-color-border-strong);
-  color: var(--pl-color-text);
+  background: var(--pl-button-bg, var(--pl-color-surface));
+  border-color: var(--pl-button-border, var(--pl-color-border-strong));
+  color: var(--pl-button-fg, var(--pl-color-text));
 }
 
 @media (hover: hover) {
   .secondary:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(--pl-button-bg-hover, var(--pl-button-bg, var(--pl-color-surface)));
     border-color: var(--pl-control-border-hover);
     color: var(--pl-color-primary-active);
   }
@@ -82,66 +87,120 @@
 
 .soft {
   --button-hover-shadow: var(--pl-color-primary);
-  background: var(--pl-color-primary-container);
-  border-color: var(--pl-color-primary-line);
-  color: var(--pl-color-on-primary-container);
+  background: var(--pl-button-bg, var(--pl-color-primary-container));
+  border-color: var(--pl-button-border, var(--pl-color-primary-line));
+  color: var(--pl-button-fg, var(--pl-color-on-primary-container));
 }
 
 @media (hover: hover) {
   .soft:not(:disabled):not([aria-disabled='true']):hover {
-    background: color-mix(in srgb, var(--pl-color-primary-container) 72%, var(--pl-color-surface));
+    background: var(--pl-button-bg-hover, color-mix(in srgb, var(--pl-color-primary-container) 72%, var(--pl-color-surface)));
   }
 }
 
 .ghost {
-  background: transparent;
-  color: var(--pl-color-text-secondary);
+  background: var(--pl-button-bg, transparent);
+  color: var(--pl-button-fg, var(--pl-color-text-secondary));
 }
 
 /* O ghost só tinge o fundo no hover, sem sombra em nenhum tema. */
 @media (hover: hover) {
   .ghost:not(:disabled):not([aria-disabled='true']):hover {
-    background: var(--pl-color-surface-muted);
+    background: var(--pl-button-bg-hover, var(--pl-color-surface-muted));
     box-shadow: none;
     color: var(--pl-color-text);
   }
 }
 
+/* Tonal neutro: fundo cinza sem borda visivel, para a acao que nao leva a cor da marca. */
+.neutral {
+  background: var(--pl-button-bg, var(--pl-color-surface-muted));
+  border-color: var(--pl-button-border, transparent);
+  color: var(--pl-button-fg, var(--pl-color-text));
+}
+
+@media (hover: hover) {
+  .neutral:not(:disabled):not([aria-disabled='true']):hover {
+    background: var(
+      --pl-button-bg-hover,
+      color-mix(in srgb, var(--pl-color-surface-muted) 55%, var(--pl-color-border-strong))
+    );
+    box-shadow: none;
+  }
+}
+
+/* Acao no meio do texto: herda a fonte e a linha de quem a cerca, sem caixa. O foco e o contorno, que acompanha
+   a quebra de linha (`box-decoration-break`), e nao o halo do botao. */
+.button.link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-button-bg, transparent);
+  color: var(--pl-button-fg, var(--pl-color-primary-active));
+  font: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.button.link:not(:disabled):focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .button.link:not(:disabled):not([aria-disabled='true']):hover,
+  .button.link:not(:disabled):not([aria-disabled='true']):hover:focus-visible {
+    box-shadow: none;
+  }
+}
+
 .danger {
   --button-hover-shadow: var(--pl-color-danger-solid);
-  background: var(--pl-color-danger-solid);
-  color: var(--pl-color-on-danger);
+  background: var(--pl-button-bg, var(--pl-color-danger-solid));
+  color: var(--pl-button-fg, var(--pl-color-on-danger));
 }
 
 @media (hover: hover) {
   .danger:not(:disabled):not([aria-disabled='true']):hover {
-    background: var(--pl-color-danger-hover);
+    background: var(--pl-button-bg-hover, var(--pl-color-danger-hover));
   }
 }
 
 .dangerSoft {
   --button-hover-shadow: var(--pl-color-danger-solid);
-  background: var(--pl-color-danger-container);
-  border-color: color-mix(in oklab, var(--pl-color-danger) 34%, var(--pl-color-surface));
-  color: var(--pl-color-on-danger-container);
+  background: var(--pl-button-bg, var(--pl-color-danger-container));
+  border-color: var(--pl-button-border, color-mix(in oklab, var(--pl-color-danger) 34%, var(--pl-color-surface)));
+  color: var(--pl-button-fg, var(--pl-color-on-danger-container));
 }
 
 @media (hover: hover) {
   .dangerSoft:not(:disabled):not([aria-disabled='true']):hover {
-    background: color-mix(in srgb, var(--pl-color-danger-container) 72%, var(--pl-color-surface));
+    background: var(--pl-button-bg-hover, color-mix(in srgb, var(--pl-color-danger-container) 72%, var(--pl-color-surface)));
   }
 }
 
 .dangerGhost {
   --button-hover-shadow: var(--pl-color-danger-solid);
-  background: transparent;
-  color: var(--pl-color-danger-text);
+  background: var(--pl-button-bg, transparent);
+  color: var(--pl-button-fg, var(--pl-color-danger-text));
 }
 
 @media (hover: hover) {
   .dangerGhost:not(:disabled):not([aria-disabled='true']):hover {
-    background: var(--pl-color-danger-container);
+    background: var(--pl-button-bg-hover, var(--pl-color-danger-container));
   }
+}
+
+/* Botao que alterna, com `aria-pressed`: ligado, o tonal da marca, em qualquer variante. */
+.button[aria-pressed='true'] {
+  border-color: var(--pl-color-primary-line);
+  background: var(--pl-button-bg-pressed, var(--pl-color-primary-container));
+  color: var(--pl-color-on-primary-container);
 }
 
 /* Degraus de 4px, 32, 36 e 40: o pequeno e o medio tem a altura dos campos do mesmo tamanho. */
@@ -164,29 +223,33 @@
 }
 
 .primary:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-primary-fill-active);
+  background: var(--pl-button-bg-active, var(--pl-color-primary-fill-active));
 }
 
 .secondary:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-surface-muted);
+  background: var(--pl-button-bg-active, var(--pl-color-surface-muted));
   border-color: var(--pl-control-border-hover);
   color: var(--pl-color-primary-active);
 }
 
 .soft:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-primary-selected);
+  background: var(--pl-button-bg-active, var(--pl-color-primary-selected));
 }
 
 .ghost:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-border-strong);
+  background: var(--pl-button-bg-active, var(--pl-color-border-strong));
   color: var(--pl-color-text);
 }
 
+.neutral:not(:disabled):not([aria-disabled='true']):active {
+  background: var(--pl-button-bg-active, var(--pl-color-border-strong));
+}
+
 .danger:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-danger-active);
+  background: var(--pl-button-bg-active, var(--pl-color-danger-active));
 }
 
 .dangerSoft:not(:disabled):not([aria-disabled='true']):active,
 .dangerGhost:not(:disabled):not([aria-disabled='true']):active {
-  background: color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid));
+  background: var(--pl-button-bg-active, color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid)));
 }

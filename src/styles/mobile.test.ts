@@ -210,7 +210,7 @@ describe('hover e pressão', () => {
   it('o botão primário pressionado usa --pl-color-primary-fill-active, um passo além do hover', () => {
     const css = ler('components/actions/Button/Button.module.css');
 
-    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-color-primary-fill-active\);/);
+    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-button-bg-active, var\(--pl-color-primary-fill-active\)\);/);
     expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-fill-hover');
   });
 
