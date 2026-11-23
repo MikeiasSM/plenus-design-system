@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { contrast, toOklch } from './color';
 import { createPalette, nearestPaletteColor } from './createPalette';
 
@@ -47,6 +49,64 @@ describe('createPalette', () => {
     expect(tokens('#49619C')['--pl-palette-on-solid']).toBe('#FFFFFF');
   });
 
+  describe('text and fill under it', () => {
+    const COLORS = ['#F26B35', '#FF3B00', '#EED037', '#FCB52F', '#67BD50', '#49619C', '#111111', '#ED3237', '#7F7F7F', '#F9A8D4'];
+    // O lado claro do `light-dark()`; sem o token da paleta, o fundo e o passo da rampa, como em `color.css`.
+    const lightSide = (value: string | undefined, fallback: string) => value?.match(/^light-dark\((#[0-9A-F]{6}),/)?.[1] ?? fallback;
+
+    it('reads the text at 4.5:1 over the fill, the hover fill and the pressed fill', () => {
+      for (const color of COLORS) {
+        const palette = tokens(color);
+        const text = palette['--pl-palette-on-solid'];
+
+        expect(contrast(text, palette['--pl-palette-solid'])).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(text, lightSide(palette['--pl-palette-fill-hover'], palette['--pl-palette-60']))).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(text, lightSide(palette['--pl-palette-fill-active'], palette['--pl-palette-70']))).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it('keeps the primary text step at 4.5:1 against white', () => {
+      for (const color of COLORS) {
+        expect(contrast(tokens(color)['--pl-palette-70'], '#FFFFFF')).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it('falls back to black when neither white nor graphite reaches 4.5:1, and moves the fill away from it', () => {
+      expect(tokens('#F26B35')).toMatchObject({
+        '--pl-palette-on-solid': '#000000',
+        '--pl-palette-fill-hover': 'light-dark(#FE8051, var(--pl-palette-30))',
+        '--pl-palette-fill-active': 'light-dark(#FB9875, var(--pl-palette-20))',
+      });
+      expect(tokens('#FF3B00')).toMatchObject({
+        '--pl-palette-on-solid': '#000000',
+        '--pl-palette-fill-hover': 'light-dark(#FC6B4C, var(--pl-palette-30))',
+        '--pl-palette-fill-active': 'light-dark(#FE8367, var(--pl-palette-20))',
+      });
+    });
+
+    it('lightens the fill under graphite instead of darkening it into the text', () => {
+      const palette = tokens('#EED037');
+
+      expect(palette['--pl-palette-on-solid']).toBe('#373435');
+      expect(toOklch(lightSide(palette['--pl-palette-fill-hover'], '')).L).toBeGreaterThan(toOklch('#EED037').L);
+      expect(toOklch(lightSide(palette['--pl-palette-fill-active'], '')).L).toBeGreaterThan(
+        toOklch(lightSide(palette['--pl-palette-fill-hover'], '')).L,
+      );
+    });
+
+    it('declares no fill of its own when the text already reads over the steps 60 and 70', () => {
+      for (const color of ['#49619C', '#111111']) {
+        expect(tokens(color)).not.toHaveProperty('--pl-palette-fill-hover');
+        expect(tokens(color)).not.toHaveProperty('--pl-palette-fill-active');
+      }
+    });
+
+    it('keeps the white or the graphite that already passes', () => {
+      expect(tokens('#49619C')['--pl-palette-on-solid']).toBe('#FFFFFF');
+      expect(tokens('#FCB52F')['--pl-palette-on-solid']).toBe('#373435');
+    });
+  });
+
   it('accepts the text imposed by the product and warns in development', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -83,5 +143,23 @@ describe('nearestPaletteColor', () => {
 
   it('rejects values that are not hexadecimal colors', () => {
     expect(() => nearestPaletteColor('creme')).toThrow(TypeError);
+  });
+});
+
+describe('fill tokens under the primary text', () => {
+  const color = readFileSync(resolve(process.cwd(), 'src/tokens/semantic/color.css'), 'utf8');
+  const button = readFileSync(resolve(process.cwd(), 'src/components/actions/Button/Button.module.css'), 'utf8');
+
+  it('are declared in every theme and palette scope, falling back to the hover and pressed steps', () => {
+    const block = color.slice(color.search(/\[data-palette\] \{/));
+
+    expect(block).toContain('--pl-color-primary-fill-hover: var(--pl-palette-fill-hover, var(--pl-color-primary-hover));');
+    expect(block).toContain('--pl-color-primary-fill-active: var(--pl-palette-fill-active, var(--pl-color-primary-active));');
+  });
+
+  it('paint the primary Button under its text, and the hover and pressed tokens stay for text and bare fills', () => {
+    expect(button).not.toMatch(/background: var\(--pl-color-primary-(hover|active)\)/);
+    expect(color).toContain('--pl-color-primary-hover: light-dark(var(--pl-palette-60), var(--pl-palette-30));');
+    expect(color).toContain('--pl-color-primary-active: light-dark(var(--pl-palette-70), var(--pl-palette-20));');
   });
 });

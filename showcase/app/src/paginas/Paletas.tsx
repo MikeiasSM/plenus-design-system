@@ -7,6 +7,8 @@ const PRONTAS = ['orange', 'blue', 'purple'];
 const TEMAS = ['herdado', 'claro', 'escuro'];
 const TEMA_NO_ATRIBUTO: Record<string, string | undefined> = { claro: 'light', escuro: 'dark' };
 const CORES_DE_MARCA = ['#F26B35', '#4B4B4D', '#000000', '#49619C', '#67BD50', '#6E2A92', '#ED3237', '#FCB52F'];
+// Cores em que o branco e o grafite ficam abaixo de 4,5:1, ou em que o texto não se lê sobre os passos 60 e 70.
+const CORES_SEM_TEXTO_PADRAO = ['#FF3B00', '#ED3237', '#7F7F7F', '#EED037', '#F9A8D4'];
 
 const ABAS = [
   { key: 'resumo', label: 'Resumo', content: null },
@@ -130,6 +132,25 @@ function CoresDeMarca() {
   );
 }
 
+function TextoSobreACor() {
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      {CORES_SEM_TEXTO_PADRAO.map((cor) => {
+        const variaveis = createPalette(cor).style as Record<string, string>;
+
+        return (
+          <div className="row" key={cor} {...createPalette(cor)}>
+            <code style={{ minWidth: 72 }}>{cor}</code>
+            <Button size="sm">Salvar</Button>
+            <code>texto {variaveis['--pl-palette-on-solid']}</code>
+            <code>{variaveis['--pl-palette-fill-hover'] ? 'hover e pressionado próprios' : 'hover e pressionado da rampa'}</code>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function EsquemaDeCor() {
   const { colorScheme, resolvedColorScheme, setColorScheme } = useColorScheme({ storageKey: CHAVE_DO_TEMA });
 
@@ -199,9 +220,17 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Cores de marca de um produto',
-      descricao: 'Cada uma por createPalette: o texto sobre a cor é o branco ou o grafite, o que medir mais.',
+      descricao: 'Cada uma por createPalette: o texto sobre a cor é o branco ou o grafite, o que medir mais, ou o preto quando nenhum dos dois chega a 4,5:1.',
       Previa: CoresDeMarca,
       codigo: "<div {...createPalette('#FCB52F')}>\n  <Button size=\"sm\">Salvar</Button>\n</div>",
+      largo: true,
+    },
+    {
+      titulo: 'Texto sobre a cor e o hover',
+      descricao:
+        'Quando nem o branco nem o grafite chegam a 4,5:1, o texto é o que medir mais entre branco, grafite e preto. Se ele não se lê sobre os passos 60 e 70, o hover e o pressionado clareiam ou escurecem o próprio preenchimento, longe do texto. Passe o ponteiro e pressione.',
+      Previa: TextoSobreACor,
+      codigo: "<div {...createPalette('#FF3B00')}>\n  <Button size=\"sm\">Salvar</Button>\n</div>",
       largo: true,
     },
   ],
@@ -213,7 +242,7 @@ export const pagina: Pagina = {
     },
     {
       garantia: 'Paleta própria medida',
-      como: 'Rampa sempre do claro ao escuro, neutra sem croma, traço a 4,5:1 nos dois temas e recusa abaixo de 1,5:1.',
+      como: 'Rampa sempre do claro ao escuro, neutra sem croma, traço a 4,5:1 nos dois temas, texto a 4,5:1 sobre o preenchimento, o hover e o pressionado, e recusa abaixo de 1,5:1.',
       teste: 'createPalette.test.ts',
     },
   ],
@@ -224,7 +253,8 @@ export const pagina: Pagina = {
     {
       nome: 'onSolid',
       tipo: 'string',
-      descricao: 'Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais.',
+      descricao:
+        'Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais; se nenhum chega a 4,5:1, o que medir mais entre branco, grafite e preto.',
     },
     {
       nome: 'nearestPaletteColor(cor)',

@@ -207,11 +207,11 @@ describe('hover e pressão', () => {
     expect(soAMidia(css, 'hover: hover')).not.toContain(':active');
   });
 
-  it('o botão primário pressionado usa --pl-color-primary-active, um passo além do hover', () => {
+  it('o botão primário pressionado usa --pl-color-primary-fill-active, um passo além do hover', () => {
     const css = ler('components/actions/Button/Button.module.css');
 
-    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-color-primary-active\);/);
-    expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-hover');
+    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-color-primary-fill-active\);/);
+    expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-fill-hover');
   });
 
   it('o que só aparece no hover aparece sempre onde não há hover', () => {
@@ -223,7 +223,7 @@ describe('hover e pressão', () => {
   it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {
     const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
-    expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO");
+    expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-fill-active', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-primary-active', '--pl-color-surface-muted', TEXTO_MINIMO");
   });

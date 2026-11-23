@@ -62,7 +62,7 @@
 
 @media (hover: hover) {
   .primary:not(:disabled):not([aria-disabled='true']):hover {
-    background: var(--pl-color-primary-hover);
+    background: var(--pl-color-primary-fill-hover);
   }
 }
 
@@ -164,7 +164,7 @@
 }
 
 .primary:not(:disabled):not([aria-disabled='true']):active {
-  background: var(--pl-color-primary-active);
+  background: var(--pl-color-primary-fill-active);
 }
 
 .secondary:not(:disabled):not([aria-disabled='true']):active {
