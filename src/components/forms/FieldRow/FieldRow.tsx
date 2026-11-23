@@ -1,5 +1,6 @@
 import { useId, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { Label } from '../Label';
+import labelStyles from '../Label/Label.module.css';
 import styles from './FieldRow.module.css';
 
 export interface FieldRowWiring {
@@ -11,16 +12,34 @@ export interface FieldRowWiring {
   labelId: string;
 }
 
+export type FieldRowAlign = 'center' | 'start';
+
 export interface FieldRowProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
+  /**
+   * Alinhamento vertical do texto e do controle na linha. `start` prende os dois ao topo, para o controle alto, como um
+   * `Textarea` ou um grupo de opções.
+   */
+  align?: FieldRowAlign;
   /** O controle. Uma função recebe a fiação do rótulo e da explicação; o controle que se nomeia pelo conteúdo, como um botão, usa só `describedBy`. */
   children: ReactNode | ((wiring: FieldRowWiring) => ReactNode);
   description?: ReactNode;
   id?: string;
   label: string;
+  /** Ao lado do título, fora do rótulo, como um selo. Não entra no nome do controle. */
+  labelAddon?: ReactNode;
 }
 
 /** Linha de ajuste: rótulo e explicação de um lado, o controle do outro. O controle desce quando a linha estreita. */
-export function FieldRow({ children, className, description, id: providedId, label, ...props }: FieldRowProps) {
+export function FieldRow({
+  align = 'center',
+  children,
+  className,
+  description,
+  id: providedId,
+  label,
+  labelAddon,
+  ...props
+}: FieldRowProps) {
   const generatedId = useId();
   const id = providedId ?? `field-row-${generatedId}`;
   const descriptionId = `${id}-description`;
@@ -42,12 +61,29 @@ export function FieldRow({ children, className, description, id: providedId, lab
   const control = typeof children === 'function' ? children(wiring) : children;
   const labelTarget = typeof children === 'function' ? (idRead ? id : undefined) : providedId;
 
+  const labelId = labelIdRead ? `${id}-label` : undefined;
+  // Sem controle a apontar, um `<label>` solto seria um rotulo de nada: o titulo vira texto, com o mesmo desenho.
+  const title = labelTarget ? (
+    <Label className={styles.label} htmlFor={labelTarget} id={labelId}>
+      {label}
+    </Label>
+  ) : (
+    <span className={[labelStyles.label, styles.label].join(' ')} id={labelId}>
+      {label}
+    </span>
+  );
+
   return (
-    <div {...props} className={[styles.row, className].filter(Boolean).join(' ')}>
+    <div {...props} className={[styles.row, align === 'start' && styles.start, className].filter(Boolean).join(' ')}>
       <div className={styles.text}>
-        <Label className={styles.label} htmlFor={labelTarget} id={labelIdRead ? `${id}-label` : undefined}>
-          {label}
-        </Label>
+        {labelAddon ? (
+          <div className={styles.heading}>
+            {title}
+            {labelAddon}
+          </div>
+        ) : (
+          title
+        )}
         {description && (
           <p className={styles.description} id={descriptionId}>
             {description}

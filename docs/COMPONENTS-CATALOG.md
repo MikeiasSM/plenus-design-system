@@ -130,6 +130,8 @@ O `SegmentedControl`, o `RadioGroup` e o `CheckboxGroup` são grupos, não campo
 
 O controle que se nomeia pelo conteúdo, como um `Button`, usa só `describedBy`.
 
+O título do `FieldRow` só é `<label>` quando há controle a apontar: quando a função não lê o `id`, ou o filho direto vem sem `id` informado, ele é um `<span>` com o mesmo desenho, e continua nomeando o grupo pelo `labelId`. `labelAddon` vai ao lado do título, fora do rótulo, como um selo, e não entra no nome do controle. `align` alinha o texto e o controle ao centro, o padrão, ou ao topo, com `start`, para o controle alto, como um `Textarea`. Numa lista de linhas, `--pl-field-row-label-width`, definida pelo produto num ancestral, dá a todos os textos a mesma largura (`flex: 0 0` nela) e o resto ao controle (`flex: 1 1 0`); quando a linha estreita, o controle continua descendo para sob o texto. Indefinida, a linha fica como sempre foi.
+
 ## 4. Listagem e escolha
 
 | Componente | Papel | Situação |
