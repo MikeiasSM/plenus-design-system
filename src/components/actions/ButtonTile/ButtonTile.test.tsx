@@ -1,4 +1,6 @@
 import { createRef } from 'react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { IconFile } from '../../icons';
 import { ButtonTile } from './ButtonTile';
@@ -77,5 +79,59 @@ describe('ButtonTile', () => {
     expect(ladrilho).toBe(ref.current);
     expect(ladrilho).toHaveClass(styles.tile!, styles.sm!, 'extra');
     expect(ladrilho).toHaveAttribute('data-bloco', 'arquivo');
+  });
+});
+
+describe('ButtonTile hideLabel', () => {
+  it('esconde o rotulo, que segue como nome e aparece na dica, e mantem aria-pressed', () => {
+    const { container } = render(<ButtonTile hideLabel icon={<IconFile />} label="Arquivo" selected />);
+    const ladrilho = screen.getByRole('button', { name: 'Arquivo', pressed: true });
+
+    expect(container.querySelector(`.${styles.label}`)).toBeNull();
+    act(() => {
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      ladrilho.focus();
+    });
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Arquivo');
+    expect(ladrilho).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('com descricao, a dica mostra rotulo e descricao, e so a descricao descreve', () => {
+    render(
+      <>
+        <p id="atalho">Atalho A</p>
+        <ButtonTile aria-describedby="atalho" description="Anexa um arquivo" hideLabel icon={<IconFile />} label="Arquivo" />
+      </>,
+    );
+    const ladrilho = screen.getByRole('button', { name: 'Arquivo' });
+
+    act(() => {
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      ladrilho.focus();
+    });
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Arquivo — Anexa um arquivo');
+    expect(ladrilho).toHaveAccessibleDescription('Atalho A Anexa um arquivo');
+  });
+
+  it('continua alternando e leva a ref ao botao', () => {
+    const ref = createRef<HTMLButtonElement>();
+    const onSelectedChange = vi.fn();
+    render(<ButtonTile defaultSelected={false} hideLabel icon={<IconFile />} label="Arquivo" onSelectedChange={onSelectedChange} ref={ref} />);
+    const ladrilho = screen.getByRole('button', { name: 'Arquivo', pressed: false });
+
+    fireEvent.click(ladrilho);
+
+    expect(ladrilho).toBe(ref.current);
+    expect(ladrilho).toHaveAttribute('aria-pressed', 'true');
+    expect(onSelectedChange).toHaveBeenCalledWith(true);
+  });
+
+  it('o rotulo visivel hifeniza a palavra que nao cabe', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/actions/ButtonTile/ButtonTile.module.css'), 'utf8');
+    const inicio = css.indexOf('.label {');
+
+    expect(css.slice(inicio, css.indexOf('}', inicio))).toContain('hyphens: auto;');
   });
 });
