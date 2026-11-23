@@ -63,10 +63,10 @@
 .rail {
   --_sidebar-row: 34px;
   --_sidebar-head: 36px;
-  border: 1px solid var(--pl-color-border);
-  border-radius: var(--pl-radius-md);
+  border: var(--pl-sheet-border, 1px solid var(--pl-shell-border, var(--pl-color-border)));
+  border-radius: var(--pl-sheet-radius, var(--pl-radius-md));
   background: var(--pl-color-surface);
-  box-shadow: var(--pl-sh-1);
+  box-shadow: var(--pl-sheet-shadow, var(--pl-sh-1));
   display: flex;
   flex: none;
   flex-direction: column;

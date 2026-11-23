@@ -2,7 +2,7 @@
 .header {
   container-type: inline-size;
   padding: var(--pl-space-4) var(--pl-space-5);
-  border-bottom: 1px solid var(--pl-color-border);
+  border-bottom: 1px solid var(--pl-shell-border, var(--pl-color-border));
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
