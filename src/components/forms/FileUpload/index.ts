@@ -3,6 +3,7 @@ export type {
   FileRejection,
   FileRejectionReason,
   FileUploadItem,
+  FileUploadLabels,
   FileUploadProps,
   FileUploadStatus,
 } from './FileUpload';
