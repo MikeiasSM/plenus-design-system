@@ -319,7 +319,8 @@ function TooltipBubble({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       role="tooltip"
-      style={overlayProps.style}
+      // A dica nunca fica abaixo do painel de onde abriu, como o item de um menu.
+      style={{ ...overlayProps.style, zIndex: 'max(var(--pl-z-tooltip), var(--pl-z-popover))' }}
     >
       {content}
     </div>

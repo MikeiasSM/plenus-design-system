@@ -155,7 +155,7 @@ function PopoverContent({
         className={[styles.popover, thinScrollbar, className].filter(Boolean).join(' ')}
         // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
         data-react-aria-top-layer="true"
-        style={{ ...style, ...positionProps.style }}
+        style={{ ...style, ...positionProps.style, zIndex: 'var(--pl-z-popover)' }}
         role="dialog"
       >
         <ParentPanelContext value={ref}>{children}</ParentPanelContext>

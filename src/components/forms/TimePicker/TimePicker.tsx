@@ -274,7 +274,7 @@ export function TimePicker({
                   data-react-aria-top-layer="true"
                   ref={panelRef}
                   role="dialog"
-                  style={positionProps.style}
+                  style={{ ...positionProps.style, zIndex: 'var(--pl-z-popover)' }}
                 >
                   <TimeSlots
                     autoFocus

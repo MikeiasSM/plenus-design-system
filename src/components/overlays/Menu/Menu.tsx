@@ -575,7 +575,7 @@ function MenuList({
     'data-react-aria-top-layer': 'true',
     onPointerEnter,
     ref: mergedRef,
-    style: { ...positionProps.style, maxHeight: alturaMaxima },
+    style: { ...positionProps.style, maxHeight: alturaMaxima, zIndex: 'var(--pl-z-popover)' },
   };
 
   // Com o cabeçalho, ele fica fora do `role="menu"`, que só contém itens, e o descreve.
