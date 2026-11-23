@@ -1,10 +1,11 @@
-import { useEffect, useId, useLayoutEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useContext, useEffect, useId, useLayoutEffect, useRef, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
 import { useNarrowViewport } from '../../../hooks/useNarrowViewport';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { IconClose } from '../../icons';
 import { Drawer, type DrawerProps } from '../Drawer';
+import { SidebarContext, type SidebarContextValue } from '../../navigation/Sidebar/Sidebar.context';
 import styles from './SidePanel.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
@@ -17,6 +18,11 @@ export interface SidePanelProps extends Omit<ComponentPropsWithRef<'aside'>, 'ti
   defaultOpen?: boolean;
   /** Rodapé fixo, com as ações. */
   footer?: ReactNode;
+  /**
+   * Largura, em pixels, abaixo da qual o painel vira gaveta. Padrão: o `narrowBelow` do `SidebarProvider` (ou do
+   * `AppShell`) em volta, ou 900 sem ele.
+   */
+  narrowBelow?: number;
   onOpenChange?: (open: boolean) => void;
   /** Aberto, no modo controlado. */
   open?: boolean;
@@ -37,6 +43,7 @@ export function SidePanel({
   className,
   defaultOpen,
   footer,
+  narrowBelow,
   onKeyDown,
   onOpenChange,
   open: controlledOpen,
@@ -46,7 +53,9 @@ export function SidePanel({
   title,
   ...props
 }: SidePanelProps) {
-  const narrow = useNarrowViewport();
+  // O painel vira gaveta no mesmo ponto que a navegação, para as duas não mudarem de forma em larguras diferentes.
+  const sidebar = useContext(SidebarContext) as (SidebarContextValue & { narrowBelow?: number }) | null;
+  const narrow = useNarrowViewport(narrowBelow ?? sidebar?.narrowBelow);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   const panelRef = useRef<HTMLDivElement>(null);
   const scroll = useScrollFocusable();

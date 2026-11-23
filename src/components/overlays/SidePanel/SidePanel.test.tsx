@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { SidebarContext, type SidebarContextValue } from '../../navigation/Sidebar/Sidebar.context';
 import { SidePanel } from './SidePanel';
+
+/** Janela de `largura` px: a consulta `(max-width: Npx)` vale quando a largura não passa de N. */
+function stubWidth(largura: number) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: largura <= Number(/max-width: ([\d.]+)px/.exec(query)?.[1] ?? Infinity),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }));
+}
 
 function stubViewport(narrow: boolean) {
   vi.stubGlobal('matchMedia', () => ({ matches: narrow, addEventListener: () => {}, removeEventListener: () => {} }));
@@ -167,6 +177,43 @@ describe('SidePanel', () => {
 
     fireEvent.keyDown(drawer, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  describe('ponto de virada para gaveta', () => {
+    it('vira gaveta abaixo de 900px por padrão', () => {
+      stubWidth(1000);
+      const { unmount } = render(<SidePanel open title="Filtros">Corpo</SidePanel>);
+      expect(screen.getByRole('complementary', { name: 'Filtros' })).toBeInTheDocument();
+      unmount();
+
+      stubWidth(899);
+      render(<SidePanel open title="Filtros">Corpo</SidePanel>);
+      expect(screen.getByRole('dialog', { name: 'Filtros' })).toBeInTheDocument();
+    });
+
+    it('segue o narrowBelow da navegação em volta', () => {
+      stubWidth(1000);
+      const sidebar = { narrowBelow: 1200 } as unknown as SidebarContextValue;
+      render(
+        <SidebarContext.Provider value={sidebar}>
+          <SidePanel open title="Filtros">Corpo</SidePanel>
+        </SidebarContext.Provider>,
+      );
+
+      expect(screen.getByRole('dialog', { name: 'Filtros' })).toBeInTheDocument();
+    });
+
+    it('o narrowBelow próprio vale sobre o da navegação', () => {
+      stubWidth(1000);
+      const sidebar = { narrowBelow: 1200 } as unknown as SidebarContextValue;
+      render(
+        <SidebarContext.Provider value={sidebar}>
+          <SidePanel narrowBelow={800} open title="Filtros">Corpo</SidePanel>
+        </SidebarContext.Provider>,
+      );
+
+      expect(screen.getByRole('complementary', { name: 'Filtros' })).toBeInTheDocument();
+    });
   });
 
   describe('corpo que rola', () => {
