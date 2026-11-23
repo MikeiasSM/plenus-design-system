@@ -790,3 +790,7 @@
     opacity: 1;
   }
 }
+
+.stableGutter {
+  scrollbar-gutter: stable;
+}
