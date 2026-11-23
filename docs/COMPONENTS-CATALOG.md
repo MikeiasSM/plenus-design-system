@@ -296,6 +296,8 @@ Em todos os gráficos, `hideTitle` esconde o título e o deixa só para o leitor
 
 A fronteira entre `EmptyState` e `Alert` é o lugar. O `Alert` acompanha o conteúdo e fala de uma operação; o `EmptyState` está no lugar do conteúdo que faltou e diz por que ele não está ali e o que fazer. Por isso a falha ao carregar uma lista é `EmptyState` em tom de erro, e a falha ao salvar um formulário é `Alert`.
 
+O título do `EmptyState` é um parágrafo, porque o vazio costuma ficar dentro de um cartão ou de uma tabela que já tem o seu título. Quando o vazio ocupa sozinho uma seção da página, como uma página nova sem registros, `headingLevel` (de 1 a 6) faz do título um cabeçalho desse nível, com o mesmo desenho, para ele entrar na estrutura de títulos que o leitor de tela percorre.
+
 Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` mantém a frase curta, porque a lista dele é um painel que acompanha o campo e não comporta um bloco.
 
 A fronteira entre `Skeleton`, `Spinner` e `Progress` é o que se sabe do resultado. O `Skeleton` desenha a forma do conteúdo que vai chegar, e serve quando essa forma é conhecida — linhas de uma tabela, um cartão. O `Spinner` diz só que há atividade; o `Progress`, quanto falta. O `Skeleton` é decorativo: quem o envolve anuncia o carregamento.
