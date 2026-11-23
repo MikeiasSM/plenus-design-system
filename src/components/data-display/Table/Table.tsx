@@ -30,6 +30,10 @@ import { blockRepeatedPress } from '../../../utils/press/press';
 export type TableSize = 'sm' | 'md';
 export type TableAlign = 'start' | 'center' | 'end';
 export type TableBreakpoint = 'sm' | 'md' | 'lg';
+/** Onde a coluna sai: um breakpoint do sistema ou a largura da tabela, em pixels. */
+export type TableHideBelow = TableBreakpoint | number;
+/** `inherit` deixa a tabela sem fundo, sobre a superfície de quem a envolve. */
+export type TableSurface = 'default' | 'inherit';
 export type SortDirection = 'ascending' | 'descending';
 export type TableSelectionMode = 'none' | 'single' | 'multiple';
 export type TableSelectionControl = 'checkbox' | 'radio' | 'toggle';
@@ -72,12 +76,17 @@ export interface TableProps extends ComponentPropsWithRef<'div'> {
   /** Cabecalho colado no topo da rolagem da pagina; com a tabela mais larga ou mais alta que o espaco, no dela. */
   stickyHeader?: boolean;
   striped?: boolean;
+  /**
+   * `inherit` tira o fundo da tabela e deixa o do cabecalho translucido, para a tabela ficar sobre a superficie de quem
+   * a envolve. Com `stickyHeader`, o cabecalho fica opaco na cor de `--table-surface`, que o produto define.
+   */
+  surface?: TableSurface;
 }
 
 /** O que a celula herda da coluna na mesma posicao, quando nao declara o proprio. */
 interface ColumnLayout {
   align: TableAlign;
-  hideBelow?: TableBreakpoint;
+  hideBelow?: TableHideBelow;
   numeric: boolean;
 }
 
@@ -158,6 +167,7 @@ export function Table({
   sort,
   stickyHeader = false,
   striped = false,
+  surface = 'default',
   ref,
   ...props
 }: TableProps) {
@@ -284,6 +294,7 @@ export function Table({
     divider && styles.divider,
     striped && styles.striped,
     stickyHeader && styles.sticky,
+    surface === 'inherit' && styles.inherit,
   ]
     .filter(Boolean)
     .join(' ');
@@ -307,6 +318,23 @@ export function Table({
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * A regra de container de um `hideBelow` em pixels. O `<style>` com `href` e `precedence` do React 19 sobe ao `<head>`,
+ * uma vez por valor, por mais colunas e tabelas que o usem, e sai no HTML do servidor antes do conteúdo: a coluna ja
+ * nasce escondida, sem JavaScript. Os breakpoints do sistema ficam na folha do modulo.
+ */
+function HideBelowRule({ value }: { value?: TableHideBelow }) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return (
+    <style href={`${styles.table}-hide-below-${value}`} precedence="pl-table">
+      {`@container (max-width: ${value}px) { .${styles.table} [data-hide-below='${value}'] { display: none; } }`}
+    </style>
   );
 }
 
@@ -355,7 +383,8 @@ export interface TableColumnProps {
   align?: TableAlign;
   children: ReactNode;
   help?: string;
-  hideBelow?: TableBreakpoint;
+  /** Esconde a coluna quando a tabela chega a um breakpoint do sistema (`sm`, `md`, `lg`) ou a uma largura em pixels. */
+  hideBelow?: TableHideBelow;
   id: string;
   numeric?: boolean;
   sortable?: boolean;
@@ -397,6 +426,7 @@ function TableColumn({ align, children, help, hideBelow, id, numeric = false, so
       scope="col"
       style={{ width }}
     >
+      <HideBelowRule value={hideBelow} />
       {sortable ? (
         <div className={styles.sortHeader}>
           <button className={styles.sortButton} onClick={() => requestSort(id)} onKeyDown={blockRepeatedPress} type="button">
@@ -524,7 +554,7 @@ function TableRow({ children, disabled = false, id, label }: TableRowProps) {
 export interface TableCellProps {
   align?: TableAlign;
   children?: ReactNode;
-  hideBelow?: TableBreakpoint;
+  hideBelow?: TableHideBelow;
   numeric?: boolean;
 }
 
@@ -541,6 +571,7 @@ function TableCell({ align, children, hideBelow, numeric }: TableCellProps) {
         .join(' ')}
       data-hide-below={hideBelow ?? column?.hideBelow}
     >
+      <HideBelowRule value={hideBelow} />
       {children}
     </td>
   );

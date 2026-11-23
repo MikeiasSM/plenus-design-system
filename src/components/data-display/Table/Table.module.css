@@ -198,12 +198,30 @@
   height: 1rem;
 }
 
+/* Sobre a superficie de quem envolve: a tabela sem fundo e o cabecalho num veu translucido da cor do texto, que escurece
+   o claro e clareia o escuro como o `surface-subtle` faz sobre o `surface`. */
+.inherit {
+  background: transparent;
+}
+
+.inherit .head {
+  background: color-mix(in srgb, var(--pl-color-text) 4%, transparent);
+}
+
 /* O cabecalho so gruda dentro de um contêiner com altura: quem envolve a
    tabela define o limite, por `className` ou `style`. */
 .sticky .head {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+/* O cabecalho que gruda passa sobre as linhas: no `inherit`, o veu fica sobre a cor opaca de `--table-surface`, a da
+   superficie em volta, que o produto define; sem ela, continua translucido. */
+.inherit.sticky .head {
+  background:
+    linear-gradient(color-mix(in srgb, var(--pl-color-text) 4%, transparent), color-mix(in srgb, var(--pl-color-text) 4%, transparent)),
+    var(--table-surface, transparent);
 }
 
 /* O botao de ordenacao ocupa a largura da celula, entao e ele que precisa
