@@ -210,6 +210,10 @@ Alterações incompatíveis devem ser documentadas.
 
 O pacote segue o versionamento semântico. Incompatível é toda mudança que obriga o consumidor a alterar código, teste ou layout para manter o comportamento: propriedade removida, renomeada ou com outro tipo, interface que vira união de tipos, nome acessível, papel ARIA ou medida visual que muda.
 
+O tipo de uma propriedade de entrada pode ser ampliado sem ser incompatível: aceitar mais valores, como um membro novo numa união de variantes ou tamanhos, ou `ReactNode` onde só se aceitava `string`, não obriga ninguém a mudar código. Estreitar o tipo de uma entrada, ou mudar o tipo do que o componente entrega (o argumento de um retorno de chamada, um valor exportado), é incompatível.
+
+Correção de acessibilidade que muda a medida visual só onde ela reprovava, como um contraste abaixo do mínimo, é correção, e não incompatível. A entrada do `CHANGELOG.md` diz o que muda na tela.
+
 - Na série `0.x`, mudança incompatível sobe a versão menor (`0.2.5` → `0.3.0`). Correção e adição compatível sobem a correção.
 - A partir da `1.0.0`, mudança incompatível sobe a versão maior, adição compatível sobe a menor e correção sobe a correção.
 - Mudança incompatível nunca sai numa versão de correção. Se ela não puder esperar a próxima menor, a menor é antecipada.
