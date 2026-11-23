@@ -11,11 +11,11 @@ export function AppShellPage({ className, ...props }: AppShellPageProps) {
   return <main {...props} className={[styles.page, className].filter(Boolean).join(' ')} />;
 }
 
-/** Barra de 46px no topo da página. Abre o submenu recolhido, ou a gaveta no celular, e leva o que o produto puser ao lado. */
+/** Barra no topo da página, de 46px no mínimo (cresce com o conteúdo, como uma trilha em duas linhas). Abre o submenu recolhido, ou a gaveta no celular, e leva o que o produto puser ao lado. */
 export function AppShellPageBar({ children, className, ...props }: ComponentPropsWithRef<'div'>) {
   return (
     <div {...props} className={[styles.pageBar, className].filter(Boolean).join(' ')}>
-      <Sidebar.Trigger />
+      <Sidebar.Trigger className={styles.pageBarTrigger} />
       {children}
     </div>
   );

@@ -33,12 +33,12 @@
   flex-direction: row;
 }
 
-/* Folha: o trilho e a página ficam no mesmo nível. */
+/* Folha: o trilho e a página ficam no mesmo nível. Os ganchos de folha e de casca são lidos com o valor padrão. */
 .page {
-  border: 1px solid var(--pl-color-border);
-  border-radius: var(--pl-radius-md);
+  border: var(--pl-sheet-border, 1px solid var(--pl-shell-border, var(--pl-color-border)));
+  border-radius: var(--pl-sheet-radius, var(--pl-radius-md));
   background: var(--pl-color-surface);
-  box-shadow: var(--pl-sh-1);
+  box-shadow: var(--pl-sheet-shadow, var(--pl-sh-1));
 }
 
 .page {
@@ -56,10 +56,10 @@
   align-items: center;
   gap: var(--pl-space-2);
   box-sizing: border-box;
-  height: 46px;
+  min-height: 46px;
   padding-block: 0;
   padding-inline: var(--pl-space-3) var(--pl-space-2);
-  border-bottom: 1px solid var(--pl-color-border);
+  border-bottom: 1px solid var(--pl-shell-border, var(--pl-color-border));
 }
 
 .pageBody {
@@ -94,4 +94,39 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--pl-space-2);
+}
+
+/* Impressão: a página sai inteira, no fluxo do documento, sem a navegação, o painel lateral e o botão de abrir; a barra
+   fica só com a trilha. Nada disto vale na tela. */
+@media print {
+  .appShell {
+    display: block;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .appShell > :not(.page):not(:has(.page)) {
+    display: none;
+  }
+
+  .page,
+  .pageBody {
+    overflow: visible;
+  }
+
+  .page {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .pageBarTrigger,
+  .pageBar > :not(nav):not(:has(nav)) {
+    display: none;
+  }
+
+  .pageBar:not(:has(nav)) {
+    display: none;
+  }
 }

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createRef } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { regrasDaFolha } from '../../../test/folha';
@@ -147,5 +149,98 @@ describe('altura da moldura', () => {
     const moldura = regrasDaFolha('src/components/navigation/AppShell/AppShell.module.css').get('.appShell');
 
     expect(moldura?.height).toBe('var(--pl-shell-height, 100dvh)');
+  });
+});
+
+const FOLHA = 'src/components/navigation/AppShell/AppShell.module.css';
+
+/** As regras de dentro do `@media print` da folha, por seletor. */
+function regrasDeImpressao() {
+  const folha = readFileSync(resolve(process.cwd(), FOLHA), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const inicio = folha.indexOf('@media print {');
+  expect(inicio).toBeGreaterThan(-1);
+
+  let fim = folha.indexOf('{', inicio) + 1;
+  for (let nivel = 1; nivel > 0; fim += 1) {
+    nivel += folha[fim] === '{' ? 1 : folha[fim] === '}' ? -1 : 0;
+  }
+
+  const regras = new Map<string, Record<string, string>>();
+  for (const [, seletor, corpo] of folha.slice(folha.indexOf('{', inicio) + 1, fim - 1).matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const declaracoes = Object.fromEntries(
+      corpo
+        .split(';')
+        .map((declaracao) => declaracao.split(':').map((parte) => parte.trim()))
+        .filter(([nome, valor]) => nome && valor),
+    );
+    for (const unico of seletor.split(',')) {
+      const chave = unico.trim().replace(/\s+/g, ' ');
+      regras.set(chave, { ...regras.get(chave), ...declaracoes });
+    }
+  }
+
+  return regras;
+}
+
+describe('barra da página', () => {
+  it('tem 46px de altura mínima e cresce com o conteúdo', () => {
+    const barra = regrasDaFolha(FOLHA).get('.pageBar');
+
+    expect(barra?.['min-height']).toBe('46px');
+    expect(barra?.height).toBeUndefined();
+  });
+});
+
+describe('ganchos de folha e de casca', () => {
+  it('a folha da página lê as variáveis com o valor de hoje como padrão', () => {
+    const folha = regrasDaFolha(FOLHA).get('.page');
+
+    expect(folha?.border).toBe('var(--pl-sheet-border, 1px solid var(--pl-shell-border, var(--pl-color-border)))');
+    expect(folha?.['border-radius']).toBe('var(--pl-sheet-radius, var(--pl-radius-md))');
+    expect(folha?.['box-shadow']).toBe('var(--pl-sheet-shadow, var(--pl-sh-1))');
+  });
+
+  it('a linha da barra lê a borda da casca', () => {
+    expect(regrasDaFolha(FOLHA).get('.pageBar')?.['border-bottom']).toBe('1px solid var(--pl-shell-border, var(--pl-color-border))');
+  });
+
+  it('nenhuma variável de gancho é declarada na folha', () => {
+    const folha = readFileSync(resolve(process.cwd(), FOLHA), 'utf8');
+
+    expect(folha).not.toMatch(/--pl-(sheet|shell-border)[a-z-]*\s*:/);
+  });
+});
+
+describe('impressão', () => {
+  it('a moldura sai no fluxo do documento, sem altura fixa, rolagem nem respiro', () => {
+    const moldura = regrasDeImpressao().get('.appShell');
+
+    expect(moldura).toEqual({ display: 'block', height: 'auto', padding: '0', overflow: 'visible' });
+  });
+
+  it('a folha e o corpo não cortam o conteúdo, e a folha perde borda e sombra', () => {
+    const regras = regrasDeImpressao();
+
+    expect(regras.get('.page')).toMatchObject({ overflow: 'visible', border: '0', 'box-shadow': 'none' });
+    expect(regras.get('.pageBody')).toMatchObject({ overflow: 'visible' });
+  });
+
+  it('esconde a navegação, o painel lateral e o botão de abrir, e deixa na barra só a trilha', () => {
+    const regras = regrasDeImpressao();
+
+    expect(regras.get('.appShell > :not(.page):not(:has(.page))')).toEqual({ display: 'none' });
+    expect(regras.get('.pageBarTrigger')).toEqual({ display: 'none' });
+    expect(regras.get('.pageBar > :not(nav):not(:has(nav))')).toEqual({ display: 'none' });
+  });
+
+  it('o botão de abrir da barra leva a classe que a impressão esconde', () => {
+    stubViewport(true);
+    render(<Example />);
+
+    expect(screen.getByRole('button', { name: 'Abrir menu' }).className).toMatch(/pageBarTrigger/);
+  });
+
+  it('as regras de tela da moldura ficam fora do @media print', () => {
+    expect(regrasDaFolha(FOLHA).get('.appShell')?.display).toBe('flex');
   });
 });
