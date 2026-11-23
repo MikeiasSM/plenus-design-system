@@ -55,6 +55,9 @@ interface TooltipOnAnchorProps extends TooltipCommonProps {
 
 export type TooltipProps = TooltipOnChildProps | TooltipOnAnchorProps;
 
+/** De onde veio a abertura: do foco de teclado ou do ponteiro sobre o gatilho. */
+type TooltipOrigin = 'focus' | 'pointer';
+
 /** Tempo para o ponteiro atravessar a folga entre o gatilho e o balao. */
 const TRAVESSIA = 120;
 
@@ -83,6 +86,7 @@ function TooltipOnChild({
   const triggerRef = useRef<HTMLElement>(null);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = controlledOpen ?? internalOpen;
+  const [origin, setOrigin] = useState<TooltipOrigin>();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const id = `tooltip-${useId()}`;
   const { focusProps, isFocusVisible } = useFocusRing({ within: true });
@@ -124,9 +128,28 @@ function TooltipOnChild({
     return () => document.removeEventListener('keydown', closeOnEscape, true);
   }, [onOpenChange, open]);
 
+  // Aberta pelo foco de teclado, a dica não está sob o ponteiro: o primeiro toque fora do gatilho a fecha, em vez de
+  // ela ficar sobre o que a pessoa foi clicar.
+  useEffect(() => {
+    if (!open || origin !== 'focus') {
+      return;
+    }
+
+    function closeOnPointerDownOutside(event: PointerEvent) {
+      if (!(event.target instanceof Node && triggerRef.current?.contains(event.target))) {
+        hide();
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOnPointerDownOutside, true);
+    return () => document.removeEventListener('pointerdown', closeOnPointerDownOutside, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, origin]);
+
   // Só o foco por teclado abre a dica: clique e `focus()` programático não são pedidos de ajuda.
   useEffect(() => {
     if (isFocusVisible) {
+      setOrigin('focus');
       setOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,7 +162,14 @@ function TooltipOnChild({
     'aria-describedby': open ? [props['aria-describedby'], id].filter(Boolean).join(' ') : props['aria-describedby'],
     onMouseEnter: chain(props.onMouseEnter as (e: MouseEvent) => void, () => {
       clearTimeout(timer.current);
-      timer.current = setTimeout(() => setOpen(true), delay);
+      // Aberta pelo foco, a dica passa a ser do ponteiro que chegou ao gatilho, e o balão volta a aceitá-lo.
+      if (open) {
+        setOrigin('pointer');
+      }
+      timer.current = setTimeout(() => {
+        setOrigin('pointer');
+        setOpen(true);
+      }, delay);
     }),
     onMouseLeave: chain(props.onMouseLeave as (e: MouseEvent) => void, hideSoon),
     onFocus: chain(props.onFocus as (e: FocusEvent<HTMLElement>) => void, focusProps.onFocus!),
@@ -161,6 +191,7 @@ function TooltipOnChild({
             onClose={hide}
             onMouseEnter={() => clearTimeout(timer.current)}
             onMouseLeave={hide}
+            origin={origin}
             placement={placement}
             triggerRef={triggerRef}
           />,
@@ -222,6 +253,7 @@ function TooltipBubble({
   onClose,
   onMouseEnter,
   onMouseLeave,
+  origin,
   placement,
   triggerRef,
 }: {
@@ -230,6 +262,7 @@ function TooltipBubble({
   onClose: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  origin?: TooltipOrigin;
   placement: TooltipPlacement;
   triggerRef: RefObject<HTMLElement | null>;
 }) {
@@ -280,6 +313,7 @@ function TooltipBubble({
     <div
       ref={ref}
       className={styles.tooltip}
+      data-origin={origin}
       data-react-aria-top-layer="true"
       id={id}
       onMouseEnter={onMouseEnter}

@@ -438,7 +438,7 @@ O `Dialog` tem os tamanhos `sm`, `md`, `lg` e `xl`, de até 1040px, para formul�
 
 O `Drawer` sem `title` segue o `Dialog`: sem cabeçalho, nomeado pelo `aria-label` obrigatório. Com `flush`, o corpo perde o respiro interno, para o conteúdo que desenha a própria margem; a rolagem do meio continua.
 
-O `Tooltip` abre no ponteiro e no foco por teclado; o foco que vem do clique ou de `focus()` programático não o abre. Aberta, a dica acompanha a âncora que se move numa transição ou animação.
+O `Tooltip` abre no ponteiro e no foco por teclado; o foco que vem do clique ou de `focus()` programático não o abre. Aberta, a dica acompanha a âncora que se move numa transição ou animação. O balão leva `data-origin` com a origem da abertura. Aberto pelo ponteiro (`data-origin="pointer"`), aceita o ponteiro, que pode ir do gatilho até ele sem fechá-lo (WCAG 1.4.13). Aberto pelo foco de teclado (`data-origin="focus"`), não é alvo do ponteiro (`pointer-events: none`), e o primeiro `pointerdown` fora do gatilho o fecha, para a dica não ficar sobre o que a pessoa foi clicar. Aberto só pelo produto, com `open` ou `defaultOpen` antes de foco ou ponteiro, ou com `anchorRef`, o balão não leva `data-origin`.
 
 O `Menu` admite submenu: o item com itens próprios abre outra lista ao lado, pela seta para a direita, pelo Enter ou ao passar o ponteiro, e a seta para a esquerda volta ao item pai. Escolher em qualquer nível fecha o menu inteiro. O submenu serve para agrupar escolhas de um mesmo assunto, como densidade ou formato de exportação.
 
