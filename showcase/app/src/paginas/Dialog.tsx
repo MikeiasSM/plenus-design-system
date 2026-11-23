@@ -257,8 +257,36 @@ function PaletaDeBusca() {
   return (
     <>
       <Button onClick={() => setAberta(true)} variant="secondary">Buscar (Ctrl K)</Button>
-      <Dialog aria-label="Buscar no acervo" onOpenChange={setAberta} open={aberta}>
+      <Dialog aria-label="Buscar no acervo" onOpenChange={setAberta} open={aberta} placement="top">
         <ComboBox aria-label="Termo da busca" options={resultados} placeholder="Buscar documentos e coleções" />
+      </Dialog>
+    </>
+  );
+}
+
+function TituloComAjuda() {
+  const [aberto, setAberto] = useState(false);
+  const arquivos = ['Contrato social.pdf', 'Procuração.pdf', 'Comprovante de endereço.pdf', 'Certidão negativa.pdf'];
+
+  return (
+    <>
+      <Button onClick={() => setAberto(true)} variant="secondary">Anexos do processo</Button>
+      <Dialog
+        description={<>Os arquivos ficam com o processo <strong>2041</strong> até o arquivamento.</>}
+        flush
+        footer={<Button onClick={() => setAberto(false)}>Concluir</Button>}
+        help="Só aparecem os arquivos já conferidos."
+        onOpenChange={setAberto}
+        open={aberto}
+        title={<>Anexos do processo <em>2041</em></>}
+      >
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+          {arquivos.map((arquivo) => (
+            <li key={arquivo} style={{ padding: 'var(--pl-space-3) var(--pl-space-5)', borderBottom: '1px solid var(--pl-color-border)' }}>
+              {arquivo}
+            </li>
+          ))}
+        </ul>
       </Dialog>
     </>
   );
@@ -380,10 +408,17 @@ export const pagina: Pagina = {
     },
     {
       titulo: 'Paleta de busca, sem título',
-      descricao: 'Sem title, o nome vem do aria-label e o diálogo não tem cabeçalho. Esc fecha.',
+      descricao: 'Sem title, o nome vem do aria-label e o diálogo não tem cabeçalho. Esc fecha. placement="top" prende o cartão perto do topo: a lista de resultados cresce para baixo, sem o cartão pular.',
       Previa: PaletaDeBusca,
       codigo:
-        '<Dialog aria-label="Buscar no acervo" open={aberta} onOpenChange={setAberta}>\n  <ComboBox\n    aria-label="Termo da busca"\n    placeholder="Buscar documentos e coleções"\n    options={resultados}\n  />\n</Dialog>',
+        '<Dialog aria-label="Buscar no acervo" open={aberta} onOpenChange={setAberta} placement="top">\n  <ComboBox\n    aria-label="Termo da busca"\n    placeholder="Buscar documentos e coleções"\n    options={resultados}\n  />\n</Dialog>',
+    },
+    {
+      titulo: 'Título em nó, ajuda e corpo sem respiro',
+      descricao: 'title e description aceitam ênfase. help põe o ícone de ajuda ao lado do título, fora do nome do diálogo; o foco inicial continua no Fechar. flush tira o respiro do corpo, para a lista que desenha a própria margem.',
+      Previa: TituloComAjuda,
+      codigo:
+        '<Dialog\n  open={aberto}\n  onOpenChange={setAberto}\n  title={<>Anexos do processo <em>2041</em></>}\n  description={<>Os arquivos ficam com o processo <strong>2041</strong> até o arquivamento.</>}\n  help="Só aparecem os arquivos já conferidos."\n  flush\n  footer={<Button onClick={fechar}>Concluir</Button>}\n>\n  <ListaDeArquivos />\n</Dialog>',
     },
   ],
   faca: {
@@ -458,9 +493,12 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Aberto, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto no início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Recebe false no pedido de fechar: Escape, clique fora ou botão de fechar.' },
-    { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível. Sem ele, não há cabeçalho.' },
+    { nome: 'title', tipo: 'ReactNode', descricao: 'Título visível e nome acessível, com ênfase se preciso e nada interativo. Sem ele, não há cabeçalho.' },
     { nome: 'aria-label', tipo: 'string', descricao: 'Obrigatória sem title, e recusada com ele: o nome do diálogo sem cabeçalho.' },
-    { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },
+    { nome: 'description', tipo: 'ReactNode', descricao: 'Texto sob o título, num parágrafo, ligado como descrição acessível.' },
+    { nome: 'help', tipo: 'string', descricao: 'Dica num ícone de ajuda ao lado do título, fora do h2 e do nome do diálogo.' },
+    { nome: 'flush', tipo: 'boolean', padrao: 'false', descricao: 'Corpo sem o respiro interno, para o conteúdo que desenha a própria margem.' },
+    { nome: 'placement', tipo: "'center' | 'top'", padrao: "'center'", descricao: 'top prende o cartão a 12% do topo da janela, para o diálogo cuja altura muda com o conteúdo.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Corpo, que rola quando passa da altura.' },
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone ao lado do título, fora da leitura.' },

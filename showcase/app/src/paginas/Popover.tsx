@@ -215,7 +215,7 @@ function Modos() {
       <dt>Não modal</dt>
       <dd>
         O restante da página continua acessível. O foco entra no painel ao abrir, mas não fica preso: o Tab na borda segue a
-        página a partir do gatilho.
+        página a partir do gatilho. Com o foco fora do painel, o Esc ainda o fecha, e o foco fica onde está.
       </dd>
       <dt>Nome</dt>
       <dd>
