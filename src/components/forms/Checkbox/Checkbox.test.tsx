@@ -1,4 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { regrasDaFolha } from '../../../test/folha';
 import { Checkbox } from './Checkbox';
 
 describe('Checkbox', () => {
@@ -56,5 +59,30 @@ describe('Checkbox', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('Checkbox: estilo da marca', () => {
+  const caminho = 'src/components/forms/Checkbox/Checkbox.module.css';
+  const regras = regrasDaFolha(caminho);
+
+  it('pinta o visto e o traco na cor do texto sobre o primario, e nao em branco fixo', () => {
+    const folha = readFileSync(resolve(process.cwd(), caminho), 'utf8');
+
+    expect(folha).not.toContain("stroke='white'");
+    expect(folha).toMatch(/\.input:checked::before \{\s*mask-image: url\("data:image\/svg\+xml[^"]*M5 13l4 4L19 7/);
+    expect(folha).toMatch(/\.input:indeterminate::before \{\s*mask-image: url\("data:image\/svg\+xml[^"]*M6 12h12/);
+    expect(regras.get('.input:checked::before, .input:indeterminate::before')).toMatchObject({
+      'background-color': 'var(--pl-color-on-primary)',
+      content: "''",
+    });
+    expect(regras.get('.input')?.position).toBe('relative');
+  });
+
+  it('desabilitada, so a caixa desmarcada perde o primario', () => {
+    expect(regras.get('.input:disabled')).not.toHaveProperty('background-color');
+    expect(regras.get('.input:disabled:not(:checked):not(:indeterminate)')).toMatchObject({
+      'background-color': 'var(--pl-color-surface-muted)',
+    });
   });
 });
