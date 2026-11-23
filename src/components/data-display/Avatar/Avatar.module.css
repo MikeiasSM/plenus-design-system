@@ -4,11 +4,27 @@
   place-items: center;
   overflow: hidden;
   border-radius: var(--pl-radius-full);
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
   font-family: var(--pl-font-body);
   font-weight: var(--pl-type-label-weight);
   object-fit: cover;
+}
+
+/* As variáveis de aparência são lidas aqui, e não declaradas na raiz: o produto as define em qualquer ancestral. */
+.initials {
+  background: var(--pl-avatar-bg, var(--pl-color-primary-container));
+  color: var(--pl-avatar-fg, var(--pl-color-on-primary-container));
+}
+
+/* Contorno sutil para dentro: separa do fundo a foto de fundo claro, sem mudar a medida do avatar. */
+.photo {
+  outline: 1px solid color-mix(in srgb, var(--pl-color-text) 12%, transparent);
+  outline-offset: -1px;
+}
+
+.xs {
+  width: 24px;
+  height: 24px;
+  font-size: var(--pl-type-micro-size);
 }
 
 .sm {
