@@ -147,7 +147,7 @@ describe('toque: area de 44px em rádio, caixa, chave e cor', () => {
     const toque = blocoDaMidia(ler('components/forms/ColorPicker/ColorPicker.module.css'), 'pointer: coarse');
 
     expect(toque).toMatch(/\.swatch::after \{[^}]*width: 44px;[^}]*height: 44px;/);
-    expect(toque).toContain('calc(44px - var(--color-picker-size))');
+    expect(toque).toContain('calc(44px - var(--pl-color-picker-size, var(--color-picker-size)))');
   });
 
   it.each(['components/forms/RadioGroup/RadioGroup.module.css', 'components/forms/CheckboxGroup/CheckboxGroup.module.css'])('%s cola as linhas, que já medem 44px, e mantém o espaço entre as opções lado a lado', (arquivo) => {
