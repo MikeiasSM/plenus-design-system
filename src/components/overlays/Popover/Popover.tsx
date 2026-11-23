@@ -4,6 +4,7 @@ import { FocusScope } from '@react-aria/focus';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
+import { mergeHandlers } from '../mergeHandlers';
 import { usePortalContainer } from '../Portal/PortalContext';
 import styles from './Popover.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
@@ -95,7 +96,7 @@ function PopoverContent({
     <FocusScope restoreFocus autoFocus>
       <div
         {...props}
-        {...overlayProps}
+        {...mergeHandlers(props, overlayProps)}
         ref={mergedRef}
         className={[styles.popover, thinScrollbar, className].filter(Boolean).join(' ')}
         // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.

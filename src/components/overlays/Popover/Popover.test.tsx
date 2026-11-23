@@ -51,6 +51,50 @@ describe('Popover', () => {
     expect(gatilho).toHaveFocus();
   });
 
+  it('soma os manipuladores de teclado e foco do produto aos do painel, e o Esc continua fechando', () => {
+    const onKeyDown = vi.fn();
+    const onKeyUp = vi.fn();
+    const onFocus = vi.fn();
+    const onBlur = vi.fn();
+    const onOpenChange = vi.fn();
+
+    function Tela() {
+      const gatilho = useRef<HTMLButtonElement>(null);
+
+      return (
+        <>
+          <Button ref={gatilho}>Filtros</Button>
+          <Popover
+            aria-label="Filtros"
+            onBlur={onBlur}
+            onFocus={onFocus}
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            onOpenChange={onOpenChange}
+            open
+            triggerRef={gatilho}
+          >
+            <input aria-label="Termo" />
+          </Popover>
+        </>
+      );
+    }
+
+    render(<Tela />);
+    const campo = screen.getByRole('textbox', { name: 'Termo' });
+
+    fireEvent.focus(campo);
+    fireEvent.keyUp(campo, { key: 'a' });
+    fireEvent.blur(campo);
+    fireEvent.keyDown(campo, { key: 'Escape' });
+
+    expect(onFocus).toHaveBeenCalled();
+    expect(onKeyUp).toHaveBeenCalledOnce();
+    expect(onBlur).toHaveBeenCalled();
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it('nao e modal: mantem o restante da pagina acessivel', () => {
     render(<Host />);
     abrir();

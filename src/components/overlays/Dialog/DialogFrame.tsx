@@ -6,6 +6,7 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useScrollFocusable } from '../../../hooks/useScrollFocusable';
 import { useOverlayClickGuard } from '../../../hooks/useOverlayClickGuard';
 import { IconClose } from '../../icons';
+import { mergeHandlers } from '../mergeHandlers';
 import { usePortalContainer } from '../Portal/PortalContext';
 import type { DialogBaseProps, DialogRole } from './Dialog';
 import { blockRepeatedPress } from '../../../utils/press/press';
@@ -137,7 +138,7 @@ function DialogFrameContent({
       <FocusScope contain restoreFocus autoFocus>
         <div
           {...props}
-          {...overlayProps}
+          {...mergeHandlers(props, overlayProps)}
           ref={mergedRef}
           className={[surfaceClassName, className].filter(Boolean).join(' ')}
           role={role}

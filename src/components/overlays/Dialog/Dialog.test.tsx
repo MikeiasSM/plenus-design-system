@@ -332,6 +332,31 @@ describe('Dialog', () => {
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
   });
 
+  it('soma os manipuladores de teclado e foco do produto aos do dialogo, e o Esc continua fechando', () => {
+    const onKeyDown = vi.fn();
+    const onKeyUp = vi.fn();
+    const onFocus = vi.fn();
+    const onBlur = vi.fn();
+    const onOpenChange = vi.fn();
+    render(
+      <Dialog onBlur={onBlur} onFocus={onFocus} onKeyDown={onKeyDown} onKeyUp={onKeyUp} onOpenChange={onOpenChange} open title="Editar">
+        <input aria-label="Nome" />
+      </Dialog>,
+    );
+    const campo = screen.getByRole('textbox', { name: 'Nome' });
+
+    fireEvent.focus(campo);
+    fireEvent.keyUp(campo, { key: 'a' });
+    fireEvent.blur(campo);
+    fireEvent.keyDown(campo, { key: 'Escape' });
+
+    expect(onFocus).toHaveBeenCalled();
+    expect(onKeyUp).toHaveBeenCalledOnce();
+    expect(onBlur).toHaveBeenCalled();
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   describe('corpo que rola', () => {
     it('fica focável e nomeado quando transborda, sem tirar o foco inicial do botão de fechar', () => {
       transbordar();
