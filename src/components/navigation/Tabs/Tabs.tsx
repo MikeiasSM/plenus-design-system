@@ -8,19 +8,31 @@ import {
   type ReactNode,
 } from 'react';
 import { useSelection, type SelectionItem } from '../../../hooks/useSelection';
+import { formatNumber } from '../../../utils/formatters';
+import { VisuallyHidden } from '../../accessibility/VisuallyHidden';
 import styles from './Tabs.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface TabItem {
   content: ReactNode;
+  /** Quantidade mostrada num selo depois do rótulo. Entra no nome da aba: "Rótulo, N". */
+  count?: number;
   disabled?: boolean;
   key: string;
   label: string;
+  /** Aba de menor peso, em texto terciário. Continua focável e selecionável. */
+  muted?: boolean;
 }
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 
+/** `underline` é a faixa com o traço sob a aba ativa; `segmented`, o trilho com a aba ativa em superfície. */
+export type TabsAppearance = 'underline' | 'segmented';
+
 export interface TabsProps extends ComponentPropsWithRef<'div'> {
+  /** Ações ao lado das abas, como um botão ou um filtro. Ficam fora do `tablist`, num envoltório com a linha da faixa. */
+  actions?: ReactNode;
+  appearance?: TabsAppearance;
   defaultSelectedKey?: string;
   /** O painel ocupa a altura que sobra nas abas e rola por dentro. As abas precisam de altura, dada por quem as usa. */
   fillHeight?: boolean;
@@ -34,6 +46,8 @@ export interface TabsProps extends ComponentPropsWithRef<'div'> {
 }
 
 export function Tabs({
+  actions,
+  appearance = 'underline',
   className,
   defaultSelectedKey,
   fillHeight = false,
@@ -103,44 +117,63 @@ export function Tabs({
     }
   }
 
+  const lista = (
+    <div
+      className={[styles.list, orientation === 'horizontal' && thinScrollbar].filter(Boolean).join(' ')}
+      role="tablist"
+      aria-label={label}
+      aria-orientation={orientation}
+      onKeyDown={handleKeyDown}
+    >
+      {items.map((item) => (
+        <button
+          key={item.key}
+          ref={(node) => {
+            if (node) {
+              nodes.current.set(item.key, node);
+            } else {
+              nodes.current.delete(item.key);
+            }
+          }}
+          className={[styles.tab, ativa === item.key && styles.active].filter(Boolean).join(' ')}
+          data-muted={item.muted || undefined}
+          type="button"
+          role="tab"
+          id={`${baseId}-${item.key}`}
+          aria-controls={ativa === item.key ? `${baseId}-${item.key}-panel` : undefined}
+          aria-selected={ativa === item.key}
+          disabled={item.disabled}
+          tabIndex={parada === item.key ? 0 : -1}
+          onClick={() => selection.select(item.key)}
+        >
+          <TabLabel count={item.count} label={item.label} />
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div
       {...props}
-      className={[styles.tabs, styles[orientation], fitted && styles.fitted, fillHeight && styles.fillHeight, className]
+      className={[
+        styles.tabs,
+        styles[orientation],
+        appearance === 'segmented' && styles.segmented,
+        fitted && styles.fitted,
+        fillHeight && styles.fillHeight,
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div
-        className={[styles.list, orientation === 'horizontal' && thinScrollbar].filter(Boolean).join(' ')}
-        role="tablist"
-        aria-label={label}
-        aria-orientation={orientation}
-        onKeyDown={handleKeyDown}
-      >
-        {items.map((item) => (
-          <button
-            key={item.key}
-            ref={(node) => {
-              if (node) {
-                nodes.current.set(item.key, node);
-              } else {
-                nodes.current.delete(item.key);
-              }
-            }}
-            className={[styles.tab, ativa === item.key && styles.active].filter(Boolean).join(' ')}
-            type="button"
-            role="tab"
-            id={`${baseId}-${item.key}`}
-            aria-controls={ativa === item.key ? `${baseId}-${item.key}-panel` : undefined}
-            aria-selected={ativa === item.key}
-            disabled={item.disabled}
-            tabIndex={parada === item.key ? 0 : -1}
-            onClick={() => selection.select(item.key)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      {temAcoes(actions) ? (
+        <div className={styles.bar}>
+          {lista}
+          <div className={styles.actions}>{actions}</div>
+        </div>
+      ) : (
+        lista
+      )}
       {painel && (
         <div
           className={[styles.panel, fillHeight && thinScrollbar].filter(Boolean).join(' ')}
@@ -153,6 +186,43 @@ export function Tabs({
         </div>
       )}
     </div>
+  );
+}
+
+/** Sem `actions`, a lista fica direto na raiz, como antes. */
+export function temAcoes(actions: ReactNode) {
+  return actions !== undefined && actions !== null && actions !== false;
+}
+
+/**
+ * Conteúdo da aba, de `Tabs` e `TabsNav`. Sem ícone nem contagem é só o rótulo, sem envoltório. Com contagem, o nome
+ * vem inteiro de um texto oculto, "Rótulo, N", e o rótulo e o selo visíveis ficam fora da árvore de acessibilidade:
+ * somados, o texto oculto fora do fluxo ganharia um espaço antes da vírgula.
+ */
+export function TabLabel({ count, icon, label }: { count?: number; icon?: ReactNode; label: string }) {
+  if (count === undefined && icon === undefined) {
+    return label;
+  }
+
+  return (
+    <span className={styles.tabContent}>
+      {icon !== undefined && (
+        <span aria-hidden="true" className={styles.tabIcon}>
+          {icon}
+        </span>
+      )}
+      {count === undefined ? (
+        label
+      ) : (
+        <>
+          <VisuallyHidden>{`${label}, ${formatNumber(count)}`}</VisuallyHidden>
+          <span aria-hidden="true">{label}</span>
+          <span aria-hidden="true" className={styles.count}>
+            {formatNumber(count)}
+          </span>
+        </>
+      )}
+    </span>
   );
 }
 

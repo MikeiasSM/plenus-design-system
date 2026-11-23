@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Tabs, type TabItem } from './Tabs';
 
 const abas: TabItem[] = [
@@ -109,5 +111,90 @@ describe('Tabs', () => {
     rerender(<Tabs items={abas} label="Secoes" selectedKey="sumiu" />);
 
     expect(screen.getByRole('tab', { name: 'Dois' })).toHaveAttribute('tabindex', '0');
+  });
+
+  it('na vertical com fillHeight, o painel estica ate a altura da raiz para rolar', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/navigation/Tabs/Tabs.module.css'), 'utf8');
+    const inicio = css.indexOf('.vertical.fillHeight .panel {');
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    expect(css.slice(inicio, css.indexOf('}', inicio))).toContain('align-self: stretch;');
+  });
+
+  describe('count', () => {
+    it('mostra o selo e poe a contagem no nome da aba, depois de uma virgula', () => {
+      render(<Tabs items={[{ ...abas[0], count: 1250 }, abas[1]]} label="Config" />);
+
+      const aba = screen.getByRole('tab', { name: 'Geral, 1.250' });
+      const visiveis = aba.querySelectorAll('[aria-hidden="true"]');
+      expect(visiveis[0]).toHaveTextContent('Geral');
+      expect(visiveis[1]).toHaveTextContent('1.250');
+      expect(screen.getByRole('tab', { name: 'Acesso' })).toBeInTheDocument();
+    });
+
+    it('sem count, a aba e so o rotulo, sem envoltorio', () => {
+      render(<Tabs items={abas} label="Config" />);
+
+      expect(screen.getByRole('tab', { name: 'Geral' }).innerHTML).toBe('Geral');
+    });
+  });
+
+  describe('actions', () => {
+    it('ficam fora do tablist, num envoltorio irmao da lista', () => {
+      render(<Tabs actions={<button type="button">Nova aba</button>} items={abas} label="Config" />);
+
+      const lista = screen.getByRole('tablist');
+      const acao = screen.getByRole('button', { name: 'Nova aba' });
+      expect(lista).not.toContainElement(acao);
+      expect(lista.parentElement).toContainElement(acao);
+      expect(lista.parentElement).not.toHaveAttribute('role');
+    });
+
+    it('nao entram nas setas das abas', () => {
+      render(<Tabs actions={<button type="button">Nova aba</button>} items={abas} label="Config" />);
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Nova aba' }), { key: 'ArrowRight' });
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo geral');
+    });
+
+    it('sem actions, a lista fica direto na raiz, como antes', () => {
+      const { container } = render(<Tabs items={abas} label="Config" />);
+
+      expect(screen.getByRole('tablist').parentElement).toBe(container.firstElementChild);
+    });
+  });
+
+  describe('muted', () => {
+    it('marca a aba com data-muted, que continua focavel e selecionavel', () => {
+      const lista = montar({ items: [abas[0], { ...abas[1], muted: true }, abas[3]] });
+
+      const apagada = screen.getByRole('tab', { name: 'Acesso' });
+      expect(apagada).toHaveAttribute('data-muted', 'true');
+      expect(apagada).not.toBeDisabled();
+      expect(screen.getByRole('tab', { name: 'Geral' })).not.toHaveAttribute('data-muted');
+
+      fireEvent.keyDown(lista, { key: 'ArrowRight' });
+      expect(apagada).toHaveAttribute('aria-selected', 'true');
+      expect(apagada).toHaveFocus();
+      expect(apagada).toHaveAttribute('tabindex', '0');
+    });
+  });
+
+  describe('appearance', () => {
+    it('segmentado mantem a semantica de abas, com tablist, tabpanel e as setas', () => {
+      const { container } = render(<Tabs appearance="segmented" items={abas} label="Config" />);
+      const lista = screen.getByRole('tablist', { name: 'Config' });
+
+      expect(container.firstElementChild?.className).toMatch(/segmented/);
+      fireEvent.keyDown(lista, { key: 'ArrowRight' });
+      expect(screen.getByRole('tab', { name: 'Acesso' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Conteudo de acesso');
+    });
+
+    it('sem appearance, a raiz nao leva a classe do segmentado', () => {
+      const { container } = render(<Tabs items={abas} label="Config" />);
+
+      expect(container.firstElementChild?.className).not.toMatch(/segmented/);
+    });
   });
 });
