@@ -3,8 +3,11 @@ import styles from './Badge.module.css';
 
 export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
-/** `brand` pinta na cor da marca e ignora o `tone`: destaque, nao estado. */
-export type BadgeVariant = 'status' | 'brand';
+/**
+ * `brand` pinta na cor da marca e ignora o `tone`: destaque, nao estado. `count` e o selo de contagem, um circulo
+ * na cor da marca com algarismos tabulares; ignora `tone`, `size`, `dot` e `outline`.
+ */
+export type BadgeVariant = 'status' | 'brand' | 'count';
 
 export type BadgeSize = 'sm' | 'md';
 
@@ -17,6 +20,11 @@ export interface BadgeProps extends ComponentPropsWithRef<'span'> {
   variant?: BadgeVariant;
 }
 
+/** Acima de 99, o selo mostra "99+": a contagem exata nao cabe no circulo nem muda a decisao de quem o le. */
+export function formatBadgeCount(count: number) {
+  return count > 99 ? '99+' : String(count);
+}
+
 export function Badge({
   children,
   className,
@@ -27,6 +35,14 @@ export function Badge({
   variant = 'status',
   ...props
 }: BadgeProps) {
+  if (variant === 'count') {
+    return (
+      <span {...props} className={[styles.badge, styles.count, className].filter(Boolean).join(' ')}>
+        {typeof children === 'number' ? formatBadgeCount(children) : children}
+      </span>
+    );
+  }
+
   const color = variant === 'brand' ? styles.brand : styles[tone];
   const classes = [styles.badge, styles[size], color, outline && styles.outline, className].filter(Boolean).join(' ');
 

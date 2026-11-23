@@ -4,7 +4,7 @@ import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/t
 import { VerCodigo } from '../estrutura/VerCodigo';
 
 const TONS = ['neutral', 'info', 'success', 'warning', 'danger'] as const;
-const VARIANTES = ['status', 'brand'] as const;
+const VARIANTES = ['status', 'brand', 'count'] as const;
 const TAMANHOS = ['sm', 'md'] as const;
 
 /** As linhas da matriz: cada tom, e a variante da marca, que ignora o tom. */
@@ -141,6 +141,21 @@ export const pagina: Pagina = {
       codigo: '<Card>\n  <Card.Header\n    title="Membros"\n    description="Gerencie quem tem acesso."\n    badge={<Badge>12</Badge>}\n  />\n</Card>',
     },
     {
+      titulo: 'Selo de contagem',
+      descricao: 'variant="count" é o círculo na cor da marca, com algarismos tabulares e 99+ acima de 99. Sem papel: o texto ao lado dá o contexto.',
+      Previa: () => (
+        <>
+          <span className="demo-row">
+            Pendentes <Badge variant="count">{3}</Badge>
+          </span>
+          <span className="demo-row">
+            Mensagens <Badge variant="count">{148}</Badge>
+          </span>
+        </>
+      ),
+      codigo: 'Pendentes <Badge variant="count">{3}</Badge>\nMensagens <Badge variant="count">{148}</Badge>',
+    },
+    {
       titulo: 'Resultado de execução',
       descricao: 'O outline pesa menos, para listas longas de resultados.',
       Previa: () => (
@@ -174,10 +189,10 @@ export const pagina: Pagina = {
     { garantia: 'Ponto decorativo', como: <>O <code>dot</code> sai com <code>aria-hidden</code>; o estado é dito pelo texto.</>, teste: 'Badge.test.tsx' },
     { garantia: 'Atributos nativos', como: <>Repassados ao <code>span</code>.</>, teste: 'Badge.test.tsx' },
   ],
-  notaDaApi: 'Além destas, todas as propriedades nativas de <span>.',
+  notaDaApi: 'Além destas, todas as propriedades nativas de <span>. O fundo aceita o gancho --pl-badge-surface, lido com o fundo do tom como reserva.',
   api: [
     { nome: 'tone', tipo: "'neutral' | 'info' | 'success' | 'warning' | 'danger'", padrao: "'neutral'", descricao: 'Tom do estado.' },
-    { nome: 'variant', tipo: "'status' | 'brand'", padrao: "'status'", descricao: 'brand pinta na cor da marca e ignora o tone: destaque, não estado.' },
+    { nome: 'variant', tipo: "'status' | 'brand' | 'count'", padrao: "'status'", descricao: 'brand pinta na cor da marca e ignora o tone: destaque, não estado. count é o selo de contagem, que ignora tone, size, dot e outline.' },
     { nome: 'dot', tipo: 'boolean', padrao: 'false', descricao: 'Ponto decorativo antes do texto.' },
     { nome: 'outline', tipo: 'boolean', padrao: 'false', descricao: 'Contorno em vez de fundo preenchido.' },
     { nome: 'size', tipo: "'sm' | 'md'", padrao: "'md'", descricao: <>Tamanho. <code>sm</code> usa o papel <code>type.micro</code> (10px), para uma etiqueta como BETA ao lado do título.</> },

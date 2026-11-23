@@ -1,14 +1,15 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import {
+  Badge,
   Button,
   ButtonIcon,
+  IconFilter,
   IconChartBar,
   IconClose,
   IconMinusCircle,
   IconPlusCircle,
   IconSearch,
   InputText,
-  type ButtonSize,
   type ButtonVariant,
   type TooltipPlacement,
 } from '@plenustech/design-system';
@@ -17,9 +18,11 @@ import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/t
 import { VerCodigo } from '../estrutura/VerCodigo';
 
 const VARIANTES = ['primary', 'secondary', 'soft', 'ghost', 'danger', 'dangerGhost'] as const;
-const TAMANHOS = ['sm', 'md', 'lg'] as const;
+type ButtonIconSize = NonNullable<ComponentProps<typeof ButtonIcon>['size']>;
+
+const TAMANHOS = ['xs', 'sm', 'md', 'lg'] as const;
 const POSICOES = ['top', 'bottom', 'left', 'right'] as const;
-const ALTURAS: Record<ButtonSize, number> = { sm: 28, md: 42, lg: 48 };
+const ALTURAS: Record<ButtonIconSize, number> = { xs: 24, sm: 32, md: 36, lg: 40 };
 const ICONES: Record<string, ReactNode> = {
   IconSearch: <IconSearch />,
   IconClose: <IconClose />,
@@ -29,7 +32,16 @@ const ICONES: Record<string, ReactNode> = {
 };
 
 const playground = definirPlayground({
-  inicial: { icon: 'IconSearch', label: 'Buscar', variant: 'secondary', size: 'md', tooltipPlacement: 'top', disabled: false },
+  inicial: {
+    icon: 'IconSearch',
+    label: 'Buscar',
+    variant: 'secondary',
+    size: 'md',
+    tooltipPlacement: 'top',
+    disabled: false,
+    disabledReason: '',
+    count: '0',
+  },
   controles: [
     { tipo: 'opcoes', nome: 'icon', opcoes: Object.keys(ICONES) },
     { tipo: 'texto', nome: 'label' },
@@ -37,16 +49,20 @@ const playground = definirPlayground({
     { tipo: 'opcoes', nome: 'size', opcoes: TAMANHOS },
     { tipo: 'opcoes', nome: 'tooltipPlacement', opcoes: POSICOES },
     { tipo: 'booleano', nome: 'disabled' },
+    { tipo: 'texto', nome: 'disabledReason' },
+    { tipo: 'texto', nome: 'count' },
   ],
   renderizar: (valores, registrar) => (
     <ButtonIcon
+      count={Number(valores.count) || undefined}
       disabled={valores.disabled}
+      disabledReason={valores.disabledReason || undefined}
       icon={ICONES[valores.icon]}
       label={valores.label}
       onBlur={() => registrar('onBlur')}
       onClick={() => registrar('onClick')}
       onFocus={() => registrar('onFocus')}
-      size={valores.size as ButtonSize}
+      size={valores.size as ButtonIconSize}
       tooltipPlacement={valores.tooltipPlacement as TooltipPlacement}
       variant={valores.variant as ButtonVariant}
     />
@@ -59,6 +75,8 @@ const playground = definirPlayground({
       ['size', valores.size, 'md'],
       ['tooltipPlacement', valores.tooltipPlacement, 'top'],
       ['disabled', valores.disabled, false],
+      ['disabledReason', valores.disabledReason, ''],
+      ['count', Number(valores.count) ? expr(String(Number(valores.count))) : undefined],
       ['onClick', expr('buscar')],
     ]),
   verificar: (valores) => {
@@ -70,7 +88,7 @@ const playground = definirPlayground({
       {
         nivel: 'ok',
         titulo: 'Alvo de toque',
-        detalhe: `Quadrado de ${ALTURAS[valores.size as ButtonSize]}px, acima dos 24px da WCAG 2.5.8.`,
+        detalhe: `Quadrado de ${ALTURAS[valores.size as ButtonIconSize]}px, no mínimo dos 24px da WCAG 2.5.8.`,
       },
     ];
 
@@ -82,11 +100,25 @@ const playground = definirPlayground({
       });
     }
 
-    if (valores.disabled) {
+    if (valores.disabled && valores.disabledReason.trim()) {
+      verificacoes.push({
+        nivel: 'ok',
+        titulo: 'Desabilitado com motivo',
+        detalhe: 'Continua focável; a dica mostra o label e o motivo, e só o motivo descreve o botão.',
+      });
+    } else if (valores.disabled) {
       verificacoes.push({
         nivel: 'atencao',
         titulo: 'Desabilitado',
-        detalhe: 'Sai da tabulação e não dispara eventos. Diga perto dele por que a ação não está disponível.',
+        detalhe: 'Sai da tabulação e não dispara eventos. Diga por que a ação não está disponível, com disabledReason.',
+      });
+    }
+
+    if (Number(valores.count) > 0) {
+      verificacoes.push({
+        nivel: 'ok',
+        titulo: 'Contagem no nome',
+        detalhe: `"${nome}, ${Number(valores.count)}": o selo fica fora da leitura e o nome diz a contagem.`,
       });
     }
 
@@ -103,14 +135,16 @@ const CODIGO_DAS_VARIANTES = `<ButtonIcon icon={<IconSearch />} label="Buscar, p
 <ButtonIcon icon={<IconSearch />} label="Buscar, danger" variant="danger" />
 <ButtonIcon icon={<IconSearch />} label="Buscar, dangerGhost" variant="dangerGhost" />`;
 
-const CODIGO_DOS_TAMANHOS = `<ButtonIcon icon={<IconSearch />} label="Buscar, sm" size="sm" />
-<Button size="sm" variant="secondary">sm · 28px</Button>
+const CODIGO_DOS_TAMANHOS = `<ButtonIcon icon={<IconSearch />} label="Buscar, xs" size="xs" />
+
+<ButtonIcon icon={<IconSearch />} label="Buscar, sm" size="sm" />
+<Button size="sm" variant="secondary">sm · 32px</Button>
 
 <ButtonIcon icon={<IconSearch />} label="Buscar, md" size="md" />
-<Button size="md" variant="secondary">md · 42px</Button>
+<Button size="md" variant="secondary">md · 36px</Button>
 
 <ButtonIcon icon={<IconSearch />} label="Buscar, lg" size="lg" />
-<Button size="lg" variant="secondary">lg · 48px</Button>`;
+<Button size="lg" variant="secondary">lg · 40px</Button>`;
 
 const CODIGO_DESABILITADO = '<ButtonIcon disabled icon={<IconSearch />} label="Buscar" />';
 
@@ -132,13 +166,20 @@ function Variantes() {
           {TAMANHOS.map((tamanho) => (
             <span className="demo-row" key={tamanho}>
               <ButtonIcon icon={<IconSearch />} label={`Buscar, ${tamanho}`} size={tamanho} />
-              <Button size={tamanho} variant="secondary">
-                {tamanho} · {ALTURAS[tamanho]}px
-              </Button>
+              {tamanho === 'xs' ? (
+                <code>xs · 24px</code>
+              ) : (
+                <Button size={tamanho} variant="secondary">
+                  {tamanho} · {ALTURAS[tamanho]}px
+                </Button>
+              )}
             </span>
           ))}
         </div>
-        <p className="note">Quadrado na altura do Button de cada tamanho, para alinhar com ele e com o InputText numa barra.</p>
+        <p className="note">
+          Quadrado na altura do Button de cada tamanho, para alinhar com ele e com o InputText numa barra. O xs, de 24px,
+          não tem par no Button: é a ação numa linha densa ou dentro de um campo.
+        </p>
         <VerCodigo codigo={CODIGO_DOS_TAMANHOS} />
       </div>
       <div className="subsection">
@@ -176,6 +217,18 @@ function Modos() {
       <dd>No quadrado, o indicador disputaria o lugar do ícone. Nasce quando houver consumidor pedindo.</dd>
       <dt><code>disabled</code></dt>
       <dd>Desabilita o botão nativo: sai da ordem de tabulação e não dispara eventos.</dd>
+      <dt><code>disabledReason</code></dt>
+      <dd>
+        Com <code>disabled</code>, o botão segue focável com <code>aria-disabled</code>; a dica mostra o label e o motivo, e só
+        o motivo o descreve.
+      </dd>
+      <dt><code>count</code> e <code>countLabel</code></dt>
+      <dd>
+        Selo de contagem no canto, fora da leitura; o nome vira <code>countLabel(count)</code>, por padrão{' '}
+        <code>label, n</code>. Acima de 99, o selo mostra 99+.
+      </dd>
+      <dt>Dica e descrição</dt>
+      <dd>A dica repete o label e por isso não descreve o botão: o leitor de tela ouve o nome uma vez.</dd>
     </dl>
   );
 }
@@ -221,6 +274,42 @@ export const pagina: Pagina = {
       ),
       codigo:
         '<ButtonIcon href="/relatorios" icon={<IconChartBar />} label="Abrir relatórios" />\n<ButtonIcon\n  as={Link}\n  linkProps={{ to: \'/busca\' }}\n  icon={<IconSearch />}\n  label="Abrir busca"\n  variant="ghost"\n/>',
+    },
+    {
+      titulo: 'Contagem',
+      descricao: 'O selo mostra a contagem; o leitor de tela ouve "Filtros, 3". Acima de 99, 99+.',
+      Previa: () => (
+        <>
+          <ButtonIcon count={3} icon={<IconFilter />} label="Filtros" variant="ghost" />
+          <ButtonIcon count={128} countLabel={(n) => `${n} filtros ativos`} icon={<IconFilter />} label="Filtros" />
+          <span className="demo-row">
+            Pendentes <Badge variant="count">{12}</Badge>
+          </span>
+        </>
+      ),
+      codigo:
+        '<ButtonIcon count={3} icon={<IconFilter />} label="Filtros" variant="ghost" />\n<ButtonIcon\n  count={128}\n  countLabel={(n) => `${n} filtros ativos`}\n  icon={<IconFilter />}\n  label="Filtros"\n/>\n\n<Badge variant="count">{12}</Badge>',
+    },
+    {
+      titulo: 'Desabilitado com motivo',
+      descricao: 'Chegue pelo Tab: o botão recebe o foco e a dica diz por que a ação não vale agora.',
+      Previa: () => <ButtonIcon disabled disabledReason="Só o autor pode excluir" icon={<IconMinusCircle />} label="Excluir" />,
+      codigo: '<ButtonIcon\n  disabled\n  disabledReason="Só o autor pode excluir"\n  icon={<IconMinusCircle />}\n  label="Excluir"\n/>',
+    },
+    {
+      titulo: 'Dentro de um campo',
+      descricao: 'O xs, de 24px, cabe numa linha densa.',
+      Previa: () => (
+        <div className="stack" style={{ width: '100%' }}>
+          {PESSOAS.map((pessoa) => (
+            <div className="demo-row" key={pessoa} style={{ justifyContent: 'space-between' }}>
+              <span>{pessoa}</span>
+              <ButtonIcon icon={<IconClose />} label={`Remover ${pessoa}`} size="xs" variant="ghost" />
+            </div>
+          ))}
+        </div>
+      ),
+      codigo: '<ButtonIcon icon={<IconClose />} label={`Remover ${pessoa.nome}`} size="xs" variant="ghost" />',
     },
     {
       titulo: 'Ao lado da busca',
@@ -282,11 +371,14 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'Nome do botão, obrigatório: vai ao leitor de tela e à dica.' },
     {
       nome: 'variant',
-      tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerGhost'",
+      tipo: "'primary' | 'secondary' | 'soft' | 'ghost' | 'neutral' | 'danger' | 'dangerGhost'",
       padrao: "'secondary'",
       descricao: 'Peso visual, como no Button.',
     },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Quadrado de 32, 36 ou 40px, a altura do Button.' },
+    { nome: 'size', tipo: "'xs' | 'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Quadrado de 24, 32, 36 ou 40px; do sm ao lg, a altura do Button.' },
+    { nome: 'count', tipo: 'number', descricao: 'Selo de contagem no canto, fora da leitura. Zero ou ausente, sem selo.' },
+    { nome: 'countLabel', tipo: '(count: number) => string', padrao: '`${label}, ${n}`', descricao: 'Nome do botão com a contagem.' },
+    { nome: 'disabledReason', tipo: 'string', descricao: 'Com disabled, o botão segue focável; a dica mostra o label e o motivo, que o descreve.' },
     {
       nome: 'tooltipPlacement',
       tipo: "'top' | 'bottom' | 'left' | 'right'",
