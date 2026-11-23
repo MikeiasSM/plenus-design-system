@@ -296,6 +296,8 @@ Em todos os gráficos, `hideTitle` esconde o título e o deixa só para o leitor
 | `Skeleton` | Lugar de um conteúdo que ainda carrega, na forma do que vai chegar. | Disponível |
 | `Toast` | Aviso flutuante sobre uma operação que acabou de acontecer. | Disponível |
 
+O `Alert` anuncia pela urgência: `warning` e `danger` saem com `role="alert"`, `info` e `success` com `role="status"`, e `neutral`, o contexto sem urgência em fundo neutro (`--pl-color-surface-muted`), texto secundário e contorno forte, sai sem papel vivo, lido no fluxo da página. O `role` informado vence o do tom. O `title` aceita conteúdo rico. O `icon` vem antes do texto e é decorativo (`aria-hidden`); não há ícone padrão por tom, e `false` equivale a não passar. A `action` é a ação ligada à mensagem, dentro dela: fica ao lado do texto quando a própria mensagem tem 480px ou mais e abaixo dele quando é mais estreita, medido por container query. Com `action`, a mensagem é o contêiner da medida, então dentro de um pai que se ajusta ao conteúdo ela encolhe a zero: dê a largura ao pai. Sem `icon` nem `action`, a marcação e o desenho são os de antes.
+
 A fronteira entre `EmptyState` e `Alert` é o lugar. O `Alert` acompanha o conteúdo e fala de uma operação; o `EmptyState` está no lugar do conteúdo que faltou e diz por que ele não está ali e o que fazer. Por isso a falha ao carregar uma lista é `EmptyState` em tom de erro, e a falha ao salvar um formulário é `Alert`.
 
 Tabela, lista e gráficos usam o `EmptyState` no próprio vazio. O `ComboBox` mantém a frase curta, porque a lista dele é um painel que acompanha o campo e não comporta um bloco.
