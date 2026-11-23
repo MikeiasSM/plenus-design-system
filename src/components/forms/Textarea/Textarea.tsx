@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ComponentPropsWithRef } from 'react';
+import { type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useCharacterCount } from '../../../hooks/useCharacterCount';
 import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
@@ -7,9 +7,13 @@ import styles from './Textarea.module.css';
 export type TextareaSize = 'sm' | 'md' | 'lg';
 
 export interface TextareaProps extends Omit<ComponentPropsWithRef<'textarea'>, 'size'> {
+  /** Ao lado do campo, na mesma linha, como o botao que o completa. Fica fora da descricao do campo. */
+  aside?: ReactNode;
   error?: string;
   hint?: string;
   label?: string;
+  /** Ao lado do rotulo e fora dele, como um selo ou um link. Nao entra no nome do campo. */
+  labelAddon?: ReactNode;
   /** O texto a cada mudanca, ao lado do `onChange` nativo. */
   onValueChange?: (value: string) => void;
   size?: TextareaSize;
@@ -19,11 +23,13 @@ export interface TextareaProps extends Omit<ComponentPropsWithRef<'textarea'>, '
 export function Textarea({
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
+  aside,
   className,
   error,
   hint,
   id: providedId,
   label,
+  labelAddon,
   maxLength,
   required = false,
   rows = 4,
@@ -51,11 +57,13 @@ export function Textarea({
   return (
     <Field
       aria-describedby={ariaDescribedBy}
+      aside={aside}
       characterCount={count}
       error={error}
       hint={hint}
       id={providedId}
       label={label}
+      labelAddon={labelAddon}
       maxLength={maxLength}
       required={required}
       showCharacterCount={showCharacterCount}

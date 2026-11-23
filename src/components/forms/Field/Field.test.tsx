@@ -97,4 +97,41 @@ describe('Field', () => {
 
     expect(screen.getByRole('textbox', { name: 'CPF' })).toHaveClass(styles.control!, styles.lg!);
   });
+
+  it('poe o complemento ao lado do rotulo, fora dele e fora do nome do campo', () => {
+    campo({ labelAddon: <button type="button">Ajuda</button> });
+
+    const controle = screen.getByRole('textbox', { name: 'CPF' });
+    const ajuda = screen.getByRole('button', { name: 'Ajuda' });
+
+    expect(ajuda.closest('label')).toBeNull();
+    expect(ajuda.parentElement).toBe(screen.getByText('CPF').closest('label')!.parentElement);
+    expect(controle).not.toHaveAccessibleDescription(expect.stringContaining('Ajuda'));
+  });
+
+  it('mostra o complemento mesmo sem rotulo', () => {
+    render(<Field labelAddon={<span>Opcional</span>}>{({ id }) => <input aria-label="Busca" id={id} />}</Field>);
+
+    expect(screen.getByText('Opcional')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Busca' })).toBeInTheDocument();
+  });
+
+  it('sem complemento, o rotulo continua filho direto do campo', () => {
+    const { container } = campo();
+
+    expect(screen.getByText('CPF').closest('label')!.parentElement).toBe(container.firstElementChild);
+  });
+
+  it('poe o aside na linha do controle, com a mensagem abaixo dos dois e fora da descricao', () => {
+    campo({ aside: <button type="button">Buscar CEP</button>, error: 'CPF invalido.', hint: 'Somente numeros' });
+
+    const controle = screen.getByRole('textbox', { name: 'CPF' });
+    const botao = screen.getByRole('button', { name: 'Buscar CEP' });
+    const linha = controle.parentElement!.parentElement!;
+
+    expect(linha).toContainElement(botao);
+    expect(linha).not.toContainElement(screen.getByRole('alert'));
+    expect(controle).toHaveAccessibleDescription('CPF invalido.');
+    expect(linha.nextElementSibling).toBe(screen.getByRole('alert'));
+  });
 });

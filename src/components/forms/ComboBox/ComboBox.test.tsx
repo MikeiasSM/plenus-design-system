@@ -538,4 +538,17 @@ describe('ComboBox', () => {
       });
     });
   });
+
+  it('repassa o complemento do rotulo e o aside ao Field, fora do nome e da descricao', () => {
+    const campo = montar({
+      aside: <button type="button">Usar a localizacao</button>,
+      hint: 'A cidade da entrega.',
+      labelAddon: <span>Opcional</span>,
+    });
+
+    expect(campo).toHaveAccessibleName('Cidade');
+    expect(campo).toHaveAccessibleDescription('A cidade da entrega.');
+    expect(screen.getByText('Opcional').closest('label')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Usar a localizacao' })).toBeInTheDocument();
+  });
 });

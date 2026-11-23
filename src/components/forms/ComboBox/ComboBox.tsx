@@ -43,12 +43,16 @@ export interface ComboBoxOption {
 /** As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma ao do sistema. */
 interface ComboBoxBaseProps
   extends Omit<ComponentPropsWithRef<'input'>, 'defaultValue' | 'name' | 'onChange' | 'size' | 'type' | 'value'> {
+  /** Ao lado do campo, na mesma linha, como o botão que o completa. Fica fora da descrição do campo. */
+  aside?: ReactNode;
   /** Abertura da lista de início, sem controle. */
   defaultOpen?: boolean;
   emptyMessage?: string;
   error?: string;
   hint?: string;
   label?: string;
+  /** Ao lado do rótulo e fora dele, como um selo ou um link. Não entra no nome do campo. */
+  labelAddon?: ReactNode;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
@@ -128,6 +132,7 @@ function relatarEscolha(props: ComboBoxProps, escolhidos: readonly ListingItem[]
 export function ComboBox(allProps: ComboBoxProps) {
   const {
     'aria-describedby': ariaDescribedBy,
+    aside,
     className,
     clearable = false,
     confirmSelection = false,
@@ -140,6 +145,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     hint,
     id: providedId,
     label,
+    labelAddon,
     labels,
     loading = false,
     onBlur,
@@ -378,7 +384,16 @@ export function ComboBox(allProps: ComboBoxProps) {
   }
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field
+      aria-describedby={ariaDescribedBy}
+      aside={aside}
+      error={error}
+      hint={hint}
+      id={providedId}
+      label={label}
+      labelAddon={labelAddon}
+      required={required}
+    >
       {({ id, describedBy, invalid }) => {
         const resumoId = id + '-selection';
         const campo = (
