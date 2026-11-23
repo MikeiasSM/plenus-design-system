@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useRef, useState } from 'react';
 import { Button } from '../../actions/Button';
+import { Menu } from '../Menu';
 import { Popover } from './Popover';
 
 function Host() {
@@ -195,5 +196,126 @@ describe('Popover', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  describe('Esc com o foco fora do painel', () => {
+    it('fecha, avisa uma vez e deixa o foco onde estava', () => {
+      const onOpenChange = vi.fn();
+
+      function Tela() {
+        const gatilho = useRef<HTMLButtonElement>(null);
+        const [open, setOpen] = useState(true);
+
+        return (
+          <>
+            <Button ref={gatilho}>Filtros</Button>
+            <Popover
+              aria-label="Filtros"
+              onOpenChange={(proximo) => {
+                onOpenChange(proximo);
+                setOpen(proximo);
+              }}
+              open={open}
+              triggerRef={gatilho}
+            >
+              <Button>Aplicar</Button>
+            </Popover>
+            <input aria-label="Busca" />
+          </>
+        );
+      }
+
+      render(<Tela />);
+      const busca = screen.getByRole('textbox', { name: 'Busca' });
+      busca.focus();
+
+      fireEvent.keyDown(busca, { key: 'Escape' });
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(onOpenChange).toHaveBeenCalledOnce();
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      expect(busca).toHaveFocus();
+    });
+
+    it('respeita o Esc que outra camada já tratou', () => {
+      const onOpenChange = vi.fn();
+      const tratar = (event: KeyboardEvent) => event.preventDefault();
+      document.addEventListener('keydown', tratar, true);
+
+      function Tela() {
+        const gatilho = useRef<HTMLButtonElement>(null);
+
+        return (
+          <>
+            <Button ref={gatilho}>Filtros</Button>
+            <Popover aria-label="Filtros" onOpenChange={onOpenChange} open triggerRef={gatilho}>
+              <Button>Aplicar</Button>
+            </Popover>
+            <input aria-label="Busca" />
+          </>
+        );
+      }
+
+      render(<Tela />);
+      fireEvent.keyDown(screen.getByRole('textbox', { name: 'Busca' }), { key: 'Escape' });
+      document.removeEventListener('keydown', tratar, true);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('com dois abertos, fecha só o de cima', () => {
+      const fora = vi.fn();
+      const dentro = vi.fn();
+
+      function Tela() {
+        const gatilhoFora = useRef<HTMLButtonElement>(null);
+        const gatilhoDentro = useRef<HTMLButtonElement>(null);
+
+        return (
+          <>
+            <Button ref={gatilhoFora}>Filtros</Button>
+            <Popover aria-label="Filtros" onOpenChange={fora} open triggerRef={gatilhoFora}>
+              <Button ref={gatilhoDentro}>Mais</Button>
+              <Popover aria-label="Mais filtros" onOpenChange={dentro} open triggerRef={gatilhoDentro}>
+                <Button>Aplicar</Button>
+              </Popover>
+            </Popover>
+            <input aria-label="Busca" />
+          </>
+        );
+      }
+
+      render(<Tela />);
+      fireEvent.keyDown(screen.getByRole('textbox', { name: 'Busca' }), { key: 'Escape' });
+
+      expect(dentro).toHaveBeenCalledWith(false);
+      expect(fora).not.toHaveBeenCalled();
+    });
+
+    it('cede ao menu aberto de dentro do painel, que fecha sozinho', () => {
+      const onOpenChange = vi.fn();
+
+      function Tela() {
+        const gatilho = useRef<HTMLButtonElement>(null);
+
+        return (
+          <>
+            <Button ref={gatilho}>Filtros</Button>
+            <Popover aria-label="Filtros" onOpenChange={onOpenChange} open triggerRef={gatilho}>
+              <Menu items={[{ key: 'editar', label: 'Editar' }]} label="Ações">
+                <Button>Ações</Button>
+              </Menu>
+            </Popover>
+          </>
+        );
+      }
+
+      render(<Tela />);
+      fireEvent.click(screen.getByRole('button', { name: 'Ações' }));
+      fireEvent.keyDown(screen.getByRole('menuitem', { name: 'Editar' }), { key: 'Escape' });
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
   });
 });
