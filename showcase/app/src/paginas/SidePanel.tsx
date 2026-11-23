@@ -291,5 +291,6 @@ export const pagina: Pagina = {
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },
     { nome: 'side', tipo: "'left' | 'right'", padrao: "'right'", descricao: 'Lado da página em que fica.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Largura de 240, 272 ou 360px.' },
+    { nome: 'narrowBelow', tipo: 'number', padrao: 'o da navegação, ou 900', descricao: 'Largura, em pixels, abaixo da qual o painel vira gaveta. Sem ele, segue o narrowBelow do SidebarProvider ou do AppShell em volta.' },
   ],
 };

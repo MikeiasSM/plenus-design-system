@@ -1,9 +1,9 @@
-import { Badge, Button, Card, type CardHeadingLevel, type CardSize, type CardTrailingWhenNarrow } from '@plenustech/design-system';
+import { Badge, Button, Card, IconFile, type CardHeadingLevel, type CardSize, type CardTrailingWhenNarrow } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
 
-const NIVEIS = ['2', '3', '4', '5', '6'] as const;
+const NIVEIS = ['1', '2', '3', '4', '5', '6'] as const;
 const TAMANHOS = ['md', 'sm'] as const;
 const ESTREITO = ['keep', 'wrap', 'hide'] as const;
 
@@ -19,6 +19,8 @@ const playground = definirPlayground({
     trailing: true,
     flush: false,
     rodape: true,
+    icon: false,
+    href: false,
   },
   controles: [
     { tipo: 'booleano', nome: 'cabecalho' },
@@ -31,6 +33,8 @@ const playground = definirPlayground({
     { tipo: 'booleano', nome: 'trailing' },
     { tipo: 'booleano', nome: 'flush' },
     { tipo: 'booleano', nome: 'rodape' },
+    { tipo: 'booleano', nome: 'icon' },
+    { tipo: 'booleano', nome: 'href' },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
@@ -40,6 +44,18 @@ const playground = definirPlayground({
             badge={valores.badge ? <Badge>12</Badge> : undefined}
             description={valores.description || undefined}
             headingLevel={Number(valores.headingLevel) as CardHeadingLevel}
+            href={valores.href ? '#membros' : undefined}
+            icon={valores.icon ? <IconFile /> : undefined}
+            linkProps={
+              valores.href
+                ? {
+                    onClick: (evento: { preventDefault: () => void }) => {
+                      evento.preventDefault();
+                      registrar('título: navegar para #membros');
+                    },
+                  }
+                : undefined
+            }
             title={valores.title}
             trailing={valores.trailing ? <Button onClick={() => registrar('Convidar: onClick')} size="sm">Convidar</Button> : undefined}
             trailingWhenNarrow={valores.trailingWhenNarrow}
@@ -63,6 +79,8 @@ const playground = definirPlayground({
         ['title', valores.title],
         ['description', valores.description || undefined],
         ['headingLevel', Number(valores.headingLevel), 3],
+        ['icon', valores.icon ? expr('<IconFile />') : undefined],
+        ['href', valores.href ? '/membros' : undefined],
         ['badge', valores.badge ? expr('<Badge>12</Badge>') : undefined],
         ['trailing', valores.trailing ? expr('<Button size="sm">Convidar</Button>') : undefined],
         ['trailingWhenNarrow', valores.trailingWhenNarrow, 'keep'],
@@ -197,6 +215,53 @@ export const pagina: Pagina = {
         '<Card>\n  <Card.Header\n    title="Membros da equipe"\n    description="Gerencie quem tem acesso ao espaço de trabalho."\n    badge={<Badge>4</Badge>}\n    trailing={<Button size="sm">Convidar</Button>}\n  />\n  <Card.Body>Ana, Bruno, Célia e Diego.</Card.Body>\n  <Card.Footer>\n    <span>4 pessoas</span>\n    <Button size="sm" variant="secondary">Gerenciar</Button>\n  </Card.Footer>\n</Card>',
     },
     {
+      titulo: 'Ícone e título que leva à página',
+      descricao: 'icon põe um ícone decorativo num ladrilho tonal antes do título; href faz do título um link, e só ele: o cartão não vira clicável.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          <Card>
+            <Card.Header
+              description="Últimos 30 dias"
+              href="#notas"
+              icon={<IconFile />}
+              linkProps={{ onClick: (evento: { preventDefault: () => void }) => evento.preventDefault() }}
+              title="Notas emitidas"
+            />
+            <Card.Body>
+              <strong style={{ fontSize: 28 }}>128</strong>
+            </Card.Body>
+          </Card>
+        </div>
+      ),
+      codigo: `<Card>
+  <Card.Header
+    as={Link}
+    icon={<IconFile />}
+    linkProps={{ to: '/notas' }}
+    title="Notas emitidas"
+    description="Últimos 30 dias"
+  />
+  <Card.Body>
+    <strong>128</strong>
+  </Card.Body>
+</Card>`,
+    },
+    {
+      titulo: 'Ganchos de folha',
+      descricao: 'O produto define --pl-sheet-shadow, --pl-sheet-radius e --pl-sheet-border num ancestral, e os cartões, a grade, a folha da página e o trilho os seguem.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 360, ['--pl-sheet-shadow' as string]: 'none', ['--pl-sheet-radius' as string]: '12px' }}>
+          <Card>
+            <Card.Header title="Sem sombra, canto maior" />
+            <Card.Body>Mesmo cartão, com os ganchos definidos no envoltório.</Card.Body>
+          </Card>
+        </div>
+      ),
+      codigo: `<div style={{ '--pl-sheet-shadow': 'none', '--pl-sheet-radius': '12px' }}>
+  <Card>…</Card>
+</div>`,
+    },
+    {
       titulo: 'Título de seção da página',
       descricao: 'Quando o cartão abre uma seção logo abaixo do h1, o título sobe para h2.',
       Previa: () => (
@@ -289,7 +354,12 @@ export const pagina: Pagina = {
     { nome: 'Card.Header description', tipo: 'ReactNode', descricao: 'Texto de apoio abaixo do título.' },
     { nome: 'Card.Header badge', tipo: 'ReactNode', descricao: 'Ao lado do título, como uma contagem.' },
     { nome: 'Card.Header trailing', tipo: 'ReactNode', descricao: 'À direita do cabeçalho, como uma ação.' },
-    { nome: 'Card.Header headingLevel', tipo: '2 | 3 | 4 | 5 | 6', padrao: '3', descricao: 'Nível do título.' },
+    { nome: 'Card.Header headingLevel', tipo: '1 | 2 | 3 | 4 | 5 | 6', padrao: '3', descricao: 'Nível do título; o 1 serve ao cartão que é a própria página.' },
+    { nome: 'Card.Header icon', tipo: 'ReactNode', descricao: 'Ícone decorativo num ladrilho tonal de 28px, à esquerda do título; fora do nome.' },
+    { nome: 'Card.Header href', tipo: 'string', descricao: 'Faz do título um link; o cartão inteiro não vira clicável.' },
+    { nome: 'Card.Header as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação para o título.' },
+    { nome: 'Card.Header linkProps', tipo: 'Record<string, unknown>', descricao: <>Entregues inteiras ao link do título, como <code>to</code>.</> },
+    { nome: '--card-gap', tipo: 'variável CSS', padrao: '24px, ou 16px no sm', descricao: 'Respiro interno do cartão; redefinido no próprio cartão, pelo style ou por uma classe mais específica.' },
     {
       nome: 'Card.Header trailingWhenNarrow',
       tipo: "'keep' | 'wrap' | 'hide'",
