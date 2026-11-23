@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 import { IconSearch } from '../../icons';
 import { InputText } from './InputText';
+import styles from './InputText.module.css';
 
 describe('InputText', () => {
   it('associates its label with the input', () => {
@@ -224,5 +226,180 @@ describe('InputText com mask', () => {
 
     expect(input).toHaveValue('Ana-1');
     expect(onRawValueChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('InputText com fenda ao fim', () => {
+  it('poe o end dentro do campo, depois da unit, sem esconde-lo do leitor de tela', () => {
+    render(<InputText end={<button type="button">Buscar</button>} label="CEP" unit="BR" />);
+
+    const input = screen.getByRole('textbox', { name: 'CEP' });
+    const botao = screen.getByRole('button', { name: 'Buscar' });
+    const involucro = input.parentElement!;
+
+    expect(involucro).toHaveClass(styles.frame!);
+    expect(involucro).toContainElement(botao);
+    expect(botao.closest('[aria-hidden="true"]')).toBeNull();
+    expect(screen.getByText('BR').compareDocumentPosition(botao) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(input).toHaveAccessibleDescription('BR');
+  });
+
+  it('o involucro desenha a borda, o erro e o tamanho; o input fica sem o visual do Field', () => {
+    render(<InputText end={<span>fim</span>} error="CEP invalido." label="CEP" size="sm" />);
+
+    const input = screen.getByRole('textbox', { name: 'CEP' });
+
+    expect(input).toHaveClass(styles.inner!);
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input.parentElement).toHaveClass(styles.frame!, styles.sm!, styles.invalid!);
+  });
+
+  it('sem as propriedades novas, o input continua com o visual do Field e sem involucro', () => {
+    render(<InputText label="Nome" />);
+
+    const input = screen.getByRole('textbox', { name: 'Nome' });
+
+    expect(input).not.toHaveClass(styles.inner!);
+    expect(input.parentElement!.className).not.toContain(styles.frame!);
+  });
+
+  it('mantem o icone decorativo no involucro com fenda', () => {
+    const { container } = render(<InputText end={<span>fim</span>} icon={<IconSearch />} label="Buscar" type="search" />);
+
+    expect(screen.getByRole('searchbox', { name: 'Buscar' })).toHaveClass(styles.withIcon!);
+    expect(container.querySelector('svg')!.closest('[aria-hidden="true"]')).not.toBeNull();
+  });
+
+  it('soma a className do consumidor ao input', () => {
+    render(<InputText className="meu" clearable label="Nome" />);
+
+    expect(screen.getByRole('textbox', { name: 'Nome' })).toHaveClass('meu', styles.inner!);
+  });
+});
+
+describe('InputText clearable', () => {
+  it('so mostra o botao com texto', () => {
+    render(<InputText clearable label="Busca" />);
+
+    expect(screen.queryByRole('button', { name: 'Limpar' })).toBeNull();
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Busca' }), { target: { value: 'ana' } });
+
+    expect(screen.getByRole('button', { name: 'Limpar' })).toBeInTheDocument();
+  });
+
+  it('limpa o campo nao controlado, chama onValueChange e onChange, e devolve o foco', () => {
+    const onChange = vi.fn();
+    const onValueChange = vi.fn();
+    render(<InputText clearable defaultValue="ana" label="Busca" onChange={onChange} onValueChange={onValueChange} />);
+
+    const input = screen.getByRole('textbox', { name: 'Busca' });
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+
+    expect(input).toHaveValue('');
+    expect(onValueChange).toHaveBeenLastCalledWith('');
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(input).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Limpar' })).toBeNull();
+  });
+
+  it('limpa o campo controlado pelo onValueChange', () => {
+    function Controlado() {
+      const [texto, setTexto] = useState('ana');
+
+      return <InputText clearable label="Busca" onValueChange={setTexto} value={texto} />;
+    }
+
+    render(<Controlado />);
+    const input = screen.getByRole('textbox', { name: 'Busca' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+
+    expect(input).toHaveValue('');
+    expect(input).toHaveFocus();
+  });
+
+  it('aceita outro nome para o botao', () => {
+    render(<InputText clearLabel="Apagar busca" clearable defaultValue="ana" label="Busca" />);
+
+    expect(screen.getByRole('button', { name: 'Apagar busca' })).toBeInTheDocument();
+  });
+
+  it('nao oferece limpar no campo desabilitado ou somente leitura', () => {
+    render(
+      <>
+        <InputText clearable defaultValue="ana" disabled label="Desabilitado" />
+        <InputText clearable defaultValue="ana" label="Leitura" readOnly />
+      </>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Limpar' })).toBeNull();
+  });
+
+  it('volta a mostrar o botao quando o formulario restaura o texto inicial', () => {
+    render(
+      <form>
+        <InputText clearable defaultValue="ana" label="Busca" />
+      </form>,
+    );
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'Busca' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+    act(() => input.form!.reset());
+
+    expect(screen.getByRole('button', { name: 'Limpar' })).toBeInTheDocument();
+  });
+});
+
+describe('InputText loading', () => {
+  it('anuncia o carregamento por uma regiao de status sempre montada, sem aria-busy no campo', () => {
+    const { rerender } = render(<InputText label="Busca" loading={false} />);
+
+    const status = screen.getByRole('status');
+    expect(status).toBeEmptyDOMElement();
+
+    rerender(<InputText label="Busca" loading />);
+
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent('Carregando');
+    expect(screen.getByRole('textbox', { name: 'Busca' })).not.toHaveAttribute('aria-busy');
+  });
+
+  it('mostra o Spinner decorativo ao fim enquanto carrega', () => {
+    const { container, rerender } = render(<InputText label="Busca" loading loadingLabel="Buscando clientes" />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Buscando clientes');
+    expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
+
+    rerender(<InputText label="Busca" loading={false} loadingLabel="Buscando clientes" />);
+
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    expect(container.querySelector(`.${styles.endSlot}`)).toBeNull();
+  });
+
+  it('sem loading, nao monta a regiao', () => {
+    render(<InputText label="Busca" />);
+
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+});
+
+describe('InputText com complemento e aside', () => {
+  it('o complemento do rotulo nao entra no nome, e o aside fica fora da descricao', () => {
+    render(
+      <InputText
+        aside={<button type="button">Buscar CEP</button>}
+        error="CEP invalido."
+        label="CEP"
+        labelAddon={<a href="#ajuda">Nao sei meu CEP</a>}
+      />,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'CEP' });
+
+    expect(input).toHaveAccessibleName('CEP');
+    expect(input).toHaveAccessibleDescription('CEP invalido.');
+    expect(screen.getByRole('link', { name: 'Nao sei meu CEP' }).closest('label')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Buscar CEP' })).toBeInTheDocument();
   });
 });

@@ -9,7 +9,7 @@
   position: absolute;
   left: 12px;
   display: inline-flex;
-  color: var(--pl-color-text-tertiary);
+  color: var(--pl-input-icon-color, var(--pl-color-text-tertiary));
   font-size: 1rem;
   pointer-events: none;
 }
@@ -68,4 +68,190 @@
   right: 16px;
   font-size: var(--pl-type-title-size);
   line-height: var(--pl-type-title-line-height);
+}
+
+/*
+ * Com `end`, `clearable` ou `loading`, o involucro desenha o campo: a borda, o fundo e o foco, por `:focus-within`,
+ * passam do input a ele, que guarda o texto e o que vem ao fim. A medida e a do campo comum, e o input ocupa a altura
+ * por dentro da borda. Os estados seguem os do `Field`: erro, desabilitado e somente leitura.
+ */
+.frame {
+  --_end-size: calc(var(--pl-control-height-md) - 8px);
+  width: 100%;
+  min-height: var(--pl-control-height-md);
+  align-items: stretch;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background-color: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.frame.sm {
+  --_end-size: calc(var(--pl-control-height-sm) - 8px);
+  min-height: var(--pl-control-height-sm);
+}
+
+.frame.lg {
+  --_end-size: calc(var(--pl-control-height-lg) - 16px);
+  min-height: var(--pl-control-height-lg);
+}
+
+@media (hover: hover) {
+  .frame:not(.invalid):hover:not(:focus-within):not(:has(> .inner:disabled)) {
+    border-color: var(--pl-control-border-hover);
+    box-shadow: var(--pl-sh-1);
+  }
+
+  .frame.invalid:hover:not(:has(> .inner:disabled)) {
+    box-shadow: var(--pl-sh-1);
+  }
+}
+
+.frame:focus-within {
+  border-color: var(--pl-color-primary-strong);
+  box-shadow: var(--pl-control-focus-halo);
+}
+
+.frame.invalid {
+  border-color: var(--pl-color-danger);
+}
+
+.frame.invalid:focus-within {
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
+}
+
+.frame:has(> .inner:disabled) {
+  background-color: var(--pl-color-surface-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* O texto do campo, sem borda nem fundo: quem os desenha e o involucro. */
+.inner {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  font-weight: var(--pl-type-body-weight);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.inner:focus,
+.inner:focus-visible {
+  outline: none;
+}
+
+.inner::placeholder {
+  color: var(--pl-color-text-tertiary);
+}
+
+.inner:disabled {
+  color: var(--pl-color-text-secondary);
+  cursor: not-allowed;
+}
+
+.sm > .inner {
+  padding: 0 10px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.lg > .inner {
+  padding: 0 16px;
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}
+
+/* O que vem depois do texto o aproxima: o recuo do fim fica com o ultimo elemento. */
+.frame > .inner:not(:last-child) {
+  padding-right: var(--pl-space-2);
+}
+
+.frameUnit {
+  display: flex;
+  flex: none;
+  align-items: center;
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  pointer-events: none;
+}
+
+.frameUnit:last-child {
+  padding-right: 12px;
+}
+
+.frameUnit:not(:last-child) {
+  padding-right: var(--pl-space-2);
+}
+
+.sm > .frameUnit {
+  font-size: var(--pl-type-caption-size);
+}
+
+.sm > .frameUnit:last-child {
+  padding-right: 10px;
+}
+
+.lg > .frameUnit {
+  font-size: var(--pl-type-title-size);
+  line-height: var(--pl-type-title-line-height);
+}
+
+.lg > .frameUnit:last-child {
+  padding-right: 16px;
+}
+
+/* Spinner, limpar e a fenda do produto, nessa ordem, a 4px da borda. */
+.end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-1);
+  padding-right: var(--pl-space-1);
+}
+
+.endSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_end-size);
+  height: var(--_end-size);
+}
+
+/* O botao de limpar cabe na altura do campo, em qualquer tamanho e ponteiro. */
+.frame .end .clear {
+  width: var(--_end-size);
+  height: var(--_end-size);
+  padding: 0;
+}
+
+@media (pointer: coarse) {
+  .inner,
+  .sm > .inner,
+  .lg > .inner {
+    font-size: var(--pl-control-font-size-touch);
+  }
+}
+
+/* No involucro com borda, o icone conta a partir de dentro dela: 1px a menos o deixa onde sempre esteve. */
+.frame > .icon {
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
+}
+
+.frame.sm > .icon {
+  left: 9px;
+}
+
+.frame.lg > .icon {
+  left: 15px;
 }
