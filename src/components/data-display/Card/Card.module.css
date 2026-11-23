@@ -123,6 +123,57 @@
   line-height: var(--pl-type-title-line-height);
 }
 
+/* O título com destino é um link com o desenho do título: só o sublinhado no ponteiro e o anel de foco o distinguem. */
+.titleLink {
+  border-radius: var(--pl-radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .titleLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.titleLink:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+}
+
+/* Ícone e linha do título lado a lado. O ladrilho de 28px centra na primeira linha do título, e as margens negativas
+   o deixam ocupar só a altura dela: o cabeçalho com ícone tem a mesma altura que o sem. */
+.lead {
+  grid-column: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
+.lead > .titleRow {
+  flex: 1 1 auto;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin-block: calc((var(--pl-type-title-line-height) - 28px) / 2);
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+.icon > svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Palavra sem ponto de quebra (código, e-mail, URL) quebra dentro da caixa; com o min-width: 0, não passa do cartão
    nem cobre o trailing. */
 .description {
