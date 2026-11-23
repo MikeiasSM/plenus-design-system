@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { IconSearch } from '../../icons';
 import { InputText } from './InputText';
 import styles from './InputText.module.css';
+import { regrasDaFolha } from '../../../test/folha';
 
 describe('InputText', () => {
   it('associates its label with the input', () => {
@@ -401,5 +402,38 @@ describe('InputText com complemento e aside', () => {
     expect(input).toHaveAccessibleDescription('CEP invalido.');
     expect(screen.getByRole('link', { name: 'Nao sei meu CEP' }).closest('label')).toBeNull();
     expect(screen.getByRole('button', { name: 'Buscar CEP' })).toBeInTheDocument();
+  });
+});
+
+describe('InputText: folha do involucro com fenda', () => {
+  const regras = regrasDaFolha('src/components/forms/InputText/InputText.module.css');
+  const campo = regrasDaFolha('src/components/forms/Field/Field.module.css');
+
+  it('o involucro tem a altura e a borda do campo comum, e o input fica sem borda', () => {
+    expect(regras.get('.frame')).toMatchObject({
+      'min-height': campo.get('.control')!['min-height'],
+      border: campo.get('.control')!.border,
+      'border-radius': campo.get('.control')!['border-radius'],
+    });
+    expect(regras.get('.frame.sm')).toMatchObject({ 'min-height': campo.get('.sm')!['min-height'] });
+    expect(regras.get('.frame.lg')).toMatchObject({ 'min-height': campo.get('.lg')!['min-height'] });
+    expect(regras.get('.inner')).toMatchObject({ border: '0', background: 'transparent' });
+  });
+
+  it('desenha o foco por :focus-within, com o halo do campo, e o erro com a borda de perigo', () => {
+    expect(regras.get('.frame:focus-within')).toEqual({
+      'border-color': 'var(--pl-color-primary-strong)',
+      'box-shadow': 'var(--pl-control-focus-halo)',
+    });
+    expect(regras.get('.frame.invalid')).toEqual({ 'border-color': 'var(--pl-color-danger)' });
+    expect(regras.get('.frame:has(> .inner:disabled)')).toMatchObject({ opacity: '0.7' });
+  });
+
+  it('le a cor do icone inicial em --pl-input-icon-color, sem declara-la', () => {
+    expect(regras.get('.icon')).toMatchObject({ color: 'var(--pl-input-icon-color, var(--pl-color-text-tertiary))' });
+
+    for (const declaracoes of regras.values()) {
+      expect(Object.keys(declaracoes)).not.toContain('--pl-input-icon-color');
+    }
   });
 });
