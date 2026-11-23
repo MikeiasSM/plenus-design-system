@@ -1,12 +1,15 @@
-/* Base do Tag do Untitled UI, com o raio do sistema: superficie clara, contorno e texto secundario. */
+/* Base do Tag do Untitled UI, com o raio do sistema: superficie clara, contorno e texto secundario.
+   As variaveis de aparencia sao lidas aqui, com o valor do sistema de reserva, e nunca declaradas na raiz. */
 .tag {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--pl-space-1);
   max-width: 100%;
   border: 1px solid var(--pl-color-border-strong);
-  border-radius: var(--pl-radius-sm);
-  background: var(--pl-color-surface);
+  border-radius: var(--pl-tag-radius, var(--pl-radius-sm));
+  background: var(--pl-tag-bg, var(--pl-color-surface));
+  box-shadow: var(--pl-tag-shadow, none);
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-weight: var(--pl-type-label-weight);
@@ -49,6 +52,20 @@
   padding: 0;
 }
 
+/* A area de clique do botao de alternar cobre a pilula inteira, com o respiro e a borda; o de remover fica acima. */
+.toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--pl-tag-radius, var(--pl-radius-sm));
+}
+
+.filled {
+  border-color: transparent;
+  background: var(--pl-tag-bg, var(--pl-color-surface-muted));
+  color: var(--pl-color-text);
+}
+
 @media (hover: hover) {
   .tag:has(.toggle:not(:disabled)):hover:not(:has(.toggle:focus-visible)) {
     border-color: var(--pl-control-border-hover);
@@ -76,6 +93,8 @@
 }
 
 .remove {
+  position: relative;
+  z-index: 1;
   justify-content: center;
   padding: 3px;
   border-radius: 3px;
