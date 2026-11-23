@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { regrasDaFolha } from '../../../test/folha';
+import { CheckboxGroup } from '../CheckboxGroup';
+import radioGroupStyles from '../RadioGroup/RadioGroup.module.css';
 import { Checkbox } from './Checkbox';
 
 describe('Checkbox', () => {
@@ -59,6 +61,46 @@ describe('Checkbox', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+
+  it('describes itself by the description, keeping the name to the label text', () => {
+    render(<Checkbox description="Uma vez por semana, às segundas." hint="Pode desligar depois." label="Resumo semanal" />);
+
+    const caixa = screen.getByRole('checkbox', { name: 'Resumo semanal' });
+
+    expect(caixa).toHaveAccessibleDescription('Uma vez por semana, às segundas. Pode desligar depois.');
+
+    fireEvent.click(screen.getByText('Uma vez por semana, às segundas.'));
+
+    expect(caixa).toBeChecked();
+  });
+
+  it('keeps the consumer name and description next to the description', () => {
+    render(
+      <>
+        <span id="fora">Vale para todos</span>
+        <Checkbox aria-describedby="fora" aria-label="Resumo" description="Às segundas." label="Resumo semanal" />
+      </>,
+    );
+
+    expect(screen.getByRole('checkbox', { name: 'Resumo' })).toHaveAccessibleDescription('Vale para todos Às segundas.');
+  });
+
+  it('without the description, keeps the name from the label element', () => {
+    render(<Checkbox label="Aceito os termos" />);
+
+    expect(screen.getByRole('checkbox')).not.toHaveAttribute('aria-labelledby');
+    expect(screen.getByRole('checkbox')).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('becomes a card inside a card group', () => {
+    render(
+      <CheckboxGroup label="Canais" variant="card">
+        <Checkbox label="Web" value="web" />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByRole('checkbox', { name: 'Web' }).closest('label')).toHaveClass(radioGroupStyles.card!);
   });
 });
 

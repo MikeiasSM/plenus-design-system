@@ -3,6 +3,7 @@ import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { useAvisoDeGrupoSemNome } from '../../../hooks/useAvisoDeGrupoSemNome';
 import fieldStyles from '../Field/Field.module.css';
+import { GroupLegend } from '../RadioGroup/GroupLegend';
 import radioGroupStyles from '../RadioGroup/RadioGroup.module.css';
 import styles from './CheckboxGroup.module.css';
 
@@ -13,6 +14,7 @@ interface CheckboxGroupContextValue {
   required: boolean;
   toggle: (value: string, checked: boolean) => void;
   values: readonly string[];
+  variant: CheckboxGroupVariant;
 }
 
 const CheckboxGroupContext = createContext<CheckboxGroupContextValue | null>(null);
@@ -24,6 +26,9 @@ export function useCheckboxGroup() {
 
 export type CheckboxGroupOrientation = 'vertical' | 'horizontal';
 
+/** `default`: a caixa e o rotulo soltos. `card`: cada opcao num cartao, inteiro clicavel. */
+export type CheckboxGroupVariant = 'default' | 'card';
+
 export interface CheckboxGroupProps extends Omit<ComponentPropsWithRef<'fieldset'>, 'defaultValue' | 'onChange'> {
   children: ReactNode;
   defaultValue?: readonly string[];
@@ -32,12 +37,19 @@ export interface CheckboxGroupProps extends Omit<ComponentPropsWithRef<'fieldset
   hint?: string;
   /** Opcional quando o grupo já é nomeado por `aria-labelledby` ou `aria-label`; sem ele, a legenda não aparece. */
   label?: string;
+  /**
+   * Conteudo ao lado do texto da legenda, como um botao de ajuda. Fica fora do nome do grupo, que passa a vir so do
+   * texto do `label`; o que for interativo entra na tabulacao antes das opcoes.
+   */
+  labelAddon?: ReactNode;
   name?: string;
   onValueChange?: (values: readonly string[]) => void;
   orientation?: CheckboxGroupOrientation;
   /** Exige ao menos uma caixa marcada no envio. */
   required?: boolean;
   value?: readonly string[];
+  /** `card` poe cada opcao num cartao, inteiro clicavel; as caixas continuam nativas. */
+  variant?: CheckboxGroupVariant;
 }
 
 export function CheckboxGroup({
@@ -51,18 +63,23 @@ export function CheckboxGroup({
   error,
   hint,
   label,
+  labelAddon,
   name: providedName,
   onValueChange,
   orientation = 'vertical',
   ref,
   required = false,
   value,
+  variant = 'default',
   ...props
 }: CheckboxGroupProps) {
   useAvisoDeGrupoSemNome('CheckboxGroup', { ariaLabel, ariaLabelledby, label });
   const generatedId = useId();
   const name = providedName ?? `checkbox-group-${generatedId}`;
   const messageId = `checkbox-group-${generatedId}-message`;
+  const labelId = `checkbox-group-${generatedId}-label`;
+  // Com o complemento na legenda, o grupo se nomeia so pelo texto dela, e o complemento fica de fora.
+  const nomeadoPeloTexto = Boolean(label) && labelAddon != null && !ariaLabelledby && !ariaLabel;
   const describedBy = [ariaDescribedBy, error || hint ? messageId : undefined].filter(Boolean).join(' ') || undefined;
   const [uncontrolledValues, setUncontrolledValues] = useState(defaultValue);
   const values = value ?? uncontrolledValues;
@@ -80,22 +97,21 @@ export function CheckboxGroup({
   }
 
   return (
-    <CheckboxGroupContext.Provider value={{ disabled, invalid: Boolean(error), name, required, toggle, values }}>
+    <CheckboxGroupContext.Provider value={{ disabled, invalid: Boolean(error), name, required, toggle, values, variant }}>
       <fieldset
         {...props}
         ref={mergedRef}
         className={[radioGroupStyles.group, className].filter(Boolean).join(' ')}
         aria-label={ariaLabelledby ? undefined : ariaLabel}
-        aria-labelledby={ariaLabelledby}
+        aria-labelledby={nomeadoPeloTexto ? labelId : ariaLabelledby}
         aria-describedby={describedBy}
       >
         {label && (
-          <legend className={radioGroupStyles.legend}>
-            {label}
-            {required && <span className={radioGroupStyles.required} aria-hidden="true">*</span>}
-          </legend>
+          <GroupLegend addon={labelAddon} label={label} labelId={labelId} required={required} />
         )}
-        <div className={[styles.options, styles[orientation]].join(' ')}>{children}</div>
+        <div className={[styles.options, styles[orientation], variant === 'card' && radioGroupStyles.cardOptions].filter(Boolean).join(' ')}>
+          {children}
+        </div>
         {(error || hint) && (
           <span className={error ? fieldStyles.errorMessage : fieldStyles.hint} id={messageId} role={error ? 'alert' : undefined}>
             {error || hint}

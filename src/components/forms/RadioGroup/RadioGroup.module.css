@@ -22,6 +22,20 @@
   color: var(--pl-color-danger-text);
 }
 
+/* Com complemento, a legenda e uma linha: o texto e, ao lado, o que o produto pos ali. */
+.legendWithAddon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--pl-space-2);
+}
+
+.legendAddon {
+  display: inline-flex;
+  align-items: center;
+  font-weight: var(--pl-type-body-weight);
+}
+
 .options {
   display: flex;
   gap: var(--pl-space-2);
@@ -104,6 +118,58 @@
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   line-height: var(--pl-type-body-line-height);
+}
+
+/* Rotulo e descricao empilhados ao lado do radio. */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.description {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/*
+ * Cartao: a opcao inteira e o `<label>`, entao qualquer ponto dele marca o controle nativo de dentro. O seletor com o
+ * elemento vence o `.control` do Radio e do Checkbox, tambem no toque. O mesmo cartao serve ao CheckboxGroup.
+ */
+div.cardOptions {
+  gap: var(--pl-space-2);
+}
+
+label.card {
+  display: flex;
+  padding: 12px;
+  border: 1px solid var(--pl-color-border-strong);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface);
+  transition: background-color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+label.card:has(input:checked) {
+  border-color: var(--pl-color-primary-strong);
+  background: var(--pl-color-primary-container);
+  box-shadow: inset 0 0 0 1px var(--pl-color-primary-strong);
+}
+
+/* O foco acende o cartao, e nao so o controle: o halo do controle sai para nao dobrar. */
+label.card:has(input:focus-visible) {
+  border-color: var(--pl-color-primary-strong);
+  box-shadow: var(--pl-control-focus-halo);
+}
+
+label.card:has(input:checked:focus-visible) {
+  box-shadow: inset 0 0 0 1px var(--pl-color-primary-strong), var(--pl-control-focus-halo);
+}
+
+label.card input:focus-visible {
+  box-shadow: none;
 }
 
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */

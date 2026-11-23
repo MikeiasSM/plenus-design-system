@@ -182,6 +182,19 @@ export const pagina: Pagina = {
         "<Checkbox\n  label=\"Li e aceito os termos de uso\"\n  checked={aceito}\n  error={tentou && !aceito ? 'Aceite os termos para continuar.' : undefined}\n  onChange={(evento) => setAceito(evento.currentTarget.checked)}\n/>\n<Button onClick={continuar}>Continuar</Button>",
     },
     {
+      titulo: 'Com descrição',
+      descricao:
+        'A descrição fica abaixo do rótulo, dentro da área clicável, e descreve a caixa; o nome continua só o rótulo. Marcada e desabilitada, a caixa guarda a cor da marca.',
+      Previa: () => (
+        <div className="stack">
+          <Checkbox defaultChecked description="Uma vez por semana, às segundas." label="Resumo semanal" />
+          <Checkbox checked description="Definido pela administração da conta." disabled label="Avisos de segurança" readOnly />
+        </div>
+      ),
+      codigo:
+        '<Checkbox\n  label="Resumo semanal"\n  description="Uma vez por semana, às segundas."\n  defaultChecked\n/>\n<Checkbox\n  label="Avisos de segurança"\n  description="Definido pela administração da conta."\n  checked\n  disabled\n/>',
+    },
+    {
       titulo: 'Preferência com ajuda',
       descricao: 'A ajuda explica a consequência da escolha, sem alongar o rótulo.',
       Previa: () => <Checkbox defaultChecked hint="No máximo um por semana." label="Receber resumo por e-mail" name="resumo" />,
@@ -212,6 +225,7 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, todas as propriedades nativas de <input>, como checked, defaultChecked, onChange e name, e o ref.',
   api: [
     { nome: 'label', tipo: 'ReactNode', descricao: 'Rótulo visível. Sem ele, use aria-label ou aria-labelledby.' },
+    { nome: 'description', tipo: 'ReactNode', descricao: 'Texto secundário abaixo do rótulo, que descreve a caixa pelo aria-describedby. Fica na área clicável: só texto.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda e marca o controle como inválido.' },
     { nome: 'indeterminate', tipo: 'boolean', padrao: 'false', descricao: 'Estado de escolha parcial.' },

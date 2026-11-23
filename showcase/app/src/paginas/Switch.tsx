@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Switch } from '@plenustech/design-system';
+import { ButtonIcon, IconInfoCircle, Switch } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -128,6 +128,23 @@ export const pagina: Pagina = {
         '<Switch label="Notificações por e-mail" defaultChecked />\n<Switch label="Notificações no aplicativo" />\n<Switch\n  label="Tema automático"\n  hint="Acompanha a preferência do sistema."\n  defaultChecked\n/>',
     },
     {
+      titulo: 'Com descrição e complemento',
+      descricao:
+        'A descrição fica abaixo do rótulo e descreve a chave. O labelAddon vai ao lado do rótulo, fora do <label>: não entra no nome nem liga a chave.',
+      Previa: () => (
+        <div className="stack">
+          <Switch description="Avisos fora do horário comercial." label="Notificações noturnas" />
+          <Switch
+            defaultChecked
+            label="Sincronização automática"
+            labelAddon={<ButtonIcon icon={<IconInfoCircle />} label="Sobre a sincronização" size="sm" variant="ghost" />}
+          />
+        </div>
+      ),
+      codigo:
+        '<Switch\n  label="Notificações noturnas"\n  description="Avisos fora do horário comercial."\n/>\n<Switch\n  label="Sincronização automática"\n  labelAddon={<ButtonIcon icon={<IconInfoCircle />} label="Sobre a sincronização" size="sm" variant="ghost" />}\n  defaultChecked\n/>',
+    },
+    {
       titulo: 'Efeito imediato na tela',
       descricao: 'Controlado: o produto aplica o estado assim que ele muda.',
       Previa: Densidade,
@@ -155,6 +172,8 @@ export const pagina: Pagina = {
   notaDaApi: 'Além destas, todas as propriedades nativas de <input>, como checked, defaultChecked, onChange e name, e o ref.',
   api: [
     { nome: 'label', tipo: 'string', descricao: <>O que é alternado. Pode faltar quando outro elemento nomeia a chave, como o <code>FieldRow</code>, ou o <code>aria-label</code>.</> },
+    { nome: 'description', tipo: 'ReactNode', descricao: 'Texto secundário abaixo do rótulo, que descreve a chave pelo aria-describedby. Com label, fica na área clicável: só texto.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Conteúdo ao lado do rótulo, fora do <label> e do nome, como um botão de ajuda. Só aparece com label.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda e marca o controle como inválido.' },
     { nome: 'onCheckedChange', tipo: '(checked: boolean) => void', descricao: 'A marcação a cada mudança, ao lado do onChange nativo.' },

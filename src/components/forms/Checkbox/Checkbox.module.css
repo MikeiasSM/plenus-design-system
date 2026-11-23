@@ -101,6 +101,21 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+/* Rotulo e descricao empilhados ao lado da caixa. */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.description {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
 
 
