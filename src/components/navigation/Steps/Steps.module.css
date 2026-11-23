@@ -147,3 +147,61 @@ button.text:focus-visible {
     padding-top: 6px;
   }
 }
+
+/* Posição da etapa atual, só leitura, antes das etapas. */
+.position {
+  margin: 0 0 var(--pl-space-3);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/* Em linha: o número num círculo de 22px ao lado do nome, e uma linha de 1px que ocupa o espaço até a próxima etapa.
+   Vale também no celular, onde a forma empilhada vira coluna. */
+.inline {
+  --steps-marker: 22px;
+}
+
+.inline .list {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--pl-space-2);
+}
+
+.inline .step {
+  flex: 1 1 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--pl-space-2);
+  text-align: left;
+}
+
+.inline .step:last-child {
+  flex: none;
+}
+
+.inline .step:not(:last-child)::after {
+  position: static;
+  flex: 1 1 var(--pl-space-4);
+  width: auto;
+  min-width: var(--pl-space-4);
+  height: 1px;
+  border-radius: 0;
+}
+
+.inline .marker {
+  border-width: 1px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.inline .complete .marker {
+  font-size: 0.75rem;
+}
+
+.inline .current .marker {
+  box-shadow: 0 0 0 3px var(--pl-color-primary-container);
+}
+
+.inline .text {
+  padding: 0;
+}

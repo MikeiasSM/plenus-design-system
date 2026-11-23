@@ -157,6 +157,16 @@ function Modos() {
       </dd>
       <dt>Celular</dt>
       <dd>As etapas empilham, com a linha na vertical.</dd>
+      <dt><code>layout="inline"</code></dt>
+      <dd>
+        Forma compacta: o número num círculo de 22px ao lado do nome, e uma linha de 1px que ocupa o espaço até a próxima
+        etapa. As concluídas levam o visto. Fica em linha também no celular.
+      </dd>
+      <dt><code>showPosition</code></dt>
+      <dd>
+        Mostra a posição, como <code>Etapa 2 de 3</code>, antes das etapas, só para leitura. <code>formatPosition</code>{' '}
+        troca o texto.
+      </dd>
     </dl>
   );
 }
@@ -176,6 +186,39 @@ export const pagina: Pagina = {
       descricao: 'Clique em qualquer etapa: com onCurrentChange, cada uma é botão.',
       Previa: Livre,
       codigo: '<Steps\n  label="Etapas do e-mail"\n  items={etapas}\n  current={etapa}\n  onCurrentChange={setEtapa}\n/>',
+    },
+    {
+      titulo: 'Em linha, com a posição',
+      descricao: 'Para o alto de um cartão ou de um painel lateral, onde a forma empilhada não cabe.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Steps
+            current="seguranca"
+            items={ETAPAS_DO_EMAIL.map(({ key, label }) => ({ key, label }))}
+            label="Etapas do e-mail"
+            layout="inline"
+            showPosition
+          />
+        </div>
+      ),
+      codigo: '<Steps\n  label="Etapas do e-mail"\n  items={etapas}\n  current="seguranca"\n  layout="inline"\n  showPosition\n/>',
+    },
+    {
+      titulo: 'Posição com outro texto',
+      descricao: 'formatPosition recebe a etapa atual e o total, contados de 1.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Steps
+            current="servidor"
+            formatPosition={(atual, total) => `Passo ${atual} de ${total}`}
+            items={ETAPAS_DO_EMAIL}
+            label="Etapas do e-mail"
+            showPosition
+          />
+        </div>
+      ),
+      codigo:
+        '<Steps\n  label="Etapas do e-mail"\n  items={etapas}\n  current="servidor"\n  showPosition\n  formatPosition={(atual, total) => `Passo ${atual} de ${total}`}\n/>',
     },
   ],
   faca: {
@@ -238,5 +281,8 @@ export const pagina: Pagina = {
     { nome: 'defaultCurrent', tipo: 'string', descricao: 'Etapa inicial, no modo não controlado. Sem ela, a primeira.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome da navegação.' },
     { nome: 'onCurrentChange', tipo: '(key: string) => void', descricao: 'Com ela, cada etapa vira botão.' },
+    { nome: 'layout', tipo: "'stacked' | 'inline'", padrao: "'stacked'", descricao: 'Marcador acima do nome, ou menor e ao lado dele, com a linha fina.' },
+    { nome: 'showPosition', tipo: 'boolean', padrao: 'false', descricao: 'Mostra a posição da etapa atual antes das etapas, só para leitura.' },
+    { nome: 'formatPosition', tipo: '(current: number, total: number) => string', padrao: "'Etapa 2 de 3'", descricao: 'Troca o texto da posição.' },
   ],
 };

@@ -320,6 +320,8 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 
 `Steps` é o indicador do processo, não o processo: o conteúdo de cada etapa e os botões de avançar e voltar pertencem ao produto. Com navegação livre, cada etapa vira botão. A fronteira com `Tabs` é a ordem: as abas são painéis equivalentes; as etapas têm sequência, e as anteriores à atual contam como concluídas.
 
+O `Steps` tem duas formas em `layout`: `stacked`, o padrão, com o marcador acima do nome, e `inline`, a compacta, com o número num círculo de 22px ao lado do nome e uma linha de 1px que ocupa o espaço até a próxima etapa; as concluídas levam o visto, e a semântica é a mesma. A forma em linha não empilha no celular. `showPosition` mostra a posição da etapa atual antes das etapas, como `Etapa 2 de 3`, em texto só de leitura, e `formatPosition(current, total)`, contados de 1, troca esse texto.
+
 A `Pagination` também serve de rodapé de tabela: oferece o seletor de itens por página e os passos para a primeira e a última página. Ao trocar o tamanho, a página passa à que contém o primeiro item da atual, para não perder o lugar de quem lia.
 
 Com uma página só, a `Pagination` some, como antes. Com `hideOnSinglePage={false}`, ela fica, com o intervalo e as setas, todas com `aria-disabled` e sem números, para o rodapé não mudar de altura quando o resultado cabe numa página. O texto padrão do intervalo, `1.201–1.250 de 4.380`, sai de `formatPaginationRange(range)`, exportada para quem mostra o mesmo intervalo fora da paginação.
