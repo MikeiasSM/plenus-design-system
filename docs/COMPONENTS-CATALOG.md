@@ -146,6 +146,8 @@ Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel,
 
 A opção do `ComboBox` pode ser composta: uma segunda linha, como a coleção de um documento, um ícone decorativo à frente e o grupo a que pertence. O nome da opção continua sendo o rótulo, e a segunda linha é a descrição dela. As opções seguidas de um mesmo grupo aparecem juntas, sob o título, e as setas passam de um grupo ao outro sem parar nele. É o campo de busca que mostra resultados ricos, como o do acervo de documentos.
 
+A opção do `Select` também aceita `group`, com o mesmo comportamento: as opções seguidas de um mesmo grupo aparecem juntas, sob o título, e as setas passam de um grupo ao outro. O gatilho fechado mostra só o rótulo.
+
 Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` marca os itens habilitados do resultado da busca, sem desmarcar o resto; `clearable` desmarca tudo, inclusive o que a busca esconde. `confirmSelection` torna a marcação um rascunho: `onValueChange` é chamado uma vez, em "Aplicar", e Cancelar, Escape ou sair do campo descartam o que foi marcado. `labels` troca os quatro textos (`selectAll`, `clear`, `apply` e `cancel`). Pelo teclado, o Tab do campo vai aos botões do rodapé, o Shift+Tab no primeiro volta ao campo, e o Tab no último devolve o foco ao campo e fecha o painel; Enter e Espaço no campo continuam marcando a opção em foco. Uma região de status anuncia a contagem a cada mudança. Sem as três propriedades o painel não tem rodapé.
 
 ## 5. Dados
