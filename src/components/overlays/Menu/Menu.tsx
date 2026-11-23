@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ElementType,
   type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
@@ -29,13 +30,22 @@ import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 export interface MenuItem {
   /** Com ele, o item e de marcar e mostra o visto quando marcado, como o tipo atual de um bloco. */
   checked?: boolean;
+  /**
+   * Valor curto à direita do texto, como a escolha atual de um submenu ("Escuro" em "Tema"). Entra no nome do item,
+   * depois do texto e de uma vírgula: "Tema, Escuro".
+   */
+  detail?: string;
   disabled?: boolean;
+  /** Com ele, o item é um link: `<a role="menuitem">`, ou o componente de link do `as` do `Menu`. */
+  href?: string;
   /** Icone decorativo antes do texto. */
   icon?: ReactNode;
   /** Com eles, o item abre um submenu, e o `onSelect` não é chamado. */
   items?: readonly (MenuItem | MenuSection)[];
   key: string;
   label: string;
+  /** Propriedades entregues ao componente de link, para o roteador que não usa `href`; com elas, o item é um link. */
+  linkProps?: Record<string, unknown>;
   onSelect?: () => void;
   /** Atalho escrito à direita, como `Ctrl+D` ou `⌘⇧D`; convertido nos nomes de tecla de `aria-keyshortcuts`. */
   shortcut?: string;
@@ -53,9 +63,16 @@ export interface MenuSection {
 }
 
 export interface MenuProps {
+  /** Componente de link da aplicação, para os itens com `href` ou `linkProps`. Sem ele, o link é um `<a>`. */
+  as?: ElementType;
   children: ReactElement<Record<string, unknown>>;
   /** Abertura inicial no modo nao controlado. */
   defaultOpen?: boolean;
+  /**
+   * Bloco no topo do painel, fora da lista, como a conta de quem está conectado. Não é focável nem interativo: o foco
+   * fica nos itens. Descreve o menu, por `aria-describedby`.
+   */
+  header?: ReactNode;
   items: readonly (MenuItem | MenuSection)[];
   label: string;
   /** Avisa cada abertura e fechamento pedidos pelo gatilho, pelo teclado, pela opcao ou pelo clique fora. */
@@ -82,8 +99,10 @@ const HOVER_DELAY = 150;
 type InitialFocus = 'first' | 'last' | null;
 
 export function Menu({
+  as: linkAs = 'a',
   children,
   defaultOpen = false,
+  header,
   items,
   label,
   onOpenChange,
@@ -155,7 +174,9 @@ export function Menu({
             <MenuList
               anchorRef={triggerRef}
               container={container}
+              header={header}
               initialFocus={openedWith}
+              linkAs={linkAs}
               items={items}
               label={label}
               ownerId={ownerId}
@@ -178,9 +199,12 @@ interface MenuListProps {
   anchorRef: RefObject<HTMLElement | null>;
   /** Destino do portal dos submenus. */
   container: HTMLElement;
+  /** Só no menu. */
+  header?: ReactNode;
   initialFocus: InitialFocus;
   items: readonly (MenuItem | MenuSection)[];
   label: string;
+  linkAs: ElementType;
   listRef?: Ref<HTMLDivElement>;
   /** Só no submenu: fecha ele e devolve o foco ao item pai. */
   onBack?: () => void;
@@ -195,9 +219,11 @@ interface MenuListProps {
 function MenuList({
   anchorRef,
   container,
+  header,
   initialFocus,
   items: entradas,
   label,
+  linkAs: Link,
   listRef,
   onBack,
   onClose,
@@ -207,6 +233,9 @@ function MenuList({
 }: MenuListProps) {
   const ref = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRefs(ref, listRef);
+  // Com `header`, rola só a lista, embaixo dele; sem, o próprio painel.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const headerId = `${useId()}-header`;
   const nodes = useRef(new Map<string, HTMLElement>());
   const isSubmenu = onBack !== undefined;
   const [submenu, setSubmenu] = useState<{ key: string; focus: InitialFocus } | null>(null);
@@ -310,7 +339,7 @@ function MenuList({
   // para o item ficar à vista.
   function focusItem(key: string) {
     const node = nodes.current.get(key);
-    const panel = ref.current;
+    const panel = scrollRef.current ?? ref.current;
 
     node?.focus({ preventScroll: true });
 
@@ -364,42 +393,29 @@ function MenuList({
       return;
     }
 
+    if (isLink(item)) {
+      // O link sai da página só depois do clique: fechar agora o tiraria do documento antes, e o navegador não
+      // seguiria o `href`. O roteador do `as` age no próprio clique, antes de o menu fechar.
+      item.onSelect?.();
+      setTimeout(() => onClose(true));
+      return;
+    }
+
     onClose(true);
     item.onSelect?.();
   }
 
   function renderizarItem(item: MenuItem) {
     const marcavel = item.checked !== undefined;
-
-    return (
-      <button
-        aria-checked={marcavel ? item.checked : undefined}
-        aria-expanded={item.items ? submenu?.key === item.key : undefined}
-        aria-haspopup={item.items ? 'menu' : undefined}
-        aria-keyshortcuts={item.shortcutKeys ?? (item.shortcut ? toAriaKeyShortcuts(item.shortcut) : undefined)}
-        className={[styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' ')}
-        disabled={item.disabled}
-        key={item.key}
-        onClick={(event) => !isRepeatedClick(event) && acionar(item)}
-        onKeyDown={blockRepeatedPress}
-        onPointerEnter={() => hover(item)}
-        ref={(node) => {
-          if (node) {
-            nodes.current.set(item.key, node);
-          } else {
-            nodes.current.delete(item.key);
-          }
-        }}
-        role={marcavel ? 'menuitemcheckbox' : 'menuitem'}
-        tabIndex={focusedKey === item.key ? 0 : -1}
-        type="button"
-      >
+    const conteudo = (
+      <>
         {item.icon && (
           <span aria-hidden="true" className={styles.icon}>
             {item.icon}
           </span>
         )}
         <span className={styles.label}>{item.label}</span>
+        {item.detail && <span className={styles.detail}>{item.detail}</span>}
         {item.shortcut && (
           <kbd aria-hidden="true" className={styles.shortcut}>
             {item.shortcut}
@@ -407,6 +423,62 @@ function MenuList({
         )}
         {marcavel && <IconCheck className={[styles.check, item.checked && styles.checkOn].filter(Boolean).join(' ')} />}
         {item.items && <IconChevronRight aria-hidden="true" className={styles.submenuMark} />}
+      </>
+    );
+    const comum = {
+      // Os nós do texto e do valor, que são itens flex, se juntariam com um espaço só; a vírgula separa os dois na fala.
+      'aria-label': item.detail ? `${item.label}, ${item.detail}` : undefined,
+      'aria-keyshortcuts': item.shortcutKeys ?? (item.shortcut ? toAriaKeyShortcuts(item.shortcut) : undefined),
+      className: [styles.item, item.tone === 'danger' && styles.danger].filter(Boolean).join(' '),
+      onClick: (event: MouseEvent) => !isRepeatedClick(event) && acionar(item),
+      onPointerEnter: () => hover(item),
+      ref: (node: HTMLElement | null) => {
+        if (node) {
+          nodes.current.set(item.key, node);
+        } else {
+          nodes.current.delete(item.key);
+        }
+      },
+      tabIndex: focusedKey === item.key ? 0 : -1,
+    };
+
+    if (isLink(item)) {
+      return (
+        <Link
+          {...item.linkProps}
+          {...comum}
+          href={item.href}
+          key={item.key}
+          onKeyDown={(event: KeyboardEvent<HTMLElement>) => {
+            if (blockRepeatedPress(event)) {
+              return;
+            }
+            // O link nativo só responde ao Enter; no menu, o Espaço também aciona o item.
+            if (event.key === ' ') {
+              event.preventDefault();
+              event.currentTarget.click();
+            }
+          }}
+          role="menuitem"
+        >
+          {conteudo}
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        {...comum}
+        aria-checked={marcavel ? item.checked : undefined}
+        aria-expanded={item.items ? submenu?.key === item.key : undefined}
+        aria-haspopup={item.items ? 'menu' : undefined}
+        disabled={item.disabled}
+        key={item.key}
+        onKeyDown={blockRepeatedPress}
+        role={marcavel ? 'menuitemcheckbox' : 'menuitem'}
+        type="button"
+      >
+        {conteudo}
       </button>
     );
   }
@@ -439,68 +511,97 @@ function MenuList({
     }
   }
 
-  return (
-    <div
-      {...overlayProps}
-      data-menu-owner={ownerId}
-      data-react-aria-top-layer="true"
-      ref={mergedRef}
-      className={[styles.menu, thinScrollbar].join(' ')}
-      style={{ ...positionProps.style, maxHeight: alturaMaxima }}
-      role="menu"
-      aria-label={label}
-      onKeyDown={(event) => {
-        // O submenu fica no menu pela arvore do React: a tecla dele nao sobe ao menu de fora.
-        if (isSubmenu) {
-          event.stopPropagation();
-        }
-        // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
-        handleKeyDown(event);
-        // O Esc já fechou acima, devolvendo o foco; o do `useOverlay` fecharia de novo e avisaria o produto duas vezes.
-        // A tecla para aqui, como pararia nele: não chega à camada em volta, como um Dialog, pela árvore do React.
-        if (event.key === 'Escape') {
-          event.stopPropagation();
-        } else {
-          overlayProps.onKeyDown?.(event);
-        }
-      }}
-      onPointerEnter={onPointerEnter}
-    >
-      {entradas.map((entrada, indice) => {
-        if (!ehSecao(entrada)) {
-          return renderizarItem(entrada);
-        }
+  // O `onKeyDown` do `useOverlay` vai para a lista, junto do da própria lista; o painel recebe o resto.
+  const { onKeyDown: overlayKeyDown, ...panelProps } = overlayProps;
+  const listProps = {
+    'aria-label': label,
+    onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+      // O submenu fica no menu pela arvore do React: a tecla dele nao sobe ao menu de fora.
+      if (isSubmenu) {
+        event.stopPropagation();
+      }
+      // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
+      handleKeyDown(event);
+      // O Esc já fechou acima, devolvendo o foco; o do `useOverlay` fecharia de novo e avisaria o produto duas vezes.
+      // A tecla para aqui, como pararia nele: não chega à camada em volta, como um Dialog, pela árvore do React.
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+      } else {
+        overlayKeyDown?.(event);
+      }
+    },
+    role: 'menu',
+  };
+  const lista = entradas.map((entrada, indice) => {
+    if (!ehSecao(entrada)) {
+      return renderizarItem(entrada);
+    }
 
-        return (
-          <div aria-label={entrada.title} className={styles.section} key={entrada.key} role="group">
-            {indice > 0 && <div aria-hidden="true" className={styles.divider} />}
-            {entrada.title && (
-              <div aria-hidden="true" className={styles.sectionTitle}>
-                {entrada.title}
-              </div>
-            )}
-            {entrada.items.map(renderizarItem)}
+    return (
+      <div aria-label={entrada.title} className={styles.section} key={entrada.key} role="group">
+        {indice > 0 && <div aria-hidden="true" className={styles.divider} />}
+        {entrada.title && (
+          <div aria-hidden="true" className={styles.sectionTitle}>
+            {entrada.title}
           </div>
-        );
-      })}
-      {openItem?.items &&
-        createPortal(
-          <FocusScope key={openItem.key}>
-            <MenuList
-              anchorRef={submenuAnchor}
-              container={container}
-              initialFocus={submenu?.focus ?? null}
-              items={openItem.items}
-              label={openItem.label}
-              listRef={submenuList}
-              ownerId={ownerId}
-              onBack={closeSubmenu}
-              onClose={onClose}
-              onPointerEnter={() => clearTimeout(hoverTimer.current)}
-            />
-          </FocusScope>,
-          container,
         )}
+        {entrada.items.map(renderizarItem)}
+      </div>
+    );
+  });
+  const submenuPortal =
+    openItem?.items &&
+    createPortal(
+      <FocusScope key={openItem.key}>
+        <MenuList
+          anchorRef={submenuAnchor}
+          container={container}
+          initialFocus={submenu?.focus ?? null}
+          items={openItem.items}
+          label={openItem.label}
+          linkAs={Link}
+          listRef={submenuList}
+          ownerId={ownerId}
+          onBack={closeSubmenu}
+          onClose={onClose}
+          onPointerEnter={() => clearTimeout(hoverTimer.current)}
+        />
+      </FocusScope>,
+      container,
+    );
+  const painel = {
+    ...panelProps,
+    'data-menu-owner': ownerId,
+    'data-react-aria-top-layer': 'true',
+    onPointerEnter,
+    ref: mergedRef,
+    style: { ...positionProps.style, maxHeight: alturaMaxima },
+  };
+
+  // Com o cabeçalho, ele fica fora do `role="menu"`, que só contém itens, e o descreve.
+  if (header) {
+    return (
+      <div {...painel} className={[styles.menu, styles.withHeader].join(' ')}>
+        <div className={styles.header} id={headerId}>
+          {header}
+        </div>
+        <div {...listProps} aria-describedby={headerId} className={[styles.list, thinScrollbar].join(' ')} ref={scrollRef}>
+          {lista}
+        </div>
+        {submenuPortal}
+      </div>
+    );
+  }
+
+  return (
+    <div {...painel} {...listProps} className={[styles.menu, thinScrollbar].join(' ')}>
+      {lista}
+      {submenuPortal}
     </div>
   );
+}
+
+/** O item com `href` ou `linkProps` é link, desde que não abra submenu, não seja de marcar nem esteja desabilitado. */
+function isLink(item: MenuItem) {
+  return (item.href !== undefined || item.linkProps !== undefined) && !item.items && item.checked === undefined && !item.disabled;
 }

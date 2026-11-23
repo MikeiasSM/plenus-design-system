@@ -166,3 +166,59 @@
   background: color-mix(in srgb, var(--pl-color-danger-container) 88%, var(--pl-color-danger-solid));
   color: var(--pl-color-on-danger-container);
 }
+
+/* O item que é link se desenha como o botão. */
+a.item {
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+/* O valor à direita, como a escolha atual de um submenu, mais discreto que o texto. */
+.detail {
+  flex: none;
+  margin-left: var(--pl-space-4);
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-caption-size);
+}
+
+.item:focus-visible .detail,
+.item[aria-expanded='true'] .detail {
+  color: inherit;
+}
+
+@media (hover: hover) {
+  .item:hover:not(:disabled) .detail {
+    color: inherit;
+  }
+}
+
+/* Com o cabeçalho, o painel não rola: rola a lista embaixo dele. */
+.withHeader {
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.header {
+  flex: none;
+  padding: var(--pl-space-3);
+  border-bottom: 1px solid var(--pl-color-border);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+}
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--pl-space-1);
+}
+
+.list:focus-visible {
+  outline: none;
+}

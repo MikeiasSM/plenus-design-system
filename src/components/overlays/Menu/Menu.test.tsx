@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentPropsWithRef } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../../actions/Button';
 import { useOverlayPosition } from '@react-aria/overlays';
@@ -289,6 +289,140 @@ describe('Menu', () => {
       expect(menu.scrollTop).toBe(0);
       expect(scrollIntoView).not.toHaveBeenCalled();
       focar.mockRestore();
+    });
+  });
+
+  describe('itens que são links', () => {
+    it('com href, o item é um <a role="menuitem"> que o teclado percorre como os outros', () => {
+      render(
+        <Menu
+          items={[
+            { key: 'perfil', label: 'Perfil', href: '/perfil' },
+            { key: 'sair', label: 'Sair' },
+          ]}
+          label="Conta"
+        >
+          <Button>Conta</Button>
+        </Menu>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+
+      const perfil = screen.getByRole('menuitem', { name: 'Perfil' });
+
+      expect(perfil.tagName).toBe('A');
+      expect(perfil).toHaveAttribute('href', '/perfil');
+      expect(perfil).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      expect(screen.getByRole('menuitem', { name: 'Sair' })).toHaveFocus();
+    });
+
+    it('usa o componente de link do as, com o linkProps, e fecha depois do clique sem tirar o link da página antes', () => {
+      vi.useFakeTimers();
+      const escolheu = vi.fn();
+      function LinkDaAplicacao({ to, ...props }: ComponentPropsWithRef<'a'> & { to?: string }) {
+        return <a data-to={to} {...props} />;
+      }
+
+      render(
+        <Menu as={LinkDaAplicacao} items={[{ key: 'pedidos', label: 'Pedidos', linkProps: { to: '/pedidos' }, onSelect: escolheu }]} label="Ir">
+          <Button>Ir</Button>
+        </Menu>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Ir' }));
+      const link = screen.getByRole('menuitem', { name: 'Pedidos' });
+
+      expect(link).toHaveAttribute('data-to', '/pedidos');
+
+      fireEvent.click(link);
+
+      expect(escolheu).toHaveBeenCalledOnce();
+      expect(link).toBeInTheDocument();
+
+      act(() => vi.runAllTimers());
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Ir' })).toHaveFocus();
+      vi.useRealTimers();
+    });
+
+    it('o Espaço aciona o link, como o Enter', () => {
+      const clicou = vi.fn((event: Event) => event.preventDefault());
+      render(<Menu items={[{ key: 'perfil', label: 'Perfil', href: '/perfil' }]} label="Conta"><Button>Conta</Button></Menu>);
+      fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+      const perfil = screen.getByRole('menuitem', { name: 'Perfil' });
+      perfil.addEventListener('click', clicou);
+
+      fireEvent.keyDown(perfil, { key: ' ' });
+
+      expect(clicou).toHaveBeenCalledOnce();
+    });
+
+    it('desabilitado, continua um botão inerte', () => {
+      render(<Menu items={[{ key: 'perfil', label: 'Perfil', href: '/perfil', disabled: true }]} label="Conta"><Button>Conta</Button></Menu>);
+      fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+
+      expect(screen.getByRole('menuitem', { name: 'Perfil' })).toBeDisabled();
+    });
+  });
+
+  it('o detail aparece à direita e entra no nome do item depois de uma vírgula', () => {
+    render(
+      <Menu items={[{ key: 'tema', label: 'Tema', detail: 'Escuro', items: [{ key: 'claro', label: 'Claro' }] }]} label="Preferências">
+        <Button>Preferências</Button>
+      </Menu>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Preferências' }));
+
+    expect(screen.getByRole('menuitem', { name: 'Tema, Escuro' })).toHaveTextContent('Escuro');
+  });
+
+  describe('header', () => {
+    it('fica fora da lista e a descreve, sem entrar entre os itens', () => {
+      render(
+        <Menu header={<span>Ana Souza, ana@exemplo.com</span>} items={itens} label="Conta">
+          <Button>Conta</Button>
+        </Menu>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+      const menu = screen.getByRole('menu', { name: 'Conta' });
+      const cabecalho = screen.getByText('Ana Souza, ana@exemplo.com');
+
+      expect(menu).not.toContainElement(cabecalho);
+      expect(menu).toHaveAccessibleDescription('Ana Souza, ana@exemplo.com');
+      expect(screen.getByRole('menuitem', { name: 'Editar' })).toHaveFocus();
+    });
+
+    it('o teclado, o Esc e o clique fora seguem valendo', () => {
+      const mudou = vi.fn();
+      render(
+        <Menu header="Ana Souza" items={itens} label="Conta" onOpenChange={mudou}>
+          <Button>Conta</Button>
+        </Menu>,
+      );
+      const gatilho = screen.getByRole('button', { name: 'Conta' });
+      gatilho.focus();
+      fireEvent.click(gatilho);
+      mudou.mockClear();
+
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      expect(screen.getByRole('menuitem', { name: 'Duplicar' })).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByRole('menuitem', { name: 'Duplicar' }), { key: 'Escape' });
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(mudou.mock.calls).toEqual([[false]]);
+      expect(gatilho).toHaveFocus();
+    });
+
+    it('sem header, o painel é a própria lista, como antes', () => {
+      render(<Menu items={itens} label="Conta"><Button>Conta</Button></Menu>);
+      fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+
+      const menu = screen.getByRole('menu');
+
+      expect(menu).toHaveAttribute('data-react-aria-top-layer', 'true');
+      expect(menu).not.toHaveAttribute('aria-describedby');
     });
   });
 
