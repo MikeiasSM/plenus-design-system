@@ -25,8 +25,10 @@ export interface PaginationProps extends ComponentPropsWithRef<'nav'> {
   disabled?: boolean;
   /** Troca o texto do modo compacto, que por padrão é `3 de 12`; o devolvido é anunciado só sem `totalItems`, pois com ele o intervalo já é anunciado. */
   formatCompact?: (page: number, pageCount: number) => string;
-  /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`. */
+  /** Troca o texto do intervalo, que por padrão é `1.201–1.250 de 4.380`, o de `formatPaginationRange`. */
   formatRange?: (range: PaginationRange) => string;
+  /** Some com uma página só. Com `false`, mostra o intervalo e as setas, com `aria-disabled`. */
+  hideOnSinglePage?: boolean;
   label?: string;
   onPageChange?: (page: number) => void;
   /** Recebe o tamanho escolhido. A pagina muda junto, para a que contem o primeiro item da atual. */
@@ -54,6 +56,7 @@ export function Pagination({
   disabled = false,
   formatCompact,
   formatRange,
+  hideOnSinglePage = true,
   label = 'Paginação',
   onPageChange,
   onPageSizeChange,
@@ -70,8 +73,10 @@ export function Pagination({
   const [internalPageSize, setInternalPageSize] = useState(defaultPageSize ?? pageSizeOptions?.[0]);
   const tamanho = pageSize ?? internalPageSize;
   const totalDePaginas = pageCount ?? (totalItems !== undefined && tamanho ? Math.ceil(totalItems / tamanho) : 0);
-  const renderiza = totalDePaginas > 1 || Boolean(pageSizeOptions);
+  const renderiza = totalDePaginas > 1 || Boolean(pageSizeOptions) || !hideOnSinglePage;
   const temPassos = totalDePaginas > 1;
+  // Uma página só e `hideOnSinglePage={false}`: ficam as setas, sem números, todas na ponta.
+  const soAsSetas = !temPassos && !hideOnSinglePage;
   const linha = useRef<HTMLDivElement>(null);
   const copia = useRef<HTMLDivElement>(null);
   const seletor = useRef<HTMLSpanElement>(null);
@@ -83,7 +88,7 @@ export function Pagination({
       ? { start: (atual - 1) * tamanho + 1, end: Math.min(atual * tamanho, totalItems), total: totalItems }
       : undefined;
   const textoCompacto = (formatCompact ?? formatarCompacto)(atual, totalDePaginas);
-  const textoIntervalo = intervalo ? (formatRange ?? formatarIntervalo)(intervalo) : undefined;
+  const textoIntervalo = intervalo ? (formatRange ?? formatPaginationRange)(intervalo) : undefined;
   const chaveCopia = [
     totalDePaginas,
     atual,
@@ -190,6 +195,19 @@ export function Pagination({
             totalDePaginas={totalDePaginas}
           />
         )}
+        {soAsSetas && (
+          <PaginationSteps
+            anunciaCompacto={false}
+            atual={1}
+            disabled={disabled}
+            irPara={irPara}
+            paginas={[]}
+            semPaginas
+            showFirstLast={showFirstLast}
+            soSetas
+            totalDePaginas={Math.max(totalDePaginas, 1)}
+          />
+        )}
       </div>
       {temPassos && (
         <div className={styles.copia} aria-hidden="true" inert ref={copia}>
@@ -259,7 +277,8 @@ function formatarCompacto(pagina: number, total: number) {
   return `${formatNumber(pagina)} de ${formatNumber(total)}`;
 }
 
-function formatarIntervalo({ start, end, total }: PaginationRange) {
+/** O texto padrão do intervalo da `Pagination`, como `1.201–1.250 de 4.380`, para quem o mostra fora dela. */
+export function formatPaginationRange({ start, end, total }: PaginationRange) {
   return `${formatNumber(start)}–${formatNumber(end)} de ${formatNumber(total)}`;
 }
 
@@ -324,6 +343,7 @@ function PaginationSteps({
   disabled,
   irPara,
   paginas,
+  semPaginas = false,
   showFirstLast,
   soSetas,
   totalDePaginas,
@@ -334,6 +354,8 @@ function PaginationSteps({
   disabled: boolean;
   irPara: (pagina: number) => void;
   paginas: (number | null)[];
+  /** Só as setas, sem números nem texto: a página única. */
+  semPaginas?: boolean;
   showFirstLast: boolean;
   soSetas: boolean;
   totalDePaginas: number;
@@ -366,7 +388,7 @@ function PaginationSteps({
       >
         <IconChevronLeft size={14} />
       </button>
-      {compactText === undefined ? (
+      {semPaginas ? null : compactText === undefined ? (
         <ol className={styles.list}>
           {paginas.map((numero, indice) =>
             numero === null ? (
