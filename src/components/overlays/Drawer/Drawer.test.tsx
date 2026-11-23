@@ -135,4 +135,10 @@ describe('Drawer', () => {
     expect(onKeyDown).toHaveBeenCalledOnce();
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('aceita titulo e descricao como no, sem perder o nome nem a descricao', () => {
+    render(<Drawer description={<>Ajuste <strong>quem</strong> ve.</>} open title={<>Acesso de <em>Ana</em></>} />);
+
+    expect(screen.getByRole('dialog', { name: 'Acesso de Ana' })).toHaveAccessibleDescription('Ajuste quem ve.');
+  });
 });

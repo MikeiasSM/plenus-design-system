@@ -357,6 +357,90 @@ describe('Dialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  describe('titulo e descricao como no', () => {
+    it('o titulo com enfase nomeia o dialogo e o corpo que rola, e a descricao o descreve', () => {
+      transbordar();
+      render(
+        <Dialog
+          description={<>O pedido <strong>12</strong> sai da lista.</>}
+          open
+          title={<>Excluir <em>Pedido 12</em></>}
+        >
+          Texto longo.
+        </Dialog>,
+      );
+
+      const dialogo = screen.getByRole('dialog', { name: 'Excluir Pedido 12' });
+
+      expect(dialogo).toHaveAccessibleDescription('O pedido 12 sai da lista.');
+      expect(screen.getByRole('region', { name: 'Conteúdo de Excluir Pedido 12' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('sem titulo, o corpo que rola continua nomeado pelo aria-label', () => {
+      transbordar();
+      render(<Dialog aria-label="Buscar no sistema" open>Texto longo.</Dialog>);
+
+      expect(screen.getByRole('region', { name: 'Conteúdo de Buscar no sistema' })).toBeInTheDocument();
+    });
+  });
+
+  it('com flush, o corpo perde o respiro interno', () => {
+    const { rerender } = render(<Dialog open title="Itens">Corpo</Dialog>);
+    expect(screen.getByText('Corpo')).not.toHaveClass(styles.bodyFlush!);
+
+    rerender(<Dialog flush open title="Itens">Corpo</Dialog>);
+    expect(screen.getByText('Corpo')).toHaveClass(styles.bodyFlush!);
+  });
+
+  it('placement top prende o cartao perto do topo; o padrao continua centralizado', () => {
+    const { rerender } = render(<Dialog open title="Buscar" />);
+    expect(screen.getByRole('dialog')).not.toHaveClass(styles.top!);
+
+    rerender(<Dialog open placement="top" title="Buscar" />);
+    expect(screen.getByRole('dialog')).toHaveClass(styles.top!);
+  });
+
+  describe('help', () => {
+    it('fica ao lado do titulo, fora do h2 e do nome do dialogo, e o foco inicial continua no Fechar', () => {
+      render(<Dialog help="Os campos com asterisco são obrigatórios." open title="Cadastro" />);
+
+      const ajuda = screen.getByRole('img', { name: 'Os campos com asterisco são obrigatórios.' });
+
+      expect(screen.getByRole('dialog', { name: 'Cadastro' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Cadastro' })).not.toContainElement(ajuda);
+      expect(ajuda).toHaveAttribute('tabindex', '0');
+      expect(screen.getByRole('button', { name: 'Fechar' })).toHaveFocus();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('com help, o campo com autoFocus continua com o foco inicial', () => {
+      render(
+        <Dialog help="Ajuda" open title="Cadastro">
+          <input aria-label="Nome" autoFocus />
+        </Dialog>,
+      );
+
+      expect(screen.getByRole('textbox', { name: 'Nome' })).toHaveFocus();
+    });
+
+    it('o foco de teclado no icone abre a dica', () => {
+      render(<Dialog help="Os campos com asterisco são obrigatórios." open title="Cadastro" />);
+      const ajuda = screen.getByRole('img', { name: 'Os campos com asterisco são obrigatórios.' });
+
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      act(() => ajuda.focus());
+
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Os campos com asterisco são obrigatórios.');
+    });
+
+    it('sem help, o titulo continua sozinho no cabecalho', () => {
+      render(<Dialog open title="Cadastro" />);
+
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+      expect(document.querySelector(`.${styles.titleRow}`)).toBeNull();
+    });
+  });
+
   describe('corpo que rola', () => {
     it('fica focável e nomeado quando transborda, sem tirar o foco inicial do botão de fechar', () => {
       transbordar();
