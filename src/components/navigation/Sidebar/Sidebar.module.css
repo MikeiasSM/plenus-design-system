@@ -107,6 +107,10 @@
   list-style: none;
 }
 
+.railHeader {
+  padding-bottom: 8px;
+}
+
 .railFooter {
   margin-top: auto;
   padding-top: 8px;
