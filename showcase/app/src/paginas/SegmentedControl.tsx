@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Badge,
   Button,
   IconCalendar,
   IconChartBar,
@@ -162,6 +163,17 @@ function Variantes() {
   );
 }
 
+const SITUACOES_COM_CONTAGEM = [
+  { label: 'Abertos', value: 'abertos', trailing: <Badge size="sm">12</Badge>, description: 'Chamados sem resposta' },
+  { label: 'Atrasados', value: 'atrasados', trailing: <Badge size="sm" tone="danger">3</Badge>, description: 'Passaram do prazo' },
+  { label: 'Fechados', value: 'fechados', trailing: <Badge size="sm">240</Badge> },
+];
+
+const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((mes) => ({
+  label: mes,
+  value: mes.toLowerCase(),
+}));
+
 function Modos() {
   return (
     <dl className="modes">
@@ -178,6 +190,18 @@ function Modos() {
       <dd>Por baixo são rádios nativos: com <code>name</code>, a escolha vai ao formulário.</dd>
       <dt><code>disabled</code></dt>
       <dd>No grupo, desabilita todos os segmentos; no item, só aquele.</dd>
+      <dt><code>trailing</code> e <code>description</code></dt>
+      <dd>
+        No item: <code>trailing</code> aparece depois do rótulo, fora do nome; <code>description</code> é texto oculto que
+        descreve o rádio por <code>aria-describedby</code>.
+      </dd>
+      <dt>Estado do segmento</dt>
+      <dd>
+        O segmento leva <code>data-selected</code> quando escolhido e <code>data-disabled</code> quando desabilitado, e soma a{' '}
+        <code>className</code> do item.
+      </dd>
+      <dt>Rolagem</dt>
+      <dd>Quando o trilho não cabe, o escolhido entra na vista ao montar e ao mudar, sem rolar a página.</dd>
     </dl>
   );
 }
@@ -219,6 +243,30 @@ export const pagina: Pagina = {
       ),
       codigo:
         "<SegmentedControl\n  label=\"Situação\"\n  size=\"sm\"\n  items={[\n    { label: 'Todos', value: 'todos' },\n    { label: 'Ativos', value: 'ativos' },\n    { label: 'Inativos', value: 'inativos' },\n  ]}\n  defaultValue=\"todos\"\n/>\n<Button size=\"sm\" variant=\"secondary\">Exportar</Button>",
+    },
+    {
+      titulo: 'Com contagem e descrição',
+      descricao: 'O selo depois do rótulo é decorativo; a descrição oculta completa o que o rótulo curto não diz.',
+      Previa: () => <SegmentedControl defaultValue="abertos" items={SITUACOES_COM_CONTAGEM} label="Situação" />,
+      codigo: `<SegmentedControl
+  label="Situação"
+  items={[
+    { label: 'Abertos', value: 'abertos', trailing: <Badge size="sm">12</Badge>, description: 'Chamados sem resposta' },
+    { label: 'Atrasados', value: 'atrasados', trailing: <Badge size="sm" tone="danger">3</Badge>, description: 'Passaram do prazo' },
+    { label: 'Fechados', value: 'fechados', trailing: <Badge size="sm">240</Badge> },
+  ]}
+  defaultValue="abertos"
+/>`,
+    },
+    {
+      titulo: 'Trilho que rola',
+      descricao: 'Num espaço estreito, o mês escolhido entra na vista ao montar e a cada troca, sem rolar a página.',
+      Previa: () => (
+        <div style={{ maxWidth: 240 }}>
+          <SegmentedControl defaultValue="out" items={MESES} label="Mês" size="sm" />
+        </div>
+      ),
+      codigo: '<SegmentedControl label="Mês" size="sm" items={meses} defaultValue="out" />',
     },
   ],
   faca: {
@@ -262,8 +310,8 @@ export const pagina: Pagina = {
   api: [
     {
       nome: 'items',
-      tipo: '{ label: string; value: string; icon?: ReactNode; disabled?: boolean }[]',
-      descricao: 'Os segmentos. O label é o nome, mesmo com iconOnly.',
+      tipo: '{ label: string; value: string; icon?: ReactNode; disabled?: boolean; trailing?: ReactNode; description?: string; className?: string }[]',
+      descricao: 'Os segmentos. O label é o nome, mesmo com iconOnly; trailing fica fora do nome, e description descreve o rádio.',
     },
     { nome: 'label', tipo: 'string', descricao: 'Nome do grupo, para o leitor de tela. Opcional quando há aria-labelledby ou aria-label.' },
     { nome: 'value', tipo: 'string', descricao: 'Valor escolhido, no modo controlado.' },

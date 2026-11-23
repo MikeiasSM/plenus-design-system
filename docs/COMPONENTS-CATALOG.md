@@ -76,6 +76,8 @@ O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma
 
 `SegmentedControl` e `RadioGroup` fazem a mesma escolha única, e a fronteira é a forma: o `RadioGroup` é a lista de opções de um formulário, com legenda, ajuda e erro; o `SegmentedControl` é um controle compacto, de poucas opções curtas, que muda o que a tela mostra — o período de um painel, a lista ou os cartões. Por baixo ele também é rádio nativo. Com mais de cinco opções, ou opções longas, a escolha é `Select`. A fronteira com `Tabs` é o painel: a aba troca o conteúdo que ela controla; o segmento muda um valor.
 
+Cada item do `SegmentedControl` aceita `className`, somada à do segmento; `trailing`, conteúdo visível depois do rótulo, como uma contagem, decorativo e fora do nome (`aria-hidden`); e `description`, texto oculto ligado ao rádio por `aria-describedby`. O segmento leva `data-selected` quando é o escolhido e `data-disabled` quando está desabilitado, para o produto estilizá-lo. Quando o trilho não cabe e rola, o escolhido entra na vista ao montar e a cada troca, pela rolagem do próprio controle, sem rolar a página nem outros ancestrais.
+
 `CheckboxGroup` está para o `Checkbox` como o `RadioGroup` está para o `Radio`: a legenda, a ajuda, o erro e o valor do conjunto ficam no grupo, e cada `Checkbox` com `value` dentro dele lê o próprio estado dali. A fronteira com o `RadioGroup` é a quantidade: lá a escolha é uma só; aqui são quantas a pessoa quiser. Com lista longa ou que pede busca, a escolha é o `ComboBox` múltiplo.
 
 O `RadioGroup` e o `CheckboxGroup` aceitam `orientation`: na vertical, o padrão, uma opção por linha; na horizontal, lado a lado e com quebra de linha quando não couberem, para poucas opções curtas.
