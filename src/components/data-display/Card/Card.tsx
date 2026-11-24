@@ -255,6 +255,47 @@ function CardFooter({ children, className, start, ...props }: CardFooterProps) {
   );
 }
 
+export type CardMediaRatio = '1:1' | '4:3' | '16:9';
+export type CardMediaPlacement = 'top' | 'end';
+
+export interface CardMediaProps extends Omit<ComponentPropsWithRef<'img'>, 'children' | 'src' | 'alt'> {
+  /** Texto alternativo. Vazio quando a imagem só ilustra o que o texto ao lado já diz. */
+  alt: string;
+  /** `top`: largura toda, antes do cabecalho. `end`: ao fim da linha, ao lado do conteudo, como num item de lista. */
+  placement?: CardMediaPlacement;
+  ratio?: CardMediaRatio;
+  /** Sem endereco, ou se a imagem nao carregar, o `Card.Media` nao ocupa espaco: o cartao fica como sem imagem. */
+  src?: string | null;
+}
+
+/** Imagem do cartao. Cobre a area sem distorcer; sem imagem, some sem deixar buraco. */
+function CardMedia({ alt, className, onError, placement = 'top', ratio = placement === 'end' ? '1:1' : '16:9', src, ...props }: CardMediaProps) {
+  useCardContext('Card.Media');
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [src]);
+
+  if (!src || failed) {
+    return null;
+  }
+
+  return (
+    <img
+      decoding="async"
+      loading="lazy"
+      {...props}
+      alt={alt}
+      className={join(styles.media, placement === 'end' ? styles.mediaEnd : styles.mediaTop, styles['ratio' + ratio.replace(':', 'x')], className)}
+      onError={(event) => {
+        setFailed(true);
+        onError?.(event);
+      }}
+      src={src}
+    />
+  );
+}
+
 Card.Header = CardHeader;
 Card.Body = CardBody;
 Card.Footer = CardFooter;
+Card.Media = CardMedia;

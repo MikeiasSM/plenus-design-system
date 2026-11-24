@@ -284,3 +284,47 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Imagem do cartão. No topo, ocupa a largura toda antes do cabeçalho; no fim, o cartão vira linha, e a imagem fica ao
+   lado do conteúdo, no respiro do cartão. Sem imagem, o `Card.Media` não é desenhado, e nada disso vale. */
+.media {
+  display: block;
+  flex: none;
+  object-fit: cover;
+  background: var(--pl-color-surface-muted);
+}
+
+.mediaTop {
+  width: 100%;
+  height: auto;
+}
+
+.card:has(> .mediaEnd) {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.card:has(> .mediaEnd) > :not(.mediaEnd) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mediaEnd {
+  order: 1;
+  width: var(--card-media-size, 88px);
+  height: auto;
+  margin: var(--card-gap) var(--card-gap) var(--card-gap) 0;
+  border-radius: var(--pl-radius-md);
+}
+
+.ratio1x1 {
+  aspect-ratio: 1 / 1;
+}
+
+.ratio4x3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ratio16x9 {
+  aspect-ratio: 16 / 9;
+}

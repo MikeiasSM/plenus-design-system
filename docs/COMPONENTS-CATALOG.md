@@ -182,7 +182,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | --- | --- | --- |
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
 | `AvatarItem` | Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura. | Disponível |
-| `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
+| `Card` | Superfície que agrupa conteúdo, com cabeçalho, rodapé e imagem próprios. | Disponível |
 | `CardMetric` | Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
 | `Tag` | Etiqueta operada: removível, como o filtro ativo, ou de alternar. | Disponível |
@@ -249,6 +249,8 @@ O `DescriptionList` mostra pares de termo e descrição na marcação semântica
 O `AvatarItem` é a linha de uma pessoa ou entidade: o `avatar`, normalmente um `Avatar`, à esquerda, o `title` e, abaixo dele, a `description` opcional. Texto longo vira reticências em vez de estourar a largura, e a linha mantém a altura do avatar. Serve a células de tabela, listas de membros e cabeçalhos de contato; o `AvatarItem` não é um controle e não responde a clique. O título já mostra o nome, então o `Avatar` passado em `avatar` entra decorativo e o leitor de tela lê o nome uma vez só; com `decorative={false}` no `Avatar`, ele continua nomeado, para quando o título não é o nome.
 
 O `Avatar` mostra a foto de `src` ou, sem ela ou quando ela falha, as iniciais das duas primeiras palavras do `name`, ou as que vierem em `initials`, como a sigla de uma entidade. O fundo é só das iniciais; a foto não tem fundo e ganha um contorno sutil para dentro, que a separa da superfície sem mudar a medida. Os tamanhos são `xs` (24px, na fonte micro), `sm` (32px), `md` (40px) e `lg` (56px). O `name` é o nome acessível, no `alt` da foto ou no `aria-label` das iniciais; com `decorative`, o avatar sai da árvore de acessibilidade, com `alt=""` na foto e `aria-hidden` nas iniciais, para quando o nome já está escrito ao lado. As variáveis `--pl-avatar-bg` e `--pl-avatar-fg` trocam o fundo e o texto das iniciais; o componente só as lê, com o valor do sistema de reserva, e o produto as define em qualquer ancestral.
+
+O `Card.Media` é a imagem do cartão. Com `placement="top"`, o padrão, ocupa a largura toda antes do cabeçalho, em 16:9; com `placement="end"`, o cartão vira linha e a imagem fica ao fim dela, ao lado do conteúdo, quadrada e com `--card-media-size` de largura (88px por padrão), como num item de lista. `ratio` aceita `1:1`, `4:3` e `16:9`, e a imagem cobre a área sem distorcer. Sem `src`, ou se a imagem não carregar, o `Card.Media` não é desenhado e o cartão fica como sem imagem, sem buraco. `alt` é obrigatório e vazio quando a imagem só ilustra o texto ao lado.
 
 ## 6. Gráficos
 
