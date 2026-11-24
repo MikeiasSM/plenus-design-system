@@ -21,6 +21,7 @@ import {
   type ChartHoveredNode,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import {
@@ -40,7 +41,7 @@ export interface ChartTreemapNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartTreemapProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];

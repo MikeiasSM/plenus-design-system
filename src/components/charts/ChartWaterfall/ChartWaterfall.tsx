@@ -18,6 +18,7 @@ import {
   type AxisVisibility,
   type MarkVisibility,
   type ChartHeight,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type SeriesAppearance, type SeriesIntent } from '../palette';
@@ -38,7 +39,7 @@ export interface ChartWaterfallMark {
   step: ChartWaterfallStep;
 }
 
-export interface ChartWaterfallProps extends ChartRootProps {
+export interface ChartWaterfallProps extends ChartRootProps, ChartCardProps {
   emptyMessage?: string;
   /** Formato dos valores no balao. Sem ele, vale o `formatValue`: o eixo pode sair compacto e o balao, exato. */
   formatTooltipValue?: (value: number) => string;

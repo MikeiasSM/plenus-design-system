@@ -29,6 +29,7 @@ import {
   type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
@@ -41,7 +42,7 @@ export interface ChartSunburstNode extends SeriesAppearance {
   value?: number;
 }
 
-export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartSunburstProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Grupos ocultos de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];

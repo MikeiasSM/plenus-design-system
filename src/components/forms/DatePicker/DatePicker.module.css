@@ -129,11 +129,16 @@
 }
 
 .month {
+  display: inline-block;
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
   font-weight: var(--pl-type-label-weight);
-  text-transform: capitalize;
+}
+
+/* So a inicial: o `capitalize` subia tambem a preposicao ("Novembro De 2026"). */
+.month::first-letter {
+  text-transform: uppercase;
 }
 
 .navigate {
@@ -207,10 +212,27 @@
   color: var(--pl-color-text-tertiary);
 }
 
+/* A cor nao e o unico sinal: o dia recusado pelo produto tambem se risca. O fora da faixa so se apaga. */
+.excluded {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* Meses e anos em tres colunas, na largura da grade de dias. */
+.period {
+  width: calc(7 * 2.5rem / 3);
+  height: 2.75rem;
+  text-transform: capitalize;
+}
+
 .day[aria-current='date'] {
   font-weight: var(--pl-type-label-weight);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.day.excluded[aria-current='date'] {
+  text-decoration-line: underline line-through;
 }
 
 .rangeDay {

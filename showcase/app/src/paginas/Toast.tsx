@@ -184,6 +184,8 @@ function Modos() {
       <dd>Um botão só, como tentar de novo. Acioná-lo roda o <code>onClick</code> e fecha o aviso.</dd>
       <dt><code>dismissToast</code></dt>
       <dd><code>showToast</code> devolve o id; <code>dismissToast(id)</code> fecha o aviso antes do tempo.</dd>
+      <dt><code>showToast.promise</code></dt>
+      <dd>Carregando, sem anúncio e sem tempo, até a promessa terminar; então o mesmo aviso vira sucesso ou erro, e só isso se anuncia. Devolve a mesma promessa. No <code>useToast</code>, é <code>promiseToast</code>.</dd>
       <dt>Com um Dialog aberto</dt>
       <dd>O canto é camada de cima: continua visível ao leitor de tela, recebe o foco, e clicar num aviso não fecha o Dialog.</dd>
     </dl>
@@ -246,6 +248,40 @@ export const pagina: Pagina = {
       ),
       codigo:
         "showToast({\n  title: 'Registro removido',\n  actions: [\n    { label: 'Desfazer', onClick: desfazer },\n    { label: 'Ver detalhes', onClick: abrirDetalhes },\n  ],\n});",
+    },
+    {
+      titulo: 'Acompanhar uma promessa',
+      descricao: 'Um aviso só do começo ao fim: carregando enquanto a promessa espera, depois sucesso ou erro no mesmo lugar. Só o resultado se anuncia.',
+      Previa: () => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pl-space-3)' }}>
+          <Button
+            onClick={() =>
+              showToast.promise(new Promise<number>((resolve) => setTimeout(() => resolve(12), 2000)), {
+                error: 'Falha ao exportar',
+                loading: { description: 'Pode levar alguns segundos.', title: 'Exportando relatório' },
+                success: (paginas) => `Relatório exportado, ${paginas} páginas`,
+              })
+            }
+            variant="secondary"
+          >
+            Exportar
+          </Button>
+          <Button
+            onClick={() =>
+              showToast.promise(new Promise((_, reject) => setTimeout(() => reject(new Error('A conexão caiu.')), 2000)), {
+                error: (motivo) => ({ description: (motivo as Error).message, title: 'Falha ao exportar' }),
+                loading: 'Exportando relatório',
+                success: 'Relatório exportado',
+              }).catch(() => undefined)
+            }
+            variant="ghost"
+          >
+            Exportar com falha
+          </Button>
+        </div>
+      ),
+      codigo:
+        "await showToast.promise(exportar(), {\n  loading: { title: 'Exportando relatório', description: 'Pode levar alguns segundos.' },\n  success: (paginas) => `Relatório exportado, ${paginas} páginas`,\n  error: (motivo) => ({ title: 'Falha ao exportar', description: motivo.message }),\n});",
     },
     {
       titulo: 'Copiado',

@@ -1,0 +1,67 @@
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  font-family: var(--pl-font-body);
+}
+
+.label {
+  color: var(--pl-color-text);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-type-label-weight);
+  line-height: var(--pl-type-label-line-height);
+}
+
+/* Mesma casca do `Progress` medio. O contorno marca o fim da faixa: sem ele, o trilho vazio quase some no fundo
+   claro, e o preenchimento de atencao e de perigo parece encostar no nada. */
+.track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+  box-shadow: inset 0 0 0 1px var(--pl-control-border);
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* Os tons sao os de texto de cada estado, e nao os vivos: o vivo de sucesso e o de atencao nao chegam a 3:1
+   contra o trilho no tema claro. */
+.success {
+  background: var(--pl-color-on-success-container);
+}
+
+.warning {
+  background: var(--pl-color-on-warning-container);
+}
+
+.danger {
+  background: var(--pl-color-danger-text);
+}
+
+.brand {
+  background: var(--pl-color-primary-hover);
+}
+
+.value {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sem cor, o sombreado some: a borda desenha o trilho e o preenchimento fica na cor do texto. */
+@media (forced-colors: active) {
+  .track {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+
+  .fill {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}
