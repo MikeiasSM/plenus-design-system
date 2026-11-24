@@ -43,3 +43,10 @@
   flex: 1;
   text-align: center;
 }
+
+/* Com `followScroll`, a barra fica presa ao topo da área que rola, sobre a superfície, para o conteúdo passar por baixo. */
+.follow {
+  position: sticky;
+  z-index: 1;
+  background: var(--pl-color-surface);
+}

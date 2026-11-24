@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Drawer } from './Drawer';
 import styles from './Drawer.module.css';
@@ -140,5 +142,99 @@ describe('Drawer', () => {
     render(<Drawer description={<>Ajuste <strong>quem</strong> ve.</>} open title={<>Acesso de <em>Ana</em></>} />);
 
     expect(screen.getByRole('dialog', { name: 'Acesso de Ana' })).toHaveAccessibleDescription('Ajuste quem ve.');
+  });
+
+  it('na base, sobe da borda de baixo e continua um dialogo modal que fecha pelo botao', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer onOpenChange={onOpenChange} open side="bottom" size="lg" title="Detalhe do Produto B">
+        Detalhe do item.
+      </Drawer>,
+    );
+
+    const painel = screen.getByRole('dialog', { name: 'Detalhe do Produto B' });
+    expect(painel).toHaveAttribute('aria-modal', 'true');
+    expect(painel).toHaveClass(styles.lg!);
+    expect(painel.parentElement).toHaveClass(styles.bottom!);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('na base, sem title, e nomeado pelo aria-label e nao desenha o botao Fechar', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer
+        aria-label="Detalhe do Produto A"
+        footer={<button type="button" onClick={() => onOpenChange(false)}>Fechar detalhe</button>}
+        onOpenChange={onOpenChange}
+        open
+        side="bottom"
+      >
+        Detalhe do item.
+      </Drawer>,
+    );
+
+    const painel = screen.getByRole('dialog', { name: 'Detalhe do Produto A' });
+    expect(painel).toHaveAttribute('aria-modal', 'true');
+    expect(painel.parentElement).toHaveClass(styles.bottom!);
+    // Sem title nao ha cabecalho: a saida que o leitor de tela alcanca e o botao que o produto pos.
+    expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar detalhe' }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('na base, o rodape leva a classe que estende o fundo dele pela area segura', () => {
+    render(
+      <Drawer footer={<button type="button">Salvar</button>} open side="bottom" title="Relatório mensal">
+        Corpo.
+      </Drawer>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Salvar' }).parentElement).toHaveClass(styles.footer!);
+  });
+
+  it('nas laterais, o size continua a largura maxima, sem o teto de altura da base', () => {
+    const { rerender } = render(<Drawer open side="left" size="sm" title="Filtros" />);
+    let painel = screen.getByRole('dialog', { name: 'Filtros' });
+    expect(painel).toHaveClass(styles.drawer!, styles.sm!);
+    expect(painel.parentElement).toHaveClass(styles.left!);
+    expect(painel.parentElement).not.toHaveClass(styles.bottom!);
+
+    rerender(<Drawer open side="right" size="lg" title="Filtros" />);
+    painel = screen.getByRole('dialog', { name: 'Filtros' });
+    expect(painel).toHaveClass(styles.drawer!, styles.lg!);
+    expect(painel.parentElement).toHaveClass(styles.right!);
+    expect(painel.parentElement).not.toHaveClass(styles.bottom!);
+  });
+
+  it('nas laterais, a folha define a largura de cada size, e o teto de altura so vale sob a base', () => {
+    const css = readFileSync(resolve(__dirname, 'Drawer.module.css'), 'utf8');
+
+    expect(css).toMatch(/^\.sm \{\s*max-width: 360px;\s*\}/m);
+    expect(css).toMatch(/^\.md \{\s*max-width: 480px;\s*\}/m);
+    expect(css).toMatch(/^\.lg \{\s*max-width: 640px;\s*\}/m);
+    // Toda altura maxima da folha fica presa a `.bottom`, e nao alcanca a esquerda nem a direita.
+    const regrasComAltura = css.match(/[^{}]+\{[^}]*max-height[^}]*\}/g) ?? [];
+    expect(regrasComAltura).toHaveLength(3);
+    regrasComAltura.forEach((regra) => expect(regra.trim()).toMatch(/^\.bottom \./));
+  });
+
+  it('na base, o Esc e o toque fora fecham', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer onOpenChange={onOpenChange} open side="bottom" title="Relatório mensal">
+        Corpo.
+      </Drawer>,
+    );
+    const painel = screen.getByRole('dialog', { name: 'Relatório mensal' });
+
+    fireEvent.keyDown(painel, { key: 'Escape' });
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+
+    fireEvent.mouseDown(painel.parentElement!);
+    fireEvent.mouseUp(painel.parentElement!);
+    expect(onOpenChange.mock.calls).toEqual([[false], [false]]);
   });
 });
