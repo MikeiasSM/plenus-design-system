@@ -61,7 +61,6 @@
 .primary {
   --button-hover-shadow: var(--pl-color-primary);
   background: var(--pl-button-bg, var(--pl-color-primary));
-  border-color: var(--pl-button-border, var(--pl-color-primary-outline, transparent));
   color: var(--pl-button-fg, var(--pl-color-on-primary));
 }
 

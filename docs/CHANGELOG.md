@@ -29,10 +29,11 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportable` nos gráficos da moldura comum (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartWaterfall`, `ChartScatter`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey`): menu "Opções do gráfico" com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco; o SVG sai com os estilos embutidos e o PNG no dobro da resolução, sem dependência nova.
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
-- `createPalette` declara `--pl-color-primary-outline`, com o traço, quando o preenchimento ou o fundo do hover do `Button` primário fica abaixo de 3:1 contra a superfície clara. `Switch` ligado, `Checkbox` marcado e `Button` primário o usam como borda; sem a declaração, nada muda (roadmap 0.8.0, item 26a).
+- Token `--pl-color-primary-outline`: a borda do preenchimento primário no `Switch` ligado e no `Checkbox` marcado. `createPalette` o declara, com o traço da paleta no tema claro e o próprio preenchimento no escuro, quando o preenchimento fica abaixo de 3:1 contra a superfície clara. As paletas fixas não o declaram, e cada escopo de `data-palette` o zera, para a paleta aninhada não herdar o contorno da de fora.
 
 ### Corrigido
 
+- `Switch` e `Checkbox`: numa paleta própria de cor clara, como o amarelo, o `Switch` ligado e o `Checkbox` marcado ficavam abaixo de 3:1 contra a superfície clara e se perdiam na tela. Agora ganham uma borda no traço da paleta, mais escura que o preenchimento. Nas paletas fixas e nas cores que já chegam a 3:1, nada muda.
 - `TabsNav`: sem `fitted`, as abas também dividiam a largura em partes iguais e a faixa nunca rolava, por um seletor quebrado na folha. Agora cada aba tem o tamanho do rótulo e a faixa rola quando não cabe, como nas `Tabs`.
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o dia recusado por `isDateUnavailable` só se distinguia pela cor. Agora também fica riscado no calendário e se anuncia com ", indisponível".
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o título do mês no calendário punha maiúscula em todas as palavras ("Novembro De 2026"). Agora só a inicial ("Novembro de 2026").

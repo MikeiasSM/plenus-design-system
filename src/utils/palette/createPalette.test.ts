@@ -164,7 +164,9 @@ describe('fill tokens under the primary text', () => {
   });
 });
 
-describe('outline of a faint fill (roadmap 26a)', () => {
+describe('outline of a faint fill', () => {
+  const button = readFileSync(resolve(process.cwd(), 'src/components/actions/Button/Button.module.css'), 'utf8');
+
   it('declares the stroke as outline when the fill is below 3:1 on the light surface', () => {
     const style = tokens('#EED037');
 
@@ -173,17 +175,22 @@ describe('outline of a faint fill (roadmap 26a)', () => {
     expect(contrast(style['--pl-palette-strong-light'], '#FFFFFF')).toBeGreaterThanOrEqual(3);
   });
 
-  it('declares nothing when the fill and its hover stand out on the surface', () => {
+  it('declares nothing when the fill stands out on the surface', () => {
     expect(tokens('#111111')['--pl-color-primary-outline']).toBeUndefined();
     expect(tokens('#49619C')['--pl-color-primary-outline']).toBeUndefined();
   });
 
-  it('also looks at the hover fill of the primary Button', () => {
+  it('ignores the hover and pressed fills, which only sit under the text of the primary Button', () => {
     const style = tokens('#FF3B00');
+    const hover = style['--pl-palette-fill-hover']?.match(/#[0-9A-F]{6}/)?.[0];
 
     expect(contrast('#FF3B00', '#FFFFFF')).toBeGreaterThanOrEqual(3);
-    const hover = style['--pl-palette-fill-hover']?.match(/#[0-9A-F]{6}/)?.[0] ?? style['--pl-palette-60'];
-    expect(style['--pl-color-primary-outline'] !== undefined).toBe(contrast(hover, '#FFFFFF') < 3);
+    expect(contrast(hover!, '#FFFFFF')).toBeLessThan(3);
+    expect(style['--pl-color-primary-outline']).toBeUndefined();
+  });
+
+  it('is not used by the primary Button, whose text needs no 3:1 boundary', () => {
+    expect(button).not.toContain('--pl-color-primary-outline');
   });
 });
 
