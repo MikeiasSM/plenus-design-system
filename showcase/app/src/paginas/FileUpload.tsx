@@ -351,9 +351,9 @@ export const pagina: Pagina = {
     },
     {
       nome: 'items',
-      tipo: "{ id; name; size; status: 'uploading' | 'done' | 'error'; progress?; error?; statusLabel? }[]",
+      tipo: "{ id; name; size; status: 'uploading' | 'done' | 'error'; progress?; error?; statusLabel?; preview? }[]",
       padrao: '[]',
-      descricao: 'Os envios, mantidos pelo produto, que informa o progresso de 0 a 100. statusLabel vence Enviando e Enviado; sem progress, a barra é indeterminada.',
+      descricao: 'Os envios, mantidos pelo produto, que informa o progresso de 0 a 100. statusLabel vence Enviando e Enviado; sem progress, a barra é indeterminada. preview: { file, src, kind } põe o FilePreview sm no lugar do ícone; com file, a prévia cria e revoga a URL de objeto.',
     },
     { nome: 'onCancel', tipo: '(id: string) => void', descricao: 'Cancela o que está subindo.' },
     { nome: 'onRetry', tipo: '(id: string) => void', descricao: 'Tenta de novo o que falhou.' },
