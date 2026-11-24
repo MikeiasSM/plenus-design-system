@@ -92,6 +92,20 @@ describe('ColorPicker', () => {
     expect(new FormData(screen.getByTestId('form') as HTMLFormElement).get('cor')).toBe('');
   });
 
+  it('com form, a escolha vai ao formulário desse id, e não ao que envolve o grupo', () => {
+    render(
+      <>
+        <form data-testid="fora" id="outro-formulario" />
+        <form data-testid="em-volta">
+          <ColorPicker defaultValue="azul" form="outro-formulario" label="Cor do texto" name="cor" options={cores} />
+        </form>
+      </>,
+    );
+
+    expect(new FormData(screen.getByTestId('em-volta') as HTMLFormElement).get('cor')).toBeNull();
+    expect(new FormData(screen.getByTestId('fora') as HTMLFormElement).get('cor')).toBe('azul');
+  });
+
   it('disables every swatch', () => {
     render(<ColorPicker defaultOption={{}} disabled label="Cor do texto" options={cores} />);
 

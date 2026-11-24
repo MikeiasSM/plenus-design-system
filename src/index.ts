@@ -90,6 +90,8 @@ export type { TextareaProps, TextareaSize } from './components/forms/Textarea';
 export { Checkbox } from './components/forms/Checkbox';
 export { CheckboxGroup } from './components/forms/CheckboxGroup';
 export type { CheckboxGroupOrientation, CheckboxGroupProps, CheckboxGroupVariant } from './components/forms/CheckboxGroup';
+export { ColorField, normalizeHex } from './components/forms/ColorField';
+export type { ColorFieldProps, ColorFieldSuggestion } from './components/forms/ColorField';
 export { ColorPicker } from './components/forms/ColorPicker';
 export type { ColorPickerOption, ColorPickerProps, ColorPickerSize } from './components/forms/ColorPicker';
 export { FileUpload } from './components/forms/FileUpload';

@@ -56,6 +56,7 @@ export const familias: readonly Familia[] = [
       componente('Calendar', 'Calendário solto na página, para ver a disponibilidade e escolher uma data ou um intervalo.'),
       componente('TimePicker', 'Entrada de hora.'),
       componente('DateTimePicker', 'Entrada de data e hora combinadas.'),
+      componente('ColorField', 'Cor livre: código hexadecimal, amostras sugeridas pelo produto e conta-gotas onde o navegador tiver.'),
       componente('ColorPicker', 'Escolha de cor entre amostras definidas pelo produto.'),
       componente('FileUpload', 'Seleção de arquivos, por clique ou arrasto, com a lista dos envios.'),
       componente('FieldRow', 'Linha de ajuste: rótulo e explicação de um lado, o controle do outro.'),
