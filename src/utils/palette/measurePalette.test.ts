@@ -27,6 +27,13 @@ describe('measurePalette', () => {
     expect(texto).toMatchObject({ adjusted: true, passes: false, ratio: 3.57 });
   });
 
+  it('decides passes on the raw ratio, not on the rounded one it shows', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const texto = measurePalette('#727272', { onSolid: '#FFFF3D' }).find((item) => item.role === 'text-on-fill')!;
+
+    expect(texto).toMatchObject({ minimum: 4.5, passes: false, ratio: 4.5 });
+  });
+
   it('refuses the same colors as createPalette', () => {
     expect(() => measurePalette('#FFE14D')).toThrow(RangeError);
     expect(() => measurePalette('amarelo')).toThrow(TypeError);

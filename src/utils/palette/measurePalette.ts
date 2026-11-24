@@ -15,10 +15,11 @@ export interface PaletteMeasure {
   foreground: string;
   /** Cor do fundo da medida. */
   background: string;
-  /** Razao de contraste da WCAG, com duas casas. */
+  /** Razao de contraste da WCAG, arredondada a duas casas so para mostrar. */
   ratio: number;
   /** 4,5 para texto; 3 para o contorno de controle. */
   minimum: number;
+  /** Se a razao, sem arredondar, chega ao minimo: 4,4952 reprova, embora se mostre 4,5. */
   passes: boolean;
   /** A paleta usa, neste papel, outra cor que nao a informada ou o passo padrao da rampa. */
   adjusted: boolean;
@@ -27,9 +28,9 @@ export interface PaletteMeasure {
 const lightOf = (value: string | undefined) => value?.match(/#[0-9A-F]{6}/i)?.[0]?.toUpperCase();
 
 function measure(role: PaletteRole, foreground: string, background: string, minimum: number, adjusted: boolean): PaletteMeasure {
-  const ratio = Math.round(contrast(foreground, background) * 100) / 100;
+  const ratio = contrast(foreground, background);
 
-  return { adjusted, background, foreground, minimum, passes: ratio >= minimum, ratio, role };
+  return { adjusted, background, foreground, minimum, passes: ratio >= minimum, ratio: Math.round(ratio * 100) / 100, role };
 }
 
 /**
