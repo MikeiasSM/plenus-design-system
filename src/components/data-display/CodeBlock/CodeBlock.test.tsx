@@ -35,6 +35,38 @@ describe('CodeBlock', () => {
     expect(screen.getByRole('status')).toBeEmptyDOMElement();
   });
 
+  it('anuncia a falha e seleciona o código quando o navegador recusa a cópia', async () => {
+    vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn().mockRejectedValue(new DOMException('negado', 'NotAllowedError')) } });
+    const { container } = render(<CodeBlock code={trecho} />);
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Copiar' })));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Não foi possível copiar');
+    expect(window.getSelection()?.getRangeAt(0).commonAncestorContainer).toBe(container.querySelector('code'));
+  });
+
+  it('anuncia a falha quando a página não tem a Clipboard API', async () => {
+    vi.stubGlobal('navigator', {});
+    render(<CodeBlock code={trecho} />);
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Copiar' })));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Não foi possível copiar');
+  });
+
+  it('recomeça o aviso quando copia de novo antes do fim', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    render(<CodeBlock code={trecho} />);
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Copiar' })));
+    act(() => vi.advanceTimersByTime(1500));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Copiado' })));
+    act(() => vi.advanceTimersByTime(1500));
+
+    expect(screen.getByRole('button', { name: 'Copiado' })).toBeInTheDocument();
+  });
+
   it('mostra o arquivo e a linguagem no cabecalho', () => {
     const { container } = render(<CodeBlock code={trecho} copyable={false} fileName="Main.java" language="Java" />);
 

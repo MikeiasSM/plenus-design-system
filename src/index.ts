@@ -256,6 +256,8 @@ export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { SidePanel } from './components/overlays/SidePanel';
 export type { SidePanelProps, SidePanelSide, SidePanelSize } from './components/overlays/SidePanel';
+export { CopyField } from './components/data-display/CopyField';
+export type { CopyFieldLabels, CopyFieldProps } from './components/data-display/CopyField';
 export { FilePreview } from './components/data-display/FilePreview';
 export type { FilePreviewKind, FilePreviewProps, FilePreviewSize, FilePreviewStatus } from './components/data-display/FilePreview';
 export { Badge } from './components/data-display/Badge';

@@ -37,6 +37,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `FilePreview`: quadro de prévia de arquivo, em 40, 56 ou 96px, com imagem ou pôster, ícone de reserva, play num disco escuro no vídeo, estado em borda e ícone (também no `sm`), progresso e selo. A imagem vem de `src` ou de `file`, o próprio `File` ou `Blob`, e com `file` o quadro cria a URL de objeto ao montar e a revoga quando o arquivo troca e ao desmontar. A imagem que falhou antes da hidratação também cai no ícone de reserva; o progresso é limitado de 0 a 100, e `NaN` o deixa indeterminado. Em cores forçadas, o erro ganha borda dupla. `FileUploadItem` ganha `preview` (`{ file, src, kind }`), que põe o quadro `sm` no lugar do ícone do item. Tipos `FilePreviewKind`, `FilePreviewProps`, `FilePreviewSize` e `FilePreviewStatus`.
 - `ColorField`: campo de cor livre, com o código hexadecimal, as amostras sugeridas pelo produto (`suggestions`) e o conta-gotas do navegador onde ele existir. Exporta também `normalizeHex`.
 - `form` no `ColorPicker`: o `id` do formulário dos rádios, como o atributo nativo. Leva a escolha a um formulário fora do grupo.
+- `CopyField`: valor copiável, com rótulo, valor em fonte mono, botão "Copiar" que passa a "Copiado" e anuncia como status, e valor oculto opcional (`masked`) com "Mostrar". O nome do botão leva o rótulo do campo ("Copiar <rótulo>"). A recusa da cópia é anunciada ("Não foi possível copiar"), e o valor à vista fica selecionado para copiar pelo teclado. `labels` troca os textos. Tipos `CopyFieldLabels` e `CopyFieldProps`.
 
 ### Corrigido
 
@@ -46,6 +47,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o dia recusado por `isDateUnavailable` só se distinguia pela cor. Agora também fica riscado no calendário e se anuncia com ", indisponível".
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o título do mês no calendário punha maiúscula em todas as palavras ("Novembro De 2026"). Agora só a inicial ("Novembro de 2026").
 - `Drawer`: em cores forçadas, a sombra sumia e a gaveta da esquerda ou da direita não se separava da página. Agora a face de dentro tem uma borda, transparente no uso comum, que vira a cor do texto do sistema.
+- `CodeBlock`: quando o navegador recusava a cópia, ou a página não tinha a Clipboard API, como em HTTP, o botão "Copiar" não fazia nada e não avisava. Agora a região de status anuncia "Não foi possível copiar" e o código fica selecionado para copiar pelo teclado. Copiar de novo antes do fim do aviso recomeça os dois segundos e anuncia outra vez.
 
 ## [0.7.1] — 2026-11-24
 

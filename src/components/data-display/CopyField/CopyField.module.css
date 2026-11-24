@@ -1,0 +1,59 @@
+.copyField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.label {
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-label-size);
+  font-weight: var(--pl-weight-semibold);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  padding: var(--pl-space-1) var(--pl-space-1) var(--pl-space-1) var(--pl-space-3);
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-muted);
+}
+
+/* O valor quebra em qualquer ponto: uma chave longa nao empurra os botoes para fora. */
+.value {
+  flex: 1;
+  min-width: 0;
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-mono);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  overflow-wrap: anywhere;
+}
+
+.masked {
+  letter-spacing: 0.1em;
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  gap: var(--pl-space-1);
+}
+
+/* O botao chega a 44px de altura no toque, pela regra comum dos controles com `pointer: coarse`. */
+
+.hint {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}
+
+.error {
+  color: var(--pl-color-danger-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+}

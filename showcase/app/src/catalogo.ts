@@ -86,6 +86,7 @@ export const familias: readonly Familia[] = [
       componente('Kbd', 'Tecla ou combinação de teclas, no texto, na dica, no botão ou no menu.', { importa: 'Kbd, formatShortcut' }),
       componente('Accordion', 'Seções expansíveis de conteúdo.'),
       componente('CodeBlock', 'Trecho de código para leitura, com cópia, numeração e destaque de linhas.'),
+      componente('CopyField', 'Valor copiável: rótulo, valor em fonte mono, "Copiar" e, se pedido, o valor oculto com "Mostrar".'),
       componente('Timeline', 'Histórico de estados de um registro, com datas e o estado atual destacado.'),
       componente('ActivityFeed', 'Registro do que aconteceu, do mais recente ao mais antigo, com comentários.'),
       componente('NumberedList', 'Sequência numerada de passos que explica como algo funciona, sem etapa atual.'),
