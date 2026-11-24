@@ -36,6 +36,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `TabsNav`: sem `fitted`, as abas também dividiam a largura em partes iguais e a faixa nunca rolava, por um seletor quebrado na folha. Agora cada aba tem o tamanho do rótulo e a faixa rola quando não cabe, como nas `Tabs`.
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o dia recusado por `isDateUnavailable` só se distinguia pela cor. Agora também fica riscado no calendário e se anuncia com ", indisponível".
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o título do mês no calendário punha maiúscula em todas as palavras ("Novembro De 2026"). Agora só a inicial ("Novembro de 2026").
+- `CodeBlock`: quando o navegador recusava a cópia, ou a página não tinha a Clipboard API, como em HTTP, o botão "Copiar" não fazia nada e não avisava. Agora a região de status anuncia "Não foi possível copiar" e o código fica selecionado para copiar pelo teclado. Copiar de novo antes do fim do aviso recomeça os dois segundos e anuncia outra vez.
 
 ## [0.7.1] — 2026-11-24
 

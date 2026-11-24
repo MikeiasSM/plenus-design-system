@@ -1,6 +1,8 @@
-import { useEffect, useState, type ComponentPropsWithRef } from 'react';
+import { useRef, type ComponentPropsWithRef } from 'react';
 import { Button } from '../../actions/Button';
 import styles from './CodeBlock.module.css';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
+import { selectContents } from '../../../utils/clipboard/clipboard';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 import { SYNTAX_LABELS, tokenizeLines, type CodeSyntax } from './syntax';
 
@@ -32,17 +34,16 @@ export function CodeBlock({
   wrap = false,
   ...props
 }: CodeBlockProps) {
-  const [copied, setCopied] = useState(false);
+  const codeRef = useRef<HTMLElement>(null);
+  const { copy, count, status } = useCopyToClipboard(COPY_FEEDBACK_MS);
+  const copied = status === 'copied';
 
-  useEffect(() => {
-    if (!copied) {
-      return;
+  // Sem a cópia automática, o código fica selecionado para a pessoa copiar pelo teclado.
+  async function copyCode() {
+    if (!(await copy(code))) {
+      selectContents(codeRef.current);
     }
-
-    const timer = setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
-
-    return () => clearTimeout(timer);
-  }, [copied]);
+  }
 
   const highlighted = new Set(highlightedLines);
   const label = language ?? (syntax && SYNTAX_LABELS[syntax]);
@@ -58,7 +59,7 @@ export function CodeBlock({
           </span>
           {copyable && (
             <Button
-              onClick={() => void navigator.clipboard?.writeText(code).then(() => setCopied(true))}
+              onClick={() => void copyCode()}
               size="sm"
               variant="ghost"
             >
@@ -66,7 +67,7 @@ export function CodeBlock({
             </Button>
           )}
           <span className={styles.status} role="status">
-            {copied ? 'Código copiado' : ''}
+            {status !== 'idle' && <span key={count}>{copied ? 'Código copiado' : 'Não foi possível copiar. O código ficou selecionado.'}</span>}
           </span>
         </div>
       )}
@@ -75,7 +76,7 @@ export function CodeBlock({
         className={[styles.body, wrap && styles.wrap, lineNumbers && styles.numbered, !wrap && thinScrollbar].filter(Boolean).join(' ')}
         tabIndex={wrap ? undefined : 0}
       >
-        <code className={styles.code}>
+        <code className={styles.code} ref={codeRef}>
           {tokenizeLines(code, syntax).map((tokens, index) => {
             const Line = highlighted.has(index + 1) ? 'mark' : 'span';
 
