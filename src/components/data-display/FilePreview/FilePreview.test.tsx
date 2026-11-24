@@ -1,14 +1,32 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
 import { FileUpload } from '../../forms/FileUpload';
 import { FilePreview } from './FilePreview';
 import styles from './FilePreview.module.css';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+/** O jsdom nao tem URL de objeto: cada chamada devolve um endereco novo, e as revogacoes ficam registradas. */
+function espionarUrls() {
+  let contador = 0;
+  const criar = vi.fn(() => `blob:exemplo/${++contador}`);
+  const revogar = vi.fn();
+  Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: criar, writable: true });
+  Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revogar, writable: true });
+  return { criar, revogar };
+}
 
 describe('FilePreview', () => {
   it('e decorativo por padrao e mostra a imagem', () => {
     const { container } = render(<FilePreview src="/logo.png" />);
 
     expect(container.firstChild).toHaveAttribute('aria-hidden', 'true');
-    expect(container.querySelector('img')).toHaveAttribute('src', '/logo.png');
+    const imagem = container.querySelector('img');
+    expect(imagem).toHaveAttribute('src', '/logo.png');
+    expect(imagem).toHaveAttribute('decoding', 'async');
+    expect(imagem).toHaveAttribute('loading', 'lazy');
   });
 
   it('tem nome quando recebe alt', () => {
@@ -24,6 +42,84 @@ describe('FilePreview', () => {
 
     rerender(<FilePreview src="/quebrada.png" />);
     fireEvent.error(container.querySelector('img')!);
+    expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('volta a tentar a imagem quando o endereco troca depois de uma falha', () => {
+    const { container, rerender } = render(<FilePreview src="/quebrada.png" />);
+    fireEvent.error(container.querySelector('img')!);
+    expect(container.querySelector('img')).toBeNull();
+
+    rerender(<FilePreview src="/outra.png" />);
+    expect(container.querySelector('img')).toHaveAttribute('src', '/outra.png');
+
+    rerender(<FilePreview src="/quebrada.png" />);
+    expect(container.querySelector('img')).toHaveAttribute('src', '/quebrada.png');
+  });
+
+  it('cai no icone quando a imagem ja tinha falhado antes de montar, como na hidratacao', async () => {
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(0);
+    Object.defineProperty(HTMLImageElement.prototype, 'decode', {
+      configurable: true,
+      value: () => Promise.reject(new Error('quebrada')),
+      writable: true,
+    });
+
+    try {
+      const { container } = render(<FilePreview src="/quebrada.png" />);
+      await act(async () => {});
+
+      expect(container.querySelector('img')).toBeNull();
+      expect(container.querySelector('svg')).not.toBeNull();
+    } finally {
+      delete (HTMLImageElement.prototype as { decode?: unknown }).decode;
+    }
+  });
+
+  it('mantem a imagem que ja carregou antes de montar', async () => {
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(120);
+
+    const { container } = render(<FilePreview src="/logo.png" />);
+    await act(async () => {});
+
+    expect(container.querySelector('img')).toHaveAttribute('src', '/logo.png');
+  });
+
+  it('cria a URL do arquivo ao montar e a revoga ao trocar o arquivo e ao desmontar', () => {
+    const { criar, revogar } = espionarUrls();
+    const primeiro = new Blob(['a'], { type: 'image/png' });
+    const segundo = new Blob(['b'], { type: 'image/png' });
+
+    const { container, rerender, unmount } = render(<FilePreview file={primeiro} progress={10} status="uploading" />);
+    expect(criar).toHaveBeenCalledTimes(1);
+    expect(criar).toHaveBeenCalledWith(primeiro);
+    expect(container.querySelector('img')).toHaveAttribute('src', 'blob:exemplo/1');
+
+    rerender(<FilePreview file={primeiro} progress={60} status="uploading" />);
+    expect(criar).toHaveBeenCalledTimes(1);
+    expect(revogar).not.toHaveBeenCalled();
+
+    rerender(<FilePreview file={segundo} progress={60} status="uploading" />);
+    expect(revogar).toHaveBeenCalledWith('blob:exemplo/1');
+    expect(container.querySelector('img')).toHaveAttribute('src', 'blob:exemplo/2');
+
+    unmount();
+    expect(revogar).toHaveBeenCalledWith('blob:exemplo/2');
+    expect(revogar).toHaveBeenCalledTimes(2);
+  });
+
+  it('revoga a URL quando o arquivo sai, e o file vale sobre o src', () => {
+    const { criar, revogar } = espionarUrls();
+    const arquivo = new Blob(['a'], { type: 'image/png' });
+
+    const { container, rerender } = render(<FilePreview file={arquivo} src="/ignorado.png" />);
+    expect(criar).toHaveBeenCalledTimes(1);
+    expect(container.querySelector('img')).toHaveAttribute('src', 'blob:exemplo/1');
+
+    rerender(<FilePreview file={null} />);
+    expect(revogar).toHaveBeenCalledWith('blob:exemplo/1');
     expect(container.querySelector('img')).toBeNull();
   });
 
@@ -48,10 +144,21 @@ describe('FilePreview', () => {
     expect(container.querySelector(`.${styles.stateError}`)).not.toBeNull();
   });
 
-  it('mostra o selo', () => {
-    render(<FilePreview badge="PDF" kind="file" />);
+  it('limita o progresso e trata NaN como indeterminado', () => {
+    const { container, rerender } = render(<FilePreview progress={140} status="uploading" />);
+    expect((container.firstChild as HTMLElement).style.getPropertyValue('--file-preview-progress')).toBe('100%');
 
+    rerender(<FilePreview progress={Number.NaN} status="uploading" />);
+    expect((container.firstChild as HTMLElement).style.getPropertyValue('--file-preview-progress')).toBe('');
+    expect(container.querySelector(`.${styles.indeterminate}`)).not.toBeNull();
+  });
+
+  it('mostra o selo, inclusive o zero', () => {
+    const { rerender } = render(<FilePreview badge="PDF" kind="file" />);
     expect(screen.getByText('PDF', { selector: `.${styles.badge}` })).toBeInTheDocument();
+
+    rerender(<FilePreview badge={0} kind="file" />);
+    expect(screen.getByText('0', { selector: `.${styles.badge}` })).toBeInTheDocument();
   });
 });
 

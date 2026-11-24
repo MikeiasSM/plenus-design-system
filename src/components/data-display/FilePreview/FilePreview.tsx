@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentPropsWithRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentPropsWithRef, type CSSProperties, type ReactNode } from 'react';
 import { IconCheckCircle, IconExclamationCircle, IconFile } from '../../icons';
 import { Icon } from '../../icons/Icon';
 import styles from './FilePreview.module.css';
@@ -13,15 +13,24 @@ export type FilePreviewSize = 'sm' | 'md' | 'lg';
 export interface FilePreviewProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** Nome da previa. Vazio, o padrao, a previa e decorativa, porque o nome do arquivo esta ao lado. */
   alt?: string;
-  /** Selo curto no canto de cima, como "PDF" ou "512 × 512". */
+  /** Selo curto no canto de cima, como "PDF" ou "512 × 512". Fica fora da vista no `sm`. */
   badge?: ReactNode;
+  /**
+   * O proprio arquivo, como o `File` recebido em `onFilesSelected`. A previa cria a URL de objeto e a revoga quando o
+   * arquivo troca ou o quadro sai da tela. Passe sempre o mesmo objeto: um `Blob` novo a cada render cria uma URL nova.
+   * Vale sobre `src`.
+   */
+  file?: Blob | null;
   /** Icone de reserva, sem imagem ou quando ela nao carrega. Padrao: o icone de arquivo. */
   icon?: ReactNode;
   kind?: FilePreviewKind;
-  /** De 0 a 100, em `uploading`. Sem ele, o progresso e indeterminado. E desenho: o numero acessivel fica com quem usa. */
+  /** De 0 a 100, em `uploading`. Sem ele, ou fora de numero, o progresso e indeterminado. E desenho: o numero acessivel fica com quem usa. */
   progress?: number;
   size?: FilePreviewSize;
-  /** Imagem, ou poster do video. Sem ele, ou se nao carregar, aparece o icone de reserva. */
+  /**
+   * Imagem, ou poster do video, por endereco. Sem ele, ou se nao carregar, aparece o icone de reserva. A imagem inteira e
+   * decodificada para o quadro: para arquivo grande, prefira uma miniatura feita pelo produto.
+   */
   src?: string | null;
   status?: FilePreviewStatus;
 }
@@ -35,11 +44,33 @@ function IconPlay() {
   );
 }
 
+/**
+ * A URL de objeto do arquivo: criada depois de montar, revogada quando o arquivo troca e quando o quadro desmonta. A URL
+ * fica guardada com o arquivo que a gerou, para que o render do arquivo novo nunca use a do anterior, ja revogada.
+ */
+function useObjectUrl(file: Blob | null | undefined) {
+  const [entry, setEntry] = useState<{ file: Blob; url: string } | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(file);
+    setEntry({ file, url });
+
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  return file && entry?.file === file ? entry.url : null;
+}
+
 /** Quadro de previa de arquivo: imagem ou poster, icone de reserva, play no video, estado na borda e no icone, progresso e selo. */
 export function FilePreview({
   alt = '',
   badge,
   className,
+  file,
   icon,
   kind = 'image',
   progress,
@@ -49,13 +80,54 @@ export function FilePreview({
   style,
   ...props
 }: FilePreviewProps) {
-  const [failed, setFailed] = useState(false);
+  const objectUrl = useObjectUrl(file);
+  const resolved = (file ? objectUrl : src) || null;
+  // Guarda qual endereco falhou, e nao um sim ou nao. Trocado o endereco, a falha e zerada no proprio render, sem
+  // efeito: a imagem nova nunca pisca no icone, e voltar a um endereco que falhou tenta de novo.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [lastSrc, setLastSrc] = useState(resolved);
 
-  useEffect(() => setFailed(false), [src]);
+  if (lastSrc !== resolved) {
+    setLastSrc(resolved);
+    setFailedSrc(null);
+  }
 
-  const showImage = Boolean(src) && !failed && kind !== 'file';
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const showImage = resolved !== null && failedSrc !== resolved && kind !== 'file';
+
+  // A imagem que falhou antes da hidratacao nao dispara mais `onError`: ao montar, o quadro confere se ela ja terminou
+  // sem tamanho. SVG sem medida propria tambem termina com largura 0, entao `decode` confirma antes de cair no icone.
+  useEffect(() => {
+    const image = imageRef.current;
+
+    if (!image || !resolved || !image.complete || image.naturalWidth > 0) {
+      return undefined;
+    }
+
+    let ativo = true;
+    const falhar = () => {
+      if (ativo) {
+        setFailedSrc(resolved);
+      }
+    };
+
+    if (typeof image.decode === 'function') {
+      image.decode().catch(falhar);
+    } else {
+      falhar();
+    }
+
+    return () => {
+      ativo = false;
+    };
+  }, [resolved, showImage]);
+
   const decorative = alt === '';
-  const determinate = status === 'uploading' && progress !== undefined;
+  // NaN ou infinito nao vira largura: o progresso fica indeterminado.
+  const percent = status === 'uploading' && typeof progress === 'number' && Number.isFinite(progress) ? Math.min(100, Math.max(0, progress)) : null;
+  const determinate = percent !== null;
+  const hasBadge = badge !== undefined && badge !== null && badge !== false && badge !== '';
 
   return (
     <div
@@ -64,10 +136,19 @@ export function FilePreview({
       aria-label={decorative ? undefined : alt}
       className={[styles.preview, styles[size], styles[status], className].filter(Boolean).join(' ')}
       role={decorative ? undefined : 'img'}
-      style={determinate ? ({ ...style, '--file-preview-progress': `${Math.min(100, Math.max(0, progress))}%` } as CSSProperties) : style}
+      style={determinate ? ({ ...style, '--file-preview-progress': `${percent}%` } as CSSProperties) : style}
     >
       {showImage ? (
-        <img alt="" className={styles.image} decoding="async" loading="lazy" onError={() => setFailed(true)} src={src ?? undefined} />
+        <img
+          alt=""
+          className={styles.image}
+          decoding="async"
+          key={resolved}
+          loading="lazy"
+          onError={() => setFailedSrc(resolved)}
+          ref={imageRef}
+          src={resolved}
+        />
       ) : (
         <span className={styles.fallback}>{icon ?? <IconFile />}</span>
       )}
@@ -91,7 +172,7 @@ export function FilePreview({
           <IconExclamationCircle />
         </span>
       )}
-      {badge && <span className={styles.badge}>{badge}</span>}
+      {hasBadge && <span className={styles.badge}>{badge}</span>}
     </div>
   );
 }
