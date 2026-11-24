@@ -154,4 +154,96 @@ describe('FileUpload', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Enviado');
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
+
+  it('troca os textos da zona pelos que o produto passa', () => {
+    render(<FileUpload label="Anexo" labels={{ button: 'Procurar', instruction: 'Solte a planilha aqui' }} onFilesSelected={vi.fn()} />);
+
+    expect(screen.getByText('Solte a planilha aqui')).toBeInTheDocument();
+    expect(screen.getByText('Procurar')).toBeInTheDocument();
+    expect(screen.queryByText('Escolher do computador')).toBeNull();
+  });
+
+  it('com hideLabel, tira o rotulo da vista e ele continua nomeando o seletor', () => {
+    render(<FileUpload hideLabel hint="Um por vez." label="Anexo" onFilesSelected={vi.fn()} />);
+    const seletor = screen.getByLabelText('Anexo');
+
+    expect(seletor).toHaveAttribute('type', 'file');
+    expect(seletor).toHaveAccessibleDescription('Um por vez.');
+    expect(screen.getByText('Anexo').parentElement!.className).toMatch(/root/);
+  });
+
+  it('com acceptPaste, recebe o arquivo colado pela mesma conferencia', () => {
+    const onFilesSelected = vi.fn();
+    const onFilesRejected = vi.fn();
+    render(
+      <FileUpload
+        accept="image/*"
+        acceptPaste
+        label="Anexo"
+        multiple
+        onFilesRejected={onFilesRejected}
+        onFilesSelected={onFilesSelected}
+      />,
+    );
+    const imagem = arquivo('print.png', 'image/png');
+    const texto = arquivo('nota.txt', 'text/plain');
+
+    fireEvent.paste(screen.getByLabelText('Anexo'), { clipboardData: { files: [imagem, texto] } });
+
+    expect(onFilesSelected).toHaveBeenCalledWith([imagem]);
+    expect(onFilesRejected).toHaveBeenCalledWith([{ file: texto, reason: 'type' }]);
+    expect(screen.getByRole('alert')).toHaveTextContent('nota.txt não é imagem.');
+  });
+
+  it('sem acceptPaste, ou desabilitado, ignora o colar e ainda chama o onPaste do produto', () => {
+    const onFilesSelected = vi.fn();
+    const onPaste = vi.fn();
+    const { rerender } = render(<FileUpload label="Anexo" onFilesSelected={onFilesSelected} onPaste={onPaste} />);
+    const colar = () =>
+      fireEvent.paste(screen.getByLabelText('Anexo'), { clipboardData: { files: [arquivo('a.pdf', 'application/pdf')] } });
+
+    colar();
+    rerender(<FileUpload acceptPaste disabled label="Anexo" onFilesSelected={onFilesSelected} onPaste={onPaste} />);
+    colar();
+
+    expect(onFilesSelected).not.toHaveBeenCalled();
+    expect(onPaste).toHaveBeenCalledTimes(2);
+  });
+
+  it('o colar com o foco fora do componente nao chega a ele', () => {
+    const onFilesSelected = vi.fn();
+    render(
+      <>
+        <input aria-label="Outro campo" />
+        <FileUpload acceptPaste label="Anexo" onFilesSelected={onFilesSelected} />
+      </>,
+    );
+
+    fireEvent.paste(screen.getByLabelText('Outro campo'), { clipboardData: { files: [arquivo('a.pdf', 'application/pdf')] } });
+
+    expect(onFilesSelected).not.toHaveBeenCalled();
+  });
+
+  it('o statusLabel vence o texto do estado e nomeia o progresso indeterminado', () => {
+    const items: FileUploadItem[] = [
+      { id: '1', name: 'a.pdf', size: MB, status: 'uploading', statusLabel: 'Processando' },
+      { id: '2', name: 'b.pdf', size: MB, status: 'done', statusLabel: 'Pronto para revisar' },
+    ];
+    render(<FileUpload items={items} label="Anexo" onFilesSelected={vi.fn()} />);
+
+    const [processando, pronto] = screen.getAllByRole('status');
+
+    expect(processando).toHaveTextContent('Processando');
+    expect(pronto).toHaveTextContent('Pronto para revisar');
+    expect(screen.getByRole('progressbar', { name: 'Processando a.pdf' })).not.toHaveAttribute('aria-valuenow');
+  });
+
+  it('com showRestrictions false, a linha dos tipos sai da vista e continua descrevendo o seletor', () => {
+    const { container } = render(
+      <FileUpload accept=".pdf" label="Anexo" maxSize={5 * MB} onFilesSelected={vi.fn()} showRestrictions={false} />,
+    );
+
+    expect(container.querySelector(`.${styles.restrictions}`)).toBeNull();
+    expect(screen.getByLabelText('Anexo')).toHaveAccessibleDescription('PDF, até 5 MB');
+  });
 });

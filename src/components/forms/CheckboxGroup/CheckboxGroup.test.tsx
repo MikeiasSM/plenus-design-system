@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Checkbox } from '../Checkbox';
+import radioGroupStyles from '../RadioGroup/RadioGroup.module.css';
 import { CheckboxGroup } from './CheckboxGroup';
 
 function Canais({ onValueChange }: { onValueChange?: (values: readonly string[]) => void }) {
@@ -174,5 +175,47 @@ describe('CheckboxGroup', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Selecionar todos' }));
 
     expect(screen.getByRole('checkbox', { name: 'Selecionar todos' })).toBeChecked();
+  });
+
+  it('labelAddon sits next to the legend text and stays out of the group name', () => {
+    render(
+      <CheckboxGroup label="Canais" labelAddon={<button type="button">Ajuda</button>}>
+        <Checkbox label="Web" value="web" />
+      </CheckboxGroup>,
+    );
+
+    const grupo = screen.getByRole('group', { name: 'Canais' });
+
+    expect(screen.getByRole('button', { name: 'Ajuda' }).closest('legend')).toBe(grupo.querySelector('legend'));
+  });
+
+  it('without labelAddon, the legend names the group as before', () => {
+    render(
+      <CheckboxGroup label="Canais">
+        <Checkbox label="Web" value="web" />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByRole('group', { name: 'Canais' })).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('card: each box is a card, clickable as a whole, with its description', () => {
+    render(
+      <CheckboxGroup label="Canais" variant="card">
+        <Checkbox description="Avisos na própria tela." label="Web" value="web" />
+        <Checkbox label="E-mail" value="email" />
+      </CheckboxGroup>,
+    );
+
+    const web = screen.getByRole('checkbox', { name: 'Web' });
+    const cartao = web.closest('label')!;
+
+    expect(web).toHaveAccessibleDescription('Avisos na própria tela.');
+    expect(cartao).toHaveClass(radioGroupStyles.card!);
+    expect(cartao.closest(`.${radioGroupStyles.cardOptions}`)).not.toBeNull();
+
+    fireEvent.click(cartao);
+
+    expect(web).toBeChecked();
   });
 });

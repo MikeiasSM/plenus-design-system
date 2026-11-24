@@ -20,6 +20,7 @@
 .input {
   appearance: none;
   -webkit-appearance: none;
+  position: relative;
   flex: none;
   width: 18px;
   height: 18px;
@@ -46,12 +47,24 @@
   background-color: var(--pl-color-primary);
 }
 
-.input:checked {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l4 4L19 7'/></svg>");
+/* A marca e um recorte pintado na cor do texto sobre o primario: segue a paleta, clara ou escura, e o tema. */
+.input:checked::before,
+.input:indeterminate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--pl-color-on-primary);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 12px 12px;
 }
 
-.input:indeterminate {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round'><path d='M6 12h12'/></svg>");
+.input:checked::before {
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l4 4L19 7'/></svg>");
+}
+
+.input:indeterminate::before {
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round'><path d='M6 12h12'/></svg>");
 }
 
 .input:focus-visible {
@@ -61,8 +74,12 @@
 }
 
 .input:disabled {
-  background-color: var(--pl-color-surface-muted);
   cursor: not-allowed;
+}
+
+/* Marcada ou indeterminada, a caixa desabilitada guarda o primario: a opacidade do `.control` ja diz que esta parada. */
+.input:disabled:not(:checked):not(:indeterminate) {
+  background-color: var(--pl-color-surface-muted);
 }
 
 .error,
@@ -84,16 +101,27 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+/* Rotulo e descricao empilhados ao lado da caixa. */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.description {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
 
 
 @media (pointer: coarse) {
   .control {
     padding-block: calc((44px - var(--pl-type-body-line-height)) / 2);
-  }
-
-  .input {
-    position: relative;
   }
 
   .input::after {
@@ -104,5 +132,13 @@
     width: 44px;
     height: 44px;
     transform: translate(-50%, -50%);
+  }
+}
+
+/* Em cores forcadas o fundo vira o do sistema: a marca passa a cor do texto para nao sumir. */
+@media (forced-colors: active) {
+  .input:checked::before,
+  .input:indeterminate::before {
+    background-color: CanvasText;
   }
 }

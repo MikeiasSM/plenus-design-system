@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Radio, RadioGroup } from '@plenustech/design-system';
+import { Button, ButtonIcon, IconInfoCircle, Radio, RadioGroup } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -221,6 +221,37 @@ export const pagina: Pagina = {
         '<RadioGroup label="Tipo de pessoa" orientation="horizontal" defaultValue="fisica">\n  <Radio label="Pessoa física" value="fisica" />\n  <Radio label="Pessoa jurídica" value="juridica" />\n</RadioGroup>',
     },
     {
+      titulo: 'Em cartões, com descrição',
+      descricao:
+        'Cada opção vira um cartão, inteiro clicável, e a descrição fica abaixo do rótulo, como descrição do rádio. O foco acende o cartão; continuam rádios nativos, e as setas trocam a opção.',
+      Previa: () => (
+        <RadioGroup defaultValue="mensal" label="Plano" variant="card">
+          <Radio description="Cobrança todo mês, cancela quando quiser." label="Mensal" value="mensal" />
+          <Radio description="Um pagamento por ano, com dois meses de desconto." label="Anual" value="anual" />
+          <Radio description="Indisponível nesta conta." disabled label="Vitalício" value="vitalicio" />
+        </RadioGroup>
+      ),
+      codigo:
+        '<RadioGroup label="Plano" variant="card" defaultValue="mensal">\n  <Radio label="Mensal" value="mensal" description="Cobrança todo mês, cancela quando quiser." />\n  <Radio label="Anual" value="anual" description="Um pagamento por ano, com dois meses de desconto." />\n  <Radio label="Vitalício" value="vitalicio" description="Indisponível nesta conta." disabled />\n</RadioGroup>',
+    },
+    {
+      titulo: 'Complemento na legenda',
+      descricao:
+        'labelAddon põe um conteúdo ao lado do texto da legenda, como um botão de ajuda. O grupo continua nomeado só pelo texto: o botão tem o próprio nome e entra na tabulação antes das opções.',
+      Previa: () => (
+        <RadioGroup
+          defaultValue="pix"
+          label="Forma de pagamento"
+          labelAddon={<ButtonIcon icon={<IconInfoCircle />} label="Sobre as formas de pagamento" size="sm" variant="ghost" />}
+        >
+          <Radio label="Pix" value="pix" />
+          <Radio label="Boleto" value="boleto" />
+        </RadioGroup>
+      ),
+      codigo:
+        '<RadioGroup\n  label="Forma de pagamento"\n  labelAddon={<ButtonIcon icon={<IconInfoCircle />} label="Sobre as formas de pagamento" size="sm" variant="ghost" />}\n  defaultValue="pix"\n>\n  <Radio label="Pix" value="pix" />\n  <Radio label="Boleto" value="boleto" />\n</RadioGroup>',
+    },
+    {
       titulo: 'Obrigatório no formulário',
       descricao: 'Clique em Assinar sem escolher: o navegador barra o envio. Escolhido, o valor vai pelo name.',
       Previa: Obrigatorio,
@@ -286,9 +317,12 @@ export const pagina: Pagina = {
     { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'Avisa a opção escolhida.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Direção das opções: uma por linha ou lado a lado, com quebra de linha quando não couberem. O mesmo nome do CheckboxGroup.' },
+    { nome: 'variant', tipo: "'default' | 'card'", padrao: "'default'", descricao: 'card põe cada opção num cartão, inteiro clicável; continuam rádios nativos. Nada interativo dentro do cartão.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Conteúdo ao lado do texto da legenda, fora do nome do grupo, que passa a vir de aria-labelledby ao texto.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo das opções.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Exige uma escolha no envio.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita todas as opções.' },
+    { nome: 'Radio: description', tipo: 'ReactNode', descricao: 'Texto secundário abaixo do rótulo, que descreve o rádio pelo aria-describedby. Só texto.' },
   ],
 };

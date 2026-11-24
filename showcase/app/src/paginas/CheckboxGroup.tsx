@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Badge,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -239,6 +240,20 @@ export const pagina: Pagina = {
         '<CheckboxGroup\n  label="Canais de aviso"\n  value={canais}\n  onValueChange={setCanais}\n>\n  <Checkbox label="Web" value="web" />\n  <Checkbox label="E-mail" value="email" />\n  <Checkbox label="SMS" value="sms" />\n</CheckboxGroup>',
     },
     {
+      titulo: 'Em cartões, com descrição',
+      descricao:
+        'Cada caixa vira um cartão, inteiro clicável, com a descrição abaixo do rótulo. O complemento da legenda fica fora do nome do grupo.',
+      Previa: () => (
+        <CheckboxGroup defaultValue={['web']} label="Canais de aviso" labelAddon={<Badge size="sm">Novo</Badge>} variant="card">
+          <Checkbox description="Na própria tela, enquanto ela estiver aberta." label="Web" value="web" />
+          <Checkbox description="Um resumo por dia, no endereço da conta." label="E-mail" value="email" />
+          <Checkbox description="Só para avisos urgentes." label="SMS" value="sms" />
+        </CheckboxGroup>
+      ),
+      codigo:
+        '<CheckboxGroup\n  label="Canais de aviso"\n  labelAddon={<Badge size="sm">Novo</Badge>}\n  variant="card"\n  defaultValue={[\'web\']}\n>\n  <Checkbox label="Web" value="web" description="Na própria tela, enquanto ela estiver aberta." />\n  <Checkbox label="E-mail" value="email" description="Um resumo por dia, no endereço da conta." />\n  <Checkbox label="SMS" value="sms" description="Só para avisos urgentes." />\n</CheckboxGroup>',
+    },
+    {
       titulo: 'Ao menos um, no formulário',
       descricao: 'Clique em Salvar sem marcar: o navegador barra o envio. Marcados, os valores vão pelo name.',
       Previa: Obrigatorio,
@@ -309,6 +324,8 @@ export const pagina: Pagina = {
     { nome: 'defaultValue', tipo: 'readonly string[]', padrao: '[]', descricao: 'Valores iniciais, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(values: readonly string[]) => void', descricao: 'Avisa a lista inteira dos marcados a cada mudança.' },
     { nome: 'orientation', tipo: "'vertical' | 'horizontal'", padrao: "'vertical'", descricao: 'Disposição das caixas.' },
+    { nome: 'variant', tipo: "'default' | 'card'", padrao: "'default'", descricao: 'card põe cada caixa num cartão, inteiro clicável; continuam caixas nativas. Nada interativo dentro do cartão.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Conteúdo ao lado do texto da legenda, fora do nome do grupo, que passa a vir de aria-labelledby ao texto.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo das caixas, usado no envio do formulário.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo das opções.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },

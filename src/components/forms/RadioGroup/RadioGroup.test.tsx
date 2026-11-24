@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { RadioGroup } from './RadioGroup';
 import { Radio } from './Radio';
+import styles from './RadioGroup.module.css';
 
 describe('RadioGroup', () => {
   it('names the group and shares a single name across options', () => {
@@ -133,5 +134,86 @@ describe('RadioGroup', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Pix' }));
 
     expect((screen.getByTestId('formulario') as HTMLFormElement).checkValidity()).toBe(true);
+  });
+
+  it('describes each option by its description, keeping the name to the label', () => {
+    render(
+      <RadioGroup hint="Pode mudar depois." label="Plano">
+        <Radio description="Cobrança todo mês." label="Mensal" value="mensal" />
+        <Radio label="Anual" value="anual" />
+      </RadioGroup>,
+    );
+
+    const mensal = screen.getByRole('radio', { name: 'Mensal' });
+
+    expect(mensal).toHaveAccessibleDescription('Cobrança todo mês.');
+    expect(screen.getByRole('radio', { name: 'Anual' })).not.toHaveAttribute('aria-describedby');
+
+    fireEvent.click(screen.getByText('Cobrança todo mês.'));
+
+    expect(mensal).toBeChecked();
+  });
+
+  it('card: each option is a card that stays a native radio, clickable as a whole', () => {
+    const onValueChange = vi.fn();
+    render(
+      <RadioGroup label="Plano" onValueChange={onValueChange} variant="card">
+        <Radio description="Cobrança todo mês." label="Mensal" value="mensal" />
+        <Radio description="Dois meses de desconto." label="Anual" value="anual" />
+      </RadioGroup>,
+    );
+
+    const anual = screen.getByRole('radio', { name: 'Anual' });
+    const cartao = anual.closest('label')!;
+
+    expect(anual).toHaveAttribute('type', 'radio');
+    expect(cartao).toHaveClass(styles.card!);
+    expect(cartao.parentElement).toHaveClass(styles.cardOptions!);
+    expect(cartao.querySelectorAll('a, button, [tabindex]')).toHaveLength(0);
+
+    fireEvent.click(cartao);
+
+    expect(anual).toBeChecked();
+    expect(onValueChange).toHaveBeenCalledWith('anual');
+  });
+
+  it('without variant, draws the options as before', () => {
+    render(
+      <RadioGroup label="Plano">
+        <Radio label="Mensal" value="mensal" />
+      </RadioGroup>,
+    );
+
+    const rotulo = screen.getByRole('radio', { name: 'Mensal' }).closest('label')!;
+
+    expect(rotulo.className).toBe(styles.control);
+    expect(rotulo.parentElement!.className).not.toContain(styles.cardOptions!);
+  });
+
+  it('labelAddon sits next to the legend text and stays out of the group name', () => {
+    render(
+      <RadioGroup label="Forma de pagamento" labelAddon={<button type="button">Saiba mais</button>} required>
+        <Radio label="Pix" value="pix" />
+      </RadioGroup>,
+    );
+
+    const grupo = screen.getByRole('radiogroup', { name: 'Forma de pagamento' });
+    const ajuda = screen.getByRole('button', { name: 'Saiba mais' });
+
+    expect(ajuda.closest('legend')).toBe(grupo.querySelector('legend'));
+    expect(grupo).toHaveAttribute('aria-labelledby');
+  });
+
+  it('labelAddon keeps the name the consumer gives the group', () => {
+    render(
+      <>
+        <span id="fora">Pagamento</span>
+        <RadioGroup aria-labelledby="fora" label="Forma de pagamento" labelAddon={<span>Opcional</span>}>
+          <Radio label="Pix" value="pix" />
+        </RadioGroup>
+      </>,
+    );
+
+    expect(screen.getByRole('radiogroup', { name: 'Pagamento' })).toBeInTheDocument();
   });
 });
