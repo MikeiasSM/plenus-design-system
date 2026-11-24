@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `FilePreview`: quadro de prévia de arquivo, com imagem ou pôster, ícone de reserva, play no vídeo, estado em borda e ícone, progresso e selo. `FileUploadItem` ganha `preview` (`{ src, kind }`), que põe o quadro no lugar do ícone do item (roadmap 0.8.0, item 22).
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado

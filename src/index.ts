@@ -222,6 +222,8 @@ export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { SidePanel } from './components/overlays/SidePanel';
 export type { SidePanelProps, SidePanelSide, SidePanelSize } from './components/overlays/SidePanel';
+export { FilePreview } from './components/data-display/FilePreview';
+export type { FilePreviewKind, FilePreviewProps, FilePreviewSize, FilePreviewStatus } from './components/data-display/FilePreview';
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';

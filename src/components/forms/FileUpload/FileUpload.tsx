@@ -3,6 +3,7 @@ import { VisuallyHidden } from '../../accessibility/VisuallyHidden';
 import { Button } from '../../actions/Button';
 import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
 import { ButtonIcon } from '../../actions/ButtonIcon';
+import { FilePreview, type FilePreviewKind } from '../../data-display/FilePreview';
 import { Progress } from '../../feedback/Progress';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconFile, IconTrash, IconUpload } from '../../icons';
 import { formatFileSize } from '../../../utils/formatters/formatFileSize';
@@ -24,6 +25,11 @@ export interface FileUploadItem {
   error?: string;
   id: string;
   name: string;
+  /**
+   * Previa do arquivo no lugar do icone: a imagem, ou o poster do video. Decorativa, porque o nome esta ao lado; o
+   * estado e o progresso aparecem nela tambem.
+   */
+  preview?: { kind?: FilePreviewKind; src?: string | null };
   /** De 0 a 100. Sem ele, o progresso e indeterminado. */
   progress?: number;
   size: number;
@@ -299,9 +305,13 @@ function FileUploadRow({ focusField, item, onCancel, onRemove, onRetry }: FileUp
 
   return (
     <li className={[styles.item, status === 'error' && styles.failed].filter(Boolean).join(' ')} ref={ref}>
-      <span aria-hidden="true" className={styles.fileIcon}>
-        <IconFile />
-      </span>
+      {item.preview ? (
+        <FilePreview kind={item.preview.kind} progress={progress} size="md" src={item.preview.src} status={status} />
+      ) : (
+        <span aria-hidden="true" className={styles.fileIcon}>
+          <IconFile />
+        </span>
+      )}
       <div className={styles.body}>
         <span className={styles.name} title={name}>
           {name}
