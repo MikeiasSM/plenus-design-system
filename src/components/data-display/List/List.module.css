@@ -184,3 +184,11 @@
   background: var(--pl-color-primary-selected);
   color: var(--pl-color-on-primary-container);
 }
+
+/* A espera com o indicador: no lugar das opções, ou no rodapé enquanto a próxima página chega. */
+.waiting {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-2);
+}

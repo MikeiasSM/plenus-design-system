@@ -8,7 +8,13 @@ import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { withoutRepeat } from '../../../utils/press/press';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
-import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
+import {
+  isUnavailable,
+  shiftPeriod,
+  startOfPeriod,
+  type CalendarGranularity,
+  type CalendarLimits,
+} from '../../../hooks/useCalendar/calendar';
 import { Button } from '../../actions/Button';
 import { IconCalendar } from '../../icons';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
@@ -21,6 +27,9 @@ import selectStyles from '../Select/Select.module.css';
 import styles from './DatePickerRange.module.css';
 
 export type DatePickerRangeSize = 'sm' | 'md' | 'lg';
+
+/** O que se escolhe em cada ponta: o dia, o mes ou o ano. */
+export type DatePickerRangeGranularity = CalendarGranularity;
 
 /** Intervalo em ISO, `2026-03-09`, com as duas pontas incluídas. */
 export interface DateRange {
@@ -47,7 +56,13 @@ export interface DatePickerRangeProps
   /** Nome do campo do fim no formulário. Com ele, um input oculto carrega o valor para o `FormData`. */
   endName?: string;
   error?: string;
+  /**
+   * `month` e `year` escolhem meses ou anos: a grade mostra doze de cada vez, e cada ponta e o primeiro dia do
+   * periodo, como `{ start: '2026-01-01', end: '2026-06-01' }`.
+   */
+  granularity?: DatePickerRangeGranularity;
   hint?: string;
+  /** Na granularidade de mes ou de ano, recebe o primeiro dia do periodo. */
   isDateUnavailable?: (date: string) => boolean;
   label?: string;
   locale?: string;
@@ -70,8 +85,23 @@ export interface DatePickerRangeProps
   value?: DateRange | null;
 }
 
-function readRange(range: DateRange | null | undefined): Selection {
-  return { start: readIsoDate(range?.start), end: readIsoDate(range?.end) };
+/** Cada ponta vale como o primeiro dia do seu periodo. */
+function readPeriod(text: string | undefined, granularity: CalendarGranularity) {
+  const date = readIsoDate(text);
+
+  return date && startOfPeriod(date, granularity);
+}
+
+function readRange(range: DateRange | null | undefined, granularity: CalendarGranularity): Selection {
+  return { start: readPeriod(range?.start, granularity), end: readPeriod(range?.end, granularity) };
+}
+
+function periodFormat(locale: string, granularity: CalendarGranularity) {
+  if (granularity === 'month') {
+    return new Intl.DateTimeFormat(locale, { month: '2-digit', year: 'numeric' });
+  }
+
+  return granularity === 'year' ? new Intl.DateTimeFormat(locale, { year: 'numeric' }) : new Intl.DateTimeFormat(locale);
 }
 
 export function DatePickerRange({
@@ -82,6 +112,7 @@ export function DatePickerRange({
   disabled = false,
   endName,
   error,
+  granularity = 'day',
   hint,
   id: providedId,
   isDateUnavailable,
@@ -109,10 +140,10 @@ export function DatePickerRange({
   const panelRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useOpenState({ defaultOpen, onOpenChange, open: controlledOpen });
   useClickShieldOnClose(open);
-  const [internalValue, setInternalValue] = useState(() => readRange(defaultValue));
-  const resetRef = useFormReset<HTMLButtonElement>(() => setInternalValue(readRange(defaultValue)));
+  const [internalValue, setInternalValue] = useState(() => readRange(defaultValue, granularity));
+  const resetRef = useFormReset<HTMLButtonElement>(() => setInternalValue(readRange(defaultValue, granularity)));
   const mergedRef = useMergedRefs(triggerRef, resetRef, ref);
-  const chosen = value === undefined ? internalValue : readRange(value);
+  const chosen = value === undefined ? internalValue : readRange(value, granularity);
   // O rascunho vale enquanto o painel está aberto: só `Aplicar` o torna o valor do campo.
   const [draft, setDraft] = useState<Selection | null>(null);
   const [announcement, setAnnouncement] = useState('');
@@ -122,7 +153,8 @@ export function DatePickerRange({
     max: readIsoDate(max),
     min: readIsoDate(min),
   };
-  const dayFormat = new Intl.DateTimeFormat(locale);
+  const refused = (date: CalendarDate) => isUnavailable(date, limits, granularity);
+  const dayFormat = periodFormat(locale, granularity);
   const formatDay = (day: CalendarDate) => dayFormat.format(day.toDate(getLocalTimeZone()));
   const formatRange = ({ start, end }: Selection) => (start && end ? `${formatDay(start)} – ${formatDay(end)}` : undefined);
 
@@ -142,10 +174,12 @@ export function DatePickerRange({
     }
   }
 
-  const steps: Record<string, number> = { ArrowDown: 7, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7 };
+  // Em dias, a linha da grade e a semana; em meses e anos, tres periodos.
+  const row = granularity === 'day' ? 7 : 3;
+  const steps: Record<string, number> = { ArrowDown: row, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -row };
 
   function move(range: Required<Selection>) {
-    if (isUnavailable(range.start, limits) || isUnavailable(range.end, limits)) {
+    if (refused(range.start) || refused(range.end)) {
       return;
     }
 
@@ -174,7 +208,7 @@ export function DatePickerRange({
       return;
     }
 
-    const base = today(getLocalTimeZone());
+    const base = startOfPeriod(today(getLocalTimeZone()), granularity);
 
     if (event.key === 'h' || event.key === 'H') {
       event.preventDefault();
@@ -184,7 +218,10 @@ export function DatePickerRange({
 
       const from = chosen.start && chosen.end ? { start: chosen.start, end: chosen.end } : { start: base, end: base };
 
-      move({ start: from.start.add({ days: steps[event.key] }), end: from.end.add({ days: steps[event.key] }) });
+      move({
+        start: shiftPeriod(from.start, granularity, steps[event.key]),
+        end: shiftPeriod(from.end, granularity, steps[event.key]),
+      });
     }
   }
 
@@ -282,9 +319,9 @@ export function DatePickerRange({
                     <div className={styles.shortcuts}>
                       {shortcuts.map((shortcut) => {
                         const range = shortcut.range();
-                        const start = readIsoDate(range.start);
-                        const end = readIsoDate(range.end);
-                        const unavailable = !start || !end || isUnavailable(start, limits) || isUnavailable(end, limits);
+                        const start = readPeriod(range.start, granularity);
+                        const end = readPeriod(range.end, granularity);
+                        const unavailable = !start || !end || refused(start) || refused(end);
                         const active = Boolean(start && end && shown.start?.compare(start) === 0 && shown.end?.compare(end) === 0);
 
                         return (
@@ -311,6 +348,7 @@ export function DatePickerRange({
                     </p>
                     <Calendar
                       autoFocus
+                      granularity={granularity}
                       isDateUnavailable={limits.isDateUnavailable}
                       locale={locale}
                       max={limits.max}

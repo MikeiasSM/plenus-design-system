@@ -265,3 +265,83 @@
   background: var(--pl-color-border-strong);
   color: var(--pl-color-text);
 }
+
+.tab[hidden] {
+  display: none;
+}
+
+/* `overflow="scroll"`: a faixa rola na horizontal e as abas não encolhem. */
+.scroll .list {
+  overflow-x: auto;
+}
+
+/* `overflow="menu"`: a faixa com as abas e o botão "Mais". A largura dela vem do envoltório, não das abas, para a
+   medida não depender do que ela mesma esconde. */
+.strip {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.strip > .list {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 0;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  white-space: nowrap;
+}
+
+.moreIcon {
+  font-size: 0.75rem;
+}
+
+/* Fora da vista e do fluxo, só para a medida. */
+.moreIdle {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Aba que fecha: o rótulo e o ×, que só o ponteiro usa. */
+.closable {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+}
+
+.tab:has(.closable) {
+  white-space: nowrap;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-inline-end: -6px;
+  border-radius: var(--pl-radius-sm);
+  color: var(--pl-color-text-secondary);
+  font-size: 0.75rem;
+}
+
+@media (hover: hover) {
+  .close:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
+}
+
+.close:active {
+  background: var(--pl-color-border);
+  color: var(--pl-color-text);
+}

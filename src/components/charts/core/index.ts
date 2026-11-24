@@ -41,7 +41,28 @@ export type { CenterText } from './centerText';
 export { CartesianFrame } from './CartesianFrame';
 export type { CartesianAxis, CartesianFrameProps, CartesianGrid } from './CartesianFrame';
 export { ChartFrame, chartRoot } from './ChartFrame';
-export type { ChartFrameProps, ChartRootProps } from './ChartFrame';
+export type { ChartCardProps, ChartFrameProps, ChartRootProps } from './ChartFrame';
+export {
+  ChartReferences,
+  referenceComparisons,
+  referenceLegend,
+  referenceName,
+  referencePosition,
+  referenceValues,
+  validReferences,
+  withReferenceColumns,
+} from './references';
+export type {
+  ChartReference,
+  ChartReferenceBand,
+  ChartReferenceLine,
+  ChartReferencePosition,
+  ChartReferenceTone,
+  ChartReferencesProps,
+  ReferenceComparison,
+} from './references';
+export { chartFileName, exportChart, renderChartSvg } from './exportChart';
+export type { ChartExportFormat, ChartExportOptions } from './exportChart';
 export { categoryTable } from './categoryTable';
 export { shareTable, treeTable } from './shareTable';
 export { ChartTable } from './ChartTable';

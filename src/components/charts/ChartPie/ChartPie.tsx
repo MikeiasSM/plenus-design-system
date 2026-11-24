@@ -15,6 +15,7 @@ import {
   type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
   type ChartSlice,
 } from '../core';
@@ -24,7 +25,7 @@ import styles from './ChartPie.module.css';
 
 export type { ChartSlice as ChartPieSlice };
 
-export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartPieProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Fatias ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];

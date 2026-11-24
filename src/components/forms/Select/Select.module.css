@@ -97,3 +97,13 @@
   box-shadow: var(--pl-sh-2);
 }
 
+/* A região de status da espera e da contagem: fora da vista, sempre montada para o anúncio valer. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

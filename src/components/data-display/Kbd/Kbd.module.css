@@ -1,0 +1,54 @@
+/* A tecla herda a cor do texto em volta: borda e fundo saem dela, e a peca vale em superficie clara, na dica escura
+   ou dentro de um botao. O tamanho acompanha o texto. */
+.kbd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font: inherit;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75em;
+  padding: 0 0.4em;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-bottom-width: 2px;
+  border-radius: var(--pl-radius-sm);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  color: inherit;
+  font-family: var(--pl-font-body);
+  font-size: 0.8em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.separator {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* Em alto contraste, a mistura de cor some: a borda fica na cor do texto em volta, que o sistema escolheu. */
+@media (forced-colors: active) {
+  .key {
+    border-color: currentColor;
+    background: transparent;
+  }
+}
