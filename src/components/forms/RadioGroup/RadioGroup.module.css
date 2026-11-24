@@ -146,7 +146,7 @@ div.cardOptions {
 label.card {
   display: flex;
   padding: 12px;
-  border: 1px solid var(--pl-color-border-strong);
+  border: 1px solid var(--pl-control-border);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   transition: background-color var(--pl-speed-1) var(--pl-ease), border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
