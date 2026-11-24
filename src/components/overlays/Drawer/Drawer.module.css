@@ -47,12 +47,14 @@
 
 .right .drawer {
   padding-right: env(safe-area-inset-right, 0px);
+  border-inline-start: 1px solid transparent;
   --pl-safe-right: 0px;
   animation: drawer-from-right var(--pl-speed-2) var(--pl-ease) both;
 }
 
 .left .drawer {
   --pl-safe-left: 0px;
+  border-inline-end: 1px solid transparent;
   animation: drawer-from-left var(--pl-speed-2) var(--pl-ease) both;
 }
 
@@ -73,6 +75,56 @@
   max-width: 640px;
 }
 
+/* Na base: o painel sobe da borda de baixo, com a altura do conteúdo até o teto do tamanho e cantos de cima arredondados.
+   Sem alça: ela convida a arrastar, e o painel não se arrasta; fechar é pelo botão, pelo Esc e pelo toque fora. */
+.bottom {
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.bottom .drawer {
+  height: auto;
+  max-width: 640px;
+  padding-top: 0;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  --pl-safe-left: 0px;
+  --pl-safe-right: 0px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: calc(var(--pl-radius-md) * 2) calc(var(--pl-radius-md) * 2) 0 0;
+  animation: drawer-from-bottom var(--pl-speed-2) var(--pl-ease) both;
+}
+
+/* Com rodapé, a área segura de baixo fica dentro dele, para a faixa sob as ações ter o fundo do rodapé, e não o da
+   superfície: o padding de baixo do rodapé passa a ser o respiro dele mais a área segura. */
+.bottom .drawer:has(> .footer) {
+  padding-bottom: 0;
+}
+
+.bottom .footer {
+  padding-bottom: calc(var(--pl-space-4) + env(safe-area-inset-bottom, 0px));
+}
+
+.bottom .sm {
+  max-height: 50dvh;
+}
+
+.bottom .md {
+  max-height: 75dvh;
+}
+
+.bottom .lg {
+  max-height: 90dvh;
+}
+
+@keyframes drawer-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
 @keyframes drawer-fade {
   from {
     opacity: 0;
@@ -88,6 +140,13 @@
 @keyframes drawer-from-left {
   from {
     transform: translateX(-100%);
+  }
+}
+
+/* Em cores forçadas a sombra some, e a borda transparente da face de dentro passa a separar o painel do véu. */
+@media (forced-colors: active) {
+  .drawer {
+    border-color: CanvasText;
   }
 }
 

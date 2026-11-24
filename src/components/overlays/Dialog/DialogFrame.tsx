@@ -18,6 +18,8 @@ export interface DialogFrameProps extends DialogBaseProps {
   'aria-label'?: string;
   description?: ReactNode;
   flush?: boolean;
+  /** Classe a mais no rodapé, para a superfície que estende o fundo dele, como a área segura do `Drawer` na base. */
+  footerClassName?: string;
   help?: string;
   icon?: ReactNode;
   role?: DialogRole;
@@ -103,6 +105,7 @@ function DialogFrameContent({
   dismissable = true,
   flush,
   footer,
+  footerClassName,
   help,
   icon,
   onClose,
@@ -209,7 +212,7 @@ function DialogFrameContent({
               {children}
             </div>
           )}
-          {footer && <div className={styles.footer}>{footer}</div>}
+          {footer && <div className={[styles.footer, footerClassName].filter(Boolean).join(' ')}>{footer}</div>}
         </div>
       </FocusScope>
     </div>

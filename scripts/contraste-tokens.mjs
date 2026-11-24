@@ -76,7 +76,7 @@ export const PARES = [
   ['--pl-color-primary-strong', '--pl-color-surface', TEXTO_MINIMO, 'traco primario'],
   ['--pl-color-primary-strong', '--pl-color-background', TEXTO_MINIMO, 'traco na pagina'],
   ['--pl-color-primary-strong', '--pl-color-background', CONTROLE_MINIMO, 'barra do item ativo da Sidebar'],
-  ['--pl-control-border', '--pl-color-surface', CONTROLE_MINIMO, 'borda de controle: Meter, Slider e PinInput'],
+  ['--pl-control-border', '--pl-color-surface', CONTROLE_MINIMO, 'borda de controle: campos, Checkbox, Radio, Switch, cartao de opcao, FileUpload, List, Meter, Slider e PinInput'],
   ['--pl-control-border', '--pl-color-background', CONTROLE_MINIMO, 'borda de controle na pagina'],
   ['--pl-color-on-success-container', '--pl-color-surface-muted', CONTROLE_MINIMO, 'Meter em sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-surface-muted', CONTROLE_MINIMO, 'Meter em atencao'],
@@ -88,7 +88,6 @@ export const PARES = [
   ['--pl-color-on-success-container', '--pl-color-surface', CONTROLE_MINIMO, 'linha de referencia em sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-surface', CONTROLE_MINIMO, 'linha de referencia em atencao'],
   ['--pl-color-on-danger-container', '--pl-color-surface', CONTROLE_MINIMO, 'linha de referencia em perigo'],
-  ['--pl-color-border-strong', '--pl-color-surface', CONTROLE_MINIMO, 'contorno do campo'],
   ['--pl-chart-series-1', '--pl-color-surface', CONTROLE_MINIMO, 'serie 1 no desenho'],
   ['--pl-chart-series-2', '--pl-color-surface', CONTROLE_MINIMO, 'serie 2 no desenho'],
   ['--pl-chart-series-3', '--pl-color-surface', CONTROLE_MINIMO, 'serie 3 no desenho'],
@@ -122,10 +121,6 @@ export const ACEITAS = new Set([
   // O hover do laranja fixo, no passo 60, fica entre o solido (excecao acima) e o pressionado, que passa.
   'orange claro|--pl-color-on-primary|--pl-color-primary-fill-hover',
   'orange claro|--pl-color-primary|--pl-color-background',
-  ...PALETAS.flatMap((paleta) => [
-    `${paleta} claro|--pl-color-border-strong|--pl-color-surface`,
-    `${paleta} escuro|--pl-color-border-strong|--pl-color-surface`,
-  ]),
 ]);
 
 /** `light-dark(claro, escuro)` vale um lado por tema; qualquer outro valor vale nos dois. */
