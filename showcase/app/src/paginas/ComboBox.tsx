@@ -12,6 +12,10 @@ const REGISTROS = Array.from({ length: 10000 }, (_, indice) => ({
 
 const LIMITE_DA_CONSULTA = 50;
 
+const TAMANHO_DA_PAGINA = 20;
+
+const CINCO_MIL = REGISTROS.slice(0, 5000);
+
 function EstadosComAplicar() {
   const [aplicados, setAplicados] = useState<readonly string[]>(['sp']);
 
@@ -179,6 +183,54 @@ function BuscaNoServidor() {
   );
 }
 
+function encontrar(termo: string) {
+  return termo ? REGISTROS.filter((registro) => registro.label.includes(termo)) : REGISTROS;
+}
+
+function PaginasSobDemanda() {
+  const [termo, setTermo] = useState('');
+  const [opcoes, setOpcoes] = useState(() => REGISTROS.slice(0, TAMANHO_DA_PAGINA));
+  const [carregando, setCarregando] = useState(false);
+  const consulta = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const total = encontrar(termo).length;
+
+  useEffect(() => () => clearTimeout(consulta.current), []);
+
+  function buscar(novoTermo: string) {
+    clearTimeout(consulta.current);
+    setTermo(novoTermo);
+    setCarregando(true);
+    consulta.current = setTimeout(() => {
+      setOpcoes(encontrar(novoTermo).slice(0, TAMANHO_DA_PAGINA));
+      setCarregando(false);
+    }, 700);
+  }
+
+  function proximaPagina() {
+    clearTimeout(consulta.current);
+    consulta.current = setTimeout(() => {
+      setOpcoes((atuais) => encontrar(termo).slice(0, atuais.length + TAMANHO_DA_PAGINA));
+    }, 700);
+  }
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <ComboBox
+        hasMore={opcoes.length < total}
+        label="Registro"
+        loading={carregando}
+        onLoadMore={proximaPagina}
+        onSearch={buscar}
+        options={opcoes}
+        placeholder="Digite um número, como 042"
+      />
+      <p className="note">
+        {opcoes.length} de {total} carregados
+      </p>
+    </div>
+  );
+}
+
 function AberturaControlada() {
   const [aberto, setAberto] = useState(false);
 
@@ -239,6 +291,18 @@ function Modos() {
       <dd>
         Com <code>onSearch</code>, o componente avisa o termo e não filtra; o produto devolve as opções e sinaliza a
         espera com <code>loading</code>. É o caminho para listas grandes, como os dez mil registros do exemplo.
+      </dd>
+      <dt>Espera e páginas</dt>
+      <dd>
+        <code>loading</code> troca as opções por uma linha "Carregando", anunciada uma vez, e a lista fica com{' '}
+        <code>aria-busy</code>. Com <code>onLoadMore</code> e <code>hasMore</code>, chegar a três opções do fim, ou
+        descer da última pela seta, pede a próxima página uma vez; "Carregando mais" aparece no rodapé sem tirar o foco
+        nem mover a rolagem, e a contagem é anunciada quando a página chega.
+      </dd>
+      <dt>Listas longas</dt>
+      <dd>
+        Acima de 200 opções, só as linhas visíveis vão ao DOM, sem propriedade a ligar. Cada opção leva{' '}
+        <code>aria-setsize</code> e <code>aria-posinset</code>, e o leitor de tela diz a posição no total.
       </dd>
       <dt>Saída do campo</dt>
       <dd>Perder o foco no meio de uma busca a desfaz: o texto volta a dizer o que está escolhido.</dd>
@@ -317,6 +381,23 @@ export const pagina: Pagina = {
       codigo:
         "function buscar(termo: string) {\n  setCarregando(true);\n  consultar(termo).then((encontrados) => {\n    setOpcoes(encontrados);\n    setCarregando(false);\n  });\n}\n\n<ComboBox\n  label=\"Registro\"\n  options={opcoes}\n  onSearch={buscar}\n  loading={carregando}\n/>",
     },
+    {
+      titulo: 'Páginas sob demanda',
+      descricao: 'Páginas de 20. Digite para ver o Carregando no lugar da lista; role até perto do fim, ou desça da última opção pela seta, para pedir a próxima. A contagem é anunciada quando a página chega.',
+      Previa: PaginasSobDemanda,
+      codigo:
+        "function buscar(termo: string) {\n  setCarregando(true);\n  consultar(termo, 0).then((pagina) => {\n    setOpcoes(pagina.itens);\n    setTotal(pagina.total);\n    setCarregando(false);\n  });\n}\n\nfunction proximaPagina() {\n  consultar(termo, opcoes.length).then((pagina) => setOpcoes([...opcoes, ...pagina.itens]));\n}\n\n<ComboBox\n  label=\"Registro\"\n  options={opcoes}\n  onSearch={buscar}\n  loading={carregando}\n  onLoadMore={proximaPagina}\n  hasMore={opcoes.length < total}\n/>",
+    },
+    {
+      titulo: 'Cinco mil opções',
+      descricao: 'Sem propriedade a ligar: acima de 200 opções, só as linhas visíveis são desenhadas, e cada uma diz a posição no total.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ComboBox label="Registro" options={CINCO_MIL} placeholder="Digite para filtrar" />
+        </div>
+      ),
+      codigo: '// 5.000 opções: a lista desenha só as visíveis\n<ComboBox label="Registro" options={registros} placeholder="Digite para filtrar" />',
+    },
   ],
   faca: {
     Previa: () => (
@@ -371,6 +452,7 @@ export const pagina: Pagina = {
   teclado: [
     { teclas: ['↓'], acao: 'Com a lista fechada, abre e ativa a primeira opção.' },
     { teclas: ['↑', '↓'], acao: 'Opção anterior ou seguinte, com o foco sempre no campo.' },
+    { teclas: ['↓'], acao: 'Na última opção, com onLoadMore e hasMore, pede a próxima página; a opção ativa continua a mesma.' },
     { teclas: ['Enter'], acao: 'Escolhe a opção ativa. Na escolha simples, fecha a lista.' },
     { teclas: ['Escape'], acao: 'Fecha a lista e desfaz a busca.' },
     { teclas: ['Backspace'], acao: 'Na escolha múltipla, com o campo vazio, remove a última escolha.' },
@@ -390,8 +472,18 @@ export const pagina: Pagina = {
     { garantia: 'Lista vazia', como: 'Sem correspondência, a mensagem de vazio aparece no painel.', teste: 'ComboBox.test.tsx' },
     {
       garantia: 'Carregamento',
-      como: <><code>aria-busy</code> na lista e a mensagem de carregamento no lugar do vazio.</>,
-      teste: 'ComboBox.test.tsx',
+      como: <><code>aria-busy</code> na lista, a linha de espera no lugar das opções e o anúncio numa região de status.</>,
+      teste: 'carregando.test.tsx',
+    },
+    {
+      garantia: 'Páginas',
+      como: 'A próxima página é pedida uma vez, sem tirar o foco nem mover a rolagem, e a contagem é anunciada ao chegar.',
+      teste: 'carregando.test.tsx',
+    },
+    {
+      garantia: 'Lista longa',
+      como: <>Acima de 200 opções, só as visíveis no DOM, com <code>aria-setsize</code> e <code>aria-posinset</code>.</>,
+      teste: 'carregando.test.tsx',
     },
     {
       garantia: 'Total das escolhas',
@@ -423,7 +515,7 @@ export const pagina: Pagina = {
     { nome: 'selectAll', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que marca os itens habilitados do resultado da busca, sem desmarcar o resto.' },
     { nome: 'clearable', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. Botão que desmarca tudo, inclusive o que a busca esconde.' },
     { nome: 'confirmSelection', tipo: 'boolean', padrao: 'false', descricao: 'Só no modo múltiplo. A marcação é rascunho: onValueChange é chamado uma vez, em Aplicar. Cancelar, Escape e sair do campo descartam.' },
-    { nome: 'labels', tipo: 'Partial<ComboBoxLabels>', descricao: "ComboBoxLabels é { selectAll, clear, apply, cancel }, todos string. As três propriedades do rodapé e labels formam ComboBoxMultipleActions. Textos do rodapé. Padrões: 'Selecionar todos', 'Limpar', 'Aplicar' e 'Cancelar'." },
+    { nome: 'labels', tipo: 'Partial<ComboBoxLabels>', descricao: "ComboBoxLabels é { selectAll, clear, apply, cancel, loading, loadingMore, results }; results é (count: number) => string, os demais string. Textos do painel, nos dois modos. Padrões: 'Selecionar todos', 'Limpar', 'Aplicar', 'Cancelar', 'Carregando', 'Carregando mais' e '20 resultados'." },
     { nome: 'value', tipo: 'string | string[]', descricao: 'Chave ou chaves escolhidas, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string | string[]', descricao: 'Escolha inicial, no modo não controlado.' },
     { nome: 'onValueChange', tipo: '(value: string) => void | (values: string[]) => void', descricao: 'Avisa a escolha, conforme o modo.' },
@@ -431,7 +523,9 @@ export const pagina: Pagina = {
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Lista aberta de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada abertura e fechamento, por qualquer via; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onSearch', tipo: '(term: string) => void', descricao: 'Busca externa: avisa o termo e desliga o filtro local.' },
-    { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Espera da busca externa.' },
+    { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Espera da busca externa: a linha "Carregando" toma o lugar das opções, anunciada uma vez, e a lista fica com aria-busy. Ao chegar, a contagem é anunciada.' },
+    { nome: 'onLoadMore', tipo: '() => void', descricao: 'Pede a próxima página quando a rolagem chega a três opções do fim ou a seta desce da última. Uma vez por página: o pedido vale até as opções mudarem de tamanho.' },
+    { nome: 'hasMore', tipo: 'boolean', padrao: 'false', descricao: 'Há mais páginas. Sem ele, onLoadMore não é chamado.' },
     { nome: 'emptyMessage', tipo: 'string', padrao: "'Nenhum resultado'", descricao: 'Mensagem da lista sem correspondência.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'placeholder', tipo: 'string', descricao: 'Texto do campo vazio.' },

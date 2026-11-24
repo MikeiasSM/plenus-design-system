@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Dialog } from '../../overlays/Dialog';
 import { ToastProvider, useToast } from './ToastProvider';
 import { ToastRegion } from './ToastRegion';
-import { dismissToast, showToast, type ToastOptions } from './toastStore';
+import { dismissToast, globalToastStore, showToast, type ToastOptions } from './toastStore';
 
 const shown: string[] = [];
 
@@ -287,5 +287,138 @@ describe('ToastRegion com Dialog aberto', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog', { name: 'Cadastro' })).toBeInTheDocument();
+  });
+});
+
+describe('showToast.promise', () => {
+  afterEach(() => {
+    act(() => globalToastStore.getSnapshot().forEach((toast) => dismissToast(toast.id)));
+  });
+
+  function adiada<T>() {
+    let resolver!: (valor: T) => void;
+    let rejeitar!: (motivo: unknown) => void;
+    const promessa = new Promise<T>((ok, falha) => {
+      resolver = ok;
+      rejeitar = falha;
+    });
+
+    return { promessa, rejeitar, resolver };
+  }
+
+  it('carrega sem anunciar e troca o mesmo aviso pelo sucesso, que se anuncia', async () => {
+    const { promessa, resolver } = adiada<number>();
+    render(<ToastRegion />);
+    act(() => {
+      showToast.promise(promessa, { error: 'Falhou', loading: 'Salvando', success: (total) => `${total} itens salvos` });
+    });
+
+    const carregando = screen.getByText('Salvando');
+    expect(carregando.closest('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+
+    await act(async () => resolver(3));
+
+    expect(screen.getByRole('status')).toHaveTextContent('3 itens salvos');
+    expect(screen.queryByText('Salvando')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy]')).toBeNull();
+  });
+
+  it('o erro vira alerta com o motivo e fica, e a promessa volta como veio', async () => {
+    const { promessa, rejeitar } = adiada<void>();
+    render(<ToastRegion />);
+    let devolvida!: Promise<void>;
+    act(() => {
+      devolvida = showToast.promise(promessa, {
+        error: (motivo) => ({ description: String((motivo as Error).message), title: 'Falha ao salvar' }),
+        loading: { description: 'Pode levar alguns segundos.', title: 'Salvando' },
+        success: 'Salvo',
+      });
+    });
+
+    expect(devolvida).toBe(promessa);
+
+    await act(async () => {
+      rejeitar(new Error('Sem conexao'));
+      await devolvida.catch(() => undefined);
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Falha ao salvar');
+    expect(screen.getByRole('alert')).toHaveTextContent('Sem conexao');
+  });
+
+  it('mantem o foco no fechar durante a troca', async () => {
+    const { promessa, resolver } = adiada<void>();
+    render(<ToastRegion />);
+    act(() => {
+      showToast.promise(promessa, { error: 'Falhou', loading: 'Salvando', success: 'Salvo' });
+    });
+
+    const fechar = screen.getByRole('button', { name: 'Fechar aviso' });
+    act(() => fechar.focus());
+    await act(async () => resolver());
+
+    expect(screen.getByRole('status')).toHaveTextContent('Salvo');
+    expect(document.activeElement).toBe(fechar);
+  });
+
+  it('fechado no carregando, nao volta quando a promessa termina', async () => {
+    const { promessa, resolver } = adiada<void>();
+    render(<ToastRegion />);
+    act(() => {
+      showToast.promise(() => promessa, { error: 'Falhou', loading: 'Salvando', success: 'Salvo' });
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar aviso' }));
+    await act(async () => resolver());
+
+    expect(screen.queryByText('Salvo')).not.toBeInTheDocument();
+  });
+
+  it('o sucesso some no tempo de sempre, contado da troca', async () => {
+    vi.useFakeTimers();
+    const { promessa, resolver } = adiada<void>();
+    render(<ToastRegion />);
+    act(() => {
+      showToast.promise(promessa, { error: 'Falhou', loading: 'Salvando', success: 'Salvo' });
+    });
+
+    act(() => vi.advanceTimersByTime(60000));
+    expect(screen.getByText('Salvando')).toBeInTheDocument();
+
+    await act(async () => resolver());
+    act(() => vi.advanceTimersByTime(5999));
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('o useToast acompanha a promessa no estado da propria arvore', async () => {
+    const { promessa, resolver } = adiada<void>();
+
+    function Salvar() {
+      const { promiseToast } = useToast();
+
+      return (
+        <button onClick={() => promiseToast(promessa, { error: 'Falhou', loading: 'Salvando', success: 'Salvo' })} type="button">
+          Salvar
+        </button>
+      );
+    }
+
+    render(
+      <ToastProvider>
+        <Salvar />
+        <ToastRegion />
+      </ToastProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(screen.getByText('Salvando')).toBeInTheDocument();
+
+    await act(async () => resolver());
+    expect(screen.getByRole('status')).toHaveTextContent('Salvo');
   });
 });

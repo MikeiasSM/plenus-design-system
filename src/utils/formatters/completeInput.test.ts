@@ -1,5 +1,15 @@
 import { CalendarDate } from '@internationalized/date';
-import { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepInputChars } from './completeInput';
+import {
+  completeDateInput,
+  completeDateTimeInput,
+  completeMonthInput,
+  completeTimeInput,
+  completeYearInput,
+  keepDateChars,
+  keepInputChars,
+  keepMonthChars,
+  keepYearChars,
+} from './completeInput';
 
 const hoje = new CalendarDate(2026, 11, 12);
 const data = (texto: string) => completeDateInput(texto, hoje)?.toString();
@@ -109,5 +119,34 @@ describe('keepDateChars', () => {
     expect(keepDateChars('2026-03-09')).toBe('09/03/2026');
     expect(keepDateChars('09-03-2026')).toBe('09032026');
     expect(keepDateChars('1/12')).toBe('1/12');
+  });
+});
+
+describe('completeMonthInput e completeYearInput', () => {
+  it('completa o mes sem ano com o ano atual, e o ano de 2 digitos com 20xx', () => {
+    expect(completeMonthInput('6', hoje)?.toString()).toBe('2026-06-01');
+    expect(completeMonthInput('06/27', hoje)?.toString()).toBe('2027-06-01');
+    expect(completeMonthInput('062025', hoje)?.toString()).toBe('2025-06-01');
+  });
+
+  it('recusa o mes inexistente e o ano de tamanho errado', () => {
+    expect(completeMonthInput('13', hoje)).toBeUndefined();
+    expect(completeMonthInput('00/2026', hoje)).toBeUndefined();
+    expect(completeMonthInput('06/202', hoje)).toBeUndefined();
+    expect(completeMonthInput('', hoje)).toBeUndefined();
+  });
+
+  it('completa o ano de 2 ou 4 digitos', () => {
+    expect(completeYearInput('27', hoje)?.toString()).toBe('2027-01-01');
+    expect(completeYearInput('2031', hoje)?.toString()).toBe('2031-01-01');
+    expect(completeYearInput('203', hoje)).toBeUndefined();
+    expect(completeYearInput('', hoje)).toBeUndefined();
+  });
+
+  it('guarda so digitos, a barra do mes e o periodo colado em ISO', () => {
+    expect(keepMonthChars('06a/2026')).toBe('06/2026');
+    expect(keepMonthChars('2026-06-01')).toBe('06/2026');
+    expect(keepYearChars('20/26')).toBe('2026');
+    expect(keepYearChars('2026-06-01')).toBe('2026');
   });
 });

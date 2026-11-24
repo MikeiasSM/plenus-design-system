@@ -5,6 +5,9 @@ const OVERSCAN = 6;
 /** Quantos itens entram antes da primeira medida: montar dez mil nos para medir um custava o primeiro render. */
 const PRIMEIRA_JANELA = 24;
 
+/** Acima deste total, as listas de escolha desenham só a janela visível. */
+export const OPCOES_SEM_JANELA = 200;
+
 /** O passo entre itens inclui o espaco que o container coloca entre eles; so a altura acumulava erro. */
 function medirPasso(node: HTMLElement) {
   const proximo = node.nextElementSibling as HTMLElement | null;
@@ -88,11 +91,13 @@ export function useVirtualWindow(total: number, height?: number) {
       active,
       attachScroll,
       measureItem,
+      measuring: medindo,
       onScroll,
       padding: { before: 0, after: 0 },
       scrollToIndex,
       start: 0,
       end: medindo ? Math.min(total, PRIMEIRA_JANELA) : total,
+      step: passo,
     };
   }
 
@@ -106,10 +111,12 @@ export function useVirtualWindow(total: number, height?: number) {
     active,
     attachScroll,
     measureItem,
+    measuring: false,
     onScroll,
     padding: { before: start * passo, after: (total - end) * passo },
     scrollToIndex,
     start,
     end,
+    step: passo,
   };
 }
