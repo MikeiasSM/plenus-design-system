@@ -13,6 +13,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Card.module.css';
 
 export type CardHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -304,10 +305,36 @@ function CardMediaImage({
   onError,
   placement = 'top',
   ratio = placement === 'end' ? '1:1' : '16:9',
+  ref,
   src,
   ...props
 }: CardMediaProps & { src: string }) {
   const [failed, setFailed] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const mergedRef = useMergedRefs(imageRef, ref);
+
+  // A imagem do HTML do servidor que falha antes da hidratacao nao dispara o `onError` no React: ao montar, ela ja
+  // esta completa e sem largura. O `decode()` desempata, porque um SVG sem medida propria tambem tem largura zero, e
+  // so a imagem quebrada o recusa. O `onError` do consumidor nao e chamado nesse caso: o evento ja passou.
+  useLayoutEffect(() => {
+    const image = imageRef.current;
+
+    if (!image?.complete || image.naturalWidth > 0) {
+      return;
+    }
+
+    if (typeof image.decode !== 'function') {
+      setFailed(true);
+      return;
+    }
+
+    let mounted = true;
+    image.decode().catch(() => mounted && setFailed(true));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   if (failed) {
     return null;
@@ -324,6 +351,7 @@ function CardMediaImage({
         setFailed(true);
         onError?.(event);
       }}
+      ref={mergedRef}
       src={src}
     />
   );

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Profiler } from 'react';
@@ -64,6 +64,55 @@ describe('Card.Media', () => {
 
     expect(screen.getByRole('img', { name: 'Produto A' })).toHaveAttribute('src', '/produto-a.jpg');
     expect(commits).toEqual([1]);
+  });
+
+  describe('imagem que falhou antes da hidratacao', () => {
+    const prototipo = HTMLImageElement.prototype as HTMLImageElement & { decode?: () => Promise<void> };
+    const decodeOriginal = prototipo.decode;
+
+    beforeEach(() => {
+      vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      prototipo.decode = decodeOriginal;
+    });
+
+    it('completa e sem largura ao montar, some como se o erro tivesse chegado', () => {
+      const { container } = render(
+        <Card>
+          <Card.Media alt="" src="/quebrada.jpg" />
+        </Card>,
+      );
+
+      expect(container.querySelector('img')).toBeNull();
+    });
+
+    it('some quando o decode recusa a imagem', async () => {
+      prototipo.decode = () => Promise.reject(new Error('quebrada'));
+      const { container } = render(
+        <Card>
+          <Card.Media alt="" src="/quebrada.jpg" />
+        </Card>,
+      );
+
+      await waitFor(() => expect(container.querySelector('img')).toBeNull());
+    });
+
+    it('fica quando o decode aceita a imagem sem medida propria, como um SVG', async () => {
+      const decode = vi.fn(() => Promise.resolve());
+      prototipo.decode = decode;
+      render(
+        <Card>
+          <Card.Media alt="Produto A" src="/produto-a.svg" />
+        </Card>,
+      );
+
+      await act(async () => {});
+      expect(decode).toHaveBeenCalledOnce();
+      expect(screen.getByRole('img', { name: 'Produto A' })).toBeInTheDocument();
+    });
   });
 
   it('no fim da linha, e quadrada por padrao', () => {
