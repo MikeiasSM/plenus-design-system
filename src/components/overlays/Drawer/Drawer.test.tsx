@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Drawer } from './Drawer';
 import styles from './Drawer.module.css';
@@ -191,5 +193,48 @@ describe('Drawer', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Salvar' }).parentElement).toHaveClass(styles.footer!);
+  });
+
+  it('nas laterais, o size continua a largura maxima, sem o teto de altura da base', () => {
+    const { rerender } = render(<Drawer open side="left" size="sm" title="Filtros" />);
+    let painel = screen.getByRole('dialog', { name: 'Filtros' });
+    expect(painel).toHaveClass(styles.drawer!, styles.sm!);
+    expect(painel.parentElement).toHaveClass(styles.left!);
+    expect(painel.parentElement).not.toHaveClass(styles.bottom!);
+
+    rerender(<Drawer open side="right" size="lg" title="Filtros" />);
+    painel = screen.getByRole('dialog', { name: 'Filtros' });
+    expect(painel).toHaveClass(styles.drawer!, styles.lg!);
+    expect(painel.parentElement).toHaveClass(styles.right!);
+    expect(painel.parentElement).not.toHaveClass(styles.bottom!);
+  });
+
+  it('nas laterais, a folha define a largura de cada size, e o teto de altura so vale sob a base', () => {
+    const css = readFileSync(resolve(__dirname, 'Drawer.module.css'), 'utf8');
+
+    expect(css).toMatch(/^\.sm \{\s*max-width: 360px;\s*\}/m);
+    expect(css).toMatch(/^\.md \{\s*max-width: 480px;\s*\}/m);
+    expect(css).toMatch(/^\.lg \{\s*max-width: 640px;\s*\}/m);
+    // Toda altura maxima da folha fica presa a `.bottom`, e nao alcanca a esquerda nem a direita.
+    const regrasComAltura = css.match(/[^{}]+\{[^}]*max-height[^}]*\}/g) ?? [];
+    expect(regrasComAltura).toHaveLength(3);
+    regrasComAltura.forEach((regra) => expect(regra.trim()).toMatch(/^\.bottom \./));
+  });
+
+  it('na base, o Esc e o toque fora fecham', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer onOpenChange={onOpenChange} open side="bottom" title="Relatório mensal">
+        Corpo.
+      </Drawer>,
+    );
+    const painel = screen.getByRole('dialog', { name: 'Relatório mensal' });
+
+    fireEvent.keyDown(painel, { key: 'Escape' });
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+
+    fireEvent.mouseDown(painel.parentElement!);
+    fireEvent.mouseUp(painel.parentElement!);
+    expect(onOpenChange.mock.calls).toEqual([[false], [false]]);
   });
 });
