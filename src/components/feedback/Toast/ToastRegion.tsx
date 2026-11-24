@@ -34,6 +34,9 @@ export function ToastRegion({ className, onFocus, portalContainer, ...props }: T
     <div
       {...props}
       className={[styles.region, className].filter(Boolean).join(' ')}
+      // Camada de cima: com um Dialog aberto, o canto continua visível ao leitor de tela, recebe o foco e o clique
+      // nele não conta como fora do Dialog.
+      data-react-aria-top-layer="true"
       onFocus={(event) => {
         onFocus?.(event);
 

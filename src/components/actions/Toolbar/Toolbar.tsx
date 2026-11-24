@@ -132,7 +132,7 @@ function AnchoredToolbar({
       ref={mergedRef}
       anchored
       data-react-aria-top-layer="true"
-      style={{ ...style, ...overlayProps.style }}
+      style={{ ...style, ...overlayProps.style, zIndex: 'var(--pl-z-popover)' }}
     />
   );
 }

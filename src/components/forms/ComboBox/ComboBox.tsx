@@ -481,7 +481,7 @@ export function ComboBox(allProps: ComboBoxProps) {
                   onBlur={handlePanelBlur}
                   onKeyDown={hasFooter ? handlePanelKeyDown : undefined}
                   onMouseDown={(event) => event.preventDefault()}
-                  style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
+                  style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima, zIndex: 'var(--pl-z-popover)' }}
                 >
                   <ListingOptions
                     baseId={baseId}

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Dialog } from '../../overlays/Dialog';
 import { ToastProvider, useToast } from './ToastProvider';
 import { ToastRegion } from './ToastRegion';
 import { dismissToast, showToast, type ToastOptions } from './toastStore';
@@ -232,5 +233,59 @@ describe('ToastProvider', () => {
     fireEvent.click(fecharPrimeiro);
 
     expect(fecharSegundo).toHaveFocus();
+  });
+});
+
+describe('ToastRegion com Dialog aberto', () => {
+  afterEach(() => {
+    act(() => shown.splice(0).forEach(dismissToast));
+  });
+
+  // O `ariaHideOutside` do Dialog esconde o que entra depois dele num MutationObserver, que roda em microtarefa.
+  async function abrirComAviso(onOpenChange = vi.fn()) {
+    render(
+      <>
+        <Dialog onOpenChange={onOpenChange} open title="Cadastro">
+          <button type="button">Salvar</button>
+        </Dialog>
+        <ToastRegion aria-label="regiao" />
+      </>,
+    );
+    show({ duration: null, title: 'Registro salvo' });
+    await act(async () => undefined);
+    return onOpenChange;
+  }
+
+  it('declara-se camada de cima, e o canto fica visivel ao leitor de tela', async () => {
+    await abrirComAviso();
+
+    const regiao = screen.getByLabelText('regiao');
+
+    expect(regiao).toHaveAttribute('data-react-aria-top-layer', 'true');
+    expect(regiao.closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('o botao Fechar do aviso recebe o foco, que o Dialog nao puxa de volta', async () => {
+    await abrirComAviso();
+
+    // `hidden`: confere o foco por si, independente do teste do leitor de tela acima.
+    const fechar = screen.getByRole('button', { hidden: true, name: 'Fechar aviso' });
+    act(() => fechar.focus());
+
+    expect(fechar).toHaveFocus();
+  });
+
+  it('clicar no aviso nao fecha o Dialog dispensavel', async () => {
+    const onOpenChange = await abrirComAviso();
+    const aviso = screen.getByRole('status', { hidden: true });
+
+    fireEvent.pointerDown(aviso);
+    fireEvent.mouseDown(aviso);
+    fireEvent.pointerUp(aviso);
+    fireEvent.mouseUp(aviso);
+    fireEvent.click(aviso);
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Cadastro' })).toBeInTheDocument();
   });
 });

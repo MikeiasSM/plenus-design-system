@@ -99,6 +99,25 @@ describe('painéis fecham quando o gatilho rola', () => {
     expect(gatilho).toHaveFocus();
   });
 
+  it('Menu não fecha ao rolar a janela nem o documento: o painel acompanha a página', () => {
+    const mudou = vi.fn();
+    render(
+      <Menu items={[{ key: 'editar', label: 'Editar' }]} label="Ações" onOpenChange={mudou}>
+        <Button>Ações</Button>
+      </Menu>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Ações' }));
+    mudou.mockClear();
+
+    rolar(window);
+    rolar(document);
+    rolar(document.documentElement);
+    rolar(document.body);
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(mudou).not.toHaveBeenCalled();
+  });
+
   it('submenu fecha sozinho quando o menu pai rola', () => {
     render(
       <Menu

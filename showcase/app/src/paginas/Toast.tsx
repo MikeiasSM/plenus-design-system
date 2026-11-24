@@ -184,6 +184,8 @@ function Modos() {
       <dd>Um botão só, como tentar de novo. Acioná-lo roda o <code>onClick</code> e fecha o aviso.</dd>
       <dt><code>dismissToast</code></dt>
       <dd><code>showToast</code> devolve o id; <code>dismissToast(id)</code> fecha o aviso antes do tempo.</dd>
+      <dt>Com um Dialog aberto</dt>
+      <dd>O canto é camada de cima: continua visível ao leitor de tela, recebe o foco, e clicar num aviso não fecha o Dialog.</dd>
     </dl>
   );
 }
