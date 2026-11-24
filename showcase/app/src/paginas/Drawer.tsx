@@ -15,9 +15,11 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Valores, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
 
-const LADOS = ['right', 'left'] as const;
+const LADOS = ['right', 'left', 'bottom'] as const;
 const TAMANHOS = ['sm', 'md', 'lg'] as const;
 const LARGURAS: Record<DrawerSize, string> = { sm: '360px', md: '480px', lg: '640px' };
+const ALTURAS: Record<DrawerSize, string> = { sm: '50%', md: '75%', lg: '90%' };
+const PRESA: Record<DrawerSide, string> = { right: 'presa à direita', left: 'presa à esquerda', bottom: 'presa à base' };
 const RODAPE = '<>\n  <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n  <Button onClick={salvar}>Salvar</Button>\n</>';
 const SITUACOES = [
   { label: 'Ativo', value: 'ativo' },
@@ -208,6 +210,41 @@ function Historico() {
   );
 }
 
+function DetalheNaBase() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setAberto(true)} variant="secondary">Ver Produto A</Button>
+      <Drawer
+        description="Atualizado há 2 dias."
+        footer={
+          <>
+            <Button onClick={() => setAberto(false)} variant="secondary">Cancelar</Button>
+            <Button onClick={() => setAberto(false)}>Adicionar</Button>
+          </>
+        }
+        onOpenChange={setAberto}
+        open={aberto}
+        side="bottom"
+        size="sm"
+        title="Produto A"
+      >
+        <div className="stack">
+          <p style={{ margin: 0 }}>Item de exemplo, com a descrição curta que cabe numa folha do celular.</p>
+          <SegmentedControl defaultValue="p" items={TAMANHOS_DO_PRODUTO} label="Tamanho" />
+        </div>
+      </Drawer>
+    </>
+  );
+}
+
+const TAMANHOS_DO_PRODUTO = [
+  { label: 'Pequeno', value: 'p' },
+  { label: 'Médio', value: 'm' },
+  { label: 'Grande', value: 'g' },
+];
+
 const PARCELAS = [
   { id: '1', vencimento: '10/11', valor: 1250 },
   { id: '2', vencimento: '10/12', valor: 1250 },
@@ -318,7 +355,8 @@ const CODIGO_DO_TAMANHO = `<Drawer open={aberto} onOpenChange={setAberto} size="
 <Drawer open={aberto} onOpenChange={setAberto} size="lg" title="Detalhes">…</Drawer>`;
 
 const CODIGO_DO_LADO = `<Drawer open={aberto} onOpenChange={setAberto} side="right" title="Detalhes">…</Drawer>
-<Drawer open={aberto} onOpenChange={setAberto} side="left" title="Detalhes">…</Drawer>`;
+<Drawer open={aberto} onOpenChange={setAberto} side="left" title="Detalhes">…</Drawer>
+<Drawer open={aberto} onOpenChange={setAberto} side="bottom" title="Detalhes">…</Drawer>`;
 
 function Variantes() {
   const [aberta, setAberta] = useState<{ side: DrawerSide; size: DrawerSize } | null>(null);
@@ -348,14 +386,22 @@ function Variantes() {
         <VerCodigo codigo={CODIGO_DO_LADO} />
       </div>
       <Drawer
-        description={aberta ? `Largura máxima de ${LARGURAS[aberta.size]}, presa à ${aberta.side === 'left' ? 'esquerda' : 'direita'}.` : undefined}
+        description={
+          aberta
+            ? aberta.side === 'bottom'
+              ? `Altura máxima de ${ALTURAS[aberta.size]} da tela, ${PRESA.bottom}.`
+              : `Largura máxima de ${LARGURAS[aberta.size]}, ${PRESA[aberta.side]}.`
+            : undefined
+        }
         onOpenChange={() => setAberta(null)}
         open={aberta !== null}
         side={aberta?.side}
         size={aberta?.size}
         title={aberta ? `side="${aberta.side}" · size="${aberta.size}"` : ''}
       >
-        Altura toda da tela, sem raio. No celular, a gaveta ocupa a largura.
+        {aberta?.side === 'bottom'
+          ? 'Altura do conteúdo, cantos de cima arredondados. No computador, centralizada, com até 640px de largura.'
+          : 'Altura toda da tela, sem raio. No celular, a gaveta ocupa a largura.'}
       </Drawer>
     </div>
   );
@@ -374,7 +420,11 @@ function Modos() {
       <dt>Conteúdo longo</dt>
       <dd>Cabeçalho e rodapé ficam fixos; só o meio rola.</dd>
       <dt>Celular</dt>
-      <dd>A gaveta ocupa a largura da tela, em qualquer <code>size</code>.</dd>
+      <dd>
+        A gaveta lateral ocupa a largura da tela, em qualquer <code>size</code>. Com <code>side=&quot;bottom&quot;</code>, sobe da
+        base, com a altura do conteúdo até 50, 75 ou 90% da tela pelo <code>size</code>, e a área segura de baixo fica dentro do
+        rodapé. Não tem alça, porque não se arrasta: fecha pelo botão, pelo Escape ou pelo toque fora.
+      </dd>
       <dt>Mecânica do Dialog</dt>
       <dd>
         Foco preso e devolvido, fundo inerte e rolagem travada vêm do mesmo núcleo do Dialog. Sem <code>icon</code> nem{' '}
@@ -407,6 +457,13 @@ export const pagina: Pagina = {
       Previa: Historico,
       codigo:
         '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  size="lg"\n  title="Histórico de Ana Prado"\n  description="Alterações dos últimos 30 dias."\n>\n  {historico.map((linha) => (\n    <p key={linha.id}>{linha.texto}</p>\n  ))}\n</Drawer>',
+    },
+    {
+      titulo: 'Detalhe na base da tela',
+      descricao: 'side="bottom" para o detalhe de um item ou uma escolha curta no celular. Com title, o botão de fechar fica no cabeçalho; sem title, ponha o seu.',
+      Previa: DetalheNaBase,
+      codigo:
+        '<Drawer\n  open={aberto}\n  onOpenChange={setAberto}\n  side="bottom"\n  size="sm"\n  title="Produto A"\n  description="Atualizado há 2 dias."\n  footer={<>\n    <Button variant="secondary" onClick={fechar}>Cancelar</Button>\n    <Button onClick={adicionar}>Adicionar</Button>\n  </>}\n>\n  <SegmentedControl defaultValue="p" items={tamanhos} label="Tamanho" />\n</Drawer>',
     },
     {
       titulo: 'Sem título e sem respiro',
@@ -454,7 +511,7 @@ export const pagina: Pagina = {
     },
     { garantia: 'Fechar', como: 'Escape e o botão de fechar chamam onOpenChange(false).', teste: 'Drawer.test.tsx' },
     { garantia: 'Safe area', como: <>Respeita <code>env(safe-area-inset-*)</code> na borda em que se prende e no topo e no pé, com <code>viewport-fit=cover</code>.</>, teste: 'mobile.test.ts' },
-    { garantia: 'Lado', como: 'Sai da direita por padrão, ou da esquerda com side="left".', teste: 'Drawer.test.tsx' },
+    { garantia: 'Lado', como: 'Sai da direita por padrão, da esquerda com side="left" ou da base com side="bottom".', teste: 'Drawer.test.tsx' },
     {
       garantia: 'Foco e fundo',
       como: 'Foco devolvido ao gatilho e página escondida da tecnologia assistiva, pela mecânica que divide com o Dialog.',
@@ -477,8 +534,8 @@ export const pagina: Pagina = {
     { nome: 'description', tipo: 'string', descricao: 'Texto sob o título, ligado como descrição acessível.' },
     { nome: 'children', tipo: 'ReactNode', descricao: 'Corpo, que rola quando passa da altura.' },
     { nome: 'footer', tipo: 'ReactNode', descricao: 'Rodapé fixo, com as ações.' },
-    { nome: 'side', tipo: "'left' | 'right'", padrao: "'right'", descricao: 'Lado da tela de onde a gaveta sai.' },
-    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Largura máxima de 360, 480 ou 640px.' },
+    { nome: 'side', tipo: "'left' | 'right' | 'bottom'", padrao: "'right'", descricao: 'Borda da tela de onde a gaveta sai. bottom sobe da base, com cantos de cima arredondados.' },
+    { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Nas laterais, largura máxima de 360, 480 ou 640px. Na base, altura máxima de 50, 75 ou 90% da tela.' },
     { nome: 'flush', tipo: 'boolean', padrao: 'false', descricao: 'Corpo sem o respiro interno, para o conteúdo que desenha a própria margem.' },
     { nome: 'dismissable', tipo: 'boolean', padrao: 'true', descricao: 'Botão de fechar, Escape e clique fora.' },
   ],
