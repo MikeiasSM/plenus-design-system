@@ -4,12 +4,6 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
-## [Não publicado]
-
-### Adicionado
-
-- `createPalette` declara `--pl-color-primary-outline`, com o traço, quando o preenchimento ou o fundo do hover do `Button` primário fica abaixo de 3:1 contra a superfície clara. `Switch` ligado, `Checkbox` marcado e `Button` primário o usam como borda; sem a declaração, nada muda (roadmap 0.8.0, item 26a).
-
 ## [0.7.2] — 2026-11-24
 
 ### Adicionado
@@ -35,6 +29,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportable` nos gráficos da moldura comum (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartWaterfall`, `ChartScatter`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey`): menu "Opções do gráfico" com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco; o SVG sai com os estilos embutidos e o PNG no dobro da resolução, sem dependência nova.
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
+- `createPalette` declara `--pl-color-primary-outline`, com o traço, quando o preenchimento ou o fundo do hover do `Button` primário fica abaixo de 3:1 contra a superfície clara. `Switch` ligado, `Checkbox` marcado e `Button` primário o usam como borda; sem a declaração, nada muda (roadmap 0.8.0, item 26a).
 
 ### Corrigido
 
