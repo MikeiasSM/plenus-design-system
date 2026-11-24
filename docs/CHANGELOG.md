@@ -30,6 +30,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
 - `Drawer`: `side="bottom"`, o painel que sobe da base da tela, sem alça de arrastar, com cantos de cima arredondados, a área segura de baixo dentro do rodapé e a altura do conteúdo até o teto do `size` (`sm` 50%, `md` 75%, `lg` 90% da tela). A mecânica é a mesma do `Dialog`; sem `title`, não há botão Fechar, e o produto põe o próprio. `DrawerSide` passa a aceitar `'bottom'`; os lados `left` e `right` não mudam.
+- `TabsNav`: `followScroll`, para abas que são seções da mesma página (`href="#id"`). A barra fica presa ao topo da área que rola, a página ou um contêiner, e a seção atual é a última cujo topo chegou à borda de baixo da barra; no fim da rolagem, é a última. A aba atual vem para o meio da faixa, leva `aria-current="location"`, e `onCurrentChange` avisa só quando a seção muda. `current` passa a ser opcional, com `defaultCurrent`: sem ele, a barra guarda a seção sozinha. `stickyOffset` é o `top` do sticky, e um `top` em `style` vence. No clique, a seção recebe um `scroll-margin-top` com a altura da barra, para o título não ficar por baixo. Sem `followScroll`, nada muda.
 
 ### Corrigido
 
