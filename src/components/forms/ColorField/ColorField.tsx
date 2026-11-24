@@ -131,8 +131,8 @@ export function ColorField(allProps: ColorFieldProps) {
     setLastRender({ props: allProps, text: next });
   }
 
-  // Desabilitado ou só de leitura, nem o conta-gotas nem as amostras mudam a cor: só o texto do campo seria pouco.
   const size = props.size ?? 'md';
+  // Desabilitado ou só de leitura, nem o conta-gotas nem as amostras mudam a cor: só o texto do campo seria pouco.
   const locked = Boolean(props.disabled || props.readOnly);
   const color = normalizeHex(text);
   const invalid = touched && text.trim() !== '' && color === null;

@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 describe('normalizeHex', () => {
-  it('accepts short and long codes, with or without #', () => {
+  it('aceita o código curto e o longo, com ou sem #', () => {
     expect(normalizeHex('#e85d1f')).toBe('#E85D1F');
     expect(normalizeHex('abc')).toBe('#AABBCC');
     expect(normalizeHex('#12345')).toBeNull();
@@ -17,7 +17,7 @@ describe('normalizeHex', () => {
 });
 
 describe('ColorField', () => {
-  it('reports the normalized color only when the code is valid', async () => {
+  it('avisa a cor normalizada só quando o código vale', async () => {
     const onValueChange = vi.fn();
     render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
 
@@ -28,7 +28,7 @@ describe('ColorField', () => {
     expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
   });
 
-  it('takes the short code only when leaving the field, expanded', async () => {
+  it('aceita o código curto só na saída do campo, já expandido', async () => {
     const onValueChange = vi.fn();
     render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
     const input = screen.getByLabelText('Cor da marca');
@@ -41,7 +41,7 @@ describe('ColorField', () => {
     expect(input).toHaveValue('#EE8855');
   });
 
-  it('shows the format error only after leaving the field', async () => {
+  it('mostra o erro de formato só depois da saída do campo', async () => {
     render(<ColorField label="Cor da marca" />);
     const input = screen.getByLabelText('Cor da marca');
 
@@ -52,7 +52,7 @@ describe('ColorField', () => {
     expect(screen.getByText('Use o código hexadecimal, como #E85D1F.')).toBeInTheDocument();
   });
 
-  it('fills the field from a suggested swatch', async () => {
+  it('preenche o campo pela amostra sugerida', async () => {
     const onValueChange = vi.fn();
     render(
       <ColorField
@@ -72,13 +72,13 @@ describe('ColorField', () => {
     expect(screen.getByRole('radiogroup', { name: 'Cores sugeridas para Cor da marca' })).toBeInTheDocument();
   });
 
-  it('hides the eyedropper where the browser has none', () => {
+  it('esconde o conta-gotas onde o navegador não o tem', () => {
     render(<ColorField label="Cor da marca" />);
 
     expect(screen.queryByRole('button', { name: 'Pegar uma cor da tela' })).toBeNull();
   });
 
-  it('uses the eyedropper where it exists', async () => {
+  it('usa o conta-gotas onde ele existe', async () => {
     (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
       open() {
         return Promise.resolve({ sRGBHex: '#49619c' });
