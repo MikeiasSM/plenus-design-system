@@ -17,21 +17,46 @@ export interface PaletteMeasure {
   minimum: number;
   /** Se a razao, sem arredondar, chega ao minimo: 4,4952 reprova, embora se mostre 4,5. */
   passes: boolean;
-  /** A paleta usa, neste papel, outra cor que nao a informada ou o passo padrao da rampa. */
+  /**
+   * A biblioteca escolheu, neste papel, outra cor que nao a informada ou o passo padrao da rampa: o traco mais escuro
+   * que a cor, o hover e o pressionado afastados do texto, o contorno. A cor que o produto impos nao conta aqui.
+   */
   adjusted: boolean;
+  /** A cor deste papel veio do produto, como o texto de `onSolid`, e nao da escolha da biblioteca. */
+  imposed: boolean;
 }
 
 const lightOf = (value: string | undefined) => value?.match(/#[0-9A-F]{6}/i)?.[0]?.toUpperCase();
 
-function measure(role: PaletteRole, foreground: string, background: string, minimum: number, adjusted: boolean): PaletteMeasure {
+interface MeasureFlags {
+  adjusted?: boolean;
+  imposed?: boolean;
+}
+
+function measure(
+  role: PaletteRole,
+  foreground: string,
+  background: string,
+  minimum: number,
+  { adjusted = false, imposed = false }: MeasureFlags = {},
+): PaletteMeasure {
   const ratio = contrast(foreground, background);
 
-  return { adjusted, background, foreground, minimum, passes: ratio >= minimum, ratio: Math.round(ratio * 100) / 100, role };
+  return {
+    adjusted,
+    background,
+    foreground,
+    imposed,
+    minimum,
+    passes: ratio >= minimum,
+    ratio: Math.round(ratio * 100) / 100,
+    role,
+  };
 }
 
 /**
  * Laudo da paleta de `createPalette(cor, opcoes)`, no tema claro: uma medida por papel (texto sobre o preenchimento,
- * hover, pressionado, traco, contorno e conteiner), com as cores, a razao, o minimo e se a paleta ajustou a cor. Serve
+ * hover, pressionado, traco, contorno e conteiner), com as cores, a razao, o minimo, se a biblioteca ajustou a cor e se o produto a impos. Serve
  * ao produto para mostrar a quem escolheu a cor o que ficou como estava e o que mudou. E separada de `createPalette`
  * para o retorno dela continuar espalhavel num elemento. Recusa as mesmas cores que `createPalette`, com o proprio
  * nome na mensagem, e nao avisa no console: o texto imposto que reprova aparece no proprio laudo.
@@ -46,11 +71,11 @@ export function measurePalette(color: string, options: CreatePaletteOptions = {}
   const outline = lightOf(style['--pl-color-primary-outline']);
 
   return [
-    measure('text-on-fill', text, solid, TEXT_MINIMUM, options.onSolid !== undefined),
-    measure('hover', text, hover ?? style['--pl-palette-60'], TEXT_MINIMUM, hover !== undefined),
-    measure('active', text, active ?? style['--pl-palette-70'], TEXT_MINIMUM, active !== undefined),
-    measure('strong', strong, LIGHT_SURFACE, TEXT_MINIMUM, strong !== solid),
-    outline ? measure('outline', outline, LIGHT_SURFACE, CONTROL_MINIMUM, true) : measure('outline', solid, LIGHT_SURFACE, CONTROL_MINIMUM, false),
-    measure('container', style['--pl-palette-80'], style['--pl-palette-10'], TEXT_MINIMUM, false),
+    measure('text-on-fill', text, solid, TEXT_MINIMUM, { imposed: options.onSolid !== undefined }),
+    measure('hover', text, hover ?? style['--pl-palette-60'], TEXT_MINIMUM, { adjusted: hover !== undefined }),
+    measure('active', text, active ?? style['--pl-palette-70'], TEXT_MINIMUM, { adjusted: active !== undefined }),
+    measure('strong', strong, LIGHT_SURFACE, TEXT_MINIMUM, { adjusted: strong !== solid }),
+    measure('outline', outline ?? solid, LIGHT_SURFACE, CONTROL_MINIMUM, { adjusted: outline !== undefined }),
+    measure('container', style['--pl-palette-80'], style['--pl-palette-10'], TEXT_MINIMUM),
   ];
 }
