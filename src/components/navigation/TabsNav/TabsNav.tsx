@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ComponentPropsWithRef, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, type ComponentPropsWithRef, type ElementType, type ReactNode, type RefObject } from 'react';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { TabLabel, temAcoes, type TabsAppearance } from '../Tabs/Tabs';
 import tabsStyles from '../Tabs/Tabs.module.css';
 import styles from './TabsNav.module.css';
@@ -42,37 +43,91 @@ export interface TabsNavProps extends Omit<ComponentPropsWithRef<'nav'>, 'aria-l
 const sectionOf = (item: TabsNavItem) =>
   item.href?.startsWith('#') ? document.getElementById(decodeURIComponent(item.href.slice(1))) : null;
 
-/** A seção cujo topo passou da barra por último, na ordem das abas. */
-function useScrollSpy(enabled: boolean, items: readonly TabsNavItem[], offset: number, onChange?: (key: string) => void) {
+/** O ancestral que rola na vertical, ou o documento: é nele que a barra fica presa e que se mede o fim da rolagem. */
+function scrollerOf(elemento: HTMLElement): HTMLElement {
+  for (let pai = elemento.parentElement; pai; pai = pai.parentElement) {
+    const { overflowY } = window.getComputedStyle(pai);
+    if (/auto|scroll|overlay/.test(overflowY) && pai.scrollHeight > pai.clientHeight) {
+      return pai;
+    }
+  }
+
+  return (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
+}
+
+/**
+ * A seção atual: a última, na ordem das abas, cujo topo já chegou à borda de baixo da barra. A conta é feita contra a
+ * própria barra, e não contra a janela, para valer igual com a página rolando ou dentro de um contêiner que rola, com
+ * qualquer coisa presa acima. No fim da rolagem, a última seção é a atual, mesmo curta demais para chegar à barra.
+ */
+function useScrollSpy(
+  enabled: boolean,
+  items: readonly TabsNavItem[],
+  barraRef: RefObject<HTMLElement | null>,
+  current: string | undefined,
+  onChange: (key: string) => void,
+) {
   const avisar = useRef(onChange);
   avisar.current = onChange;
+  const itens = useRef(items);
+  itens.current = items;
+  const atualRef = useRef(current);
+  atualRef.current = current;
+
+  // Os itens costumam vir em linha, novos a cada render; o efeito só recomeça quando mudam as seções observadas.
+  const chave = items.map((item) => `${item.key} ${item.href ?? ''}`).join('|');
 
   useEffect(() => {
-    if (!enabled || typeof window === 'undefined') {
+    const barra = barraRef.current;
+
+    if (!enabled || !barra || typeof window === 'undefined') {
       return;
     }
 
-    let ultima: string | undefined;
+    let ultima = atualRef.current;
     let quadro = 0;
 
     const medir = () => {
       quadro = 0;
-      let atual = items[0]?.key;
+      const lista = itens.current;
+      const linha = barra.getBoundingClientRect().bottom;
+      let atual = lista[0]?.key;
+      let ultimaComSecao: string | undefined;
 
-      for (const item of items) {
+      for (const item of lista) {
         const secao = sectionOf(item);
-        if (secao && secao.getBoundingClientRect().top - offset <= 1) {
+        if (!secao) {
+          continue;
+        }
+        ultimaComSecao = item.key;
+        if (secao.getBoundingClientRect().top - linha <= 1) {
           atual = item.key;
         }
       }
 
-      if (atual !== undefined && atual !== ultima) {
-        ultima = atual;
-        avisar.current?.(atual);
+      const rolagem = scrollerOf(barra);
+      const fim = rolagem.scrollHeight - rolagem.clientHeight;
+      if (ultimaComSecao !== undefined && fim > 1 && rolagem.scrollTop >= fim - 1) {
+        atual = ultimaComSecao;
+      }
+
+      // Só avisa a mudança de fato: nem a chave que já é a atual, nem a mesma de novo a cada quadro.
+      if (atual === undefined || atual === ultima) {
+        return;
+      }
+      ultima = atual;
+      if (atual !== atualRef.current) {
+        avisar.current(atual);
       }
     };
 
-    const agendar = () => {
+    const agendar = (evento: Event) => {
+      // Só interessa a rolagem de quem contém a barra: a da própria faixa de abas, ou de outra lista na página, não
+      // muda a seção visível.
+      const alvo = evento.target;
+      if (alvo instanceof Node && alvo !== document && !alvo.contains(barra)) {
+        return;
+      }
       if (!quadro) {
         quadro = window.requestAnimationFrame(medir);
       }
@@ -87,7 +142,7 @@ function useScrollSpy(enabled: boolean, items: readonly TabsNavItem[], offset: n
       window.removeEventListener('scroll', agendar, { capture: true });
       window.removeEventListener('resize', agendar);
     };
-  }, [enabled, items, offset]);
+  }, [enabled, chave, barraRef]);
 }
 
 /** Abas que são endereços: cada uma é um link, e a da página atual leva `aria-current="page"`. */
@@ -102,14 +157,17 @@ export function TabsNav({
   items,
   label,
   onCurrentChange,
+  ref,
   stickyOffset = 0,
   style,
   ...props
 }: TabsNavProps) {
   const segmentado = appearance === 'segmented';
+  const barraRef = useRef<HTMLElement>(null);
   const listaRef = useRef<HTMLUListElement>(null);
+  const navRef = useMergedRefs(barraRef, ref);
 
-  useScrollSpy(followScroll, items, stickyOffset, onCurrentChange);
+  useScrollSpy(followScroll, items, barraRef, current, (chave) => onCurrentChange?.(chave));
 
   // A aba atual vem para o meio da barra, sem mexer na rolagem da página e sem animação para quem pede menos movimento.
   useEffect(() => {
@@ -161,6 +219,7 @@ export function TabsNav({
     <nav
       {...props}
       aria-label={label}
+      ref={navRef}
       className={[
         styles.tabsNav,
         segmentado && tabsStyles.segmented,

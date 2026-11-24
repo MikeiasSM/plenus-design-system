@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { ComponentPropsWithoutRef } from 'react';
 import { TabsNav, type TabsNavItem } from './TabsNav';
 
@@ -119,45 +119,215 @@ describe('TabsNav', () => {
 
   describe('followScroll', () => {
     const secoes: TabsNavItem[] = [
-      { key: 'pizzas', label: 'Pizzas grandes', href: '#pizzas' },
-      { key: 'doces', label: 'Pizzas doces', href: '#doces' },
-      { key: 'bebidas', label: 'Bebidas', href: '#bebidas' },
+      { key: 'geral', label: 'Geral', href: '#geral' },
+      { key: 'avisos', label: 'Avisos', href: '#avisos' },
+      { key: 'acesso', label: 'Acesso', href: '#acesso' },
     ];
 
-    function montarSecoes(topos: Record<string, number>) {
-      for (const [id, top] of Object.entries(topos)) {
+    // Onde cada elemento está na tela: a borda de baixo da barra e o topo de cada seção, que o teste muda à vontade.
+    let posicoes: { barra: number; secoes: Record<string, number> };
+    let quadros: FrameRequestCallback[];
+
+    function montarSecoes(topos: Record<string, number>, onde: HTMLElement = document.body) {
+      posicoes.secoes = topos;
+      for (const id of Object.keys(topos)) {
         const secao = document.createElement('section');
         secao.id = id;
-        secao.getBoundingClientRect = () => ({ top } as DOMRect);
-        document.body.appendChild(secao);
+        onde.appendChild(secao);
       }
     }
 
-    afterEach(() => document.querySelectorAll('section').forEach((secao) => secao.remove()));
+    function rodarQuadros() {
+      const pendentes = quadros;
+      quadros = [];
+      act(() => pendentes.forEach((quadro) => quadro(0)));
+    }
+
+    function definirRolagem(elemento: Element, medidas: { clientHeight: number; scrollHeight: number; scrollTop: number }) {
+      for (const [nome, valor] of Object.entries(medidas)) {
+        Object.defineProperty(elemento, nome, { configurable: true, value: valor, writable: true });
+      }
+    }
+
+    beforeEach(() => {
+      posicoes = { barra: 0, secoes: {} };
+      quadros = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((quadro) => quadros.push(quadro));
+      vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        if (this.tagName === 'NAV') {
+          return { bottom: posicoes.barra, top: posicoes.barra - 48 } as DOMRect;
+        }
+        const top = posicoes.secoes[this.id] ?? 0;
+        return { bottom: top + 200, top } as DOMRect;
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      document.querySelectorAll('section, [data-rola]').forEach((elemento) => elemento.remove());
+      for (const nome of ['clientHeight', 'scrollHeight', 'scrollTop']) {
+        delete (document.documentElement as unknown as Record<string, unknown>)[nome];
+      }
+    });
 
     it('marca a secao atual com aria-current="location", nao "page"', () => {
-      render(<TabsNav current="doces" followScroll items={secoes} label="Categorias" />);
+      render(<TabsNav current="avisos" followScroll items={secoes} label="Seções" />);
 
-      expect(screen.getByRole('link', { name: 'Pizzas doces' })).toHaveAttribute('aria-current', 'location');
+      expect(screen.getByRole('link', { name: 'Avisos' })).toHaveAttribute('aria-current', 'location');
     });
 
-    it('avisa a secao cujo topo passou da barra, descontando o que fica preso acima', () => {
-      montarSecoes({ pizzas: -400, doces: 40, bebidas: 600 });
+    it('a secao so vira a atual quando o topo chega a borda de baixo da barra, e nao ao topo dela', () => {
+      // A barra está presa a 56px e tem 48px: a borda de baixo fica em 104.
+      posicoes.barra = 104;
+      montarSecoes({ geral: -400, avisos: 80, acesso: 600 });
       const onCurrentChange = vi.fn();
 
-      render(<TabsNav current="pizzas" followScroll items={secoes} label="Categorias" onCurrentChange={onCurrentChange} stickyOffset={56} />);
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} stickyOffset={56} />);
 
-      expect(onCurrentChange).toHaveBeenLastCalledWith('doces');
+      expect(onCurrentChange).toHaveBeenCalledWith('avisos');
     });
 
-    it('sem followScroll, nao observa a rolagem', () => {
-      montarSecoes({ pizzas: -400, doces: -10, bebidas: 600 });
+    it('a secao que ainda passa por baixo da barra nao e a atual', () => {
+      posicoes.barra = 104;
+      montarSecoes({ geral: -400, avisos: 120, acesso: 600 });
       const onCurrentChange = vi.fn();
 
-      render(<TabsNav current="pizzas" items={secoes} label="Categorias" onCurrentChange={onCurrentChange} />);
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} stickyOffset={56} />);
 
       expect(onCurrentChange).not.toHaveBeenCalled();
     });
+
+    it('mede de novo no quadro seguinte a rolagem e ao redimensionamento, uma vez por quadro', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: 48, avisos: 400, acesso: 900 });
+      const onCurrentChange = vi.fn();
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} />);
+
+      posicoes.secoes = { geral: -600, avisos: 10, acesso: 300 };
+      fireEvent.scroll(document);
+      fireEvent.scroll(document);
+      expect(quadros).toHaveLength(1);
+      expect(onCurrentChange).not.toHaveBeenCalled();
+      rodarQuadros();
+      expect(onCurrentChange).toHaveBeenLastCalledWith('avisos');
+
+      posicoes.secoes = { geral: -1200, avisos: -500, acesso: 20 };
+      fireEvent(window, new Event('resize'));
+      rodarQuadros();
+      expect(onCurrentChange).toHaveBeenLastCalledWith('acesso');
+    });
+
+    it('ignora a rolagem da propria faixa de abas e a de elementos fora do caminho da barra', () => {
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" />);
+      const outra = document.createElement('div');
+      outra.dataset.rola = '';
+      document.body.appendChild(outra);
+
+      fireEvent.scroll(screen.getByRole('list'));
+      fireEvent.scroll(outra);
+
+      expect(quadros).toHaveLength(0);
+    });
+
+    it('desliga os ouvintes ao desmontar e ao desligar followScroll', () => {
+      const remover = vi.spyOn(window, 'removeEventListener');
+      const { rerender, unmount } = render(<TabsNav current="geral" followScroll items={secoes} label="Seções" />);
+
+      rerender(<TabsNav current="geral" items={secoes} label="Seções" />);
+      expect(remover).toHaveBeenCalledWith('scroll', expect.any(Function), { capture: true });
+      expect(remover).toHaveBeenCalledWith('resize', expect.any(Function));
+
+      remover.mockClear();
+      rerender(<TabsNav current="geral" followScroll items={secoes} label="Seções" />);
+      unmount();
+      expect(remover).toHaveBeenCalledWith('scroll', expect.any(Function), { capture: true });
+
+      fireEvent.scroll(document);
+      expect(quadros).toHaveLength(0);
+    });
+
+    it('no fim da rolagem, a ultima secao e a atual, mesmo curta demais para chegar a barra', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: -900, avisos: -100, acesso: 500 });
+      definirRolagem(document.documentElement, { clientHeight: 800, scrollHeight: 2000, scrollTop: 1200 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} />);
+
+      expect(onCurrentChange).toHaveBeenLastCalledWith('acesso');
+    });
+
+    it('dentro de um conteiner que rola, mede pela barra e ouve a rolagem dele', () => {
+      // Como no AppShell: o corpo da página rola por dentro, abaixo de uma barra de 46px, e a TabsNav fica presa no
+      // topo dele, com stickyOffset 0. A borda de baixo dela, na tela, fica em 46 + 48.
+      const corpo = document.createElement('div');
+      corpo.dataset.rola = '';
+      corpo.style.overflowY = 'auto';
+      document.body.appendChild(corpo);
+      const raiz = document.createElement('div');
+      corpo.appendChild(raiz);
+      posicoes.barra = 94;
+      montarSecoes({ geral: 94, avisos: 500, acesso: 1000 }, corpo);
+      definirRolagem(corpo, { clientHeight: 600, scrollHeight: 1800, scrollTop: 0 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} />, { container: raiz });
+      expect(onCurrentChange).not.toHaveBeenCalled();
+
+      posicoes.secoes = { geral: -300, avisos: 90, acesso: 600 };
+      definirRolagem(corpo, { clientHeight: 600, scrollHeight: 1800, scrollTop: 400 });
+      fireEvent.scroll(corpo);
+      rodarQuadros();
+      expect(onCurrentChange).toHaveBeenLastCalledWith('avisos');
+
+      // No fim da rolagem do contêiner, e não da janela, a última vira a atual.
+      definirRolagem(corpo, { clientHeight: 600, scrollHeight: 1800, scrollTop: 1200 });
+      fireEvent.scroll(corpo);
+      rodarQuadros();
+      expect(onCurrentChange).toHaveBeenLastCalledWith('acesso');
+    });
+
+    it('com items em linha, nao recomeca a cada render nem avisa de novo a mesma secao', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: -400, avisos: 20, acesso: 600 });
+      const adicionar = vi.spyOn(window, 'addEventListener');
+      const onCurrentChange = vi.fn();
+      const montar = () => (
+        <TabsNav current="geral" followScroll items={secoes.map((secao) => ({ ...secao }))} label="Seções" onCurrentChange={onCurrentChange} />
+      );
+
+      const { rerender } = render(montar());
+      rerender(montar());
+      rerender(montar());
+
+      expect(adicionar.mock.calls.filter(([tipo]) => tipo === 'scroll')).toHaveLength(1);
+      expect(onCurrentChange).toHaveBeenCalledTimes(1);
+
+      fireEvent.scroll(document);
+      rodarQuadros();
+      expect(onCurrentChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('na montagem, nao avisa a secao que ja e a atual', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: -400, avisos: 20, acesso: 600 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="avisos" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} />);
+
+      expect(onCurrentChange).not.toHaveBeenCalled();
+    });
+
+    it('sem followScroll, nao observa a rolagem', () => {
+      montarSecoes({ geral: -400, avisos: -10, acesso: 600 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="geral" items={secoes} label="Seções" onCurrentChange={onCurrentChange} />);
+      fireEvent.scroll(document);
+
+      expect(onCurrentChange).not.toHaveBeenCalled();
+      expect(quadros).toHaveLength(0);
+    });
   });
 });
-
