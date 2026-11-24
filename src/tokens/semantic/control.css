@@ -10,7 +10,7 @@
 :root,
 [data-theme],
 [data-palette] {
-  --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary-strong) 50%, var(--pl-color-border-strong));
+  --pl-control-border-hover: color-mix(in srgb, var(--pl-color-primary-strong) 50%, var(--pl-control-border));
   --pl-control-focus-halo:
     0 0 0 3px color-mix(in srgb, var(--pl-color-primary-strong) 14%, transparent),
     0 0 6px 1px color-mix(in srgb, var(--pl-color-primary-strong) 16%, transparent);
