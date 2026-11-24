@@ -1,0 +1,117 @@
+/* A sobreposição é um quarto do tamanho do avatar, e o anel separa os círculos. */
+.group {
+  --pl-avatar-group-overlap: 10px;
+
+  display: inline-flex;
+  align-items: center;
+}
+
+.group.xs {
+  --pl-avatar-group-overlap: 6px;
+}
+
+.group.sm {
+  --pl-avatar-group-overlap: 8px;
+}
+
+.group.lg {
+  --pl-avatar-group-overlap: 14px;
+}
+
+/* O anel é da cor da superfície; `--pl-avatar-group-ring` o troca quando o grupo está sobre outro fundo. */
+.group > * {
+  box-shadow: 0 0 0 2px var(--pl-avatar-group-ring, var(--pl-color-surface));
+}
+
+.group > * + * {
+  margin-left: calc(var(--pl-avatar-group-overlap) * -1);
+}
+
+.more {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-weight: var(--pl-type-label-weight);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+button.more {
+  cursor: pointer;
+}
+
+button.more[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--pl-color-text) 10%, var(--pl-color-surface-muted));
+}
+
+@media (hover: hover) {
+  button.more:hover {
+    background: color-mix(in srgb, var(--pl-color-text) 10%, var(--pl-color-surface-muted));
+  }
+}
+
+/* O anel de foco fica por cima do anel da superfície, sem mudar a medida do círculo. */
+.group > button.more:focus-visible {
+  position: relative;
+  outline: none;
+  box-shadow: var(--pl-control-focus-halo), 0 0 0 1px var(--pl-color-primary-strong);
+}
+
+.more.xs {
+  width: 24px;
+  height: 24px;
+  font-size: var(--pl-type-micro-size);
+}
+
+.more.sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--pl-type-caption-size);
+}
+
+.more.md {
+  width: 40px;
+  height: 40px;
+  font-size: var(--pl-type-label-size);
+}
+
+.more.lg {
+  width: 56px;
+  height: 56px;
+  font-size: var(--pl-type-title-size);
+}
+
+.panel {
+  padding: var(--pl-space-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list > li {
+  padding: var(--pl-space-1) var(--pl-space-2);
+}
+
+/* Em cores forçadas a sombra some: o "+N" ganha um contorno para não virar só um número solto. */
+@media (forced-colors: active) {
+  .more {
+    border: 1px solid CanvasText;
+  }
+
+  .group > button.more:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}

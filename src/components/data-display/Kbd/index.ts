@@ -1,0 +1,4 @@
+export { Kbd } from './Kbd';
+export type { KbdProps } from './Kbd';
+export { formatShortcut } from './keys';
+export type { KbdKeyName, KbdLabels, KbdPlatform } from './keys';

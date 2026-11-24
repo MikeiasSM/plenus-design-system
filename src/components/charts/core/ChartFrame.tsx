@@ -1,5 +1,7 @@
-import { useId, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { useId, useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { Button } from '../../actions/Button';
+import { ButtonIcon } from '../../actions/ButtonIcon';
+import { Menu } from '../../overlays/Menu';
 import {
   ChartLegend,
   type ChartLegendAlign,
@@ -10,7 +12,8 @@ import {
 } from './ChartLegend';
 import { EmptyState } from '../../feedback/EmptyState';
 import { ChartTooltip, type ChartTooltipProps } from '../ChartTooltip/ChartTooltip';
-import { IconChartBar } from '../../icons';
+import { IconChartBar, IconMore } from '../../icons';
+import { exportChart, type ChartExportFormat } from './exportChart';
 import { TABLE_TOGGLE_MIN_WIDTH } from './decomposition';
 import { useShowTableToggle } from '../ChartsProvider';
 import { useChartMetrics } from './useChartMetrics';
@@ -21,6 +24,17 @@ import styles from './Chart.module.css';
 export interface ChartRootProps extends Omit<ComponentPropsWithRef<'figure'>, 'children' | 'title'> {
   /** Titulo so para o leitor de tela, quando o conteiner ja o mostra. */
   hideTitle?: boolean;
+}
+
+/** Cabecalho de cartao dos graficos que usam a moldura comum: subtitulo e menu de exportacao. */
+export interface ChartCardProps {
+  /**
+   * Poe no canto do cabecalho o menu "Opcoes do grafico", com "Baixar PNG" e "Baixar SVG". O arquivo leva o titulo,
+   * o subtitulo e a legenda, sempre no tema claro e com fundo branco.
+   */
+  exportable?: boolean;
+  /** Linha abaixo do titulo, como o periodo do dado. Entra tambem no arquivo exportado. */
+  subtitle?: string;
 }
 
 export function chartRoot(
@@ -53,6 +67,8 @@ export interface ChartFrameProps {
   /** Legenda propria do grafico, no lugar da lista de series, como a de uma escala de cor. */
   legendContent?: ReactNode;
   legendPosition: ChartLegendPosition;
+  /** Complemento do nome acessivel do desenho, depois do titulo, como as referencias que ele traz. */
+  nameDetail?: string;
   /** A partir de quantas entradas a legenda aparece. */
   minLegendEntries?: number;
   /** Entrada da legenda sob o ponteiro ou o foco, com onde ancorar o balao; `null` ao sair. */
@@ -61,7 +77,7 @@ export interface ChartFrameProps {
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
   onToggleSeries?: (label: string) => void;
-  root?: ChartRootProps;
+  root?: ChartRootProps & ChartCardProps;
   swatch?: ChartLegendSwatch;
   /** Leitura medida a medida, no lugar do desenho, pelo botao "Ver como tabela". */
   table?: ReactNode;
@@ -94,6 +110,7 @@ export function ChartFrame({
   legendContent,
   legendPosition,
   minLegendEntries = 1,
+  nameDetail,
   onHighlightSeries,
   onPointerEnter,
   onPointerLeave,
@@ -109,6 +126,8 @@ export function ChartFrame({
 }: ChartFrameProps) {
   const showTableToggle = useShowTableToggle(showTableToggleProp);
   const tituloId = useId();
+  const detalheId = useId();
+  const cabecalho = useRef<HTMLElement>(null);
   const [emTabela, setEmTabela] = useState(false);
   const toque = useTouchPin();
   // Sobre a legenda, o balao segue o ponteiro, como sobre o desenho; a ancora da marca fica para o teclado.
@@ -116,7 +135,8 @@ export function ChartFrame({
   // O botao divide a linha com o titulo: vale a largura do corpo, que a legenda ao lado nao estreita como a do desenho.
   const corpo = useChartMetrics();
   const alternavel = table !== undefined && showTableToggle && !empty && (corpo.width === 0 || corpo.width >= TABLE_TOGGLE_MIN_WIDTH);
-  const { figureProps, titleClassName } = chartRoot(root, {
+  const { exportable = false, subtitle, ...raiz } = root;
+  const { figureProps, titleClassName } = chartRoot(raiz, {
     figure: fillHeight ? `${styles.figure} ${styles.figureFill}` : styles.figure,
     title: styles.title,
   });
@@ -138,8 +158,9 @@ export function ChartFrame({
 
   const desenho = (
     <svg
-      aria-labelledby={tituloId}
+      aria-labelledby={nameDetail ? `${tituloId} ${detalheId}` : tituloId}
       className={styles.canvas}
+      data-chart-canvas=""
       height={height}
       role={canvasRole}
       viewBox={`0 0 ${width} ${height}`}
@@ -149,11 +170,64 @@ export function ChartFrame({
     </svg>
   );
 
+  const botaoDaTabela = alternavel && (
+    <Button
+      aria-pressed={emTabela}
+      className={styles.tableToggle}
+      onClick={() => setEmTabela((atual) => !atual)}
+      size="sm"
+      variant="secondary"
+    >
+      Ver como tabela
+    </Button>
+  );
+
+  function exportar(format: ChartExportFormat) {
+    const figura = cabecalho.current?.closest('figure');
+
+    if (figura) {
+      exportChart(figura, { format }).catch((erro: unknown) => console.error(erro));
+    }
+  }
+
+  const opcoes = `Opções do gráfico ${title}`;
+  // Na tabela nao ha desenho para levar ao arquivo.
+  const semDesenho = empty || mostraTabela;
+
   return (
     <figure {...figureProps}>
-      {alternavel ? (
+      {exportable || subtitle ? (
+        <figcaption className={styles.header} ref={cabecalho}>
+          <span className={styles.heading}>
+            <span className={titleClassName} data-chart-title="" id={tituloId}>
+              {title}
+            </span>
+            {subtitle && (
+              <span className={styles.subtitle} data-chart-subtitle="">
+                {subtitle}
+              </span>
+            )}
+          </span>
+          {(botaoDaTabela || exportable) && (
+            <span className={styles.actions}>
+              {botaoDaTabela}
+              {exportable && (
+                <Menu
+                  items={[
+                    { disabled: semDesenho, key: 'png', label: 'Baixar PNG', onSelect: () => exportar('png') },
+                    { disabled: semDesenho, key: 'svg', label: 'Baixar SVG', onSelect: () => exportar('svg') },
+                  ]}
+                  label={opcoes}
+                >
+                  <ButtonIcon icon={<IconMore size={14} />} label={opcoes} size="sm" variant="ghost" />
+                </Menu>
+              )}
+            </span>
+          )}
+        </figcaption>
+      ) : alternavel ? (
         <figcaption className={styles.header}>
-          <span className={titleClassName} id={tituloId}>
+          <span className={titleClassName} data-chart-title="" id={tituloId}>
             {title}
           </span>
           <Button
@@ -167,7 +241,7 @@ export function ChartFrame({
           </Button>
         </figcaption>
       ) : (
-        <figcaption className={titleClassName} id={tituloId}>
+        <figcaption className={titleClassName} data-chart-title="" id={tituloId}>
           {title}
         </figcaption>
       )}
@@ -201,6 +275,12 @@ export function ChartFrame({
 
         {(legendPosition === 'bottom' || legendPosition === 'right') && legenda}
       </div>
+
+      {nameDetail && (
+        <span hidden id={detalheId}>
+          {nameDetail}
+        </span>
+      )}
     </figure>
   );
 }

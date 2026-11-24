@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Button } from '../../actions/Button';
 import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
 import { IconCheckCircle, IconClose, IconExclamationCircle, IconExclamationTriangle, IconInfoCircle } from '../../icons';
+import { Spinner } from '../Spinner';
 import { useChosenPortalContainer } from '../../overlays/Portal/PortalContext';
 import { useToastStore } from './ToastProvider';
 import { MAX_TOAST_ACTIONS, type ToastEntry, type ToastStore } from './toastStore';
@@ -56,9 +57,9 @@ export function ToastRegion({ className, onFocus, portalContainer, ...props }: T
 
 function Toast({ returnTo, store, toast }: { returnTo: RefObject<HTMLElement | null>; store: ToastStore; toast: ToastEntry }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { description, id, title, tone = 'info' } = toast;
-  const actions = (toast.actions ?? (toast.action ? [toast.action] : [])).slice(0, MAX_TOAST_ACTIONS);
-  const duration = toast.duration === undefined ? (tone === 'danger' ? null : DEFAULT_DURATION) : toast.duration;
+  const { description, id, loading = false, title, tone = 'info' } = toast;
+  const actions = loading ? [] : (toast.actions ?? (toast.action ? [toast.action] : [])).slice(0, MAX_TOAST_ACTIONS);
+  const duration = loading ? null : toast.duration === undefined ? (tone === 'danger' ? null : DEFAULT_DURATION) : toast.duration;
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const ToneIcon = TONE_ICONS[tone];
@@ -91,39 +92,45 @@ function Toast({ returnTo, store, toast }: { returnTo: RefObject<HTMLElement | n
 
   return (
     <div
-      className={[styles.toast, styles[tone]].join(' ')}
+      aria-busy={loading || undefined}
+      className={[styles.toast, loading ? styles.loading : styles[tone]].join(' ')}
       ref={ref}
       onBlur={handleBlur}
       onFocus={() => setFocused(true)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      role={tone === 'danger' || tone === 'warning' ? 'alert' : 'status'}
     >
-      <ToneIcon className={styles.icon} />
-      <div className={styles.content}>
-        <strong className={styles.title}>{title}</strong>
-        {description && <p className={styles.description}>{description}</p>}
-        {actions.length > 0 && (
-          <div className={styles.actions}>
-            {actions.map((action, index) => (
-              <Button
-                data-removes=""
-                key={index}
-                onClick={(event) => {
-                  if (isRepeatedClick(event)) {
-                    return;
-                  }
-                  action.onClick();
-                  store.dismiss(id);
-                }}
-                size="sm"
-                variant="secondary"
-              >
-                {action.label}
-              </Button>
-            ))}
-          </div>
-        )}
+      {/*
+        A regiao viva fica por dentro, sem o botao de fechar: na troca do carregando para o resultado, ela entra de novo
+        ja com o texto final, e e isso que se anuncia. O carregando nao se anuncia, e o foco no fechar nao se perde.
+      */}
+      <div className={styles.live} key={loading ? 'loading' : 'done'} role={loading ? undefined : tone === 'danger' || tone === 'warning' ? 'alert' : 'status'}>
+        {loading ? <Spinner className={styles.icon} size="md" /> : <ToneIcon className={styles.icon} />}
+        <div className={styles.content}>
+          <strong className={styles.title}>{title}</strong>
+          {description && <p className={styles.description}>{description}</p>}
+          {actions.length > 0 && (
+            <div className={styles.actions}>
+              {actions.map((action, index) => (
+                <Button
+                  data-removes=""
+                  key={index}
+                  onClick={(event) => {
+                    if (isRepeatedClick(event)) {
+                      return;
+                    }
+                    action.onClick();
+                    store.dismiss(id);
+                  }}
+                  size="sm"
+                  variant="secondary"
+                >
+                  {action.label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <button aria-label="Fechar aviso" data-removes="" className={styles.close} onClick={(event) => !isRepeatedClick(event) && store.dismiss(id)} onKeyDown={blockRepeatedPress} type="button">
         <IconClose />

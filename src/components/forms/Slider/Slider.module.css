@@ -1,0 +1,210 @@
+/* O valor escrito a direita do rotulo, sempre visivel: o dedo que arrasta cobre o polegar, e um balao sumiria sob ele. */
+.value {
+  margin-left: auto;
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-body-size);
+  font-weight: 500;
+  line-height: var(--pl-type-label-line-height);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Tamanhos: o polegar e o trilho mudam; a area de toque fica em 44px nos tres. */
+.slider {
+  --pl-slider-thumb: 20px;
+  --pl-slider-track: 4px;
+
+  position: relative;
+  height: 44px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sm {
+  --pl-slider-thumb: 16px;
+  --pl-slider-track: 4px;
+}
+
+.lg {
+  --pl-slider-thumb: 24px;
+  --pl-slider-track: 6px;
+}
+
+/* O trilho vai de centro a centro dos polegares nos extremos: o valor e a posicao do centro. A cor e a do contorno a
+   3:1 contra a superficie. */
+.track {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--pl-slider-thumb) / 2);
+  left: calc(var(--pl-slider-thumb) / 2);
+  height: var(--pl-slider-track);
+  margin-top: calc(var(--pl-slider-track) / -2);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-control-border);
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: var(--pl-color-primary-hover);
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--pl-slider-thumb) / 2 + var(--pl-slider-position, 0) * (100% - var(--pl-slider-thumb)));
+  box-sizing: border-box;
+  width: var(--pl-slider-thumb);
+  height: var(--pl-slider-thumb);
+  margin: calc(var(--pl-slider-thumb) / -2) 0 0 calc(var(--pl-slider-thumb) / -2);
+  border: 2px solid var(--pl-color-primary-hover);
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  transition: transform var(--pl-speed-1) var(--pl-ease), border-width var(--pl-speed-1) var(--pl-ease);
+}
+
+/* A area de toque do polegar, de 44px, sem mudar o desenho. */
+.thumb::before {
+  content: '';
+  position: absolute;
+  inset: calc((44px - var(--pl-slider-thumb)) / -2 - 2px);
+  border-radius: var(--pl-radius-full);
+}
+
+.thumb:focus {
+  outline: none;
+}
+
+/* O anel so vem do teclado; com o ponteiro, quem arrasta ja sabe onde esta. */
+.thumb:focus-visible {
+  outline: 2px solid var(--pl-color-primary-hover);
+  outline-offset: 2px;
+}
+
+/* Sem halo: no arrasto, o polegar cresce um pouco e a borda engrossa. */
+.thumb[data-dragging] {
+  border-width: 3px;
+  transform: scale(1.15);
+}
+
+/* Entre os polegares da faixa, a mao: arrastar ali move a faixa inteira. */
+.slider[data-band-hover] {
+  cursor: grab;
+}
+
+.slider[data-grabbing],
+.slider[data-grabbing] .thumb {
+  cursor: grabbing;
+}
+
+.slider[data-invalid] .thumb {
+  border-color: var(--pl-color-danger);
+}
+
+.slider[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Como os campos: o fundo apagado e a opacidade do conjunto; as cores continuam dizendo o valor. */
+.slider[data-disabled] .thumb {
+  background: var(--pl-color-surface-muted);
+  box-shadow: none;
+}
+
+.hiddenText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* As marcas acompanham o trilho, de centro a centro dos polegares nos extremos. */
+.marks {
+  position: relative;
+  height: var(--pl-type-caption-line-height);
+  margin: -8px calc(var(--pl-slider-thumb, 20px) / 2) 0;
+  color: var(--pl-color-text-tertiary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.marks.sm {
+  --pl-slider-thumb: 16px;
+}
+
+.marks.md {
+  --pl-slider-thumb: 20px;
+}
+
+.marks.lg {
+  --pl-slider-thumb: 24px;
+}
+
+.mark {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* Nos extremos, o texto fica dentro da largura do trilho. */
+.mark[data-edge='start'] {
+  transform: none;
+}
+
+.mark[data-edge='end'] {
+  transform: translateX(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .track,
+  .fill,
+  .thumb {
+    forced-color-adjust: none;
+  }
+
+  .track {
+    background: CanvasText;
+  }
+
+  .fill {
+    background: Highlight;
+  }
+
+  .thumb {
+    border-color: Highlight;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  .thumb:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .slider[data-disabled] .track,
+  .slider[data-disabled] .fill {
+    background: GrayText;
+  }
+
+  .slider[data-disabled] .thumb {
+    border-color: GrayText;
+  }
+}

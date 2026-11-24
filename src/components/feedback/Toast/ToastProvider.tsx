@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { createToastStore, globalToastStore, type ToastOptions, type ToastStore } from './toastStore';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createToastStore, globalToastStore, promiseToast, type ToastOptions, type ToastPromiseOptions, type ToastStore } from './toastStore';
 
 const ToastStoreContext = createContext<ToastStore>(globalToastStore);
 
@@ -21,13 +21,22 @@ export function useToastStore() {
 export interface UseToastResult {
   /** Fecha o aviso antes do tempo. */
   dismissToast: (id: string) => void;
+  /** Acompanha uma promessa num aviso so: carregando, depois sucesso ou erro. Devolve a mesma promessa. */
+  promiseToast: <T>(promise: Promise<T> | (() => Promise<T>), options: ToastPromiseOptions<T>) => Promise<T>;
   /** Mostra o aviso no `ToastRegion` da arvore e devolve o id. */
   showToast: (options: ToastOptions) => string;
 }
 
 /** Dispara avisos no estado da arvore. Fora de um `ToastProvider`, age no estado global, como o `showToast` solto. */
 export function useToast(): UseToastResult {
-  const { dismiss, show } = useToastStore();
+  const store = useToastStore();
 
-  return { dismissToast: dismiss, showToast: show };
+  return useMemo(
+    () => ({
+      dismissToast: store.dismiss,
+      promiseToast: <T,>(promise: Promise<T> | (() => Promise<T>), options: ToastPromiseOptions<T>) => promiseToast(store, promise, options),
+      showToast: store.show,
+    }),
+    [store],
+  );
 }
