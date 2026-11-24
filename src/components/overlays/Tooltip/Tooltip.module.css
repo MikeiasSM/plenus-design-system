@@ -8,3 +8,8 @@
   font-size: var(--pl-type-caption-size);
   line-height: var(--pl-type-caption-line-height);
 }
+
+/* Aberta pelo foco de teclado, a dica não é alvo do ponteiro: o clique atravessa o balão até o que está embaixo. */
+.tooltip[data-origin='focus'] {
+  pointer-events: none;
+}

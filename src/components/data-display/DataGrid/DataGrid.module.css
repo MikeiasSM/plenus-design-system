@@ -3,9 +3,11 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  border: 1px solid var(--pl-color-border);
-  border-radius: var(--pl-radius-md);
+  /* Ganchos de folha, lidos com o valor padrão: o produto os define em qualquer ancestral. */
+  border: var(--pl-sheet-border, 1px solid var(--pl-color-border));
+  border-radius: var(--pl-sheet-radius, var(--pl-radius-md));
   background: var(--pl-color-surface);
+  box-shadow: var(--pl-sheet-shadow, none);
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
@@ -789,4 +791,8 @@
   .headerActions {
     opacity: 1;
   }
+}
+
+.stableGutter {
+  scrollbar-gutter: stable;
 }

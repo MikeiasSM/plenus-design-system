@@ -11,9 +11,12 @@
   font-family: var(--pl-font-body);
 }
 
+/* Com `--pl-field-row-label-width` definida, o texto fica nessa largura e o controle ocupa o resto. Indefinida, a
+   variavel invalida o atalho privado, e o `flex` cai no padrao da linha. */
 .text {
+  --_field-row-text-flex: 0 0 var(--pl-field-row-label-width);
   display: flex;
-  flex: 1 1 260px;
+  flex: var(--_field-row-text-flex, 1 1 260px);
   flex-direction: column;
   gap: 1px;
   min-width: 0;
@@ -21,6 +24,15 @@
 
 .label {
   align-self: flex-start;
+}
+
+/* O titulo e o que o acompanha, como um selo, na mesma linha. */
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-1) var(--pl-space-2);
+  min-width: 0;
 }
 
 .description {
@@ -31,12 +43,19 @@
   line-height: var(--pl-type-caption-line-height);
 }
 
+/* A base zero vale so com a largura do texto definida: sem ela, a multiplicacao fica invalida e vale o padrao. */
 .control {
+  --_field-row-control-flex: 1 1 calc(0 * var(--pl-field-row-label-width));
   display: flex;
-  flex: 0 1 auto;
+  flex: var(--_field-row-control-flex, 0 1 auto);
   align-items: center;
   gap: var(--pl-space-2);
   min-width: 0;
+}
+
+/* O controle alto, como um Textarea, prende o texto ao topo dele. */
+.start {
+  align-items: flex-start;
 }
 
 @container (max-width: 560px) {

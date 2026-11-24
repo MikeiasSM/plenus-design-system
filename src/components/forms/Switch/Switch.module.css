@@ -87,6 +87,38 @@
   line-height: var(--pl-type-body-line-height);
 }
 
+/* Com descricao, a chave fica na altura da primeira linha, e o rotulo e a descricao empilham ao lado. */
+.withDescription {
+  align-items: flex-start;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.description {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-caption-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+/* O complemento vai ao lado do rotulo, fora do `<label>`, para nao entrar no nome nem no clique da chave. */
+.labelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--pl-space-2);
+}
+
+.labelAddon {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* A ajuda e o erro sao os do Field: sem familia propria, saiam na fonte do hospedeiro. */
 
 

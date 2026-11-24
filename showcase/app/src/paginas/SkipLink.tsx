@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type CSSProperties } from 'react';
+import { useId, useState, type CSSProperties } from 'react';
 import { SkipLink } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -28,7 +28,7 @@ const playground = definirPlayground({
     </SkipLink>
   ),
   codigo: (valores) =>
-    `${gerarJsx('SkipLink', [['href', valores.href]], valores.children === TEXTO_PADRAO ? undefined : valores.children)}\n...\n<main id="${valores.href.replace(/^#/, '')}" tabIndex={-1}>...</main>`,
+    `${gerarJsx('SkipLink', [['href', valores.href]], valores.children === TEXTO_PADRAO ? undefined : valores.children)}\n...\n<main id="${valores.href.replace(/^#/, '')}">...</main>`,
   verificar: (valores) => {
     const verificacoes: Verificacao[] = [
       valores.href.startsWith('#') && valores.href.length > 1
@@ -47,20 +47,12 @@ const playground = definirPlayground({
 
 function DestinoLocal() {
   const id = useId();
-  const destino = useRef<HTMLDivElement>(null);
   const [chegou, setChegou] = useState(false);
 
   return (
     <div className="stack" style={{ width: '100%' }}>
-      <SkipLink
-        href={`#${id}`}
-        onClick={(evento) => {
-          evento.preventDefault();
-          destino.current?.focus();
-        }}
-        style={VISIVEL}
-      />
-      <div className="demo-box" onBlur={() => setChegou(false)} onFocus={() => setChegou(true)} ref={destino} tabIndex={-1}>
+      <SkipLink href={`#${id}`} style={VISIVEL} />
+      <div className="demo-box" id={id} onBlur={() => setChegou(false)} onFocus={() => setChegou(true)}>
         {chegou ? 'O foco está aqui: o próximo Tab segue a partir do conteúdo.' : 'Conteúdo principal'}
       </div>
     </div>
@@ -80,9 +72,11 @@ function Modos() {
       <div className="subsection">
         <h3>Foco no destino</h3>
         <p className="note">
-          O navegador já leva o ponto de partida da tabulação para a âncora, então o componente não foca o alvo por conta
-          própria. Uma aplicação que guarda a rota no endereço, como este Showcase, impede a navegação no{' '}
-          <code>onClick</code> e foca o conteúdo ela mesma.
+          O salto nativo da âncora rola a página, mas nem todo navegador move o foco, e numa aplicação que guarda a rota
+          no endereço ele troca a rota. Por isso o link leva o foco ao elemento do <code>id</code> por conta própria, sem
+          mudar o endereço: põe <code>tabindex=&quot;-1&quot;</code> nele quando não é focável e rola até ele. Sem esse
+          elemento na página, o link segue o comportamento nativo. O <code>onClick</code> do produto roda antes e, com{' '}
+          <code>preventDefault</code>, cancela o salto.
         </p>
       </div>
     </>
@@ -96,25 +90,29 @@ export const pagina: Pagina = {
       titulo: 'No topo da aplicação',
       descricao: 'Primeiro item da página, antes do cabeçalho; o conteúdo principal tem o id da âncora.',
       Previa: () => <SkipLink href="#conteudo" onClick={(evento) => evento.preventDefault()} style={VISIVEL} />,
-      codigo: '<SkipLink href="#conteudo" />\n<header>...</header>\n<main id="conteudo" tabIndex={-1}>...</main>',
+      codigo: '<SkipLink href="#conteudo" />\n<header>...</header>\n<main id="conteudo">...</main>',
     },
     {
-      titulo: 'Rota no endereço',
-      descricao: 'Clique: o link não troca o endereço e leva o foco ao conteúdo, como na raiz deste Showcase.',
+      titulo: 'Foco no conteúdo',
+      descricao: 'Clique: o link não troca o endereço e leva o foco ao conteúdo, que ganha tabindex="-1".',
       Previa: DestinoLocal,
-      codigo:
-        "<SkipLink\n  href=\"#conteudo\"\n  onClick={(evento) => {\n    evento.preventDefault();\n    document.getElementById('conteudo')?.focus();\n  }}\n/>",
+      codigo: '<SkipLink href="#conteudo" />\n...\n<main id="conteudo">...</main>',
     },
   ],
   Modos,
   teclado: [
     { teclas: ['Tab'], acao: 'Primeira parada da página: o link aparece ao receber foco.' },
-    { teclas: ['Enter'], acao: 'Segue para a âncora do conteúdo principal.' },
+    { teclas: ['Enter'], acao: 'Leva o foco ao conteúdo principal e rola até ele.' },
   ],
   garantias: [
     {
       garantia: 'Link nativo',
       como: <><code>&lt;a&gt;</code> para a âncora, com o texto padrão &quot;{TEXTO_PADRAO}&quot;.</>,
+      teste: 'SkipLink.test.tsx',
+    },
+    {
+      garantia: 'Foco no destino',
+      como: <>O alvo do <code>href</code> recebe o foco, com <code>tabindex=&quot;-1&quot;</code> quando não é focável; sem alvo, vale o comportamento nativo.</>,
       teste: 'SkipLink.test.tsx',
     },
   ],

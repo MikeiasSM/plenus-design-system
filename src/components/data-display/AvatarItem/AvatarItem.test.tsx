@@ -7,9 +7,23 @@ describe('AvatarItem', () => {
   it('rende o avatar, o titulo e a descricao', () => {
     render(<AvatarItem avatar={<Avatar name="Ana Prado" size="sm" />} description="Aprovadora" title="Ana Prado" />);
 
-    expect(screen.getByRole('img', { name: 'Ana Prado' })).toBeInTheDocument();
+    expect(screen.getByText('AP')).toBeInTheDocument();
     expect(screen.getByText('Aprovadora')).toBeInTheDocument();
-    expect(screen.getByText('Ana Prado', { selector: 'span:not([role])' })).toBeInTheDocument();
+    expect(screen.getByText('Ana Prado')).toBeInTheDocument();
+  });
+
+  it('poe o Avatar decorativo, porque o titulo ja mostra o nome', () => {
+    const { container } = render(<AvatarItem avatar={<Avatar name="Ana Prado" src="/ana.jpg" />} title="Ana Prado" />);
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(container.querySelector('img')).toHaveAttribute('alt', '');
+    expect(container.firstElementChild).toHaveTextContent(/^Ana Prado$/);
+  });
+
+  it('mantem o Avatar nomeado quando ele pede decorative={false}', () => {
+    render(<AvatarItem avatar={<Avatar decorative={false} name="Ana Prado" />} title="Responsavel" />);
+
+    expect(screen.getByRole('img', { name: 'Ana Prado' })).toBeInTheDocument();
   });
 
   it('omite a descricao quando nao e informada', () => {

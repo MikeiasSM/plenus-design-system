@@ -268,6 +268,13 @@ export const pagina: Pagina = {
     { garantia: 'Estrutura da página', como: <>O <code>AppShell.Page</code> é o <code>main</code>, com a barra e o corpo.</>, teste: 'AppShell.test.tsx' },
     { garantia: 'Nomes antigos', como: 'As peças da navegação seguem aceitas como aliases obsoletos da Sidebar.', teste: 'AppShell.test.tsx' },
     { garantia: 'Safe area', como: <>Soma <code>env(safe-area-inset-*)</code> ao respiro da borda, com <code>viewport-fit=cover</code>; sem ele, nada muda.</>, teste: 'mobile.test.ts' },
+    { garantia: 'Barra que cresce', como: 'A barra da página tem 46px de altura mínima, e uma trilha em duas linhas a faz crescer.', teste: 'AppShell.test.tsx' },
+    {
+      garantia: 'Impressão',
+      como: <>No <code>@media print</code>, a página sai no fluxo do documento, sem a navegação, o <code>SidePanel</code> e o botão de abrir, com a barra só com a trilha; a tela não muda. Use a impressão do navegador nesta página para ver.</>,
+      teste: 'AppShell.test.tsx',
+    },
+    { garantia: 'Ganchos de folha e de casca', como: <>A folha lê <code>--pl-sheet-border</code>, <code>--pl-sheet-radius</code> e <code>--pl-sheet-shadow</code>, e as linhas da casca, <code>--pl-shell-border</code>, com o valor de sempre como padrão.</>, teste: 'ganchos.test.ts' },
   ],
   notaDaApi: (
     <>
@@ -280,7 +287,7 @@ export const pagina: Pagina = {
     { nome: 'AppShell · open / defaultOpen / onOpenChange', tipo: 'boolean · boolean · (open: boolean) => void', padrao: 'defaultOpen: true', descricao: 'Submenu aberto, controlado ou não, repassado ao SidebarProvider que o AppShell monta. Ignorado quando já há um SidebarProvider por fora.' },
     { nome: 'AppShell · labels / icons / side / narrowBelow / tooltipDelay / shortcut / menuOpen / accountOpen', tipo: 'as props do SidebarProvider', descricao: 'A personalização da Sidebar, repassada ao SidebarProvider que o AppShell monta e descrita na página da Sidebar. Ignorada quando já há um SidebarProvider por fora.' },
     { nome: 'AppShell.Page', tipo: "ComponentPropsWithRef<'main'>", descricao: 'Folha da página: ocupa o que sobra ao lado da navegação.' },
-    { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
+    { nome: 'AppShell.PageBar', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Barra de 46px no mínimo, que cresce com o conteúdo, com o botão de abrir o submenu ou a gaveta e o que o produto puser.' },
     { nome: 'AppShell.PageBody', tipo: "ComponentPropsWithRef<'div'>", descricao: 'Corpo da página, a única área que rola.' },
     { nome: 'AppShell.PageFooter · status', tipo: 'ReactNode', descricao: 'Situação da página, à esquerda, anunciada ao leitor de tela, como a do rascunho salvo sozinho. Os filhos são as ações, à direita.' },
   ],

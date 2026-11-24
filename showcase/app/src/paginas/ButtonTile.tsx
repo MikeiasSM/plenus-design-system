@@ -273,6 +273,19 @@ export const pagina: Pagina = {
         '<div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 4 }}>\n  {blocos.map((bloco) => (\n    <ButtonTile key={bloco.chave} icon={bloco.icone} label={bloco.rotulo} size="sm" />\n  ))}\n</div>',
     },
     {
+      titulo: 'Só o ícone',
+      descricao: 'Com hideLabel, o rótulo sai da vista: segue como nome do botão e abre a dica, antes da descrição.',
+      Previa: () => (
+        <div style={grade(96)}>
+          <ButtonTile hideLabel icon={<IconFile />} label="Arquivo" />
+          <ButtonTile description="Gráfico de barras ou de linhas" hideLabel icon={<IconChartBar />} label="Gráfico" />
+          <ButtonTile defaultSelected hideLabel icon={<IconCalendar />} label="Data" />
+        </div>
+      ),
+      codigo:
+        '<ButtonTile hideLabel icon={<IconFile />} label="Arquivo" />\n<ButtonTile\n  hideLabel\n  icon={<IconChartBar />}\n  label="Gráfico"\n  description="Gráfico de barras ou de linhas"\n/>',
+    },
+    {
       titulo: 'Ladrilhos que alternam',
       descricao: 'Com selected, cada ladrilho anuncia aria-pressed e o escolhido fica marcado.',
       Previa: PreviaPorDispositivo,
@@ -316,6 +329,7 @@ export const pagina: Pagina = {
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Obrigatória. Ícone acima do rótulo; fica fora da leitura.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Texto visível e nome do botão, em até duas linhas.' },
     { nome: 'description', tipo: 'string', descricao: 'Dica no foco e no ponteiro, ligada por aria-describedby.' },
+    { nome: 'hideLabel', tipo: 'boolean', padrao: 'false', descricao: 'Esconde o rótulo, que segue como nome do botão e aparece na dica, antes da descrição.' },
     { nome: 'selected', tipo: 'boolean', descricao: 'Ligado, no modo controlado. Para o ladrilho que alterna: vira aria-pressed.' },
     { nome: 'defaultSelected', tipo: 'boolean', descricao: 'Ligado no início, no modo não controlado. Também torna o ladrilho alternável.' },
     { nome: 'onSelectedChange', tipo: '(selected: boolean) => void', descricao: 'Recebe o novo estado ao alternar. Sozinho, já torna o ladrilho alternável.' },

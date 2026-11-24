@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Tabs, type TabItem, type TabsOrientation } from '@plenustech/design-system';
+import { Button, IconPlus, Tabs, type TabItem, type TabsOrientation } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
 
 const ORIENTACOES = ['horizontal', 'vertical'] as const;
+const APARENCIAS = ['underline', 'segmented'] as const;
 
 const ABAS_DO_MODULO: TabItem[] = [
   { key: 'geral', label: 'Geral', content: 'Nome, descrição e responsável pelo módulo.' },
@@ -26,16 +27,25 @@ const ABAS_DA_CONTA: TabItem[] = [
   { key: 'faturamento', label: 'Faturamento', content: 'Plano contratado, notas e forma de pagamento.' },
 ];
 
+const ABAS_DA_FILA: TabItem[] = [
+  { key: 'abertos', label: 'Em aberto', count: 24, content: 'Chamados que esperam a primeira resposta.' },
+  { key: 'andamento', label: 'Em andamento', count: 7, content: 'Chamados com alguém responsável.' },
+  { key: 'resolvidos', label: 'Resolvidos', count: 1380, content: 'Chamados fechados nos últimos 30 dias.' },
+  { key: 'arquivados', label: 'Arquivados', muted: true, content: 'Chamados antigos, fora da fila.' },
+];
+
 const playground = definirPlayground({
-  inicial: { label: 'Configurações do módulo', orientation: 'horizontal', desabilitada: true },
+  inicial: { label: 'Configurações do módulo', orientation: 'horizontal', appearance: 'underline', desabilitada: true },
   controles: [
     { tipo: 'texto', nome: 'label' },
     { tipo: 'opcoes', nome: 'orientation', opcoes: ORIENTACOES },
+    { tipo: 'opcoes', nome: 'appearance', opcoes: APARENCIAS },
     { tipo: 'booleano', nome: 'desabilitada' },
   ],
   renderizar: (valores, registrar) => (
     <div style={{ width: '100%' }}>
       <Tabs
+        appearance={valores.appearance as (typeof APARENCIAS)[number]}
         items={ABAS_DO_MODULO.map((aba) => (aba.key === 'legado' ? { ...aba, disabled: valores.desabilitada } : aba))}
         label={valores.label}
         onSelectedKeyChange={(chave) => registrar(`onSelectedKeyChange: ${chave}`)}
@@ -48,6 +58,7 @@ const playground = definirPlayground({
       ['label', valores.label],
       ['items', expr('abas')],
       ['orientation', valores.orientation, 'horizontal'],
+      ['appearance', valores.appearance, 'underline'],
       ['onSelectedKeyChange', expr('setAba')],
     ]),
   verificar: (valores) => {
@@ -109,6 +120,40 @@ function Variantes() {
 />`}
         />
       </div>
+      <div className="subsection">
+        <h3><code>appearance="segmented"</code></h3>
+        <Tabs appearance="segmented" items={ABAS_DO_MODULO} label="Configurações do módulo" />
+        <p className="note">
+          O trilho do <code>SegmentedControl</code>, com a mesma semântica de abas: <code>tablist</code>, <code>tabpanel</code> e
+          as setas.
+        </p>
+        <VerCodigo codigo={'<Tabs appearance="segmented" label="Configurações do módulo" items={abas} />'} />
+      </div>
+      <div className="subsection">
+        <h3><code>fillHeight</code> na vertical</h3>
+        <div style={{ height: 180 }}>
+          <Tabs
+            fillHeight
+            items={ABAS_DA_CONTA.map((aba) => ({
+              ...aba,
+              content: Array.from({ length: 8 }, (_, indice) => <p key={indice}>{aba.content}</p>),
+            }))}
+            label="Preferências da conta"
+            orientation="vertical"
+            style={{ height: '100%' }}
+          />
+        </div>
+        <p className="note">O painel ocupa a altura dada às abas e rola por dentro; a lista fica no lugar.</p>
+        <VerCodigo
+          codigo={`<Tabs
+  fillHeight
+  orientation="vertical"
+  label="Preferências da conta"
+  items={abas}
+  style={{ height: 180 }}
+/>`}
+        />
+      </div>
     </div>
   );
 }
@@ -128,6 +173,11 @@ function Modos() {
       <dd>
         <code>disabled</code> no item: as setas a pulam. Se a escolhida não existir ou estiver desabilitada, a primeira
         habilitada fica como parada de Tab.
+      </dd>
+      <dt>Aba apagada</dt>
+      <dd>
+        <code>muted</code> no item: texto terciário e <code>data-muted</code>, para uma aba de menor peso. Continua focável e
+        selecionável. No segmentado fica no secundário, que tem contraste sobre o trilho.
       </dd>
       <dt>Ativação automática</dt>
       <dd>Mover o foco com as setas troca o painel na hora, conforme o padrão do APG para painéis que carregam instantaneamente.</dd>
@@ -155,6 +205,44 @@ export const pagina: Pagina = {
       Previa: Controladas,
       codigo:
         "const [aba, setAba] = useState('acesso');\n\n<Tabs\n  label=\"Configurações do módulo\"\n  items={abas}\n  selectedKey={aba}\n  onSelectedKeyChange={setAba}\n/>",
+    },
+    {
+      titulo: 'Fila com contagens e ações',
+      descricao:
+        'O selo da contagem entra no nome da aba, como "Em aberto, 24". A aba apagada continua no teclado. A ação fica fora do tablist.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Tabs
+            actions={
+              <Button size="sm" variant="secondary">
+                <IconPlus /> Novo chamado
+              </Button>
+            }
+            items={ABAS_DA_FILA}
+            label="Fila de chamados"
+          />
+        </div>
+      ),
+      codigo: `<Tabs
+  label="Fila de chamados"
+  actions={<Button size="sm" variant="secondary">Novo chamado</Button>}
+  items={[
+    { key: 'abertos', label: 'Em aberto', count: 24, content: <Abertos /> },
+    { key: 'andamento', label: 'Em andamento', count: 7, content: <Andamento /> },
+    { key: 'resolvidos', label: 'Resolvidos', count: 1380, content: <Resolvidos /> },
+    { key: 'arquivados', label: 'Arquivados', muted: true, content: <Arquivados /> },
+  ]}
+/>`,
+    },
+    {
+      titulo: 'Segmentado, com contagens',
+      descricao: 'O trilho do SegmentedControl, trocando painéis.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Tabs appearance="segmented" items={ABAS_DA_FILA} label="Fila de chamados" />
+        </div>
+      ),
+      codigo: '<Tabs appearance="segmented" label="Fila de chamados" items={abas} />',
     },
     {
       titulo: 'Preferências da conta',
@@ -221,11 +309,20 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref, no elemento de fora.',
   api: [
-    { nome: 'items', tipo: 'readonly TabItem[]', descricao: <>Cada aba: <code>key</code>, <code>label</code>, <code>content</code> e <code>disabled</code>.</> },
+    {
+      nome: 'items',
+      tipo: 'readonly TabItem[]',
+      descricao: <>Cada aba: <code>key</code>, <code>label</code>, <code>content</code>, <code>disabled</code>, <code>count</code> e <code>muted</code>.</>,
+    },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome do tablist.' },
     { nome: 'selectedKey', tipo: 'string', descricao: 'Aba atual, no modo controlado.' },
     { nome: 'defaultSelectedKey', tipo: 'string', padrao: 'primeira habilitada', descricao: 'Aba inicial, no modo não controlado.' },
     { nome: 'onSelectedKeyChange', tipo: '(key: string) => void', descricao: 'Recebe a chave da aba escolhida.' },
     { nome: 'orientation', tipo: "'horizontal' | 'vertical'", padrao: "'horizontal'", descricao: 'Direção da lista e eixo das setas.' },
+    { nome: 'appearance', tipo: "'underline' | 'segmented'", padrao: "'underline'", descricao: 'Faixa com traço sob a ativa, ou trilho segmentado.' },
+    { nome: 'actions', tipo: 'ReactNode', descricao: <>Ações ao lado das abas, fora do <code>tablist</code>.</> },
+    { nome: 'fillHeight', tipo: 'boolean', padrao: 'false', descricao: 'O painel ocupa a altura que sobra e rola, também na vertical.' },
+    { nome: 'items[].count', tipo: 'number', descricao: 'Selo depois do rótulo; entra no nome como "Rótulo, N".' },
+    { nome: 'items[].muted', tipo: 'boolean', descricao: <>Aba de menor peso, com <code>data-muted</code>; continua no teclado.</> },
   ],
 };

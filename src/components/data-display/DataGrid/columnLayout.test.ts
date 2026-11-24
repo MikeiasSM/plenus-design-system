@@ -12,6 +12,7 @@ import {
   setColumnHidden,
   visibleColumnWindow,
   toggleGroupCollapsed,
+  usableWidth,
   type DataGridColumnGroupSizing,
   type DataGridColumnSizing,
 } from './columnLayout';
@@ -174,5 +175,33 @@ describe('visibleColumnWindow', () => {
   it('never leaves the scrolling zone, so the pinned columns stay out of the window', () => {
     expect(visibleColumnWindow(placed, 5000, 300, 3)).toEqual({ start: 1, end: 1 });
     expect(visibleColumnWindow(placed, 800, 600, 5)).toEqual({ start: 3, end: 11 });
+  });
+});
+
+describe('usableWidth', () => {
+  function element(clientWidth: number, offsetWidth: number, rectWidth: number) {
+    const node = document.createElement('div');
+    Object.defineProperty(node, 'clientWidth', { value: clientWidth });
+    Object.defineProperty(node, 'offsetWidth', { value: offsetWidth });
+    node.getBoundingClientRect = () => ({ width: rectWidth }) as DOMRect;
+    return node;
+  }
+
+  it('arredonda para baixo a caixa de conteúdo fracionada, em vez do clientWidth arredondado', () => {
+    const entry = { contentBoxSize: [{ inlineSize: 799.6, blockSize: 400 }] } as unknown as ResizeObserverEntry;
+
+    expect(usableWidth(element(800, 800, 799.6), entry)).toBe(799);
+  });
+
+  it('aceita o contentBoxSize como objeto só, e cai no contentRect sem ele', () => {
+    const single = { contentBoxSize: { inlineSize: 640.5, blockSize: 400 } } as unknown as ResizeObserverEntry;
+    const legacy = { contentRect: { width: 512.9 } } as unknown as ResizeObserverEntry;
+
+    expect(usableWidth(element(641, 641, 640.5), single)).toBe(640);
+    expect(usableWidth(element(513, 513, 512.9), legacy)).toBe(512);
+  });
+
+  it('sem a medida do observador, desconta a barra da caixa desenhada', () => {
+    expect(usableWidth(element(785, 800, 799.6))).toBe(784);
   });
 });

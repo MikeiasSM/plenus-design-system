@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Pagination, montarFaixa } from './Pagination';
+import { formatPaginationRange } from '.';
 
 describe('Pagination: estilo', () => {
   const css = readFileSync(resolve(process.cwd(), 'src/components/navigation/Pagination/Pagination.module.css'), 'utf8');
@@ -487,3 +488,48 @@ describe('Pagination: largura', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('Pagination: hideOnSinglePage', () => {
+  it('por padrao, some com uma pagina so', () => {
+    const { container } = render(<Pagination pageSize={10} totalItems={4} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('com false, mostra o intervalo e as setas com aria-disabled, sem numeros', () => {
+    const onPageChange = vi.fn();
+    render(<Pagination hideOnSinglePage={false} onPageChange={onPageChange} pageSize={10} showFirstLast totalItems={4} />);
+
+    expect(screen.getByRole('navigation', { name: 'Paginação' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Itens 1 a 4 de 4');
+    for (const nome of ['Primeira página', 'Página anterior', 'Próxima página', 'Última página']) {
+      const seta = screen.getByRole('button', { name: nome });
+      expect(seta).toHaveAttribute('aria-disabled', 'true');
+      fireEvent.click(seta);
+    }
+    expect(screen.queryByRole('button', { name: /^Página \d/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(onPageChange).not.toHaveBeenCalled();
+  });
+
+  it('com false e sem itens, ficam as setas na ponta', () => {
+    render(<Pagination hideOnSinglePage={false} pageSize={10} totalItems={0} />);
+
+    expect(screen.getByRole('button', { name: 'Página anterior' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Próxima página' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('com mais de uma pagina, nada muda', () => {
+    render(<Pagination hideOnSinglePage={false} pageCount={3} />);
+
+    expect(screen.getByRole('button', { name: 'Página 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Próxima página' })).not.toHaveAttribute('aria-disabled');
+  });
+});
+
+describe('formatPaginationRange', () => {
+  it('e o texto padrao do intervalo, com o milhar separado', () => {
+    expect(formatPaginationRange({ start: 1201, end: 1250, total: 4380 })).toBe('1.201–1.250 de 4.380');
+  });
+});
+

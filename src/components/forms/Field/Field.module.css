@@ -115,3 +115,34 @@ select.control {
     font-size: var(--pl-control-font-size-touch);
   }
 }
+
+/* O rotulo e o que o acompanha, na mesma linha. */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-1) var(--pl-space-2);
+  min-width: 0;
+}
+
+/* O controle e o que fica ao lado dele: o topo alinhado, e a mensagem, embaixo dos dois, nao os desencontra. */
+.withAside {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pl-space-2);
+  min-width: 0;
+}
+
+.main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.aside {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-2);
+}

@@ -6,7 +6,7 @@
   gap: var(--pl-space-1);
   border: 1px solid transparent;
   border-radius: var(--pl-radius-sm);
-  background: var(--badge-surface);
+  background: var(--pl-badge-surface, var(--badge-surface));
   color: var(--badge-tone);
   font-family: var(--pl-font-body);
   font-weight: var(--pl-type-label-weight);
@@ -67,4 +67,23 @@
 .outline {
   background: transparent;
   border-color: var(--badge-tone);
+}
+
+/* Selo de contagem: circulo de 18px que alarga com os algarismos, na cor da marca. O anel na cor da superficie
+   o separa do que ele cobre, como o canto de um botao. */
+.count {
+  --badge-tone: var(--pl-color-on-primary);
+  --badge-surface: var(--pl-color-primary);
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: var(--pl-radius-full);
+  box-shadow: 0 0 0 2px var(--pl-color-surface);
+  font-size: var(--pl-type-micro-size);
+  font-weight: var(--pl-type-micro-weight);
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
 }

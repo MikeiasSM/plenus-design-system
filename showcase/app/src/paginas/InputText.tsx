@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconSearch, InputText, type InputTextSize } from '@plenustech/design-system';
+import { Badge, Button, ButtonIcon, IconLink, IconSearch, InputText, type InputTextSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -114,6 +114,47 @@ const playground = definirPlayground({
     return verificacoes;
   },
 });
+
+function BuscaComLimparECarregar() {
+  const [termo, setTermo] = useState('Aurora');
+  const [carregando, setCarregando] = useState(false);
+
+  function buscar(texto: string) {
+    setTermo(texto);
+    setCarregando(texto.length > 0);
+    window.setTimeout(() => setCarregando(false), 900);
+  }
+
+  return (
+    <div style={{ width: '100%', maxWidth: 360 }}>
+      <InputText
+        clearable
+        icon={<IconSearch />}
+        label="Buscar clientes"
+        loading={carregando}
+        loadingLabel="Buscando clientes"
+        onValueChange={buscar}
+        type="search"
+        value={termo}
+      />
+    </div>
+  );
+}
+
+function EnderecoComAcoes() {
+  return (
+    <div style={{ width: '100%', maxWidth: 420 }}>
+      <InputText
+        aside={<Button variant="secondary">Verificar</Button>}
+        defaultValue="exemplo.com.br/loja"
+        end={<ButtonIcon icon={<IconLink />} label="Abrir endereço" size="sm" variant="ghost" />}
+        error="O endereço não respondeu."
+        label="Endereço da loja"
+        labelAddon={<Badge>Opcional</Badge>}
+      />
+    </div>
+  );
+}
 
 function EmailValidado() {
   const [email, setEmail] = useState('');
@@ -271,6 +312,22 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Limpar e carregar',
+      descricao:
+        'clearable mostra o botão de limpar só com texto e devolve o foco ao campo. loading põe o Spinner ao fim e anuncia o loadingLabel numa região de status oculta, sempre montada.',
+      Previa: BuscaComLimparECarregar,
+      codigo:
+        '<InputText\n  label="Buscar clientes"\n  type="search"\n  icon={<IconSearch />}\n  clearable\n  loading={carregando}\n  loadingLabel="Buscando clientes"\n  value={termo}\n  onValueChange={buscar}\n/>',
+    },
+    {
+      titulo: 'Ação ao fim, complemento e botão ao lado',
+      descricao:
+        'end põe um controle dentro da borda, depois da unit, e o invólucro assume a borda e o foco. labelAddon fica ao lado do rótulo, fora do nome; aside divide a linha com o campo, e o erro desce para baixo dos dois.',
+      Previa: EnderecoComAcoes,
+      codigo:
+        '<InputText\n  label="Endereço da loja"\n  labelAddon={<Badge>Opcional</Badge>}\n  end={<ButtonIcon icon={<IconLink />} label="Abrir endereço" size="sm" variant="ghost" />}\n  aside={<Button variant="secondary">Verificar</Button>}\n  error={erro}\n/>',
+    },
+    {
       titulo: 'Busca com ícone',
       descricao: 'A lupa é decorativa e fica fora da leitura; o nome do campo continua no label.',
       Previa: () => (
@@ -374,6 +431,8 @@ const [cru, setCru] = useState('');
     { garantia: 'Erro anunciado', como: <>O erro que aparece depois sai com <code>role=&quot;alert&quot;</code>.</>, teste: 'Field.test.tsx' },
     { garantia: 'Contador', como: <>Entra na descrição do campo, sem <code>aria-live</code>.</>, teste: 'InputText.test.tsx' },
     { garantia: 'Ícone decorativo', como: <>Dentro de <code>aria-hidden</code>; o nome continua no label.</>, teste: 'InputText.test.tsx' },
+    { garantia: 'Limpar devolve o foco', como: <>O botão de limpar tem nome próprio e devolve o foco ao <code>&lt;input&gt;</code>.</>, teste: 'InputText.test.tsx' },
+    { garantia: 'Carregamento anunciado', como: <>Por uma região <code>role=&quot;status&quot;</code> sempre montada, sem <code>aria-busy</code> no campo.</>, teste: 'InputText.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <input>, exceto size, e o ref, que chega ao input.',
   api: [
@@ -381,6 +440,13 @@ const [cru, setCru] = useState('');
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e marca o campo como inválido.' },
     { nome: 'icon', tipo: 'ReactNode', descricao: 'Ícone decorativo à frente do texto, como a lupa de uma busca.' },
+    { nome: 'end', tipo: 'ReactNode', descricao: 'Fenda ao fim, dentro da borda e depois da unit. Não é decorativa: aceita botão, que precisa do próprio nome.' },
+    { nome: 'clearable', tipo: 'boolean', padrao: 'false', descricao: 'Botão de limpar, só com texto: chama onValueChange(\'\') e devolve o foco ao campo.' },
+    { nome: 'clearLabel', tipo: 'string', padrao: "'Limpar'", descricao: 'Nome do botão de limpar.' },
+    { nome: 'loading', tipo: 'boolean', descricao: 'Spinner ao fim e anúncio numa região de status oculta. Passe false desde o início, para a região já existir.' },
+    { nome: 'loadingLabel', tipo: 'string', padrao: "'Carregando'", descricao: 'Texto anunciado quando loading liga.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora dele. Não entra no nome do campo.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do campo, na mesma linha, fora da descrição.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px. O lg é o da busca de destaque.' },
     {
       nome: 'mask',

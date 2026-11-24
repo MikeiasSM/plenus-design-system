@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, ComboBox, Select, type SelectSize } from '@plenustech/design-system';
+import { Badge, Button, ComboBox, Select, type SelectSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -224,6 +224,26 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Opções em grupos',
+      descricao: 'As opções seguidas de um mesmo group aparecem juntas, sob o título. As setas passam de um grupo ao outro sem parar nele, e o gatilho fechado mostra só o rótulo.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Select
+            label="Forma de pagamento"
+            labelAddon={<Badge>Opcional</Badge>}
+            options={[
+              { label: 'Pix', value: 'pix', group: 'Na hora' },
+              { label: 'Cartão de débito', value: 'debito', group: 'Na hora' },
+              { label: 'Boleto', value: 'boleto', group: 'Depois' },
+              { label: 'Cartão de crédito', value: 'credito', group: 'Depois' },
+            ]}
+          />
+        </div>
+      ),
+      codigo:
+        "const formas = [\n  { label: 'Pix', value: 'pix', group: 'Na hora' },\n  { label: 'Cartão de débito', value: 'debito', group: 'Na hora' },\n  { label: 'Boleto', value: 'boleto', group: 'Depois' },\n  { label: 'Cartão de crédito', value: 'credito', group: 'Depois' },\n];\n\n<Select label=\"Forma de pagamento\" labelAddon={<Badge>Opcional</Badge>} options={formas} />",
+    },
+    {
       titulo: 'Controlado',
       descricao: 'O produto guarda a chave da opção escolhida.',
       Previa: Controlado,
@@ -344,11 +364,13 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora dele. Não entra no nome do campo.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do campo, na mesma linha, fora da descrição.' },
     { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     {
       nome: 'options',
-      tipo: '{ label: string; value: string; description?: string; icon?: ReactNode; disabled?: boolean }[]',
-      descricao: 'As opções da lista. description é a segunda linha e icon, um ornamento à frente; os dois só na lista aberta.',
+      tipo: '{ label: string; value: string; description?: string; group?: string; icon?: ReactNode; disabled?: boolean }[]',
+      descricao: 'As opções da lista. description é a segunda linha e icon, um ornamento à frente; os dois só na lista aberta. As opções seguidas de um mesmo group ficam juntas, sob o título dele.',
     },
     { nome: 'value', tipo: 'string', descricao: 'Chave escolhida, no modo controlado.' },
     { nome: 'defaultValue', tipo: 'string', descricao: 'Chave inicial, no modo não controlado.' },

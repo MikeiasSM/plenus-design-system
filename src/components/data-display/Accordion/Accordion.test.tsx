@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Accordion, type AccordionItem } from './Accordion';
 import styles from './Accordion.module.css';
@@ -142,5 +144,101 @@ describe('Accordion', () => {
     const painel = document.getElementById(screen.getByRole('button', { name: 'Antigo' }).getAttribute('aria-controls')!)!;
 
     expect(painel).toHaveAttribute('hidden', '');
+  });
+
+  it('marca o item aberto com data-expanded', () => {
+    render(<Accordion defaultExpandedKeys={['envio']} items={secoes} />);
+
+    const item = (nome: string) => screen.getByRole('button', { name: nome }).closest(`.${styles.item}`);
+    expect(item('Envio')).toHaveAttribute('data-expanded');
+    expect(item('Pagamento')).not.toHaveAttribute('data-expanded');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pagamento' }));
+    expect(item('Pagamento')).toHaveAttribute('data-expanded');
+    expect(item('Envio')).not.toHaveAttribute('data-expanded');
+  });
+
+  it('o indicador plus vira o sinal de menos ao abrir, sem chevron', () => {
+    render(<Accordion indicator="plus" items={secoes} />);
+    const gatilho = screen.getByRole('button', { name: 'Envio' });
+    const indicador = () => gatilho.querySelector('[data-indicator="plus"]');
+
+    expect(indicador()).toHaveAttribute('aria-hidden', 'true');
+    expect(indicador()).not.toHaveClass(styles.plusOpen!);
+
+    fireEvent.click(gatilho);
+
+    expect(indicador()).toHaveClass(styles.plusOpen!);
+    expect(gatilho.querySelectorAll('svg')).toHaveLength(1);
+  });
+
+  it('escolhe a aparencia, e sem ela vale o divider', () => {
+    const { container, rerender } = render(<Accordion items={secoes} />);
+    const raiz = () => container.firstElementChild!;
+    expect(raiz()).toHaveClass(styles.divided!);
+
+    rerender(<Accordion appearance="separated" items={secoes} />);
+    expect(raiz()).toHaveClass(styles.separated!);
+    expect(raiz()).not.toHaveClass(styles.divided!);
+
+    rerender(<Accordion appearance="plain" items={secoes} />);
+    expect(raiz()).not.toHaveClass(styles.divided!);
+    expect(raiz()).not.toHaveClass(styles.separated!);
+
+    rerender(<Accordion appearance="divided" divider={false} items={secoes} />);
+    expect(raiz()).toHaveClass(styles.divided!);
+  });
+
+  it('o cabecalho compacto nao usa caixa alta nem espacamento entre letras', () => {
+    const { container } = render(<Accordion headerStyle="compact" items={secoes} />);
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Accordion/Accordion.module.css'), 'utf8');
+
+    expect(container.firstElementChild).toHaveClass(styles.compact!);
+    expect(css).not.toMatch(/text-transform|letter-spacing/);
+    expect(screen.getByRole('button', { name: 'Envio' })).toHaveTextContent('Envio');
+  });
+
+  it('o icone e o fim sao decorativos, a linha de cima e o endLabel entram no nome', () => {
+    render(
+      <Accordion
+        items={[
+          {
+            key: 'envio',
+            label: 'Envio',
+            content: 'Regras de envio',
+            icon: <svg data-testid="icone" />,
+            overline: 'Etapa 2',
+            end: <span data-testid="fim">3</span>,
+            endLabel: '3 pendentes',
+          },
+        ]}
+      />,
+    );
+
+    const gatilho = screen.getByRole('button', { name: 'Etapa 2 Envio 3 pendentes' });
+    expect(screen.getByTestId('icone').parentElement).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByTestId('fim').parentElement).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('heading', { name: 'Etapa 2 Envio 3 pendentes' })).toContainElement(gatilho);
+  });
+
+  it('com o indicador a esquerda, as fendas mantem a ordem de leitura', () => {
+    render(
+      <Accordion
+        iconPosition="left"
+        items={[{ key: 'envio', label: 'Envio', content: 'Regras', icon: <svg data-testid="icone" />, end: 'fim' }]}
+      />,
+    );
+
+    const filhos = Array.from(screen.getByRole('button').children);
+    expect(filhos[0]).toContainElement(screen.getByTestId('icone'));
+    expect(filhos[filhos.length - 1]).toHaveClass(styles.icon!);
+  });
+
+  it('le as variaveis de superficie com o valor do sistema de reserva, sem declara-las', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Accordion/Accordion.module.css'), 'utf8');
+
+    expect(css).toContain('var(--accordion-header-surface, var(--pl-color-surface))');
+    expect(css).toContain('var(--accordion-panel-surface, var(--pl-color-surface))');
+    expect(css).not.toMatch(/--accordion-(header|panel)-surface\s*:/);
   });
 });

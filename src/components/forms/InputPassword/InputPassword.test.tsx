@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import styles from './InputPassword.module.css';
 import { InputPassword } from './InputPassword';
 
 describe('InputPassword', () => {
@@ -106,5 +107,44 @@ describe('InputPassword', () => {
 
     expect(screen.getByLabelText('Senha')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeDisabled();
+  });
+
+  it('entrega o texto por onValueChange, ao lado do onChange nativo', () => {
+    const onChange = vi.fn();
+    const onValueChange = vi.fn();
+    render(<InputPassword label="Senha" onChange={onChange} onValueChange={onValueChange} />);
+
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'segredo' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenCalledWith('segredo');
+  });
+
+  it('so reserva o espaco do botao quando ele aparece', () => {
+    const { rerender } = render(<InputPassword label="Senha" />);
+
+    expect(screen.getByLabelText('Senha')).toHaveClass(styles.withToggle!);
+
+    rerender(<InputPassword label="Senha" showToggle={false} />);
+
+    expect(screen.getByLabelText('Senha')).not.toHaveClass(styles.withToggle!);
+  });
+
+  it('repassa o complemento do rotulo e o aside ao Field, fora do nome e da descricao', () => {
+    render(
+      <InputPassword
+        aside={<button type="button">Gerar</button>}
+        hint="Minimo de 8 caracteres."
+        label="Senha"
+        labelAddon={<a href="#recuperar">Esqueci a senha</a>}
+      />,
+    );
+
+    const input = screen.getByLabelText('Senha');
+
+    expect(input).toHaveAccessibleName('Senha');
+    expect(input).toHaveAccessibleDescription('Minimo de 8 caracteres.');
+    expect(screen.getByRole('link', { name: 'Esqueci a senha' }).closest('label')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Gerar' })).toBeInTheDocument();
   });
 });

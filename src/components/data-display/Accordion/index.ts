@@ -1,2 +1,10 @@
 export { Accordion } from './Accordion';
-export type { AccordionHeadingLevel, AccordionProps, AccordionItem, AccordionIconPosition } from './Accordion';
+export type {
+  AccordionAppearance,
+  AccordionHeaderStyle,
+  AccordionHeadingLevel,
+  AccordionIconPosition,
+  AccordionIndicator,
+  AccordionItem,
+  AccordionProps,
+} from './Accordion';

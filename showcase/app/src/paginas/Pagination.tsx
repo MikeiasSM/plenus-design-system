@@ -171,7 +171,12 @@ function Modos() {
         força o modo compacto.
       </dd>
       <dt>Uma página</dt>
-      <dd>Com <code>pageCount</code> até 1, não renderiza nada.</dd>
+      <dd>
+        Com <code>pageCount</code> até 1, não renderiza nada. Com <code>hideOnSinglePage={'{false}'}</code>, mostra o
+        intervalo e as setas, com <code>aria-disabled</code>, para o rodapé não mudar de altura.
+      </dd>
+      <dt><code>formatPaginationRange</code></dt>
+      <dd>O texto padrão do intervalo, como <code>1.201–1.250 de 4.380</code>, exportado para quem o mostra fora da paginação.</dd>
       <dt>Bordas</dt>
       <dd>
         Na primeira e na última página, o passo correspondente leva <code>aria-disabled</code> e ignora o clique, mas
@@ -239,6 +244,12 @@ export const pagina: Pagina = {
       codigo:
         '<Pagination\n  page={pagina}\n  pageCount={12}\n  disabled={carregando}\n  onPageChange={carregarPagina}\n/>',
     },
+    {
+      titulo: 'Uma página só, sem sumir',
+      descricao: 'Com hideOnSinglePage={false}, o intervalo e as setas ficam, desabilitadas, e o rodapé mantém a altura.',
+      Previa: () => <Pagination hideOnSinglePage={false} pageSize={25} totalItems={8} />,
+      codigo: '<Pagination\n  hideOnSinglePage={false}\n  totalItems={8}\n  pageSize={25}\n/>',
+    },
   ],
   Variantes,
   Modos,
@@ -300,6 +311,12 @@ export const pagina: Pagina = {
       descricao: 'Recebe o tamanho escolhido; a página muda junto pelo onPageChange.',
     },
     { nome: 'showFirstLast', tipo: 'boolean', padrao: 'false', descricao: 'Mostra os passos para a primeira e a última página.' },
+    {
+      nome: 'hideOnSinglePage',
+      tipo: 'boolean',
+      padrao: 'true',
+      descricao: 'Some com uma página só. Com false, mostra o intervalo e as setas com aria-disabled.',
+    },
     {
       nome: 'formatRange',
       tipo: '(range: { start: number; end: number; total: number }) => string',

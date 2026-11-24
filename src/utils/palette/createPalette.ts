@@ -1,9 +1,12 @@
 import type { CSSProperties } from 'react';
 import { isDevelopment } from '../isDevelopment';
-import { NEUTRAL_CHROMA, contrast, isHexColor, normalizeHex, oklchToHex, toOklch } from './color';
+import { NEUTRAL_CHROMA, contrast, isHexColor, luminance, normalizeHex, oklchToHex, toOklch } from './color';
 
 export interface CreatePaletteOptions {
-  /** Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais. */
+  /**
+   * Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais; se nenhum dos dois
+   * chega a 4,5:1, o que medir mais entre branco, grafite e preto.
+   */
   onSolid?: string;
 }
 
@@ -23,6 +26,10 @@ const TEXT_MINIMUM = 4.5;
 /** Piso visual do preenchimento: abaixo dele a cor some na superficie clara, como o creme. */
 const FILL_MINIMUM = 1.5;
 
+/** Quanto o preenchimento de hover e o pressionado se afastam do texto, em luminosidade OKLCH. */
+const FILL_HOVER_SHIFT = 0.05;
+const FILL_ACTIVE_SHIFT = 0.09;
+
 const STEP_LIGHTNESS = [0.975, 0.94, 0.875, 0.78, 0.62, 0.54, 0.46, 0.38, 0.3, 0.22];
 const STEP_CHROMA = [0.12, 0.28, 0.5, 0.8, 1, 0.95, 0.88, 0.78, 0.66, 0.55];
 
@@ -36,6 +43,33 @@ function rampOf(color: string) {
 
 const legibleOn = (background: string, candidates: readonly string[]) =>
   candidates.reduce((best, candidate) => (contrast(candidate, background) > contrast(best, background) ? candidate : best));
+
+/** Branco ou grafite, o que medir mais; abaixo de 4,5:1, o que medir mais entre branco, grafite e preto. */
+function textOn(solid: string) {
+  const preferred = legibleOn(solid, [WHITE, GRAPHITE]);
+
+  return contrast(preferred, solid) >= TEXT_MINIMUM ? preferred : legibleOn(solid, [WHITE, GRAPHITE, BLACK]);
+}
+
+/**
+ * Preenchimento do hover e do pressionado sob o texto. Os passos 60 e 70 servem quando o texto se le sobre eles;
+ * senao, o proprio preenchimento se afasta do texto em luminosidade, mais claro sob o texto escuro e mais escuro
+ * sob o claro. O tema escuro segue nos passos 30 e 20, como `--pl-color-primary-hover` e `-active`.
+ */
+function fillStates(solid: string, ramp: readonly string[], text: string): Record<string, string> {
+  if (contrast(text, ramp[5]) >= TEXT_MINIMUM && contrast(text, ramp[6]) >= TEXT_MINIMUM) {
+    return {};
+  }
+
+  const oklch = toOklch(solid);
+  const direction = luminance(text) < luminance(solid) ? 1 : -1;
+  const shifted = (shift: number) => oklchToHex({ ...oklch, L: Math.min(1, Math.max(0, oklch.L + direction * shift)) });
+
+  return {
+    '--pl-palette-fill-hover': `light-dark(${shifted(FILL_HOVER_SHIFT)}, var(--pl-palette-30))`,
+    '--pl-palette-fill-active': `light-dark(${shifted(FILL_ACTIVE_SHIFT)}, var(--pl-palette-20))`,
+  };
+}
 
 /** Primeiro passo, a partir de `start` e na direcao dada, que se le contra a superficie. */
 function strongFrom(ramp: readonly string[], start: number, direction: 1 | -1, surface: string) {
@@ -98,7 +132,7 @@ export function createPalette(color: string, { onSolid }: CreatePaletteOptions =
   }
 
   const ramp = rampOf(solid);
-  const textOnSolid = onSolid === undefined ? legibleOn(solid, [WHITE, GRAPHITE]) : normalizeHex(onSolid);
+  const textOnSolid = onSolid === undefined ? textOn(solid) : normalizeHex(onSolid);
 
   if (onSolid !== undefined && isDevelopment() && contrast(textOnSolid, solid) < TEXT_MINIMUM) {
     console.warn(
@@ -118,6 +152,7 @@ export function createPalette(color: string, { onSolid }: CreatePaletteOptions =
       '--pl-palette-on-40': legibleOn(ramp[3], [WHITE, BLACK]),
       '--pl-palette-strong-light': fill >= TEXT_MINIMUM ? solid : strongFrom(ramp, 4, 1, LIGHT_SURFACE),
       '--pl-palette-strong-dark': strongFrom(ramp, 3, -1, DARK_SURFACE),
+      ...fillStates(solid, ramp, textOnSolid),
     } as CSSProperties,
   };
 }

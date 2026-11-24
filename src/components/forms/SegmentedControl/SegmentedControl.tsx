@@ -1,13 +1,20 @@
-import { Fragment, useId, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { Fragment, useId, useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { useAvisoDeGrupoSemNome } from '../../../hooks/useAvisoDeGrupoSemNome';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { Tooltip } from '../../overlays/Tooltip';
 import styles from './SegmentedControl.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
 
 export interface SegmentedControlItem {
+  /** Classe somada à do segmento, o `label` que envolve o rádio. */
+  className?: string;
+  /** Texto oculto ligado ao rádio por `aria-describedby`, para o que o rótulo curto não diz. */
+  description?: string;
   disabled?: boolean;
   icon?: ReactNode;
   label: string;
+  /** Conteúdo visível depois do rótulo, como uma contagem. É decorativo: fica fora do nome, com `aria-hidden`. */
+  trailing?: ReactNode;
   value: string;
 }
 
@@ -37,6 +44,7 @@ export function SegmentedControl({
   label,
   name: providedName,
   onValueChange,
+  ref: refDoConsumidor,
   size = 'md',
   value,
   'aria-label': ariaLabel,
@@ -44,9 +52,37 @@ export function SegmentedControl({
   ...props
 }: SegmentedControlProps) {
   useAvisoDeGrupoSemNome('SegmentedControl', { ariaLabel, ariaLabelledby, label });
-  const generatedName = `segmented-control-${useId()}`;
+  const baseId = useId();
+  const generatedName = `segmented-control-${baseId}`;
   const name = providedName ?? generatedName;
   const controlled = value !== undefined;
+  // Os radios seguem nativos; o estado so acompanha a escolha, para o `data-selected` e para trazer o escolhido a vista.
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const atual = controlled ? value : internalValue;
+  const ref = useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRefs(ref, refDoConsumidor);
+
+  // O escolhido entra na vista ao montar e ao mudar. Ajusta so a rolagem do proprio controle: `scrollIntoView`
+  // rolaria tambem a pagina e os ancestrais.
+  useLayoutEffect(() => {
+    const controle = ref.current;
+    const escolhido = controle?.querySelector<HTMLElement>('[data-selected]');
+
+    if (!controle || !escolhido) {
+      return;
+    }
+
+    const caixa = controle.getBoundingClientRect();
+    const segmento = escolhido.getBoundingClientRect();
+    const inicio = caixa.left + controle.clientLeft;
+    const fim = inicio + controle.clientWidth;
+
+    if (segmento.left < inicio) {
+      controle.scrollLeft -= inicio - segmento.left;
+    } else if (segmento.right > fim) {
+      controle.scrollLeft += segmento.right - fim;
+    }
+  }, [atual]);
 
   return (
     <div
@@ -54,18 +90,31 @@ export function SegmentedControl({
       aria-label={ariaLabelledby ? undefined : (label ?? ariaLabel)}
       aria-labelledby={ariaLabelledby}
       className={[styles.control, styles[size], thinScrollbar, className].filter(Boolean).join(' ')}
+      ref={mergedRef}
       role="radiogroup"
     >
-      {items.map((item) => {
+      {items.map((item, index) => {
+        const desabilitado = disabled || item.disabled;
+        const descricaoId = item.description ? `${baseId}-${index}-descricao` : undefined;
         const segment = (
-          <label className={[styles.segment, iconOnly && styles.iconOnly].filter(Boolean).join(' ')}>
+          <label
+            className={[styles.segment, iconOnly && styles.iconOnly, item.className].filter(Boolean).join(' ')}
+            data-disabled={desabilitado || undefined}
+            data-selected={atual === item.value || undefined}
+          >
             <input
+              aria-describedby={descricaoId}
               checked={controlled ? value === item.value : undefined}
               className={styles.input}
               defaultChecked={controlled ? undefined : defaultValue === item.value}
-              disabled={disabled || item.disabled}
+              disabled={desabilitado}
               name={name}
-              onChange={() => onValueChange?.(item.value)}
+              onChange={() => {
+                if (!controlled) {
+                  setInternalValue(item.value);
+                }
+                onValueChange?.(item.value);
+              }}
               type="radio"
               value={item.value}
             />
@@ -75,15 +124,24 @@ export function SegmentedControl({
               </span>
             )}
             <span className={iconOnly ? styles.hiddenText : undefined}>{item.label}</span>
+            {item.trailing !== undefined && item.trailing !== null && (
+              <span aria-hidden="true" className={styles.trailing}>
+                {item.trailing}
+              </span>
+            )}
           </label>
         );
 
-        return iconOnly ? (
-          <Tooltip content={item.label} key={item.value}>
-            {segment}
-          </Tooltip>
-        ) : (
-          <Fragment key={item.value}>{segment}</Fragment>
+        // A descricao fica fora do `label`: dentro dele, entraria no nome do radio.
+        return (
+          <Fragment key={item.value}>
+            {iconOnly ? <Tooltip content={item.label}>{segment}</Tooltip> : segment}
+            {descricaoId && (
+              <span className={styles.hiddenText} id={descricaoId}>
+                {item.description}
+              </span>
+            )}
+          </Fragment>
         );
       })}
     </div>

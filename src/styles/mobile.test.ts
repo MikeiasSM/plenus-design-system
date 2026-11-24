@@ -47,7 +47,7 @@ describe('safe area', () => {
     const css = ler('components/overlays/Drawer/Drawer.module.css');
 
     expect(css).toMatch(/\.right \.drawer \{\s*padding-right: env\(safe-area-inset-right, 0px\)/);
-    expect(css).toMatch(/\.left \.drawer \{\s*padding-left: env\(safe-area-inset-left, 0px\)/);
+    expect(css).toMatch(/:where\(\.left\) \.drawer \{\s*padding-left: env\(safe-area-inset-left, 0px\)/);
   });
 
   it('a SaveBar usa os tokens, que o AppShell zera para o que está dentro dele', () => {
@@ -147,7 +147,7 @@ describe('toque: area de 44px em rádio, caixa, chave e cor', () => {
     const toque = blocoDaMidia(ler('components/forms/ColorPicker/ColorPicker.module.css'), 'pointer: coarse');
 
     expect(toque).toMatch(/\.swatch::after \{[^}]*width: 44px;[^}]*height: 44px;/);
-    expect(toque).toContain('calc(44px - var(--color-picker-size))');
+    expect(toque).toContain('calc(44px - var(--pl-color-picker-size, var(--color-picker-size)))');
   });
 
   it.each(['components/forms/RadioGroup/RadioGroup.module.css', 'components/forms/CheckboxGroup/CheckboxGroup.module.css'])('%s cola as linhas, que já medem 44px, e mantém o espaço entre as opções lado a lado', (arquivo) => {
@@ -207,11 +207,11 @@ describe('hover e pressão', () => {
     expect(soAMidia(css, 'hover: hover')).not.toContain(':active');
   });
 
-  it('o botão primário pressionado usa --pl-color-primary-active, um passo além do hover', () => {
+  it('o botão primário pressionado usa --pl-color-primary-fill-active, um passo além do hover', () => {
     const css = ler('components/actions/Button/Button.module.css');
 
-    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-color-primary-active\);/);
-    expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-hover');
+    expect(css).toMatch(/\.primary:not\(:disabled\):not\(\[aria-disabled='true'\]\):active \{\s*background: var\(--pl-button-bg-active, var\(--pl-color-primary-fill-active\)\);/);
+    expect(soAMidia(css, 'hover: hover')).toContain('--pl-color-primary-fill-hover');
   });
 
   it('o que só aparece no hover aparece sempre onde não há hover', () => {
@@ -223,7 +223,7 @@ describe('hover e pressão', () => {
   it('o laudo de contraste mede o texto sobre o fundo pressionado', () => {
     const laudo = readFileSync(resolve(process.cwd(), 'scripts/contraste-tokens.mjs'), 'utf8');
 
-    expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO");
+    expect(laudo).toContain("'--pl-color-on-primary', '--pl-color-primary-fill-active', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO");
     expect(laudo).toContain("'--pl-color-primary-active', '--pl-color-surface-muted', TEXTO_MINIMO");
   });

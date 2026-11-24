@@ -137,7 +137,10 @@ function Modos() {
   return (
     <dl className="modes">
       <dt>Foco</dt>
-      <dd>Aparece na hora, quando o gatilho recebe o foco, e some no blur.</dd>
+      <dd>
+        Aparece na hora, quando o gatilho recebe o foco, e some no blur. Aberto assim, o balão leva{' '}
+        <code>data-origin=&quot;focus&quot;</code>, deixa o clique atravessá-lo e some no primeiro toque fora do gatilho.
+      </dd>
       <dt>Ponteiro</dt>
       <dd>
         Aparece depois de <code>delay</code>, meio segundo por padrão. Ao sair do gatilho, espera o ponteiro atravessar até o

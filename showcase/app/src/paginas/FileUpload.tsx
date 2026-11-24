@@ -250,6 +250,28 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Compacto, com colar',
+      descricao:
+        'Com o foco no campo, Ctrl+V cola uma imagem copiada, pela mesma conferência da escolha. O rótulo sai da vista e continua nomeando o seletor; as restrições também saem da vista e seguem na descrição. statusLabel troca o texto do estado.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 520 }}>
+          <FileUpload
+            accept="image/*"
+            acceptPaste
+            hideLabel
+            items={[{ id: '1', name: 'captura.png', size: 0.4 * MB, status: 'uploading', statusLabel: 'Processando' }]}
+            label="Captura de tela"
+            labels={{ button: 'Procurar', instruction: 'Arraste, cole ou procure a imagem' }}
+            maxSize={2 * MB}
+            onFilesSelected={() => undefined}
+            showRestrictions={false}
+          />
+        </div>
+      ),
+      codigo:
+        '<FileUpload\n  label="Captura de tela"\n  hideLabel\n  accept="image/*"\n  maxSize={2 * 1024 ** 2}\n  acceptPaste\n  showRestrictions={false}\n  labels={{ button: \'Procurar\', instruction: \'Arraste, cole ou procure a imagem\' }}\n  items={[{ id: \'1\', name: \'captura.png\', size: 0.4 * 1024 ** 2, status: \'uploading\', statusLabel: \'Processando\' }]}\n  onFilesSelected={receber}\n/>',
+    },
+    {
       titulo: 'Envio com progresso',
       descricao:
         'Escolha ou arraste PDFs e imagens. Acima de 5 MB ou de outro tipo, a recusa aparece no erro do campo. Ligada a queda, o envio falha aos 60%: tente de novo depois de desligá-la, ou cancele no meio.',
@@ -305,6 +327,7 @@ export const pagina: Pagina = {
       teste: 'FileUpload.test.tsx',
     },
     { garantia: 'Estado do envio', como: <>Cada linha anuncia enviando, enviado ou a falha por <code>role=&quot;status&quot;</code>.</>, teste: 'FileUpload.test.tsx' },
+    { garantia: 'Colar com foco', como: <>Com <code>acceptPaste</code>, só o colar com o foco dentro do componente chega à conferência.</>, teste: 'FileUpload.test.tsx' },
     { garantia: 'Tamanho legível', como: 'Base 1024, com os separadores da localidade.', teste: 'formatFileSize.test.ts' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div>, que vão à raiz. O Design System não envia o arquivo: recebe, valida e mostra.',
@@ -316,6 +339,10 @@ export const pagina: Pagina = {
     { nome: 'maxSize', tipo: 'number', descricao: 'Limite por arquivo, em bytes. Escrito na zona.' },
     { nome: 'multiple', tipo: 'boolean', padrao: 'false', descricao: 'Aceita vários; sem ele, do que for solto vale o primeiro.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o seletor e ignora o que for solto.' },
+    { nome: 'acceptPaste', tipo: 'boolean', padrao: 'false', descricao: 'Aceita o arquivo colado com o foco dentro do componente, pela mesma conferência de tipo e tamanho.' },
+    { nome: 'hideLabel', tipo: 'boolean', padrao: 'false', descricao: 'Tira o rótulo da vista; ele continua nomeando o seletor.' },
+    { nome: 'labels', tipo: 'Partial<{ instruction: string; button: string }>', descricao: 'Troca o texto da zona e o do botão.' },
+    { nome: 'showRestrictions', tipo: 'boolean', padrao: 'true', descricao: 'Com false, a linha dos tipos e do limite sai da vista e continua na descrição do seletor.' },
     { nome: 'onFilesSelected', tipo: '(files: File[]) => void', descricao: 'Recebe só os aceitos.' },
     {
       nome: 'onFilesRejected',
@@ -324,9 +351,9 @@ export const pagina: Pagina = {
     },
     {
       nome: 'items',
-      tipo: "{ id; name; size; status: 'uploading' | 'done' | 'error'; progress?; error? }[]",
+      tipo: "{ id; name; size; status: 'uploading' | 'done' | 'error'; progress?; error?; statusLabel? }[]",
       padrao: '[]',
-      descricao: 'Os envios, mantidos pelo produto, que informa o progresso de 0 a 100.',
+      descricao: 'Os envios, mantidos pelo produto, que informa o progresso de 0 a 100. statusLabel vence Enviando e Enviado; sem progress, a barra é indeterminada.',
     },
     { nome: 'onCancel', tipo: '(id: string) => void', descricao: 'Cancela o que está subindo.' },
     { nome: 'onRetry', tipo: '(id: string) => void', descricao: 'Tenta de novo o que falhou.' },

@@ -262,3 +262,175 @@ describe('Button: cliques repetidos', () => {
     expectTypeOf<ButtonProps['onClick']>().toEqualTypeOf<ButtonHTMLAttributes<HTMLButtonElement>['onClick']>();
   });
 });
+
+describe('Button: variantes neutral e link', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/actions/Button/Button.module.css'), 'utf8').replace(/\r\n/g, '\n');
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('aplicam a classe da variante no botao e no link', () => {
+    render(
+      <>
+        <Button variant="neutral">Arquivar</Button>
+        <Button href="/ajuda" variant="neutral">Ajuda</Button>
+        <Button variant="link">Ver detalhes</Button>
+        <Button href="/termos" variant="link">Termos</Button>
+      </>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Arquivar' }).className).toContain('neutral');
+    expect(screen.getByRole('link', { name: 'Ajuda' }).className).toContain('neutral');
+    expect(screen.getByRole('button', { name: 'Ver detalhes' }).className).toContain('link');
+    expect(screen.getByRole('link', { name: 'Termos' })).toHaveAttribute('href', '/termos');
+  });
+
+  it('neutral: fundo cinza sem borda visivel, um passo mais escuro no hover e no pressionado', () => {
+    expect(bloco('.neutral')).toContain('background: var(--pl-button-bg, var(--pl-color-surface-muted));');
+    expect(bloco('.neutral')).toContain('border-color: var(--pl-button-border, transparent);');
+    expect(bloco('.neutral')).toContain('color: var(--pl-button-fg, var(--pl-color-text));');
+    expect(bloco(".neutral:not(:disabled):not([aria-disabled='true']):hover")).toContain(
+      'color-mix(in srgb, var(--pl-color-surface-muted) 55%, var(--pl-color-border-strong))',
+    );
+    expect(bloco(".neutral:not(:disabled):not([aria-disabled='true']):active")).toContain('var(--pl-color-border-strong)');
+  });
+
+  it('link: em linha, sem caixa, com a fonte de quem o cerca e sublinhado sempre', () => {
+    const regra = bloco('.button.link');
+
+    for (const declaracao of [
+      'display: inline;',
+      'padding: 0;',
+      'border: 0;',
+      'font: inherit;',
+      'color: var(--pl-button-fg, var(--pl-color-primary-active));',
+      'text-decoration: underline;',
+      'text-underline-offset: 3px;',
+      'box-decoration-break: clone;',
+    ]) {
+      expect(regra).toContain(declaracao);
+    }
+  });
+
+  it('link: o foco e o contorno, nao o halo, e o hover nao tem sombra', () => {
+    const foco = bloco('.button.link:not(:disabled):focus-visible');
+    const hover = bloco(
+      ".button.link:not(:disabled):not([aria-disabled='true']):hover,\n  .button.link:not(:disabled):not([aria-disabled='true']):hover:focus-visible",
+    );
+
+    expect(foco).toContain('outline: 2px solid var(--pl-color-primary-strong);');
+    expect(foco).toContain('box-shadow: none;');
+    expect(hover).toContain('box-shadow: none;');
+  });
+});
+
+describe('Button: pressionado e ganchos de aparencia', () => {
+  const ler = (caminho: string) => readFileSync(resolve(process.cwd(), caminho), 'utf8');
+  const css = ler('src/components/actions/Button/Button.module.css');
+
+  it('o estado ligado de aria-pressed e do Button, e nao mais da Toolbar', () => {
+    const inicio = css.indexOf(".button[aria-pressed='true'] {");
+    const regra = css.slice(inicio, css.indexOf('}', inicio));
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    expect(regra).toContain('background: var(--pl-button-bg-pressed, var(--pl-color-primary-container));');
+    expect(regra).toContain('border-color: var(--pl-color-primary-line);');
+    expect(regra).toContain('color: var(--pl-color-on-primary-container);');
+    expect(ler('src/components/actions/Toolbar/Toolbar.module.css')).not.toContain('aria-pressed');
+  });
+
+  it('le os ganchos com o valor da variante como reserva e nunca os declara', () => {
+    for (const gancho of ['bg', 'fg', 'border', 'bg-hover', 'bg-active', 'bg-pressed']) {
+      expect(css).toContain(`var(--pl-button-${gancho},`);
+    }
+
+    expect(css).not.toMatch(/--pl-button-[\w-]+\s*:/);
+  });
+});
+
+describe('Button: disabledReason', () => {
+  it('desabilitado com motivo, fica focavel, com aria-disabled e o motivo como descricao', () => {
+    render(<Button disabled disabledReason="Preencha o nome antes de salvar">Salvar</Button>);
+
+    const button = screen.getByRole('button', { name: 'Salvar' });
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).toHaveAccessibleDescription('Preencha o nome antes de salvar');
+
+    button.focus();
+    expect(button).toHaveFocus();
+  });
+
+  it('nao responde ao clique, ao Enter nem ao Espaco', () => {
+    const onClick = vi.fn();
+    const onSubmit = vi.fn((event: { preventDefault: () => void }) => event.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <Button disabled disabledReason="Sem permissao" onClick={onClick} type="submit">Enviar</Button>
+      </form>,
+    );
+    const button = screen.getByRole('button', { name: 'Enviar' });
+
+    expect(fireEvent.keyDown(button, { key: 'Enter' })).toBe(false);
+    expect(fireEvent.keyDown(button, { key: ' ' })).toBe(false);
+    expect(fireEvent.keyUp(button, { key: ' ' })).toBe(false);
+    expect(fireEvent.click(button)).toBe(false);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('soma o motivo ao aria-describedby do consumidor e repassa o teclado a ele', () => {
+    const onKeyDown = vi.fn();
+    render(
+      <>
+        <p id="ajuda">Ajuda do formulario</p>
+        <Button aria-describedby="ajuda" disabled disabledReason="Sem permissao" onKeyDown={onKeyDown}>Enviar</Button>
+      </>,
+    );
+    const button = screen.getByRole('button', { name: 'Enviar' });
+
+    expect(button).toHaveAccessibleDescription('Ajuda do formulario Sem permissao');
+    fireEvent.keyDown(button, { key: 'Enter' });
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('o texto do motivo fica montado enquanto houver disabledReason, e so descreve desabilitado', () => {
+    const onClick = vi.fn();
+    const { rerender } = render(<Button disabledReason="Sem permissao" onClick={onClick}>Enviar</Button>);
+    const button = screen.getByRole('button', { name: 'Enviar' });
+    const motivo = screen.getByText('Sem permissao');
+
+    expect(button).not.toHaveAttribute('aria-describedby');
+    expect(button).not.toHaveAttribute('aria-disabled');
+    fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    rerender(<Button disabled disabledReason="Sem permissao" onClick={onClick}>Enviar</Button>);
+    expect(screen.getByText('Sem permissao')).toBe(motivo);
+    expect(screen.getByRole('button', { name: 'Enviar' })).toBe(button);
+    expect(button).toHaveAccessibleDescription('Sem permissao');
+  });
+
+  it('sem motivo, o desabilitado continua o disabled nativo, sem texto a mais', () => {
+    const { container } = render(<Button disabled>Enviar</Button>);
+
+    expect(screen.getByRole('button', { name: 'Enviar' })).toBeDisabled();
+    expect(container.childElementCount).toBe(1);
+  });
+
+  it('como link, desabilitado com motivo fica sem destino, mas na tabulacao e descrito', () => {
+    const onClick = vi.fn();
+    render(<Button disabled disabledReason="Relatorio ainda em geracao" href="/relatorio" onClick={onClick}>Abrir</Button>);
+
+    const link = screen.getByRole('link', { name: 'Abrir' });
+    expect(link).not.toHaveAttribute('href');
+    expect(link).toHaveAttribute('tabindex', '0');
+    expect(link).toHaveAttribute('aria-disabled', 'true');
+    expect(link).toHaveAccessibleDescription('Relatorio ainda em geracao');
+    fireEvent.click(link);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+});

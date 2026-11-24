@@ -148,6 +148,41 @@ function Exibicao() {
   );
 }
 
+function Conta() {
+  const [tema, setTema] = useState('Claro');
+
+  return (
+    <Menu
+      header={
+        <>
+          <strong>Ana Prado</strong>
+          <br />
+          <span style={{ color: 'var(--pl-color-text-secondary)' }}>ana@exemplo.com</span>
+        </>
+      }
+      items={[
+        { key: 'perfil', label: 'Meu perfil', href: '#perfil' },
+        {
+          key: 'tema',
+          label: 'Tema',
+          detail: tema,
+          items: ['Claro', 'Escuro', 'Do sistema'].map((opcao) => ({
+            key: opcao,
+            label: opcao,
+            checked: tema === opcao,
+            onSelect: () => setTema(opcao),
+          })),
+        },
+        { key: 'ajuda', label: 'Central de ajuda', href: '#ajuda' },
+        { key: 'sair', label: 'Sair' },
+      ]}
+      label="Conta"
+    >
+      <Button variant="secondary">Conta</Button>
+    </Menu>
+  );
+}
+
 function ExcluirComConfirmacao() {
   const [confirmando, setConfirmando] = useState(false);
 
@@ -224,7 +259,17 @@ function Modos() {
         Escolher no submenu fecha tudo e devolve o foco ao gatilho.
       </dd>
       <dt>Lista longa</dt>
-      <dd>A altura para em 360px, ou no espaço disponível, e a lista rola.</dd>
+      <dd>A altura para em 360px, ou no espaço disponível, e a lista rola. As setas movem o foco sem rolar a página: só o painel rola.</dd>
+      <dt>Rolagem</dt>
+      <dd>
+        Rolar a página não fecha o menu, que a acompanha. Rolar um contêiner interno que contém o gatilho, como o corpo de um
+        Dialog, fecha e devolve o foco ao gatilho.
+      </dd>
+      <dt>Link</dt>
+      <dd>
+        O item com <code>href</code> ou <code>linkProps</code> é um <code>&lt;a role=&quot;menuitem&quot;&gt;</code>; o menu fecha
+        logo depois do clique, para o navegador seguir o endereço.
+      </dd>
       <dt>Gatilho</dt>
       <dd>
         Um único elemento, que mantém o próprio <code>ref</code>, <code>onClick</code> e <code>onKeyDown</code>. O painel não
@@ -250,6 +295,13 @@ export const pagina: Pagina = {
       Previa: Exibicao,
       codigo:
         "<Menu\n  label=\"Opções da exibição\"\n  items={[\n    {\n      key: 'densidade',\n      label: 'Densidade',\n      items: densidades.map((d) => ({ key: d, label: d, checked: d === atual, onSelect: () => setAtual(d) })),\n    },\n    { key: 'exportar', label: 'Exportar', items: [{ key: 'csv', label: 'CSV' }, { key: 'pdf', label: 'PDF' }] },\n  ]}\n>\n  <Button variant=\"secondary\">Exibição</Button>\n</Menu>",
+    },
+    {
+      titulo: 'Conta, com links, valor e cabeçalho',
+      descricao: 'Itens com href são links (<a role="menuitem">); com as no Menu, o link é o da aplicação. detail mostra a escolha atual à direita e entra no nome: "Tema, Claro". header fica no topo, fora da lista, e a descreve.',
+      Previa: Conta,
+      codigo:
+        "<Menu\n  label=\"Conta\"\n  as={Link}\n  header={<><strong>Ana Prado</strong><br />ana@exemplo.com</>}\n  items={[\n    { key: 'perfil', label: 'Meu perfil', linkProps: { to: '/perfil' } },\n    { key: 'tema', label: 'Tema', detail: tema, items: temas },\n    { key: 'sair', label: 'Sair', onSelect: sair },\n  ]}\n>\n  <Button variant=\"secondary\">Conta</Button>\n</Menu>",
     },
     {
       titulo: 'Posição do painel',
@@ -305,6 +357,8 @@ export const pagina: Pagina = {
   notaDaApi: (
     <>
       Cada item é um <code>MenuItem</code>: <code>{'{ key: string; label: string; disabled?: boolean; onSelect?: () => void }'}</code>.
+      Com <code>href</code> ou <code>linkProps</code>, o item é um link; <code>detail</code> escreve um valor à direita, que entra
+      no nome depois de uma vírgula.
       O <code>shortcut</code> é o texto à direita, como <code>Ctrl+Shift+D</code> ou <code>⌘⇧D</code>, convertido nos nomes de
       tecla de <code>aria-keyshortcuts</code> (<code>Control+Shift+D</code>, <code>Meta+Shift+D</code>); vários atalhos vão
       separados por vírgula. Quando a conversão não basta, <code>shortcutKeys</code> vai direto ao atributo, como{' '}
@@ -316,6 +370,8 @@ export const pagina: Pagina = {
     { nome: 'children', tipo: 'ReactElement', descricao: 'Obrigatória. O gatilho: um único elemento focável.' },
     { nome: 'items', tipo: 'readonly MenuItem[]', descricao: 'Obrigatória. As ações, na ordem em que aparecem.' },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome acessível da lista.' },
+    { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação, para os itens com href ou linkProps.' },
+    { nome: 'header', tipo: 'ReactNode', descricao: 'Bloco no topo do painel, fora do role="menu", que o descreve por aria-describedby. Nada interativo.' },
     { nome: 'placement', tipo: 'PopoverPlacement', padrao: "'bottom start'", descricao: 'Lado e alinhamento do painel em relação ao gatilho, como no Popover. O submenu abre sempre à direita do item pai.' },
     { nome: 'open', tipo: 'boolean', descricao: 'Controla a abertura; sem ele, o menu guarda o próprio estado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Abertura inicial no modo não controlado.' },

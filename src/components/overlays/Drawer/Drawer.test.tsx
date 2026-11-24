@@ -116,4 +116,29 @@ describe('Drawer', () => {
     );
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'nota');
   });
+
+  it('soma o onKeyDown e o onFocus do produto aos da gaveta, e o Esc continua fechando', () => {
+    const onKeyDown = vi.fn();
+    const onFocus = vi.fn();
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer onFocus={onFocus} onKeyDown={onKeyDown} onOpenChange={onOpenChange} open title="Filtros">
+        <input aria-label="Nome" />
+      </Drawer>,
+    );
+    const campo = screen.getByRole('textbox', { name: 'Nome' });
+
+    fireEvent.focus(campo);
+    fireEvent.keyDown(campo, { key: 'Escape' });
+
+    expect(onFocus).toHaveBeenCalled();
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('aceita titulo e descricao como no, sem perder o nome nem a descricao', () => {
+    render(<Drawer description={<>Ajuste <strong>quem</strong> ve.</>} open title={<>Acesso de <em>Ana</em></>} />);
+
+    expect(screen.getByRole('dialog', { name: 'Acesso de Ana' })).toHaveAccessibleDescription('Ajuste quem ve.');
+  });
 });

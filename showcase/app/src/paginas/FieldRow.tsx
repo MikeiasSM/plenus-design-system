@@ -1,4 +1,5 @@
-import { Button, Card, FieldRow, InputNumber, SegmentedControl, Select, Switch } from '@plenustech/design-system';
+import type { CSSProperties } from 'react';
+import { Badge, Button, Card, FieldRow, InputNumber, SegmentedControl, Select, Switch, Textarea } from '@plenustech/design-system';
 import { gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -194,6 +195,28 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Coluna de rótulos, complemento e controle alto',
+      descricao:
+        '--pl-field-row-label-width dá a todos os textos a mesma largura e o resto ao controle. labelAddon fica ao lado do título, fora do nome; align="start" prende o texto ao topo do controle alto.',
+      largo: true,
+      Previa: () => (
+        <div style={{ width: '100%', '--pl-field-row-label-width': '16rem' } as CSSProperties}>
+          <Card>
+            <Card.Body flush>
+              <FieldRow description="Quanto o resumo mostra." label="Período" labelAddon={<Badge>Novo</Badge>}>
+                {({ describedBy, id }) => <ControleDaLinha controle="Select" describedBy={describedBy} id={id} />}
+              </FieldRow>
+              <FieldRow align="start" description="Vai no rodapé de cada mensagem." label="Assinatura">
+                {({ describedBy, id }) => <Textarea aria-describedby={describedBy} id={id} rows={3} />}
+              </FieldRow>
+            </Card.Body>
+          </Card>
+        </div>
+      ),
+      codigo:
+        '<div style={{ \'--pl-field-row-label-width\': \'16rem\' }}>\n  <FieldRow label="Período" labelAddon={<Badge>Novo</Badge>} description="Quanto o resumo mostra.">\n    {({ describedBy, id }) => <Select id={id} aria-describedby={describedBy} options={periodos} />}\n  </FieldRow>\n  <FieldRow align="start" label="Assinatura" description="Vai no rodapé de cada mensagem.">\n    {({ describedBy, id }) => <Textarea id={id} aria-describedby={describedBy} rows={3} />}\n  </FieldRow>\n</div>',
+    },
+    {
       titulo: 'Ajustes de um cartão',
       descricao: 'Chave, número e botão na mesma lista de linhas.',
       largo: true,
@@ -230,6 +253,8 @@ export const pagina: Pagina = {
   api: [
     { nome: 'label', tipo: 'string', descricao: 'Rótulo da linha, ligado ao controle.' },
     { nome: 'description', tipo: 'ReactNode', descricao: 'Explicação sob o rótulo; descreve o controle.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do título, fora do rótulo, como um selo. Não entra no nome do controle.' },
+    { nome: 'align', tipo: "'center' | 'start'", padrao: "'center'", descricao: 'Alinhamento vertical do texto e do controle; start para o controle alto.' },
     {
       nome: 'children',
       tipo: 'ReactNode | ((wiring: FieldRowWiring) => ReactNode)',

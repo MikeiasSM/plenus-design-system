@@ -1,5 +1,7 @@
 /* Trilho em fundo sutil com o segmento escolhido em superficie elevada, como o grupo de botoes do Untitled UI. */
 .control {
+  /* Referência do texto oculto das descrições, que fica entre os segmentos. */
+  position: relative;
   display: inline-flex;
   max-width: 100%;
   gap: 2px;
@@ -75,6 +77,12 @@
 .icon {
   display: inline-flex;
   font-size: 1rem;
+}
+
+/* O que vem depois do rótulo, como uma contagem. */
+.trailing {
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (hover: hover) {

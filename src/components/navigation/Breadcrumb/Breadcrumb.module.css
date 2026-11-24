@@ -47,3 +47,69 @@
   flex: none;
   color: var(--pl-color-text-tertiary);
 }
+
+/* Nivel intermediario sem destino: texto da trilha, sem o peso da pagina atual. */
+.text {
+  padding: 2px 4px;
+  color: var(--pl-color-text-secondary);
+}
+
+/* Compacta: uma linha so, e o ultimo nivel encolhe com reticencias. */
+.compact {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.compact .item {
+  flex: none;
+}
+
+.compact .last {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.compact .last .current {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  margin: 0;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: transparent;
+  color: var(--pl-color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .more:hover {
+    background: var(--pl-color-surface-muted);
+    color: var(--pl-color-text);
+  }
+}
+
+.more:active {
+  background: var(--pl-color-border-strong);
+  color: var(--pl-color-text);
+}
+
+.more[aria-expanded='true'] {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+}

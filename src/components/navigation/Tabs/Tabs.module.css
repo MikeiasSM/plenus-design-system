@@ -47,6 +47,12 @@
   min-width: 0;
 }
 
+/* Com `fillHeight`, o painel estica até a altura da raiz para rolar: o `align-items: flex-start` da vertical o
+   deixava do tamanho do conteúdo, e nada rolava. A lista continua no topo. */
+.vertical.fillHeight .panel {
+  align-self: stretch;
+}
+
 .list {
   display: flex;
   gap: var(--pl-space-1);
@@ -71,6 +77,11 @@
   .tab:hover:not(:disabled):not(.active) {
     color: var(--pl-color-text);
   }
+}
+
+/* Aba de menor peso: só a cor muda; ela continua focável, selecionável e com o hover das outras. */
+.tab:where([data-muted]:not(.active)) {
+  color: var(--pl-color-text-tertiary);
 }
 
 .tab:disabled {
@@ -111,5 +122,146 @@
 
 .tab:active:not(:disabled):not(.active) {
   background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text);
+}
+
+/* Envoltório das abas e das `actions`, que ficam fora do `tablist`. A linha da faixa passa da lista para ele, e corre
+   também sob as ações. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  min-width: 0;
+  border-bottom: 1px solid var(--pl-color-border);
+}
+
+.bar > .list {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-bottom: 0;
+  border-right: 0;
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-2);
+  margin-inline-start: auto;
+}
+
+/* Na vertical, as ações descem sob as abas, e a linha fica à direita do envoltório. */
+.vertical .bar {
+  flex: none;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 160px;
+  border-bottom: 0;
+  border-right: 1px solid var(--pl-color-border);
+}
+
+.vertical .bar > .list {
+  flex: none;
+}
+
+.vertical .actions {
+  margin-inline-start: 0;
+  padding: 0 var(--pl-space-3) var(--pl-space-2);
+}
+
+/* Rótulo com ícone ou contagem. O texto oculto da contagem se posiciona por ele. */
+.tabContent {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  vertical-align: top;
+}
+
+.tabIcon {
+  display: inline-flex;
+  font-size: 1rem;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.active .count {
+  background: var(--pl-color-primary-container);
+  color: var(--pl-color-on-primary-container);
+}
+
+/* Segmentado: o trilho e a aba ativa do `SegmentedControl`, com a mesma semântica de abas. Vale também para a
+   `TabsNav`, que marca a raiz com `.segmented` e a lista com `.rail`. */
+.segmented .list,
+.segmented .rail {
+  width: fit-content;
+  max-width: 100%;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-muted);
+}
+
+.segmented.fitted .list,
+.segmented.fitted .rail {
+  width: auto;
+}
+
+.segmented .bar {
+  border-bottom: 0;
+  border-right: 0;
+}
+
+.segmented .bar > .list {
+  flex: 0 1 auto;
+}
+
+.segmented .tab {
+  min-height: calc(var(--pl-control-height-md) - 8px);
+  padding: 3px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--pl-radius-sm);
+  transition:
+    background var(--pl-speed-1) var(--pl-ease),
+    color var(--pl-speed-1) var(--pl-ease),
+    box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+.segmented .active {
+  border-color: var(--pl-color-border);
+  background: var(--pl-color-surface);
+  box-shadow: var(--pl-sh-1);
+  color: var(--pl-color-text);
+}
+
+/* No trilho, o terciário não chega a 4,5:1 sobre `surface-muted`: a aba de menor peso fica no secundário. */
+.segmented .tab:where([data-muted]:not(.active):not(:disabled)) {
+  color: var(--pl-color-text-secondary);
+}
+
+.segmented .count {
+  background: var(--pl-color-surface);
+}
+
+.segmented .active .count {
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+}
+
+.segmented .tab:active:not(:disabled):not(.active) {
+  background: var(--pl-color-border-strong);
   color: var(--pl-color-text);
 }

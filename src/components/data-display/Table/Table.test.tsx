@@ -549,3 +549,98 @@ describe('CSS da Table', () => {
     });
   });
 });
+
+describe('Table surface', () => {
+  it('por padrao, a tabela tem o fundo de sempre', () => {
+    montar();
+
+    expect(screen.getByRole('table')).not.toHaveClass(styles.inherit!);
+  });
+
+  it('inherit marca a tabela, que fica sem fundo e com o cabecalho translucido', () => {
+    montar({ surface: 'inherit' });
+
+    expect(screen.getByRole('table')).toHaveClass(styles.inherit!);
+
+    const regras = regrasDaFolha('src/components/data-display/Table/Table.module.css');
+    expect(regras.get('.inherit')?.background).toBe('transparent');
+    expect(regras.get('.inherit .head')?.background).toBe('color-mix(in srgb, var(--pl-color-text) 4%, transparent)');
+  });
+
+  it('com stickyHeader, o cabecalho do inherit fica sobre a cor de --table-surface, lida sem ser declarada', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Table/Table.module.css'), 'utf8');
+    const fundo = regrasDaFolha('src/components/data-display/Table/Table.module.css').get('.inherit.sticky .head')?.background;
+
+    expect(fundo).toMatch(/^linear-gradient\(.+\), var\(--table-surface, transparent\)$/);
+    expect(css).not.toMatch(/--table-surface\s*:/);
+  });
+});
+
+describe('Table hideBelow em pixels', () => {
+  function tabela(largura: number, id = 'a') {
+    return (
+      <Table label={`Tabela ${id}`} rows={membros}>
+        <Table.Header>
+          <Table.Column id="nome">Nome</Table.Column>
+          <Table.Column hideBelow={largura} id="status">
+            Status
+          </Table.Column>
+        </Table.Header>
+        <Table.Body items={membros}>
+          {(membro) => (
+            <Table.Row id={membro.id}>
+              <Table.Cell>{membro.nome}</Table.Cell>
+              <Table.Cell>{membro.status}</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    );
+  }
+
+  // O React guarda por documento as regras que ja pos no head: cada teste usa valores proprios.
+  const doValor = (valor: number) =>
+    [...document.head.querySelectorAll('style[data-precedence="pl-table"]')].filter((node) =>
+      node.textContent?.includes(`[data-hide-below='${valor}']`),
+    );
+
+  it('marca a coluna e as celulas com o valor, como os breakpoints', () => {
+    render(tabela(640));
+
+    expect(screen.getByRole('columnheader', { name: 'Status' })).toHaveAttribute('data-hide-below', '640');
+    expect(screen.getByRole('cell', { name: 'Ativo' })).toHaveAttribute('data-hide-below', '640');
+  });
+
+  it('poe no head uma regra de container por valor, sem duplicar entre colunas e tabelas', () => {
+    render(
+      <>
+        {tabela(620, 'a')}
+        {tabela(620, 'b')}
+        {tabela(480, 'c')}
+      </>,
+    );
+
+    expect(doValor(620).map((node) => node.textContent)).toEqual([
+      `@container (max-width: 620px) { .${styles.table} [data-hide-below='620'] { display: none; } }`,
+    ]);
+    expect(doValor(480)).toHaveLength(1);
+    expect(screen.getAllByRole('table')[0]!.querySelector('style')).toBeNull();
+  });
+
+  it('os breakpoints nomeados continuam na folha, sem regra no head', () => {
+    montar();
+
+    const noHead = [...document.head.querySelectorAll('style')].map((node) => node.textContent).join('');
+    expect(noHead).not.toContain(`[data-hide-below='md']`);
+  });
+
+  it('no servidor, a regra sai no HTML antes da tabela', async () => {
+    const { renderToString } = await import('react-dom/server');
+    const html = renderToString(tabela(720));
+
+    const regra = html.indexOf(`[data-hide-below='720']`);
+    expect(regra).toBeGreaterThan(-1);
+    expect(regra).toBeLessThan(html.indexOf('<table'));
+    expect(html).toContain('data-precedence="pl-table"');
+  });
+});

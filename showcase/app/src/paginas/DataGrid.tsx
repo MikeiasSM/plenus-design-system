@@ -10,6 +10,7 @@ import {
   formatDate,
   IconChartBar,
   SegmentedControl,
+  Stack,
   type DataGridApi,
   type DataGridAsidePlacement,
   type DataGridCellEdit,
@@ -605,6 +606,22 @@ function CelulaPropria() {
   return <DataGrid columns={colunas} getRowId={idDoPedido} height={320} label="Pedidos com selo" rows={pedidos} />;
 }
 
+function AlturaAutomatica() {
+  const [quantidade, setQuantidade] = useState(3);
+  const pedidos = useMemo(() => gerarPedidos(quantidade), [quantidade]);
+
+  return (
+    <Stack>
+      <div>
+        <Button size="sm" type="button" variant="secondary" onClick={() => setQuantidade((atual) => (atual === 3 ? 40 : 3))}>
+          {quantidade === 3 ? 'Mostrar 40 pedidos' : 'Mostrar 3 pedidos'}
+        </Button>
+      </div>
+      <DataGrid columns={COLUNAS} getRowId={idDoPedido} height="auto" label="Pedidos em altura automática" maxHeight={360} rows={pedidos} />
+    </Stack>
+  );
+}
+
 function EstadoSalvo() {
   const [retrato, setRetrato] = useState<unknown>(() => {
     try {
@@ -1074,6 +1091,13 @@ export const pagina: Pagina = {
         "// No produto: npm install xlsx\nimport * as XLSX from 'xlsx';\nimport { dataGridExportMatrix, type DataGridExporter } from '@plenustech/design-system';\n\nconst exportadorXlsx: DataGridExporter = {\n  id: 'xlsx',\n  label: 'Excel',\n  export: (modelo) => {\n    const { header, rows, summary } = dataGridExportMatrix(modelo, 'raw');\n    const planilha = XLSX.utils.aoa_to_sheet([header, ...rows, ...(summary ? [summary] : [])]);\n    const livro = XLSX.utils.book_new();\n    XLSX.utils.book_append_sheet(livro, planilha, modelo.title.slice(0, 31));\n    XLSX.writeFile(livro, `${modelo.title}.xlsx`);\n  },\n};\n\n<DataGrid exporters={[dataGridCsvExporter, exportadorXlsx]} apiRef={api} … />\n// Fora do menu: api.current.getExportModel('filtered' | 'selected' | 'page')",
     },
     {
+      titulo: 'Altura automática',
+      descricao: 'Com height="auto", a grade cresce com as linhas até o maxHeight, e só então rola. Com três pedidos, não sobra espaço vazio embaixo.',
+      Previa: AlturaAutomatica,
+      largo: true,
+      codigo: '<DataGrid height="auto" maxHeight={360} … />',
+    },
+    {
       titulo: 'Estado salvo',
       descricao: 'Ordene, busque ou mude de página e recarregue: o retrato volta pelo initialState.',
       Previa: EstadoSalvo,
@@ -1257,6 +1281,7 @@ export const pagina: Pagina = {
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Cobre as linhas e marca aria-busy.' },
     { nome: 'error', tipo: 'ReactNode', descricao: 'Falha mostrada no lugar das linhas.' },
     { nome: 'emptyMessage', tipo: 'ReactNode', descricao: 'Texto da grade vazia.' },
-    { nome: 'height', tipo: "number | 'fill'", padrao: '480', descricao: 'Altura da área rolável, em pixels. Com fill, ocupa a altura imposta pelo contêiner e mantém 480 sem altura imposta. Não vale na grade aninhada.' },
+    { nome: 'height', tipo: "number | 'fill' | 'auto'", padrao: '480', descricao: 'Altura da área rolável, em pixels, com a calha da barra vertical reservada. Com fill, ocupa a altura imposta pelo contêiner e mantém 480 sem altura imposta. Com auto, cresce com as linhas até o maxHeight. Não vale na grade aninhada.' },
+    { nome: 'maxHeight', tipo: 'number', descricao: 'Com height="auto", a altura máxima da área rolável, em pixels; dali em diante a grade rola. Sem ele, mostra todas as linhas.' },
   ],
 };

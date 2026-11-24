@@ -175,6 +175,47 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
   });
 
+  describe('origem da abertura', () => {
+    it('aberto pelo foco de teclado, o balão não aceita o ponteiro e fecha no primeiro pointerdown fora do gatilho', () => {
+      render(
+        <>
+          <Tooltip content="Ajuda"><Button>Salvar</Button></Tooltip>
+          <button type="button">Outro</button>
+        </>,
+      );
+      const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+      focusByKeyboard(gatilho);
+      expect(screen.getByRole('tooltip')).toHaveAttribute('data-origin', 'focus');
+
+      fireEvent.pointerDown(gatilho);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Outro' }));
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('aberto pelo ponteiro, continua aceitando o ponteiro e não fecha no pointerdown fora', () => {
+      vi.useFakeTimers();
+      render(
+        <>
+          <Tooltip content="Ajuda" delay={0}><Button>Salvar</Button></Tooltip>
+          <button type="button">Outro</button>
+        </>,
+      );
+      const gatilho = screen.getByRole('button', { name: 'Salvar' });
+
+      fireEvent.mouseEnter(gatilho);
+      act(() => vi.runAllTimers());
+
+      expect(screen.getByRole('tooltip')).not.toHaveAttribute('data-origin', 'focus');
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Outro' }));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      vi.useRealTimers();
+    });
+  });
+
   describe('com âncora fora do filho', () => {
     function Celula({ onOpenChange, open }: { onOpenChange?: (open: boolean) => void; open: boolean }) {
       const celula = useRef<HTMLSpanElement>(null);

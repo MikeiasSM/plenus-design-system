@@ -51,10 +51,3 @@
   padding-block-start: var(--pl-space-1);
   border-block-start: 1px solid var(--pl-color-border);
 }
-
-/* Botão que alterna, como o negrito, mostra o estado ligado. */
-.toolbar [aria-pressed='true'] {
-  border-color: var(--pl-color-primary-line);
-  background: var(--pl-color-primary-container);
-  color: var(--pl-color-on-primary-container);
-}

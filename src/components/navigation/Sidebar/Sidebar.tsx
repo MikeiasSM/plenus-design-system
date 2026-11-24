@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { Drawer } from '../../overlays/Drawer';
 import { useSidebarContext } from './Sidebar.context';
 import { SidebarAccount } from './SidebarAccount';
@@ -8,7 +8,11 @@ import { SidebarRail, SidebarRailAccount, SidebarRailItem } from './SidebarRail'
 import { SidebarTrigger } from './SidebarTrigger';
 import styles from './Sidebar.module.css';
 
-export interface SidebarProps {
+/**
+ * As propriedades nativas, o `className`, o `style` e o `ref` vão ao elemento que reúne o trilho e o submenu e, em largura
+ * estreita, à superfície da gaveta, que sai em portal: assim o `data-palette` de `createPalette` vale nos dois.
+ */
+export interface SidebarProps extends Omit<ComponentPropsWithRef<'div'>, 'aria-label' | 'children' | 'role' | 'title'> {
   /** O trilho e o submenu. */
   children: ReactNode;
   /** Nome da gaveta no celular. */
@@ -16,7 +20,7 @@ export interface SidebarProps {
 }
 
 /** Reúne trilho e submenu. Em largura estreita, os dois passam juntos a uma gaveta com a interação do `Drawer`. */
-function SidebarRoot({ children, menuLabel }: SidebarProps) {
+function SidebarRoot({ children, className, menuLabel, ...props }: SidebarProps) {
   const { accountId, accountOpen, labels, menuOpen, narrow, panelKind, setMenuOpen, side } = useSidebarContext();
   const previousPanelKind = useRef(panelKind);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,14 +46,22 @@ function SidebarRoot({ children, menuLabel }: SidebarProps) {
 
   if (!narrow) {
     return (
-      <div className={styles.navigation} data-side={side}>
+      <div {...props} className={[styles.navigation, className].filter(Boolean).join(' ')} data-side={side}>
         {children}
       </div>
     );
   }
 
   return (
-    <Drawer aria-label={menuLabel ?? labels.menu} className={styles.menuSurface} flush onOpenChange={setMenuOpen} open={menuOpen} side={side}>
+    <Drawer
+      {...props}
+      aria-label={menuLabel ?? labels.menu}
+      className={[styles.menuSurface, className].filter(Boolean).join(' ')}
+      flush
+      onOpenChange={setMenuOpen}
+      open={menuOpen}
+      side={side}
+    >
       <div className={styles.menu} data-side={side} ref={menuRef}>{children}</div>
     </Drawer>
   );

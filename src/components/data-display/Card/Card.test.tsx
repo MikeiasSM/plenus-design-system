@@ -347,3 +347,88 @@ describe('palavra longa sem espaco no Card.Header', () => {
     expect(bloco(/^\.headerSm \.description \{/m)).toContain('-webkit-line-clamp: 2;');
   });
 });
+
+describe('Card.Header: nivel, icone e link', () => {
+  it('aceita o nivel 1, para o cartao que e a pagina', () => {
+    render(
+      <Card>
+        <Card.Header headingLevel={1} title="Entrar" />
+      </Card>,
+    );
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Entrar' })).toBeInTheDocument();
+  });
+
+  it('o icone fica num ladrilho decorativo antes do titulo, fora do nome', () => {
+    const { container } = render(
+      <Card>
+        <Card.Header icon={<svg data-testid="icone" />} title="Vendas" />
+      </Card>,
+    );
+
+    const ladrilho = screen.getByTestId('icone').parentElement!;
+    expect(ladrilho).toHaveAttribute('aria-hidden', 'true');
+    expect(ladrilho.compareDocumentPosition(screen.getByRole('heading')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Vendas' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Vendas' })).toBeInTheDocument();
+    expect(container.querySelector('header')?.textContent).toBe('Vendas');
+  });
+
+  it('sem icone, o cabecalho nao ganha o ladrilho', () => {
+    const { container } = render(
+      <Card>
+        <Card.Header title="Vendas" />
+      </Card>,
+    );
+
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('com href, so o titulo vira link, dentro do cabecalho, e o cartao segue sem clique', () => {
+    render(
+      <Card>
+        <Card.Header description="Últimos 30 dias" href="/vendas" title="Vendas" />
+        <Card.Body>Conteúdo</Card.Body>
+      </Card>,
+    );
+
+    const link = screen.getByRole('link', { name: 'Vendas' });
+    expect(link).toHaveAttribute('href', '/vendas');
+    expect(link.closest('h3')).toBe(screen.getByRole('heading', { name: 'Vendas' }));
+    expect(screen.getAllByRole('link')).toHaveLength(1);
+    expect(screen.getByRole('region', { name: 'Vendas' })).not.toHaveAttribute('onclick');
+  });
+
+  it('aceita o componente de link da aplicacao com linkProps', () => {
+    function LinkComTo({ to, children, ...props }: { to: string; children: React.ReactNode }) {
+      return (
+        <a {...props} data-roteador="app" href={to}>
+          {children}
+        </a>
+      );
+    }
+
+    render(
+      <Card>
+        <Card.Header as={LinkComTo} linkProps={{ to: '/vendas' }} title="Vendas" />
+      </Card>,
+    );
+
+    const link = screen.getByRole('link', { name: 'Vendas' });
+    expect(link).toHaveAttribute('href', '/vendas');
+    expect(link).toHaveAttribute('data-roteador', 'app');
+  });
+
+  it('o ladrilho tem 28px, o tom primario e o raio pequeno, sem mudar a altura da linha do titulo', () => {
+    const icone = regrasDaFolha('src/components/data-display/Card/Card.module.css').get('.icon');
+
+    expect(icone).toMatchObject({
+      width: '28px',
+      height: '28px',
+      'margin-block': 'calc((var(--pl-type-title-line-height) - 28px) / 2)',
+      'border-radius': 'var(--pl-radius-sm)',
+      background: 'var(--pl-color-primary-container)',
+      color: 'var(--pl-color-on-primary-container)',
+    });
+  });
+});

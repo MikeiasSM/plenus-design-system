@@ -117,6 +117,10 @@
   --pl-color-primary: light-dark(var(--pl-palette-solid, var(--pl-palette-50)), var(--pl-palette-40));
   --pl-color-primary-hover: light-dark(var(--pl-palette-60), var(--pl-palette-30));
   --pl-color-primary-active: light-dark(var(--pl-palette-70), var(--pl-palette-20));
+  /* Fundo do hover e do pressionado sob o texto `on-primary`. Nas paletas fixas e o mesmo do hover e do pressionado;
+     a paleta propria declara `--pl-palette-fill-*` quando o texto nao se le sobre os passos 60 e 70. */
+  --pl-color-primary-fill-hover: var(--pl-palette-fill-hover, var(--pl-color-primary-hover));
+  --pl-color-primary-fill-active: var(--pl-palette-fill-active, var(--pl-color-primary-active));
   --pl-color-primary-strong: light-dark(var(--pl-palette-strong-light), var(--pl-palette-strong-dark));
   --pl-color-primary-container: light-dark(
     var(--pl-palette-10),

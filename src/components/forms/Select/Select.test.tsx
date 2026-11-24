@@ -176,4 +176,48 @@ describe('Select', () => {
       expect(gatilho).toHaveTextContent(/^Contratos$/);
     });
   });
+
+  describe('grupos', () => {
+    const agrupadas: SelectOption[] = [
+      { value: 'pix', label: 'Pix', group: 'Na hora' },
+      { value: 'debito', label: 'Debito', group: 'Na hora' },
+      { value: 'boleto', label: 'Boleto', group: 'Depois' },
+    ];
+
+    it('agrupa as opcoes seguidas sob o titulo do grupo', () => {
+      fireEvent.click(montar({ options: agrupadas }));
+
+      expect(screen.getByRole('group', { name: 'Na hora' })).toContainElement(screen.getByRole('option', { name: 'Debito' }));
+      expect(screen.getByRole('group', { name: 'Depois' })).toContainElement(screen.getByRole('option', { name: 'Boleto' }));
+    });
+
+    it('as setas passam de um grupo ao outro sem parar no titulo', () => {
+      fireEvent.keyDown(montar({ options: agrupadas }), { key: 'ArrowDown' });
+      const lista = screen.getByRole('listbox');
+
+      fireEvent.keyDown(lista, { key: 'ArrowDown' });
+      fireEvent.keyDown(lista, { key: 'ArrowDown' });
+
+      expect(lista).toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Boleto' }).id);
+    });
+
+    it('o gatilho fechado mostra so o rotulo da opcao, sem o grupo', () => {
+      const gatilho = montar({ defaultValue: 'boleto', options: agrupadas });
+
+      expect(gatilho).toHaveTextContent(/^Boleto$/);
+    });
+  });
+
+  it('repassa o complemento do rotulo e o aside ao Field, fora do nome e da descricao', () => {
+    const gatilho = montar({
+      aside: <button type="button">Nova forma</button>,
+      hint: 'A usada no proximo pedido.',
+      labelAddon: <span>Opcional</span>,
+    });
+
+    expect(gatilho).toHaveAccessibleName('Forma de pagamento');
+    expect(gatilho).toHaveAccessibleDescription('A usada no proximo pedido.');
+    expect(screen.getByText('Opcional').closest('label')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Nova forma' })).toBeInTheDocument();
+  });
 });

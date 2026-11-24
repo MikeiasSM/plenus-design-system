@@ -30,6 +30,8 @@ export interface SelectOption {
   /** Segunda linha da opção, na lista aberta. O nome da opção e o gatilho fechado ficam no rótulo. */
   description?: string;
   disabled?: boolean;
+  /** Título do grupo. As opções seguidas de um mesmo grupo aparecem juntas, sob ele. */
+  group?: string;
   /** Decorativo, à frente do rótulo, na lista aberta. */
   icon?: ReactNode;
   label: string;
@@ -39,11 +41,15 @@ export interface SelectOption {
 /** As propriedades nativas vao ao gatilho, que e o controle; o `className` soma ao do sistema. */
 export interface SelectProps
   extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'defaultValue' | 'name' | 'onChange' | 'type' | 'value'> {
+  /** Ao lado do campo, na mesma linha, como o botão que o completa. Fica fora da descrição do campo. */
+  aside?: ReactNode;
   defaultOpen?: boolean;
   defaultValue?: string;
   error?: string;
   hint?: string;
   label?: string;
+  /** Ao lado do rótulo e fora dele, como um selo ou um link. Não entra no nome do campo. */
+  labelAddon?: ReactNode;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
@@ -63,6 +69,7 @@ export interface SelectProps
 
 export function Select({
   'aria-describedby': ariaDescribedBy,
+  aside,
   className,
   defaultOpen = false,
   defaultValue,
@@ -72,6 +79,7 @@ export function Select({
   hint,
   id: providedId,
   label,
+  labelAddon,
   onClick,
   onKeyDown,
   onOpenChange,
@@ -163,7 +171,16 @@ export function Select({
   }
 
   return (
-    <Field aria-describedby={ariaDescribedBy} error={error} hint={hint} id={providedId} label={label} required={required}>
+    <Field
+      aria-describedby={ariaDescribedBy}
+      aside={aside}
+      error={error}
+      hint={hint}
+      id={providedId}
+      label={label}
+      labelAddon={labelAddon}
+      required={required}
+    >
       {({ id, describedBy, invalid }) => (
         <>
           <FormValue
@@ -296,7 +313,7 @@ function SelectListbox({
       className={styles.panel}
       // Camada de cima: o `ariaHideOutside` do Dialog ignora quem a declara.
       data-react-aria-top-layer="true"
-      style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima }}
+      style={{ ...positionProps.style, width: largura, maxHeight: alturaMaxima, zIndex: 'var(--pl-z-popover)' }}
     >
       <ListingOptions
         baseId={baseId}

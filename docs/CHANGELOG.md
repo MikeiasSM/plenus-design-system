@@ -4,6 +4,82 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [0.7.1] — 2026-11-24
+
+### Adicionado
+
+- Tokens `--pl-color-primary-fill-hover` e `--pl-color-primary-fill-active`: o fundo do hover e do pressionado do `Button` primário, sob o texto `--pl-color-on-primary`. Nas paletas fixas valem `--pl-color-primary-hover` e `--pl-color-primary-active`, como antes; uma paleta de `createPalette` os declara quando o texto não se lê sobre os passos 60 e 70 da rampa. `--pl-color-primary-hover` e `--pl-color-primary-active` continuam sendo a cor de links, do `Breadcrumb`, do texto do `Button` secundário e do `Progress`.
+- `Button`: `variant="neutral"`, um tonal cinza sem a cor da marca, e `variant="link"`, uma ação em linha que herda a fonte do texto, sempre sublinhada e com foco por contorno. As duas valem também com `href`.
+- `Button`: `disabledReason`, que com `disabled` mantém o botão focável com `aria-disabled`, bloqueia clique, Enter e Espaço e o descreve com o motivo.
+- `Button`: o estado ligado de `aria-pressed`, tonal da marca, vale em qualquer variante, dentro ou fora da `Toolbar`.
+- `Button`: ganchos `--pl-button-bg`, `--pl-button-fg`, `--pl-button-border`, `--pl-button-bg-hover`, `--pl-button-bg-active` e `--pl-button-bg-pressed`, lidos com o valor da variante como reserva. Definidos em qualquer ancestral, vencem sem depender da ordem das folhas.
+- `ButtonIcon`: `size="xs"` (24px, tipo `ButtonIconSize`), `count` e `countLabel` para o selo de contagem no canto, que entra no nome ("Filtros, 3"), e `disabledReason`, com a dica "rótulo — motivo".
+- `Badge`: `variant="count"`, o selo de contagem solto, e o gancho `--pl-badge-surface`.
+- `ButtonTile`: `hideLabel` mostra só o ícone e mantém o rótulo como nome e na dica; o rótulo visível hifeniza a palavra que não cabe.
+- `InputText`: `end` põe um controle dentro da borda, ao fim do campo e depois da `unit`. `clearable` (com `clearLabel`) mostra um botão de limpar quando há texto, que esvazia o campo, chama `onValueChange('')` e devolve o foco. `loading` (com `loadingLabel`) mostra um indicador e anuncia o carregamento numa região de status. Com qualquer uma delas, a borda e o foco passam ao invólucro, sem mudar a medida do campo. A cor do ícone inicial vem de `--pl-input-icon-color`.
+- `Field`: `labelAddon` põe um selo, uma dica ou um link ao lado do rótulo, fora do nome do campo. `aside` põe um controle na linha do campo, com a mensagem abaixo dos dois. `InputText`, `InputPassword`, `Textarea`, `Select` e `ComboBox` repassam as duas.
+- `InputPassword`: `onValueChange` entrega o texto a cada mudança.
+- `FieldRow`: `labelAddon` ao lado do título, `align="start"` para o controle alto e `--pl-field-row-label-width` para dar a todas as linhas a mesma coluna de rótulos.
+- `ColorPicker`: `--pl-color-picker-size` e `--pl-color-picker-gap` ajustam o tamanho das amostras e o espaço entre elas.
+- `Select`: a opção aceita `group`, como no `ComboBox`.
+- `Checkbox`, `Radio` e `Switch`: `description`, um texto abaixo do rótulo, dentro da área clicável, que descreve o controle pelo `aria-describedby`; o nome continua só o rótulo.
+- `RadioGroup` e `CheckboxGroup`: `variant="card"` põe cada opção num cartão inteiro clicável, com a borda, o anel e o fundo da marca na escolhida e o foco no cartão; as opções continuam rádios e caixas nativos. `labelAddon` põe um conteúdo ao lado da legenda, fora do nome do grupo. O `Switch` também ganha `labelAddon`.
+- `FileUpload`: `acceptPaste` recebe o arquivo colado com o foco dentro do componente, pela mesma conferência de tipo e tamanho; `labels` troca a instrução e o botão da zona; `hideLabel` tira o rótulo da vista sem tirar o nome; `showRestrictions={false}` tira da vista a linha dos tipos e do limite, que segue na descrição; `statusLabel` em cada item vence "Enviando" e "Enviado" e nomeia a barra de progresso.
+- `Dialog`: `title` e `description` aceitam conteúdo rico, e o corpo que rola passa a ser nomeado por `aria-labelledby`. `help` põe uma dica ao lado do título, fora do `h2`. `flush` tira o respiro do corpo. `placement="top"` prende o cartão perto do topo. No `Drawer` valem o título, a descrição e o `help` em nó.
+- `Menu`: o item com `href` ou `linkProps` vira link (`<a role="menuitem">`), com o `as` do `Menu`; `detail` escreve um valor à direita, que entra no nome do item; `header` põe um bloco no topo, fora da lista, que a descreve.
+- Token `--pl-z-popover`: a camada dos painéis ancorados de `Popover`, `Menu`, `Select`, `ComboBox`, seletores de data e hora e `Toolbar` ancorada, no lugar do `z-index` fixo do react-aria. O `Tooltip` passa a usar `--pl-z-tooltip`. O destino do portal não pode criar outro contexto de empilhamento.
+- `Sidebar.Panel`: `enteredPath`, `defaultEnteredPath` e `onEnteredPathChange` controlam o caminho da pilha (`nestedMode="stack"`) pelos `value` dos ramos; `followCurrent` leva o caminho ao pai do item atual; `header` põe conteúdo entre a marca e a lista, fora da rolagem.
+- `Sidebar.Item`: `value` é a identidade estável do ramo que o caminho da pilha usa.
+- `Sidebar.RailItem`: `toggleSubmenu={false}` faz o módulo atual navegar em vez de alternar o submenu. `Sidebar.Rail`: `header`, um grupo abaixo da marca, simétrico ao `footer`.
+- `Sidebar`: aceita `className`, `style`, atributos e `ref`, que vão à navegação e à superfície da gaveta; com `{...createPalette(cor)}`, a cor própria fica só na navegação. As subpartes levam `data-part` (`list`, `group`, `group-title`, `branch`, `item`, `back`), e as variáveis `--sidebar-icon-color`, `--sidebar-item-weight`, `--sidebar-branch-weight` e `--sidebar-stack-offset` ajustam o desenho. A conta em `accountMode="cover"` entra com o movimento da pilha.
+- `Breadcrumb`: `compact` põe a trilha numa linha só: o primeiro nível, os intermediários num botão "…" que abre um menu com eles, e o último com reticências. O nome do botão traz os níveis recolhidos, e `compactLabel` troca o começo dele.
+- `SidePanel`: `narrowBelow` escolhe a largura em que o painel vira gaveta. Sem ele, o painel segue o `narrowBelow` do `SidebarProvider` ou do `AppShell` em volta.
+- `AppShell`: na impressão, a página sai inteira no fluxo do documento, sem a navegação, o `SidePanel` e o botão de abrir, e com a barra só com a trilha. A tela não muda.
+- Ganchos de folha e de casca: `Card`, `CardMetric`, `DataGrid`, `AppShell.Page` e o trilho da `Sidebar` leem `--pl-sheet-border`, `--pl-sheet-radius` e `--pl-sheet-shadow`; a folha da página, o trilho, a `AppShell.PageBar` e o `PageHeader` leem `--pl-shell-border`. Sem eles, nada muda.
+- `EmptyState`: `headingLevel` faz do título um cabeçalho de `h1` a `h6`, com o mesmo desenho.
+- `Card.Header`: `headingLevel` aceita 1; `icon` põe um ícone decorativo num ladrilho tonal à esquerda do título; `href`, `linkProps` e `as` fazem do título um link, sem tornar o cartão clicável. `--card-gap` passa a ser variável pública documentada.
+- `Table`: `surface="inherit"` deixa a tabela sem fundo e o cabeçalho translúcido sobre a superfície em volta; com `stickyHeader`, o cabeçalho fica opaco na cor de `--table-surface`. `hideBelow` aceita uma largura em pixels, como `hideBelow={640}`.
+- `Tabs` e `TabsNav`: `count` no item mostra um selo depois do rótulo, e a contagem entra no nome da aba ("Em aberto, 24"). `actions` põe ações ao lado das abas, fora da lista de abas. `appearance="segmented"` desenha o trilho do `SegmentedControl` sem mudar a semântica de abas. Nas `Tabs`, `muted` dá menor peso à aba, que continua focável e selecionável; na `TabsNav`, `icon` põe um ícone decorativo antes do rótulo.
+- `SegmentedControl`: por item, `className`, `trailing` (conteúdo visível depois do rótulo, fora do nome) e `description` (texto ligado ao rádio por `aria-describedby`). O segmento leva `data-selected` e `data-disabled`. Quando o trilho rola, o escolhido entra na vista ao montar e a cada troca, sem rolar a página.
+- `Pagination`: `hideOnSinglePage={false}` mantém o intervalo e as setas desabilitadas quando há uma página só. `formatPaginationRange` exporta o texto padrão do intervalo, como `1.201–1.250 de 4.380`, para usar fora dela.
+- `Steps`: `layout="inline"`, com o número num círculo ao lado do nome e uma linha até a próxima etapa; `showPosition` mostra a posição da etapa atual, como "Etapa 2 de 3", e `formatPosition` troca o texto.
+- `DataGrid`: `height="auto"` com `maxHeight`: a grade cresce com as linhas até a altura máxima, e só então rola; sem `maxHeight`, mostra todas as linhas.
+- `Avatar`: `decorative` tira o avatar da árvore de acessibilidade, para quando o nome já está escrito ao lado; `initials` troca as iniciais tiradas do nome; `size="xs"`, de 24px; `--pl-avatar-bg` e `--pl-avatar-fg` trocam o fundo e o texto das iniciais; a foto ganha um contorno sutil para dentro, que a separa da superfície.
+- `Tag`: `appearance="filled"`, com fundo neutro e sem contorno; `removeLabel` troca o verbo do nome do botão de remover; a raiz leva `data-selected` e `data-disabled`; `--pl-tag-radius`, `--pl-tag-bg` e `--pl-tag-shadow` trocam o raio, o fundo e a sombra.
+- `Alert`: `tone="neutral"`, para o contexto sem urgência, que não é anunciado ao aparecer; `icon`, decorativo, antes do texto; `action`, ao lado do texto quando a mensagem tem 480px ou mais e abaixo dele quando é mais estreita; `title` aceita conteúdo rico.
+- `Accordion`: `indicator="plus"`, que vira o sinal de menos ao abrir; `appearance`, com `separated` para um cartão por seção; `headerStyle="compact"`, cabeçalho denso em texto de legenda; por item, `icon`, `overline`, `end` e `endLabel`, com `overline` e `endLabel` no nome do cabeçalho; `data-expanded` no item aberto; `--accordion-header-surface` e `--accordion-panel-surface` trocam o fundo do cabeçalho e do painel.
+
+### Alterado
+
+- `CONTRIBUTING.md` §11: ampliar o tipo de uma propriedade de entrada (um membro novo numa união, `ReactNode` onde só se aceitava `string`) é compatível; estreitar uma entrada, ou mudar o tipo do que o componente entrega, é incompatível. Correção de acessibilidade que muda a medida visual só onde ela reprovava é correção.
+
+### Corrigido
+
+- `createPalette`: quando nem branco nem grafite chegam a 4,5:1 sobre a cor, o texto passa a ser o que medir mais entre branco, grafite e preto. Quando o texto não se lê sobre o hover ou o pressionado do botão primário, esses fundos passam a ser o próprio preenchimento, clareado ou escurecido para longe do texto. As paletas que já passavam não mudam. Com `createPalette('#F26B35')`, o texto do botão primário passa de grafite (4,06:1) a preto (6,93:1), e o hover e o pressionado clareiam em vez de escurecer. O que o produto precisa fazer: atualizar as imagens de referência dos testes de imagem com botão primário numa paleta própria.
+- `ButtonIcon`: a dica, que repete o nome, deixa de ser ligada como descrição, e o leitor de tela anuncia o nome uma vez só.
+- `Checkbox`: o visto e o traço do indeterminado passam a ter a cor de `--pl-color-on-primary`, e não branco fixo; numa paleta própria de cor clara, a marca sai escura e legível. Marcada ou indeterminada e desabilitada, a caixa mantém o fundo e a borda da marca, apagados pela opacidade do desabilitado, em vez de perder o fundo. Vale também para as caixas do `DataGrid` e da `Table`.
+- `InputPassword`: com `showToggle={false}`, o texto não reserva mais no fim o espaço do botão de mostrar.
+- `FieldRow`: sem controle a apontar, o título sai como texto em vez de um `<label>` sem alvo, com o mesmo desenho.
+- `ToastRegion`: com um `Dialog` ou `Drawer` aberto, os avisos continuam visíveis ao leitor de tela, o foco entra neles e o clique num aviso não fecha mais o diálogo.
+- `Dialog`, `Drawer` e `Popover`: `onKeyDown`, `onKeyUp`, `onFocus` e `onBlur` passados pelo produto somam-se aos do componente, em vez de serem apagados.
+- `Popover`: o Esc fecha o painel também com o foco fora dele, sem mover o foco; com painéis aninhados, fecha o de cima.
+- `Tooltip`: aberta pelo foco do teclado, a dica deixa passar o ponteiro e fecha no primeiro toque fora, sem receber o clique do controle vizinho. Aberta pelo ponteiro, continua aceitando o ponteiro.
+- `Menu`: rolar a página não fecha mais o menu, que acompanha o gatilho; ele fecha quando rola um contêiner interno que contém o gatilho. O foco nos itens não rola mais a página nem o contêiner do gatilho. O Esc avisa `onOpenChange(false)` uma vez só.
+- `Sidebar`: na pilha, entrar num ramo dentro de outro, ou usar `defaultExpanded` num item de segundo nível, não deixa mais a lista vazia; o voltar sobe um nível com o nome do pai e devolve o foco ao item de origem.
+- `Sidebar.Account`: a conta tem a própria pilha. Entrar num ramo dela e fechá-la não esvazia mais a lista do módulo, abrir um ramo não fecha mais a conta, e em `cover` a conta fecha ao trocar de módulo.
+- `Sidebar.Item` e `Sidebar.RailItem`: o `aria-current` passado pelo produto não é mais sobrescrito; o módulo atual que alterna o submenu anuncia `aria-expanded` e `aria-controls`.
+- `Sidebar`: o respiro da gaveta do celular no lado esquerdo não depende mais da ordem em que as folhas de estilo carregam.
+- `SkipLink`: escolher o link leva o foco ao conteúdo principal, que ganha `tabindex="-1"` quando não é focável, e rola até ele sem mudar o endereço.
+- `AppShell.PageBar`: a barra tem 46px de altura mínima e cresce com o conteúdo, em vez de cortar uma trilha em duas linhas.
+- `Breadcrumb`: um nível intermediário sem `href` deixa de ter o estilo da página atual, que fica só no último.
+- `Tabs`: com `fillHeight` na orientação vertical, o painel ocupa a altura e rola por dentro.
+- `TabsNav`: a `className` do `linkProps` soma às classes da aba em vez de apagá-las, e o `aria-current` do `linkProps` não sobrescreve o `aria-current="page"` da aba atual.
+- `DataGrid`: as colunas flexíveis dividem a largura fracionada da tela, arredondada para baixo, e não mais o `clientWidth` arredondado, que podia somar um pixel a mais, abrir a barra de rolagem e entrar em laço de redimensionamento. Com `height` numérico, a calha da barra vertical fica reservada, e as colunas não mudam de largura quando as linhas passam da altura; nos sistemas de barra clássica, as colunas flexíveis ficam mais estreitas pela largura da barra.
+- `Avatar`: o fundo fica só nas iniciais e não aparece mais nas bordas transparentes da foto.
+- `AvatarItem`: o `Avatar` passa a ser decorativo, porque o título já mostra o nome, e o leitor de tela o lê uma vez só. O que o produto precisa fazer: um teste que procure o avatar por `getByRole('img', { name })` dentro do `AvatarItem` passa a procurar pelo título; com `decorative={false}` no `Avatar`, ele continua nomeado.
+- `Tag`: na etiqueta de alternar, a área de clique cobre a pílula inteira, com o respiro, e não só o texto; o botão de remover continua acima dela.
+- Laudo de contraste (`npm run check:contraste`): passa a medir o texto sobre o fundo do hover e do pressionado do botão primário. No laranja, o branco sobre o hover mede 3,98:1, como sempre mediu sem ser conferido; fica registrado como exceção, junto da do preenchimento.
+
 ## [0.7.0] — 2026-11-13
 
 ### Incompatível

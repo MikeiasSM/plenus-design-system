@@ -38,6 +38,7 @@ import {
   resizeColumn,
   setColumnHidden,
   toggleGroupCollapsed,
+  usableWidth,
   visibleColumnWindow,
   type DataGridColumnGroupSizing,
   type DataGridColumnWindow,
@@ -237,12 +238,17 @@ export interface DataGridProps<Row> extends Omit<ComponentPropsWithRef<'div'>, '
    * de cada coluna. Abre e fecha pelo `expandedIds`, com a chave de `dataGridGroupKey`. Só no cliente e fora da árvore.
    */
   groupBy?: readonly string[];
-  /** Altura da área rolável, em pixels, ou `fill` para ocupar a altura imposta pelo contêiner (480 sem altura imposta). Na grade aninhada não vale: ela rola com a de fora. */
-  height?: number | 'fill';
+  /**
+   * Altura da área rolável, em pixels, `fill` para ocupar a altura imposta pelo contêiner (480 sem altura imposta), ou
+   * `auto` para crescer com as linhas até o `maxHeight`, e só então rolar. Na grade aninhada não vale: ela rola com a de fora.
+   */
+  height?: number | 'fill' | 'auto';
   /** Retrato salvo por `onStateChange`, aplicado de uma vez na montagem. Vence os valores `default*`. */
   initialState?: unknown;
   label: string;
   loading?: boolean;
+  /** Com `height="auto"`, a altura máxima da área rolável, em pixels. Sem ele, a grade mostra todas as linhas. */
+  maxHeight?: number;
   /** O valor novo de uma célula `editable`, depois de convertido e aceito por `validate`. */
   onCellEdit?: (edit: DataGridCellEdit<Row>) => void;
   onColumnStateChange?: (state: DataGridColumnState) => void;
@@ -433,6 +439,7 @@ export function DataGrid<Row>({
   initialState,
   label,
   loading = false,
+  maxHeight,
   onCellEdit,
   onColumnStateChange,
   onDensityChange,
@@ -1217,7 +1224,8 @@ export function DataGrid<Row>({
   );
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
-  const pixelHeight = height === 'fill' ? DEFAULT_HEIGHT : height;
+  /* Com `auto` sem máximo, a área cresce com todas as linhas, e a janela as desenha todas. */
+  const pixelHeight = height === 'fill' ? DEFAULT_HEIGHT : height === 'auto' ? (maxHeight ?? Infinity) : height;
   const [rowWindow, setRowWindow] = useState(() => visibleWindow(layout, 0, pixelHeight, OVERSCAN));
 
   useLayoutEffect(() => {
@@ -1274,12 +1282,15 @@ export function DataGrid<Row>({
 
     /* A altura também muda a janela: na tela cheia, ou quando o produto muda o espaço da grade. */
     const head = headRef.current;
-    const observer = new ResizeObserver(() => {
-      setViewWidth(scroller.clientWidth);
+    const observer = new ResizeObserver((entries) => {
+      const own = entries.find((entry) => entry.target === scroller);
+      if (own) {
+        setViewWidth(usableWidth(scroller, own));
+      }
       setHeadHeight(head?.offsetHeight ?? 0);
       root.notify();
     });
-    setViewWidth(scroller.clientWidth);
+    setViewWidth(usableWidth(scroller));
     setHeadHeight(head?.offsetHeight ?? 0);
     observer.observe(scroller);
     if (head) {
@@ -2411,6 +2422,7 @@ export function DataGrid<Row>({
   const editableGrid = columns.some((column) => column.editable);
   const editHintId = `${baseId}-edit-hint`;
   const fillsContainer = height === 'fill' && !nested && !fullScreen;
+  const ownHeight = !nested && !fullScreen;
 
   return (
     <DataGridScrollContext.Provider value={nested ? outerScroll : ownScroll}>
@@ -2431,12 +2443,21 @@ export function DataGrid<Row>({
           {children}
           <div className={styles.viewport}>
             <div
-              className={[styles.scroller, thinScrollbar].join(' ')}
+              className={[
+                styles.scroller,
+                thinScrollbar,
+                /* Com a altura fixa, a calha da barra vertical fica reservada: a largura útil não muda quando as linhas
+                   passam da altura, e as colunas flexíveis não pulam. */
+                ownHeight && typeof height === 'number' && styles.stableGutter,
+              ]
+                .filter(Boolean)
+                .join(' ')}
               data-scrolled-end={edges.end || undefined}
               data-scrolled-start={edges.start || undefined}
               ref={scrollerRef}
               style={{
-                height: nested || fullScreen || height === 'fill' ? undefined : height,
+                height: ownHeight && typeof height === 'number' ? height : undefined,
+                maxHeight: ownHeight && height === 'auto' ? maxHeight : undefined,
                 ...(withDetail && viewWidth > 0 && { '--data-grid-view-width': `${viewWidth}px` }),
               }}
               onScroll={() => {

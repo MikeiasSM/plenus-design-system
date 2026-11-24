@@ -9,6 +9,11 @@ export interface EmptyStateProps extends Omit<ComponentPropsWithRef<'div'>, 'tit
   /** Uma ou duas acoes: a secundaria antes da principal. */
   actions?: ReactNode;
   description?: ReactNode;
+  /**
+   * Nivel de titulo do `title`, quando o vazio ocupa uma secao da pagina e o titulo entra no indice dela. Sem ele, o
+   * titulo e um paragrafo, com o mesmo desenho.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   /** Sem icone proprio, a lupa. */
   icon?: ReactNode;
   size?: EmptyStateSize;
@@ -20,6 +25,7 @@ export function EmptyState({
   actions,
   className,
   description,
+  headingLevel,
   icon = <IconSearch />,
   size = 'md',
   title,
@@ -28,6 +34,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   // Os cartoes contam que o conteudo ainda nao chegou: nao cabem no tamanho pequeno nem na falha.
   const withCards = size !== 'sm' && tone === 'neutral';
+  const Title = headingLevel ? (`h${headingLevel}` as const) : 'p';
 
   return (
     <div
@@ -55,7 +62,7 @@ export function EmptyState({
         </span>
       </div>
       <div className={styles.text}>
-        <p className={styles.title}>{title}</p>
+        <Title className={styles.title}>{title}</Title>
         {description && <p className={styles.description}>{description}</p>}
       </div>
       {actions && <div className={styles.actions}>{actions}</div>}

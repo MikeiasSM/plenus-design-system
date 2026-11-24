@@ -168,7 +168,7 @@ Raios e sombras fazem parte da linguagem visual e devem ser centralizados:
 - Raios, em `src/tokens/primitive/radius.css`: `--pl-radius-sm`, `--pl-radius-md` e `--pl-radius-full`.
 - Elevação, em `src/tokens/semantic/elevation.css`: `--pl-sh-1`, `--pl-sh-2` e `--pl-sh-3`, mais `--pl-sh-up`, a sombra em degradê que sobe de uma superfície ancorada na base, como o cartão da conta da `Sidebar`.
 
-A ordem das camadas fixas também é token, em `src/tokens/semantic/layer.css`: `--pl-z-fullscreen` (90, o `DataGrid` em tela cheia), `--pl-z-modal` (100, o fundo do `Dialog` e do `Drawer`), `--pl-z-toast` (110), `--pl-z-tooltip` (120, a dica dos gráficos) e `--pl-z-skip-link` (120). Um produto com escala própria redefine esses tokens no `:root` para encaixar a biblioteca, sem sobrescrever classes. Os painéis posicionados pelo React Aria (`Popover`, `Select`, `ComboBox`, os seletores de data e hora, `Menu`, `Tooltip` e a `Toolbar` ancorada) recebem `z-index: 100000` inline e não dependem de token: ficam acima de qualquer escala do produto abaixo desse valor. O `z-index` interno da pilha de um componente, como o da `Toolbar` fixa e o das células do `DataGrid`, continua local.
+A ordem das camadas fixas também é token, em `src/tokens/semantic/layer.css`: `--pl-z-fullscreen` (90, o `DataGrid` em tela cheia), `--pl-z-modal` (100, o fundo do `Dialog` e do `Drawer`), `--pl-z-toast` (110), `--pl-z-tooltip` (120, a dica do `Tooltip` e a dos gráficos), `--pl-z-skip-link` (120) e `--pl-z-popover` (130, os painéis ancorados). Um produto com escala própria redefine esses tokens no `:root` para encaixar a biblioteca, sem sobrescrever classes. Os painéis ancorados (`Popover`, `Menu`, as listas de `Select` e `ComboBox`, os painéis de `DatePicker`, `DatePickerRange`, `DateTimePicker` e `TimePicker` e a `Toolbar` ancorada) usam `--pl-z-popover`, acima do `Dialog` e do aviso, de onde costumam abrir; o `Tooltip` usa o maior entre `--pl-z-tooltip` e `--pl-z-popover`, para a dica de um item nunca ficar embaixo do painel em que está. O valor vem no estilo inline do painel, depois do posicionamento do React Aria, que antes impunha `z-index: 100000`. A ordem só vale entre camadas do mesmo contexto de empilhamento: o destino do portal (`portalContainer` ou o do `PortalProvider`) não pode ficar dentro de um elemento que crie outro contexto, como um com `transform`, `filter`, `opacity` menor que 1, `isolation: isolate` ou `z-index` posicionado, senão o painel fica preso à camada desse elemento. O `z-index` interno da pilha de um componente, como o da `Toolbar` fixa e o das células do `DataGrid`, continua local.
 
 A barra de rolagem fina dos contêineres que rolam também tem token, em `src/tokens/semantic/scroll.css`: `--pl-scrollbar-thumb`, a cor do polegar quando o ponteiro paira sobre o contêiner ou o foco está dentro dele, a cor do texto do tema a 54% no claro e a 37% no escuro, o menor valor inteiro de cada tema que dá ao polegar ao menos 3:1 contra `--pl-color-background` e `--pl-color-surface` (o fundo do `Dialog`), nos dois temas e nas paletas; o laudo `check:contraste` mede os pares. Em repouso o polegar é transparente. O token é derivado da cor do texto e por isso é declarado em cada escopo de tema (`:root` e `[data-theme="light"]`, `[data-theme="dark"]` e, sem `data-theme`, o `prefers-color-scheme`), como os demais derivados.
 
@@ -218,6 +218,34 @@ Isso é preferível a:
   border-color: #dddddd;
 }
 ```
+
+### Ganchos de aparência
+
+Um gancho de aparência é uma variável CSS que o componente lê e não declara: o ponto de uso traz o valor padrão como fallback, `var(--pl-sheet-radius, var(--pl-radius-md))`, e o produto define a variável em qualquer ancestral, como o `:root` ou a raiz de uma área, sem depender da ordem das folhas nem sobrescrever classes. Sem a variável, o componente fica como sempre foi. Os ganchos não são tokens: não têm valor no `tokens.css` nem por tema, e o valor que o produto der vale nos dois temas, a menos que ele o declare por tema.
+
+Ganchos de folha, lidos pelas superfícies que ficam no mesmo nível da página: o `Card` (e por ele o `CardMetric`), a raiz do `DataGrid`, a folha da página (`AppShell.Page`) e o trilho da `Sidebar`.
+
+| Variável | O que muda | Padrão |
+| --- | --- | --- |
+| `--pl-sheet-border` | A borda inteira da folha, no formato da propriedade `border`, como `none` ou `1px solid var(--pl-color-border-strong)`. | `1px solid var(--pl-color-border)` |
+| `--pl-sheet-radius` | O raio dos cantos da folha. | `var(--pl-radius-md)` |
+| `--pl-sheet-shadow` | A sombra da folha, como `none`. | `var(--pl-sh-1)`; `none` no `DataGrid` |
+
+Gancho de casca, lido pelas linhas da moldura da aplicação: a cor da borda da folha da página e do trilho da `Sidebar` (quando o `--pl-sheet-border` não está definido), a linha sob a barra da página (`AppShell.PageBar`) e a linha sob o `PageHeader`.
+
+| Variável | O que muda | Padrão |
+| --- | --- | --- |
+| `--pl-shell-border` | A cor das linhas da casca. | `var(--pl-color-border)` |
+
+```css
+/* Folhas sem sombra e com o canto maior, só na área de relatórios. */
+.relatorios {
+  --pl-sheet-shadow: none;
+  --pl-sheet-radius: 12px;
+}
+```
+
+O valor do gancho é do produto, e o laudo `check:contraste` não o mede. Os ganchos de um componente só, como `--card-gap`, ficam na seção dele no `COMPONENTS-CATALOG.md`.
 
 ## 11. Valores técnicos
 

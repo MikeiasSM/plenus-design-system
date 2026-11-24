@@ -1,4 +1,5 @@
-import { useId, useRef, useState, type ChangeEvent, type ComponentPropsWithRef, type DragEvent } from 'react';
+import { useId, useRef, useState, type ChangeEvent, type ClipboardEvent, type ComponentPropsWithRef, type DragEvent } from 'react';
+import { VisuallyHidden } from '../../accessibility/VisuallyHidden';
 import { Button } from '../../actions/Button';
 import { useFocusNeighborOnRemove } from '../../../hooks/useFocusNeighborOnRemove';
 import { ButtonIcon } from '../../actions/ButtonIcon';
@@ -27,17 +28,36 @@ export interface FileUploadItem {
   progress?: number;
   size: number;
   status: FileUploadStatus;
+  /**
+   * Vence "Enviando" e "Enviado" no texto do estado, como "Processando". Enviando, tambem nomeia a barra de progresso,
+   * que fica indeterminada sem `progress`.
+   */
+  statusLabel?: string;
+}
+
+/** Os textos da zona. `instruction` vence "Arraste o arquivo aqui"; `button`, "Escolher do computador". */
+export interface FileUploadLabels {
+  button: string;
+  instruction: string;
 }
 
 export interface FileUploadProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'onDrop'> {
   /** Os tipos aceitos, como no `<input type="file">`: `.pdf,image/*`. */
   accept?: string;
+  /**
+   * Aceita o arquivo colado (Ctrl+V) com o foco dentro do componente, pela mesma conferencia de tipo e tamanho da
+   * escolha e do arrasto.
+   */
+  acceptPaste?: boolean;
   disabled?: boolean;
   /** Vence a mensagem de recusa do proprio campo. */
   error?: string;
   hint?: string;
+  /** Tira o rotulo da vista; ele continua nomeando o seletor nativo. */
+  hideLabel?: boolean;
   items?: readonly FileUploadItem[];
   label: string;
+  labels?: Partial<FileUploadLabels>;
   /** Limite por arquivo, em bytes. */
   maxSize?: number;
   multiple?: boolean;
@@ -47,6 +67,8 @@ export interface FileUploadProps extends Omit<ComponentPropsWithRef<'div'>, 'chi
   onFilesRejected?: (rejections: FileRejection[]) => void;
   onRemove?: (id: string) => void;
   onRetry?: (id: string) => void;
+  /** Com `false`, a linha dos tipos e do limite sai da vista; o texto continua descrevendo o seletor. */
+  showRestrictions?: boolean;
 }
 
 const NOMES_DE_FAMILIA: Record<string, string> = { audio: 'áudio', image: 'imagem', text: 'texto', video: 'vídeo' };
@@ -88,20 +110,25 @@ function aceitaOTipo(file: File, tipos: string[]) {
 
 export function FileUpload({
   accept,
+  acceptPaste = false,
   className,
   disabled = false,
   error,
+  hideLabel = false,
   hint,
   id,
   items = [],
   label,
+  labels,
   maxSize,
   multiple = false,
   onCancel,
   onFilesRejected,
   onFilesSelected,
+  onPaste,
   onRemove,
   onRetry,
+  showRestrictions = true,
   ...props
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -161,52 +188,84 @@ export function FileUpload({
     if (!disabled) receber(Array.from(event.dataTransfer.files));
   }
 
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    onPaste?.(event);
+
+    // O colar chega a raiz pelo elemento em foco: so com o foco dentro do componente ele passa por aqui.
+    const colados = Array.from(event.clipboardData?.files ?? []);
+
+    if (!acceptPaste || disabled || event.defaultPrevented || colados.length === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    receber(colados);
+  }
+
   function choose() {
     inputRef.current?.focus();
     inputRef.current?.click();
   }
 
   const fieldError = error ?? rejectionMessage;
+  const textoDasRestricoes = restricoes && restricoes.charAt(0).toUpperCase() + restricoes.slice(1);
 
   return (
-    <div {...props} className={[styles.fileUpload, className].filter(Boolean).join(' ')}>
-      <Field aria-describedby={restricoes ? restrictionsId : undefined} error={fieldError} hint={hint} id={id} label={label}>
+    <div {...props} className={[styles.fileUpload, className].filter(Boolean).join(' ')} onPaste={handlePaste}>
+      <Field
+        aria-describedby={restricoes ? restrictionsId : undefined}
+        error={fieldError}
+        hint={hint}
+        id={id}
+        label={hideLabel ? undefined : label}
+      >
         {({ describedBy, id: inputId, invalid }) => (
-          <div
-            className={[styles.zone, dragging && styles.dragging, invalid && styles.invalid, disabled && styles.disabled]
-              .filter(Boolean)
-              .join(' ')}
-            onDragEnter={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            <IconUpload className={styles.icon} />
-            <div className={styles.text}>
-              <p className={styles.instruction}>{multiple ? 'Arraste os arquivos aqui' : 'Arraste o arquivo aqui'}</p>
-              {restricoes && (
-                <p className={styles.restrictions} id={restrictionsId}>
-                  {restricoes.charAt(0).toUpperCase() + restricoes.slice(1)}
+          <>
+            {hideLabel && (
+              <VisuallyHidden>
+                <label htmlFor={inputId}>{label}</label>
+              </VisuallyHidden>
+            )}
+            <div
+              className={[styles.zone, dragging && styles.dragging, invalid && styles.invalid, disabled && styles.disabled]
+                .filter(Boolean)
+                .join(' ')}
+              onDragEnter={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <IconUpload className={styles.icon} />
+              <div className={styles.text}>
+                <p className={styles.instruction}>
+                  {labels?.instruction ?? (multiple ? 'Arraste os arquivos aqui' : 'Arraste o arquivo aqui')}
                 </p>
-              )}
+                {restricoes && showRestrictions && (
+                  <p className={styles.restrictions} id={restrictionsId}>
+                    {textoDasRestricoes}
+                  </p>
+                )}
+                {/* Fora da vista, as restricoes seguem descrevendo o seletor. */}
+                {restricoes && !showRestrictions && <VisuallyHidden id={restrictionsId}>{textoDasRestricoes}</VisuallyHidden>}
+              </div>
+              {/* Fora da tabulacao e da arvore: o controle acessivel e o seletor nativo, que recebe o foco. */}
+              <Button aria-hidden disabled={disabled} onClick={choose} size="sm" tabIndex={-1} variant="secondary">
+                {labels?.button ?? 'Escolher do computador'}
+              </Button>
+              <input
+                accept={accept}
+                aria-describedby={describedBy}
+                aria-invalid={invalid || undefined}
+                className={styles.input}
+                disabled={disabled}
+                id={inputId}
+                multiple={multiple}
+                onChange={handleChange}
+                ref={inputRef}
+                type="file"
+              />
             </div>
-            {/* Fora da tabulacao e da arvore: o controle acessivel e o seletor nativo, que recebe o foco. */}
-            <Button aria-hidden disabled={disabled} onClick={choose} size="sm" tabIndex={-1} variant="secondary">
-              Escolher do computador
-            </Button>
-            <input
-              accept={accept}
-              aria-describedby={describedBy}
-              aria-invalid={invalid || undefined}
-              className={styles.input}
-              disabled={disabled}
-              id={inputId}
-              multiple={multiple}
-              onChange={handleChange}
-              ref={inputRef}
-              type="file"
-            />
-          </div>
+          </>
         )}
       </Field>
       {items.length > 0 && (
@@ -233,7 +292,7 @@ interface FileUploadRowProps extends Pick<FileUploadProps, 'onCancel' | 'onRemov
 }
 
 function FileUploadRow({ focusField, item, onCancel, onRemove, onRetry }: FileUploadRowProps) {
-  const { id, name, progress, size, status } = item;
+  const { id, name, progress, size, status, statusLabel } = item;
   const ref = useRef<HTMLLIElement>(null);
 
   useFocusNeighborOnRemove(ref, focusField);
@@ -253,12 +312,12 @@ function FileUploadRow({ focusField, item, onCancel, onRemove, onRetry }: FileUp
           <span className={status === 'error' ? styles.failedMessage : styles.status} role="status">
             {status === 'done' && <IconCheckCircle className={styles.doneIcon} />}
             {status === 'error' && <IconExclamationCircle />}
-            {status === 'uploading' && 'Enviando'}
-            {status === 'done' && 'Enviado'}
+            {status === 'uploading' && (statusLabel ?? 'Enviando')}
+            {status === 'done' && (statusLabel ?? 'Enviado')}
             {status === 'error' && (item.error ?? 'Falha no envio.')}
           </span>
         </span>
-        {status === 'uploading' && <Progress label={`Enviando ${name}`} showValue size="sm" value={progress} />}
+        {status === 'uploading' && <Progress label={`${statusLabel ?? 'Enviando'} ${name}`} showValue size="sm" value={progress} />}
       </div>
       <div className={styles.actions}>
         {status === 'error' && onRetry && (

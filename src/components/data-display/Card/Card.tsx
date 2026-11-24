@@ -9,11 +9,12 @@ import {
   useRef,
   useState,
   type ComponentPropsWithRef,
+  type ElementType,
   type ReactNode,
 } from 'react';
 import styles from './Card.module.css';
 
-export type CardHeadingLevel = 2 | 3 | 4 | 5 | 6;
+export type CardHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 /** `sm` encolhe o respiro e poe a descricao abaixo do titulo, que para na terceira linha. */
 export type CardSize = 'sm' | 'md';
@@ -82,9 +83,17 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, s
 }
 
 export interface CardHeaderProps extends Omit<ComponentPropsWithRef<'header'>, 'children' | 'title'> {
+  /** Componente de link da aplicacao para o titulo, como no `Breadcrumb`: com `as`, `href` ou `linkProps`, o titulo vira link. */
+  as?: ElementType;
   badge?: ReactNode;
   description?: ReactNode;
   headingLevel?: CardHeadingLevel;
+  /** Destino do titulo: so o titulo vira link, e o cartao continua sem clique. */
+  href?: string;
+  /** Icone decorativo num ladrilho tonal, a esquerda do titulo; fica fora do nome. */
+  icon?: ReactNode;
+  /** Propriedades entregues inteiras ao componente de link, para o roteador que nao usa `href`. */
+  linkProps?: Record<string, unknown>;
   title: string;
   trailing?: ReactNode;
   trailingWhenNarrow?: CardTrailingWhenNarrow;
@@ -125,10 +134,14 @@ function useTrailingWrapped(enabled: boolean) {
 }
 
 function CardHeader({
+  as,
   badge,
   className,
   description,
   headingLevel = 3,
+  href,
+  icon,
+  linkProps,
   title,
   trailing,
   trailingWhenNarrow = 'keep',
@@ -146,14 +159,34 @@ function CardHeader({
       {trailing}
     </div>
   );
+  const Link = as ?? 'a';
+  const linked = as !== undefined || href !== undefined || linkProps !== undefined;
   const titleRow = (
     <div className={styles.titleRow} ref={narrow.titleRow}>
       <Heading className={styles.title} id={titleId}>
-        {title}
+        {linked ? (
+          <Link className={styles.titleLink} href={href} {...linkProps}>
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
       </Heading>
       {badge && <span className={styles.badge}>{badge}</span>}
     </div>
   );
+  // O ladrilho fica ao lado da linha do titulo, e a descricao continua na largura inteira, abaixo dos dois.
+  const leadRow =
+    icon != null && icon !== false ? (
+      <div className={styles.lead}>
+        <span aria-hidden="true" className={styles.icon}>
+          {icon}
+        </span>
+        {titleRow}
+      </div>
+    ) : (
+      titleRow
+    );
   const descriptionBox = description && <p className={styles.description}>{description}</p>;
 
   return (
@@ -170,14 +203,14 @@ function CardHeader({
       {flowing ? (
         <>
           <div className={styles.text}>
-            {titleRow}
+            {leadRow}
             {descriptionBox}
           </div>
           {trailingBox}
         </>
       ) : (
         <>
-          {titleRow}
+          {leadRow}
           {descriptionBox}
           {trailingBox}
         </>
