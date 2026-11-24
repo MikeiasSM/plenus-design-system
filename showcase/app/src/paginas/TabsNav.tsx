@@ -1,5 +1,5 @@
 import { useState, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
-import { Tabs, TabsNav, type TabsNavItem } from '@plenustech/design-system';
+import { Button, IconLightning, IconLink, IconPlus, IconStructure, Tabs, TabsNav, type TabsNavItem } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -76,6 +76,12 @@ function SistemaNavegavel({
   );
 }
 
+const SISTEMA_COM_ICONES: TabsNavItem[] = [
+  { key: 'usuarios', label: 'Usuários', href: '/sistema/usuarios', icon: <IconStructure />, count: 48 },
+  { key: 'papeis', label: 'Papéis', href: '/sistema/papeis', icon: <IconLink />, count: 6 },
+  { key: 'alertas', label: 'Alertas', href: '/sistema/alertas', icon: <IconLightning /> },
+];
+
 function Modos() {
   return (
     <dl className="modes">
@@ -90,6 +96,13 @@ function Modos() {
       </dd>
       <dt><code>fitted</code></dt>
       <dd>As abas dividem a largura em partes iguais.</dd>
+      <dt><code>appearance</code></dt>
+      <dd>
+        <code>segmented</code> desenha o trilho do <code>SegmentedControl</code>; continua navegação, com{' '}
+        <code>aria-current=&quot;page&quot;</code> na aba atual.
+      </dd>
+      <dt><code>actions</code></dt>
+      <dd>Ficam ao lado das abas, fora da lista de links, com a linha da faixa correndo sob elas.</dd>
       <dt>Muitas abas</dt>
       <dd>A faixa rola de lado, como a das <code>Tabs</code>.</dd>
     </dl>
@@ -109,6 +122,45 @@ export const pagina: Pagina = {
       ),
       codigo:
         "<TabsNav\n  as={Link}\n  label=\"Sistema\"\n  current={rotaAtual}\n  items={[\n    { key: 'usuarios', label: 'Usuários', linkProps: { to: '/sistema/usuarios' } },\n    { key: 'papeis', label: 'Papéis', linkProps: { to: '/sistema/papeis' } },\n  ]}\n/>",
+    },
+    {
+      titulo: 'Com ícone, contagem e ações',
+      descricao: 'O ícone é decorativo; a contagem entra no nome do link, como "Usuários, 48". A ação fica fora da lista.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <TabsNav
+            actions={
+              <Button size="sm" variant="secondary">
+                <IconPlus /> Convidar
+              </Button>
+            }
+            as={LinkDaDemonstracao}
+            current="usuarios"
+            items={SISTEMA_COM_ICONES}
+            label="Sistema"
+          />
+        </div>
+      ),
+      codigo: `<TabsNav
+  as={Link}
+  label="Sistema"
+  current={rotaAtual}
+  actions={<Button size="sm" variant="secondary">Convidar</Button>}
+  items={[
+    { key: 'usuarios', label: 'Usuários', icon: <IconStructure />, count: 48, linkProps: { to: '/sistema/usuarios' } },
+    { key: 'papeis', label: 'Papéis', icon: <IconLink />, count: 6, linkProps: { to: '/sistema/papeis' } },
+  ]}
+/>`,
+    },
+    {
+      titulo: 'Segmentado',
+      descricao: 'O desenho do SegmentedControl, com a semântica de navegação: a aba atual leva aria-current="page".',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <TabsNav appearance="segmented" as={LinkDaDemonstracao} current="papeis" items={SISTEMA.slice(0, 3)} label="Sistema" />
+        </div>
+      ),
+      codigo: '<TabsNav\n  appearance="segmented"\n  as={Link}\n  label="Sistema"\n  current="papeis"\n  items={abas}\n/>',
     },
   ],
   faca: {
@@ -166,6 +218,10 @@ export const pagina: Pagina = {
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da região de navegação.' },
     { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação.' },
     { nome: 'fitted', tipo: 'boolean', padrao: 'false', descricao: 'Abas em partes iguais da largura.' },
-    { nome: 'items[].linkProps', tipo: 'Record<string, unknown>', descricao: <>Entregues inteiras ao link, como <code>to</code>.</> },
+    { nome: 'appearance', tipo: "'underline' | 'segmented'", padrao: "'underline'", descricao: 'Faixa com traço sob a atual, ou trilho segmentado.' },
+    { nome: 'actions', tipo: 'ReactNode', descricao: 'Ações ao lado das abas, fora da lista de links.' },
+    { nome: 'items[].icon', tipo: 'ReactNode', descricao: <>Ícone antes do rótulo, com <code>aria-hidden</code>.</> },
+    { nome: 'items[].count', tipo: 'number', descricao: 'Selo depois do rótulo; entra no nome como "Rótulo, N".' },
+    { nome: 'items[].linkProps', tipo: 'Record<string, unknown>', descricao: <>Entregues ao link, como <code>to</code>. A <code>className</code> soma às da aba, e o <code>aria-current</code> não apaga o da aba atual.</> },
   ],
 };

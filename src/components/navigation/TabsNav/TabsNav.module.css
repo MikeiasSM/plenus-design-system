@@ -13,6 +13,13 @@
   list-style: none;
 }
 
+/* Com `actions`, a linha passa da lista ao envoltório. O `:where` deixa o trilho do segmentado vencer. */
+.bar > :where(.list) {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-bottom: 0;
+}
+
 .item {
   display: flex;
   flex: none;
@@ -26,7 +33,14 @@
   border-bottom-color: var(--pl-color-primary-strong);
 }
 
-.fitted .item {
+.fitted /* Com `actions`, a linha passa da lista ao envoltório. O `:where` deixa o trilho do segmentado vencer. */
+.bar > :where(.list) {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-bottom: 0;
+}
+
+.item {
   flex: 1 1 0;
   min-width: 0;
 }

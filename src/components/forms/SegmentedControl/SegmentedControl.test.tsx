@@ -78,4 +78,116 @@ describe('SegmentedControl', () => {
     const dados = new FormData(screen.getByTestId('form') as HTMLFormElement);
     expect(dados.get('periodo')).toBe('dia');
   });
+
+  describe('por item', () => {
+    it('soma a className ao segmento e marca o escolhido e o desabilitado', () => {
+      render(
+        <SegmentedControl
+          defaultValue="semana"
+          items={periodos.map((item) => ({ ...item, className: `seg-${item.value}` }))}
+          label="Periodo"
+        />,
+      );
+
+      const semana = screen.getByRole('radio', { name: 'Semana' }).closest('label');
+      const dia = screen.getByRole('radio', { name: 'Dia' }).closest('label');
+      const mes = screen.getByRole('radio', { name: 'Mes' }).closest('label');
+      expect(semana).toHaveClass('seg-semana');
+      expect(semana?.className).toMatch(/segment/);
+      expect(semana).toHaveAttribute('data-selected', 'true');
+      expect(dia).not.toHaveAttribute('data-selected');
+      expect(mes).toHaveAttribute('data-disabled', 'true');
+      expect(dia).not.toHaveAttribute('data-disabled');
+    });
+
+    it('o data-selected acompanha a escolha sem controle', () => {
+      render(<SegmentedControl defaultValue="dia" items={periodos} label="Periodo" />);
+
+      fireEvent.click(screen.getByRole('radio', { name: 'Semana' }));
+
+      expect(screen.getByRole('radio', { name: 'Semana' }).closest('label')).toHaveAttribute('data-selected', 'true');
+      expect(screen.getByRole('radio', { name: 'Dia' }).closest('label')).not.toHaveAttribute('data-selected');
+    });
+
+    it('o trailing aparece depois do rotulo e fica fora do nome', () => {
+      render(
+        <SegmentedControl
+          items={[
+            { label: 'Abertos', trailing: '12', value: 'abertos' },
+            { label: 'Fechados', value: 'fechados' },
+          ]}
+          label="Situacao"
+        />,
+      );
+
+      const radio = screen.getByRole('radio', { name: 'Abertos' });
+      const trailing = screen.getByText('12');
+      expect(trailing).toHaveAttribute('aria-hidden', 'true');
+      expect(radio.closest('label')?.lastElementChild).toBe(trailing);
+    });
+
+    it('a description descreve o radio por aria-describedby, sem entrar no nome', () => {
+      render(
+        <SegmentedControl
+          items={[
+            { description: 'Ultimos 7 dias corridos', label: 'Semana', value: 'semana' },
+            { label: 'Dia', value: 'dia' },
+          ]}
+          label="Periodo"
+        />,
+      );
+
+      const semana = screen.getByRole('radio', { name: 'Semana' });
+      expect(semana).toHaveAccessibleDescription('Ultimos 7 dias corridos');
+      expect(screen.getByRole('radio', { name: 'Dia' })).not.toHaveAttribute('aria-describedby');
+    });
+  });
+
+  describe('rolagem', () => {
+    function caixa(left: number, width: number) {
+      return { bottom: 0, height: 0, left, right: left + width, top: 0, width, x: left, y: 0, toJSON: () => ({}) } as DOMRect;
+    }
+
+    it('traz o escolhido a vista ao montar e ao mudar, rolando so o proprio controle', () => {
+      const original = HTMLElement.prototype.getBoundingClientRect;
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+        if (this.getAttribute('role') === 'radiogroup') {
+          return caixa(0, 100);
+        }
+        const radio = this.querySelector('input');
+        const controle = this.closest<HTMLElement>('[role="radiogroup"]');
+        // Posicao de cada segmento no conteudo do controle, deslocada pela rolagem dele.
+        const posicoes: Record<string, number> = { dia: 0, semana: 150, mes: 300 };
+        return radio && controle ? caixa(posicoes[radio.value] - controle.scrollLeft, 60) : original.call(this);
+      };
+      Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get: () => 100 });
+
+      try {
+        const { rerender } = render(
+          <div data-testid="ancestral">
+            <SegmentedControl items={periodos.map((item) => ({ ...item, disabled: false }))} label="Periodo" value="semana" />
+          </div>,
+        );
+        const controle = screen.getByRole('radiogroup');
+        const ancestral = screen.getByTestId('ancestral');
+
+        expect(controle.scrollLeft).toBe(110);
+
+        rerender(
+          <div data-testid="ancestral">
+            <SegmentedControl items={periodos.map((item) => ({ ...item, disabled: false }))} label="Periodo" value="mes" />
+          </div>,
+        );
+        expect(controle.scrollLeft).toBe(260);
+        expect(ancestral.scrollLeft).toBe(0);
+        expect(scrollIntoView).not.toHaveBeenCalled();
+      } finally {
+        HTMLElement.prototype.getBoundingClientRect = original;
+        delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+      }
+    });
+  });
 });
+
