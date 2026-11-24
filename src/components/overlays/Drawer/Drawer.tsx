@@ -12,7 +12,7 @@ export type DrawerProps = DialogBaseProps &
   (DrawerTitledProps | DrawerUntitledProps) & {
     /** Corpo sem o respiro interno, para o conteúdo que desenha a própria margem, como uma lista ou uma tabela. */
     flush?: boolean;
-    /** `bottom` sobe da base da tela, com a alça no alto e os cantos de cima arredondados: o painel do celular. */
+    /** `bottom` sobe da base da tela, com os cantos de cima arredondados: o painel do celular. */
     side?: DrawerSide;
     /** Nas laterais, a largura maxima. Na base, a altura maxima: `sm` 50%, `md` 75% e `lg` 90% da tela. */
     size?: DrawerSize;
