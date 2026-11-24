@@ -255,7 +255,7 @@ export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/
 export { SidePanel } from './components/overlays/SidePanel';
 export type { SidePanelProps, SidePanelSide, SidePanelSize } from './components/overlays/SidePanel';
 export { CopyField } from './components/data-display/CopyField';
-export type { CopyFieldProps } from './components/data-display/CopyField';
+export type { CopyFieldLabels, CopyFieldProps } from './components/data-display/CopyField';
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';

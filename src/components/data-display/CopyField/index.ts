@@ -1,2 +1,2 @@
 export { CopyField } from './CopyField';
-export type { CopyFieldProps } from './CopyField';
+export type { CopyFieldLabels, CopyFieldProps } from './CopyField';

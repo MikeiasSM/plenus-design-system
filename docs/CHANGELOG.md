@@ -29,7 +29,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportable` nos gráficos da moldura comum (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartWaterfall`, `ChartScatter`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey`): menu "Opções do gráfico" com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco; o SVG sai com os estilos embutidos e o PNG no dobro da resolução, sem dependência nova.
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
-- `CopyField`: valor copiável, com rótulo, valor em fonte mono, botão "Copiar" que passa a "Copiado" e anuncia como status, e valor oculto opcional (`masked`) com "Mostrar".
+- `CopyField`: valor copiável, com rótulo, valor em fonte mono, botão "Copiar" que passa a "Copiado" e anuncia como status, e valor oculto opcional (`masked`) com "Mostrar". O nome do botão leva o rótulo do campo ("Copiar <rótulo>"). A recusa da cópia é anunciada ("Não foi possível copiar"), e o valor à vista fica selecionado para copiar pelo teclado. `labels` troca os textos. Tipos `CopyFieldLabels` e `CopyFieldProps`.
 
 ### Corrigido
 
