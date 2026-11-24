@@ -1,4 +1,14 @@
-import { closeDateInput, formatDateInput, parseDateInput } from './formatDateInput';
+import {
+  closeDateInput,
+  closeMonthInput,
+  closeYearInput,
+  formatDateInput,
+  formatMonthInput,
+  formatYearInput,
+  parseDateInput,
+  parseMonthInput,
+  parseYearInput,
+} from './formatDateInput';
 import { closeDateTimeInput, closeTimeInput, formatDateTimeInput, formatTimeInput, parseDateTimeInput, parseTimeInput } from './formatTimeInput';
 
 describe('formatDateInput', () => {
@@ -98,5 +108,33 @@ describe('separador digitado', () => {
     expect(closeDateInput('01/03/2026', '/')).toBeUndefined();
     expect(closeTimeInput('08:30', ':')).toBeUndefined();
     expect(closeDateTimeInput('01', ' ')).toBeUndefined();
+  });
+});
+
+describe('mascara de mes e de ano', () => {
+  it('aplica mm/aaaa e reordena o mes em ISO', () => {
+    expect(formatMonthInput('06')).toBe('06');
+    expect(formatMonthInput('062026')).toBe('06/2026');
+    expect(formatMonthInput('06/20269')).toBe('06/2026');
+    expect(formatMonthInput('2026-06')).toBe('06/2026');
+    expect(formatMonthInput('2026-06-01')).toBe('06/2026');
+  });
+
+  it('aplica aaaa e tira o ano da data em ISO', () => {
+    expect(formatYearInput('20269')).toBe('2026');
+    expect(formatYearInput('2026-06-01')).toBe('2026');
+  });
+
+  it('a barra fecha o mes com o zero a esquerda, e o ano nao tem separador', () => {
+    expect(closeMonthInput('6', '/')).toBe('06/');
+    expect(closeYearInput('20', '/')).toBeUndefined();
+  });
+
+  it('le o mes e o ano inteiros como o primeiro dia do periodo', () => {
+    expect(parseMonthInput('06/2026')?.toString()).toBe('2026-06-01');
+    expect(parseMonthInput('13/2026')).toBeUndefined();
+    expect(parseMonthInput('06/26')).toBeUndefined();
+    expect(parseYearInput('2026')?.toString()).toBe('2026-01-01');
+    expect(parseYearInput('26')).toBeUndefined();
   });
 });

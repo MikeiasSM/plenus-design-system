@@ -272,3 +272,84 @@ describe('DatePickerRange', () => {
     });
   });
 });
+
+describe('DatePickerRange com granularidade', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 2, 15, 12) });
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it('em meses, as duas pontas sao o primeiro dia de cada mes', () => {
+    const onValueChange = vi.fn();
+    const gatilho = montar({ granularity: 'month', onValueChange });
+    fireEvent.click(gatilho);
+
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Meses de 2026');
+
+    fireEvent.click(dia('agosto de 2026'));
+    fireEvent.click(dia('fevereiro de 2026'));
+
+    expect(dia('maio de 2026')).toHaveClass(/rangeDay/);
+    expect(dia('fevereiro de 2026')).toHaveAttribute('aria-pressed', 'true');
+    expect(dia('agosto de 2026')).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(onValueChange).toHaveBeenCalledWith({ start: '2026-02-01', end: '2026-08-01' });
+    expect(gatilho).toHaveTextContent('02/2026 – 08/2026');
+  });
+
+  it('em meses, o intervalo atravessa o ano pelas setas do cabecalho', () => {
+    const onValueChange = vi.fn();
+    fireEvent.click(montar({ granularity: 'month', onValueChange }));
+
+    fireEvent.click(dia('novembro de 2026'));
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo ano' }));
+    fireEvent.click(dia('fevereiro de 2027'));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(onValueChange).toHaveBeenCalledWith({ start: '2026-11-01', end: '2027-02-01' });
+  });
+
+  it('em anos, escolhe pelo teclado e mostra os anos no gatilho', () => {
+    const onValueChange = vi.fn();
+    const gatilho = montar({ granularity: 'year', onValueChange });
+    fireEvent.click(gatilho);
+
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Anos de 2020 a 2031');
+    expect(dia('2026')).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowLeft' });
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'Enter' });
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'Enter' });
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(onValueChange).toHaveBeenCalledWith({ start: '2025-01-01', end: '2028-01-01' });
+    expect(gatilho).toHaveTextContent('2025 – 2028');
+  });
+
+  it('em meses, as setas do gatilho deslocam um mes ou tres, e H marca o mes atual', () => {
+    const onValueChange = vi.fn();
+    const gatilho = montar({ defaultValue: { start: '2026-11-01', end: '2026-12-01' }, granularity: 'month', onValueChange });
+
+    fireEvent.keyDown(gatilho, { key: 'ArrowRight' });
+    expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-12-01', end: '2027-01-01' });
+
+    fireEvent.keyDown(gatilho, { key: 'ArrowUp' });
+    expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-09-01', end: '2026-10-01' });
+
+    fireEvent.keyDown(gatilho, { key: 'h' });
+    expect(onValueChange).toHaveBeenLastCalledWith({ start: '2026-03-01', end: '2026-03-01' });
+  });
+
+  it('em meses, min e max recusam os meses que nao tocam a faixa', () => {
+    fireEvent.click(montar({ granularity: 'month', max: '2026-10-20', min: '2026-03-15' }));
+
+    expect(dia('fevereiro de 2026')).toHaveAttribute('aria-disabled', 'true');
+    expect(dia('março de 2026')).not.toHaveAttribute('aria-disabled');
+    expect(dia('outubro de 2026')).not.toHaveAttribute('aria-disabled');
+    expect(dia('novembro de 2026')).toHaveAttribute('aria-disabled', 'true');
+  });
+});

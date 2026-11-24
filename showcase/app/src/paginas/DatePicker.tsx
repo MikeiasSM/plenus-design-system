@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, DatePicker, formatDate, type DatePickerSize } from '@plenustech/design-system';
+import { Button, DatePicker, formatDate, type DatePickerGranularity, type DatePickerSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -29,6 +29,7 @@ const playground = definirPlayground({
     hint: '',
     error: '',
     size: 'md',
+    granularity: 'day',
     min: '',
     max: '',
     semFimDeSemana: false,
@@ -40,6 +41,7 @@ const playground = definirPlayground({
     { tipo: 'texto', nome: 'hint' },
     { tipo: 'texto', nome: 'error' },
     { tipo: 'opcoes', nome: 'size', opcoes: ['sm', 'md', 'lg'] },
+    { tipo: 'opcoes', nome: 'granularity', opcoes: ['day', 'month', 'year'] },
     { tipo: 'texto', nome: 'min' },
     { tipo: 'texto', nome: 'max' },
     { tipo: 'booleano', nome: 'semFimDeSemana' },
@@ -50,6 +52,7 @@ const playground = definirPlayground({
     <DatePicker
       disabled={valores.disabled}
       error={valores.error || undefined}
+      granularity={valores.granularity as DatePickerGranularity}
       hint={valores.hint || undefined}
       isDateUnavailable={valores.semFimDeSemana ? ehFimDeSemana : undefined}
       label={valores.label || undefined}
@@ -66,6 +69,7 @@ const playground = definirPlayground({
       ['hint', valores.hint || undefined],
       ['error', valores.error || undefined],
       ['size', valores.size, 'md'],
+      ['granularity', valores.granularity, 'day'],
       ['min', valores.min || undefined],
       ['max', valores.max || undefined],
       ['isDateUnavailable', valores.semFimDeSemana ? expr('ehFimDeSemana') : undefined],
@@ -113,6 +117,28 @@ function Vencimento() {
       <p className="note">
         {vencimento ? `value: "${vencimento}", ou ${formatDate(vencimento, { format: 'long' })}` : 'value: null'}
       </p>
+    </div>
+  );
+}
+
+function Competencia() {
+  const [competencia, setCompetencia] = useState<string | null>('2026-06-01');
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <DatePicker granularity="month" label="Competência" onValueChange={setCompetencia} value={competencia} />
+      <p className="note">{competencia ? `value: "${competencia}"` : 'value: null'}</p>
+    </div>
+  );
+}
+
+function Exercicio() {
+  const [exercicio, setExercicio] = useState<string | null>(null);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <DatePicker granularity="year" label="Exercício" max="2026-12-31" onValueChange={setExercicio} value={exercicio} />
+      <p className="note">{exercicio ? `value: "${exercicio}"` : 'value: null'}</p>
     </div>
   );
 }
@@ -223,7 +249,19 @@ function Modos() {
       </dd>
       <dt><code>min</code>, <code>max</code> e <code>isDateUnavailable</code></dt>
       <dd>
-        Os dias recusados continuam focáveis na grade, para o teclado alcançá-los, mas não podem ser escolhidos.
+        Os dias recusados continuam focáveis na grade, para o teclado alcançá-los, mas não podem ser escolhidos. O dia
+      recusado por <code>isDateUnavailable</code> também fica riscado e se anuncia com &quot;, indisponível&quot;; fora de{' '}
+      <code>min</code> e <code>max</code>, ele só se apaga.
+      </dd>
+      <dt><code>granularity</code></dt>
+      <dd>
+        <code>"day"</code>, o padrão, escolhe o dia. <code>"month"</code> e <code>"year"</code> escolhem o mês ou o ano:
+        a grade mostra os doze meses do ano ou doze anos por página, em três colunas, e as setas do cabeçalho trocam o
+        ano ou a página. A máscara vira <code>mm/aaaa</code> ou <code>aaaa</code>, e o valor continua texto ISO, com o
+        primeiro dia do período: <code>2026-06-01</code> ou <code>2026-01-01</code>. Outro dia recebido vale como o
+        primeiro. O mês ou o ano atual fica em negrito e sublinhado, como o dia de hoje, e <code>min</code> e{' '}
+        <code>max</code> recusam só os períodos que não tocam a faixa. <code>isDateUnavailable</code> recebe o primeiro
+        dia do período, e <code>+</code> e <code>-</code> andam um mês ou um ano.
       </dd>
       <dt><code>name</code></dt>
       <dd>
@@ -273,6 +311,19 @@ export const pagina: Pagina = {
         "const ehFimDeSemana = (data: string) => [0, 6].includes(new Date(`${data}T00:00`).getDay());\n\n<DatePicker label=\"Data da reunião\" isDateUnavailable={ehFimDeSemana} />",
     },
     {
+      titulo: 'Competência',
+      descricao: 'Com granularity="month", a grade mostra os meses do ano e o valor é o primeiro dia do mês.',
+      Previa: Competencia,
+      codigo:
+        "const [competencia, setCompetencia] = useState<string | null>('2026-06-01');\n\n<DatePicker\n  label=\"Competência\"\n  granularity=\"month\"\n  value={competencia}\n  onValueChange={setCompetencia}\n/>",
+    },
+    {
+      titulo: 'Exercício',
+      descricao: 'Com granularity="year", doze anos por página; o valor é o 1º de janeiro, e max recusa os anos seguintes.',
+      Previa: Exercicio,
+      codigo: '<DatePicker label="Exercício" granularity="year" max="2026-12-31" />',
+    },
+    {
       titulo: 'No formulário',
       descricao: 'Com name, a data vai no envio em ISO. Obrigatório, o envio vazio é barrado.',
       Previa: Envio,
@@ -292,6 +343,9 @@ export const pagina: Pagina = {
     { teclas: ['Home', 'End'], acao: 'Primeiro ou último dia do mês.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Mês anterior ou seguinte; com Shift, ano anterior ou seguinte.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Escolhe o dia em foco, ainda como rascunho.' },
+    { teclas: ['←', '→'], acao: 'Em meses e anos, o período anterior ou seguinte; na borda, vira o ano ou a página.' },
+    { teclas: ['↑', '↓'], acao: 'Em meses e anos, três períodos, uma linha da grade.' },
+    { teclas: ['Home', 'End'], acao: 'Em meses e anos, começo ou fim da linha.' },
     { teclas: ['Escape'], acao: 'No calendário, fecha sem aplicar e devolve o foco ao botão; no campo, só fecha.' },
   ],
   garantias: [
@@ -312,7 +366,7 @@ export const pagina: Pagina = {
     },
     {
       garantia: 'Dias indisponíveis',
-      como: <><code>aria-disabled</code> nos dias fora da faixa, que a digitação também recusa.</>,
+      como: <><code>aria-disabled</code> nos dias fora da faixa, que a digitação também recusa; o recusado pelo predicado também riscado e anunciado como indisponível.</>,
       teste: 'DatePicker.test.tsx',
     },
     {
@@ -336,16 +390,17 @@ export const pagina: Pagina = {
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar; no modo controlado, só muda se o produto atualizar open.' },
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Data em ISO, ou null ao esvaziar o campo. Data pela metade ou inválida não chama.' },
     { nome: 'onInvalidText', tipo: "(text: string, reason: 'invalid' | 'outOfRange') => void", descricao: 'Avisa, ao confirmar ou sair do campo, o texto que não é data válida e o motivo. O dia barrado por isDateUnavailable conta como outOfRange.' },
+    { nome: 'granularity', tipo: "DatePickerGranularity: 'day' | 'month' | 'year'", padrao: "'day'", descricao: 'Escolhe o dia, o mês ou o ano. Em mês e ano, a grade mostra doze períodos, a máscara vira mm/aaaa ou aaaa, e o valor é o primeiro dia do período.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
-    { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },
+    { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO; em mês e ano, recebe o primeiro dia do período.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro; substitui a ajuda.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Marca o rótulo e barra o envio vazio.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o campo e o botão do calendário.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px.' },
-    { nome: 'placeholder', tipo: 'string', padrao: "'dd/mm/aaaa'", descricao: 'Texto do campo vazio.' },
+    { nome: 'placeholder', tipo: 'string', padrao: "'dd/mm/aaaa'", descricao: "Texto do campo vazio. Em meses, 'mm/aaaa'; em anos, 'aaaa'." },
     { nome: 'locale', tipo: 'string', padrao: "'pt-BR'", descricao: 'Idioma dos nomes de mês e dia no calendário.' },
     { nome: 'name', tipo: 'string', descricao: 'Nome do campo no formulário.' },
   ],

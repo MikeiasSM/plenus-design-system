@@ -3,6 +3,7 @@ import type { ChartAnchorPoint } from './useMarkNavigation';
 import { blockRepeatedPress } from '../../../utils/press/press';
 import styles from './Chart.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
+import { referenceToneClass, type ChartReferenceTone } from './references';
 
 export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'none';
 
@@ -12,6 +13,8 @@ export interface ChartLegendEntry {
   color: string;
   hidden?: boolean;
   label: string;
+  /** Entrada de uma linha ou faixa de referencia: tem amostra propria e nao liga nem desliga nada. */
+  reference?: { kind: 'line' | 'band'; tone: ChartReferenceTone };
   /** Medida da entrada, alinhada a direita. Serve a legenda em lista do anel. */
   value?: string;
 }
@@ -66,6 +69,7 @@ export function ChartLegend({
   return (
     // A saida e da lista, e nao da entrada: o ponteiro que cruza o espaco entre duas entradas mantem o realce.
     <ul
+      data-chart-legend=""
       className={`${styles.legend} ${lateral ? `${styles.legendSide} ${thinScrollbar}` : ALINHAMENTO[align]}`}
       onPointerLeave={
         onHighlight &&
@@ -76,13 +80,22 @@ export function ChartLegend({
       }
     >
       {entries.map((entrada, indice) => {
+        const referencia = entrada.reference;
+        const amostra = referencia ? (
+          <span
+            aria-hidden="true"
+            className={`${referenceToneClass(referencia.tone)} ${referencia.kind === 'line' ? styles.swatchReferenceLine : styles.swatchReferenceBand}`}
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className={`${styles.swatch} ${swatch === 'dot' ? styles.swatchDot : ''}`}
+            style={entrada.hidden ? undefined : { background: entrada.color }}
+          />
+        );
         const conteudo = (
           <>
-            <span
-              aria-hidden="true"
-              className={`${styles.swatch} ${swatch === 'dot' ? styles.swatchDot : ''}`}
-              style={entrada.hidden ? undefined : { background: entrada.color }}
-            />
+            {amostra}
             <span className={styles.legendLabel}>{entrada.label}</span>
             {entrada.value !== undefined && <span className={styles.legendValue}>{entrada.value}</span>}
           </>
@@ -92,13 +105,15 @@ export function ChartLegend({
           <li
             className={styles.legendItem}
             data-active={entrada.active || undefined}
+            data-hidden={entrada.hidden || undefined}
+            data-reference={referencia?.kind}
             key={indice}
-            onBlur={onHighlight && (() => onHighlight(null))}
-            onFocus={onHighlight && ((evento) => onHighlight(entrada.label, anchorOf(evento)))}
-            onPointerEnter={onHighlight && ((evento) => onHighlight(entrada.label, pointOf(evento)))}
+            onBlur={onHighlight && !referencia ? () => onHighlight(null) : undefined}
+            onFocus={onHighlight && !referencia ? (evento) => onHighlight(entrada.label, anchorOf(evento)) : undefined}
+            onPointerEnter={onHighlight && !referencia ? (evento) => onHighlight(entrada.label, pointOf(evento)) : undefined}
             onPointerMove={onPointerAt && ((evento) => onPointerAt(pointOf(evento)))}
           >
-            {onToggle ? (
+            {onToggle && !referencia ? (
               <button
                 aria-pressed={!entrada.hidden}
                 className={`${styles.legendButton} ${entrada.hidden ? styles.legendOff : ''}`}

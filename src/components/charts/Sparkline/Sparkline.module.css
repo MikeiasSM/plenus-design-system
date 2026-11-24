@@ -1,0 +1,56 @@
+/* Uma cor so, a da primeira serie dos graficos; o desenho a herda por currentColor. */
+.sparkline {
+  color: var(--pl-chart-series-1);
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Traco de comprimento zero com ponta redonda: o ponto fica redondo mesmo com o SVG esticado na horizontal. */
+.lastPoint {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5px;
+  stroke-linecap: round;
+}
+
+.bar {
+  fill: currentColor;
+}
+
+/* Entra da esquerda para a direita, no sentido do tempo. */
+.reveal {
+  animation: sparklineIn var(--pl-speed-2) var(--pl-ease) both;
+}
+
+@keyframes sparklineIn {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
+
+/* Sem cor, o desenho fica na cor do texto do sistema. */
+@media (forced-colors: active) {
+  .sparkline {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+}

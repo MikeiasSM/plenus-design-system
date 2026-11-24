@@ -33,14 +33,8 @@
   border-bottom-color: var(--pl-color-primary-strong);
 }
 
-.fitted /* Com `actions`, a linha passa da lista ao envoltório. O `:where` deixa o trilho do segmentado vencer. */
-.bar > :where(.list) {
-  flex: 1 1 auto;
-  min-width: 0;
-  border-bottom: 0;
-}
-
-.item {
+/* Só com `fitted` as abas dividem a largura; sem ele, cada uma tem o tamanho do rótulo e a faixa rola. */
+.fitted .item {
   flex: 1 1 0;
   min-width: 0;
 }
