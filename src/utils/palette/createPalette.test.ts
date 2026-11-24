@@ -187,3 +187,22 @@ describe('outline of a faint fill (roadmap 26a)', () => {
   });
 });
 
+describe('outline in nested palettes', () => {
+  const color = readFileSync(resolve(process.cwd(), 'src/tokens/semantic/color.css'), 'utf8');
+  const palettes = readFileSync(resolve(process.cwd(), 'src/tokens/semantic/palette.css'), 'utf8');
+
+  it('is reset in every palette scope, so a nested palette does not inherit the outline of the outer one', () => {
+    expect(color).toMatch(/(^|\n)\[data-palette\] \{\s+--pl-color-primary-outline: initial;\s+\}/);
+  });
+
+  it('is never declared by the fixed palettes, which rely on the reset', () => {
+    expect(palettes).not.toContain('--pl-color-primary-outline');
+  });
+
+  it('is declared on the element of the faint palette, whose inline style wins over the reset', () => {
+    const palette = createPalette('#EED037');
+
+    expect(palette['data-palette']).toBe('custom');
+    expect(palette.style).toHaveProperty('--pl-color-primary-outline');
+  });
+});
