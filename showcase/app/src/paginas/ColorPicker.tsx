@@ -256,6 +256,7 @@ export const pagina: Pagina = {
     { nome: 'onValueChange', tipo: '(value: string | null) => void', descricao: 'Avisa a amostra escolhida.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Amostras de 20, 28 ou 36px.' },
     { nome: 'name', tipo: 'string', padrao: 'gerado', descricao: 'Nome nativo dos rádios, usado no envio do formulário.' },
+    { nome: 'form', tipo: 'string', descricao: 'O id do formulário dos rádios, como o atributo nativo, quando ele não envolve o grupo.' },
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita todas as amostras.' },
   ],
 };

@@ -69,7 +69,7 @@ describe('ColorField', () => {
 
     expect(onValueChange).toHaveBeenLastCalledWith('#2E2A26');
     expect(screen.getByLabelText('Cor da marca')).toHaveValue('#2E2A26');
-    expect(screen.getByRole('radiogroup', { name: 'Cores sugeridas' })).toBeInTheDocument();
+    expect(screen.getByRole('radiogroup', { name: 'Cores sugeridas para Cor da marca' })).toBeInTheDocument();
   });
 
   it('hides the eyedropper where the browser has none', () => {
@@ -207,5 +207,20 @@ describe('ColorField', () => {
     const contaGotas = await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
     expect(contaGotas.className).toMatch(/md/);
     expect(screen.getByRole('radiogroup').className).toMatch(/lg/);
+  });
+
+  it('mostra o formato esperado e só envia o texto no formulário', async () => {
+    render(
+      <form data-testid="formulario">
+        <ColorField label="Cor da marca" name="cor" suggestions={[{ color: '#E85D1F', label: 'Laranja do logo' }]} />
+      </form>,
+    );
+
+    expect(screen.getByLabelText('Cor da marca')).toHaveAttribute('placeholder', '#RRGGBB');
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Laranja do logo' }));
+
+    const dados = new FormData(screen.getByTestId('formulario') as HTMLFormElement);
+    expect([...dados.entries()]).toEqual([['cor', '#E85D1F']]);
   });
 });

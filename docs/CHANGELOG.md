@@ -30,6 +30,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
 - `ColorField`: campo de cor livre, com o código hexadecimal, as amostras sugeridas pelo produto (`suggestions`) e o conta-gotas do navegador onde ele existir. Exporta também `normalizeHex`.
+- `form` no `ColorPicker`: o `id` do formulário dos rádios, como o atributo nativo. Leva a escolha a um formulário fora do grupo.
 
 ### Corrigido
 

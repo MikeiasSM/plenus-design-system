@@ -25,7 +25,7 @@ export interface ColorFieldProps
   onValueChange?: (value: string | null) => void;
   /** Amostras do produto, como as cores do logo. Ficam abaixo do campo, como grupo de radio. */
   suggestions?: readonly ColorFieldSuggestion[];
-  /** Nome do grupo das amostras. */
+  /** Nome do grupo das amostras. O padrão cita o rótulo do campo: "Cores sugeridas para <label>". */
   suggestionsLabel?: string;
   value?: string | null;
 }
@@ -81,7 +81,7 @@ export function ColorField(allProps: ColorFieldProps) {
     onBlur,
     onValueChange,
     suggestions,
-    suggestionsLabel = 'Cores sugeridas',
+    suggestionsLabel = `Cores sugeridas para ${label}`,
     value,
     ...props
   } = allProps;
@@ -93,7 +93,7 @@ export function ColorField(allProps: ColorFieldProps) {
   const reported = useRef(normalizeHex(text));
   // As props e o texto do último desenho: dizem se o desenho atual veio do produto ou da digitação.
   const [lastRender, setLastRender] = useState({ props: allProps, text });
-  const pickerName = `color-field-${useId()}`;
+  const pickerId = `color-field-${useId()}`;
 
   // O navegador só é conhecido depois da montagem: assim o servidor e o cliente desenham o mesmo.
   useEffect(() => setHasEyeDropper(Boolean(getEyeDropper())), []);
@@ -197,6 +197,7 @@ export function ColorField(allProps: ColorFieldProps) {
           onBlur?.(event);
         }}
         onValueChange={commit}
+        placeholder={props.placeholder ?? '#RRGGBB'}
         spellCheck={false}
         value={text}
       />
@@ -205,7 +206,11 @@ export function ColorField(allProps: ColorFieldProps) {
           aria-readonly={props.readOnly && !props.disabled ? true : undefined}
           disabled={props.disabled}
           label={suggestionsLabel}
-          name={pickerName}
+          // As amostras só preenchem o campo: quem vai ao formulário é o texto, pelo `name` do campo. O `form` aponta
+          // para um formulário que não existe, e assim os rádios ficam fora do envio sem perder o grupo, que depende
+          // do `name` para as setas.
+          form={`${pickerId}-sem-envio`}
+          name={pickerId}
           onValueChange={(next) => {
             if (next && !locked) {
               setTouched(true);
