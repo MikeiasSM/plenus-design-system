@@ -62,6 +62,25 @@ function AtalhosDoProduto() {
   );
 }
 
+function PorMes() {
+  const [periodo, setPeriodo] = useState<DateRange | null>({ start: '2026-01-01', end: '2026-06-01' });
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <DatePickerRange granularity="month" label="Competências" onValueChange={setPeriodo} value={periodo} />
+      <p className="note">{periodo ? `start: "${periodo.start}", end: "${periodo.end}"` : 'sem período'}</p>
+    </div>
+  );
+}
+
+function PorAno() {
+  return (
+    <div style={{ width: '100%' }}>
+      <DatePickerRange granularity="year" label="Exercícios" />
+    </div>
+  );
+}
+
 function Envio() {
   const [enviado, setEnviado] = useState('');
 
@@ -132,8 +151,18 @@ function Modos() {
         aberto, para &quot;Hoje&quot; valer o dia da escolha. Sem a propriedade não há atalho; escolher um só preenche o
         rascunho. <code>defaultDateRangeShortcuts</code> é uma lista pronta e opcional.
       </dd>
+      <dt><code>granularity</code></dt>
+      <dd>
+        <code>"month"</code> e <code>"year"</code> escolhem meses ou anos, numa grade de doze em três colunas, e cada
+        ponta é o primeiro dia do período: <code>{'{ start: "2026-01-01", end: "2026-06-01" }'}</code>. O gatilho mostra
+        &quot;01/2026 – 06/2026&quot; ou &quot;2024 – 2026&quot;. As setas do gatilho deslocam o intervalo um período
+        ou três, e <code>H</code> marca o mês ou o ano atual. O padrão continua <code>"day"</code>.
+      </dd>
       <dt><code>min</code>, <code>max</code> e <code>isDateUnavailable</code></dt>
-      <dd>Os dias recusados não podem ser escolhidos, e o atalho cujo intervalo sai da faixa fica desabilitado.</dd>
+      <dd>
+        Os dias recusados não podem ser escolhidos, e o atalho cujo intervalo sai da faixa fica desabilitado. O dia
+        recusado por <code>isDateUnavailable</code> também fica riscado e se anuncia como indisponível.
+      </dd>
       <dt><code>startName</code> e <code>endName</code></dt>
       <dd>Dois campos ocultos levam as pontas ao formulário, voltam ao inicial no reset e não seguem desabilitados.</dd>
     </dl>
@@ -163,6 +192,19 @@ export const pagina: Pagina = {
         "const proximos7: DateRangeShortcut = {\n  label: 'Próximos 7 dias',\n  range: () => ({ start: hoje(), end: emSeisDias() }),\n};\n\n<DatePickerRange label=\"Agendamento\" min={hoje()} shortcuts={[proximos7]} />",
     },
     {
+      titulo: 'Por mês',
+      descricao: 'Com granularity="month", o intervalo vai de um mês a outro, e cada ponta é o primeiro dia do mês.',
+      Previa: PorMes,
+      codigo:
+        "const [periodo, setPeriodo] = useState<DateRange | null>({ start: '2026-01-01', end: '2026-06-01' });\n\n<DatePickerRange\n  label=\"Competências\"\n  granularity=\"month\"\n  value={periodo}\n  onValueChange={setPeriodo}\n/>",
+    },
+    {
+      titulo: 'Por ano',
+      descricao: 'Com granularity="year", doze anos por página, e as setas do cabeçalho trocam a página.',
+      Previa: PorAno,
+      codigo: '<DatePickerRange label="Exercícios" granularity="year" />',
+    },
+    {
       titulo: 'No formulário',
       descricao: 'Com startName e endName, as pontas vão no envio em ISO.',
       Previa: Envio,
@@ -176,10 +218,10 @@ export const pagina: Pagina = {
     { teclas: ['Enter', 'Espaço'], acao: 'No gatilho, abre o painel; na grade, escolhe o dia em foco.' },
     { teclas: ['Alt', '↓'], acao: 'No gatilho, abre o painel.' },
     { teclas: ['H'], acao: 'No gatilho fechado, marca hoje como início e fim.' },
-    { teclas: ['←', '→', '↑', '↓'], acao: 'No gatilho fechado, desloca o intervalo um dia ou sete dias.' },
+    { teclas: ['←', '→', '↑', '↓'], acao: 'No gatilho fechado, desloca o intervalo um dia ou sete dias; em meses e anos, um período ou três.' },
     { teclas: ['←', '→'], acao: 'Na grade, dia anterior ou seguinte.' },
-    { teclas: ['↑', '↓'], acao: 'Na grade, mesma data da semana anterior ou seguinte.' },
-    { teclas: ['Home', 'End'], acao: 'Primeiro ou último dia do mês.' },
+    { teclas: ['↑', '↓'], acao: 'Na grade, mesma data da semana anterior ou seguinte; em meses e anos, três períodos.' },
+    { teclas: ['Home', 'End'], acao: 'Primeiro ou último dia do mês; em meses e anos, começo ou fim da linha.' },
     { teclas: ['PageUp', 'PageDown'], acao: 'Mês anterior ou seguinte; com Shift, ano anterior ou seguinte.' },
     { teclas: ['Tab'], acao: 'Percorre os atalhos, a grade e os botões do rodapé.' },
     { teclas: ['Escape'], acao: 'Fecha sem aplicar e devolve o foco ao gatilho.' },
@@ -221,6 +263,7 @@ export const pagina: Pagina = {
     { nome: 'open', tipo: 'boolean', descricao: 'Abre ou fecha o painel, no modo controlado.' },
     { nome: 'defaultOpen', tipo: 'boolean', padrao: 'false', descricao: 'Aberto de início, no modo não controlado.' },
     { nome: 'onOpenChange', tipo: '(open: boolean) => void', descricao: 'Avisa cada pedido de abrir ou fechar.' },
+    { nome: 'granularity', tipo: "DatePickerRangeGranularity: 'day' | 'month' | 'year'", padrao: "'day'", descricao: 'Escolhe dias, meses ou anos. Em mês e ano, a grade mostra doze períodos, e cada ponta é o primeiro dia do período.' },
     { nome: 'min', tipo: 'string', descricao: 'Primeira data permitida, em ISO.' },
     { nome: 'max', tipo: 'string', descricao: 'Última data permitida, em ISO.' },
     { nome: 'isDateUnavailable', tipo: '(date: string) => boolean', descricao: 'Recusa datas avulsas, recebidas em ISO.' },

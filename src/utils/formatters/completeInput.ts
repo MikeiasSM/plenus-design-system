@@ -1,5 +1,5 @@
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
-import { formatDateInput } from './formatDateInput';
+import { formatDateInput, formatMonthInput, formatYearInput } from './formatDateInput';
 import { parseTimeInput } from './formatTimeInput';
 
 export function keepInputChars(text: string, separators: string) {
@@ -10,6 +10,50 @@ const ISO_DATE = /^\s*\d{4}[/\-.]\d{1,2}[/\-.]\d{1,2}\s*$/;
 
 export function keepDateChars(text: string) {
   return ISO_DATE.test(text) ? formatDateInput(text) : keepInputChars(text, '/');
+}
+
+const ISO_PERIOD = /^\s*\d{4}[/\-.]\d{1,2}(?:[/\-.]\d{1,2})?\s*$/;
+
+export function keepMonthChars(text: string) {
+  return ISO_PERIOD.test(text) ? formatMonthInput(text) : keepInputChars(text, '/');
+}
+
+export function keepYearChars(text: string) {
+  return ISO_PERIOD.test(text) ? formatYearInput(text) : keepInputChars(text, '');
+}
+
+/** O ano de 2 digitos e 20xx; de outro tamanho, que nao 4, e invalido. */
+function readYear(year: string, reference: CalendarDate) {
+  if (year === '') {
+    return reference.year;
+  }
+
+  if (year.length !== 2 && year.length !== 4) {
+    return undefined;
+  }
+
+  return Number(year) + (year.length === 2 ? 2000 : 0);
+}
+
+/** Completa o mes digitado pela metade: sem ano, vale o ano de referencia. Devolve o primeiro dia do mes. */
+export function completeMonthInput(text: string, reference: CalendarDate) {
+  const [month = '', yearText = ''] = formatMonthInput(text).split('/');
+  const year = readYear(yearText, reference);
+  const number = Number(month);
+
+  if (month === '' || year === undefined || year < 1000 || number < 1 || number > 12) {
+    return undefined;
+  }
+
+  return new CalendarDate(year, number, 1);
+}
+
+/** Completa o ano de 2 ou 4 digitos. Devolve o 1o de janeiro. */
+export function completeYearInput(text: string, reference: CalendarDate) {
+  const digits = formatYearInput(text);
+  const year = digits === '' ? undefined : readYear(digits, reference);
+
+  return year === undefined || year < 1000 ? undefined : new CalendarDate(year, 1, 1);
 }
 
 function toDate(day: number, month: number, year: number) {

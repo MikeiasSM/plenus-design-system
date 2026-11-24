@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartReferences,
   ChartTable,
   categoryTable,
+  referenceComparisons,
+  referenceLegend,
+  referenceName,
+  referenceValues,
+  validReferences,
+  withReferenceColumns,
   CartesianFrame,
   categoryTooltip,
   PointBands,
@@ -31,6 +38,8 @@ import {
   type ChartLegendPosition,
   type ChartPoint,
   type MarkVisibility,
+  type ChartCardProps,
+  type ChartReference,
   type ChartRootProps,
   type ChartValueAxis,
   type ChartCategoryHover,
@@ -58,7 +67,7 @@ export interface ChartLineSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
@@ -94,6 +103,11 @@ export interface ChartLineProps extends Omit<ChartRootProps, 'hidden'> {
   onMarkClick?: (mark: ChartMarkClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
+  /**
+   * Linhas e faixas de referencia no eixo dos valores, como uma meta ou uma faixa aceitavel. Entram na legenda, na
+   * visao em tabela e no nome do grafico, e a escala se estende para alcanca-las.
+   */
+  references?: readonly ChartReference[];
   series: readonly ChartLineSeries[];
   /** Valor acima de cada ponto: sempre, nunca, ou so os da serie mais proxima do ponteiro. */
   showDataLabels?: MarkVisibility;
@@ -142,6 +156,7 @@ export function ChartLine({
   onHover,
   onMarkClick,
   palette,
+  references,
   series,
   showDataLabels = 'hidden',
   showDots = 'onHover',
@@ -176,9 +191,12 @@ export function ChartLine({
   const passoDireito = temEixoDireito ? minRightTickStep : minTickStep;
   const visibilidadeDireita = rightAxisVisibility(yAxisRight, temEixoDireito, yAxis);
 
+  const referencias = useMemo(() => validReferences(references), [references]);
+
   const dominios = useMemo(
     () =>
       valueAxisDomains({
+        references: referenceValues(referencias),
         alignZero: includeZero,
         axes: eixos,
         domainOfSeries: (grupo) =>
@@ -186,15 +204,18 @@ export function ChartLine({
         isOutOfScale,
         series,
       }),
-    [eixos, includeZero, isOutOfScale, series],
+    [eixos, includeZero, isOutOfScale, referencias, series],
   );
   const [dominioEsquerda, dominioDireita] = dominios;
 
-  const entradasDaLegenda = series.map((serie, indice) => ({
-    color: cores[indice],
-    hidden: isHidden(serie.label),
-    label: serie.label,
-  }));
+  const entradasDaLegenda = [
+    ...series.map((serie, indice) => ({
+      color: cores[indice],
+      hidden: isHidden(serie.label),
+      label: serie.label,
+    })),
+    ...referenceLegend(referencias, formatValue),
+  ];
 
   const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y'] },
@@ -310,13 +331,22 @@ export function ChartLine({
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
+      nameDetail={referenceName(referencias, formatValue)}
       onToggleSeries={toggle}
       plot={plot}
       removed={removed}
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor))} title={title} />
+        <ChartTable
+          {...withReferenceColumns(
+            categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor)),
+            referencias,
+            referenceComparisons(series, categories.length),
+            formatValue,
+          )}
+          title={title}
+        />
       }
       title={title}
       tooltip={
@@ -345,6 +375,15 @@ export function ChartLine({
       {comFaixas && categoriaEmFoco !== null && (
         <PointCursor plot={plot} position={posicoesCategoria[categoriaEmFoco]} />
       )}
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="back"
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
 
       <g {...pontos.groupProps}>
       {series.map((serie, indiceSerie) => {
@@ -413,6 +452,15 @@ export function ChartLine({
         );
       })}
       </g>
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="front"
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
 
       {comFaixas && (
         <PointBands

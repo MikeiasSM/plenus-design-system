@@ -1,8 +1,28 @@
-export { completeDateInput, completeDateTimeInput, completeTimeInput, keepDateChars, keepInputChars } from './completeInput';
+export {
+  completeDateInput,
+  completeDateTimeInput,
+  completeMonthInput,
+  completeTimeInput,
+  completeYearInput,
+  keepDateChars,
+  keepInputChars,
+  keepMonthChars,
+  keepYearChars,
+} from './completeInput';
 export { formatCurrencyInput } from './formatCurrencyInput';
 export { formatDate, formatTime } from './formatDate';
 export type { FormatDateOptions, FormatTimeOptions } from './formatDate';
-export { closeDateInput, formatDateInput, parseDateInput } from './formatDateInput';
+export {
+  closeDateInput,
+  closeMonthInput,
+  closeYearInput,
+  formatDateInput,
+  formatMonthInput,
+  formatYearInput,
+  parseDateInput,
+  parseMonthInput,
+  parseYearInput,
+} from './formatDateInput';
 export { formatDecimalDraft, formatDecimalInput } from './formatDecimalInput';
 export { formatDuration } from './formatDuration';
 export { formatFileSize } from './formatFileSize';
