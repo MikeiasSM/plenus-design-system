@@ -47,12 +47,14 @@
 
 .right .drawer {
   padding-right: env(safe-area-inset-right, 0px);
+  border-inline-start: 1px solid transparent;
   --pl-safe-right: 0px;
   animation: drawer-from-right var(--pl-speed-2) var(--pl-ease) both;
 }
 
 .left .drawer {
   --pl-safe-left: 0px;
+  border-inline-end: 1px solid transparent;
   animation: drawer-from-left var(--pl-speed-2) var(--pl-ease) both;
 }
 
@@ -89,6 +91,8 @@
   padding-right: env(safe-area-inset-right, 0px);
   --pl-safe-left: 0px;
   --pl-safe-right: 0px;
+  border: 1px solid transparent;
+  border-bottom: 0;
   border-radius: calc(var(--pl-radius-md) * 2) calc(var(--pl-radius-md) * 2) 0 0;
   animation: drawer-from-bottom var(--pl-speed-2) var(--pl-ease) both;
 }
@@ -126,6 +130,13 @@
 @keyframes drawer-from-left {
   from {
     transform: translateX(-100%);
+  }
+}
+
+/* Em cores forçadas a sombra some, e a borda transparente da face de dentro passa a separar o painel do véu. */
+@media (forced-colors: active) {
+  .drawer {
+    border-color: CanvasText;
   }
 }
 
