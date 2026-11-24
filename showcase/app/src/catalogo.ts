@@ -81,6 +81,7 @@ export const familias: readonly Familia[] = [
       componente('Card', 'Superfície que agrupa conteúdo, com cabeçalho, rodapé e imagem próprios.'),
       componente('CardMetric', 'Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe.'),
       componente('Badge', 'Rótulo curto de estado ou categoria.'),
+      componente('FilePreview', 'Quadro de prévia de arquivo: imagem ou pôster, ícone de reserva, play no vídeo, estado em borda e ícone, progresso e selo.'),
       componente('Tag', 'Etiqueta operada: removível, como o filtro ativo, ou de alternar.'),
       componente('Kbd', 'Tecla ou combinação de teclas, no texto, na dica, no botão ou no menu.', { importa: 'Kbd, formatShortcut' }),
       componente('Accordion', 'Seções expansíveis de conteúdo.'),
