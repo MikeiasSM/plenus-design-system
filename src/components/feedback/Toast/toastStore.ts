@@ -25,14 +25,30 @@ export interface ToastOptions {
 
 export interface ToastEntry extends ToastOptions {
   id: string;
+  /** Aviso de `showToast.promise` ainda esperando: sem anuncio, sem tempo e sem acoes. */
+  loading?: boolean;
+}
+
+/** O texto de um estado do `showToast.promise`: so o titulo, ou o titulo com o resto do aviso. O tom vem do estado. */
+export type ToastPromiseMessage = string | Omit<ToastOptions, 'tone'>;
+
+export interface ToastPromiseOptions<T> {
+  /** Erro: aviso de perigo, que fica ate a pessoa fechar. A funcao recebe o motivo da rejeicao. */
+  error: ToastPromiseMessage | ((reason: unknown) => ToastPromiseMessage);
+  /** Enquanto espera. So titulo e descricao: o aviso de carregando nao tem acoes nem some sozinho. */
+  loading: string | Pick<ToastOptions, 'description' | 'title'>;
+  /** Sucesso: aviso de sucesso, que some no tempo de sempre. A funcao recebe o valor resolvido. */
+  success: ToastPromiseMessage | ((value: T) => ToastPromiseMessage);
 }
 
 export interface ToastStore {
   dismiss: (id: string) => void;
   getServerSnapshot: () => ToastEntry[];
   getSnapshot: () => ToastEntry[];
-  show: (options: ToastOptions) => string;
+  show: (options: Omit<ToastEntry, 'id'>) => string;
   subscribe: (listener: () => void) => () => void;
+  /** Troca o conteudo de um aviso aberto, mantendo o id. Sem efeito se ele ja fechou. */
+  update: (id: string, entry: Omit<ToastEntry, 'id'>) => void;
 }
 
 const EMPTY: ToastEntry[] = [];
@@ -64,15 +80,49 @@ export function createToastStore(): ToastStore {
         listeners.delete(listener);
       };
     },
+    update: (id, entry) => {
+      if (toasts.some((toast) => toast.id === id)) {
+        publish(toasts.map((toast) => (toast.id === id ? { ...entry, id } : toast)));
+      }
+    },
   };
+}
+
+function toOptions(message: ToastPromiseMessage) {
+  return typeof message === 'string' ? { title: message } : message;
+}
+
+/**
+ * Um aviso so para a promessa inteira: carregando, depois sucesso ou erro no mesmo lugar. Devolve a propria promessa,
+ * ja com o erro tratado aqui, e quem nao a espera nao deixa rejeicao solta.
+ */
+export function promiseToast<T>(store: ToastStore, promise: Promise<T> | (() => Promise<T>), options: ToastPromiseOptions<T>) {
+  const pending = typeof promise === 'function' ? promise() : promise;
+  const loading = toOptions(options.loading);
+  const id = store.show({ description: loading.description, duration: null, title: loading.title, loading: true });
+
+  pending.then(
+    (value) => {
+      const message = typeof options.success === 'function' ? options.success(value) : options.success;
+      store.update(id, { ...toOptions(message), tone: 'success' });
+    },
+    (reason: unknown) => {
+      const message = typeof options.error === 'function' ? options.error(reason) : options.error;
+      store.update(id, { ...toOptions(message), tone: 'danger' });
+    },
+  );
+
+  return pending;
 }
 
 export const globalToastStore = createToastStore();
 
 /** Mostra um aviso no `ToastRegion` da pagina e devolve o id para fecha-lo antes do tempo. */
-export function showToast(options: ToastOptions) {
-  return globalToastStore.show(options);
-}
+export const showToast = Object.assign((options: ToastOptions) => globalToastStore.show(options), {
+  /** Acompanha uma promessa num aviso so: carregando, depois sucesso ou erro. Devolve a mesma promessa. */
+  promise: <T>(promise: Promise<T> | (() => Promise<T>), options: ToastPromiseOptions<T>) =>
+    promiseToast(globalToastStore, promise, options),
+});
 
 export function dismissToast(id: string) {
   globalToastStore.dismiss(id);

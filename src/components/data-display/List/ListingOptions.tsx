@@ -1,8 +1,9 @@
-import { Fragment, useCallback, useEffect, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import { Fragment, useCallback, useEffect, useRef, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import type { Listing, ListingItem } from './useListing';
 import { useVirtualWindow } from './useVirtualWindow';
 import styles from './List.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
+import { Spinner } from '../../feedback/Spinner';
 
 export interface ListingOptionsProps {
   baseId: string;
@@ -14,9 +15,16 @@ export interface ListingOptionsProps {
   listing: Listing;
   loading?: boolean;
   loadingMessage?: string;
+  /** Linha de espera no rodapé, depois das opções, enquanto a próxima página não chega. */
+  loadingMore?: boolean;
+  loadingMoreMessage?: string;
   holdsFocus?: boolean;
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
+  /** Chamado quando a rolagem chega a três opções do fim, ou quando a lista inteira já cabe sem rolar. */
+  onNearEnd?: () => void;
   onSelect?: (item: ListingItem) => void;
+  /** Com `loading`, a linha de espera toma o lugar das opções, que somem até o resultado novo chegar. */
+  replaceWhileLoading?: boolean;
   style?: CSSProperties;
   tabIndex?: number;
 }
@@ -58,8 +66,12 @@ export function ListingOptions({
   listing,
   loading = false,
   loadingMessage = 'Carregando',
+  loadingMore = false,
+  loadingMoreMessage = 'Carregando mais',
   onKeyDown,
+  onNearEnd,
   onSelect,
+  replaceWhileLoading = false,
   style,
   tabIndex = 0,
 }: ListingOptionsProps) {
@@ -74,14 +86,16 @@ export function ListingOptions({
     select(item, extend);
     onSelect?.(item);
   }
-  const { active, attachScroll, measureItem, onScroll, padding, scrollToIndex, start, end } = useVirtualWindow(
-    visible.length,
-    height,
-  );
+  const { active, attachScroll, measureItem, measuring, onScroll, padding, scrollToIndex, start, end, step } =
+    useVirtualWindow(visible.length, height);
+  const rolagem = useRef<HTMLElement | null>(null);
+  const rolado = useRef<{ active: boolean; index: number; key?: string } | null>(null);
+  const substituida = loading && replaceWhileLoading;
 
   const attachElement = useCallback(
     (node: HTMLElement | null) => {
       attachScroll(node);
+      rolagem.current = node;
 
       if (elementRef) {
         elementRef.current = node;
@@ -97,6 +111,14 @@ export function ListingOptions({
       return;
     }
 
+    // Uma página nova no fim não move a rolagem: a opção em foco continua onde estava.
+    const anterior = rolado.current;
+    rolado.current = { active, index, key: focusedKey };
+
+    if (anterior && anterior.active === active && anterior.index === index && anterior.key === focusedKey) {
+      return;
+    }
+
     if (active) {
       scrollToIndex(index);
     } else {
@@ -104,7 +126,30 @@ export function ListingOptions({
     }
   }, [active, baseId, focusedKey, scrollToIndex, visible]);
 
-  const rendered = visible.slice(start, end);
+  const verificarFim = useCallback(() => {
+    const elemento = rolagem.current;
+
+    // Enquanto a janela mede a primeira opção, só parte da lista está montada, e o fim ainda não é o fim.
+    if (!elemento || !onNearEnd || loading || loadingMore || measuring || visible.length === 0) {
+      return;
+    }
+
+    if (elemento.scrollHeight - elemento.scrollTop - elemento.clientHeight <= step * 3) {
+      onNearEnd();
+    }
+  }, [loading, loadingMore, measuring, onNearEnd, step, visible.length]);
+
+  // Depois de cada página: a que chega curta demais para rolar já deixa a lista no fim.
+  useEffect(() => {
+    verificarFim();
+  }, [verificarFim]);
+
+  const rolar = useCallback(() => {
+    onScroll();
+    verificarFim();
+  }, [onScroll, verificarFim]);
+
+  const rendered = substituida ? [] : visible.slice(start, end);
 
   if (selectionMode === 'none') {
     return (
@@ -185,19 +230,27 @@ export function ListingOptions({
       className={[styles.options, thinScrollbar, className].filter(Boolean).join(' ')}
       id={baseId + '-options'}
       onKeyDown={onKeyDown}
-      onScroll={onScroll}
+      onScroll={rolar}
       ref={attachElement}
       role="listbox"
       style={{ height, ...style }}
       tabIndex={holdsFocus ? tabIndex : undefined}
     >
-      {loading && <p className={styles.status}>{loadingMessage}</p>}
-      {detached.length > 0 && (
+      {substituida ? (
+        // A região de status de quem usa a lista anuncia a espera; a linha só a mostra.
+        <div aria-hidden="true" className={[styles.status, styles.waiting].join(' ')}>
+          <Spinner size="sm" />
+          {loadingMessage}
+        </div>
+      ) : (
+        loading && <p className={styles.status}>{loadingMessage}</p>
+      )}
+      {!substituida && detached.length > 0 && (
         <div aria-label="Selecionados" className={styles.group} role="group">
           {detached.map((item) => renderOption(item, 0, false))}
         </div>
       )}
-      <div aria-hidden="true" className={styles.spacer} style={{ height: padding.before }} />
+      <div aria-hidden="true" className={styles.spacer} style={{ height: substituida ? 0 : padding.before }} />
       {blocks.map(({ group, options }) => {
         const [first] = options;
         const rendering = options.map(({ item, position }) => renderOption(item, position, position === start + 1));
@@ -217,7 +270,13 @@ export function ListingOptions({
           </div>
         );
       })}
-      <div aria-hidden="true" className={styles.spacer} style={{ height: padding.after }} />
+      <div aria-hidden="true" className={styles.spacer} style={{ height: substituida ? 0 : padding.after }} />
+      {loadingMore && !substituida && (
+        <div aria-hidden="true" className={[styles.status, styles.waiting].join(' ')}>
+          <Spinner size="sm" />
+          {loadingMoreMessage}
+        </div>
+      )}
       {!loading && visible.length === 0 && empty}
     </div>
   );
