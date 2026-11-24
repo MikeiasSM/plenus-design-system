@@ -25,7 +25,7 @@
   width: 18px;
   height: 18px;
   margin: 1px 0 0;
-  border: 1px solid var(--pl-color-border-strong);
+  border: 1px solid var(--pl-control-border);
   border-radius: var(--pl-radius-sm);
   background: var(--pl-color-surface);
   background-position: center;

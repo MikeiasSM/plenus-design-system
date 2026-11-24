@@ -1,4 +1,4 @@
-import { useState, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
+import { useRef, useState, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
 import { Button, IconLightning, IconLink, IconPlus, IconStructure, Tabs, TabsNav, type TabsNavItem } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -82,12 +82,62 @@ const SISTEMA_COM_ICONES: TabsNavItem[] = [
   { key: 'alertas', label: 'Alertas', href: '/sistema/alertas', icon: <IconLightning /> },
 ];
 
+const SECOES: TabsNavItem[] = [
+  { key: 'geral', label: 'Geral', href: '#tabsnav-geral' },
+  { key: 'perfil', label: 'Perfil', href: '#tabsnav-perfil' },
+  { key: 'avisos', label: 'Avisos', href: '#tabsnav-avisos' },
+  { key: 'acesso', label: 'Acesso', href: '#tabsnav-acesso' },
+  { key: 'integracoes', label: 'Integrações', href: '#tabsnav-integracoes' },
+  { key: 'sobre', label: 'Sobre', href: '#tabsnav-sobre' },
+];
+
+/**
+ * Uma página de configurações que rola por dentro, como o corpo do AppShell. O Showcase usa o endereço para as rotas,
+ * então o clique rola a área à mão em vez de trocar o `#`; a margem que a TabsNav põe na seção vale do mesmo jeito.
+ */
+function SecoesDaPagina() {
+  const areaRef = useRef<HTMLDivElement>(null);
+
+  function irPara(evento: MouseEvent, href: string) {
+    evento.preventDefault();
+    const area = areaRef.current;
+    const secao = document.getElementById(href.slice(1));
+
+    if (!area || !secao) {
+      return;
+    }
+
+    const calmo = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const margem = Number.parseFloat(getComputedStyle(secao).scrollMarginTop) || 0;
+    area.scrollTo({ behavior: calmo ? 'auto' : 'smooth', top: secao.offsetTop - margem });
+  }
+
+  return (
+    <div ref={areaRef} style={{ position: 'relative', width: '100%', maxWidth: 420, height: 280, overflowY: 'auto' }}>
+      <TabsNav
+        defaultCurrent="geral"
+        followScroll
+        items={SECOES.map((secao) => ({ ...secao, linkProps: { onClick: (evento: MouseEvent) => irPara(evento, secao.href ?? '') } }))}
+        label="Seções das configurações"
+      />
+      {SECOES.map((secao, indice) => (
+        <section id={secao.href?.slice(1)} key={secao.key} style={{ padding: 'var(--pl-space-4) var(--pl-space-3)' }}>
+          <h3 style={{ margin: 0 }}>{secao.label}</h3>
+          {/* A última é curta de propósito: no fim da rolagem, ela vira a atual mesmo sem chegar à barra. */}
+          <p style={{ minHeight: indice === SECOES.length - 1 ? 0 : 160 }}>Opções de exemplo da seção {secao.label}.</p>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
       <dt><code>current</code></dt>
       <dd>
-        A chave da aba do endereço atual. Quem a calcula é a aplicação, a partir da rota: o componente não guarda estado.
+        A chave da aba do endereço atual. Quem a calcula é a aplicação, a partir da rota. Só com <code>followScroll</code> e
+        sem <code>current</code> o componente guarda a aba sozinho.
       </dd>
       <dt><code>as</code> e <code>linkProps</code></dt>
       <dd>
@@ -103,6 +153,13 @@ function Modos() {
       </dd>
       <dt><code>actions</code></dt>
       <dd>Ficam ao lado das abas, fora da lista de links, com a linha da faixa correndo sob elas.</dd>
+      <dt><code>followScroll</code></dt>
+      <dd>
+        As abas são seções da mesma página (<code>href=&quot;#id&quot;</code>). A barra fica presa ao topo da área que rola e
+        a seção atual é a que chegou à borda de baixo dela; no fim da rolagem, a última. Sem <code>current</code>, a barra
+        guarda a seção sozinha, a partir de <code>defaultCurrent</code>; com <code>current</code>, atualize-o em{' '}
+        <code>onCurrentChange</code>.
+      </dd>
       <dt>Muitas abas</dt>
       <dd>A faixa rola de lado, como a das <code>Tabs</code>.</dd>
     </dl>
@@ -151,6 +208,25 @@ export const pagina: Pagina = {
     { key: 'papeis', label: 'Papéis', icon: <IconLink />, count: 6, linkProps: { to: '/sistema/papeis' } },
   ]}
 />`,
+    },
+    {
+      titulo: 'Seções que a barra acompanha',
+      descricao:
+        'Com followScroll, a barra fica presa no topo da área que rola e marca a seção que chegou à borda de baixo dela. A aba atual vem para o meio da faixa e leva aria-current="location".',
+      Previa: SecoesDaPagina,
+      codigo: `<TabsNav
+  followScroll
+  defaultCurrent="geral"
+  label="Seções das configurações"
+  items={[
+    { key: 'geral', label: 'Geral', href: '#geral' },
+    { key: 'perfil', label: 'Perfil', href: '#perfil' },
+    { key: 'avisos', label: 'Avisos', href: '#avisos' },
+  ]}
+/>
+<section id="geral">…</section>
+<section id="perfil">…</section>
+<section id="avisos">…</section>`,
     },
     {
       titulo: 'Segmentado',
@@ -209,12 +285,17 @@ export const pagina: Pagina = {
     { garantia: 'Região nomeada', como: <><code>&lt;nav&gt;</code> com <code>aria-label</code> e os links numa lista.</>, teste: 'TabsNav.test.tsx' },
     { garantia: 'Página atual', como: <>Só a aba atual leva <code>aria-current=&quot;page&quot;</code>.</>, teste: 'TabsNav.test.tsx' },
     { garantia: 'Links, não abas', como: <>Sem <code>role=&quot;tab&quot;</code>, que prometeria setas e painel.</>, teste: 'TabsNav.test.tsx' },
+    { garantia: 'Seção atual', como: <>Com <code>followScroll</code>, a aba da seção visível leva <code>aria-current=&quot;location&quot;</code>, medida pela borda da barra.</>, teste: 'TabsNav.test.tsx' },
     { garantia: 'Link da aplicação', como: <><code>as</code> e <code>linkProps</code> chegam ao link, sem roteador embutido.</>, teste: 'TabsNav.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <nav> e o ref.',
   api: [
     { nome: 'items', tipo: 'readonly TabsNavItem[]', descricao: <>Cada aba: <code>key</code>, <code>label</code>, <code>href</code> e <code>linkProps</code>.</> },
-    { nome: 'current', tipo: 'string', descricao: 'Obrigatória. Chave da aba do endereço atual.' },
+    { nome: 'current', tipo: 'string', descricao: 'Chave da aba do endereço atual. Com followScroll, controla a seção atual: atualize-a em onCurrentChange.' },
+    { nome: 'defaultCurrent', tipo: 'string', descricao: 'Sem current, a aba atual no início. Por padrão, a primeira.' },
+    { nome: 'followScroll', tipo: 'boolean', padrao: 'false', descricao: <>Abas que são seções da página (<code>#id</code>): a barra fica presa e acompanha a rolagem.</> },
+    { nome: 'onCurrentChange', tipo: '(key: string) => void', descricao: 'Com followScroll, avisa a seção que virou a atual.' },
+    { nome: 'stickyOffset', tipo: 'number', padrao: '0', descricao: <>Altura do que fica preso acima da barra na área que rola; vira o <code>top</code>, e um <code>top</code> em <code>style</code> vence.</> },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatória. Nome da região de navegação.' },
     { nome: 'as', tipo: 'ElementType', padrao: "'a'", descricao: 'Componente de link da aplicação.' },
     { nome: 'fitted', tipo: 'boolean', padrao: 'false', descricao: 'Abas em partes iguais da largura.' },
