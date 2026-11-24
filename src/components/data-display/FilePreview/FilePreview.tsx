@@ -35,11 +35,11 @@ export interface FilePreviewProps extends Omit<ComponentPropsWithRef<'div'>, 'ch
   status?: FilePreviewStatus;
 }
 
-/** Play do poster, o mesmo desenho de `IconPlayCircleFill`, sem trazer a suite inteira para a entrada principal. */
+/** O triangulo do play, o mesmo desenho de `IconPlayFill`, sem trazer a suite inteira para a entrada principal. */
 function IconPlay() {
   return (
     <Icon>
-      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z" />
+      <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393" />
     </Icon>
   );
 }
@@ -154,7 +154,9 @@ export function FilePreview({
       )}
       {kind === 'video' && showImage && (
         <span className={styles.play}>
-          <IconPlay />
+          <span className={styles.playDisc}>
+            <IconPlay />
+          </span>
         </span>
       )}
       {status === 'uploading' && (

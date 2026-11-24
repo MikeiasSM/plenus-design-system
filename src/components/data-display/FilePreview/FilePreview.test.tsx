@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 import { FileUpload } from '../../forms/FileUpload';
@@ -125,7 +127,7 @@ describe('FilePreview', () => {
 
   it('marca o poster do video com o play, e o arquivo comum nunca mostra a imagem', () => {
     const { container, rerender } = render(<FilePreview kind="video" src="/poster.jpg" />);
-    expect(container.querySelector(`.${styles.play}`)).not.toBeNull();
+    expect(container.querySelector(`.${styles.play} .${styles.playDisc} svg`)).not.toBeNull();
 
     rerender(<FilePreview kind="file" src="/doc.pdf" />);
     expect(container.querySelector('img')).toBeNull();
@@ -144,6 +146,14 @@ describe('FilePreview', () => {
     expect(container.querySelector(`.${styles.stateError}`)).not.toBeNull();
   });
 
+  it('mantem o icone de estado no sm, para enviado e parado nao se distinguirem so pela cor', () => {
+    const { container, rerender } = render(<FilePreview size="sm" src="/logo.png" status="done" />);
+    expect(container.querySelector(`.${styles.stateDone} svg`)).not.toBeNull();
+
+    rerender(<FilePreview size="sm" src="/logo.png" status="idle" />);
+    expect(container.querySelector(`.${styles.state}`)).toBeNull();
+  });
+
   it('limita o progresso e trata NaN como indeterminado', () => {
     const { container, rerender } = render(<FilePreview progress={140} status="uploading" />);
     expect((container.firstChild as HTMLElement).style.getPropertyValue('--file-preview-progress')).toBe('100%');
@@ -151,6 +161,15 @@ describe('FilePreview', () => {
     rerender(<FilePreview progress={Number.NaN} status="uploading" />);
     expect((container.firstChild as HTMLElement).style.getPropertyValue('--file-preview-progress')).toBe('');
     expect(container.querySelector(`.${styles.indeterminate}`)).not.toBeNull();
+  });
+
+  it('desenha o play num disco de token e marca o erro em cores forcadas', () => {
+    const css = readFileSync(resolve(__dirname, 'FilePreview.module.css'), 'utf8');
+
+    expect(css).toMatch(/color-mix\(in srgb, var\(--pl-color-ink\) 80%, transparent\)/);
+    expect(css).toMatch(/color: var\(--pl-color-on-ink\)/);
+    expect(css).not.toMatch(/rgba\(|--pl-neutral-/);
+    expect(css).toMatch(/@media \(forced-colors: active\)[\s\S]*\.error \{\s*border: 3px double CanvasText/);
   });
 
   it('mostra o selo, inclusive o zero', () => {
