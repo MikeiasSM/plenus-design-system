@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ColorField, normalizeHex } from './ColorField';
@@ -89,5 +90,59 @@ describe('ColorField', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Pegar uma cor da tela' }));
 
     expect(onValueChange).toHaveBeenLastCalledWith('#49619C');
+  });
+
+  it('avisa null quando o código deixa de ser válido', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e85d1f');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+
+    await userEvent.type(input, '{Backspace}');
+    expect(input).toHaveValue('e85d1');
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+    expect(onValueChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('no modo controlado, limpar para null apaga também o rascunho inválido', async () => {
+    const { rerender } = render(<ColorField label="Cor da marca" onValueChange={() => {}} value={null} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e8');
+    expect(input).toHaveValue('e8');
+
+    rerender(<ColorField label="Cor da marca" onValueChange={() => {}} value={null} />);
+    expect(input).toHaveValue('');
+  });
+
+  it('no modo controlado, a digitação não volta ao valor enquanto o código não vale', async () => {
+    function Formulario() {
+      const [cor, setCor] = useState<string | null>('#E85D1F');
+
+      return (
+        <>
+          <ColorField label="Cor da marca" onValueChange={setCor} value={cor} />
+          <output>{String(cor)}</output>
+          <button onClick={() => setCor(null)} type="button">
+            Limpar
+          </button>
+        </>
+      );
+    }
+
+    render(<Formulario />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, '{Backspace}{Backspace}');
+    expect(input).toHaveValue('#E85D');
+    expect(screen.getByRole('status')).toHaveTextContent('null');
+
+    await userEvent.type(input, '2a');
+    expect(screen.getByRole('status')).toHaveTextContent('#E85D2A');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+    expect(input).toHaveValue('');
   });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FocusEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FocusEvent } from 'react';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { Icon } from '../../icons/Icon';
 import { ColorPicker, type ColorPickerOption } from '../ColorPicker';
@@ -58,6 +58,11 @@ export function normalizeHex(text: string): string | null {
   return /^[0-9a-f]{6}$/i.test(raw) ? `#${raw}`.toUpperCase() : null;
 }
 
+/** Se o texto corresponde ao valor: `null` só corresponde ao campo vazio. */
+function matches(text: string, value: string | null | undefined) {
+  return value == null ? text.trim() === '' : normalizeHex(text) === normalizeHex(value);
+}
+
 function getEyeDropper(): EyeDropperConstructor | undefined {
   return typeof window === 'undefined' ? undefined : (window as unknown as { EyeDropper?: EyeDropperConstructor }).EyeDropper;
 }
@@ -66,57 +71,73 @@ function getEyeDropper(): EyeDropperConstructor | undefined {
  * Campo de cor livre: o codigo hexadecimal, as amostras que o produto sugere e o conta-gotas do navegador, onde ele
  * existe (hoje Chrome e Edge de computador). Sem `EyeDropper`, o botao nao aparece.
  */
-export function ColorField({
-  defaultValue,
-  error,
-  eyedropperLabel = 'Pegar uma cor da tela',
-  invalidMessage = 'Use o código hexadecimal, como #E85D1F.',
-  label,
-  onBlur,
-  onValueChange,
-  suggestions,
-  suggestionsLabel = 'Cores sugeridas',
-  value,
-  ...props
-}: ColorFieldProps) {
+export function ColorField(allProps: ColorFieldProps) {
+  const {
+    defaultValue,
+    error,
+    eyedropperLabel = 'Pegar uma cor da tela',
+    invalidMessage = 'Use o código hexadecimal, como #E85D1F.',
+    label,
+    onBlur,
+    onValueChange,
+    suggestions,
+    suggestionsLabel = 'Cores sugeridas',
+    value,
+    ...props
+  } = allProps;
   const controlled = value !== undefined;
   const [text, setText] = useState(() => (controlled ? (value ?? '') : (defaultValue ?? '')));
   const [touched, setTouched] = useState(false);
   const [hasEyeDropper, setHasEyeDropper] = useState(false);
+  // O último valor avisado no modo não controlado; no controlado, quem guarda é o `value`.
+  const reported = useRef(normalizeHex(text));
+  // As props e o texto do último desenho: dizem se o desenho atual veio do produto ou da digitação.
+  const [lastRender, setLastRender] = useState({ props: allProps, text });
   const pickerName = `color-field-${useId()}`;
 
-  // O navegador so e conhecido depois da montagem: assim o servidor e o cliente desenham o mesmo.
+  // O navegador só é conhecido depois da montagem: assim o servidor e o cliente desenham o mesmo.
   useEffect(() => setHasEyeDropper(Boolean(getEyeDropper())), []);
 
-  useEffect(() => {
-    if (controlled && normalizeHex(text) !== (value ?? null)) {
-      setText(value ?? '');
+  // No modo controlado, o texto acompanha o `value` sempre que o produto redesenha o campo e o texto não acabou de
+  // mudar. Assim um `null` limpa também um rascunho inválido, como "e8", que já valia `null`. Enquanto a pessoa
+  // digita, o texto muda no mesmo desenho e fica como está.
+  if (lastRender.props !== allProps || lastRender.text !== text) {
+    let next = text;
+
+    if (controlled && lastRender.props !== allProps && lastRender.text === text && !matches(text, value)) {
+      next = value ?? '';
+      setText(next);
     }
-    // So a mudanca de fora conta; o texto em digitacao nao volta ao valor.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+
+    setLastRender({ props: allProps, text: next });
+  }
 
   const color = normalizeHex(text);
   const invalid = touched && text.trim() !== '' && color === null;
 
-  function commit(next: string) {
-    setText(next);
-    const normalized = normalizeHex(next);
+  function report(next: string | null) {
+    const last = controlled ? normalizeHex(value ?? '') : reported.current;
 
-    if (next.trim() === '') {
-      onValueChange?.(null);
-    } else if (normalized && next.trim().replace(/^#/, '').length === 6) {
-      onValueChange?.(normalized);
+    reported.current = next;
+
+    if (next !== last) {
+      onValueChange?.(next);
     }
   }
 
-  // O codigo curto so vale quando a pessoa sai do campo: em digitacao, "e85" e o comeco de "e85d1f", e nao uma cor.
+  // O código de seis dígitos vale na hora; o resto, inclusive o curto em digitação, vale `null` até a saída do campo.
+  function commit(next: string) {
+    setText(next);
+    report(next.trim().replace(/^#/, '').length === 6 ? normalizeHex(next) : null);
+  }
+
+  // O código curto só vale quando a pessoa sai do campo: em digitação, "e85" é o começo de "e85d1f", e não uma cor.
   function commitShortCode() {
     const normalized = normalizeHex(text);
 
     if (normalized && text.trim().replace(/^#/, '').length === 3) {
       setText(normalized);
-      onValueChange?.(normalized);
+      report(normalized);
     }
   }
 
