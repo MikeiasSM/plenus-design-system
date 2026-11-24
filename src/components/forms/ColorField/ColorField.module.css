@@ -9,7 +9,7 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  border: 1px solid var(--pl-control-border, var(--pl-color-border-strong));
+  border: 1px solid var(--pl-control-border);
   border-radius: var(--pl-radius-sm);
 }
 
