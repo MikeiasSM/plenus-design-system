@@ -141,4 +141,21 @@ describe('Drawer', () => {
 
     expect(screen.getByRole('dialog', { name: 'Acesso de Ana' })).toHaveAccessibleDescription('Ajuste quem ve.');
   });
+
+  it('na base, sobe da borda de baixo e continua um dialogo modal que fecha pelo botao', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer onOpenChange={onOpenChange} open side="bottom" size="lg" title="Pizza Calabresa Grande">
+        Detalhe do item.
+      </Drawer>,
+    );
+
+    const painel = screen.getByRole('dialog', { name: 'Pizza Calabresa Grande' });
+    expect(painel).toHaveAttribute('aria-modal', 'true');
+    expect(painel).toHaveClass(styles.lg!);
+    expect(painel.parentElement).toHaveClass(styles.bottom!);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
 });

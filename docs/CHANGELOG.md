@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `Drawer`: `side="bottom"`, o painel que sobe da base da tela, com a alça desenhada no alto, cantos de cima arredondados, a área segura de baixo e a altura do conteúdo até o teto do `size` (`sm` 50%, `md` 75%, `lg` 90% da tela). A mecânica é a mesma do `Dialog`. `DrawerSide` passa a aceitar `'bottom'`; os lados `left` e `right` não mudam.
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado

@@ -496,7 +496,7 @@ import { Link } from 'react-router-dom';
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Dialog` | Interação modal que interrompe o fluxo. | Disponível |
-| `Drawer` | Painel modal preso à lateral da tela. | Disponível |
+| `Drawer` | Painel modal preso à lateral ou à base da tela. | Disponível |
 | `SidePanel` | Painel não modal ao lado do conteúdo, de qualquer lado, que empurra a página. | Disponível |
 | `Popover` | Conteúdo ancorado a um gatilho, sem bloquear a página. | Disponível |
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
@@ -507,6 +507,8 @@ import { Link } from 'react-router-dom';
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 
 O `Dialog` tem os tamanhos `sm`, `md`, `lg` e `xl`, de até 1040px, para formulários e conteúdos largos. `title` e `description` aceitam um nó, para uma ênfase ou um link na descrição; o título é o conteúdo do `h2` e o nome do diálogo, e não leva nada interativo. O corpo que rola, quando ganha foco, é nomeado "Conteúdo de" seguido do título, por `aria-labelledby`, também com o título em nó. `help` põe ao lado do título, fora do `h2` e do nome do diálogo, o ícone de ajuda da convenção do `help` da `Table`: focável, com a dica no ponteiro e no foco de teclado, e nomeado pelo próprio texto; o foco inicial continua no botão Fechar. `flush` tira o respiro interno do corpo, como no `Drawer`. `placement="top"` prende o cartão perto do topo, a 12% da altura da janela, com a altura máxima descontada dessa margem, para o diálogo cuja altura muda com o conteúdo, como uma busca, não pular a cada resultado; o padrão é `center`. `onBeforeClose` deixa o produto impedir o fechamento, como quando há alterações não salvas: devolve `boolean` ou `Promise<boolean>`, e `false` mantém aberto. É consultado por Esc, pelo clique no véu e pelo botão Fechar, uma consulta por vez, e não quando o produto muda `open`, que é decisão dele. A resposta de uma consulta antiga é descartada se o diálogo foi fechado e reaberto, e a consulta que falha conta como não fechar. Não recebe o motivo do fechamento, porque a confirmação não difere pela via; se um produto precisar, a assinatura ganha um argumento sem quebrar. O `Drawer` recebe o mesmo `onBeforeClose`, pois divide a mecânica com o `Dialog` e é onde mais se edita um item com alterações a perder.
+
+O `Drawer` com `side="bottom"` sobe da base da tela: é o painel do celular, para o detalhe de um item ou uma escolha curta. Tem a altura do conteúdo até o teto do `size` (`sm` 50%, `md` 75% e `lg` 90% da tela), cantos de cima arredondados, a alça desenhada no alto e a área segura de baixo. A mecânica é a do `Dialog` (padrão Dialog Modal do WAI-ARIA): foco preso, Esc fecha, toque fora fecha, e o foco volta a quem abriu. A alça é só desenho, sem arrastar: fechar é sempre pelo botão, pelo Esc ou pelo toque fora. No computador, o painel fica centralizado, com até 640px de largura.
 
 O `Drawer` sem `title` segue o `Dialog`: sem cabeçalho, nomeado pelo `aria-label` obrigatório. O `title`, a `description` e o `help` do `Drawer` seguem os do `Dialog`. Com `flush`, o corpo perde o respiro interno, para o conteúdo que desenha a própria margem; a rolagem do meio continua.
 
