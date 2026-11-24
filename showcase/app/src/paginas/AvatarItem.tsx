@@ -102,11 +102,12 @@ export const pagina: Pagina = {
   teclado: [{ teclas: ['Tab'], acao: 'O item é estático e não tem teclado próprio: o foco passa direto pelo que houver dentro dele.' }],
   garantias: [
     { garantia: 'Conteúdo', como: 'Avatar, título e descrição aparecem; sem descrição, só o título.', teste: 'AvatarItem.test.tsx' },
+    { garantia: 'Nome lido uma vez', como: <>O <code>Avatar</code> entra decorativo, porque o título já mostra o nome; com <code>decorative={false}</code> nele, continua nomeado.</>, teste: 'AvatarItem.test.tsx' },
     { garantia: 'Props nativas', como: <>A raiz repassa ref, <code>className</code> e atributos nativos, sem o <code>title</code> nativo.</>, teste: 'AvatarItem.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div>, menos title, e o ref.',
   api: [
-    { nome: 'avatar', tipo: 'ReactNode', descricao: 'Obrigatório. O avatar, normalmente um Avatar, à esquerda do texto.' },
+    { nome: 'avatar', tipo: 'ReactNode', descricao: 'Obrigatório. O avatar, normalmente um Avatar, à esquerda do texto. O Avatar entra decorativo, porque o título já mostra o nome; passe decorative={false} nele quando o título não for o nome.' },
     { nome: 'title', tipo: 'ReactNode', descricao: 'Obrigatório. Texto principal.' },
     { nome: 'description', tipo: 'ReactNode', descricao: 'Texto secundário abaixo do título.' },
   ],

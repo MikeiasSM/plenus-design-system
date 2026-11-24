@@ -14,12 +14,41 @@
   border-top: 1px solid var(--pl-color-border);
 }
 
-.divided .trigger {
+/* Um cartao por secao, com vao entre eles: cada item tem o contorno e o recorte do divisor. */
+.separated {
+  gap: var(--pl-space-3);
+}
+
+.separated .item {
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  overflow: hidden;
+}
+
+.divided .trigger,
+.separated .trigger {
   padding: var(--pl-space-3) var(--pl-space-4);
 }
 
-.divided .panel {
+.divided .panel,
+.separated .panel {
   padding: 0 var(--pl-space-4) var(--pl-space-4);
+}
+
+/* Cabecalho denso, em texto de legenda e peso de rotulo, na cor secundaria e com a inicial maiuscula do produto. */
+.compact .trigger {
+  padding-block: var(--pl-space-1);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.compact.divided .trigger,
+.compact.separated .trigger {
+  padding-block: var(--pl-space-2);
+}
+
+.compact .trigger:not(:disabled) {
+  color: var(--pl-color-text-secondary);
 }
 
 .heading {
@@ -35,7 +64,7 @@
   width: 100%;
   padding: var(--pl-space-2) 0;
   border: 0;
-  background: var(--pl-color-surface);
+  background: var(--accordion-header-surface, var(--pl-color-surface));
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
@@ -62,9 +91,44 @@
   flex: 1;
 }
 
+/* Com a linha de cima, o rotulo vira uma coluna: a linha pequena acima e o rotulo embaixo. */
+.label:has(> .overline) {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Inicial maiuscula, como os titulos pequenos do sistema: sem caixa alta nem espacamento entre letras. */
+.overline {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-caption-size);
+  font-weight: var(--pl-type-body-weight);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.itemIcon,
+.end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+
+.itemIcon {
+  color: var(--pl-color-text-secondary);
+}
+
+.end {
+  color: var(--pl-color-text-secondary);
+  font-weight: var(--pl-type-body-weight);
+}
+
+/* O indicador vai a frente pela ordem visual, e o resto do cabecalho fica na ordem de leitura. */
 .iconLeft {
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+.iconLeft > .icon {
+  order: -1;
 }
 
 .icon {
@@ -77,8 +141,19 @@
   transform: rotate(180deg);
 }
 
+/* O mais nao gira: o traco vertical recolhe, e sobra o menos. */
+.plusVertical {
+  transform-origin: center;
+  transition: transform var(--pl-speed-1) var(--pl-ease);
+}
+
+.plusOpen .plusVertical {
+  transform: scaleY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .icon {
+  .icon,
+  .plusVertical {
     transition: none;
   }
 }
@@ -91,7 +166,7 @@
 
 .panel {
   padding: 0 0 var(--pl-space-3);
-  background: var(--pl-color-surface);
+  background: var(--accordion-panel-surface, var(--pl-color-surface));
   color: var(--pl-color-text);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-body-size);
@@ -106,6 +181,7 @@
 
 /* `.divided` recorta por `overflow: hidden`: ali o anel desenha para dentro, sobre o padding do item.
    Sem divisor nao ha padding lateral, e para dentro ele caia sobre o rotulo. */
-.divided .trigger:focus-visible {
+.divided .trigger:focus-visible,
+.separated .trigger:focus-visible {
   outline-offset: -2px;
 }

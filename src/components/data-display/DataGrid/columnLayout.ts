@@ -105,6 +105,29 @@ export interface DataGridPlacedColumn<Column> {
 }
 
 /**
+ * Largura útil da tela da grade, a que as colunas flexíveis dividem: a caixa de conteúdo medida pelo `ResizeObserver`,
+ * fracionada e arredondada para baixo. O `clientWidth` arredonda para o inteiro mais próximo, e numa tela de 799,6px
+ * as colunas somariam 800px, abrindo a rolagem lateral por 0,4px. Sem a medida do observador, como na montagem, a
+ * largura sai da caixa desenhada menos a barra de rolagem.
+ */
+export function usableWidth(element: HTMLElement, entry?: ResizeObserverEntry) {
+  /* O Firefox antigo entrega `contentBoxSize` como um objeto só, e não como lista. */
+  const box = entry?.contentBoxSize as ResizeObserverSize | readonly ResizeObserverSize[] | undefined;
+  const inlineSize = Array.isArray(box) ? box[0]?.inlineSize : (box as ResizeObserverSize | undefined)?.inlineSize;
+
+  if (inlineSize !== undefined) {
+    return Math.floor(inlineSize);
+  }
+
+  if (entry) {
+    return Math.floor(entry.contentRect.width);
+  }
+
+  const scrollbar = element.offsetWidth - element.clientWidth;
+  return Math.max(Math.floor(element.getBoundingClientRect().width - scrollbar), 0);
+}
+
+/**
  * Colunas visíveis na ordem da tela: as fixas no início, as que rolam, as fixas no fim. A sobra da largura da tela vai
  * às flexíveis, pelo peso. `hostExtra` é o espaço dos controles da linha, somado à primeira coluna.
  */

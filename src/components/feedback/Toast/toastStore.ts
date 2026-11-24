@@ -3,7 +3,8 @@ import type { AlertTone } from '../Alert';
 /** Quantas acoes um aviso mostra; a terceira em diante e descartada, e o aviso nao e lugar de menu. */
 export const MAX_TOAST_ACTIONS = 2;
 
-export type ToastTone = AlertTone;
+/** O aviso fala de algo que acabou de acontecer: o tom neutro do `Alert`, de contexto sem urgencia, nao vale aqui. */
+export type ToastTone = Exclude<AlertTone, 'neutral'>;
 
 export interface ToastAction {
   label: string;

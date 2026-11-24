@@ -1385,3 +1385,72 @@ describe('DataGrid', () => {
     });
   });
 });
+
+describe('DataGrid, largura útil e altura', () => {
+  /* O jsdom não tem ResizeObserver: este entrega a caixa de conteúdo fracionada, como o navegador. */
+  function stubResizeObserver(inlineSize: number) {
+    class FakeResizeObserver {
+      constructor(private readonly callback: ResizeObserverCallback) {}
+      observe(target: Element) {
+        const entry = {
+          target,
+          contentBoxSize: [{ inlineSize, blockSize: 400 }],
+          contentRect: { width: inlineSize, height: 400 },
+        } as unknown as ResizeObserverEntry;
+        this.callback([entry], this as unknown as ResizeObserver);
+      }
+      unobserve() {}
+      disconnect() {}
+    }
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+  });
+
+  function columnWidths() {
+    const head = screen.getAllByRole('rowgroup')[0];
+    return head.style.gridTemplateColumns.split(' ').map((width) => Number.parseFloat(width));
+  }
+
+  it('divide entre as colunas a largura fracionada da tela, arredondada para baixo, e não o clientWidth arredondado', () => {
+    stubResizeObserver(799.6);
+    /* O `clientWidth` arredonda 799,6 para 800: as colunas passariam 0,4px da tela e abririam a rolagem lateral. */
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get: () => 800 });
+
+    /* Uma coluna flexível só: a sobra inteira vai a ela, sem o arredondamento da divisão entre várias. */
+    renderGrid({ columns: [columns[0], columns[1], { ...columns[2], width: 120 }] });
+
+    expect(columnWidths()).toEqual([80, 599, 120]);
+  });
+
+  it('reserva a calha da barra só com altura numérica', () => {
+    const { unmount } = renderGrid({ height: 400 });
+    expect(screen.getByRole('grid').parentElement).toHaveClass(styles.stableGutter!);
+    unmount();
+
+    renderGrid({ height: 'fill' });
+    expect(screen.getByRole('grid').parentElement).not.toHaveClass(styles.stableGutter!);
+  });
+
+  it('com height="auto" cresce com as linhas até o maxHeight, e só então rola', () => {
+    renderGrid({ rows: manyOrders(10_000), height: 'auto', maxHeight: 400 });
+
+    const scroller = screen.getByRole('grid').parentElement as HTMLElement;
+    expect(scroller.style.height).toBe('');
+    expect(scroller.style.maxHeight).toBe('400px');
+    expect(scroller).not.toHaveClass(styles.stableGutter!);
+    expect(bodyRows().length).toBeLessThan(30);
+  });
+
+  it('com height="auto" e sem maxHeight, mostra todas as linhas', () => {
+    renderGrid({ rows: manyOrders(40), height: 'auto' });
+
+    const scroller = screen.getByRole('grid').parentElement as HTMLElement;
+    expect(scroller.style.height).toBe('');
+    expect(scroller.style.maxHeight).toBe('');
+    expect(bodyRows()).toHaveLength(40);
+  });
+});

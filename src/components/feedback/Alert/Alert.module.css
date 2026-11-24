@@ -44,3 +44,65 @@
   --alert-surface: var(--pl-color-danger-container);
   --alert-line: var(--pl-color-danger);
 }
+
+.neutral {
+  --alert-tone: var(--pl-color-text-secondary);
+  --alert-surface: var(--pl-color-surface-muted);
+  --alert-line: var(--pl-color-border-strong);
+}
+
+/* Com ícone ou ação, o texto vai para uma coluna própria, ao lado do ícone. Sem eles, o desenho é o de sempre. */
+.withSlots {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--pl-space-3);
+}
+
+/* A largura da própria mensagem decide onde a ação fica, e não a da janela. */
+.withAction {
+  container: pl-alert / inline-size;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 1lh;
+}
+
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-1);
+  min-width: 0;
+}
+
+.action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2);
+}
+
+@container pl-alert (min-width: 480px) {
+  .content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .text {
+    flex: 1 1 auto;
+  }
+
+  .action {
+    flex: none;
+  }
+}
