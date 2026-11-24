@@ -1,5 +1,5 @@
 // Nomes de tecla que a especificação ARIA espera em `aria-keyshortcuts`, pela grafia escrita em minúsculas.
-const KEY_NAMES: Record<string, string> = {
+export const KEY_NAMES: Record<string, string> = {
   '⌘': 'Meta',
   cmd: 'Meta',
   command: 'Meta',

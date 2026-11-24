@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  ChartReferences,
   ChartTable,
   categoryTable,
+  referenceComparisons,
+  referenceLegend,
+  referenceName,
+  referenceValues,
+  validReferences,
+  withReferenceColumns,
   BandCursor,
   categoryTooltip,
   markShown,
@@ -38,6 +45,8 @@ import {
   type CornerRadii,
   type ChartCategoryHover,
   type ChartMarkClick,
+  type ChartCardProps,
+  type ChartReference,
   type ChartRootProps,
   type ChartValueAxis,
 } from '../core';
@@ -62,7 +71,7 @@ export interface ChartBarSeries extends SeriesAppearance {
   values: readonly number[];
 }
 
-export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   categories: readonly string[];
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
@@ -92,6 +101,11 @@ export interface ChartBarProps extends Omit<ChartRootProps, 'hidden'> {
   orientation?: ChartBarOrientation;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
+  /**
+   * Linhas e faixas de referencia no eixo dos valores, como uma meta ou uma faixa aceitavel. Entram na legenda, na
+   * visao em tabela e no nome do grafico, e a escala se estende para alcanca-las.
+   */
+  references?: readonly ChartReference[];
   series: readonly ChartBarSeries[];
   /**
    * Valor alem da ponta de cada barra; empilhada, o total da categoria alem da ponta da pilha. Em `onHover`,
@@ -137,6 +151,7 @@ export function ChartBar({
   onMarkClick,
   orientation = 'vertical',
   palette,
+  references,
   series,
   showDataLabels = 'hidden',
   showTableToggle,
@@ -203,10 +218,13 @@ export function ChartBar({
     }
   }, [ignoraEixo, title]);
 
+  const referencias = useMemo(() => validReferences(references), [references]);
+
   const dominios = useMemo(
     () =>
       valueAxisDomains({
         axes: eixos,
+        references: referenceValues(referencias),
         domainOfSeries: (grupo) =>
           stacked
             ? domainOf(categories.flatMap((_, indice) => stackDiverging(grupo.map((serie) => serie.values[indice] ?? 0)).flat()))
@@ -214,7 +232,7 @@ export function ChartBar({
         isOutOfScale,
         series,
       }),
-    [categories, eixos, isOutOfScale, series, stacked],
+    [categories, eixos, isOutOfScale, referencias, series, stacked],
   );
   const [dominioEsquerda, dominioDireita] = dominios;
 
@@ -248,11 +266,14 @@ export function ChartBar({
       ? widestLabel(valoresRotuladosAdireita().map(formatValue), font) + AFASTAMENTO_DO_ROTULO
       : 0;
 
-  const entradasDaLegenda = series.map((serie, indice) => ({
-    color: cores[indice],
-    hidden: isHidden(serie.label),
-    label: serie.label,
-  }));
+  const entradasDaLegenda = [
+    ...series.map((serie, indice) => ({
+      color: cores[indice],
+      hidden: isHidden(serie.label),
+      label: serie.label,
+    })),
+    ...referenceLegend(referencias, formatValue),
+  ];
 
   const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     axisTitles: { x: xAxisTitle, y: yAxisTitle, yRight: vertical ? yAxisRightTitle : undefined },
@@ -419,13 +440,22 @@ export function ChartBar({
       legendAlign={legendAlign}
       legendPosition={posicaoDaLegenda}
       margins={margins}
+      nameDetail={referenceName(referencias, formatValue)}
       onToggleSeries={toggle}
       plot={plot}
       removed={removed}
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor))} title={title} />
+        <ChartTable
+          {...withReferenceColumns(
+            categoryTable(categories, series, (valor, indice) => formatoDa(indice)(valor)),
+            referencias,
+            referenceComparisons(vertical ? series : series.map(({ label, values }) => ({ label, values })), categories.length, stacked),
+            formatValue,
+          )}
+          title={title}
+        />
       }
       title={title}
       tooltip={
@@ -455,6 +485,16 @@ export function ChartBar({
           size={vao}
         />
       )}
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="back"
+        orientation={orientation}
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
 
       <g {...marcas.groupProps}>
       {series.map((serie, indiceSerie) => {
@@ -552,6 +592,16 @@ export function ChartBar({
             );
           }),
         )}
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="front"
+        orientation={orientation}
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
     </CartesianFrame>
   );
 }

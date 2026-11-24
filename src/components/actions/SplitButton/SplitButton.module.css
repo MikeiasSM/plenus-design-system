@@ -1,0 +1,48 @@
+/* Dois botões colados: os cantos de dentro são retos, e os de fora seguem o raio do `Button`. */
+.splitButton {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.splitButton .main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.splitButton .more {
+  position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* A parte sob o ponteiro ou com foco fica por cima da vizinha: a borda e o anel de foco aparecem inteiros. */
+.splitButton .main:focus-visible,
+.splitButton .more:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  .splitButton .main:hover,
+  .splitButton .more:hover {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* No secundário, as duas partes dividem a mesma borda. */
+.secondary .more {
+  margin-left: -1px;
+}
+
+/* No primário, um fio de 1px na cor do texto separa as partes. Num pseudoelemento, e não numa sombra, para não sumir
+   sob a sombra do hover e o anel de foco do `Button`. */
+.primary .more::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--pl-color-on-primary) 25%, transparent);
+  content: '';
+}
