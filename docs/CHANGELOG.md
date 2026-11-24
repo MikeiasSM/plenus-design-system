@@ -29,6 +29,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportable` nos gráficos da moldura comum (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartWaterfall`, `ChartScatter`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey`): menu "Opções do gráfico" com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco; o SVG sai com os estilos embutidos e o PNG no dobro da resolução, sem dependência nova.
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
+- `Drawer`: `side="bottom"`, o painel que sobe da base da tela, sem alça de arrastar, com cantos de cima arredondados, a área segura de baixo dentro do rodapé e a altura do conteúdo até o teto do `size` (`sm` 50%, `md` 75%, `lg` 90% da tela). A mecânica é a mesma do `Dialog`; sem `title`, não há botão Fechar, e o produto põe o próprio. `DrawerSide` passa a aceitar `'bottom'`; os lados `left` e `right` não mudam.
 
 ### Corrigido
 
@@ -36,6 +37,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `TabsNav`: sem `fitted`, as abas também dividiam a largura em partes iguais e a faixa nunca rolava, por um seletor quebrado na folha. Agora cada aba tem o tamanho do rótulo e a faixa rola quando não cabe, como nas `Tabs`.
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o dia recusado por `isDateUnavailable` só se distinguia pela cor. Agora também fica riscado no calendário e se anuncia com ", indisponível".
 - `DatePicker`, `DatePickerRange` e `DateTimePicker`: o título do mês no calendário punha maiúscula em todas as palavras ("Novembro De 2026"). Agora só a inicial ("Novembro de 2026").
+- `Drawer`: em cores forçadas, a sombra sumia e a gaveta da esquerda ou da direita não se separava da página. Agora a face de dentro tem uma borda, transparente no uso comum, que vira a cor do texto do sistema.
 
 ## [0.7.1] — 2026-11-24
 
