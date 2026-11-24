@@ -1,0 +1,178 @@
+/* Quadro quadrado: a imagem cobre sem distorcer; sem imagem, o icone de reserva no centro, sobre o fundo neutro. */
+.preview {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--pl-color-border);
+  border-radius: var(--pl-radius-md);
+  background: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+}
+
+.sm {
+  width: 40px;
+  border-radius: var(--pl-radius-sm);
+  font-size: 1rem;
+}
+
+.md {
+  width: 56px;
+  font-size: 1.25rem;
+}
+
+.lg {
+  width: 96px;
+  font-size: 2rem;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fallback {
+  display: inline-flex;
+}
+
+/* Play no centro do poster: o triangulo claro sobre um disco escuro, que separa o sinal de qualquer imagem, clara ou
+   escura, sem depender de sombra. */
+.play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playDisc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: var(--pl-radius-full);
+  background: color-mix(in srgb, var(--pl-color-ink) 80%, transparent);
+  color: var(--pl-color-on-ink);
+}
+
+/* O estado fala pela borda e pelo icone, nunca so pela cor. */
+.error {
+  border-color: var(--pl-color-danger);
+  box-shadow: inset 0 0 0 1px var(--pl-color-danger);
+}
+
+.done {
+  border-color: var(--pl-color-border-strong);
+}
+
+.state {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: inline-flex;
+  border-radius: var(--pl-radius-full);
+  background: var(--pl-color-surface);
+  font-size: 14px;
+}
+
+.stateDone {
+  color: var(--pl-color-success);
+}
+
+.stateError {
+  color: var(--pl-color-danger-text);
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--pl-color-surface) 70%, transparent);
+}
+
+.bar {
+  display: block;
+  width: var(--file-preview-progress, 0%);
+  height: 100%;
+  background: var(--pl-color-primary);
+  transition: width var(--pl-speed-2) var(--pl-ease);
+}
+
+.indeterminate {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--pl-color-primary);
+  animation: file-preview-indeterminate 1.2s ease-in-out infinite;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  padding: 0 4px;
+  border-radius: var(--pl-radius-sm);
+  background: var(--pl-color-ink);
+  color: var(--pl-color-on-ink);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-micro-size);
+  line-height: var(--pl-type-micro-line-height);
+  font-weight: var(--pl-weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* No sm o selo de texto nao cabe e sai; o icone de estado fica, menor, para que enviado e parado nao se distingam so
+   pela cor da borda. */
+.sm .badge {
+  display: none;
+}
+
+.sm .state {
+  right: 1px;
+  bottom: 1px;
+  font-size: 11px;
+}
+
+/* Em cores forcadas a sombra interna some e as bordas ficam todas na mesma cor: o erro ganha a borda dupla, alem do
+   icone, e a barra de progresso, a cor de destaque do sistema. */
+@media (forced-colors: active) {
+  .error {
+    border: 3px double CanvasText;
+  }
+
+  .track {
+    border-top: 1px solid CanvasText;
+  }
+
+  .bar,
+  .indeterminate {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .playDisc {
+    border: 1px solid CanvasText;
+  }
+}
+
+@keyframes file-preview-indeterminate {
+  0% {
+    margin-left: -40%;
+  }
+
+  100% {
+    margin-left: 100%;
+  }
+}

@@ -18,6 +18,8 @@ export interface ColorPickerProps extends Omit<ComponentPropsWithRef<'div'>, 'de
   defaultOption?: { label?: string };
   defaultValue?: string | null;
   disabled?: boolean;
+  /** O `id` do formulário dos rádios, como o atributo `form` nativo: leva a escolha a um formulário fora do grupo. */
+  form?: string;
   /** Nome do grupo, para o leitor de tela. */
   label: string;
   name?: string;
@@ -39,6 +41,7 @@ export function ColorPicker({
   defaultOption,
   defaultValue,
   disabled = false,
+  form,
   label,
   name: providedName,
   onValueChange,
@@ -72,6 +75,7 @@ export function ColorPicker({
               className={styles.input}
               defaultChecked={controlled ? undefined : defaultValue === swatch.value}
               disabled={disabled}
+              form={form}
               name={name}
               onChange={() => onValueChange?.(swatch.value)}
               type="radio"

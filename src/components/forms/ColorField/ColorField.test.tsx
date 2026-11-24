@@ -1,0 +1,260 @@
+import { useState } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ColorField, normalizeHex } from './ColorField';
+
+afterEach(() => {
+  delete (window as unknown as { EyeDropper?: unknown }).EyeDropper;
+});
+
+describe('normalizeHex', () => {
+  it('aceita o código curto e o longo, com ou sem #', () => {
+    expect(normalizeHex('#e85d1f')).toBe('#E85D1F');
+    expect(normalizeHex('abc')).toBe('#AABBCC');
+    expect(normalizeHex('#12345')).toBeNull();
+    expect(normalizeHex('laranja')).toBeNull();
+  });
+});
+
+describe('ColorField', () => {
+  it('avisa a cor normalizada só quando o código vale', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+
+    await userEvent.type(screen.getByLabelText('Cor da marca'), 'e85d1');
+    expect(onValueChange).not.toHaveBeenCalledWith(expect.stringMatching(/^#/));
+
+    await userEvent.type(screen.getByLabelText('Cor da marca'), 'f');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+  });
+
+  it('aceita o código curto só na saída do campo, já expandido', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e85');
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.blur(input);
+    expect(onValueChange).toHaveBeenLastCalledWith('#EE8855');
+    expect(input).toHaveValue('#EE8855');
+  });
+
+  it('mostra o erro de formato só depois da saída do campo', async () => {
+    render(<ColorField label="Cor da marca" />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, '12');
+    expect(screen.queryByText(/Use o código hexadecimal/)).toBeNull();
+
+    fireEvent.blur(input);
+    expect(screen.getByText('Use o código hexadecimal, como #E85D1F.')).toBeInTheDocument();
+  });
+
+  it('preenche o campo pela amostra sugerida', async () => {
+    const onValueChange = vi.fn();
+    render(
+      <ColorField
+        label="Cor da marca"
+        onValueChange={onValueChange}
+        suggestions={[
+          { color: '#E85D1F', label: 'Laranja do logo' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Grafite do logo' }));
+
+    expect(onValueChange).toHaveBeenLastCalledWith('#2E2A26');
+    expect(screen.getByLabelText('Cor da marca')).toHaveValue('#2E2A26');
+    expect(screen.getByRole('radiogroup', { name: 'Cores sugeridas para Cor da marca' })).toBeInTheDocument();
+  });
+
+  it('esconde o conta-gotas onde o navegador não o tem', () => {
+    render(<ColorField label="Cor da marca" />);
+
+    expect(screen.queryByRole('button', { name: 'Pegar uma cor da tela' })).toBeNull();
+  });
+
+  it('usa o conta-gotas onde ele existe', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Pegar uma cor da tela' }));
+
+    expect(onValueChange).toHaveBeenLastCalledWith('#49619C');
+  });
+
+  it('avisa null quando o código deixa de ser válido', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e85d1f');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+
+    await userEvent.type(input, '{Backspace}');
+    expect(input).toHaveValue('e85d1');
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+    expect(onValueChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('no modo controlado, limpar para null apaga também o rascunho inválido', async () => {
+    const { rerender } = render(<ColorField label="Cor da marca" onValueChange={() => {}} value={null} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e8');
+    expect(input).toHaveValue('e8');
+
+    rerender(<ColorField label="Cor da marca" onValueChange={() => {}} value={null} />);
+    expect(input).toHaveValue('');
+  });
+
+  it('no modo controlado, a digitação não volta ao valor enquanto o código não vale', async () => {
+    function Formulario() {
+      const [cor, setCor] = useState<string | null>('#E85D1F');
+
+      return (
+        <>
+          <ColorField label="Cor da marca" onValueChange={setCor} value={cor} />
+          <output>{String(cor)}</output>
+          <button onClick={() => setCor(null)} type="button">
+            Limpar
+          </button>
+        </>
+      );
+    }
+
+    render(<Formulario />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, '{Backspace}{Backspace}');
+    expect(input).toHaveValue('#E85D');
+    expect(screen.getByRole('status')).toHaveTextContent('null');
+
+    await userEvent.type(input, '2a');
+    expect(screen.getByRole('status')).toHaveTextContent('#E85D2A');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar' }));
+    expect(input).toHaveValue('');
+  });
+
+  it.each([
+    ['readOnly', { readOnly: true }],
+    ['disabled', { disabled: true }],
+  ])('com %s, nem as amostras nem o conta-gotas mudam a cor', async (_, estado) => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const onValueChange = vi.fn();
+    render(
+      <ColorField
+        {...estado}
+        defaultValue="#E85D1F"
+        label="Cor da marca"
+        onValueChange={onValueChange}
+        suggestions={[
+          { color: '#E85D1F', label: 'Laranja do logo' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    const contaGotas = await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+    expect(contaGotas).toBeDisabled();
+    await userEvent.click(contaGotas);
+    fireEvent.click(screen.getByRole('radio', { name: 'Grafite do logo' }));
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Cor da marca')).toHaveValue('#E85D1F');
+    expect(screen.getByRole('radio', { name: 'Laranja do logo' })).toBeChecked();
+  });
+
+  it('não recria o campo quando o conta-gotas aparece, e o autoFocus fica', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const campos = new Set<HTMLInputElement>();
+    render(
+      <ColorField autoFocus label="Cor da marca" ref={(campo) => void (campo && campos.add(campo))} />,
+    );
+
+    await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+
+    expect(campos.size).toBe(1);
+    expect(screen.getByLabelText('Cor da marca')).toHaveFocus();
+  });
+
+  it('as amostras e o conta-gotas acompanham o size do campo', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    render(<ColorField label="Cor da marca" size="lg" suggestions={[{ color: '#E85D1F', label: 'Laranja do logo' }]} />);
+
+    const contaGotas = await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+    expect(contaGotas.className).toMatch(/md/);
+    expect(screen.getByRole('radiogroup').className).toMatch(/lg/);
+  });
+
+  it('mostra o formato esperado e só envia o texto no formulário', async () => {
+    render(
+      <form data-testid="formulario">
+        <ColorField label="Cor da marca" name="cor" suggestions={[{ color: '#E85D1F', label: 'Laranja do logo' }]} />
+      </form>,
+    );
+
+    expect(screen.getByLabelText('Cor da marca')).toHaveAttribute('placeholder', '#RRGGBB');
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Laranja do logo' }));
+
+    const dados = new FormData(screen.getByTestId('formulario') as HTMLFormElement);
+    expect([...dados.entries()]).toEqual([['cor', '#E85D1F']]);
+  });
+
+  it('colar um código com espaços preenche o campo inteiro, normalizado', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.click(input);
+    await userEvent.paste('  #e85d1f');
+
+    expect(input).toHaveValue('#E85D1F');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+  });
+
+  it('junta as sugestões da mesma cor e deixa de fora a inválida, com aviso', () => {
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const erro = vi.spyOn(console, 'error');
+    render(
+      <ColorField
+        label="Cor da marca"
+        suggestions={[
+          { color: '#e85d1f', label: 'Laranja do logo' },
+          { color: 'E85D1F', label: 'Laranja de novo' },
+          { color: 'laranja', label: 'Sem código' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByRole('radio').map((radio) => radio.getAttribute('value'))).toEqual(['#E85D1F', '#2E2A26']);
+    expect(aviso).toHaveBeenCalledWith(expect.stringContaining('laranja'));
+    expect(erro).not.toHaveBeenCalled();
+    aviso.mockRestore();
+    erro.mockRestore();
+  });
+});
