@@ -1,6 +1,7 @@
 import {
   Children,
   createContext,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -71,13 +72,29 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, s
     titleId,
   };
 
+  // A imagem ao fim fica ao lado de uma coluna com o resto: sem ela, o cartao inteiro virava linha, e cabecalho, corpo e
+  // rodape apareciam lado a lado. So o `Card.Media` filho direto e reconhecido; sem ele, nada muda no cartao.
+  const parts = Children.toArray(children);
+  const mediaAtEnd = parts.filter(
+    (part) => isValidElement<CardMediaProps>(part) && part.type === CardMedia && part.props.placement === 'end',
+  );
+  const content =
+    mediaAtEnd.length > 0 ? (
+      <>
+        <div className={styles.content}>{parts.filter((part) => !mediaAtEnd.includes(part))}</div>
+        {mediaAtEnd}
+      </>
+    ) : (
+      children
+    );
+
   return (
     <section
       {...props}
       aria-labelledby={ariaLabelledBy ?? (titled ? titleId : undefined)}
-      className={join(styles.card, size === 'sm' && styles.sm, className)}
+      className={join(styles.card, size === 'sm' && styles.sm, mediaAtEnd.length > 0 && styles.withMediaEnd, className)}
     >
-      <CardContext.Provider value={context}>{children}</CardContext.Provider>
+      <CardContext.Provider value={context}>{content}</CardContext.Provider>
     </section>
   );
 }

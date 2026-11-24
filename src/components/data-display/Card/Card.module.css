@@ -285,8 +285,9 @@
   -webkit-line-clamp: 2;
 }
 
-/* Imagem do cartão. No topo, ocupa a largura toda antes do cabeçalho; no fim, o cartão vira linha, e a imagem fica ao
-   lado do conteúdo, no respiro do cartão. Sem imagem, o `Card.Media` não é desenhado, e nada disso vale. */
+/* Imagem do cartão. No topo, ocupa a largura toda antes do cabeçalho; no fim, o cartão vira linha de duas peças: a
+   coluna com cabeçalho, corpo e rodapé, empilhados como sempre, e a imagem ao lado dela, no respiro do cartão. Sem
+   imagem, o `Card.Media` não é desenhado, e nada disso vale. */
 .media {
   display: block;
   flex: none;
@@ -299,18 +300,21 @@
   height: auto;
 }
 
-.card:has(> .mediaEnd) {
+.withMediaEnd {
   flex-direction: row;
   align-items: flex-start;
 }
 
-.card:has(> .mediaEnd) > :not(.mediaEnd) {
+/* A coluna toma a altura do cartão, e o corpo, que cresce, continua levando o rodapé para o pé. */
+.content {
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
+  align-self: stretch;
   min-width: 0;
 }
 
 .mediaEnd {
-  order: 1;
   width: var(--card-media-size, 88px);
   height: auto;
   margin: var(--card-gap) var(--card-gap) var(--card-gap) 0;

@@ -53,6 +53,40 @@ describe('Card.Media', () => {
     expect(screen.getByRole('presentation')).toHaveClass(styles.mediaEnd, styles.ratio1x1);
   });
 
+  it('no fim da linha, fica ao lado de cabecalho, corpo e rodape, que continuam empilhados numa coluna', () => {
+    const { container } = render(
+      <Card>
+        <Card.Header title="Produto A" />
+        <Card.Body>Descricao do produto A</Card.Body>
+        <Card.Footer>Rodape</Card.Footer>
+        <Card.Media alt="" placement="end" src="/produto-a.jpg" />
+      </Card>,
+    );
+
+    const cartao = container.querySelector('section')!;
+    const [coluna, imagem] = Array.from(cartao.children);
+
+    expect(cartao).toHaveClass(styles.withMediaEnd);
+    expect(cartao.children).toHaveLength(2);
+    expect(coluna).toHaveClass(styles.content);
+    expect(Array.from(coluna.children).map((parte) => parte.tagName)).toEqual(['HEADER', 'DIV', 'FOOTER']);
+    expect(imagem).toHaveClass(styles.mediaEnd);
+  });
+
+  it('no topo, e sem imagem ao fim, o cartao continua sem a coluna', () => {
+    const { container } = render(
+      <Card>
+        <Card.Media alt="" src="/produto-a.jpg" />
+        <Card.Body>Descricao do produto A</Card.Body>
+      </Card>,
+    );
+
+    const cartao = container.querySelector('section')!;
+
+    expect(cartao).not.toHaveClass(styles.withMediaEnd);
+    expect(cartao.querySelector('.' + styles.content)).toBeNull();
+  });
+
   it('fora do Card, avisa o erro de composicao', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
