@@ -26,6 +26,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type CartesianLayoutOptions,
+  type ChartCardProps,
   type ChartRootProps,
   type MarkVisibility,
   type NoDataStyle,
@@ -46,7 +47,7 @@ export type ChartHeatmapLegendPosition = 'top' | 'bottom' | 'right' | 'none';
 
 export type ChartHeatmapHighlight = 'cell' | 'rowColumn';
 
-export interface ChartHeatmapProps extends ChartRootProps {
+export interface ChartHeatmapProps extends ChartRootProps, ChartCardProps {
   /** Uma por cruzamento. `value: null` e sem dado; o cruzamento sem celula fica em branco. */
   cells: readonly ChartHeatmapCell[];
   colorScale?: ChartHeatmapColorScale;

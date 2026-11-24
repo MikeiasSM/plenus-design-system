@@ -69,6 +69,8 @@ export type {
   ToolbarProps,
 } from './components/actions/Toolbar';
 export type { ButtonIconProps, ButtonIconSize } from './components/actions/ButtonIcon';
+export { SplitButton } from './components/actions/SplitButton';
+export type { SplitButtonProps, SplitButtonVariant } from './components/actions/SplitButton';
 export { Field } from './components/forms/Field';
 export type { FieldProps, FieldSize, FieldWiring } from './components/forms/Field';
 export { Label } from './components/forms/Label';
@@ -79,6 +81,8 @@ export { InputNumber } from './components/forms/InputNumber';
 export type { InputNumberProps } from './components/forms/InputNumber';
 export { InputPassword } from './components/forms/InputPassword';
 export type { InputPasswordProps, InputPasswordSize } from './components/forms/InputPassword';
+export { PinInput } from './components/forms/PinInput';
+export type { PinInputProps, PinInputSize, PinInputType } from './components/forms/PinInput';
 export { InputCurrency } from './components/forms/InputCurrency';
 export type { InputCurrencyProps } from './components/forms/InputCurrency';
 export { Textarea } from './components/forms/Textarea';
@@ -108,6 +112,16 @@ export type {
   SegmentedControlProps,
   SegmentedControlSize,
 } from './components/forms/SegmentedControl';
+export { RangeSlider, Slider } from './components/forms/Slider';
+export type {
+  RangeSliderLabels,
+  RangeSliderProps,
+  SliderCommonProps,
+  SliderMark,
+  SliderProps,
+  SliderRange,
+  SliderSize,
+} from './components/forms/Slider';
 export { Switch } from './components/forms/Switch';
 export type { SwitchProps } from './components/forms/Switch';
 export { FieldRow } from './components/forms/FieldRow';
@@ -120,6 +134,8 @@ export { Alert } from './components/feedback/Alert';
 export type { AlertProps, AlertTone } from './components/feedback/Alert';
 export { Progress } from './components/feedback/Progress';
 export type { ProgressProps, ProgressSize } from './components/feedback/Progress';
+export { Meter } from './components/feedback/Meter';
+export type { MeterProps, MeterTone } from './components/feedback/Meter';
 export { Spinner } from './components/feedback/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/feedback/Spinner';
 export { EmptyState } from './components/feedback/EmptyState';
@@ -130,6 +146,8 @@ export { ToastProvider, ToastRegion, dismissToast, showToast, useToast } from '.
 export type {
   ToastAction,
   ToastOptions,
+  ToastPromiseMessage,
+  ToastPromiseOptions,
   ToastProviderProps,
   ToastRegionProps,
   ToastTone,
@@ -139,8 +157,22 @@ export { PortalProvider } from './components/overlays/Portal';
 export type { PortalProviderProps } from './components/overlays/Portal';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
+export { Tour, TourProvider, useTour } from './components/overlays/Tour';
+export type {
+  TourController,
+  TourEndDetail,
+  TourEndReason,
+  TourEvent,
+  TourLabels,
+  TourPlacement,
+  TourProps,
+  TourProviderProps,
+  TourStep,
+  TourStorage,
+  TourTarget,
+} from './components/overlays/Tour';
 export { Tabs } from './components/navigation/Tabs';
-export type { TabsProps, TabItem, TabsAppearance, TabsOrientation } from './components/navigation/Tabs';
+export type { TabsProps, TabItem, TabsAppearance, TabsLabels, TabsOrientation, TabsOverflow } from './components/navigation/Tabs';
 export { TabsNav } from './components/navigation/TabsNav';
 export type { TabsNavItem, TabsNavProps } from './components/navigation/TabsNav';
 export { Breadcrumb } from './components/navigation/Breadcrumb';
@@ -228,10 +260,14 @@ export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';
 export type { TagAppearance, TagProps, TagSize } from './components/data-display/Tag';
+export { Kbd, formatShortcut } from './components/data-display/Kbd';
+export type { KbdKeyName, KbdLabels, KbdPlatform, KbdProps } from './components/data-display/Kbd';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
 export { AvatarItem } from './components/data-display/AvatarItem';
 export type { AvatarItemProps } from './components/data-display/AvatarItem';
+export { AvatarGroup } from './components/data-display/AvatarGroup';
+export type { AvatarGroupLabels, AvatarGroupOverflow, AvatarGroupPerson, AvatarGroupProps } from './components/data-display/AvatarGroup';
 export { DescriptionList } from './components/data-display/DescriptionList';
 export type { DescriptionListItemProps, DescriptionListLayout, DescriptionListProps } from './components/data-display/DescriptionList';
 export { List } from './components/data-display/List';
@@ -357,14 +393,17 @@ export type {
   DataGridToolbarProps,
 } from './components/data-display/DataGrid';
 export { DatePicker } from './components/forms/DatePicker';
-export type { DatePickerProps, DatePickerSize } from './components/forms/DatePicker';
+export type { DatePickerGranularity, DatePickerProps, DatePickerSize } from './components/forms/DatePicker';
 export { DatePickerRange, defaultDateRangeShortcuts } from './components/forms/DatePickerRange';
 export type {
+  DatePickerRangeGranularity,
   DatePickerRangeProps,
   DatePickerRangeSize,
   DateRange,
   DateRangeShortcut,
 } from './components/forms/DatePickerRange';
+export { Calendar } from './components/forms/Calendar';
+export type { CalendarProps, CalendarRangeProps, CalendarSingleProps } from './components/forms/Calendar';
 export { TimePicker } from './components/forms/TimePicker';
 export type { TimePickerProps, TimePickerSize } from './components/forms/TimePicker';
 export { DateTimePicker } from './components/forms/DateTimePicker';
@@ -456,6 +495,24 @@ export type {
   ChartTimelineSummary,
   ChartTimelineTime,
 } from './components/charts/ChartTimeline';
+export { exportChart } from './components/charts/core/exportChart';
+export type { ChartExportFormat, ChartExportOptions } from './components/charts/core/exportChart';
+export type { ChartCardProps } from './components/charts/core/ChartFrame';
+export type {
+  ChartReference,
+  ChartReferenceBand,
+  ChartReferenceLine,
+  ChartReferenceTone,
+} from './components/charts/core/references';
+export { Sparkline, sparklineName, sparklineTrend } from './components/charts/Sparkline';
+export type {
+  SparklineDirection,
+  SparklineLabels,
+  SparklineNameOptions,
+  SparklineProps,
+  SparklineTrend,
+  SparklineVariant,
+} from './components/charts/Sparkline';
 export { ChartTooltip } from './components/charts/ChartTooltip';
 export type {
   ChartTooltipColumn,

@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react';
 import {
+  ChartReferences,
   ChartTable,
   categoryTable,
+  referenceComparisons,
+  referenceLegend,
+  referenceName,
+  referenceValues,
+  validReferences,
+  withReferenceColumns,
   BandCursor,
   markShown,
   categoryTooltip,
@@ -34,6 +41,8 @@ import {
   type ChartMarkClick,
   type MarkVisibility,
   type ChartPoint,
+  type ChartCardProps,
+  type ChartReference,
   type ChartRootProps,
   type ChartValueAxis,
 } from '../core';
@@ -66,7 +75,7 @@ export interface ChartComboSeries extends SeriesAppearance {
   values: readonly (number | null)[];
 }
 
-export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   categories: readonly string[];
   curve?: ChartCurve;
@@ -98,6 +107,11 @@ export interface ChartComboProps extends Omit<ChartRootProps, 'hidden'> {
   onMarkClick?: (mark: ChartMarkClick) => void;
   /** Cores das series sem cor propria: lista em rotacao ou `{ base }`, que gera os tons. Vence o `accent`. */
   palette?: ChartPalette;
+  /**
+   * Linhas e faixas de referencia no eixo dos valores, como uma meta ou uma faixa aceitavel. Entram na legenda, na
+   * visao em tabela e no nome do grafico, e a escala se estende para alcanca-las.
+   */
+  references?: readonly ChartReference[];
   series: readonly ChartComboSeries[];
   /**
    * Valor de cada barra e de cada ponto; cada serie pode declarar o seu em `showDataLabels`. Em `onHover`, nas barras os da serie da barra sob o ponteiro; nas
@@ -152,6 +166,7 @@ export function ChartCombo({
   onHover,
   onMarkClick,
   palette,
+  references,
   series,
   showDataLabels = 'hidden',
   showTableToggle,
@@ -207,15 +222,18 @@ export function ChartCombo({
   const presencas = useTweenedNumbers(series.map((serie) => (isHidden(serie.label) ? 0 : 1)));
 
   // Com serie a direita, o zero fica na mesma altura nos dois eixos: as barras crescem da mesma base.
+  const referencias = useMemo(() => validReferences(references), [references]);
+
   const dominios = useMemo(
     () =>
       valueAxisDomains({
+        references: referenceValues(referencias),
         axes: eixos,
         domainOfSeries: (grupo) => mergeDomains(grupo.map((serie) => domainOf(serie.values.filter((valor) => valor !== null)))),
         isOutOfScale,
         series,
       }),
-    [eixos, isOutOfScale, series],
+    [eixos, isOutOfScale, referencias, series],
   );
   const [dominioEsquerda, dominioDireita] = dominios;
 
@@ -223,11 +241,14 @@ export function ChartCombo({
   // serie a direita, o eixo aparece sem ninguem pedir.
   const visibilidadeDireita = rightAxisVisibility(yAxisRight, temEixoDireito, yAxis);
 
-  const entradasDaLegenda = series.map((serie, indice) => ({
-    color: cores[indice],
-    hidden: isHidden(serie.label),
-    label: serie.label,
-  }));
+  const entradasDaLegenda = [
+    ...series.map((serie, indice) => ({
+      color: cores[indice],
+      hidden: isHidden(serie.label),
+      label: serie.label,
+    })),
+    ...referenceLegend(referencias, formatValue),
+  ];
 
   const { axisReveal, margins, plot, removed, rotation } = useCartesianLayout({
     decomposition: { fillHeight, legend: entradasDaLegenda, legendPosition: legend, valueAxes: ['yRight', 'y'] },
@@ -309,13 +330,22 @@ export function ChartCombo({
       legendAlign={legendAlign}
       legendPosition={legend}
       margins={margins}
+      nameDetail={referenceName(referencias, formatValue)}
       onToggleSeries={toggle}
       plot={plot}
       removed={removed}
       root={root}
       showTableToggle={showTableToggle}
       table={
-        <ChartTable {...categoryTable(categories, series, (valor, indice) => formatoDa(series[indice])(valor))} title={title} />
+        <ChartTable
+          {...withReferenceColumns(
+            categoryTable(categories, series, (valor, indice) => formatoDa(series[indice])(valor)),
+            referencias,
+            referenceComparisons(series, categories.length),
+            formatValue,
+          )}
+          title={title}
+        />
       }
       title={title}
       tooltip={
@@ -349,6 +379,15 @@ export function ChartCombo({
       {faixaEmFoco !== null && (
         <BandCursor offset={escalaCategorias(categories[faixaEmFoco]) ?? 0} plot={plot} size={vao} />
       )}
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="back"
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
 
       <g {...marcas.groupProps}>
         {series.map((serie, indiceSerie) => {
@@ -497,6 +536,16 @@ export function ChartCombo({
           );
         })}
       </g>
+
+      <ChartReferences
+        font={font}
+        format={formatValue}
+        layer="front"
+        plot={plot}
+        references={referencias}
+        scale={escalaEsquerda}
+      />
+
     </CartesianFrame>
   );
 }

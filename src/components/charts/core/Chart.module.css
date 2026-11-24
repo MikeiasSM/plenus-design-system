@@ -476,3 +476,101 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Cabecalho com subtitulo ou com o menu de opcoes: o titulo e o subtitulo empilham, e as acoes ficam no canto. */
+.heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.subtitle {
+  color: var(--pl-color-text-secondary);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--pl-space-2);
+  margin-left: auto;
+}
+
+/* Linhas e faixas de referencia. O tom vem em `--pl-reference-color`; sem tom, a cor do texto. */
+.reference {
+  --pl-reference-color: var(--pl-color-text);
+  --pl-reference-fill: var(--pl-color-text);
+}
+
+.referenceInfo {
+  --pl-reference-color: var(--pl-color-on-info-container);
+  --pl-reference-fill: var(--pl-color-info);
+}
+
+.referenceSuccess {
+  --pl-reference-color: var(--pl-color-on-success-container);
+  --pl-reference-fill: var(--pl-color-success);
+}
+
+.referenceWarning {
+  --pl-reference-color: var(--pl-color-on-warning-container);
+  --pl-reference-fill: var(--pl-color-warning);
+}
+
+.referenceDanger {
+  --pl-reference-color: var(--pl-color-on-danger-container);
+  --pl-reference-fill: var(--pl-color-danger);
+}
+
+.references {
+  pointer-events: none;
+}
+
+/* A faixa e um fundo leve, atras das marcas: 12% do tom. */
+.referenceBand {
+  fill: var(--pl-reference-fill);
+  fill-opacity: 0.12;
+}
+
+.referenceLine {
+  fill: none;
+  stroke: var(--pl-reference-color);
+  stroke-dasharray: 6 4;
+  stroke-width: 1.5;
+}
+
+.referenceLabel {
+  fill: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--pl-type-caption-size);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--pl-color-surface);
+  stroke-linejoin: round;
+  stroke-width: 3px;
+}
+
+/* Amostras da legenda: a linha tracejada e o fundo da faixa, na cor do tom (`color`, lido tambem na exportacao). */
+.swatchReferenceLine,
+.swatchReferenceBand {
+  flex: none;
+  color: var(--pl-reference-color);
+}
+
+.swatchReferenceLine {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed currentColor;
+}
+
+.swatchReferenceBand {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  color: var(--pl-reference-fill);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 50%, transparent);
+}

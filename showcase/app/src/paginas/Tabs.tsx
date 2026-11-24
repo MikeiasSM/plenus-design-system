@@ -84,6 +84,41 @@ const playground = definirPlayground({
   },
 });
 
+const REGISTROS: TabItem[] = [
+  'Pedido 4821',
+  'Pedido 4822',
+  'Cliente Ana Souza',
+  'Nota fiscal 118',
+  'Pedido 4830',
+  'Fornecedor Atlas',
+  'Pedido 4831',
+].map((rotulo, indice) => ({ key: `r${indice}`, label: rotulo, closable: true, content: `Dados de ${rotulo}.` }));
+
+/** Abas abertas pela pessoa: fecham pelo × ou pelo Delete, e as que não cabem vão para o "Mais". */
+function RegistrosAbertos() {
+  const [abertos, setAbertos] = useState(REGISTROS);
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <div style={{ resize: 'horizontal', overflow: 'hidden', minWidth: 240, maxWidth: '100%', width: 520 }}>
+        <Tabs
+          items={abertos}
+          label="Registros abertos"
+          onClose={(key) => setAbertos((atuais) => atuais.filter((registro) => registro.key !== key))}
+          overflow="menu"
+        />
+      </div>
+      {abertos.length < REGISTROS.length && (
+        <div>
+          <Button onClick={() => setAbertos(REGISTROS)} size="sm" variant="secondary">
+            Reabrir todos
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Controladas() {
   const [aba, setAba] = useState('acesso');
 
@@ -128,6 +163,31 @@ function Variantes() {
           as setas.
         </p>
         <VerCodigo codigo={'<Tabs appearance="segmented" label="Configurações do módulo" items={abas} />'} />
+      </div>
+      <div className="subsection">
+        <h3><code>overflow="menu"</code> e <code>closable</code></h3>
+        <RegistrosAbertos />
+        <p className="note">
+          Arraste o canto da caixa para estreitar. As abas que não cabem vão para o botão "Mais (N)", que abre um menu; a
+          escolhida fica sempre na faixa e, escolhida pelo menu, toma o lugar da última visível. O × e o Delete pedem o
+          fechamento por <code>onClose</code>; a aba some quando sai de <code>items</code>.
+        </p>
+        <VerCodigo
+          codigo={`<Tabs
+  label="Registros abertos"
+  overflow="menu"
+  items={abertos.map((r) => ({ key: r.id, label: r.nome, content: <Registro id={r.id} />, closable: true }))}
+  onClose={(key) => fechar(key)}
+/>`}
+        />
+      </div>
+      <div className="subsection">
+        <h3><code>overflow="scroll"</code></h3>
+        <div style={{ maxWidth: 360 }}>
+          <Tabs defaultSelectedKey="r5" items={REGISTROS.map((registro) => ({ ...registro, closable: false }))} label="Registros" overflow="scroll" />
+        </div>
+        <p className="note">A faixa rola na horizontal e leva a aba escolhida para a vista.</p>
+        <VerCodigo codigo={'<Tabs label="Registros" overflow="scroll" items={abas} />'} />
       </div>
       <div className="subsection">
         <h3><code>fillHeight</code> na vertical</h3>
@@ -178,6 +238,18 @@ function Modos() {
       <dd>
         <code>muted</code> no item: texto terciário e <code>data-muted</code>, para uma aba de menor peso. Continua focável e
         selecionável. No segmentado fica no secundário, que tem contraste sobre o trilho.
+      </dd>
+      <dt>Transbordo</dt>
+      <dd>
+        <code>overflow="menu"</code> mede a faixa e leva as abas que não cabem ao botão "Mais (N)"; <code>overflow="scroll"</code>{' '}
+        faz a faixa rolar. Sem a propriedade, nada muda. Vale só na horizontal e sem <code>fitted</code>: na vertical a lista
+        cresce para baixo, e com <code>fitted</code> as abas dividem a largura.
+      </dd>
+      <dt>Aba que fecha</dt>
+      <dd>
+        <code>closable</code> no item e <code>onClose</code> nas abas. Quem remove é quem usa: a aba some quando sai de{' '}
+        <code>items</code>, o que deixa pedir confirmação antes. Fechada a escolhida, a escolha e o foco vão à vizinha da
+        direita ou, na última, à da esquerda.
       </dd>
       <dt>Ativação automática</dt>
       <dd>Mover o foco com as setas troca o painel na hora, conforme o padrão do APG para painéis que carregam instantaneamente.</dd>
@@ -232,6 +304,19 @@ export const pagina: Pagina = {
     { key: 'resolvidos', label: 'Resolvidos', count: 1380, content: <Resolvidos /> },
     { key: 'arquivados', label: 'Arquivados', muted: true, content: <Arquivados /> },
   ]}
+/>`,
+    },
+    {
+      titulo: 'Registros abertos',
+      descricao: 'Abas abertas pela pessoa, que se fecham, com as que não cabem no menu "Mais".',
+      Previa: RegistrosAbertos,
+      codigo: `const [abertos, setAbertos] = useState(registros);
+
+<Tabs
+  label="Registros abertos"
+  overflow="menu"
+  items={abertos.map((r) => ({ key: r.id, label: r.nome, content: <Registro id={r.id} />, closable: true }))}
+  onClose={(key) => setAbertos((atuais) => atuais.filter((r) => r.id !== key))}
 />`,
     },
     {
@@ -291,10 +376,11 @@ export const pagina: Pagina = {
   Variantes,
   Modos,
   teclado: [
-    { teclas: ['Tab'], acao: 'Entra na aba atual; o próximo Tab vai ao painel.' },
+    { teclas: ['Tab'], acao: 'Entra na aba atual; o próximo Tab vai ao botão "Mais (N)", se houver, e depois ao painel.' },
     { teclas: ['→', '←'], acao: 'Na horizontal, vai à aba seguinte ou anterior, em círculo, pulando as desabilitadas.' },
     { teclas: ['↓', '↑'], acao: 'O mesmo, na vertical.' },
-    { teclas: ['Home', 'End'], acao: 'Vai à primeira ou à última aba habilitada.' },
+    { teclas: ['Home', 'End'], acao: 'Vai à primeira ou à última aba habilitada da faixa.' },
+    { teclas: ['Delete'], acao: 'Fecha a aba focada, quando ela tem closable.' },
   ],
   garantias: [
     { garantia: 'Pressão', como: <>A aba mostra <code>:active</code> em qualquer ponteiro, e o hover só onde o ponteiro paira.</>, teste: 'mobile.test.ts' },
@@ -306,13 +392,23 @@ export const pagina: Pagina = {
     { garantia: 'Setas, Home e End', como: 'Ativação automática, em círculo, pulando desabilitadas.', teste: 'Tabs.test.tsx' },
     { garantia: 'Orientação anunciada', como: <><code>aria-orientation</code> e o eixo das setas acompanham <code>orientation</code>.</>, teste: 'Tabs.test.tsx' },
     { garantia: 'Parada de Tab', como: 'Sempre uma aba alcançável, mesmo com a escolhida desabilitada ou ausente.', teste: 'Tabs.test.tsx' },
+    {
+      garantia: 'Escolhida à vista',
+      como: 'No menu de transbordo, a escolhida nunca fica oculta; vinda do menu, toma o lugar da última visível e recebe o foco.',
+      teste: 'Tabs.test.tsx',
+    },
+    {
+      garantia: 'Fechar sem perder o foco',
+      como: <>O × fica fora da árvore e do Tab; Delete fecha, a aba descreve "Delete para fechar" e o foco vai à vizinha.</>,
+      teste: 'Tabs.test.tsx',
+    },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div> e o ref, no elemento de fora.',
   api: [
     {
       nome: 'items',
       tipo: 'readonly TabItem[]',
-      descricao: <>Cada aba: <code>key</code>, <code>label</code>, <code>content</code>, <code>disabled</code>, <code>count</code> e <code>muted</code>.</>,
+      descricao: <>Cada aba: <code>key</code>, <code>label</code>, <code>content</code>, <code>disabled</code>, <code>count</code>, <code>muted</code> e <code>closable</code>.</>,
     },
     { nome: 'label', tipo: 'string', descricao: 'Obrigatório. Nome do tablist.' },
     { nome: 'selectedKey', tipo: 'string', descricao: 'Aba atual, no modo controlado.' },
@@ -323,6 +419,18 @@ export const pagina: Pagina = {
     { nome: 'actions', tipo: 'ReactNode', descricao: <>Ações ao lado das abas, fora do <code>tablist</code>.</> },
     { nome: 'fillHeight', tipo: 'boolean', padrao: 'false', descricao: 'O painel ocupa a altura que sobra e rola, também na vertical.' },
     { nome: 'items[].count', tipo: 'number', descricao: 'Selo depois do rótulo; entra no nome como "Rótulo, N".' },
+    {
+      nome: 'overflow',
+      tipo: "'scroll' | 'menu'",
+      descricao: <>As abas que não cabem: a faixa rola, ou vão para o botão "Mais (N)". Só na horizontal e sem <code>fitted</code>.</>,
+    },
+    { nome: 'onClose', tipo: '(key: string) => void', descricao: <>Pedido de fechar, pelo × ou pelo Delete. A aba some quando sai de <code>items</code>.</> },
+    {
+      nome: 'labels',
+      tipo: 'Partial<TabsLabels>',
+      descricao: <><code>closeHint</code> ("Delete para fechar"), <code>more</code> ("Mais (N)") e <code>moreMenu</code> ("Mais abas").</>,
+    },
+    { nome: 'items[].closable', tipo: 'boolean', descricao: <>Mostra o × e deixa o Delete fechar a aba; avisa <code>onClose</code>.</> },
     { nome: 'items[].muted', tipo: 'boolean', descricao: <>Aba de menor peso, com <code>data-muted</code>; continua no teclado.</> },
   ],
 };

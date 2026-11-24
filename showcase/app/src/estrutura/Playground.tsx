@@ -13,6 +13,7 @@ const MARCAS: Record<NivelDaVerificacao, string> = { ok: '✓', atencao: '!', fa
 
 /** Os mais recentes, numa caixa de altura fixa: hover dispara em rajada, e o painel nao pode crescer com ele. */
 const LIMITE_DE_EVENTOS = 6;
+let proximoEvento = 0;
 
 /** Opcoes curtas cabem lado a lado; as demais vao num `Select`. */
 function cabeLadoALado(opcoes: readonly string[]) {
@@ -181,7 +182,10 @@ export function Playground({ componente, definicao }: { componente: string; defi
 
   function registrar(nome: string) {
     const hora = new Date().toLocaleTimeString('pt-BR');
-    setEventos((atuais) => [{ hora, id: performance.now(), nome }, ...atuais].slice(0, LIMITE_DE_EVENTOS));
+    // Um contador, e não o relógio: dois eventos do mesmo clique caem no mesmo instante.
+    proximoEvento += 1;
+    const id = proximoEvento;
+    setEventos((atuais) => [{ hora, id, nome }, ...atuais].slice(0, LIMITE_DE_EVENTOS));
   }
 
   return (
