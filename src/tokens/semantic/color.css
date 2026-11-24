@@ -6,6 +6,7 @@
   --pl-color-surface-muted: #F1F2F4;
   --pl-color-border: #E9E9E9;
   --pl-color-border-strong: #DEDFE1;
+  --pl-control-border: #8F8F8F;
   --pl-color-text: var(--pl-neutral-graphite);
   --pl-color-text-secondary: var(--pl-neutral-gray);
   --pl-color-text-tertiary: #6E7175;
@@ -39,6 +40,7 @@
   --pl-color-surface-muted: #282B2F;
   --pl-color-border: #2C2F33;
   --pl-color-border-strong: #3A3E43;
+  --pl-control-border: #6A6F74;
   --pl-color-text: #E9EAEB;
   --pl-color-text-secondary: #A5A8AC;
   --pl-color-text-tertiary: #8E9297;
@@ -73,6 +75,7 @@
     --pl-color-surface-muted: #282B2F;
     --pl-color-border: #2C2F33;
     --pl-color-border-strong: #3A3E43;
+    --pl-control-border: #6A6F74;
     --pl-color-text: #E9EAEB;
     --pl-color-text-secondary: #A5A8AC;
     --pl-color-text-tertiary: #8E9297;

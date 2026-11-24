@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Incompatível
+
+- Borda dos controles a 3:1: token novo `--pl-control-border` (`#8F8F8F` no claro e `#6A6F74` no escuro, ao menos 3:1 contra a superfície e a página). Passa a ser a borda de `InputText`, `Textarea`, `Select`, `ComboBox`, `DatePicker`, `TimePicker`, `InputPassword`, da caixa do `Checkbox` e do `Radio`, da zona do `FileUpload`, da caixa e da busca da `List` e da classe de campo do `Field`. `--pl-control-border-hover` deriva dele. `--pl-color-border-strong` continua para divisas e gráficos, e o par "contorno do campo" sai das exceções aceitas do laudo. Para manter a borda clara, o produto redefine `--pl-control-border` (roadmap 0.8.0, item 1).
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado
