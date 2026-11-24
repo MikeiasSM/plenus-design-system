@@ -45,7 +45,7 @@
 }
 
 .input:checked {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-outline, var(--pl-color-primary));
   background: var(--pl-color-primary);
 }
 

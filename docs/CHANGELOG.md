@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `createPalette` declara `--pl-color-primary-outline`, com o traço, quando o preenchimento ou o fundo do hover do `Button` primário fica abaixo de 3:1 contra a superfície clara. `Switch` ligado, `Checkbox` marcado e `Button` primário o usam como borda; sem a declaração, nada muda (roadmap 0.8.0, item 26a).
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado

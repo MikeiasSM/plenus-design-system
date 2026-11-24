@@ -243,6 +243,8 @@ A regra de `createPalette`:
 - O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
 - A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
 
+- Quando o preenchimento, ou o fundo do hover do `Button` primario sob o texto, fica abaixo de 3:1 contra a superficie clara, a funcao declara `--pl-color-primary-outline` com o traco (`--pl-palette-strong-light`) no tema claro e o proprio preenchimento no escuro. O `Switch` ligado, o `Checkbox` marcado e o `Button` primario o usam como borda, transparente (ou o preenchimento) quando nao declarado. Assim, uma cor clara como o amarelo continua com fronteira de 3:1 (WCAG 1.4.11). As paletas fixas nao o declaram.
+
 A cor que vem de fora do codigo, como a escolhida pelo usuario, passa antes por `nearestPaletteColor(cor)`: a propria cor quando aceita, ou o tom aceito mais proximo, na mesma matiz. A recusa continua em `createPalette`, e o ajuste fica explicito em quem chama: `createPalette(nearestPaletteColor(cor))`.
 
 O texto sobre o preenchimento pode ser imposto pelo produto, com `createPalette(cor, { onSolid })`. A biblioteca aceita e, em desenvolvimento, avisa no console com a medida. A decisao fica registrada no codigo do produto, e o padrao da biblioteca continua acessivel.

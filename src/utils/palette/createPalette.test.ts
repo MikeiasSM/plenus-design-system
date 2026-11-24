@@ -163,3 +163,27 @@ describe('fill tokens under the primary text', () => {
     expect(color).toContain('--pl-color-primary-active: light-dark(var(--pl-palette-70), var(--pl-palette-20));');
   });
 });
+
+describe('outline of a faint fill (roadmap 26a)', () => {
+  it('declares the stroke as outline when the fill is below 3:1 on the light surface', () => {
+    const style = tokens('#EED037');
+
+    expect(contrast('#EED037', '#FFFFFF')).toBeLessThan(3);
+    expect(style['--pl-color-primary-outline']).toBe(`light-dark(${style['--pl-palette-strong-light']}, var(--pl-color-primary))`);
+    expect(contrast(style['--pl-palette-strong-light'], '#FFFFFF')).toBeGreaterThanOrEqual(3);
+  });
+
+  it('declares nothing when the fill and its hover stand out on the surface', () => {
+    expect(tokens('#111111')['--pl-color-primary-outline']).toBeUndefined();
+    expect(tokens('#49619C')['--pl-color-primary-outline']).toBeUndefined();
+  });
+
+  it('also looks at the hover fill of the primary Button', () => {
+    const style = tokens('#FF3B00');
+
+    expect(contrast('#FF3B00', '#FFFFFF')).toBeGreaterThanOrEqual(3);
+    const hover = style['--pl-palette-fill-hover']?.match(/#[0-9A-F]{6}/)?.[0] ?? style['--pl-palette-60'];
+    expect(style['--pl-color-primary-outline'] !== undefined).toBe(contrast(hover, '#FFFFFF') < 3);
+  });
+});
+
