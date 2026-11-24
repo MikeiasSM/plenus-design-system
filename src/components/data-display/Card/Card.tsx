@@ -286,13 +286,30 @@ export interface CardMediaProps extends Omit<ComponentPropsWithRef<'img'>, 'chil
 }
 
 /** Imagem do cartao. Cobre a area sem distorcer; sem imagem, some sem deixar buraco. */
-function CardMedia({ alt, className, onError, placement = 'top', ratio = placement === 'end' ? '1:1' : '16:9', src, ...props }: CardMediaProps) {
+function CardMedia({ src, ...props }: CardMediaProps) {
   useCardContext('Card.Media');
+
+  if (!src) {
+    return null;
+  }
+
+  // Cada endereco e uma imagem nova, que comeca sem falha: zerar a falha num efeito deixava um render vazio na troca
+  // de `src` depois de um erro, e a imagem nova so aparecia no render seguinte.
+  return <CardMediaImage key={src} {...props} src={src} />;
+}
+
+function CardMediaImage({
+  alt,
+  className,
+  onError,
+  placement = 'top',
+  ratio = placement === 'end' ? '1:1' : '16:9',
+  src,
+  ...props
+}: CardMediaProps & { src: string }) {
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => setFailed(false), [src]);
-
-  if (!src || failed) {
+  if (failed) {
     return null;
   }
 

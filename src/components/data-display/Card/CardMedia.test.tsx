@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { Profiler } from 'react';
 import { Card } from './Card';
 import styles from './Card.module.css';
 
@@ -42,6 +43,27 @@ describe('Card.Media', () => {
 
     expect(onError).toHaveBeenCalledOnce();
     expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('trocado o endereco depois de uma falha, desenha a imagem nova ja no render da troca, sem um quadro vazio', () => {
+    const commits: number[] = [];
+    const cartao = (src: string) => (
+      <Profiler id="cartao" onRender={() => commits.push(document.querySelectorAll('img').length)}>
+        <Card>
+          <Card.Media alt="Produto A" src={src} />
+        </Card>
+      </Profiler>
+    );
+    const { container, rerender } = render(cartao('/quebrada.jpg'));
+
+    fireEvent.error(container.querySelector('img')!);
+    expect(container.querySelector('img')).toBeNull();
+
+    commits.length = 0;
+    rerender(cartao('/produto-a.jpg'));
+
+    expect(screen.getByRole('img', { name: 'Produto A' })).toHaveAttribute('src', '/produto-a.jpg');
+    expect(commits).toEqual([1]);
   });
 
   it('no fim da linha, e quadrada por padrao', () => {
