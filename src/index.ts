@@ -68,7 +68,7 @@ export type {
   ToolbarPlacement,
   ToolbarProps,
 } from './components/actions/Toolbar';
-export type { ButtonIconProps } from './components/actions/ButtonIcon';
+export type { ButtonIconProps, ButtonIconSize } from './components/actions/ButtonIcon';
 export { Field } from './components/forms/Field';
 export type { FieldProps, FieldSize, FieldWiring } from './components/forms/Field';
 export { Label } from './components/forms/Label';
@@ -85,7 +85,7 @@ export { Textarea } from './components/forms/Textarea';
 export type { TextareaProps, TextareaSize } from './components/forms/Textarea';
 export { Checkbox } from './components/forms/Checkbox';
 export { CheckboxGroup } from './components/forms/CheckboxGroup';
-export type { CheckboxGroupOrientation, CheckboxGroupProps } from './components/forms/CheckboxGroup';
+export type { CheckboxGroupOrientation, CheckboxGroupProps, CheckboxGroupVariant } from './components/forms/CheckboxGroup';
 export { ColorPicker } from './components/forms/ColorPicker';
 export type { ColorPickerOption, ColorPickerProps, ColorPickerSize } from './components/forms/ColorPicker';
 export { FileUpload } from './components/forms/FileUpload';
@@ -93,12 +93,13 @@ export type {
   FileRejection,
   FileRejectionReason,
   FileUploadItem,
+  FileUploadLabels,
   FileUploadProps,
   FileUploadStatus,
 } from './components/forms/FileUpload';
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
-export type { RadioGroupOrientation, RadioGroupProps, RadioProps } from './components/forms/RadioGroup';
+export type { RadioGroupOrientation, RadioGroupProps, RadioGroupVariant, RadioProps } from './components/forms/RadioGroup';
 export { SegmentedControl } from './components/forms/SegmentedControl';
 export type {
   SegmentedControlItem,
@@ -108,7 +109,7 @@ export type {
 export { Switch } from './components/forms/Switch';
 export type { SwitchProps } from './components/forms/Switch';
 export { FieldRow } from './components/forms/FieldRow';
-export type { FieldRowProps, FieldRowWiring } from './components/forms/FieldRow';
+export type { FieldRowAlign, FieldRowProps, FieldRowWiring } from './components/forms/FieldRow';
 export { SaveBar } from './components/forms/SaveBar';
 export type { SaveBarProps } from './components/forms/SaveBar';
 export { SaveStatus } from './components/forms/SaveStatus';
@@ -137,7 +138,7 @@ export type { PortalProviderProps } from './components/overlays/Portal';
 export { Popover } from './components/overlays/Popover';
 export type { PopoverProps, PopoverPlacement } from './components/overlays/Popover';
 export { Tabs } from './components/navigation/Tabs';
-export type { TabsProps, TabItem, TabsOrientation } from './components/navigation/Tabs';
+export type { TabsProps, TabItem, TabsAppearance, TabsOrientation } from './components/navigation/Tabs';
 export { TabsNav } from './components/navigation/TabsNav';
 export type { TabsNavItem, TabsNavProps } from './components/navigation/TabsNav';
 export { Breadcrumb } from './components/navigation/Breadcrumb';
@@ -155,7 +156,7 @@ export type {
 } from './components/navigation/PageHeader';
 export { LinkList } from './components/navigation/LinkList';
 export type { LinkListItemProps, LinkListLayout, LinkListProps, LinkListTone } from './components/navigation/LinkList';
-export { Pagination } from './components/navigation/Pagination';
+export { Pagination, formatPaginationRange } from './components/navigation/Pagination';
 export type { PaginationProps, PaginationRange } from './components/navigation/Pagination';
 export { AppShell } from './components/navigation/AppShell';
 export { Sidebar, SidebarProvider, useSidebar } from './components/navigation/Sidebar';
@@ -196,9 +197,9 @@ export type {
 export { SkipLink } from './components/navigation/SkipLink';
 export type { SkipLinkProps } from './components/navigation/SkipLink';
 export { Steps } from './components/navigation/Steps';
-export type { StepItem, StepsProps } from './components/navigation/Steps';
+export type { StepItem, StepsLayout, StepsProps } from './components/navigation/Steps';
 export { Accordion } from './components/data-display/Accordion';
-export type { AccordionHeadingLevel, AccordionProps, AccordionItem, AccordionIconPosition } from './components/data-display/Accordion';
+export type { AccordionAppearance, AccordionHeaderStyle, AccordionHeadingLevel, AccordionIconPosition, AccordionIndicator, AccordionItem, AccordionProps } from './components/data-display/Accordion';
 export { Select } from './components/forms/Select';
 export type { SelectProps, SelectOption, SelectSize } from './components/forms/Select';
 export { ComboBox } from './components/forms/ComboBox';
@@ -216,7 +217,7 @@ export type { MenuItem, MenuProps, MenuSection } from './components/overlays/Men
 export { Tooltip } from './components/overlays/Tooltip';
 export type { TooltipProps, TooltipPlacement } from './components/overlays/Tooltip';
 export { Dialog } from './components/overlays/Dialog';
-export type { DialogProps, DialogRole, DialogSize } from './components/overlays/Dialog';
+export type { DialogPlacement, DialogProps, DialogRole, DialogSize } from './components/overlays/Dialog';
 export { Drawer } from './components/overlays/Drawer';
 export type { DrawerProps, DrawerSide, DrawerSize } from './components/overlays/Drawer';
 export { SidePanel } from './components/overlays/SidePanel';
@@ -224,7 +225,7 @@ export type { SidePanelProps, SidePanelSide, SidePanelSize } from './components/
 export { Badge } from './components/data-display/Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './components/data-display/Badge';
 export { Tag } from './components/data-display/Tag';
-export type { TagProps, TagSize } from './components/data-display/Tag';
+export type { TagAppearance, TagProps, TagSize } from './components/data-display/Tag';
 export { Avatar } from './components/data-display/Avatar';
 export type { AvatarProps, AvatarSize } from './components/data-display/Avatar';
 export { AvatarItem } from './components/data-display/AvatarItem';
@@ -286,6 +287,7 @@ export type {
   TableCellProps,
   TableColumnProps,
   TableHeaderProps,
+  TableHideBelow,
   TableProps,
   TableRowItem,
   TableRowProps,
@@ -293,6 +295,7 @@ export type {
   TableSelectionMode,
   TableSize,
   TableSort,
+  TableSurface,
   TableToolbarProps,
 } from './components/data-display/Table';
 export {

@@ -99,8 +99,16 @@ function keyframesOrfaos(css) {
 function variaveisSemDefinicao(css) {
   const definidas = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
 
-  return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1]))].filter((nome) => !definidas.has(nome));
+  return [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1]))].filter(
+    (nome) => !definidas.has(nome) && !GANCHOS_SEM_RESERVA.has(nome),
+  );
 }
+
+/**
+ * Ganchos públicos lidos de propósito sem valor reserva: indefinidos, tornam inválida a variável privada que os usa, e a
+ * regra cai no padrão do componente. Cada um está documentado no catálogo.
+ */
+const GANCHOS_SEM_RESERVA = new Set(['--pl-field-row-label-width']);
 
 /** Seletor sem classe no CSS dos componentes reescreve a pagina do hospedeiro; o lugar dele e o `reset.css`. */
 function seletoresDePagina(css) {

@@ -236,8 +236,11 @@ export interface SidebarItemProps extends Omit<SidebarActionProps, 'aria-label' 
   onExpandedChange?: (expanded: boolean) => void;
   /** Complemento ao fim da linha, como uma contagem. */
   trailing?: ReactNode;
-  /** Identidade estável do item, que o caminho da pilha (`enteredPath`) usa. Também vai ao elemento, como antes. */
-  value?: string;
+  /**
+   * Identidade estável do item, que o caminho da pilha (`enteredPath`) usa como texto (`String(value)`). Também vai ao
+   * elemento, como antes; o tipo é o do `value` de um botão.
+   */
+  value?: string | number | readonly string[];
 }
 
 export function SidebarItem({ children, ...props }: SidebarItemProps) {
@@ -393,7 +396,7 @@ function StackedBranch({
   const { icons } = useSidebarContext();
   const { ancestors, label: parentLabel, stack } = useSidebarLevel();
   const generatedId = useId();
-  const id = value ?? generatedId;
+  const id = value === undefined ? generatedId : String(value);
   const depth = ancestors.length;
   const chain = [...ancestors, id];
   const onPath = stack.path[depth] === id && ancestors.every((ancestor, index) => stack.path[index] === ancestor);
