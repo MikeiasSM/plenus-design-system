@@ -198,6 +198,7 @@ A identidade de marca chega aos tokens semanticos por uma paleta ativa, o contra
 | `--pl-palette-strong-dark` | Traco no tema escuro, com o mesmo minimo |
 | `--pl-palette-fill-hover` | Opcional. Fundo do hover sob o texto, quando o texto nao se le sobre o passo 60 |
 | `--pl-palette-fill-active` | Opcional. Fundo do pressionado sob o texto, quando o texto nao se le sobre o passo 70 |
+| `--pl-color-primary-outline` | Opcional. Borda do preenchimento no `Switch` ligado e no `Checkbox` marcado, quando o preenchimento fica abaixo de 3:1 contra a superficie clara. Cada escopo de `data-palette` o zera |
 
 O CSS nao mede contraste, por isso o texto e o traco sao declarados, e nao calculados.
 
@@ -211,6 +212,7 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 | `color.primary-fill-hover` | `palette.fill-hover`; sem ele, `color.primary-hover` | `palette.30` |
 | `color.primary-fill-active` | `palette.fill-active`; sem ele, `color.primary-active` | `palette.20` |
 | `color.primary-strong` | `palette.strong-light` | `palette.strong-dark` |
+| `color.primary-outline` | Declarado pela paleta propria de preenchimento fraco: `palette.strong-light`; sem ele, `color.primary` | `color.primary` |
 | `color.primary-container` | `palette.10` | `palette.40` a 16% sobre a superficie |
 | `color.primary-selected` | `palette.20` | `palette.40` a 26% sobre a superficie |
 | `color.primary-line` | `palette.30` | `palette.40` a 34% sobre a superficie |
@@ -242,8 +244,7 @@ A regra de `createPalette`:
 - Quando esse texto fica abaixo de 4,5:1 sobre o passo 60 ou o 70 da rampa, a funcao declara `--pl-palette-fill-hover` e `--pl-palette-fill-active`: o proprio preenchimento, com a luminosidade OKLCH afastada do texto, 0,05 no hover e 0,09 no pressionado, mais claro sob o texto escuro e mais escuro sob o claro. No tema escuro eles seguem nos passos 30 e 20, como antes. Sem eles, `color.primary-fill-hover` e `color.primary-fill-active` valem o hover e o pressionado de sempre.
 - O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
 - A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
-
-- Quando o preenchimento, ou o fundo do hover do `Button` primario sob o texto, fica abaixo de 3:1 contra a superficie clara, a funcao declara `--pl-color-primary-outline` com o traco (`--pl-palette-strong-light`) no tema claro e o proprio preenchimento no escuro. O `Switch` ligado, o `Checkbox` marcado e o `Button` primario o usam como borda, transparente (ou o preenchimento) quando nao declarado. Assim, uma cor clara como o amarelo continua com fronteira de 3:1 (WCAG 1.4.11). As paletas fixas nao o declaram.
+- Quando o preenchimento fica abaixo de 3:1 contra a superficie clara, a funcao declara `--pl-color-primary-outline` com o traco (`--pl-palette-strong-light`) no tema claro e o proprio preenchimento no escuro. O `Switch` ligado e o `Checkbox` marcado o usam como borda; sem a declaracao, a borda e o proprio preenchimento. Assim, uma cor clara como o amarelo continua com fronteira de 3:1 (WCAG 1.4.11). O criterio olha so o preenchimento em repouso: o hover e o pressionado ficam sob o texto do `Button` primario, que nao exige fronteira de 3:1. As paletas fixas nao o declaram, e cada escopo de `data-palette` o zera, para a paleta aninhada nao herdar o contorno da de fora.
 
 A cor que vem de fora do codigo, como a escolhida pelo usuario, passa antes por `nearestPaletteColor(cor)`: a propria cor quando aceita, ou o tom aceito mais proximo, na mesma matiz. A recusa continua em `createPalette`, e o ajuste fica explicito em quem chama: `createPalette(nearestPaletteColor(cor))`.
 

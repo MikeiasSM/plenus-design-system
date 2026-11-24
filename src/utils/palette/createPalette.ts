@@ -73,7 +73,6 @@ function fillStates(solid: string, ramp: readonly string[], text: string): Recor
 
 /** O preenchimento afastado do texto em luminosidade: mais claro sob o texto escuro e mais escuro sob o claro. */
 function shiftedFills(solid: string, text: string) {
-
   const oklch = toOklch(solid);
   const direction = luminance(text) < luminance(solid) ? 1 : -1;
   const shifted = (shift: number) => oklchToHex({ ...oklch, L: Math.min(1, Math.max(0, oklch.L + direction * shift)) });
@@ -81,21 +80,20 @@ function shiftedFills(solid: string, text: string) {
   return { active: shifted(FILL_ACTIVE_SHIFT), hover: shifted(FILL_HOVER_SHIFT) };
 }
 
-/** O fundo do hover do `Button` primario sob o texto, no tema claro: o passo 60, ou o deslocado quando o texto nao se le nele. */
-function hoverFill(solid: string, ramp: readonly string[], text: string) {
-  return contrast(text, ramp[5]) >= TEXT_MINIMUM && contrast(text, ramp[6]) >= TEXT_MINIMUM ? ramp[5] : shiftedFills(solid, text).hover;
-}
-
 /**
- * Contorno do preenchimento. Quando a cor, ou o hover do `Button` sob o texto, fica abaixo de 3:1 contra a superficie
- * clara, o `Switch` ligado, o `Checkbox` marcado e o `Button` primario somem na superficie (WCAG 1.4.11). Entao a paleta
- * declara `--pl-color-primary-outline` no traco, que os tres usam como borda. No tema escuro a borda e o proprio
- * preenchimento. Sem a declaracao, a borda e transparente.
+ * Contorno do preenchimento. Quando a cor fica abaixo de 3:1 contra a superficie clara, o `Switch` ligado e o
+ * `Checkbox` marcado somem na superficie (WCAG 1.4.11). Entao a paleta declara `--pl-color-primary-outline` no traco,
+ * que os dois usam como borda. No tema escuro a borda e o proprio preenchimento. Sem a declaracao, a borda e o
+ * preenchimento, e cada escopo de `data-palette` a zera, para a paleta aninhada nao herdar a de fora.
+ *
+ * O criterio olha so o preenchimento em repouso. O fundo do hover e do pressionado (`--pl-palette-fill-*`) fica so
+ * sob o texto do `Button` primario, e botao com texto nao exige fronteira de 3:1; nenhum controle sem texto pinta o
+ * hover ou o pressionado. Se um passar a pintar, os dois entram aqui.
  */
-function outlineOf(solid: string, ramp: readonly string[], text: string, strong: string): Record<string, string> {
-  const faint = contrast(solid, LIGHT_SURFACE) < CONTROL_MINIMUM || contrast(hoverFill(solid, ramp, text), LIGHT_SURFACE) < CONTROL_MINIMUM;
-
-  return faint ? { '--pl-color-primary-outline': `light-dark(${strong}, var(--pl-color-primary))` } : {};
+function outlineOf(solid: string, strong: string): Record<string, string> {
+  return contrast(solid, LIGHT_SURFACE) < CONTROL_MINIMUM
+    ? { '--pl-color-primary-outline': `light-dark(${strong}, var(--pl-color-primary))` }
+    : {};
 }
 
 /** Primeiro passo, a partir de `start` e na direcao dada, que se le contra a superficie. */
@@ -181,7 +179,7 @@ export function createPalette(color: string, { onSolid }: CreatePaletteOptions =
       '--pl-palette-strong-light': strongLight,
       '--pl-palette-strong-dark': strongFrom(ramp, 3, -1, DARK_SURFACE),
       ...fillStates(solid, ramp, textOnSolid),
-      ...outlineOf(solid, ramp, textOnSolid, strongLight),
+      ...outlineOf(solid, strongLight),
     } as CSSProperties,
   };
 }
