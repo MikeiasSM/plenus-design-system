@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `CopyField`: valor copiável, com rótulo, valor em fonte mono, botão "Copiar" que passa a "Copiado" e anuncia como status, e valor oculto opcional (`masked`) com "Mostrar".
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado
