@@ -364,6 +364,34 @@ describe('TabsNav', () => {
       }
     });
 
+    it('sem current, guarda a secao sozinha a partir de defaultCurrent e acompanha a rolagem', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: 48, avisos: 400, acesso: 900 });
+      const onCurrentChange = vi.fn();
+      render(<TabsNav defaultCurrent="geral" followScroll items={secoes} label="Seções" onCurrentChange={onCurrentChange} />);
+      expect(screen.getByRole('link', { name: 'Geral' })).toHaveAttribute('aria-current', 'location');
+
+      posicoes.secoes = { geral: -600, avisos: 10, acesso: 300 };
+      fireEvent.scroll(document);
+      rodarQuadros();
+
+      expect(screen.getByRole('link', { name: 'Avisos' })).toHaveAttribute('aria-current', 'location');
+      expect(screen.getByRole('link', { name: 'Geral' })).not.toHaveAttribute('aria-current');
+      expect(onCurrentChange).toHaveBeenCalledWith('avisos');
+    });
+
+    it('com current, a aba so muda quando quem usa atualiza o current', () => {
+      posicoes.barra = 48;
+      montarSecoes({ geral: 48, avisos: 400, acesso: 900 });
+      render(<TabsNav current="geral" followScroll items={secoes} label="Seções" />);
+
+      posicoes.secoes = { geral: -600, avisos: 10, acesso: 300 };
+      fireEvent.scroll(document);
+      rodarQuadros();
+
+      expect(screen.getByRole('link', { name: 'Geral' })).toHaveAttribute('aria-current', 'location');
+    });
+
     it('sem followScroll, nao observa a rolagem', () => {
       montarSecoes({ geral: -400, avisos: -10, acesso: 600 });
       const onCurrentChange = vi.fn();

@@ -1,4 +1,13 @@
-import { useEffect, useRef, type ComponentPropsWithRef, type ElementType, type MouseEvent, type ReactNode, type RefObject } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type ElementType,
+  type MouseEvent,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { TabLabel, temAcoes, type TabsAppearance } from '../Tabs/Tabs';
 import tabsStyles from '../Tabs/Tabs.module.css';
@@ -23,8 +32,13 @@ export interface TabsNavProps extends Omit<ComponentPropsWithRef<'nav'>, 'aria-l
   appearance?: TabsAppearance;
   /** Componente de link da aplicação, para não acoplar o sistema a um roteador. */
   as?: ElementType;
-  /** Chave da aba do endereço atual. Com `followScroll`, a da seção visível. */
-  current: string;
+  /**
+   * Chave da aba do endereço atual. Com `followScroll`, a da seção visível: quem passa `current` controla a aba e
+   * precisa atualizá-la em `onCurrentChange`; sem ele, a barra guarda a seção sozinha, a partir de `defaultCurrent`.
+   */
+  current?: string;
+  /** Sem `current`, a chave da aba atual no início. Com `followScroll`, a rolagem a troca. Por padrão, a primeira. */
+  defaultCurrent?: string;
   /** As abas dividem a largura em partes iguais, em vez de ficar do tamanho do rótulo. */
   fitted?: boolean;
   /**
@@ -154,7 +168,8 @@ export function TabsNav({
   appearance = 'underline',
   as: Link = 'a',
   className,
-  current,
+  current: currentControlado,
+  defaultCurrent,
   fitted = false,
   followScroll = false,
   items,
@@ -170,8 +185,15 @@ export function TabsNav({
   const listaRef = useRef<HTMLUListElement>(null);
   const abaAtualRef = useRef<HTMLLIElement>(null);
   const navRef = useMergedRefs(barraRef, ref);
+  const [currentInterno, setCurrentInterno] = useState(defaultCurrent ?? items[0]?.key);
+  const current = currentControlado ?? currentInterno;
 
-  useScrollSpy(followScroll, items, barraRef, current, (chave) => onCurrentChange?.(chave));
+  useScrollSpy(followScroll, items, barraRef, current, (chave) => {
+    if (currentControlado === undefined) {
+      setCurrentInterno(chave);
+    }
+    onCurrentChange?.(chave);
+  });
 
   // A aba atual vem para o meio da barra, sem mexer na rolagem da página e sem animação para quem pede menos movimento.
   useEffect(() => {
