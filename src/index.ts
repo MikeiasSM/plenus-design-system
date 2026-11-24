@@ -75,6 +75,8 @@ export { Label } from './components/forms/Label';
 export type { LabelProps } from './components/forms/Label';
 export { InputText } from './components/forms/InputText';
 export type { InputMask, InputTextProps, InputTextSize } from './components/forms/InputText';
+export { InputCode } from './components/forms/InputCode';
+export type { InputCodeProps } from './components/forms/InputCode';
 export { InputNumber } from './components/forms/InputNumber';
 export type { InputNumberProps } from './components/forms/InputNumber';
 export { InputPassword } from './components/forms/InputPassword';

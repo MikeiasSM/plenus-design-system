@@ -59,6 +59,7 @@ A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação
 | `Field` | Cromo de campo: rótulo, ajuda, erro, contador e a fiação entre eles. | Disponível |
 | `Label` | Rótulo associado a um controle. | Disponível |
 | `InputText` | Entrada de texto de linha única. | Disponível |
+| `InputCode` | Código de uso único: um campo só, desenhado como casas, com teclado numérico e preenchimento automático. | Disponível |
 | `InputNumber` | Entrada numérica, inteira ou decimal. | Disponível |
 | `InputPassword` | Entrada de senha, com revelação explícita. | Disponível |
 | `InputCurrency` | Entrada monetária. | Disponível |
@@ -127,6 +128,8 @@ O `ColorPicker` escolhe entre amostras que o produto define, cada uma com nome �
 O tamanho das amostras e o espaço entre elas vêm do `size`, e o produto os ajusta por duas variáveis definidas em qualquer ancestral: `--pl-color-picker-size`, o diâmetro da amostra (20, 28 ou 36px por padrão), e `--pl-color-picker-gap`, o espaço entre elas (`--pl-space-2` no `sm`, `--pl-space-3` no `md` e no `lg`). O componente só as lê, com o valor do `size` como padrão. Com o dedo como ponteiro, o espaço continua crescendo para a área de toque de 44px.
 
 O `FileUpload` cuida da escolha dos arquivos e da lista que mostra o andamento, e não envia nada: o produto recebe os arquivos aceitos, faz o envio e informa a cada item o progresso, a conclusão ou o erro. Tipo e tamanho são conferidos na escolha, e o que for recusado volta ao produto com o motivo. Quem não arrasta escolhe pelo seletor de arquivos nativo, que é o que recebe o foco.
+
+O `InputCode` é o campo do código de uso único que chega por SMS ou e-mail. É um campo só, desenhado como `length` casas (6 por padrão), e o leitor de tela ouve um campo, "Código de 6 dígitos", e não seis; `label` troca o nome. Abre o teclado numérico (`inputmode="numeric"`), aceita o preenchimento automático do código (`autocomplete="one-time-code"`) e a colagem do código inteiro, com espaços e traços tirados. Guarda só dígitos, até `length`. `onValueChange` recebe os dígitos a cada mudança e `onComplete`, o código quando a última casa é preenchida. O erro aparece embaixo, em texto, como nos outros campos, e as casas ficam com a borda de erro.
 
 Com `acceptPaste`, o `FileUpload` recebe também o arquivo colado, como uma captura de tela copiada, pela mesma conferência de tipo e tamanho. Só o colar com o foco dentro do componente chega a ele, e o `onPaste` do consumidor continua sendo chamado. `labels` troca os textos da zona, `instruction` e `button`. `hideLabel` tira o rótulo da vista, e ele continua nomeando o seletor. `showRestrictions={false}` tira da vista a linha dos tipos e do limite, que segue na descrição do seletor. Em cada item, `statusLabel` vence "Enviando" e "Enviado", como "Processando"; enviando, ele também nomeia a barra de progresso, que fica indeterminada sem `progress`.
 
