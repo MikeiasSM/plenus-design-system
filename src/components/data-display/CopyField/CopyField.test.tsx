@@ -10,19 +10,19 @@ function mockClipboard() {
 
 describe('CopyField', () => {
   it('shows the label and the value, grouped under the label', () => {
-    render(<CopyField label="client_id" value="ipe-am" />);
+    render(<CopyField label="client_id" value="loja-exemplo" />);
 
-    expect(screen.getByRole('group', { name: 'client_id' })).toHaveTextContent('ipe-am');
+    expect(screen.getByRole('group', { name: 'client_id' })).toHaveTextContent('loja-exemplo');
   });
 
   it('copies, says "Copiado" and announces it as status', async () => {
     const writeText = mockClipboard();
     const onCopy = vi.fn();
-    render(<CopyField label="Link da loja" onCopy={onCopy} value="https://ipe.plenusdelivery.com.br" />);
+    render(<CopyField label="Link da loja" onCopy={onCopy} value="https://exemplo.com/loja" />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Copiar' }));
 
-    expect(writeText).toHaveBeenCalledWith('https://ipe.plenusdelivery.com.br');
+    expect(writeText).toHaveBeenCalledWith('https://exemplo.com/loja');
     expect(onCopy).toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Copiado' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Link da loja copiado');
@@ -31,7 +31,7 @@ describe('CopyField', () => {
   it('goes back to "Copiar" after a few seconds', async () => {
     vi.useFakeTimers();
     mockClipboard();
-    render(<CopyField label="client_id" value="ipe-am" />);
+    render(<CopyField label="client_id" value="loja-exemplo" />);
 
     await act(async () => screen.getByRole('button', { name: 'Copiar' }).click());
     expect(screen.getByRole('button', { name: 'Copiado' })).toBeInTheDocument();
@@ -43,16 +43,16 @@ describe('CopyField', () => {
 
   it('hides a masked value from the DOM but still copies it whole', async () => {
     const writeText = mockClipboard();
-    const { container } = render(<CopyField label="client_secret" masked value="plt_8f2kQ9xLm4" />);
+    const { container } = render(<CopyField label="client_secret" masked value="chave_exemplo_123" />);
 
-    expect(container).not.toHaveTextContent('plt_8f2kQ9xLm4');
+    expect(container).not.toHaveTextContent('chave_exemplo_123');
     expect(screen.getByText('Valor oculto')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Copiar' }));
-    expect(writeText).toHaveBeenCalledWith('plt_8f2kQ9xLm4');
+    expect(writeText).toHaveBeenCalledWith('chave_exemplo_123');
 
     await userEvent.click(screen.getByRole('button', { name: 'Mostrar' }));
-    expect(container).toHaveTextContent('plt_8f2kQ9xLm4');
+    expect(container).toHaveTextContent('chave_exemplo_123');
     expect(screen.getByRole('button', { name: 'Ocultar' })).toBeInTheDocument();
   });
 });
