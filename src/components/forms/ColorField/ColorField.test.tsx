@@ -178,4 +178,34 @@ describe('ColorField', () => {
     expect(screen.getByLabelText('Cor da marca')).toHaveValue('#E85D1F');
     expect(screen.getByRole('radio', { name: 'Laranja do logo' })).toBeChecked();
   });
+
+  it('não recria o campo quando o conta-gotas aparece, e o autoFocus fica', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const campos = new Set<HTMLInputElement>();
+    render(
+      <ColorField autoFocus label="Cor da marca" ref={(campo) => void (campo && campos.add(campo))} />,
+    );
+
+    await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+
+    expect(campos.size).toBe(1);
+    expect(screen.getByLabelText('Cor da marca')).toHaveFocus();
+  });
+
+  it('as amostras e o conta-gotas acompanham o size do campo', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    render(<ColorField label="Cor da marca" size="lg" suggestions={[{ color: '#E85D1F', label: 'Laranja do logo' }]} />);
+
+    const contaGotas = await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+    expect(contaGotas.className).toMatch(/md/);
+    expect(screen.getByRole('radiogroup').className).toMatch(/lg/);
+  });
 });

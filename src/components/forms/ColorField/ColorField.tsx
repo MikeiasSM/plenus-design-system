@@ -113,6 +113,7 @@ export function ColorField(allProps: ColorFieldProps) {
   }
 
   // Desabilitado ou só de leitura, nem o conta-gotas nem as amostras mudam a cor: só o texto do campo seria pouco.
+  const size = props.size ?? 'md';
   const locked = Boolean(props.disabled || props.readOnly);
   const color = normalizeHex(text);
   const invalid = touched && text.trim() !== '' && color === null;
@@ -172,10 +173,19 @@ export function ColorField(allProps: ColorFieldProps) {
         {...props}
         autoCapitalize="characters"
         autoComplete="off"
+        // A fenda fica sempre montada, vazia sem conta-gotas: trocar a estrutura do InputText depois da montagem
+        // recriaria o <input> e tiraria dele o foco e o autoFocus.
         end={
           hasEyeDropper ? (
-            <ButtonIcon disabled={locked} icon={<IconEyedropper />} label={eyedropperLabel} onClick={() => void pick()} size="sm" variant="ghost" />
-          ) : undefined
+            <ButtonIcon
+              disabled={locked}
+              icon={<IconEyedropper />}
+              label={eyedropperLabel}
+              onClick={() => void pick()}
+              size={size === 'lg' ? 'md' : 'sm'}
+              variant="ghost"
+            />
+          ) : null
         }
         error={error ?? (invalid ? invalidMessage : undefined)}
         icon={<span className={styles.chip} data-empty={color ? undefined : ''} style={color ? { backgroundColor: color } : undefined} />}
@@ -203,7 +213,7 @@ export function ColorField(allProps: ColorFieldProps) {
             }
           }}
           options={options}
-          size="sm"
+          size={size}
           value={chosen}
         />
       )}
