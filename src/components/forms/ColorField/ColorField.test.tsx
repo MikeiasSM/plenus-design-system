@@ -223,4 +223,38 @@ describe('ColorField', () => {
     const dados = new FormData(screen.getByTestId('formulario') as HTMLFormElement);
     expect([...dados.entries()]).toEqual([['cor', '#E85D1F']]);
   });
+
+  it('colar um código com espaços preenche o campo inteiro, normalizado', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.click(input);
+    await userEvent.paste('  #e85d1f');
+
+    expect(input).toHaveValue('#E85D1F');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+  });
+
+  it('junta as sugestões da mesma cor e deixa de fora a inválida, com aviso', () => {
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const erro = vi.spyOn(console, 'error');
+    render(
+      <ColorField
+        label="Cor da marca"
+        suggestions={[
+          { color: '#e85d1f', label: 'Laranja do logo' },
+          { color: 'E85D1F', label: 'Laranja de novo' },
+          { color: 'laranja', label: 'Sem código' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByRole('radio').map((radio) => radio.getAttribute('value'))).toEqual(['#E85D1F', '#2E2A26']);
+    expect(aviso).toHaveBeenCalledWith(expect.stringContaining('laranja'));
+    expect(erro).not.toHaveBeenCalled();
+    aviso.mockRestore();
+    erro.mockRestore();
+  });
 });

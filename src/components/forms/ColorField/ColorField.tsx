@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState, type FocusEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ClipboardEvent, type FocusEvent } from 'react';
+import { isDevelopment } from '../../../utils/isDevelopment';
 import { ButtonIcon } from '../../actions/ButtonIcon';
 import { Icon } from '../../icons/Icon';
 import { ColorPicker, type ColorPickerOption } from '../ColorPicker';
@@ -61,6 +62,24 @@ export function normalizeHex(text: string): string | null {
 /** Se o texto corresponde ao valor: `null` só corresponde ao campo vazio. */
 function matches(text: string, value: string | null | undefined) {
   return value == null ? text.trim() === '' : normalizeHex(text) === normalizeHex(value);
+}
+
+/** As amostras normalizadas: a cor repetida fica só na primeira, e a que não é hexadecimal fica de fora. */
+function suggestionOptions(suggestions: readonly ColorFieldSuggestion[]) {
+  const options: ColorPickerOption[] = [];
+  const rejected: string[] = [];
+
+  for (const suggestion of suggestions) {
+    const color = normalizeHex(suggestion.color);
+
+    if (!color) {
+      rejected.push(suggestion.color);
+    } else if (!options.some((option) => option.value === color)) {
+      options.push({ color, label: suggestion.label, value: color });
+    }
+  }
+
+  return { options, rejected };
 }
 
 function getEyeDropper(): EyeDropperConstructor | undefined {
@@ -160,11 +179,15 @@ export function ColorField(allProps: ColorFieldProps) {
     }
   }
 
-  const options: ColorPickerOption[] = (suggestions ?? []).map((suggestion) => ({
-    color: suggestion.color,
-    label: suggestion.label,
-    value: normalizeHex(suggestion.color) ?? suggestion.color,
-  }));
+  const { options, rejected } = suggestionOptions(suggestions ?? []);
+  const rejectedKey = rejected.join(', ');
+
+  useEffect(() => {
+    if (rejectedKey && isDevelopment()) {
+      console.warn(`ColorField "${label}": sugestões fora do formato #RRGGBB ficam de fora: ${rejectedKey}.`);
+    }
+  }, [label, rejectedKey]);
+
   const chosen = options.some((option) => option.value === color) ? color : null;
 
   return (
@@ -195,6 +218,17 @@ export function ColorField(allProps: ColorFieldProps) {
           setTouched(true);
           commitShortCode();
           onBlur?.(event);
+        }}
+        onPaste={(event: ClipboardEvent<HTMLInputElement>) => {
+          props.onPaste?.(event);
+          // O código colado com espaços ou de outro jeito, como "  #e85d1f", passaria do maxLength e seria cortado:
+          // valendo, ele entra inteiro e já normalizado.
+          const pasted = normalizeHex(event.clipboardData.getData('text'));
+
+          if (pasted && !event.defaultPrevented && !locked) {
+            event.preventDefault();
+            commit(pasted);
+          }
         }}
         onValueChange={commit}
         placeholder={props.placeholder ?? '#RRGGBB'}
