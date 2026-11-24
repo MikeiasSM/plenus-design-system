@@ -10,8 +10,11 @@ import {
   IconSliders,
   IconStar,
   IconStructure,
+  InputText,
+  PortalProvider,
   Sidebar,
   SidebarProvider,
+  createPalette,
   type SidebarAccountMode,
   type SidebarNestedMode,
   type SidebarSide,
@@ -202,6 +205,90 @@ function MolduraPropria() {
   );
 }
 
+const REGIOES = ['Norte', 'Sul', 'Leste'];
+
+/**
+ * A pilha em vários níveis, com o caminho controlado: Painéis leva a Por região, que leva às regiões. O submenu segue o item atual
+ * (`followCurrent`), e a página mostra o caminho e leva a um item de fora da pilha.
+ */
+function PilhaEmVariosNiveis() {
+  const [caminho, setCaminho] = useState<string[]>([]);
+  const [atual, setAtual] = useState('Pedidos');
+
+  return (
+    <div style={quadroDaPrevia}>
+      <SidebarProvider>
+        <div style={{ display: 'flex', height: '100%', padding: 'var(--pl-shell-gap)', boxSizing: 'border-box', background: 'var(--pl-color-background)' }}>
+          <Sidebar>
+            <Sidebar.Panel
+              brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />}
+              enteredPath={caminho}
+              followCurrent
+              header={<InputText aria-label="Buscar no módulo" placeholder="Buscar" size="sm" />}
+              label="Vendas"
+              nestedMode="stack"
+              onEnteredPathChange={setCaminho}
+            >
+              <Sidebar.Group label="Operação">
+                <Sidebar.Item current={atual === 'Pedidos'} icon={<IconFile size={18} />} label="Pedidos" onClick={() => setAtual('Pedidos')} />
+                <Sidebar.Item icon={<IconChartBar size={18} />} label="Painéis" value="paineis">
+                  <Sidebar.Item current={atual === 'Geral'} label="Geral" onClick={() => setAtual('Geral')} />
+                  <Sidebar.Item label="Por região" value="regioes">
+                    {REGIOES.map((regiao) => (
+                      <Sidebar.Item current={atual === regiao} key={regiao} label={regiao} onClick={() => setAtual(regiao)} />
+                    ))}
+                  </Sidebar.Item>
+                </Sidebar.Item>
+              </Sidebar.Group>
+            </Sidebar.Panel>
+          </Sidebar>
+          <div style={{ flex: 1, minWidth: 0, padding: 18, background: 'var(--pl-color-surface)', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
+            <strong style={{ fontSize: 13 }}>{atual}</strong>
+            <p style={{ color: 'var(--pl-color-text-secondary)', fontSize: 13 }}>
+              Caminho: <code>{caminho.length > 0 ? caminho.join(' › ') : 'vazio'}</code>
+            </p>
+            <button onClick={() => setAtual('Sul')} type="button">
+              Ir para Sul pela página
+            </button>
+          </div>
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+}
+
+const CASCA = createPalette('#67BD50');
+
+/** A cor própria só na navegação: o `createPalette` vai à raiz da Sidebar, e as dicas do trilho vão a um destino com a mesma paleta. */
+function CorSoNaCasca() {
+  const [destino, setDestino] = useState<HTMLElement | null>(null);
+
+  return (
+    <div style={quadroDaPrevia}>
+      <SidebarProvider>
+        <PortalProvider container={destino}>
+          <div style={{ display: 'flex', height: '100%', padding: 'var(--pl-shell-gap)', boxSizing: 'border-box', background: 'var(--pl-color-background)' }}>
+            <Sidebar {...CASCA}>
+              <Sidebar.Rail brand={<Sidebar.Brand logo={<IconChartBar size={20} />} name="Gestor" />}>
+                <Sidebar.RailItem current icon={<IconChartBar size={20} />} label="Vendas" />
+                <Sidebar.RailItem icon={<IconFile size={20} />} label="Clientes" />
+              </Sidebar.Rail>
+              <Sidebar.Panel brand={<Sidebar.Brand description="by Plenustech" name="Gestor" />} label="Vendas">
+                <Sidebar.Item current icon={<IconFile size={18} />} label="Pedidos" />
+                <Sidebar.Item icon={<IconFile size={18} />} label="Relatórios" />
+              </Sidebar.Panel>
+            </Sidebar>
+            <div style={{ flex: 1, minWidth: 0, padding: 18, background: 'var(--pl-color-surface)', border: '1px solid var(--pl-color-border)', borderRadius: 'var(--pl-radius-md)' }}>
+              <p style={{ margin: 0, color: 'var(--pl-color-text-secondary)' }}>A página segue a paleta do produto; só a navegação leva a cor própria.</p>
+            </div>
+          </div>
+        </PortalProvider>
+      </SidebarProvider>
+      <div {...CASCA} ref={setDestino} />
+    </div>
+  );
+}
+
 /** Um logotipo fictício do "Gestor", em SVG: a versão de cada tema muda só a cor do traço. */
 function LogotipoDoGestor({ cor }: { cor: string }) {
   return (
@@ -368,7 +455,8 @@ function Modos() {
       <dt><code>nestedMode</code></dt>
       <dd>
         <code>expand</code> abre os filhos no lugar, com recuo e linha-guia; <code>stack</code> troca a lista pelo nível de baixo, com o caminho de volta.
-        Mais fundo que três níveis, o restante vai para o <code>TabsNav</code> na página.
+        Na pilha, cada ramo entra no de baixo, e o voltar sobe um nível com o nome do pai. O caminho é controlável (<code>enteredPath</code>, pelos <code>value</code> dos ramos), e{' '}
+        <code>followCurrent</code> o leva ao pai do item atual. Mais fundo que três níveis, o restante vai para o <code>TabsNav</code> na página.
       </dd>
       <dt>Conta e <code>accountMode</code></dt>
       <dd>
@@ -404,6 +492,47 @@ export const pagina: Pagina = {
       largo: true,
       Previa: AplicacaoEmPilha,
       codigo: '<Sidebar.Panel label="Vendas" nestedMode="stack">\n  <Sidebar.Item label="Painéis">\n    <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />\n  </Sidebar.Item>\n</Sidebar.Panel>',
+    },
+    {
+      titulo: 'Pilha em vários níveis, com o caminho controlado',
+      descricao:
+        'Cada ramo entra no de baixo, e o voltar sobe um nível com o nome do pai, devolvendo o foco ao item de origem. O caminho (enteredPath) é do produto, pelos value dos ramos; com followCurrent, o submenu vai ao pai do item atual quando ele muda, também pela página. O header fica entre a marca e a lista, fora da rolagem.',
+      largo: true,
+      Previa: PilhaEmVariosNiveis,
+      codigo: `const [caminho, setCaminho] = useState<string[]>([]);
+
+<Sidebar.Panel
+  label="Vendas"
+  nestedMode="stack"
+  enteredPath={caminho}
+  onEnteredPathChange={setCaminho}
+  followCurrent
+  header={<InputText aria-label="Buscar no módulo" placeholder="Buscar" size="sm" />}
+>
+  <Sidebar.Item label="Painéis" value="paineis">
+    <Sidebar.Item as={Link} href="/paineis/geral" label="Geral" />
+    <Sidebar.Item label="Por região" value="regioes">
+      <Sidebar.Item as={Link} href="/paineis/regioes/norte" label="Norte" />
+    </Sidebar.Item>
+  </Sidebar.Item>
+</Sidebar.Panel>`,
+    },
+    {
+      titulo: 'Cor só na navegação',
+      descricao:
+        'createPalette espalhado na raiz da Sidebar: a cor vale no trilho, no submenu e na gaveta do celular, e não na página. As dicas do trilho vão ao body; o PortalProvider as manda a um destino com a mesma paleta.',
+      largo: true,
+      Previa: CorSoNaCasca,
+      codigo: `const casca = createPalette(nearestPaletteColor(corEscolhida));
+const [destino, setDestino] = useState<HTMLElement | null>(null);
+
+<PortalProvider container={destino}>
+  <Sidebar {...casca}>
+    <Sidebar.Rail>…</Sidebar.Rail>
+    <Sidebar.Panel label="Vendas">…</Sidebar.Panel>
+  </Sidebar>
+</PortalProvider>
+<div {...casca} ref={setDestino} />`,
     },
     {
       titulo: 'Conta cobrindo a lista',
@@ -557,6 +686,17 @@ export const pagina: Pagina = {
     },
     { garantia: 'Terceiro nível', como: 'Expandido no lugar com aria-expanded/aria-controls, ou em pilha com foco no caminho de volta.', teste: 'Sidebar.test.tsx' },
     {
+      garantia: 'Pilha em vários níveis',
+      como: 'Cada ramo entra no de baixo; o voltar sobe um nível com o nome do pai e devolve o foco ao item de origem. A conta tem a própria pilha, que recomeça ao fechar.',
+      teste: 'SidebarPilha.test.tsx',
+    },
+    { garantia: 'Caminho controlado', como: 'enteredPath e onEnteredPathChange pelos value dos ramos; followCurrent leva o caminho ao pai do item atual.', teste: 'SidebarCaminho.test.tsx' },
+    {
+      garantia: 'aria-current do consumidor',
+      como: 'O item e o módulo do trilho mantêm o aria-current passado; current vence com page. O módulo que alterna o submenu expõe aria-expanded e aria-controls.',
+      teste: 'SidebarPilha.test.tsx',
+    },
+    {
       garantia: 'Conta',
       como: 'Abre acima do rodapé; Escape ou escolher uma opção fecha e devolve o foco ao bloco. O avatar do trilho só existe com o submenu recolhido.',
       teste: 'Sidebar.test.tsx',
@@ -572,7 +712,7 @@ export const pagina: Pagina = {
     <>
       Peças: <code>Sidebar</code>, <code>.Rail</code>, <code>.RailItem</code>, <code>.RailAccount</code>, <code>.Brand</code>, <code>.Panel</code>, <code>.Group</code>,{' '}
       <code>.Item</code>, <code>.Account</code> e <code>.Trigger</code>. O estado fica no <code>SidebarProvider</code>, que o <code>AppShell</code> monta por dentro; quem monta a própria moldura o usa direto. <code>useSidebar()</code> lê e muda esse estado de qualquer ponto dentro dele e devolve <code>open</code>, <code>setOpen</code>, <code>openMobile</code>, <code>setOpenMobile</code>, <code>isMobile</code>, <code>toggleSidebar</code>, <code>accountOpen</code> e <code>setAccountOpen</code>; <code>setOpen</code> não mexe no foco. Fora de um <code>SidebarProvider</code> ou do <code>AppShell</code>, a <code>Sidebar</code> e o <code>useSidebar</code> lançam um erro claro. Os links seguem o <code>Breadcrumb</code>: <code>as</code>,{' '}
-      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça, menos na <code>Sidebar</code> e no <code>SidebarProvider</code>.
+      <code>href</code> e <code>linkProps</code>. O ref e as propriedades nativas vão ao elemento raiz de cada peça; na <code>Sidebar</code>, ao elemento que reúne trilho e submenu e, na largura estreita, à superfície da gaveta. O <code>SidebarProvider</code> não desenha nada. As subpartes levam <code>data-part</code>: <code>list</code>, <code>group</code>, <code>group-title</code>, <code>branch</code>, <code>item</code> e <code>back</code>.
     </>
   ),
   api: [
@@ -592,7 +732,8 @@ export const pagina: Pagina = {
     },
     { nome: 'useSidebar()', tipo: 'UseSidebarResult', descricao: 'Devolve open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar, accountOpen e setAccountOpen. Na largura estreita, toggleSidebar alterna a gaveta; na larga, o submenu. setAccountOpen(true) abre o submenu, ou a gaveta, e leva o foco à primeira opção, como o clique no bloco, menos com o foco num campo editável.' },
     { nome: 'Sidebar · menuLabel', tipo: 'string', padrao: "labels.menu ('Menu')", descricao: 'Nome da gaveta no celular.' },
-    { nome: 'Sidebar.Rail · brand / footer / label', tipo: 'ReactNode · ReactNode · string', padrao: "label: labels.modules ('Módulos')", descricao: 'Marca no topo, grupo fixo no pé e nome da navegação.' },
+    { nome: 'Sidebar · className / style / ref / atributos', tipo: "Omit<ComponentPropsWithRef<'div'>, 'aria-label' | 'children' | 'role' | 'title'>", descricao: 'Vão ao elemento que reúne trilho e submenu e, na largura estreita, à superfície da gaveta. Com createPalette, a cor fica só na navegação.' },
+    { nome: 'Sidebar.Rail · brand / header / footer / label', tipo: 'ReactNode · ReactNode · ReactNode · string', padrao: "label: labels.modules ('Módulos')", descricao: 'Marca no topo, grupo abaixo da marca e antes dos módulos, grupo fixo no pé e nome da navegação.' },
     {
       nome: 'Sidebar.Brand · name / logo / logoFrame / description / wordmark',
       tipo: 'string · ReactNode · boolean · ReactNode · { light: ReactNode; dark?: ReactNode }',
@@ -601,10 +742,14 @@ export const pagina: Pagina = {
         'Marca do produto, no brand do Rail e do Panel. No trilho, só o logo (em quadrado na cor principal, ou puro com logoFrame false), nomeado por name; sem logo, nada. No submenu, o name e a description, ou o wordmark de cada tema (sem dark, o light vale nos dois), com o name oculto para o leitor de tela.',
     },
     { nome: 'Sidebar.Brand · as / href / linkProps', tipo: 'ElementType · string · Record<string, unknown>', descricao: 'Como no Sidebar.Item: com eles, a marca é um link para o início da aplicação, nos dois lugares.' },
-    { nome: 'Sidebar.RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar.' },
+    { nome: 'Sidebar.RailItem · icon / label / current', tipo: 'ReactNode · string · boolean', descricao: 'Módulo: nome acessível e dica; atual alterna o submenu ao clicar, com aria-expanded e aria-controls. O aria-current passado vale quando não é o atual.' },
+    { nome: 'Sidebar.RailItem · toggleSubmenu', tipo: 'boolean', padrao: 'true', descricao: 'Com false, o módulo atual navega como os outros, sem alternar o submenu.' },
     { nome: 'Sidebar.RailAccount · label / children', tipo: 'string · ReactNode', descricao: 'Avatar no trilho, só com o submenu recolhido. label nomeia o botão, em texto oculto, e é a dica; o avatar fica fora da leitura. O ponto de aviso é do produto.' },
     { nome: 'Sidebar.Panel · label / brand / account', tipo: 'string · ReactNode · ReactNode', descricao: 'Nome do módulo, marca do cabeçalho e a conta do rodapé.' },
     { nome: 'Sidebar.Panel · nestedMode', tipo: "SidebarNestedMode: 'expand' | 'stack'", padrao: "'expand'", descricao: 'Forma do terceiro nível.' },
+    { nome: 'Sidebar.Panel · enteredPath / defaultEnteredPath / onEnteredPathChange', tipo: 'readonly string[] · readonly string[] · (path: string[]) => void', padrao: 'defaultEnteredPath: []', descricao: 'Caminho da pilha: os value dos ramos em que se entrou, do mais alto ao mais fundo. O modo controlado exige value nos ramos. Só vale com nestedMode stack.' },
+    { nome: 'Sidebar.Panel · followCurrent', tipo: 'boolean', padrao: 'false', descricao: 'Na pilha, leva o caminho ao pai do item atual quando ele muda, e na montagem.' },
+    { nome: 'Sidebar.Panel · header', tipo: 'ReactNode', descricao: 'Entre a marca e a lista, fora da rolagem, como uma busca. Some com a conta cobrindo a lista.' },
     { nome: 'Sidebar.Panel · width', tipo: 'number | string', padrao: '256', descricao: 'Largura do submenu aberto: pixels ou medida CSS, como "18rem". Use o mesmo valor em todos os painéis.' },
     { nome: 'Sidebar.Panel · accountMode', tipo: "SidebarAccountMode: 'inline' | 'cover'", padrao: "'inline'", descricao: 'Onde a conta abre.' },
     { nome: 'Sidebar.Group · label', tipo: 'string', descricao: 'Título que reúne itens.' },
@@ -613,7 +758,8 @@ export const pagina: Pagina = {
       tipo: 'string · ReactNode · boolean · boolean · ReactNode',
       descricao: 'Item do submenu. Com children, abre o terceiro nível; external abre em outra aba; trailing é o complemento ao fim da linha.',
     },
-    { nome: 'Sidebar.Item · expanded / defaultExpanded / onExpandedChange', tipo: 'boolean · boolean · (expanded: boolean) => void', descricao: 'Filhos abertos. Na pilha, defaultExpanded entra no nível no início.' },
+    { nome: 'Sidebar.Item · expanded / defaultExpanded / onExpandedChange', tipo: 'boolean · boolean · (expanded: boolean) => void', descricao: 'Filhos abertos. Na pilha, defaultExpanded entra no nível no início, com os níveis de cima.' },
+    { nome: 'Sidebar.Item · value', tipo: 'string', descricao: 'Identidade estável do ramo, que o enteredPath usa. Também vai ao elemento, como antes.' },
     { nome: 'Sidebar.Account · avatar / name / description / label', tipo: 'ReactNode · string · string · string', padrao: "label: labels.account ('Conta')", descricao: 'Bloco da conta no rodapé; os filhos são as opções (Sidebar.Item).' },
   ],
 };

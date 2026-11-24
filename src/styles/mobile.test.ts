@@ -47,7 +47,7 @@ describe('safe area', () => {
     const css = ler('components/overlays/Drawer/Drawer.module.css');
 
     expect(css).toMatch(/\.right \.drawer \{\s*padding-right: env\(safe-area-inset-right, 0px\)/);
-    expect(css).toMatch(/\.left \.drawer \{\s*padding-left: env\(safe-area-inset-left, 0px\)/);
+    expect(css).toMatch(/:where\(\.left\) \.drawer \{\s*padding-left: env\(safe-area-inset-left, 0px\)/);
   });
 
   it('a SaveBar usa os tokens, que o AppShell zera para o que está dentro dele', () => {

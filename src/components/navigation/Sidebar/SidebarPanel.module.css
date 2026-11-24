@@ -65,6 +65,17 @@
   min-width: 0;
 }
 
+/* Entre a marca e a lista, fora da rolagem; some com a conta cobrindo a lista, como ela. */
+.header {
+  flex: none;
+  min-width: 0;
+  margin-bottom: var(--pl-space-3);
+}
+
+.navigation[data-covered='true'] .header {
+  display: none;
+}
+
 /* A navegação do módulo leva a marca e o recolher, para nada do submenu ficar fora de uma região. */
 .navigation {
   display: flex;
@@ -113,7 +124,8 @@
   list-style: none;
 }
 
-.group:not(:has(li)) {
+/* Sem item à vista, nem o título: na pilha, os itens de fora do caminho somem ou ficam escondidos. */
+.group:not(:has(> .items > li:not([hidden]))) {
   display: none;
 }
 
@@ -150,7 +162,7 @@
   color: var(--pl-color-text-secondary);
   font-family: var(--pl-font-body);
   font-size: var(--pl-type-label-size);
-  font-weight: var(--pl-type-label-weight);
+  font-weight: var(--sidebar-item-weight, var(--pl-type-label-weight));
   line-height: var(--pl-type-label-line-height);
   text-align: start;
   text-decoration: none;
@@ -203,6 +215,7 @@
 .icon {
   display: inline-flex;
   flex: none;
+  color: var(--sidebar-icon-color, currentColor);
   font-size: var(--sidebar-icon-size, 18px);
 }
 
@@ -286,8 +299,16 @@
   margin-top: 2px;
 }
 
+.branch > .item {
+  font-weight: var(--sidebar-branch-weight, var(--sidebar-item-weight, var(--pl-type-label-weight)));
+}
+
 .nested .item {
   font-weight: var(--pl-type-body-weight);
+}
+
+.nested .branch > .item {
+  font-weight: var(--sidebar-branch-weight, var(--pl-type-body-weight));
 }
 
 .nested .item[aria-current='page'] {
@@ -354,7 +375,7 @@
 
 @keyframes stack-in-end {
   from {
-    transform: translateX(-16px);
+    transform: translateX(calc(-1 * var(--sidebar-stack-offset, 16px)));
     opacity: 0;
   }
 }
@@ -365,7 +386,7 @@
 
 @keyframes stack-in {
   from {
-    transform: translateX(16px);
+    transform: translateX(var(--sidebar-stack-offset, 16px));
     opacity: 0;
   }
 }
@@ -404,8 +425,14 @@
   min-height: 0;
 }
 
+/* Cobrindo a lista, a conta entra como o nível de baixo da pilha. */
 .account[data-mode='cover'][data-open='true'] .accountCard {
   display: flex;
+  animation: stack-in var(--pl-speed-2) var(--pl-ease);
+}
+
+.panel[data-side='right'] .account[data-mode='cover'][data-open='true'] .accountCard {
+  animation-name: stack-in-end;
 }
 
 .accountNav {
@@ -546,6 +573,8 @@
     transition: none;
   }
 
+  .account[data-mode='cover'][data-open='true'] .accountCard,
+  .panel[data-side='right'] .account[data-mode='cover'][data-open='true'] .accountCard,
   .stacked {
     animation: none;
   }

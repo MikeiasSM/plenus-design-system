@@ -63,6 +63,8 @@ export interface SidebarContextValue {
   isPanelVisible: (kind: SidebarPanelKind) => boolean;
   menuOpen: boolean;
   narrow: boolean;
+  /** O ponto de virada para a gaveta, como o produto passou ao provider; indefinido vale o padrão do `useNarrowViewport` (900). */
+  narrowBelow: number | undefined;
   openAccountFromRail: () => void;
   panelId: string;
   panelKind: SidebarPanelKind;

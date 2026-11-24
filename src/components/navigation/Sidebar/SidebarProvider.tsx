@@ -217,6 +217,7 @@ export function SidebarProvider({
         labels: resolvedLabels,
         menuOpen,
         narrow,
+        narrowBelow,
         openAccountFromRail,
         panelId,
         panelKind,

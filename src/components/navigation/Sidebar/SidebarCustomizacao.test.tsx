@@ -646,8 +646,8 @@ describe('SidebarProvider: lado (side)', () => {
     const folha = readFileSync(resolve(process.cwd(), 'src/components/navigation/Sidebar/SidebarPanel.module.css'), 'utf8');
 
     expect(panel.get(".panel[data-side='right'] .stacked")).toEqual({ 'animation-name': 'stack-in-end' });
-    expect(folha).toMatch(/@keyframes stack-in-end \{\s*from \{\s*transform: translateX\(-16px\)/);
-    expect(folha).toMatch(/@keyframes stack-in \{\s*from \{\s*transform: translateX\(16px\)/);
+    expect(folha).toMatch(/@keyframes stack-in-end \{\s*from \{\s*transform: translateX\(calc\(-1 \* var\(--sidebar-stack-offset, 16px\)\)\)/);
+    expect(folha).toMatch(/@keyframes stack-in \{\s*from \{\s*transform: translateX\(var\(--sidebar-stack-offset, 16px\)\)/);
     expect(folha).toMatch(/prefers-reduced-motion: reduce\) \{[\s\S]*\.stacked \{\s*animation: none;/);
   });
 

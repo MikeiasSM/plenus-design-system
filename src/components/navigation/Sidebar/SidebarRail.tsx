@@ -10,12 +10,14 @@ export interface SidebarRailProps extends Omit<ComponentPropsWithRef<'nav'>, 'ar
   brand?: ReactNode;
   /** Grupo fixo no pé do trilho: itens de sistema e a conta. */
   footer?: ReactNode;
+  /** Grupo no alto do trilho, abaixo da marca e antes dos módulos, como uma busca: `Sidebar.RailItem`. */
+  header?: ReactNode;
   /** Nome da navegação entre módulos. */
   label?: string;
 }
 
 /** Trilho de módulos: folha estreita à esquerda, só com ícones. Os módulos são `Sidebar.RailItem`. */
-export function SidebarRail({ brand, children, className, footer, label, ...props }: SidebarRailProps) {
+export function SidebarRail({ brand, children, className, footer, header, label, ...props }: SidebarRailProps) {
   const { labels } = useSidebarContext();
 
   return (
@@ -25,6 +27,7 @@ export function SidebarRail({ brand, children, className, footer, label, ...prop
           <SidebarBrandContext value="rail">{brand}</SidebarBrandContext>
         </div>
       )}
+      {header !== undefined && header !== null && <ul className={[styles.railGroup, styles.railHeader].join(' ')}>{header}</ul>}
       <ul className={styles.railGroup}>{children}</ul>
       <ul className={[styles.railGroup, styles.railFooter].join(' ')}>{footer}</ul>
     </nav>
@@ -37,10 +40,13 @@ export interface SidebarRailItemProps extends Omit<SidebarActionProps, 'aria-lab
   icon: ReactNode;
   /** Nome acessível e dica do módulo. */
   label: string;
+  /** O módulo atual alterna o submenu ao clicar, sem navegar. Com `false`, ele navega como os outros. Padrão `true`. */
+  toggleSubmenu?: boolean;
 }
 
-export function SidebarRailItem({ className, current = false, icon, label, onClick, ...props }: SidebarRailItemProps) {
-  const { collapsePanel, expandPanel, narrow, panelKind, setMenuOpen, side, submenuOpen, tooltipDelay } = useSidebarContext();
+export function SidebarRailItem({ className, current = false, icon, label, onClick, toggleSubmenu = true, ...props }: SidebarRailItemProps) {
+  const { collapsePanel, expandPanel, narrow, panelId, panelKind, setMenuOpen, side, submenuOpen, tooltipDelay } = useSidebarContext();
+  const toggles = current && toggleSubmenu && panelKind === 'items';
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     onClick?.(event);
@@ -54,7 +60,7 @@ export function SidebarRailItem({ className, current = false, icon, label, onCli
       return;
     }
 
-    if (current && panelKind === 'items') {
+    if (toggles) {
       event.preventDefault();
       if (!narrow) {
         (submenuOpen ? collapsePanel : expandPanel)();
@@ -67,7 +73,9 @@ export function SidebarRailItem({ className, current = false, icon, label, onCli
       <Tooltip content={label} delay={tooltipDelay} placement={tooltipPlacement(side)}>
         <SidebarAction
           {...props}
-          aria-current={current ? 'page' : undefined}
+          aria-controls={toggles && !narrow ? panelId : props['aria-controls']}
+          aria-current={current ? 'page' : props['aria-current']}
+          aria-expanded={toggles && !narrow ? submenuOpen : props['aria-expanded']}
           aria-label={label}
           className={[styles.railItem, className].filter(Boolean).join(' ')}
           onClick={handleClick}
