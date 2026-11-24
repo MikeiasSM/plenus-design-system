@@ -469,3 +469,194 @@ describe('DatePicker', () => {
     });
   });
 });
+
+describe('DatePicker com granularidade', () => {
+  it('em meses, mostra mm/aaaa e guarda o primeiro dia do mes', () => {
+    const mudou = vi.fn();
+    const campo = montar({ granularity: 'month', onValueChange: mudou });
+
+    expect(campo).toHaveAttribute('placeholder', 'mm/aaaa');
+
+    fireEvent.change(campo, { target: { value: '062026' } });
+
+    expect(campo).toHaveValue('06/2026');
+    expect(mudou).toHaveBeenLastCalledWith('2026-06-01');
+  });
+
+  it('outro dia do mes recebido vale como o primeiro', () => {
+    const campo = montar({ granularity: 'month', name: 'competencia', value: '2026-06-15' });
+
+    expect(campo).toHaveValue('06/2026');
+    expect(document.querySelector('input[name="competencia"]')).toHaveValue('2026-06-01');
+  });
+
+  it('em meses, escolhe na grade de doze por clique', () => {
+    const mudou = vi.fn();
+    montar({ granularity: 'month', onValueChange: mudou, value: '2026-06-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    const grade = screen.getByRole('grid', { name: 'Meses de 2026' });
+    expect(grade.querySelectorAll('button')).toHaveLength(12);
+    expect(screen.getByRole('button', { name: 'junho de 2026' })).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'setembro de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(mudou).toHaveBeenLastCalledWith('2026-09-01');
+  });
+
+  it('as setas do cabecalho trocam o ano', () => {
+    montar({ granularity: 'month', value: '2026-06-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo ano' }));
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Meses de 2027');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ano anterior' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ano anterior' }));
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Meses de 2025');
+  });
+
+  it('no teclado, anda um ou tres, vai ao fim da linha e vira o ano na borda', () => {
+    const mudou = vi.fn();
+    montar({ granularity: 'month', onValueChange: mudou, value: '2026-11-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('button', { name: 'novembro de 2026' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'End' });
+    expect(screen.getByRole('button', { name: 'dezembro de 2026' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowDown' });
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Meses de 2027');
+    expect(screen.getByRole('button', { name: 'março de 2027' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'Home' });
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowLeft' });
+    expect(screen.getByRole('button', { name: 'dezembro de 2026' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowUp' });
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'Enter' });
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(mudou).toHaveBeenLastCalledWith('2026-09-01');
+  });
+
+  it('marca o mes atual e o leva ao rascunho por Este mês', () => {
+    const atual = today(getLocalTimeZone());
+    const nome = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(atual.toDate(getLocalTimeZone()));
+    const mudou = vi.fn();
+    montar({ granularity: 'month', onValueChange: mudou, value: atual.subtract({ years: 3 }).toString() });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Este mês' }));
+
+    expect(screen.getByRole('button', { name: nome })).toHaveAttribute('aria-current', 'date');
+    expect(screen.getByRole('button', { name: nome })).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith(atual.set({ day: 1 }).toString());
+  });
+
+  it('min e max limitam os meses: o mes de min continua disponivel', () => {
+    const mudou = vi.fn();
+    const campo = montar({ granularity: 'month', max: '2026-09-10', min: '2026-03-15', onValueChange: mudou, value: '2026-06-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('button', { name: 'fevereiro de 2026' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'março de 2026' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button', { name: 'setembro de 2026' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button', { name: 'outubro de 2026' })).toHaveAttribute('aria-disabled', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'outubro de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith('2026-06-01');
+
+    fireEvent.change(campo, { target: { value: '102026' } });
+    fireEvent.blur(campo);
+    expect(screen.getByRole('alert')).toHaveTextContent('Data fora do intervalo permitido.');
+  });
+
+  it('em meses, + e - andam um mes e Enter completa o ano', () => {
+    const mudou = vi.fn();
+    const campo = montar({ granularity: 'month', onValueChange: mudou, value: '2026-12-01' });
+
+    fireEvent.keyDown(campo, { key: '+' });
+    expect(mudou).toHaveBeenLastCalledWith('2027-01-01');
+
+    fireEvent.change(campo, { target: { value: '3' } });
+    fireEvent.keyDown(campo, { key: 'Enter' });
+    expect(mudou).toHaveBeenLastCalledWith(today(getLocalTimeZone()).set({ month: 3, day: 1 }).toString());
+  });
+
+  it('em anos, mostra aaaa e guarda o 1o de janeiro', () => {
+    const mudou = vi.fn();
+    const campo = montar({ granularity: 'year', onValueChange: mudou });
+
+    expect(campo).toHaveAttribute('placeholder', 'aaaa');
+
+    fireEvent.change(campo, { target: { value: '20269' } });
+
+    expect(campo).toHaveValue('2026');
+    expect(mudou).toHaveBeenLastCalledWith('2026-01-01');
+  });
+
+  it('em anos, a grade mostra doze por pagina e as setas trocam a pagina', () => {
+    const mudou = vi.fn();
+    montar({ granularity: 'year', onValueChange: mudou, value: '2026-01-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Anos de 2020 a 2031');
+    expect(screen.getByRole('button', { name: '2026' })).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próximos anos' }));
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Anos de 2032 a 2043');
+
+    fireEvent.click(screen.getByRole('button', { name: '2035' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith('2035-01-01');
+  });
+
+  it('em anos, o teclado que passa da borda vira a pagina', () => {
+    const mudou = vi.fn();
+    montar({ granularity: 'year', onValueChange: mudou, value: '2029-01-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowDown' });
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Anos de 2032 a 2043');
+    expect(screen.getByRole('button', { name: '2032' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'ArrowLeft' });
+    expect(screen.getByRole('grid')).toHaveAccessibleName('Anos de 2020 a 2031');
+    expect(screen.getByRole('button', { name: '2031' })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole('grid'), { key: ' ' });
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+    expect(mudou).toHaveBeenLastCalledWith('2031-01-01');
+  });
+
+  it('em anos, min e max limitam os anos', () => {
+    montar({ granularity: 'year', max: '2027-06-30', min: '2024-03-01', value: '2026-01-01' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('button', { name: '2023' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: '2024' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button', { name: '2027' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('button', { name: '2028' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('o dia recusado pelo predicado se anuncia como indisponivel', () => {
+    montar({ isDateUnavailable: (data) => data === '2026-03-10', min: '2026-03-05', value: '2026-03-09' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }));
+
+    expect(screen.getByRole('button', { name: '10 de março de 2026, indisponível' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: '4 de março de 2026' })).toHaveAttribute('aria-disabled', 'true');
+  });
+});

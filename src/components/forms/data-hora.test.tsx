@@ -21,7 +21,7 @@ describe('API em texto ISO', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /calend/i }));
-    expect(screen.getByRole('button', { name: '10 de março de 2026' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: '10 de março de 2026, indisponível' })).toHaveAttribute('aria-disabled', 'true');
 
     fireEvent.click(screen.getByRole('button', { name: '12 de março de 2026' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));

@@ -33,6 +33,13 @@
   animation: toast-enter var(--pl-speed-2) var(--pl-ease) both;
 }
 
+.live {
+  display: flex;
+  flex: 1;
+  gap: var(--pl-space-3);
+  min-width: 0;
+}
+
 .icon {
   flex: none;
   margin-top: 2px;
@@ -54,6 +61,10 @@
 
 .danger {
   --toast-tone: var(--pl-color-danger);
+}
+
+.loading {
+  --toast-tone: var(--pl-color-text-secondary);
 }
 
 .content {

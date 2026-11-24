@@ -14,6 +14,7 @@ import {
   type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
   type ChartSlice,
 } from '../core';
@@ -23,7 +24,7 @@ import styles from './ChartDonut.module.css';
 
 export type { ChartSlice as ChartDonutSlice };
 
-export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartDonutProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Texto sob o valor do centro, trocado pelo rotulo da fatia sob o ponteiro. */
   centerLabel?: string;

@@ -1,0 +1,6 @@
+/* Sem borda nem fundo: o calendario ocupa so a largura da grade, e quem quer moldura o poe num `Card`. */
+.calendar {
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 100%;
+}

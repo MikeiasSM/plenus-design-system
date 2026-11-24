@@ -1,0 +1,158 @@
+/*
+ * Um campo so, transparente, por cima das caixas: ele recebe o foco, a digitacao, o colar e o preenchimento
+ * automatico, e as caixas so desenham o que ele guarda. As caixas encolhem juntas quando a linha nao cabe.
+ */
+.root {
+  --_box-width: 44px;
+  --_box-height: 52px;
+  --_box-font-size: 22px;
+  --_caret-height: 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  width: max-content;
+  max-width: 100%;
+}
+
+.sm {
+  --_box-width: 36px;
+  --_box-height: 44px;
+  --_box-font-size: 18px;
+  --_caret-height: 20px;
+}
+
+.lg {
+  --_box-width: 52px;
+  --_box-height: 60px;
+  --_box-font-size: 26px;
+  --_caret-height: 28px;
+}
+
+.box {
+  position: relative;
+  display: flex;
+  flex: 0 1 var(--_box-width);
+  align-items: center;
+  justify-content: center;
+  width: var(--_box-width);
+  min-width: 0;
+  height: var(--_box-height);
+  border: 1px solid var(--pl-control-border);
+  border-radius: var(--pl-radius-md);
+  background-color: var(--pl-color-surface);
+  color: var(--pl-color-text);
+  font-family: var(--pl-font-body);
+  font-size: var(--_box-font-size);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  transition: border-color var(--pl-speed-1) var(--pl-ease), box-shadow var(--pl-speed-1) var(--pl-ease);
+}
+
+/* O traco entre os grupos, so visual. */
+.separator {
+  flex: none;
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--pl-control-border);
+}
+
+/* A fonte de 16px evita o zoom do celular ao focar; o texto e o cursor nativos ficam invisiveis. */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font-size: 16px;
+  opacity: 0;
+  cursor: text;
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+}
+
+@media (hover: hover) {
+  .root:not(.invalid):not(.disabled):hover:not(:focus-within) .box {
+    border-color: var(--pl-control-border-hover);
+  }
+}
+
+/* A caixa da vez ganha o foco do campo e, vazia, um cursor que pisca. */
+.root:focus-within .current {
+  border-color: var(--pl-color-primary-strong);
+  box-shadow: var(--pl-control-focus-halo);
+}
+
+.root:focus-within .current:empty::after {
+  content: '';
+  width: 2px;
+  height: var(--_caret-height);
+  background-color: var(--pl-color-text);
+  animation: pin-caret 1s steps(1) infinite;
+}
+
+@keyframes pin-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root:focus-within .current:empty::after {
+    animation: none;
+  }
+}
+
+.invalid .box {
+  border-color: var(--pl-color-danger);
+}
+
+.invalid:focus-within .current {
+  border-color: var(--pl-color-danger);
+  box-shadow: 0 0 0 3px var(--pl-color-danger-container);
+}
+
+.disabled {
+  opacity: 0.7;
+}
+
+.disabled .box {
+  background-color: var(--pl-color-surface-muted);
+  color: var(--pl-color-text-secondary);
+}
+
+.disabled .input {
+  cursor: not-allowed;
+}
+
+/* Sem cores do tema, a borda e o traco ficam no texto do sistema, e a caixa da vez ganha o contorno de destaque. */
+@media (forced-colors: active) {
+  .box {
+    border-color: CanvasText;
+  }
+
+  .separator,
+  .root:focus-within .current:empty::after {
+    background-color: CanvasText;
+  }
+
+  .root:focus-within .current {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  .disabled .box {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

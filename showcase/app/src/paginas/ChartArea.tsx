@@ -17,6 +17,9 @@ import { VerCodigo } from '../estrutura/VerCodigo';
 import { COMPOSICAO, FATURAMENTO, MESES, OPCOES_DE_ACCENT, accentDa, formatarCompacto, VISIBILIDADES, FORMATOS } from '../dadosDosGraficos';
 import { DecomposicaoDoArea } from '../estrutura/decomposicao';
 
+const SEMANAS = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'];
+const ATENDIMENTOS = [58, 72, 84, 69, 91, 77];
+
 const SALDO_DO_CAIXA = [12000, -8000, 5000, -3000, 9000, 14000];
 const PEDIDOS = [310, 420, 280, 640, 390, 450];
 
@@ -221,6 +224,60 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Meta e faixa aceitável',
+      descricao: 'A linha tracejada marca a meta, com o rótulo e o valor na ponta; a faixa é um fundo leve atrás das marcas. As duas entram na legenda, no nome do gráfico e na tabela, que diz se cada semana ficou acima, dentro ou abaixo. A escala se estende para alcançá-las.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartArea
+            categories={SEMANAS}
+            height={240}
+            references={[
+              { type: 'line', value: 80, label: 'Meta' },
+              { type: 'band', from: 60, to: 95, label: 'Faixa aceitável', tone: 'success' },
+            ]}
+            series={[{ label: 'Atendimentos', values: ATENDIMENTOS }]}
+            title="Atendimentos por semana"
+          />
+        </div>
+      ),
+      codigo: `<ChartArea
+  title="Atendimentos por semana"
+  categories={semanas}
+  series={[{ label: 'Atendimentos', values: atendimentos }]}
+  references={[
+    { type: 'line', value: 80, label: 'Meta' },
+    { type: 'band', from: 60, to: 95, label: 'Faixa aceitável', tone: 'success' },
+  ]}
+/>`,
+    },
+    {
+      titulo: 'Exportar em PNG e SVG',
+      descricao: 'Com exportable, o menu "Opções do gráfico" baixa o arquivo com o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco. O nome do arquivo segue o título, sem acento nem espaço. A função exportChart faz o mesmo a partir da ref, para o botão ficar onde o produto quiser.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <ChartArea
+            categories={SEMANAS}
+            exportable
+            height={240}
+            series={[{ label: 'Atendimentos', values: ATENDIMENTOS }]}
+            subtitle="Últimas 6 semanas"
+            title="Atendimentos por semana"
+          />
+        </div>
+      ),
+      codigo: `<ChartArea
+  title="Atendimentos por semana"
+  subtitle="Últimas 6 semanas"
+  exportable
+  categories={semanas}
+  series={[{ label: 'Atendimentos', values: atendimentos }]}
+/>
+
+// ou, sem o menu:
+import { exportChart } from '@plenustech/design-system';
+exportChart(ref.current, { format: 'png', fileName: 'atendimentos' });`,
+    },
+    {
       titulo: 'Decomposição por encaixe',
       descricao: 'Arraste o canto da caixa. Sem espaço, o gráfico retira a legenda, o título dos eixos, os rótulos do eixo de valor, os eixos e, por fim, a grade, os pontos e os rótulos de dado, em vez de encolher tudo. A leitura continua pelo aria-label de cada marca e pela visão em tabela; o que se perde é o controle da legenda.',
       largo: true,
@@ -379,6 +436,9 @@ const cores = resolveSeriesColors(series);
     { garantia: 'Ausência anunciada', como: 'Sem séries ou categorias, um EmptyState no lugar do desenho.', teste: 'ChartArea.test.tsx' },
   ],
   api: [
+    { nome: 'references', tipo: "readonly ({ type: 'line'; value; label; tone? } | { type: 'band'; from; to; label; tone? })[]", descricao: <>Linhas e faixas de referência no eixo dos valores, como uma meta ou uma faixa aceitável. A linha é tracejada, com o rótulo e o valor na ponta; a faixa é um fundo leve no tom de status (<code>neutral</code>, <code>info</code>, <code>success</code>, <code>warning</code>, <code>danger</code>). Entram na legenda, no nome do gráfico e na tabela, com acima, dentro ou abaixo em cada ponto, e a escala se estende para alcançá-las.</> },
+    { nome: 'exportable', tipo: 'boolean', padrao: 'false', descricao: <>Menu "Opções do gráfico" no canto do cabeçalho, com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, no tema claro e com fundo branco. Para pôr o botão em outro lugar, use <code>exportChart(ref.current, {'{ format, fileName }'})</code>.</> },
+    { nome: 'subtitle', tipo: 'string', descricao: 'Linha abaixo do título, como o período do dado. Entra também no arquivo exportado.' },
     { nome: 'showTableToggle', tipo: 'boolean', padrao: 'true', descricao: 'Botão "Ver como tabela". Sem a prop, vale o do ChartsProvider. Com a tabela aberta, a legenda sai. Desligado, fica só o desenho.' },
     { nome: 'title', tipo: 'string', descricao: 'Título visível e nome acessível do gráfico.' },
     { nome: 'categories', tipo: 'readonly string[]', descricao: 'Categorias do eixo de baixo.' },

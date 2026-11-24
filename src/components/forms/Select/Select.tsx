@@ -13,6 +13,9 @@ import { createPortal } from 'react-dom';
 import { useOverlay, useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions } from '../../data-display/List/ListingOptions';
 import { useListing, type Listing } from '../../data-display/List/useListing';
+import { useAnnouncement } from '../../data-display/List/useAnnouncement';
+import { useLoadMore, type LoadMore } from '../../data-display/List/useLoadMore';
+import { OPCOES_SEM_JANELA } from '../../data-display/List/useVirtualWindow';
 import { useFormReset } from '../../../hooks/useFormReset';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
@@ -46,15 +49,27 @@ export interface SelectProps
   defaultOpen?: boolean;
   defaultValue?: string;
   error?: string;
+  /** Há mais páginas além das opções que chegaram. Sem ele, `onLoadMore` não é chamado. */
+  hasMore?: boolean;
   hint?: string;
   label?: string;
   /** Ao lado do rótulo e fora dele, como um selo ou um link. Não entra no nome do campo. */
   labelAddon?: ReactNode;
+  /** A contagem anunciada quando uma página chega. */
+  loadedMessage?: (count: number) => string;
+  /** A linha de espera da próxima página, no rodapé da lista. */
+  loadingMoreMessage?: string;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
+  /**
+   * Pede a próxima página, uma vez, quando a rolagem chega a três opções do fim ou a seta para baixo passa da última.
+   * O pedido vale até as opções mudarem de tamanho; enquanto isso, uma linha "Carregando mais" fica no rodapé.
+   * Se a página não vier, fechar e reabrir a lista permite pedir outra vez.
+   */
+  onLoadMore?: () => void;
   onOpenChange?: (open: boolean) => void;
   onValueChange?: (value: string) => void;
   open?: boolean;
@@ -76,12 +91,16 @@ export function Select({
   name,
   disabled = false,
   error,
+  hasMore = false,
   hint,
   id: providedId,
   label,
   labelAddon,
+  loadedMessage = (count) => (count === 1 ? '1 resultado' : `${count} resultados`),
+  loadingMoreMessage = 'Carregando mais',
   onClick,
   onKeyDown,
+  onLoadMore,
   onOpenChange,
   onValueChange,
   open: controlledOpen,
@@ -118,6 +137,13 @@ export function Select({
   });
 
   const [chosen] = listing.selected;
+  const anuncio = useAnnouncement();
+  const paginas = useLoadMore({
+    count: options.length,
+    hasMore,
+    onArrive: (count) => anuncio.announce(loadedMessage(count)),
+    onLoadMore,
+  });
 
   function fechar() {
     setOpen(false);
@@ -127,6 +153,7 @@ export function Select({
   useEffect(() => {
     if (wasOpenRef.current && !open) {
       triggerRef.current?.focus({ preventScroll: true });
+      paginas.cancel();
     }
     wasOpenRef.current = open;
   }, [open]);
@@ -209,13 +236,20 @@ export function Select({
             <span className={chosen?.label ? styles.value : styles.placeholder}>{chosen?.label || placeholder}</span>
             <IconChevronDown className={styles.chevron} size={14} />
           </button>
+          {onLoadMore && (
+            <span className={styles.visuallyHidden} role="status">
+              {anuncio.message}
+            </span>
+          )}
           {open &&
             container &&
             createPortal(
               <SelectListbox
                 label={label ?? props['aria-label'] ?? placeholder}
                 listing={listing}
+                loadingMoreMessage={loadingMoreMessage}
                 onClose={fechar}
+                pages={paginas}
                 triggerRef={triggerRef}
               />,
               container,
@@ -229,12 +263,16 @@ export function Select({
 function SelectListbox({
   label,
   listing,
+  loadingMoreMessage,
   onClose,
+  pages,
   triggerRef,
 }: {
   label: string;
   listing: Listing;
+  loadingMoreMessage: string;
   onClose: () => void;
+  pages: LoadMore;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -303,6 +341,15 @@ function SelectListbox({
       return;
     }
 
+    // A seta para baixo na última opção pede a próxima página; o foco fica onde está até ela chegar.
+    if (event.key === 'ArrowDown') {
+      const indice = listing.visible.findIndex((option) => option.value === listing.focusedKey);
+
+      if (indice >= 0 && !listing.visible.slice(indice + 1).some((option) => !option.disabled)) {
+        pages.request();
+      }
+    }
+
     listing.handleKeyDown(event);
   }
 
@@ -318,8 +365,12 @@ function SelectListbox({
       <ListingOptions
         baseId={baseId}
         elementRef={listboxRef}
+        height={listing.visible.length > OPCOES_SEM_JANELA ? alturaMaxima : undefined}
         label={label}
         listing={listing}
+        loadingMore={pages.pending}
+        loadingMoreMessage={loadingMoreMessage}
+        onNearEnd={pages.enabled ? pages.request : undefined}
         onKeyDown={(event) => {
           // Espalhar overlayProps antes nao basta: este onKeyDown o substituiria.
           handleKeyDown(event);
