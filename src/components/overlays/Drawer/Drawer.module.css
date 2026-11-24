@@ -97,6 +97,16 @@
   animation: drawer-from-bottom var(--pl-speed-2) var(--pl-ease) both;
 }
 
+/* Com rodapé, a área segura de baixo fica dentro dele, para a faixa sob as ações ter o fundo do rodapé, e não o da
+   superfície: o padding de baixo do rodapé passa a ser o respiro dele mais a área segura. */
+.bottom .drawer:has(> .footer) {
+  padding-bottom: 0;
+}
+
+.bottom .footer {
+  padding-bottom: calc(var(--pl-space-4) + env(safe-area-inset-bottom, 0px));
+}
+
 .bottom .sm {
   max-height: 50dvh;
 }

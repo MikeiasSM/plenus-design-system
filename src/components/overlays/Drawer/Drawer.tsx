@@ -23,6 +23,7 @@ export function Drawer({ side = 'right', size = 'md', ...props }: DrawerProps) {
   return (
     <DialogFrame
       {...props}
+      footerClassName={styles.footer}
       surfaceClassName={[styles.drawer, styles[size]].join(' ')}
       underlayClassName={[styles.underlay, styles[side]].join(' ')}
     />

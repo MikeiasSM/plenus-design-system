@@ -182,4 +182,14 @@ describe('Drawer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Fechar detalhe' }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('na base, o rodape leva a classe que estende o fundo dele pela area segura', () => {
+    render(
+      <Drawer footer={<button type="button">Salvar</button>} open side="bottom" title="Relatório mensal">
+        Corpo.
+      </Drawer>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Salvar' }).parentElement).toHaveClass(styles.footer!);
+  });
 });
