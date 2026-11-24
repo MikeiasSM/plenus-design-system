@@ -19,6 +19,45 @@ describe('Card.Media', () => {
     expect(imagem).toHaveClass(styles.media, styles.mediaTop, styles.ratio16x9);
   });
 
+  it('soma a className do consumidor as classes da imagem', () => {
+    render(
+      <Card>
+        <Card.Media alt="Produto A" className="minha-imagem" src="/produto-a.jpg" />
+      </Card>,
+    );
+
+    expect(screen.getByRole('img', { name: 'Produto A' })).toHaveClass('minha-imagem', styles.media, styles.mediaTop);
+  });
+
+  it('entrega o ref ao elemento img', () => {
+    const ref = { current: null as HTMLImageElement | null };
+    render(
+      <Card>
+        <Card.Media alt="Produto A" ref={ref} src="/produto-a.jpg" />
+      </Card>,
+    );
+
+    expect(ref.current).toBe(screen.getByRole('img', { name: 'Produto A' }));
+  });
+
+  it.each([
+    ['top', '1:1', 'ratio1x1'],
+    ['top', '4:3', 'ratio4x3'],
+    ['end', '16:9', 'ratio16x9'],
+    ['end', '4:3', 'ratio4x3'],
+  ] as const)('em %s, o ratio %s explicito vence o padrao', (placement, ratio, classe) => {
+    render(
+      <Card>
+        <Card.Body>Produto A</Card.Body>
+        <Card.Media alt="Produto A" placement={placement} ratio={ratio} src="/produto-a.jpg" />
+      </Card>,
+    );
+
+    const imagem = screen.getByRole('img', { name: 'Produto A' });
+    expect(imagem).toHaveClass(styles[classe]);
+    expect(imagem).not.toHaveClass(placement === 'end' ? styles.ratio1x1 : styles.ratio16x9);
+  });
+
   it('sem endereco, nao ocupa espaco', () => {
     const { container } = render(
       <Card>
