@@ -1,0 +1,188 @@
+import { useEffect, useId, useState, type FocusEvent } from 'react';
+import { ButtonIcon } from '../../actions/ButtonIcon';
+import { Icon } from '../../icons/Icon';
+import { ColorPicker, type ColorPickerOption } from '../ColorPicker';
+import { InputText, type InputTextProps } from '../InputText';
+import styles from './ColorField.module.css';
+
+/** Uma amostra sugerida pelo produto, como uma cor tirada do logo. */
+export interface ColorFieldSuggestion {
+  /** Cor em hexadecimal, `#RRGGBB`. */
+  color: string;
+  /** Nome da amostra, ouvido pelo leitor de tela e mostrado como dica. */
+  label: string;
+}
+
+export interface ColorFieldProps
+  extends Omit<InputTextProps, 'defaultValue' | 'end' | 'icon' | 'mask' | 'onChange' | 'onValueChange' | 'unit' | 'value'> {
+  defaultValue?: string | null;
+  /** Nome do botao do conta-gotas. So aparece onde o navegador tem o `EyeDropper`. */
+  eyedropperLabel?: string;
+  /** Erro de formato, depois que a pessoa sai do campo com um codigo invalido. */
+  invalidMessage?: string;
+  label: string;
+  /** A cor normalizada, `#RRGGBB` em maiusculas, quando o codigo e valido; `null` com o campo vazio. */
+  onValueChange?: (value: string | null) => void;
+  /** Amostras do produto, como as cores do logo. Ficam abaixo do campo, como grupo de radio. */
+  suggestions?: readonly ColorFieldSuggestion[];
+  /** Nome do grupo das amostras. */
+  suggestionsLabel?: string;
+  value?: string | null;
+}
+
+interface EyeDropperResult {
+  sRGBHex: string;
+}
+
+interface EyeDropperConstructor {
+  new (): { open: () => Promise<EyeDropperResult> };
+}
+
+/** Conta-gotas, o mesmo desenho de `IconEyedropper`, sem trazer a suite inteira para a entrada principal. */
+function IconEyedropper() {
+  return (
+    <Icon>
+      <path d="M13.354.646a1.207 1.207 0 0 0-1.708 0L8.5 3.793l-.646-.647a.5.5 0 1 0-.708.708L8.293 5l-7.147 7.146A.5.5 0 0 0 1 12.5v1.793l-.854.853a.5.5 0 1 0 .708.707L1.707 15H3.5a.5.5 0 0 0 .354-.146L11 7.707l1.146 1.147a.5.5 0 0 0 .708-.708l-.647-.646 3.147-3.146a1.207 1.207 0 0 0 0-1.708zM2 12.707l7-7L10.293 7l-7 7H2z" />
+    </Icon>
+  );
+}
+
+/** `#abc`, `abc`, `#aabbcc` e `aabbcc` viram `#AABBCC`; o resto, `null`. */
+export function normalizeHex(text: string): string | null {
+  const raw = text.trim().replace(/^#/, '');
+
+  if (/^[0-9a-f]{3}$/i.test(raw)) {
+    return `#${[...raw].map((char) => char + char).join('')}`.toUpperCase();
+  }
+
+  return /^[0-9a-f]{6}$/i.test(raw) ? `#${raw}`.toUpperCase() : null;
+}
+
+function getEyeDropper(): EyeDropperConstructor | undefined {
+  return typeof window === 'undefined' ? undefined : (window as unknown as { EyeDropper?: EyeDropperConstructor }).EyeDropper;
+}
+
+/**
+ * Campo de cor livre: o codigo hexadecimal, as amostras que o produto sugere e o conta-gotas do navegador, onde ele
+ * existe (hoje Chrome e Edge de computador). Sem `EyeDropper`, o botao nao aparece.
+ */
+export function ColorField({
+  defaultValue,
+  error,
+  eyedropperLabel = 'Pegar uma cor da tela',
+  invalidMessage = 'Use o código hexadecimal, como #E85D1F.',
+  label,
+  onBlur,
+  onValueChange,
+  suggestions,
+  suggestionsLabel = 'Cores sugeridas',
+  value,
+  ...props
+}: ColorFieldProps) {
+  const controlled = value !== undefined;
+  const [text, setText] = useState(() => (controlled ? (value ?? '') : (defaultValue ?? '')));
+  const [touched, setTouched] = useState(false);
+  const [hasEyeDropper, setHasEyeDropper] = useState(false);
+  const pickerName = `color-field-${useId()}`;
+
+  // O navegador so e conhecido depois da montagem: assim o servidor e o cliente desenham o mesmo.
+  useEffect(() => setHasEyeDropper(Boolean(getEyeDropper())), []);
+
+  useEffect(() => {
+    if (controlled && normalizeHex(text) !== (value ?? null)) {
+      setText(value ?? '');
+    }
+    // So a mudanca de fora conta; o texto em digitacao nao volta ao valor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const color = normalizeHex(text);
+  const invalid = touched && text.trim() !== '' && color === null;
+
+  function commit(next: string) {
+    setText(next);
+    const normalized = normalizeHex(next);
+
+    if (next.trim() === '') {
+      onValueChange?.(null);
+    } else if (normalized && next.trim().replace(/^#/, '').length === 6) {
+      onValueChange?.(normalized);
+    }
+  }
+
+  // O codigo curto so vale quando a pessoa sai do campo: em digitacao, "e85" e o comeco de "e85d1f", e nao uma cor.
+  function commitShortCode() {
+    const normalized = normalizeHex(text);
+
+    if (normalized && text.trim().replace(/^#/, '').length === 3) {
+      setText(normalized);
+      onValueChange?.(normalized);
+    }
+  }
+
+  async function pick() {
+    const EyeDropper = getEyeDropper();
+
+    if (!EyeDropper) {
+      return;
+    }
+
+    try {
+      const result = await new EyeDropper().open();
+      setTouched(true);
+      commit(result.sRGBHex.toUpperCase());
+    } catch {
+      // A pessoa cancelou com Esc: nada muda.
+    }
+  }
+
+  const options: ColorPickerOption[] = (suggestions ?? []).map((suggestion) => ({
+    color: suggestion.color,
+    label: suggestion.label,
+    value: normalizeHex(suggestion.color) ?? suggestion.color,
+  }));
+  const chosen = options.some((option) => option.value === color) ? color : null;
+
+  return (
+    <div className={styles.colorField}>
+      <InputText
+        {...props}
+        autoCapitalize="characters"
+        autoComplete="off"
+        end={
+          hasEyeDropper ? (
+            <ButtonIcon icon={<IconEyedropper />} label={eyedropperLabel} onClick={() => void pick()} size="sm" variant="ghost" />
+          ) : undefined
+        }
+        error={error ?? (invalid ? invalidMessage : undefined)}
+        icon={<span className={styles.chip} data-empty={color ? undefined : ''} style={color ? { backgroundColor: color } : undefined} />}
+        label={label}
+        maxLength={7}
+        onBlur={(event: FocusEvent<HTMLInputElement>) => {
+          setTouched(true);
+          commitShortCode();
+          onBlur?.(event);
+        }}
+        onValueChange={commit}
+        spellCheck={false}
+        value={text}
+      />
+      {options.length > 0 && (
+        <ColorPicker
+          disabled={props.disabled}
+          label={suggestionsLabel}
+          name={pickerName}
+          onValueChange={(next) => {
+            if (next) {
+              setTouched(true);
+              commit(next);
+            }
+          }}
+          options={options}
+          size="sm"
+          value={chosen}
+        />
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,24 @@
+.colorField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+}
+
+/* A amostra da cor escrita, dentro do campo. Leva a borda do controle para se ver contra o fundo, mesmo em branco. */
+.chip {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 1px solid var(--pl-control-border, var(--pl-color-border-strong));
+  border-radius: var(--pl-radius-sm);
+}
+
+/* Sem cor valida, a amostra vazia e um quadro riscado, e nao uma cor que parece escolhida. */
+.chip[data-empty] {
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--pl-color-text-tertiary) 50%,
+    transparent calc(50% + 0.5px)
+  );
+}

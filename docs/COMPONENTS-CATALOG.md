@@ -72,6 +72,7 @@ A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação
 | `DatePickerRange` | Escolha de um intervalo de datas em calendário, com atalhos definidos pelo produto. | Disponível |
 | `TimePicker` | Entrada de hora. | Disponível |
 | `DateTimePicker` | Entrada de data e hora combinadas. | Disponível |
+| `ColorField` | Cor livre: código hexadecimal, amostras sugeridas pelo produto e conta-gotas onde o navegador tiver. | Disponível |
 | `ColorPicker` | Escolha de cor entre amostras definidas pelo produto. | Disponível |
 | `FileUpload` | Seleção de arquivos, por clique ou arrasto, com a lista dos envios. | Disponível |
 | `FieldRow` | Linha de ajuste: rótulo e explicação de um lado, o controle do outro. | Disponível |
@@ -123,6 +124,8 @@ O valor inválido, incluindo o que cai fora de `min` e `max`, não muda o valor 
 No `DatePickerRange`, com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro: `←` e `→` um dia, `↑` e `↓` sete, e sem intervalo partem de hoje. A seta que levaria o intervalo para fora de `min` e `max` não faz nada, e cada deslocamento chama `onValueChange` e é anunciado numa região de status oculta, no formato do gatilho, "10/11/2026 – 16/11/2026". O painel abre com Enter, Espaço ou Alt+`↓`.
 
 O `ColorPicker` escolhe entre amostras que o produto define, cada uma com nome — a cor de uma etiqueta, o destaque de um bloco. Não é seletor livre de cor: não há espectro nem campo hexadecimal. Por baixo são rádios nativos, e o nome de cada amostra é o que o leitor de tela ouve. Uma opção "Padrão", sem cor, é opcional.
+
+O `ColorField` é o campo de cor livre, com três jeitos de informar a cor: o código hexadecimal, digitado com ou sem `#` e em três ou seis dígitos; as amostras que o produto passa em `suggestions`, como as cores tiradas de um logo, que ficam abaixo do campo como um `ColorPicker`; e o conta-gotas do navegador (`EyeDropper`), que hoje só existe no Chrome e no Edge de computador. Onde ele não existe, o botão não aparece. `onValueChange` recebe a cor em `#RRGGBB` quando o código é válido, e `null` com o campo vazio: o código de seis dígitos vale na hora, e o de três, quando a pessoa sai do campo, já expandido, porque em digitação ele é o começo de um código de seis. Um código inválido mostra o erro de formato quando a pessoa sai do campo, e `invalidMessage` troca o texto. Uma amostra da cor escrita fica dentro do campo, decorativa. O `ColorField` não mede contraste: quem conferir a cor contra o texto é o produto, com `createPalette`.
 
 O tamanho das amostras e o espaço entre elas vêm do `size`, e o produto os ajusta por duas variáveis definidas em qualquer ancestral: `--pl-color-picker-size`, o diâmetro da amostra (20, 28 ou 36px por padrão), e `--pl-color-picker-gap`, o espaço entre elas (`--pl-space-2` no `sm`, `--pl-space-3` no `md` e no `lg`). O componente só as lê, com o valor do `size` como padrão. Com o dedo como ponteiro, o espaço continua crescendo para a área de toque de 44px.
 

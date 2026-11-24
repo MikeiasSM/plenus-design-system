@@ -1,0 +1,93 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ColorField, normalizeHex } from './ColorField';
+
+afterEach(() => {
+  delete (window as unknown as { EyeDropper?: unknown }).EyeDropper;
+});
+
+describe('normalizeHex', () => {
+  it('accepts short and long codes, with or without #', () => {
+    expect(normalizeHex('#e85d1f')).toBe('#E85D1F');
+    expect(normalizeHex('abc')).toBe('#AABBCC');
+    expect(normalizeHex('#12345')).toBeNull();
+    expect(normalizeHex('laranja')).toBeNull();
+  });
+});
+
+describe('ColorField', () => {
+  it('reports the normalized color only when the code is valid', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+
+    await userEvent.type(screen.getByLabelText('Cor da marca'), 'e85d1');
+    expect(onValueChange).not.toHaveBeenCalledWith(expect.stringMatching(/^#/));
+
+    await userEvent.type(screen.getByLabelText('Cor da marca'), 'f');
+    expect(onValueChange).toHaveBeenLastCalledWith('#E85D1F');
+  });
+
+  it('takes the short code only when leaving the field, expanded', async () => {
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, 'e85');
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    fireEvent.blur(input);
+    expect(onValueChange).toHaveBeenLastCalledWith('#EE8855');
+    expect(input).toHaveValue('#EE8855');
+  });
+
+  it('shows the format error only after leaving the field', async () => {
+    render(<ColorField label="Cor da marca" />);
+    const input = screen.getByLabelText('Cor da marca');
+
+    await userEvent.type(input, '12');
+    expect(screen.queryByText(/Use o código hexadecimal/)).toBeNull();
+
+    fireEvent.blur(input);
+    expect(screen.getByText('Use o código hexadecimal, como #E85D1F.')).toBeInTheDocument();
+  });
+
+  it('fills the field from a suggested swatch', async () => {
+    const onValueChange = vi.fn();
+    render(
+      <ColorField
+        label="Cor da marca"
+        onValueChange={onValueChange}
+        suggestions={[
+          { color: '#E85D1F', label: 'Laranja do logo' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Grafite do logo' }));
+
+    expect(onValueChange).toHaveBeenLastCalledWith('#2E2A26');
+    expect(screen.getByLabelText('Cor da marca')).toHaveValue('#2E2A26');
+    expect(screen.getByRole('radiogroup', { name: 'Cores sugeridas' })).toBeInTheDocument();
+  });
+
+  it('hides the eyedropper where the browser has none', () => {
+    render(<ColorField label="Cor da marca" />);
+
+    expect(screen.queryByRole('button', { name: 'Pegar uma cor da tela' })).toBeNull();
+  });
+
+  it('uses the eyedropper where it exists', async () => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const onValueChange = vi.fn();
+    render(<ColorField label="Cor da marca" onValueChange={onValueChange} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Pegar uma cor da tela' }));
+
+    expect(onValueChange).toHaveBeenLastCalledWith('#49619C');
+  });
+});
