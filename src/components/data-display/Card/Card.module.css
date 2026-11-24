@@ -317,7 +317,8 @@
 .mediaEnd {
   width: var(--card-media-size, 88px);
   height: auto;
-  margin: var(--card-gap) var(--card-gap) var(--card-gap) 0;
+  margin-block: var(--card-gap);
+  margin-inline: 0 var(--card-gap);
   border-radius: var(--pl-radius-md);
 }
 

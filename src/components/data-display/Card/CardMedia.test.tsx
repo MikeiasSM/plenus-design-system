@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Card } from './Card';
 import styles from './Card.module.css';
 
@@ -91,5 +93,21 @@ describe('Card.Media', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => render(<Card.Media alt="" src="/item.jpg" />)).toThrow('Card.Media deve ser usado dentro de Card.');
+  });
+});
+
+describe('Card.Media: estilo', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/components/data-display/Card/Card.module.css'), 'utf8');
+  const bloco = (seletor: string) => {
+    const inicio = css.indexOf(`${seletor} {`);
+
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    return css.slice(inicio, css.indexOf('}', inicio));
+  };
+
+  it('no fim da linha, o respiro segue a direcao do texto, e em rtl a imagem fica rente a borda da esquerda', () => {
+    expect(bloco('.mediaEnd')).toContain('margin-block: var(--card-gap);');
+    expect(bloco('.mediaEnd')).toContain('margin-inline: 0 var(--card-gap);');
+    expect(bloco('.mediaEnd')).not.toMatch(/margin(-left|-right)?:\s*var\(--card-gap\) var/);
   });
 });
