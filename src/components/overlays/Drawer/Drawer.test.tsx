@@ -158,4 +158,28 @@ describe('Drawer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('na base, sem title, e nomeado pelo aria-label e nao desenha o botao Fechar', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Drawer
+        aria-label="Detalhe do Produto A"
+        footer={<button type="button" onClick={() => onOpenChange(false)}>Fechar detalhe</button>}
+        onOpenChange={onOpenChange}
+        open
+        side="bottom"
+      >
+        Detalhe do item.
+      </Drawer>,
+    );
+
+    const painel = screen.getByRole('dialog', { name: 'Detalhe do Produto A' });
+    expect(painel).toHaveAttribute('aria-modal', 'true');
+    expect(painel.parentElement).toHaveClass(styles.bottom!);
+    // Sem title nao ha cabecalho: a saida que o leitor de tela alcanca e o botao que o produto pos.
+    expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar detalhe' }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
 });
