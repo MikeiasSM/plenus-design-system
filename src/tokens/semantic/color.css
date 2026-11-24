@@ -149,6 +149,14 @@
   --pl-color-on-primary-container: light-dark(var(--pl-palette-80), var(--pl-palette-30));
 }
 
+/* O contorno do preenchimento fraco e declarado so pela paleta propria que precisa dele (`createPalette`). Cada
+   escopo de paleta o zera, para que a paleta fixa ou propria aninhada nao herde a borda da paleta de fora: sem a
+   declaracao, quem o usa volta ao valor de reserva. A paleta propria que precisa dele o declara no `style` do proprio
+   elemento, que vence esta regra. */
+[data-palette] {
+  --pl-color-primary-outline: initial;
+}
+
 /* O tema escolhido no elemento vale para a subarvore. Sem `data-theme` em lugar nenhum, o sistema decide. */
 :root {
   color-scheme: light dark;
