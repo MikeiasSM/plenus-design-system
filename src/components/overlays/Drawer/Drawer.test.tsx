@@ -147,12 +147,12 @@ describe('Drawer', () => {
   it('na base, sobe da borda de baixo e continua um dialogo modal que fecha pelo botao', () => {
     const onOpenChange = vi.fn();
     render(
-      <Drawer onOpenChange={onOpenChange} open side="bottom" size="lg" title="Pizza Calabresa Grande">
+      <Drawer onOpenChange={onOpenChange} open side="bottom" size="lg" title="Detalhe do Produto B">
         Detalhe do item.
       </Drawer>,
     );
 
-    const painel = screen.getByRole('dialog', { name: 'Pizza Calabresa Grande' });
+    const painel = screen.getByRole('dialog', { name: 'Detalhe do Produto B' });
     expect(painel).toHaveAttribute('aria-modal', 'true');
     expect(painel).toHaveClass(styles.lg!);
     expect(painel.parentElement).toHaveClass(styles.bottom!);
