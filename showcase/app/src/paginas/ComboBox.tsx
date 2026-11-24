@@ -412,6 +412,8 @@ export const pagina: Pagina = {
     </>
   ),
   api: [
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora dele. Não entra no nome do campo.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do campo, na mesma linha, fora da descrição.' },
     { nome: 'portalContainer', tipo: 'HTMLElement | null', descricao: 'Elemento que recebe o overlay, para herdar o tema da subárvore. Vale sobre o PortalProvider; sem ele e sem o provider, o document.body.' },
     { nome: 'options', tipo: 'readonly ComboBoxOption[]', descricao: <>Cada opção: <code>label</code>, <code>value</code>, <code>disabled</code>, <code>description</code>, <code>icon</code> e <code>group</code>.</> },
     { nome: 'options[].description', tipo: 'string', descricao: 'Segunda linha, ligada como descrição acessível. A busca local procura só no rótulo.' },

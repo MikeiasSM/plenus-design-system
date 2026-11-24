@@ -1,5 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useEffect, useState } from 'react';
+import labelStyles from '../Label/Label.module.css';
+import styles from './FieldRow.module.css';
+import { regrasDaFolha } from '../../../test/folha';
 import { renderToString } from 'react-dom/server';
 import { Button } from '../../actions/Button';
 import { InputNumber } from '../InputNumber';
@@ -61,13 +64,13 @@ describe('FieldRow', () => {
       </FieldRow>,
     );
 
-    expect(screen.getByText('Pedidos na fila').closest('label')).not.toHaveAttribute('for');
+    expect(screen.getByText('Pedidos na fila').closest('label')).toBeNull();
   });
 
   it('volta a apontar para o controle quando ele aparece', () => {
     const { rerender } = render(<FieldRow label="Limite">{() => <span>Carregando</span>}</FieldRow>);
 
-    expect(screen.getByText('Limite').closest('label')).not.toHaveAttribute('for');
+    expect(screen.getByText('Limite').closest('label')).toBeNull();
 
     rerender(<FieldRow label="Limite">{({ id }) => <input id={id} />}</FieldRow>);
 
@@ -131,7 +134,7 @@ describe('FieldRow', () => {
 
     expect(grupo).not.toHaveAttribute('aria-label');
     expect(grupo).toHaveAccessibleDescription('Quando o resumo chega.');
-    expect(screen.getByText('Frequencia').closest('label')).not.toHaveAttribute('for');
+    expect(screen.getByText('Frequencia').closest('label')).toBeNull();
     expect(screen.getAllByText('Frequencia')).toHaveLength(1);
   });
 
@@ -173,5 +176,87 @@ describe('FieldRow', () => {
 
     expect(aviso).toHaveBeenCalledWith(expect.stringContaining('SegmentedControl'));
     aviso.mockRestore();
+  });
+
+  it('sem controle a apontar, o titulo e texto com o desenho do rotulo, e nao um label solto', () => {
+    render(
+      <FieldRow label="Pedidos na fila">
+        <Button>Desligar aprovacao</Button>
+      </FieldRow>,
+    );
+
+    const titulo = screen.getByText('Pedidos na fila');
+
+    expect(titulo.tagName).toBe('SPAN');
+    expect(titulo).toHaveClass(labelStyles.label!);
+    expect(document.querySelector('label')).toBeNull();
+  });
+
+  it('o titulo em texto ainda nomeia o grupo pelo labelId', () => {
+    render(
+      <FieldRow label="Frequencia">
+        {({ labelId }) => <SegmentedControl aria-labelledby={labelId} items={[{ label: 'Dia', value: 'dia' }]} />}
+      </FieldRow>,
+    );
+
+    expect(screen.getByText('Frequencia').tagName).toBe('SPAN');
+    expect(screen.getByRole('radiogroup', { name: 'Frequencia' })).toBeInTheDocument();
+  });
+
+  it('com o id informado e filho direto, o rotulo continua apontando para ele', () => {
+    render(
+      <FieldRow id="limite" label="Limite">
+        <input id="limite" />
+      </FieldRow>,
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Limite' })).toBeInTheDocument();
+  });
+
+  it('poe o complemento ao lado do titulo, fora do nome do controle', () => {
+    render(
+      <FieldRow label="Avisar por e-mail" labelAddon={<span>Novo</span>}>
+        {({ id }) => <Switch id={id} />}
+      </FieldRow>,
+    );
+
+    expect(screen.getByRole('switch', { name: 'Avisar por e-mail' })).toBeInTheDocument();
+    expect(screen.getByText('Novo').closest('label')).toBeNull();
+    expect(screen.getByText('Novo').parentElement).toBe(screen.getByText('Avisar por e-mail').parentElement);
+  });
+
+  it('alinha ao centro por padrao e ao topo com align="start"', () => {
+    const { container, rerender } = render(<FieldRow label="Nota">{({ id }) => <textarea id={id} />}</FieldRow>);
+
+    expect(container.firstElementChild).not.toHaveClass(styles.start!);
+
+    rerender(
+      <FieldRow align="start" label="Nota">
+        {({ id }) => <textarea id={id} />}
+      </FieldRow>,
+    );
+
+    expect(container.firstElementChild).toHaveClass(styles.start!);
+  });
+});
+
+describe('FieldRow: largura do texto', () => {
+  const regras = regrasDaFolha('src/components/forms/FieldRow/FieldRow.module.css');
+
+  it('com --pl-field-row-label-width, o texto fica fixo nela e o controle ocupa o resto; sem ela, vale o padrao', () => {
+    expect(regras.get('.text')).toMatchObject({
+      '--_field-row-text-flex': '0 0 var(--pl-field-row-label-width)',
+      flex: 'var(--_field-row-text-flex, 1 1 260px)',
+    });
+    expect(regras.get('.control')).toMatchObject({
+      '--_field-row-control-flex': '1 1 calc(0 * var(--pl-field-row-label-width))',
+      flex: 'var(--_field-row-control-flex, 0 1 auto)',
+    });
+  });
+
+  it('nunca declara a variavel publica', () => {
+    for (const declaracoes of regras.values()) {
+      expect(Object.keys(declaracoes)).not.toContain('--pl-field-row-label-width');
+    }
   });
 });

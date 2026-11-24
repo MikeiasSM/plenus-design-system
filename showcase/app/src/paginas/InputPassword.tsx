@@ -196,6 +196,17 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Link ao lado do rótulo, sem o botão de mostrar',
+      descricao:
+        'O labelAddon leva o link de recuperar a senha para a linha do rótulo, fora do nome do campo. Com showToggle={false}, o texto volta a ter o recuo do campo comum no fim.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <InputPassword label="Senha" labelAddon={<a href="#recuperar">Esqueci a senha</a>} showToggle={false} />
+        </div>
+      ),
+      codigo: '<InputPassword\n  label="Senha"\n  labelAddon={<a href="/recuperar">Esqueci a senha</a>}\n  showToggle={false}\n/>',
+    },
+    {
       titulo: 'Entrada',
       descricao: 'O gerenciador de senhas preenche a senha salva.',
       Previa: () => (
@@ -242,6 +253,9 @@ export const pagina: Pagina = {
     { nome: 'validate', tipo: '(value: string) => string | undefined', descricao: 'Devolve a mensagem de erro, ou undefined.' },
     { nome: 'validateOnBlur', tipo: 'boolean', padrao: 'true', descricao: 'Valida a partir da saída do campo; false valida a cada tecla.' },
     { nome: 'onValidationChange', tipo: '(message?: string) => void', descricao: 'Recebe o resultado de cada validação.' },
+    { nome: 'onValueChange', tipo: '(value: string) => void', descricao: 'O texto a cada mudança, ao lado do onChange nativo.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora dele, como o link de recuperar a senha. Não entra no nome do campo.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do campo, na mesma linha, fora da descrição.' },
     { nome: 'showToggle', tipo: 'boolean', padrao: 'true', descricao: 'Mostra o botão de revelação.' },
     { nome: 'allowCopy', tipo: 'boolean', padrao: 'false', descricao: 'Libera copiar e recortar.' },
     { nome: 'autoComplete', tipo: 'string', padrao: "'current-password'", descricao: "Use 'new-password' em cadastro e troca." },

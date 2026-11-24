@@ -1,4 +1,4 @@
-import { Textarea, type TextareaSize } from '@plenustech/design-system';
+import { Badge, Button, Textarea, type TextareaSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
@@ -144,6 +144,23 @@ export const pagina: Pagina = {
   playground,
   exemplos: [
     {
+      titulo: 'Complemento do rótulo e botão ao lado',
+      descricao: 'labelAddon fica ao lado do rótulo, fora do nome; aside divide a linha com o campo, alinhado ao topo dele, e o contador desce para baixo dos dois.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Textarea
+            aside={<Button variant="secondary">Sugerir</Button>}
+            label="Resumo"
+            labelAddon={<Badge>Opcional</Badge>}
+            maxLength={240}
+            showCharacterCount
+          />
+        </div>
+      ),
+      codigo:
+        '<Textarea\n  label="Resumo"\n  labelAddon={<Badge>Opcional</Badge>}\n  aside={<Button variant="secondary">Sugerir</Button>}\n  maxLength={240}\n  showCharacterCount\n/>',
+    },
+    {
       titulo: 'Observações com limite',
       descricao: 'O contador mostra o total contra o limite e entra na descrição do campo.',
       Previa: () => (
@@ -175,6 +192,8 @@ export const pagina: Pagina = {
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <textarea>, exceto size, e o ref.',
   api: [
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora dele. Não entra no nome do campo.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do campo, na mesma linha, fora da descrição.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do campo.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do campo.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e marca o campo como inválido.' },

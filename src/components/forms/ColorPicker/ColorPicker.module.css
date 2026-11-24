@@ -5,19 +5,21 @@
   padding: var(--pl-space-1);
 }
 
+/* O tamanho e o espaco de cada medida sao o padrao: `--pl-color-picker-size` e `--pl-color-picker-gap`, definidas pelo
+   produto em qualquer ancestral, valem sobre eles. */
 .sm {
   --color-picker-size: 20px;
-  gap: var(--pl-space-2);
+  gap: var(--pl-color-picker-gap, var(--pl-space-2));
 }
 
 .md {
   --color-picker-size: 28px;
-  gap: var(--pl-space-3);
+  gap: var(--pl-color-picker-gap, var(--pl-space-3));
 }
 
 .lg {
   --color-picker-size: 36px;
-  gap: var(--pl-space-3);
+  gap: var(--pl-color-picker-gap, var(--pl-space-3));
 }
 
 /* O contorno no texto terciário passa 3:1 sobre a superfície nos dois temas: amostra branca no claro, ou preta no escuro, não some. */
@@ -27,8 +29,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: var(--color-picker-size);
-  height: var(--color-picker-size);
+  width: var(--pl-color-picker-size, var(--color-picker-size));
+  height: var(--pl-color-picker-size, var(--color-picker-size));
   border: 1px solid var(--pl-color-text-tertiary);
   border-radius: var(--pl-radius-full);
   cursor: pointer;
@@ -102,7 +104,7 @@
   .sm,
   .md,
   .lg {
-    gap: max(var(--pl-space-2), calc(44px - var(--color-picker-size)));
+    gap: max(var(--pl-color-picker-gap, var(--pl-space-2)), calc(44px - var(--pl-color-picker-size, var(--color-picker-size))));
   }
 
   .swatch::after {

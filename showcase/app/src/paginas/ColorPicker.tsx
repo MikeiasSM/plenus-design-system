@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import {
   ColorPicker,
   Select,
@@ -172,6 +172,17 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Tamanho e espaço sob medida',
+      descricao: '--pl-color-picker-size e --pl-color-picker-gap, definidas num ancestral, valem sobre a medida de cada size.',
+      Previa: () => (
+        <div style={{ '--pl-color-picker-size': '24px', '--pl-color-picker-gap': '6px' } as CSSProperties}>
+          <ColorPicker defaultValue="verde" label="Cor da etiqueta" options={CORES} />
+        </div>
+      ),
+      codigo:
+        "<div style={{ '--pl-color-picker-size': '24px', '--pl-color-picker-gap': '6px' }}>\n  <ColorPicker label=\"Cor da etiqueta\" options={cores} defaultValue=\"verde\" />\n</div>",
+    },
     {
       titulo: 'Cor de um trecho',
       descricao: 'Como na aba Estilo do editor: a amostra riscada devolve o texto à cor padrão do documento.',

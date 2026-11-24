@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
-import { Field, InputText, type FieldSize } from '@plenustech/design-system';
+import { Badge, Button, Field, InputText, type FieldSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 
@@ -203,6 +203,23 @@ function Comprovante() {
   );
 }
 
+function CepComBusca() {
+  return (
+    <div style={{ width: '100%', maxWidth: 360 }}>
+      <Field
+        aside={<Button variant="secondary">Buscar</Button>}
+        error="CEP com 8 dígitos."
+        label="CEP"
+        labelAddon={<Badge>Opcional</Badge>}
+      >
+        {({ className, id, describedBy, invalid }) => (
+          <input aria-describedby={describedBy} aria-invalid={invalid || undefined} className={className} id={id} inputMode="numeric" />
+        )}
+      </Field>
+    </div>
+  );
+}
+
 function Modos() {
   return (
     <dl className="modes">
@@ -233,6 +250,14 @@ function Modos() {
 export const pagina: Pagina = {
   playground,
   exemplos: [
+    {
+      titulo: 'Complemento do rótulo e botão ao lado',
+      descricao:
+        'O labelAddon fica ao lado do rótulo e fora dele, sem entrar no nome do campo. O aside divide a linha com o controle; a mensagem desce para baixo dos dois, e o botão continua alinhado ao campo.',
+      Previa: CepComBusca,
+      codigo:
+        '<Field\n  label="CEP"\n  labelAddon={<Badge>Opcional</Badge>}\n  aside={<Button variant="secondary">Buscar</Button>}\n  error={erro}\n>\n  {({ className, id, describedBy, invalid }) => (\n    <input className={className} id={id} aria-describedby={describedBy} aria-invalid={invalid || undefined} />\n  )}\n</Field>',
+    },
     {
       titulo: 'Erro que aparece ao sair',
       descricao: 'Saia do campo com menos de 11 dígitos: o erro troca a ajuda e é anunciado.',
@@ -283,6 +308,7 @@ export const pagina: Pagina = {
     { garantia: 'Erro anunciado', como: <>O erro que aparece depois sai com <code>role=&quot;alert&quot;</code>; a ajuda, sem papel.</>, teste: 'Field.test.tsx' },
     { garantia: 'Descrição preservada', como: <>O <code>aria-describedby</code> de fora é somado à descrição montada.</>, teste: 'Field.test.tsx' },
     { garantia: 'Contador descrito', como: 'A contagem contra o limite entra na descrição do controle.', teste: 'Field.test.tsx' },
+    { garantia: 'Complemento fora do nome', como: <>O <code>labelAddon</code> fica fora do <code>&lt;label&gt;</code>, e o <code>aside</code>, fora da descrição.</>, teste: 'Field.test.tsx' },
   ],
   notaDaApi: 'Além destas, as propriedades nativas de <div>, que vão ao elemento de fora, e o ref.',
   api: [
@@ -294,6 +320,8 @@ export const pagina: Pagina = {
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Tamanho do visual entregue em className, o mesmo dos campos do catálogo.' },
     { nome: 'label', tipo: 'string', descricao: 'Rótulo do controle. Opcional, para o controle que se nomeia sozinho.' },
     { nome: 'hint', tipo: 'string', descricao: 'Ajuda abaixo do controle, na descrição dele.' },
+    { nome: 'labelAddon', tipo: 'ReactNode', descricao: 'Ao lado do rótulo e fora do <label>, numa linha de cabeçalho: selo, dica ou link. Não entra no nome do controle.' },
+    { nome: 'aside', tipo: 'ReactNode', descricao: 'Ao lado do controle, na mesma linha. A mensagem e o contador ficam abaixo dos dois; fora da descrição do controle.' },
     { nome: 'error', tipo: 'string', descricao: 'Mensagem de erro: substitui a ajuda e liga invalid.' },
     { nome: 'required', tipo: 'boolean', padrao: 'false', descricao: 'Asterisco no rótulo. O required do controle é de quem o escreve.' },
     { nome: 'id', tipo: 'string', padrao: 'gerado', descricao: 'Id do controle, entregue pela função.' },

@@ -6,6 +6,7 @@ import {
   type ClipboardEvent,
   type FocusEvent,
   type ComponentPropsWithRef,
+  type ReactNode,
 } from 'react';
 import { Field } from '../Field';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
@@ -15,11 +16,17 @@ import styles from './InputPassword.module.css';
 export type InputPasswordSize = 'sm' | 'md' | 'lg';
 
 export interface InputPasswordProps extends Omit<ComponentPropsWithRef<'input'>, 'type' | 'size'> {
+  /** Ao lado do campo, na mesma linha, como o botao que o completa. Fica fora da descricao do campo. */
+  aside?: ReactNode;
   error?: string;
   hint?: string;
   label?: string;
+  /** Ao lado do rotulo e fora dele, como o link de recuperar a senha. Nao entra no nome do campo. */
+  labelAddon?: ReactNode;
   allowCopy?: boolean;
   onValidationChange?: (message?: string) => void;
+  /** O texto a cada mudanca, ao lado do `onChange` nativo. */
+  onValueChange?: (value: string) => void;
   showToggle?: boolean;
   validate?: (value: string) => string | undefined;
   validateOnBlur?: boolean;
@@ -30,6 +37,7 @@ export function InputPassword({
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
   allowCopy = false,
+  aside,
   className,
   defaultValue,
   disabled = false,
@@ -37,12 +45,14 @@ export function InputPassword({
   hint,
   id: providedId,
   label,
+  labelAddon,
   maxLength,
   onChange,
   onCopy,
   onCut,
   onBlur,
   onValidationChange,
+  onValueChange,
   required = false,
   showToggle = true,
   size = 'md',
@@ -58,7 +68,7 @@ export function InputPassword({
   const inputRef = useRef<HTMLInputElement>(null);
   const mergedRef = useMergedRefs(inputRef, ref);
   const displayedError = error ?? validationMessage;
-  const inputClasses = [styles.input, styles[size], displayedError && styles.error, className]
+  const inputClasses = [styles.input, styles[size], showToggle && styles.withToggle, displayedError && styles.error, className]
     .filter(Boolean)
     .join(' ');
 
@@ -90,6 +100,7 @@ export function InputPassword({
       runValidation(event.target.value);
     }
     onChange?.(event);
+    onValueChange?.(event.target.value);
   }
 
   function handleBlur(event: FocusEvent<HTMLInputElement>) {
@@ -117,10 +128,12 @@ export function InputPassword({
   return (
     <Field
       aria-describedby={ariaDescribedBy}
+      aside={aside}
       error={displayedError}
       hint={hint}
       id={providedId}
       label={label}
+      labelAddon={labelAddon}
       maxLength={maxLength}
       required={required}
     >

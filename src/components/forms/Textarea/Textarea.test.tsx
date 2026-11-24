@@ -42,4 +42,21 @@ describe('Textarea', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onValueChange).toHaveBeenCalledWith('Entregar cedo');
   });
+
+  it('repassa o complemento do rotulo e o aside ao Field, fora do nome e da descricao', () => {
+    render(
+      <Textarea
+        aside={<button type="button">Sugerir texto</button>}
+        hint="Aparece no resumo."
+        label="Observacao"
+        labelAddon={<span>Opcional</span>}
+      />,
+    );
+
+    const campo = screen.getByRole('textbox', { name: 'Observacao' });
+
+    expect(campo).toHaveAccessibleDescription('Aparece no resumo.');
+    expect(screen.getByText('Opcional').closest('label')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sugerir texto' })).toBeInTheDocument();
+  });
 });

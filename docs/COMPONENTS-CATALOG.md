@@ -82,7 +82,11 @@ A `Toolbar` agrupa os controles de uma superfície, como a barra de formatação
 
 A fronteira com `Label` é de alcance: `Label` nomeia **um** controle; `Field` cuida do conjunto — rótulo, ajuda, erro e contador — e da amarração entre eles, que é a parte que mais se erra. Um campo do próprio catálogo nunca deve ser envolvido por `Field`: ele já tem o seu.
 
+O `Field` aceita duas fendas. `labelAddon` vai ao lado do rótulo, fora do `<label>`, numa linha de cabeçalho: um selo de "Opcional", uma dica ou um link como "Esqueci a senha". Ele não entra no nome do campo e pode ser interativo. `aside` divide a linha com o controle, como o botão que completa o campo; o rótulo fica acima dos dois, a mensagem e o contador abaixo dos dois, com o topo do `aside` alinhado ao do controle, e ele fica fora da descrição do campo. `InputText`, `InputPassword`, `Textarea`, `Select` e `ComboBox` repassam as duas propriedades ao `Field` que usam por dentro.
+
 O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma busca. O nome do campo continua no rótulo. `mask` formata o que se digita ou cola, por um padrão (`0` dígito, `a` letra, `*` letra ou dígito, o resto literal) ou por uma função; o campo, o `onValueChange` e o `name` ficam com o texto formatado, e `onRawValueChange` entrega o cru. É mecanismo: a biblioteca não traz máscara de CPF, CNPJ ou telefone, que são do produto.
+
+O fim do `InputText` aceita controles. `end` é uma fenda dentro da borda, depois da `unit`, que não é decorativa: aceita um botão, que precisa do próprio nome. `clearable` põe um botão de limpar, com o nome `clearLabel` ("Limpar" por padrão), só quando há texto e o campo não está desabilitado nem somente leitura: ele esvazia o campo pelo evento `input` nativo, o que chama `onChange` e `onValueChange('')` também no campo não controlado, e devolve o foco ao campo. `loading` põe um `Spinner` decorativo ao fim e anuncia o `loadingLabel` ("Carregando" por padrão) numa região `role="status"` oculta, montada enquanto a propriedade existir: passe `loading={false}` desde o início, para a região já estar lá quando ligar. O campo não recebe `aria-busy`. Com qualquer uma das três, o invólucro passa a desenhar a borda, o fundo e o foco, por `:focus-within`, e o `<input>` fica sem borda; a altura, os estados de erro, desabilitado e somente leitura e o recuo do texto e do ícone não mudam. A `className` continua indo ao `<input>`: a largura do campo vem do lugar em que ele é montado. A cor do ícone inicial lê `--pl-input-icon-color`, com o terciário como padrão.
 
 `SegmentedControl` e `RadioGroup` fazem a mesma escolha única, e a fronteira é a forma: o `RadioGroup` é a lista de opções de um formulário, com legenda, ajuda e erro; o `SegmentedControl` é um controle compacto, de poucas opções curtas, que muda o que a tela mostra — o período de um painel, a lista ou os cartões. Por baixo ele também é rádio nativo. Com mais de cinco opções, ou opções longas, a escolha é `Select`. A fronteira com `Tabs` é o painel: a aba troca o conteúdo que ela controla; o segmento muda um valor.
 
@@ -91,6 +95,8 @@ O `InputText` aceita um ícone decorativo à frente do texto, como a lupa de uma
 O `RadioGroup` e o `CheckboxGroup` aceitam `orientation`: na vertical, o padrão, uma opção por linha; na horizontal, lado a lado e com quebra de linha quando não couberem, para poucas opções curtas.
 
 O `InputNumber` aceita `unit`, a unidade ou o sufixo ao fim do campo — `%`, `kg`, `dias`. Ela fica fora do rótulo e do valor, e o leitor de tela a ouve como descrição do campo.
+
+O `InputPassword` entrega o texto a cada mudança por `onValueChange`, ao lado do `onChange` nativo, como os outros campos de texto. Sem o botão de mostrar (`showToggle={false}`), o texto não reserva mais o espaço dele no fim.
 
 `DatePickerRange` é um componente à parte do `DatePicker`, e não um modo dele, porque o valor é outro, `{ start, end }` em ISO, e o campo é um gatilho que abre o painel, sem texto a digitar. O nome segue o tipo e depois a especialização. O primeiro clique no calendário marca o início e o segundo o fim, trocando as pontas se vier antes; só `Aplicar` grava o valor, e `Limpar` o esvazia. Os atalhos, como "Últimos 7 dias" e "Este mês", são do produto: `shortcuts` recebe `{ label, range }`, e `range` é uma função, chamada com o painel aberto, para que "Hoje" valha o dia da escolha. Sem a propriedade não há atalho. `defaultDateRangeShortcuts` é uma lista pronta e opcional (Hoje, Ontem, Últimos 7 dias, Últimos 30 dias, Este mês e Mês passado) que o produto passa inteira, filtra ou substitui. O atalho cujo intervalo sai de `min` e `max` fica desabilitado.
 
@@ -107,6 +113,8 @@ O valor inválido, incluindo o que cai fora de `min` e `max`, não muda o valor 
 No `DatePickerRange`, com o painel fechado, `H` marca hoje como início e fim, e as setas deslocam o intervalo inteiro: `←` e `→` um dia, `↑` e `↓` sete, e sem intervalo partem de hoje. A seta que levaria o intervalo para fora de `min` e `max` não faz nada, e cada deslocamento chama `onValueChange` e é anunciado numa região de status oculta, no formato do gatilho, "10/11/2026 – 16/11/2026". O painel abre com Enter, Espaço ou Alt+`↓`.
 
 O `ColorPicker` escolhe entre amostras que o produto define, cada uma com nome — a cor de uma etiqueta, o destaque de um bloco. Não é seletor livre de cor: não há espectro nem campo hexadecimal. Por baixo são rádios nativos, e o nome de cada amostra é o que o leitor de tela ouve. Uma opção "Padrão", sem cor, é opcional.
+
+O tamanho das amostras e o espaço entre elas vêm do `size`, e o produto os ajusta por duas variáveis definidas em qualquer ancestral: `--pl-color-picker-size`, o diâmetro da amostra (20, 28 ou 36px por padrão), e `--pl-color-picker-gap`, o espaço entre elas (`--pl-space-2` no `sm`, `--pl-space-3` no `md` e no `lg`). O componente só as lê, com o valor do `size` como padrão. Com o dedo como ponteiro, o espaço continua crescendo para a área de toque de 44px.
 
 O `FileUpload` cuida da escolha dos arquivos e da lista que mostra o andamento, e não envia nada: o produto recebe os arquivos aceitos, faz o envio e informa a cada item o progresso, a conclusão ou o erro. Tipo e tamanho são conferidos na escolha, e o que for recusado volta ao produto com o motivo. Quem não arrasta escolhe pelo seletor de arquivos nativo, que é o que recebe o foco.
 
@@ -134,6 +142,8 @@ O `SegmentedControl`, o `RadioGroup` e o `CheckboxGroup` são grupos, não campo
 
 O controle que se nomeia pelo conteúdo, como um `Button`, usa só `describedBy`.
 
+O título do `FieldRow` só é `<label>` quando há controle a apontar: quando a função não lê o `id`, ou o filho direto vem sem `id` informado, ele é um `<span>` com o mesmo desenho, e continua nomeando o grupo pelo `labelId`. `labelAddon` vai ao lado do título, fora do rótulo, como um selo, e não entra no nome do controle. `align` alinha o texto e o controle ao centro, o padrão, ou ao topo, com `start`, para o controle alto, como um `Textarea`. Numa lista de linhas, `--pl-field-row-label-width`, definida pelo produto num ancestral, dá a todos os textos a mesma largura (`flex: 0 0` nela) e o resto ao controle (`flex: 1 1 0`); quando a linha estreita, o controle continua descendo para sob o texto. Indefinida, a linha fica como sempre foi.
+
 ## 4. Listagem e escolha
 
 | Componente | Papel | Situação |
@@ -149,6 +159,8 @@ Os três nomes são próximos e a fronteira é o papel na interface, não a impl
 Os três compartilham a mesma listagem interna. O consumidor escolhe pelo papel, não pela capacidade isolada.
 
 A opção do `ComboBox` pode ser composta: uma segunda linha, como a coleção de um documento, um ícone decorativo à frente e o grupo a que pertence. O nome da opção continua sendo o rótulo, e a segunda linha é a descrição dela. As opções seguidas de um mesmo grupo aparecem juntas, sob o título, e as setas passam de um grupo ao outro sem parar nele. É o campo de busca que mostra resultados ricos, como o do acervo de documentos.
+
+A opção do `Select` também aceita `group`, com o mesmo comportamento: as opções seguidas de um mesmo grupo aparecem juntas, sob o título, e as setas passam de um grupo ao outro. O gatilho fechado mostra só o rótulo.
 
 Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` marca os itens habilitados do resultado da busca, sem desmarcar o resto; `clearable` desmarca tudo, inclusive o que a busca esconde. `confirmSelection` torna a marcação um rascunho: `onValueChange` é chamado uma vez, em "Aplicar", e Cancelar, Escape ou sair do campo descartam o que foi marcado. `labels` troca os quatro textos (`selectAll`, `clear`, `apply` e `cancel`). Pelo teclado, o Tab do campo vai aos botões do rodapé, o Shift+Tab no primeiro volta ao campo, e o Tab no último devolve o foco ao campo e fecha o painel; Enter e Espaço no campo continuam marcando a opção em foco. Uma região de status anuncia a contagem a cada mudança. Sem as três propriedades o painel não tem rodapé.
 

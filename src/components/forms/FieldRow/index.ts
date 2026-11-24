@@ -1,2 +1,2 @@
 export { FieldRow } from './FieldRow';
-export type { FieldRowProps, FieldRowWiring } from './FieldRow';
+export type { FieldRowAlign, FieldRowProps, FieldRowWiring } from './FieldRow';
