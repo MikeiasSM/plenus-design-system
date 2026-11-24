@@ -319,6 +319,51 @@ describe('TabsNav', () => {
       expect(onCurrentChange).not.toHaveBeenCalled();
     });
 
+    it('o top do sticky vem do stickyOffset, e o top de style vence', () => {
+      const { rerender } = render(<TabsNav current="geral" followScroll items={secoes} label="Seções" stickyOffset={56} />);
+      expect(screen.getByRole('navigation')).toHaveStyle({ top: '56px' });
+
+      rerender(<TabsNav current="geral" followScroll items={secoes} label="Seções" stickyOffset={56} style={{ top: 'var(--topo)' }} />);
+      expect(screen.getByRole('navigation').style.top).toBe('var(--topo)');
+    });
+
+    it('o clique na aba reserva a barra no destino, com o top e a altura dela, e chama o onClick do item', () => {
+      montarSecoes({ geral: 0, avisos: 400, acesso: 900 });
+      const onClick = vi.fn();
+      render(
+        <TabsNav
+          current="geral"
+          followScroll
+          items={secoes.map((secao) => (secao.key === 'avisos' ? { ...secao, linkProps: { onClick } } : secao))}
+          label="Seções"
+          stickyOffset={56}
+        />,
+      );
+      Object.defineProperty(screen.getByRole('navigation'), 'offsetHeight', { configurable: true, value: 48 });
+
+      fireEvent.click(screen.getByRole('link', { name: 'Avisos' }));
+
+      expect(document.getElementById('avisos')).toHaveStyle({ scrollMarginTop: '104px' });
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('centraliza a aba atual na faixa, sem animacao com movimento reduzido', () => {
+      const scrollTo = vi.fn();
+      Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: scrollTo });
+      vi.spyOn(window, 'matchMedia').mockImplementation(
+        (consulta) => ({ matches: consulta.includes('reduce'), media: consulta }) as MediaQueryList,
+      );
+
+      try {
+        const { rerender } = render(<TabsNav current="geral" followScroll items={secoes} label="Seções" />);
+        rerender(<TabsNav current="acesso" followScroll items={secoes} label="Seções" />);
+
+        expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ behavior: 'auto' }));
+      } finally {
+        delete (HTMLElement.prototype as unknown as Record<string, unknown>).scrollTo;
+      }
+    });
+
     it('sem followScroll, nao observa a rolagem', () => {
       montarSecoes({ geral: -400, avisos: -10, acesso: 600 });
       const onCurrentChange = vi.fn();

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ComponentPropsWithRef, type ElementType, type ReactNode, type RefObject } from 'react';
+import { useEffect, useRef, type ComponentPropsWithRef, type ElementType, type MouseEvent, type ReactNode, type RefObject } from 'react';
 import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import { TabLabel, temAcoes, type TabsAppearance } from '../Tabs/Tabs';
 import tabsStyles from '../Tabs/Tabs.module.css';
@@ -36,7 +36,10 @@ export interface TabsNavProps extends Omit<ComponentPropsWithRef<'nav'>, 'aria-l
   label: string;
   /** Com `followScroll`, a chave da seção que ficou visível com a rolagem. */
   onCurrentChange?: (key: string) => void;
-  /** Com `followScroll`, a altura do que fica preso acima da barra, em pixels, para a seção não passar por baixo dela. */
+  /**
+   * Com `followScroll`, a altura do que fica preso acima da barra, em pixels, na área que rola: vira o `top` do sticky.
+   * Um `top` em `style` vence. A seção atual e a margem do clique são medidas pela própria barra, sem este valor.
+   */
   stickyOffset?: number;
 }
 
@@ -165,6 +168,7 @@ export function TabsNav({
   const segmentado = appearance === 'segmented';
   const barraRef = useRef<HTMLElement>(null);
   const listaRef = useRef<HTMLUListElement>(null);
+  const abaAtualRef = useRef<HTMLLIElement>(null);
   const navRef = useMergedRefs(barraRef, ref);
 
   useScrollSpy(followScroll, items, barraRef, current, (chave) => onCurrentChange?.(chave));
@@ -172,7 +176,7 @@ export function TabsNav({
   // A aba atual vem para o meio da barra, sem mexer na rolagem da página e sem animação para quem pede menos movimento.
   useEffect(() => {
     const barra = listaRef.current;
-    const aba = barra?.querySelector<HTMLElement>(`.${styles.current}`);
+    const aba = abaAtualRef.current;
 
     if (!followScroll || !barra || !aba || typeof barra.scrollTo !== 'function') {
       return;
@@ -185,19 +189,45 @@ export function TabsNav({
     });
   }, [current, followScroll]);
 
+  // O link `#id` rola a seção até o topo da área que rola, que fica por baixo da barra presa. Antes da navegação, a
+  // seção recebe um `scroll-margin-top` com a posição da borda de baixo da barra nessa área (o `top` do sticky mais a
+  // altura dela), medido na hora do clique. A navegação continua nativa: o endereço, o histórico, o `:target` e o
+  // `scrollIntoView` do roteador que intercepta o clique respeitam a margem.
+  function reservarBarra(item: TabsNavItem) {
+    const barra = barraRef.current;
+    const secao = sectionOf(item);
+
+    if (!barra || !secao) {
+      return;
+    }
+
+    const topo = Number.parseFloat(window.getComputedStyle(barra).top) || 0;
+    secao.style.scrollMarginTop = `${topo + barra.offsetHeight}px`;
+  }
+
   const lista = (
     <ul className={[styles.list, segmentado && tabsStyles.rail, thinScrollbar].filter(Boolean).join(' ')} ref={listaRef}>
       {items.map((item) => {
         const atual = item.key === current;
         // A classe e o `aria-current` do item somam aos da biblioteca: o link continua com o desenho da aba, e a
         // aba atual continua anunciada como a página.
-        const { 'aria-current': ariaCurrent, className: classeDoItem, ...linkProps } = item.linkProps ?? {};
+        const { 'aria-current': ariaCurrent, className: classeDoItem, onClick: aoClicar, ...linkProps } = item.linkProps ?? {};
 
         return (
-          <li className={styles.item} key={item.key}>
+          <li className={styles.item} key={item.key} ref={atual ? abaAtualRef : undefined}>
             <Link
               href={item.href}
               {...linkProps}
+              onClick={
+                followScroll
+                  ? (evento: MouseEvent<HTMLElement>) => {
+                      reservarBarra(item);
+                      if (typeof aoClicar === 'function') {
+                        aoClicar(evento);
+                      }
+                    }
+                  : aoClicar
+              }
               aria-current={atual ? (followScroll ? 'location' : 'page') : ariaCurrent}
               className={[
                 `${styles.link} ${tabsStyles.tab}`,
@@ -230,7 +260,7 @@ export function TabsNav({
       ]
         .filter(Boolean)
         .join(' ')}
-      style={followScroll ? { ...style, top: stickyOffset } : style}
+      style={followScroll ? { top: stickyOffset, ...style } : style}
     >
       {temAcoes(actions) ? (
         <div className={[tabsStyles.bar, styles.bar].join(' ')}>
