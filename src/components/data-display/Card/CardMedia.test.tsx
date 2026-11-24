@@ -9,12 +9,12 @@ describe('Card.Media', () => {
   it('desenha a imagem com o texto alternativo, sem distorcer e sem atrasar a pagina', () => {
     render(
       <Card>
-        <Card.Media alt="Pizza de calabresa" src="/calabresa.jpg" />
-        <Card.Header title="Pizza Calabresa Grande" />
+        <Card.Media alt="Foto do produto A" src="/produto-a.jpg" />
+        <Card.Header title="Produto A" />
       </Card>,
     );
 
-    const imagem = screen.getByRole('img', { name: 'Pizza de calabresa' });
+    const imagem = screen.getByRole('img', { name: 'Foto do produto A' });
     expect(imagem).toHaveAttribute('loading', 'lazy');
     expect(imagem).toHaveClass(styles.media, styles.mediaTop, styles.ratio16x9);
   });
@@ -62,7 +62,7 @@ describe('Card.Media', () => {
     const { container } = render(
       <Card>
         <Card.Media alt="" src={null} />
-        <Card.Body>Guaraná lata 350 ml</Card.Body>
+        <Card.Body>Produto B, sem foto</Card.Body>
       </Card>,
     );
 
