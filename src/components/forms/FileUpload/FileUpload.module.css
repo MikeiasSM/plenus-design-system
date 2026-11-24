@@ -13,7 +13,7 @@
   align-items: center;
   gap: var(--pl-space-3);
   padding: var(--pl-space-5) var(--pl-space-4);
-  border: 1px dashed var(--pl-color-border-strong);
+  border: 1px dashed var(--pl-control-border);
   border-radius: var(--pl-radius-md);
   background: var(--pl-color-surface);
   text-align: center;
