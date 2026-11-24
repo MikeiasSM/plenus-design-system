@@ -429,8 +429,8 @@ export type {
 } from './utils/formatters';
 export { useColorScheme } from './hooks/useColorScheme';
 export type { ColorScheme, ResolvedColorScheme, UseColorSchemeOptions, UseColorSchemeResult } from './hooks/useColorScheme';
-export { createPalette, nearestPaletteColor } from './utils/palette';
-export type { CreatePaletteOptions, PaletteScope } from './utils/palette';
+export { createPalette, measurePalette, nearestPaletteColor } from './utils/palette';
+export type { CreatePaletteOptions, PaletteMeasure, PaletteRole, PaletteScope, PaletteTheme } from './utils/palette';
 export { ChartsProvider } from './components/charts/ChartsProvider';
 export type { ChartsProviderProps } from './components/charts/ChartsProvider';
 export { ChartBar } from './components/charts/ChartBar';

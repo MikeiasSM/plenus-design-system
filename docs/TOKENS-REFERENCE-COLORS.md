@@ -248,6 +248,8 @@ A regra de `createPalette`:
 
 A cor que vem de fora do codigo, como a escolhida pelo usuario, passa antes por `nearestPaletteColor(cor)`: a propria cor quando aceita, ou o tom aceito mais proximo, na mesma matiz. A recusa continua em `createPalette`, e o ajuste fica explicito em quem chama: `createPalette(nearestPaletteColor(cor))`.
 
+O laudo da paleta sai de `measurePalette(cor, opcoes)`: uma medida por papel (`text-on-fill`, `hover`, `active`, `strong`, `outline` e `container`), primeiro no tema claro e depois no escuro (`theme`), com as cores, a razao, o minimo (4,5 para texto, 3 para o contorno) e `passes`, decidido pela razao sem arredondar. `adjusted` diz se a biblioteca escolheu ali outra cor que nao a informada ou o passo padrao, e `imposed`, se a cor veio do produto, como o texto de `onSolid`. No escuro, o laudo mede o passo 40 sob `--pl-palette-on-40`, os passos 30 e 20 do hover e do pressionado, `--pl-palette-strong-dark` e o conteiner misturado sobre a superficie escura, como em `color.css`. E para o produto mostrar a quem escolheu a cor o que ficou como estava e o que mudou. Fica separada de `createPalette` para o retorno dela continuar espalhavel num elemento, e recusa as mesmas cores.
+
 O texto sobre o preenchimento pode ser imposto pelo produto, com `createPalette(cor, { onSolid })`. A biblioteca aceita e, em desenvolvimento, avisa no console com a medida. A decisao fica registrada no codigo do produto, e o padrao da biblioteca continua acessivel.
 
 ## Cores de dados
