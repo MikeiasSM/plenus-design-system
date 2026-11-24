@@ -194,4 +194,20 @@ describe('FileUpload com previa', () => {
     expect(container.querySelector('li img')).toHaveAttribute('src', '/logo-exemplo.png');
     expect(screen.queryByRole('img', { name: /logo-exemplo/ })).toBeNull();
   });
+
+  it('usa o quadro sm na linha e aceita o proprio arquivo, com a URL revogada ao remover o item', () => {
+    const { criar, revogar } = espionarUrls();
+    const arquivo = new File(['a'], 'foto-exemplo.png', { type: 'image/png' });
+    const item = { id: '1', name: 'foto-exemplo.png', preview: { file: arquivo }, progress: 30, size: 1, status: 'uploading' as const };
+
+    const { container, rerender } = render(<FileUpload items={[item]} label="Fotos" onFilesSelected={() => {}} />);
+    expect(container.querySelector(`li .${styles.preview}`)).toHaveClass(styles.sm!);
+    expect(container.querySelector('li img')).toHaveAttribute('src', 'blob:exemplo/1');
+
+    rerender(<FileUpload items={[{ ...item, progress: 80 }]} label="Fotos" onFilesSelected={() => {}} />);
+    expect(criar).toHaveBeenCalledTimes(1);
+
+    rerender(<FileUpload items={[]} label="Fotos" onFilesSelected={() => {}} />);
+    expect(revogar).toHaveBeenCalledWith('blob:exemplo/1');
+  });
 });

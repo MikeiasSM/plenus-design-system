@@ -26,10 +26,11 @@ export interface FileUploadItem {
   id: string;
   name: string;
   /**
-   * Previa do arquivo no lugar do icone: a imagem, ou o poster do video. Decorativa, porque o nome esta ao lado; o
-   * estado e o progresso aparecem nela tambem.
+   * Previa do arquivo no lugar do icone, no tamanho `sm`, para a linha nao crescer: a imagem, ou o poster do video.
+   * `file` recebe o proprio `File` escolhido, e a previa cria e revoga a URL de objeto; `src` recebe um endereco, como
+   * uma miniatura feita pelo produto. Decorativa, porque o nome esta ao lado; o estado e o progresso aparecem nela tambem.
    */
-  preview?: { kind?: FilePreviewKind; src?: string | null };
+  preview?: { file?: Blob | null; kind?: FilePreviewKind; src?: string | null };
   /** De 0 a 100. Sem ele, o progresso e indeterminado. */
   progress?: number;
   size: number;
@@ -306,7 +307,14 @@ function FileUploadRow({ focusField, item, onCancel, onRemove, onRetry }: FileUp
   return (
     <li className={[styles.item, status === 'error' && styles.failed].filter(Boolean).join(' ')} ref={ref}>
       {item.preview ? (
-        <FilePreview kind={item.preview.kind} progress={progress} size="md" src={item.preview.src} status={status} />
+        <FilePreview
+          file={item.preview.file}
+          kind={item.preview.kind}
+          progress={progress}
+          size="sm"
+          src={item.preview.src}
+          status={status}
+        />
       ) : (
         <span aria-hidden="true" className={styles.fileIcon}>
           <IconFile />
