@@ -9,6 +9,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 ### Adicionado
 
 - `createPalette` declara `--pl-color-primary-outline`, com o traço, quando o preenchimento ou o fundo do hover do `Button` primário fica abaixo de 3:1 contra a superfície clara. `Switch` ligado, `Checkbox` marcado e `Button` primário o usam como borda; sem a declaração, nada muda (roadmap 0.8.0, item 26a).
+- `measurePalette(cor, opcoes)`: o laudo da paleta de `createPalette`, uma medida por papel, com as cores, a razão, o mínimo e se houve ajuste, para o produto mostrar a quem escolheu a cor. Tipos `PaletteMeasure` e `PaletteRole` (roadmap 0.8.0, item 26b).
 
 ## [0.7.1] — 2026-11-24
 
