@@ -145,4 +145,37 @@ describe('ColorField', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Limpar' }));
     expect(input).toHaveValue('');
   });
+
+  it.each([
+    ['readOnly', { readOnly: true }],
+    ['disabled', { disabled: true }],
+  ])('com %s, nem as amostras nem o conta-gotas mudam a cor', async (_, estado) => {
+    (window as unknown as { EyeDropper: unknown }).EyeDropper = class {
+      open() {
+        return Promise.resolve({ sRGBHex: '#49619c' });
+      }
+    };
+    const onValueChange = vi.fn();
+    render(
+      <ColorField
+        {...estado}
+        defaultValue="#E85D1F"
+        label="Cor da marca"
+        onValueChange={onValueChange}
+        suggestions={[
+          { color: '#E85D1F', label: 'Laranja do logo' },
+          { color: '#2E2A26', label: 'Grafite do logo' },
+        ]}
+      />,
+    );
+
+    const contaGotas = await screen.findByRole('button', { name: 'Pegar uma cor da tela' });
+    expect(contaGotas).toBeDisabled();
+    await userEvent.click(contaGotas);
+    fireEvent.click(screen.getByRole('radio', { name: 'Grafite do logo' }));
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Cor da marca')).toHaveValue('#E85D1F');
+    expect(screen.getByRole('radio', { name: 'Laranja do logo' })).toBeChecked();
+  });
 });

@@ -112,6 +112,8 @@ export function ColorField(allProps: ColorFieldProps) {
     setLastRender({ props: allProps, text: next });
   }
 
+  // Desabilitado ou só de leitura, nem o conta-gotas nem as amostras mudam a cor: só o texto do campo seria pouco.
+  const locked = Boolean(props.disabled || props.readOnly);
   const color = normalizeHex(text);
   const invalid = touched && text.trim() !== '' && color === null;
 
@@ -144,7 +146,7 @@ export function ColorField(allProps: ColorFieldProps) {
   async function pick() {
     const EyeDropper = getEyeDropper();
 
-    if (!EyeDropper) {
+    if (!EyeDropper || locked) {
       return;
     }
 
@@ -172,7 +174,7 @@ export function ColorField(allProps: ColorFieldProps) {
         autoComplete="off"
         end={
           hasEyeDropper ? (
-            <ButtonIcon icon={<IconEyedropper />} label={eyedropperLabel} onClick={() => void pick()} size="sm" variant="ghost" />
+            <ButtonIcon disabled={locked} icon={<IconEyedropper />} label={eyedropperLabel} onClick={() => void pick()} size="sm" variant="ghost" />
           ) : undefined
         }
         error={error ?? (invalid ? invalidMessage : undefined)}
@@ -190,11 +192,12 @@ export function ColorField(allProps: ColorFieldProps) {
       />
       {options.length > 0 && (
         <ColorPicker
+          aria-readonly={props.readOnly && !props.disabled ? true : undefined}
           disabled={props.disabled}
           label={suggestionsLabel}
           name={pickerName}
           onValueChange={(next) => {
-            if (next) {
+            if (next && !locked) {
               setTouched(true);
               commit(next);
             }
