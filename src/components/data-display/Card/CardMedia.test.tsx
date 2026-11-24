@@ -105,6 +105,10 @@ describe('Card.Media: estilo', () => {
     return css.slice(inicio, css.indexOf('}', inicio));
   };
 
+  it('a largura da imagem ao fim vem do gancho publico com o prefixo do sistema', () => {
+    expect(bloco('.mediaEnd')).toContain('width: var(--pl-card-media-size, 88px);');
+  });
+
   it('no fim da linha, o respiro segue a direcao do texto, e em rtl a imagem fica rente a borda da esquerda', () => {
     expect(bloco('.mediaEnd')).toContain('margin-block: var(--card-gap);');
     expect(bloco('.mediaEnd')).toContain('margin-inline: 0 var(--card-gap);');

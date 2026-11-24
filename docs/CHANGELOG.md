@@ -29,7 +29,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 - `exportable` nos gráficos da moldura comum (`ChartBar`, `ChartLine`, `ChartArea`, `ChartCombo`, `ChartWaterfall`, `ChartScatter`, `ChartHeatmap`, `ChartPie`, `ChartDonut`, `ChartRadial`, `ChartTreemap`, `ChartSunburst`, `ChartSankey`): menu "Opções do gráfico" com "Baixar PNG" e "Baixar SVG". O arquivo leva o título, o subtítulo e a legenda, sempre no tema claro e com fundo branco; o SVG sai com os estilos embutidos e o PNG no dobro da resolução, sem dependência nova.
 - `exportChart(element, { format, fileName? })`: a mesma exportação como função, para pôr o botão onde o produto quiser. Sem `fileName`, o nome segue o título, sem acento nem espaço. Tipos `ChartExportFormat`, `ChartExportOptions` e `ChartCardProps`.
 - `subtitle` nos mesmos gráficos: linha abaixo do título, que entra também no arquivo exportado.
-- `Card.Media`: imagem do cartão, no topo (`placement="top"`) ou ao fim da linha (`placement="end"`), com `ratio` `1:1`, `4:3` ou `16:9`. Sem `src`, ou se a imagem não carregar, não é desenhada, e o cartão fica como sem imagem. Nada muda nos cartões sem `Card.Media`.
+- `Card.Media`: imagem do cartão, no topo (`placement="top"`) ou ao fim da linha (`placement="end"`), com `ratio` `1:1`, `4:3` ou `16:9`. Ao fim, a largura vem de `--pl-card-media-size` (88px por padrão), que o produto define em qualquer ancestral. Sem `src`, ou se a imagem não carregar, não é desenhada, e o cartão fica como sem imagem. Nada muda nos cartões sem `Card.Media`.
 
 ### Corrigido
 

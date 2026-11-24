@@ -315,7 +315,7 @@
 }
 
 .mediaEnd {
-  width: var(--card-media-size, 88px);
+  width: var(--pl-card-media-size, 88px);
   height: auto;
   margin-block: var(--card-gap);
   margin-inline: 0 var(--card-gap);
