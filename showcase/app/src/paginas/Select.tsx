@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Badge, Button, ComboBox, Select, type SelectSize } from '@plenustech/design-system';
 import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
@@ -38,6 +38,13 @@ const AREAS = [
   { label: 'Recorrências', value: 'recorrencias' },
   { label: 'Vendas', value: 'vendas' },
 ];
+
+const CINCO_MIL = Array.from({ length: 5000 }, (_, indice) => ({
+  value: String(indice),
+  label: 'Registro ' + String(indice + 1).padStart(5, '0'),
+}));
+
+const TAMANHO_DA_PAGINA = 40;
 
 const LISTAS = { periodicidade: PERIODICIDADES, regioes: REGIOES, estados: ESTADOS, secoes: SECOES };
 
@@ -155,6 +162,34 @@ function AberturaControlada() {
   );
 }
 
+function PaginasSobDemanda() {
+  const [opcoes, setOpcoes] = useState(() => CINCO_MIL.slice(0, TAMANHO_DA_PAGINA));
+  const consulta = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(consulta.current), []);
+
+  function proximaPagina() {
+    clearTimeout(consulta.current);
+    consulta.current = setTimeout(() => {
+      setOpcoes((atuais) => CINCO_MIL.slice(0, atuais.length + TAMANHO_DA_PAGINA));
+    }, 700);
+  }
+
+  return (
+    <div className="stack" style={{ width: '100%' }}>
+      <Select
+        hasMore={opcoes.length < CINCO_MIL.length}
+        label="Registro"
+        onLoadMore={proximaPagina}
+        options={opcoes}
+      />
+      <p className="note">
+        {opcoes.length} de {CINCO_MIL.length} carregados
+      </p>
+    </div>
+  );
+}
+
 function Envio() {
   const [enviado, setEnviado] = useState('');
 
@@ -209,6 +244,17 @@ function Modos() {
       <dd>
         Com a lista aberta, digitar leva à opção cujo texto começa pelas letras, ignorando caixa e acento. Não filtra a
         lista: filtrar é papel do <code>ComboBox</code>.
+      </dd>
+      <dt>Páginas</dt>
+      <dd>
+        Com <code>onLoadMore</code> e <code>hasMore</code>, chegar a três opções do fim, ou descer da última pela seta,
+        pede a próxima página uma vez. "Carregando mais" aparece no rodapé sem tirar o foco nem mover a rolagem, e a
+        contagem é anunciada quando a página chega.
+      </dd>
+      <dt>Listas longas</dt>
+      <dd>
+        Acima de 200 opções, só as linhas visíveis vão ao DOM, sem propriedade a ligar. Cada opção leva{' '}
+        <code>aria-setsize</code> e <code>aria-posinset</code>, e o leitor de tela diz a posição no total.
       </dd>
       <dt><code>name</code></dt>
       <dd>
@@ -297,6 +343,23 @@ export const pagina: Pagina = {
       codigo:
         '<form onSubmit={salvar}>\n  <Select label="Região de atuação" name="regiao" options={regioes} required />\n  <Button type="submit">Salvar</Button>\n</form>',
     },
+    {
+      titulo: 'Páginas sob demanda',
+      descricao: 'Páginas de 40. Role até perto do fim, ou desça da última opção pela seta, para pedir a próxima; a contagem é anunciada quando ela chega.',
+      Previa: PaginasSobDemanda,
+      codigo:
+        "function proximaPagina() {\n  consultar(opcoes.length).then((pagina) => setOpcoes([...opcoes, ...pagina.itens]));\n}\n\n<Select\n  label=\"Registro\"\n  options={opcoes}\n  onLoadMore={proximaPagina}\n  hasMore={opcoes.length < total}\n/>",
+    },
+    {
+      titulo: 'Cinco mil opções',
+      descricao: 'Sem propriedade a ligar: acima de 200 opções, só as linhas visíveis são desenhadas, e cada uma diz a posição no total. Para listas assim, a busca do ComboBox costuma servir melhor.',
+      Previa: () => (
+        <div style={{ width: '100%' }}>
+          <Select defaultValue="2499" label="Registro" options={CINCO_MIL} />
+        </div>
+      ),
+      codigo: '// 5.000 opções: a lista desenha só as visíveis\n<Select label="Registro" options={registros} defaultValue="2499" />',
+    },
   ],
   faca: {
     Previa: () => (
@@ -324,6 +387,7 @@ export const pagina: Pagina = {
     { teclas: ['↓', '↑', 'Enter', 'Espaço'], acao: 'No gatilho, abrem a lista a partir da opção escolhida.' },
     { teclas: ['↑', '↓'], acao: 'Na lista, opção anterior ou seguinte, pulando as desabilitadas.' },
     { teclas: ['Home', 'End'], acao: 'Primeira ou última opção.' },
+    { teclas: ['↓'], acao: 'Na última opção, com onLoadMore e hasMore, pede a próxima página; o foco continua nela.' },
     { teclas: ['A–Z'], acao: 'Vai à opção que começa pelas letras digitadas.' },
     { teclas: ['Enter', 'Espaço'], acao: 'Escolhe a opção em foco e fecha.' },
     { teclas: ['Escape'], acao: 'Fecha sem escolher e devolve o foco ao gatilho.' },
@@ -351,6 +415,16 @@ export const pagina: Pagina = {
       teste: 'Select.test.tsx',
     },
     { garantia: 'Foco devolvido', como: 'Escape fecha e devolve o foco ao gatilho.', teste: 'Select.test.tsx' },
+    {
+      garantia: 'Páginas',
+      como: 'A próxima página é pedida uma vez, sem tirar o foco nem mover a rolagem, e a contagem é anunciada ao chegar.',
+      teste: 'carregando.test.tsx',
+    },
+    {
+      garantia: 'Lista longa',
+      como: <>Acima de 200 opções, só as visíveis no DOM, com <code>aria-setsize</code> e <code>aria-posinset</code>.</>,
+      teste: 'carregando.test.tsx',
+    },
     { garantia: 'Busca por digitação', como: 'Pelo início do texto, ignorando caixa e acento.', teste: 'selection.test.ts' },
     {
       garantia: 'Campo de formulário',
@@ -386,5 +460,9 @@ export const pagina: Pagina = {
     { nome: 'disabled', tipo: 'boolean', padrao: 'false', descricao: 'Desabilita o gatilho.' },
     { nome: 'size', tipo: "'sm' | 'md' | 'lg'", padrao: "'md'", descricao: 'Altura do campo: 32, 36 ou 56px.' },
     { nome: 'name', tipo: 'string', descricao: 'Nome do campo no formulário.' },
+    { nome: 'onLoadMore', tipo: '() => void', descricao: 'Pede a próxima página quando a rolagem chega a três opções do fim ou a seta desce da última. Uma vez por página: o pedido vale até as opções mudarem de tamanho.' },
+    { nome: 'hasMore', tipo: 'boolean', padrao: 'false', descricao: 'Há mais páginas. Sem ele, onLoadMore não é chamado.' },
+    { nome: 'loadingMoreMessage', tipo: 'string', padrao: "'Carregando mais'", descricao: 'Linha de espera da próxima página, no rodapé da lista.' },
+    { nome: 'loadedMessage', tipo: '(count: number) => string', padrao: "'40 resultados'", descricao: 'Contagem anunciada quando a página chega.' },
   ],
 };

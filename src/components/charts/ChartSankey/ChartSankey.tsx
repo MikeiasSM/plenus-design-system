@@ -13,6 +13,7 @@ import {
   useMarkNavigation,
   widestLabel,
   type ChartHeight,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
@@ -54,7 +55,7 @@ export type ChartSankeyMark =
   | ({ kind: 'flow' } & ChartSankeyFlow)
   | ({ kind: 'node' } & ChartSankeyNodeClick);
 
-export interface ChartSankeyProps extends ChartRootProps {
+export interface ChartSankeyProps extends ChartRootProps, ChartCardProps {
   accent?: string;
   /** Espécies de marca que viram botão com `onMarkClick`. Sem ela, todas. */
   clickableMarks?: readonly ChartSankeyMark['kind'][];

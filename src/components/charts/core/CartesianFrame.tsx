@@ -44,6 +44,7 @@ export interface CartesianFrameProps {
   legendContent?: ChartFrameProps['legendContent'];
   legendPosition: ChartLegendPosition;
   margins: ChartMargins;
+  nameDetail?: ChartFrameProps['nameDetail'];
   onToggleSeries?: (label: string) => void;
   plot: ChartPlot;
   /** Partes que a decomposicao por encaixe ja retirou, vindas de `useCartesianLayout`. */
@@ -123,6 +124,7 @@ export function CartesianFrame({
   legendContent,
   legendPosition,
   margins,
+  nameDetail,
   onToggleSeries,
   plot,
   removed,
@@ -161,6 +163,7 @@ export function CartesianFrame({
       legendContent={legendContent}
       legendPosition={without('legend') ? 'none' : legendPosition}
       minLegendEntries={2}
+      nameDetail={nameDetail}
       onPointerEnter={axisReveal?.onPointerEnter}
       onPointerLeave={axisReveal?.onPointerLeave}
       onToggleSeries={onToggleSeries}

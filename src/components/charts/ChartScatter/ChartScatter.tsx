@@ -15,6 +15,7 @@ import {
   type ChartHeight,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
@@ -42,7 +43,7 @@ export interface ChartScatterPointClick {
   series: string;
 }
 
-export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartScatterProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Series ocultas de inicio, enquanto o produto nao controla `hidden`. */
   defaultHidden?: readonly string[];

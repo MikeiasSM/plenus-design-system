@@ -9,10 +9,33 @@ import { blockRepeatedPress } from '../../../utils/press/press';
 import { usePortalContainer } from '../../overlays/Portal/PortalContext';
 import { useOpenState } from '../../../hooks/useOpenState';
 import { useClickShieldOnClose } from '../../../hooks/useOverlayClickGuard';
-import { closeDateInput, completeDateInput, formatDate, formatDateInput, keepDateChars, parseDateInput } from '../../../utils/formatters';
+import {
+  closeDateInput,
+  closeMonthInput,
+  closeYearInput,
+  completeDateInput,
+  completeMonthInput,
+  completeYearInput,
+  formatDate,
+  formatDateInput,
+  formatMonthInput,
+  formatYearInput,
+  keepDateChars,
+  keepMonthChars,
+  keepYearChars,
+  parseDateInput,
+  parseMonthInput,
+  parseYearInput,
+} from '../../../utils/formatters';
 import { useTemporalInput } from '../../../hooks/useTemporalInput';
 import { Button } from '../../actions/Button';
-import { isUnavailable, type CalendarLimits } from '../../../hooks/useCalendar/calendar';
+import {
+  isUnavailable,
+  shiftPeriod,
+  startOfPeriod,
+  type CalendarGranularity,
+  type CalendarLimits,
+} from '../../../hooks/useCalendar/calendar';
 import { Field } from '../Field';
 import { FormValue } from '../Field/FormValue';
 import { Calendar } from './Calendar';
@@ -21,6 +44,42 @@ import styles from './DatePicker.module.css';
 import { IconCalendar } from '../../icons';
 
 export type DatePickerSize = 'sm' | 'md' | 'lg';
+
+/** O que se escolhe: o dia, o mes ou o ano. */
+export type DatePickerGranularity = CalendarGranularity;
+
+/** Mascara, leitura e texto de cada granularidade. */
+const ENTRADAS = {
+  day: {
+    close: closeDateInput,
+    complete: completeDateInput,
+    filter: keepDateChars,
+    mask: formatDateInput,
+    parse: parseDateInput,
+    placeholder: 'dd/mm/aaaa',
+    text: (date: CalendarDate) => [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/'),
+  },
+  month: {
+    close: closeMonthInput,
+    complete: completeMonthInput,
+    filter: keepMonthChars,
+    mask: formatMonthInput,
+    parse: parseMonthInput,
+    placeholder: 'mm/aaaa',
+    text: (date: CalendarDate) => [String(date.month).padStart(2, '0'), date.year].join('/'),
+  },
+  year: {
+    close: closeYearInput,
+    complete: completeYearInput,
+    filter: keepYearChars,
+    mask: formatYearInput,
+    parse: parseYearInput,
+    placeholder: 'aaaa',
+    text: (date: CalendarDate) => String(date.year),
+  },
+} satisfies Record<CalendarGranularity, unknown>;
+
+const HOJE = { day: 'Hoje', month: 'Este mês', year: 'Este ano' } satisfies Record<CalendarGranularity, string>;
 
 /**
  * As propriedades nativas vao ao campo de texto, que e o controle; o `className` soma a caixa do campo, que e o que
@@ -35,8 +94,14 @@ export interface DatePickerProps
   defaultValue?: string;
   disabled?: boolean;
   error?: string;
+  /**
+   * `month` e `year` escolhem o mes ou o ano: a grade mostra doze meses ou doze anos, a mascara vira `mm/aaaa` ou
+   * `aaaa`, e o valor e o primeiro dia do periodo, `2026-06-01` ou `2026-01-01`.
+   */
+  granularity?: DatePickerGranularity;
   hint?: string;
   id?: string;
+  /** Na granularidade de mes ou de ano, recebe o primeiro dia do periodo. */
   isDateUnavailable?: (date: string) => boolean;
   label?: string;
   /**
@@ -77,6 +142,7 @@ export function DatePicker({
   name,
   disabled = false,
   error,
+  granularity = 'day',
   hint,
   id: providedId,
   isDateUnavailable,
@@ -92,7 +158,7 @@ export function DatePicker({
   onPaste,
   open: controlledOpen,
   portalContainer,
-  placeholder = 'dd/mm/aaaa',
+  placeholder,
   required = false,
   size = 'md',
   ref,
@@ -112,12 +178,21 @@ export function DatePicker({
     max: readIsoDate(max),
     min: readIsoDate(min),
   };
-  const [internalValue, setInternalValue] = useState<CalendarDate | null>(() => readIsoDate(defaultValue) ?? null);
-  const controlado = value === undefined ? undefined : (readIsoDate(value) ?? null);
+  const entrada = ENTRADAS[granularity];
+  const recusada = (data: CalendarDate) => isUnavailable(data, limites, granularity);
+  // Outro dia do periodo vale como o primeiro: `2026-06-15`, em meses, e junho de 2026.
+  const ler = (texto?: string | null) => {
+    const data = readIsoDate(texto);
+
+    return data && startOfPeriod(data, granularity);
+  };
+  const agora = () => startOfPeriod(today(getLocalTimeZone()), granularity);
+  const [internalValue, setInternalValue] = useState<CalendarDate | null>(() => ler(defaultValue) ?? null);
+  const controlado = value === undefined ? undefined : (ler(value) ?? null);
   const escolhido = (controlado === undefined ? internalValue : controlado) ?? undefined;
   const inputRef = useRef<HTMLInputElement>(null);
   const resetRef = useFormReset<HTMLInputElement>(() => {
-    setInternalValue(readIsoDate(defaultValue) ?? null);
+    setInternalValue(ler(defaultValue) ?? null);
     entry.reset();
   });
   const mergedRef = useMergedRefs(inputRef, resetRef, ref);
@@ -150,37 +225,38 @@ export function DatePicker({
     setOpen(false);
   }
 
-  const textOf = (date?: CalendarDate) =>
-    date ? [String(date.day).padStart(2, '0'), String(date.month).padStart(2, '0'), date.year].join('/') : '';
+  const textOf = (date?: CalendarDate) => (date ? entrada.text(date) : '');
   const entry = useTemporalInput<CalendarDate>({
-    announce: (date) => formatDate(date.toString(), { format: 'long', locale }),
-    close: closeDateInput,
+    announce: (date) => anunciar(date, granularity, locale),
+    close: entrada.close,
     commit: definir,
     error,
     evaluate: (text) => {
-      const parsed = completeDateInput(text, today(getLocalTimeZone()));
+      const parsed = entrada.complete(text, today(getLocalTimeZone()));
 
       if (!parsed) {
         return { message: 'Data inválida.', reason: 'invalid' };
       }
 
-      return isUnavailable(parsed, limites)
-        ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' }
-        : { value: parsed };
+      return recusada(parsed) ? { message: 'Data fora do intervalo permitido.', reason: 'outOfRange' } : { value: parsed };
     },
-    filter: keepDateChars,
+    filter: entrada.filter,
     format: textOf,
     inputRef,
-    isAllowed: (date) => !isUnavailable(date, limites),
-    mask: formatDateInput,
-    now: () => today(getLocalTimeZone()),
+    isAllowed: (date) => !recusada(date),
+    mask: entrada.mask,
+    now: agora,
     onInvalidText,
     parse: (text) => {
-      const parsed = parseDateInput(text);
+      const parsed = entrada.parse(text);
 
-      return parsed && !isUnavailable(parsed, limites) ? parsed : undefined;
+      return parsed && !recusada(parsed) ? parsed : undefined;
     },
-    step: (date, direction) => ({ cursor: 10, value: date.add({ days: direction }) }),
+    step: (date, direction) => {
+      const proximo = shiftPeriod(date, granularity, direction);
+
+      return { cursor: entrada.text(proximo).length, value: proximo };
+    },
     value: escolhido,
   });
 
@@ -247,7 +323,7 @@ export function DatePicker({
               onChange={(event) => entry.change(event.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={(event) => entry.handlePaste(event, onPaste)}
-              placeholder={placeholder}
+              placeholder={placeholder ?? entrada.placeholder}
               ref={mergedRef}
               type="text"
               value={entry.text}
@@ -285,6 +361,7 @@ export function DatePicker({
                 >
                   <Calendar
                     autoFocus
+                    granularity={granularity}
                     key={versaoDoCalendario}
                     isDateUnavailable={limites.isDateUnavailable}
                     locale={locale}
@@ -297,14 +374,14 @@ export function DatePicker({
                     <Button
                       onClick={() => {
                         // Remontada, a grade volta ao mes de hoje mesmo que o rascunho ja fosse hoje.
-                        setRascunho(today(getLocalTimeZone()));
+                        setRascunho(agora());
                         setVersaoDoCalendario((versao) => versao + 1);
                       }}
                       size="sm"
                       variant="ghost"
                       type="button"
                     >
-                      Hoje
+                      {HOJE[granularity]}
                     </Button>
                     <div className={styles.actions}>
                       <Button onClick={() => fechar()} size="sm" variant="secondary" type="button">
@@ -331,4 +408,15 @@ export function DatePicker({
       )}
     </Field>
   );
+}
+
+/** A data nova se anuncia por extenso, no tamanho do periodo: "22 de novembro de 2026", "junho de 2026" ou "2026". */
+function anunciar(date: CalendarDate, granularity: CalendarGranularity, locale: string) {
+  if (granularity === 'day') {
+    return formatDate(date.toString(), { format: 'long', locale });
+  }
+
+  return granularity === 'month'
+    ? new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date.toDate(getLocalTimeZone()))
+    : String(date.year);
 }

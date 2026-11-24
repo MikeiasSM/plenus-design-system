@@ -18,6 +18,7 @@ import {
   type ChartHoverDetails,
   type ChartLegendAlign,
   type ChartLegendPosition,
+  type ChartCardProps,
   type ChartRootProps,
 } from '../core';
 import { resolveSeriesColors, type ChartPalette, type SeriesAppearance } from '../palette';
@@ -31,7 +32,7 @@ export interface ChartRadialTrack extends SeriesAppearance {
   value: number;
 }
 
-export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'> {
+export interface ChartRadialProps extends Omit<ChartRootProps, 'hidden'>, ChartCardProps {
   accent?: string;
   /** Texto sob o valor do centro. Sem ele, o rotulo do primeiro anel. O anel em foco troca esse texto pelo proprio rotulo. */
   centerLabel?: string;

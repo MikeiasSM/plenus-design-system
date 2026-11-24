@@ -1,4 +1,4 @@
-import { alignZeros, linearScale, stackDiverging, type NumericRange } from '../scales';
+import { alignZeros, linearScale, mergeDomains, stackDiverging, type NumericRange } from '../scales';
 import type { AxisVisibility } from './cartesianLayout';
 import { seriesInScale } from './useSeriesToggle';
 
@@ -32,6 +32,8 @@ export interface ValueAxisDomainsOptions<T extends { label: string }> {
   /** Dominio de um eixo, calculado so pelas series dele que entram na escala. */
   domainOfSeries: (series: readonly T[]) => NumericRange;
   isOutOfScale: (label: string) => boolean;
+  /** Valores que o eixo esquerdo precisa alcancar, como os das linhas e faixas de referencia. */
+  references?: readonly number[];
   series: readonly T[];
 }
 
@@ -44,11 +46,17 @@ export function valueAxisDomains<T extends { label: string }>({
   axes,
   domainOfSeries,
   isOutOfScale,
+  references = [],
   series,
 }: ValueAxisDomainsOptions<T>): [NumericRange, NumericRange] {
-  const domainOfAxis = (axis: ChartValueAxis) =>
-    rounded(domainOfSeries(seriesInScale(series.filter((_, index) => axes[index] === axis), isOutOfScale)));
-  const left = domainOfAxis('left');
+  const domainOfGroup = (axis: ChartValueAxis) => domainOfSeries(seriesInScale(series.filter((_, index) => axes[index] === axis), isOutOfScale));
+  const domainOfAxis = (axis: ChartValueAxis) => rounded(domainOfGroup(axis));
+  const finite = references.filter(Number.isFinite);
+  // A referencia estende a escala, mesmo que nenhum dado chegue la: uma meta fora da vista nao serve.
+  const left =
+    finite.length === 0
+      ? domainOfAxis('left')
+      : rounded(mergeDomains([domainOfGroup('left'), { max: Math.max(...finite), min: Math.min(...finite) }]));
 
   if (!axes.includes('right')) {
     return [left, left];

@@ -14,6 +14,9 @@ import { createPortal, flushSync } from 'react-dom';
 import { useOverlayPosition } from '@react-aria/overlays';
 import { ListingOptions, optionId } from '../../data-display/List/ListingOptions';
 import { useListing, type ListingItem } from '../../data-display/List/useListing';
+import { useAnnouncement } from '../../data-display/List/useAnnouncement';
+import { useLoadMore } from '../../data-display/List/useLoadMore';
+import { OPCOES_SEM_JANELA } from '../../data-display/List/useVirtualWindow';
 import { Badge } from '../../data-display/Badge';
 import { Button } from '../../actions/Button';
 import { useFormReset } from '../../../hooks/useFormReset';
@@ -49,16 +52,30 @@ interface ComboBoxBaseProps
   defaultOpen?: boolean;
   emptyMessage?: string;
   error?: string;
+  /** Há mais páginas além das opções que chegaram. Sem ele, `onLoadMore` não é chamado. */
+  hasMore?: boolean;
   hint?: string;
   label?: string;
   /** Ao lado do rótulo e fora dele, como um selo ou um link. Não entra no nome do campo. */
   labelAddon?: ReactNode;
+  /** Textos do painel. O que não for informado fica em português. */
+  labels?: Partial<ComboBoxLabels>;
   /**
    * Nome do campo no formulario. Com ele, um input oculto carrega o valor para
    * o `FormData`: sem controle nativo por baixo, o envio ignorava o campo.
    */
   name?: string;
+  /**
+   * Espera da busca: uma linha "Carregando" toma o lugar das opções, que somem até o resultado chegar. A espera é
+   * anunciada uma vez, e a contagem do resultado, ao chegar.
+   */
   loading?: boolean;
+  /**
+   * Pede a próxima página, uma vez, quando a rolagem chega a três opções do fim ou a seta para baixo passa da última.
+   * O pedido vale até as opções mudarem de tamanho; enquanto isso, uma linha "Carregando mais" fica no rodapé.
+   * Se a página não vier, fechar e reabrir a lista, ou buscar de novo, permite pedir outra vez.
+   */
+  onLoadMore?: () => void;
   /** Avisa cada abertura e fechamento, por qualquer via: digitar, setas, clique, Escape, Tab, rolagem ou escolha. */
   onOpenChange?: (open: boolean) => void;
   onSearch?: (term: string) => void;
@@ -70,13 +87,22 @@ interface ComboBoxBaseProps
   size?: ComboBoxSize;
 }
 
-/** Textos do rodapé do painel. O que não for informado fica em português. */
+/** Textos do painel. O que não for informado fica em português. */
 export interface ComboBoxLabels {
   apply: string;
   cancel: string;
   clear: string;
+  /** A linha de espera da busca, também anunciada. */
+  loading: string;
+  /** A linha de espera da próxima página. */
+  loadingMore: string;
+  /** A contagem anunciada quando o resultado ou a página chegam. */
+  results: (count: number) => string;
   selectAll: string;
 }
+
+/** A partir de quanto tempo de espera o "Carregando" é anunciado: a busca que volta antes disso só anuncia o resultado. */
+const ATRASO_DO_ANUNCIO = 300;
 
 /** Controles do rodapé do painel, só na seleção múltipla. Sem nenhum deles, o painel não tem rodapé. */
 export interface ComboBoxMultipleActions {
@@ -92,7 +118,9 @@ export interface ComboBoxMultipleActions {
   selectAll?: boolean;
 }
 
-export interface ComboBoxSingleProps extends ComboBoxBaseProps, Partial<Record<keyof ComboBoxMultipleActions, never>> {
+export interface ComboBoxSingleProps
+  extends ComboBoxBaseProps,
+    Partial<Record<Exclude<keyof ComboBoxMultipleActions, 'labels'>, never>> {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   selectionMode?: 'single';
@@ -142,6 +170,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     disabled = false,
     emptyMessage = 'Nenhum resultado',
     error,
+    hasMore = false,
     hint,
     id: providedId,
     label,
@@ -151,6 +180,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     onBlur,
     onClick,
     onKeyDown,
+    onLoadMore,
     onOpenChange,
     onSearch,
     // Fora do resto, que vai ao campo: quem o chama e `relatarEscolha`, que conhece o modo.
@@ -174,6 +204,9 @@ export function ComboBox(allProps: ComboBoxProps) {
     apply: 'Aplicar',
     cancel: 'Cancelar',
     clear: 'Limpar',
+    loading: 'Carregando',
+    loadingMore: 'Carregando mais',
+    results: (count) => (count === 1 ? '1 resultado' : `${count} resultados`),
     selectAll: 'Selecionar todos',
     ...labels,
   };
@@ -215,6 +248,32 @@ export function ComboBox(allProps: ComboBoxProps) {
   const texto = multiple || filtering ? listing.term : chosen?.label ?? '';
   const ancoraRef = multiple ? controlRef : inputRef;
   const activeIndex = listing.visible.findIndex((option) => option.value === listing.focusedKey);
+  const anuncio = useAnnouncement();
+
+  function contagem() {
+    return listing.visible.length > 0 ? texts.results(listing.visible.length) : emptyMessage;
+  }
+
+  const paginas = useLoadMore({
+    count: options.length,
+    hasMore,
+    onArrive: () => anuncio.announce(contagem()),
+    onLoadMore,
+  });
+  // Com uma página a caminho, o `loading` do produto não apaga o que já chegou: a espera fica no rodapé.
+  const ocupado = open && loading && !paginas.pending;
+  const estavaOcupado = useRef(false);
+
+  useEffect(() => {
+    if (ocupado && !estavaOcupado.current) {
+      anuncio.announce(texts.loading, ATRASO_DO_ANUNCIO);
+    } else if (!ocupado && estavaOcupado.current) {
+      anuncio.announce(open ? contagem() : '');
+    }
+    estavaOcupado.current = ocupado;
+    // Só na entrada e na saída da espera: os textos mudam a cada renderização.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ocupado]);
 
   const { overlayProps: positionProps } = useOverlayPosition({
     targetRef: ancoraRef,
@@ -259,6 +318,7 @@ export function ComboBox(allProps: ComboBoxProps) {
   function encerrarFiltro() {
     setFiltering(false);
     listing.filter('');
+    paginas.cancel();
   }
 
   function fechar() {
@@ -320,6 +380,7 @@ export function ComboBox(allProps: ComboBoxProps) {
     }
     if (!open) {
       setDraft(null);
+      paginas.cancel();
     }
     wasOpenRef.current = open;
     // Só na transição de `open`: `encerrarFiltro` muda a cada renderização.
@@ -371,6 +432,16 @@ export function ComboBox(allProps: ComboBoxProps) {
         }
       }
       return;
+    }
+
+    // A seta para baixo na última opção pede a próxima página; o foco fica onde está até ela chegar.
+    if (
+      event.key === 'ArrowDown' &&
+      open &&
+      activeIndex >= 0 &&
+      !listing.visible.slice(activeIndex + 1).some((option) => !option.disabled)
+    ) {
+      paginas.request();
     }
 
     const ultimo = escolhidos[escolhidos.length - 1];
@@ -428,6 +499,7 @@ export function ComboBox(allProps: ComboBoxProps) {
               setFiltering(true);
               setOpen(true);
               listing.filter(event.target.value);
+              paginas.cancel();
             }}
             onClick={(event: MouseEvent<HTMLInputElement>) => {
               setOpen(true);
@@ -449,6 +521,12 @@ export function ComboBox(allProps: ComboBoxProps) {
                 value={item?.value ?? ''}
               />
             ))}
+            {/* Montada desde o início quando há o que esperar, para o primeiro anúncio já valer. */}
+            {(allProps.loading !== undefined || onLoadMore) && (
+              <span className={styles.visuallyHidden} role="status">
+                {anuncio.message}
+              </span>
+            )}
             {multiple ? (
               <div
                 className={[styles.control, styles[size], error && styles.error].filter(Boolean).join(' ')}
@@ -501,11 +579,17 @@ export function ComboBox(allProps: ComboBoxProps) {
                   <ListingOptions
                     baseId={baseId}
                     empty={<p className={styles.empty}>{emptyMessage}</p>}
+                    height={listing.visible.length > OPCOES_SEM_JANELA ? alturaMaxima : undefined}
                     holdsFocus={false}
                     label={label ?? placeholder ?? 'Opções'}
                     listing={listing}
-                    loading={loading}
+                    loading={loading && !paginas.pending}
+                    loadingMessage={texts.loading}
+                    loadingMore={paginas.pending}
+                    loadingMoreMessage={texts.loadingMore}
+                    onNearEnd={paginas.enabled ? paginas.request : undefined}
                     onSelect={multiple ? undefined : fechar}
+                    replaceWhileLoading
                   />
                   {hasFooter && (
                     <div className={styles.footer}>
