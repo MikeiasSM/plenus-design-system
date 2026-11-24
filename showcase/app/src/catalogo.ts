@@ -137,7 +137,7 @@ export const familias: readonly Familia[] = [
       componente('PageHeader', 'Cabeçalho de página: título, descrição, selos de situação e ações.', { importa: 'PageHeader' }),
       componente('Pagination', 'Navegação entre páginas de um conjunto.'),
       componente('Tabs', 'Alternância entre painéis de conteúdo.'),
-      componente('TabsNav', 'Faixa de abas em que cada aba é um endereço.'),
+      componente('TabsNav', 'Faixa de abas em que cada aba é um endereço, ou uma seção da página que a barra acompanha.'),
       componente('Steps', 'Etapas de um processo, com a atual destacada e as anteriores concluídas.'),
       componente('AppShell', 'Moldura de tela em camadas: a navegação da Sidebar e a página.'),
       componente('Sidebar', 'Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular.'),
