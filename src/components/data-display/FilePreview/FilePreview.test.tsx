@@ -4,20 +4,20 @@ import { FilePreview } from './FilePreview';
 import styles from './FilePreview.module.css';
 
 describe('FilePreview', () => {
-  it('is decorative by default and shows the image', () => {
+  it('e decorativo por padrao e mostra a imagem', () => {
     const { container } = render(<FilePreview src="/logo.png" />);
 
     expect(container.firstChild).toHaveAttribute('aria-hidden', 'true');
     expect(container.querySelector('img')).toHaveAttribute('src', '/logo.png');
   });
 
-  it('has a name when alt is given', () => {
-    render(<FilePreview alt="Logo da loja" src="/logo.png" />);
+  it('tem nome quando recebe alt', () => {
+    render(<FilePreview alt="Logo de exemplo" src="/logo.png" />);
 
-    expect(screen.getByRole('img', { name: 'Logo da loja' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Logo de exemplo' })).toBeInTheDocument();
   });
 
-  it('falls back to the icon without an image or when the image fails', () => {
+  it('cai no icone sem imagem ou quando a imagem falha', () => {
     const { container, rerender } = render(<FilePreview src={null} />);
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('svg')).not.toBeNull();
@@ -27,7 +27,7 @@ describe('FilePreview', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
-  it('marks a video poster with play, and a plain file never shows the image', () => {
+  it('marca o poster do video com o play, e o arquivo comum nunca mostra a imagem', () => {
     const { container, rerender } = render(<FilePreview kind="video" src="/poster.jpg" />);
     expect(container.querySelector(`.${styles.play}`)).not.toBeNull();
 
@@ -35,7 +35,7 @@ describe('FilePreview', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
-  it('shows the state on the border and in an icon, and the progress while uploading', () => {
+  it('mostra o estado na borda e num icone, e o progresso durante o envio', () => {
     const { container, rerender } = render(<FilePreview progress={62} src="/logo.png" status="uploading" />);
     expect(container.firstChild).toHaveClass(styles.uploading!);
     expect((container.firstChild as HTMLElement).style.getPropertyValue('--file-preview-progress')).toBe('62%');
@@ -48,24 +48,24 @@ describe('FilePreview', () => {
     expect(container.querySelector(`.${styles.stateError}`)).not.toBeNull();
   });
 
-  it('shows the badge', () => {
+  it('mostra o selo', () => {
     render(<FilePreview badge="PDF" kind="file" />);
 
     expect(screen.getByText('PDF', { selector: `.${styles.badge}` })).toBeInTheDocument();
   });
 });
 
-describe('FileUpload with preview', () => {
-  it('puts the preview in place of the file icon, without a second name', () => {
+describe('FileUpload com previa', () => {
+  it('poe a previa no lugar do icone do arquivo, sem um segundo nome', () => {
     const { container } = render(
       <FileUpload
-        items={[{ id: '1', name: 'logo-ipe.png', preview: { src: '/logo-ipe.png' }, size: 84000, status: 'done' }]}
+        items={[{ id: '1', name: 'logo-exemplo.png', preview: { src: '/logo-exemplo.png' }, size: 84000, status: 'done' }]}
         label="Logo"
         onFilesSelected={() => {}}
       />,
     );
 
-    expect(container.querySelector('li img')).toHaveAttribute('src', '/logo-ipe.png');
-    expect(screen.queryByRole('img', { name: /logo-ipe/ })).toBeNull();
+    expect(container.querySelector('li img')).toHaveAttribute('src', '/logo-exemplo.png');
+    expect(screen.queryByRole('img', { name: /logo-exemplo/ })).toBeNull();
   });
 });
