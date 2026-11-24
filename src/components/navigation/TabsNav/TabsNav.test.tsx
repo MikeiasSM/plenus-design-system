@@ -116,5 +116,48 @@ describe('TabsNav', () => {
     expect(screen.getByRole('link', { name: 'Papéis' })).toHaveAttribute('aria-current', 'page');
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
+
+  describe('followScroll', () => {
+    const secoes: TabsNavItem[] = [
+      { key: 'pizzas', label: 'Pizzas grandes', href: '#pizzas' },
+      { key: 'doces', label: 'Pizzas doces', href: '#doces' },
+      { key: 'bebidas', label: 'Bebidas', href: '#bebidas' },
+    ];
+
+    function montarSecoes(topos: Record<string, number>) {
+      for (const [id, top] of Object.entries(topos)) {
+        const secao = document.createElement('section');
+        secao.id = id;
+        secao.getBoundingClientRect = () => ({ top } as DOMRect);
+        document.body.appendChild(secao);
+      }
+    }
+
+    afterEach(() => document.querySelectorAll('section').forEach((secao) => secao.remove()));
+
+    it('marca a secao atual com aria-current="location", nao "page"', () => {
+      render(<TabsNav current="doces" followScroll items={secoes} label="Categorias" />);
+
+      expect(screen.getByRole('link', { name: 'Pizzas doces' })).toHaveAttribute('aria-current', 'location');
+    });
+
+    it('avisa a secao cujo topo passou da barra, descontando o que fica preso acima', () => {
+      montarSecoes({ pizzas: -400, doces: 40, bebidas: 600 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="pizzas" followScroll items={secoes} label="Categorias" onCurrentChange={onCurrentChange} stickyOffset={56} />);
+
+      expect(onCurrentChange).toHaveBeenLastCalledWith('doces');
+    });
+
+    it('sem followScroll, nao observa a rolagem', () => {
+      montarSecoes({ pizzas: -400, doces: -10, bebidas: 600 });
+      const onCurrentChange = vi.fn();
+
+      render(<TabsNav current="pizzas" items={secoes} label="Categorias" onCurrentChange={onCurrentChange} />);
+
+      expect(onCurrentChange).not.toHaveBeenCalled();
+    });
+  });
 });
 

@@ -4,6 +4,12 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `TabsNav`: `followScroll`, para abas que são seções da mesma página. A barra fica presa ao topo, acompanha a seção visível, avisa por `onCurrentChange` e traz a aba atual para o meio da barra; `stickyOffset` desconta o que fica preso acima dela. A aba atual leva `aria-current="location"`. Sem `followScroll`, nada muda.
+
 ## [0.7.1] — 2026-11-24
 
 ### Adicionado

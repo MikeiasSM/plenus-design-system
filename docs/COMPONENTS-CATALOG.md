@@ -363,7 +363,7 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `Breadcrumb` | Caminho percorrido até a posição atual. | Disponível |
 | `Pagination` | Navegação entre páginas de um conjunto. | Disponível |
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
-| `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
+| `TabsNav` | Faixa de abas em que cada aba é um endereço, ou uma seção da página que a barra acompanha. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
 | `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
 | `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
@@ -462,6 +462,8 @@ As subpartes levam `data-part`, contrato público para o estilo do produto: `lis
 Para a cor própria só na navegação, sem mudar a da página, o `createPalette` vai à raiz: `<Sidebar {...createPalette(cor)}>`. A paleta vale no trilho, no submenu e na gaveta do celular, que recebe os mesmos atributos. As dicas do trilho saem em portal para o `document.body`; para levarem a mesma cor, o `PortalProvider` em volta da `Sidebar` as manda a um elemento com a mesma paleta, como `<div {...createPalette(cor)} ref={setDestino} />`. Para uma cor escolhida pelo usuário, que pode não ter contraste, `nearestPaletteColor(cor)` dá o tom mais próximo aceito antes do `createPalette`.
 
 A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido conforme a seção "Link da aplicação", abaixo, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
+
+Com `followScroll`, as abas da `TabsNav` são seções da mesma página (`href="#id"`), como as categorias de um cardápio longo. A barra fica presa ao topo da área que rola, sobre a superfície, e acompanha a rolagem: a seção cujo topo passou da barra vira a atual, `onCurrentChange` avisa a chave, e a aba atual vem para o meio da barra, sem animação para quem pede menos movimento. `stickyOffset` é a altura do que fica preso acima da barra, em pixels, para a conta e para a posição. Continua sendo navegação, e não `tablist`: a aba atual leva `aria-current="location"`, e tocar numa aba leva à seção pelo próprio link.
 
 ### Link da aplicação
 
