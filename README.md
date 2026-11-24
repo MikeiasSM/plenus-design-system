@@ -160,6 +160,14 @@ import { createPalette, nearestPaletteColor } from '@plenustech/design-system';
 <div {...createPalette(nearestPaletteColor(cor))}>...</div>
 ```
 
+Para mostrar a quem escolheu a cor o que a paleta manteve e o que mudou, `measurePalette(cor)` devolve o laudo: uma medida por papel, nos temas claro e escuro, com as cores, a razão de contraste, o mínimo e se a biblioteca ajustou a cor.
+
+```tsx
+import { measurePalette } from '@plenustech/design-system';
+
+const reprovadas = measurePalette('#EED037').filter((medida) => !medida.passes);
+```
+
 As regras da paleta própria estão em [TOKENS-REFERENCE-COLORS.md](docs/TOKENS-REFERENCE-COLORS.md).
 
 ### Ícones

@@ -1,6 +1,7 @@
 import {
   Children,
   createContext,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -12,6 +13,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react';
+import { useMergedRefs } from '../../../hooks/useMergedRefs';
 import styles from './Card.module.css';
 
 export type CardHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -71,13 +73,29 @@ export function Card({ 'aria-labelledby': ariaLabelledBy, children, className, s
     titleId,
   };
 
+  // A imagem ao fim fica ao lado de uma coluna com o resto: sem ela, o cartao inteiro virava linha, e cabecalho, corpo e
+  // rodape apareciam lado a lado. So o `Card.Media` filho direto e reconhecido; sem ele, nada muda no cartao.
+  const parts = Children.toArray(children);
+  const mediaAtEnd = parts.filter(
+    (part) => isValidElement<CardMediaProps>(part) && part.type === CardMedia && part.props.placement === 'end',
+  );
+  const content =
+    mediaAtEnd.length > 0 ? (
+      <>
+        <div className={styles.content}>{parts.filter((part) => !mediaAtEnd.includes(part))}</div>
+        {mediaAtEnd}
+      </>
+    ) : (
+      children
+    );
+
   return (
     <section
       {...props}
       aria-labelledby={ariaLabelledBy ?? (titled ? titleId : undefined)}
-      className={join(styles.card, size === 'sm' && styles.sm, className)}
+      className={join(styles.card, size === 'sm' && styles.sm, mediaAtEnd.length > 0 && styles.withMediaEnd, className)}
     >
-      <CardContext.Provider value={context}>{children}</CardContext.Provider>
+      <CardContext.Provider value={context}>{content}</CardContext.Provider>
     </section>
   );
 }
@@ -255,6 +273,91 @@ function CardFooter({ children, className, start, ...props }: CardFooterProps) {
   );
 }
 
+export type CardMediaRatio = '1:1' | '4:3' | '16:9';
+export type CardMediaPlacement = 'top' | 'end';
+
+export interface CardMediaProps extends Omit<ComponentPropsWithRef<'img'>, 'children' | 'src' | 'alt'> {
+  /** Texto alternativo. Vazio quando a imagem só ilustra o que o texto ao lado já diz. */
+  alt: string;
+  /** `top`: largura toda, antes do cabecalho. `end`: ao fim da linha, ao lado do conteudo, como num item de lista. */
+  placement?: CardMediaPlacement;
+  ratio?: CardMediaRatio;
+  /** Sem endereco, ou se a imagem nao carregar, o `Card.Media` nao ocupa espaco: o cartao fica como sem imagem. */
+  src?: string | null;
+}
+
+/** Imagem do cartao. Cobre a area sem distorcer; sem imagem, some sem deixar buraco. */
+function CardMedia({ src, ...props }: CardMediaProps) {
+  useCardContext('Card.Media');
+
+  if (!src) {
+    return null;
+  }
+
+  // Cada endereco e uma imagem nova, que comeca sem falha: zerar a falha num efeito deixava um render vazio na troca
+  // de `src` depois de um erro, e a imagem nova so aparecia no render seguinte.
+  return <CardMediaImage key={src} {...props} src={src} />;
+}
+
+function CardMediaImage({
+  alt,
+  className,
+  onError,
+  placement = 'top',
+  ratio = placement === 'end' ? '1:1' : '16:9',
+  ref,
+  src,
+  ...props
+}: CardMediaProps & { src: string }) {
+  const [failed, setFailed] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const mergedRef = useMergedRefs(imageRef, ref);
+
+  // A imagem do HTML do servidor que falha antes da hidratacao nao dispara o `onError` no React: ao montar, ela ja
+  // esta completa e sem largura. O `decode()` desempata, porque um SVG sem medida propria tambem tem largura zero, e
+  // so a imagem quebrada o recusa. O `onError` do consumidor nao e chamado nesse caso: o evento ja passou.
+  useLayoutEffect(() => {
+    const image = imageRef.current;
+
+    if (!image?.complete || image.naturalWidth > 0) {
+      return;
+    }
+
+    if (typeof image.decode !== 'function') {
+      setFailed(true);
+      return;
+    }
+
+    let mounted = true;
+    image.decode().catch(() => mounted && setFailed(true));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (failed) {
+    return null;
+  }
+
+  return (
+    <img
+      decoding="async"
+      loading="lazy"
+      {...props}
+      alt={alt}
+      className={join(styles.media, placement === 'end' ? styles.mediaEnd : styles.mediaTop, styles['ratio' + ratio.replace(':', 'x')], className)}
+      onError={(event) => {
+        setFailed(true);
+        onError?.(event);
+      }}
+      ref={mergedRef}
+      src={src}
+    />
+  );
+}
+
 Card.Header = CardHeader;
 Card.Body = CardBody;
 Card.Footer = CardFooter;
+Card.Media = CardMedia;
