@@ -219,6 +219,34 @@ Isso é preferível a:
 }
 ```
 
+### Ganchos de aparência
+
+Um gancho de aparência é uma variável CSS que o componente lê e não declara: o ponto de uso traz o valor padrão como fallback, `var(--pl-sheet-radius, var(--pl-radius-md))`, e o produto define a variável em qualquer ancestral, como o `:root` ou a raiz de uma área, sem depender da ordem das folhas nem sobrescrever classes. Sem a variável, o componente fica como sempre foi. Os ganchos não são tokens: não têm valor no `tokens.css` nem por tema, e o valor que o produto der vale nos dois temas, a menos que ele o declare por tema.
+
+Ganchos de folha, lidos pelas superfícies que ficam no mesmo nível da página: o `Card` (e por ele o `CardMetric`), a raiz do `DataGrid`, a folha da página (`AppShell.Page`) e o trilho da `Sidebar`.
+
+| Variável | O que muda | Padrão |
+| --- | --- | --- |
+| `--pl-sheet-border` | A borda inteira da folha, no formato da propriedade `border`, como `none` ou `1px solid var(--pl-color-border-strong)`. | `1px solid var(--pl-color-border)` |
+| `--pl-sheet-radius` | O raio dos cantos da folha. | `var(--pl-radius-md)` |
+| `--pl-sheet-shadow` | A sombra da folha, como `none`. | `var(--pl-sh-1)`; `none` no `DataGrid` |
+
+Gancho de casca, lido pelas linhas da moldura da aplicação: a cor da borda da folha da página e do trilho da `Sidebar` (quando o `--pl-sheet-border` não está definido), a linha sob a barra da página (`AppShell.PageBar`) e a linha sob o `PageHeader`.
+
+| Variável | O que muda | Padrão |
+| --- | --- | --- |
+| `--pl-shell-border` | A cor das linhas da casca. | `var(--pl-color-border)` |
+
+```css
+/* Folhas sem sombra e com o canto maior, só na área de relatórios. */
+.relatorios {
+  --pl-sheet-shadow: none;
+  --pl-sheet-radius: 12px;
+}
+```
+
+O valor do gancho é do produto, e o laudo `check:contraste` não o mede. Os ganchos de um componente só, como `--card-gap`, ficam na seção dele no `COMPONENTS-CATALOG.md`.
+
 ## 11. Valores técnicos
 
 Nem todo valor numérico precisa obrigatoriamente ser um token.

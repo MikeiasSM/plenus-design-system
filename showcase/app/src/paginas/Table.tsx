@@ -327,6 +327,40 @@ function VendasCompactas() {
   );
 }
 
+/** Sobre a superfície de uma faixa, sem fundo próprio; a coluna de entrega sai quando a tabela tem menos de 560px. */
+function VendasSobreFaixa() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        padding: 'var(--pl-space-3) 0',
+        borderRadius: 'var(--pl-radius-md)',
+        background: 'var(--pl-color-surface-muted)',
+        ['--table-surface' as string]: 'var(--pl-color-surface-muted)',
+      }}
+    >
+      <Table divider label="Vendas da faixa" stickyHeader surface="inherit">
+        <Table.Header>
+          <Table.Column id="pedido">Pedido</Table.Column>
+          <Table.Column id="cliente">Cliente</Table.Column>
+          <Table.Column hideBelow={560} id="entrega">Entrega</Table.Column>
+          <Table.Column id="valor" numeric>Valor</Table.Column>
+        </Table.Header>
+        <Table.Body items={vendas}>
+          {(venda) => (
+            <Table.Row id={venda.id}>
+              <Table.Cell>{venda.pedido}</Table.Cell>
+              <Table.Cell>{venda.cliente}</Table.Cell>
+              <Table.Cell>{venda.progresso}%</Table.Cell>
+              <Table.Cell>{venda.valor}</Table.Cell>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    </div>
+  );
+}
+
 function ArquivosSemDados({ carregando }: { carregando: boolean }) {
   return (
     <Card>
@@ -679,6 +713,22 @@ export const pagina: Pagina = {
 </Table>`,
     },
     {
+      titulo: 'Sobre outra superfície, com corte em pixels',
+      descricao: 'surface="inherit" deixa a tabela sem fundo e o cabeçalho translúcido; com stickyHeader, --table-surface dá a cor opaca do cabeçalho. hideBelow={560} tira a entrega abaixo de 560px de tabela.',
+      Previa: VendasSobreFaixa,
+      codigo: `<div style={{ background: 'var(--pl-color-surface-muted)', '--table-surface': 'var(--pl-color-surface-muted)' }}>
+  <Table label="Vendas da faixa" surface="inherit" stickyHeader>
+    <Table.Header>
+      <Table.Column id="pedido">Pedido</Table.Column>
+      <Table.Column id="cliente">Cliente</Table.Column>
+      <Table.Column id="entrega" hideBelow={560}>Entrega</Table.Column>
+      <Table.Column id="valor" numeric>Valor</Table.Column>
+    </Table.Header>
+    …
+  </Table>
+</div>`,
+    },
+    {
       titulo: 'Sem registros e carregando',
       descricao: 'O vazio desenhado, e o esqueleto com a mensagem só para o leitor de tela.',
       Previa: () => (
@@ -790,6 +840,7 @@ export const pagina: Pagina = {
     { nome: 'striped', tipo: 'boolean', padrao: 'false', descricao: 'Fundo alternado nas linhas.' },
     { nome: 'divider', tipo: 'boolean', padrao: 'true', descricao: 'Linha entre as linhas.' },
     { nome: 'stickyHeader', tipo: 'boolean', padrao: 'false', descricao: 'Cabeçalho colado no topo da rolagem.' },
+    { nome: 'surface', tipo: "'default' | 'inherit'", padrao: "'default'", descricao: 'inherit: tabela sem fundo e cabeçalho translúcido, sobre a superfície em volta. Com stickyHeader, o cabeçalho fica opaco na cor de --table-surface.' },
     { nome: 'loading', tipo: 'boolean', padrao: 'false', descricao: 'Esqueleto no lugar das linhas.' },
     { nome: 'loadingMessage', tipo: 'string', padrao: "'Carregando'", descricao: 'Mensagem para o leitor de tela.' },
     { nome: 'Table.Column id', tipo: 'string', descricao: 'Obrigatório. Identifica a coluna na ordenação.' },
@@ -797,7 +848,7 @@ export const pagina: Pagina = {
     { nome: 'Table.Column numeric', tipo: 'boolean', padrao: 'false', descricao: 'Valor à direita, em mono com dígitos alinhados.' },
     { nome: 'Table.Column align', tipo: "'start' | 'center' | 'end'", descricao: 'Alinhamento; sem ele, end se numeric, senão start.' },
     { nome: 'Table.Column help', tipo: 'string', descricao: 'Texto da ajuda ao lado do título.' },
-    { nome: 'Table.Column hideBelow', tipo: "'sm' | 'md' | 'lg'", descricao: 'Esconde a coluna quando a largura da tabela chega ao breakpoint.' },
+    { nome: 'Table.Column hideBelow', tipo: "'sm' | 'md' | 'lg' | number", descricao: 'Esconde a coluna quando a largura da tabela chega ao breakpoint, ou à largura em pixels.' },
     { nome: 'Table.Column width', tipo: 'string', descricao: 'Largura da coluna.' },
     { nome: 'Table.Body items', tipo: 'readonly T[]', descricao: <>Obrigatório. Cada item com <code>id</code>.</> },
     { nome: 'Table.Body children', tipo: '(item: T) => ReactNode', descricao: 'Obrigatório. Desenha a linha de cada item.' },

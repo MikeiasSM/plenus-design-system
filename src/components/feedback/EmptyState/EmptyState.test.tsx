@@ -53,4 +53,19 @@ describe('EmptyState', () => {
     expect(ref.current).toHaveClass('largo');
     expect(ref.current).toHaveAttribute('data-origem', 'lista');
   });
+
+  it('o titulo e um paragrafo por padrao', () => {
+    render(<EmptyState title="Vazio" />);
+
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(screen.getByText('Vazio').tagName).toBe('P');
+  });
+
+  it.each([1, 2, 3, 4, 5, 6] as const)('com headingLevel %i, o titulo e um cabecalho desse nivel, com a mesma classe', (nivel) => {
+    render(<EmptyState headingLevel={nivel} title="Nenhum pedido" />);
+
+    const titulo = screen.getByRole('heading', { level: nivel, name: 'Nenhum pedido' });
+    expect(titulo.tagName).toBe(`H${nivel}`);
+    expect(titulo).toHaveClass(styles.title!);
+  });
 });

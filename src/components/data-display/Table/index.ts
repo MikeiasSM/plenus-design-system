@@ -7,6 +7,7 @@ export type {
   TableCellProps,
   TableColumnProps,
   TableHeaderProps,
+  TableHideBelow,
   TableProps,
   TableRowItem,
   TableRowProps,
@@ -14,5 +15,6 @@ export type {
   TableSelectionMode,
   TableSize,
   TableSort,
+  TableSurface,
   TableToolbarProps,
 } from './Table';
