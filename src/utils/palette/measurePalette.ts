@@ -1,10 +1,6 @@
-import { contrast, isHexColor, normalizeHex } from './color';
-import { createPalette, type CreatePaletteOptions } from './createPalette';
-
-// Superficie clara de `src/tokens/semantic/color.css`: o laudo vale para o tema claro.
-const LIGHT_SURFACE = '#FFFFFF';
-const TEXT_MINIMUM = 4.5;
-const CONTROL_MINIMUM = 3;
+import { contrast } from './color';
+import { CONTROL_MINIMUM, LIGHT_SURFACE, TEXT_MINIMUM } from './constants';
+import { type CreatePaletteOptions, paletteTokens } from './createPalette';
 
 /** Papeis medidos, na ordem do laudo. */
 export type PaletteRole = 'text-on-fill' | 'hover' | 'active' | 'strong' | 'outline' | 'container';
@@ -37,15 +33,12 @@ function measure(role: PaletteRole, foreground: string, background: string, mini
  * Laudo da paleta de `createPalette(cor, opcoes)`, no tema claro: uma medida por papel (texto sobre o preenchimento,
  * hover, pressionado, traco, contorno e conteiner), com as cores, a razao, o minimo e se a paleta ajustou a cor. Serve
  * ao produto para mostrar a quem escolheu a cor o que ficou como estava e o que mudou. E separada de `createPalette`
- * para o retorno dela continuar espalhavel num elemento. Recusa as mesmas cores que `createPalette`.
+ * para o retorno dela continuar espalhavel num elemento. Recusa as mesmas cores que `createPalette`, com o proprio
+ * nome na mensagem, e nao avisa no console: o texto imposto que reprova aparece no proprio laudo.
  */
 export function measurePalette(color: string, options: CreatePaletteOptions = {}): PaletteMeasure[] {
-  if (!isHexColor(color)) {
-    throw new TypeError(`measurePalette: "${color}" nao e uma cor hexadecimal.`);
-  }
-
-  const solid = normalizeHex(color);
-  const style = createPalette(solid, options).style as Record<string, string>;
+  const style = paletteTokens(color, options, { caller: 'measurePalette', warn: false });
+  const solid = style['--pl-palette-solid'];
   const text = style['--pl-palette-on-solid'];
   const strong = style['--pl-palette-strong-light'];
   const hover = lightOf(style['--pl-palette-fill-hover']);

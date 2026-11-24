@@ -21,21 +21,30 @@ describe('measurePalette', () => {
   });
 
   it('marks the text imposed by the product as adjusted and does not hide a failing ratio', () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const texto = measurePalette('#FF3B00', { onSolid: '#FFFFFF' }).find((item) => item.role === 'text-on-fill')!;
 
     expect(texto).toMatchObject({ adjusted: true, passes: false, ratio: 3.57 });
   });
 
   it('decides passes on the raw ratio, not on the rounded one it shows', () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const texto = measurePalette('#727272', { onSolid: '#FFFF3D' }).find((item) => item.role === 'text-on-fill')!;
 
     expect(texto).toMatchObject({ minimum: 4.5, passes: false, ratio: 4.5 });
   });
 
-  it('refuses the same colors as createPalette', () => {
+  it('refuses the same colors as createPalette, with its own name in the message', () => {
     expect(() => measurePalette('#FFE14D')).toThrow(RangeError);
-    expect(() => measurePalette('amarelo')).toThrow(TypeError);
+    expect(() => measurePalette('#FFE14D')).toThrow(/^measurePalette: /);
+    expect(() => measurePalette('amarelo')).toThrow(/^measurePalette: /);
+    expect(() => measurePalette('#67BD50', { onSolid: 'white' })).toThrow(/^measurePalette: onSolid/);
+  });
+
+  it('does not repeat the console warning of createPalette for an imposed text that fails', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    measurePalette('#FF3B00', { onSolid: '#FFFFFF' });
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
   });
 });
