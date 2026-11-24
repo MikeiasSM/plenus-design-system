@@ -284,3 +284,52 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Imagem do cartão. No topo, ocupa a largura toda antes do cabeçalho; no fim, o cartão vira linha de duas peças: a
+   coluna com cabeçalho, corpo e rodapé, empilhados como sempre, e a imagem ao lado dela, no respiro do cartão. Sem
+   imagem, o `Card.Media` não é desenhado, e nada disso vale. */
+.media {
+  display: block;
+  flex: none;
+  object-fit: cover;
+  background: var(--pl-color-surface-muted);
+}
+
+.mediaTop {
+  width: 100%;
+  height: auto;
+}
+
+.withMediaEnd {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* A coluna toma a altura do cartão, e o corpo, que cresce, continua levando o rodapé para o pé. */
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.mediaEnd {
+  width: var(--pl-card-media-size, 88px);
+  height: auto;
+  margin-block: var(--card-gap);
+  margin-inline: 0 var(--card-gap);
+  border-radius: var(--pl-radius-md);
+}
+
+.ratio1x1 {
+  aspect-ratio: 1 / 1;
+}
+
+.ratio4x3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ratio16x9 {
+  aspect-ratio: 16 / 9;
+}

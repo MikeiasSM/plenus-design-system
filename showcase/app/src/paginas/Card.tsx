@@ -3,6 +3,16 @@ import { expr, gerarJsx } from '../estrutura/codigo';
 import { definirPlayground, type Pagina, type Verificacao } from '../estrutura/tipos';
 import { VerCodigo } from '../estrutura/VerCodigo';
 
+// Ilustracoes neutras, geradas aqui, para nao depender de rede nem de foto real.
+const ilustracao = (fundo: string, forma: string) =>
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><rect width="160" height="90" fill="${fundo}"/>` +
+      `<circle cx="58" cy="40" r="18" fill="${forma}"/><path d="M0 90l52-34 30 20 28-18 50 32z" fill="${forma}"/></svg>`,
+  );
+const IMAGEM_A = ilustracao('#7c9cbf', '#e9eef5');
+const IMAGEM_B = ilustracao('#8fb3a0', '#eef5f0');
+
 const NIVEIS = ['1', '2', '3', '4', '5', '6'] as const;
 const TAMANHOS = ['md', 'sm'] as const;
 const ESTREITO = ['keep', 'wrap', 'hide'] as const;
@@ -247,6 +257,57 @@ export const pagina: Pagina = {
 </Card>`,
     },
     {
+      titulo: 'Imagem no topo',
+      descricao: 'Card.Media antes do cabeçalho ocupa a largura toda, em 16:9 por padrão, e cobre a área sem distorcer. Sem src, ou se a imagem falhar, o cartão fica como sem imagem.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 320 }}>
+          <Card>
+            <Card.Media alt="" src={IMAGEM_A} />
+            <Card.Header description="Categoria A" title="Produto A" />
+            <Card.Body>Descrição curta do produto, em duas linhas no máximo.</Card.Body>
+            <Card.Footer>
+              <Button size="sm" variant="secondary">Ver detalhes</Button>
+            </Card.Footer>
+          </Card>
+        </div>
+      ),
+      codigo:
+        `<Card>
+  <Card.Media alt="" src={produto.imagem} />
+  <Card.Header title="Produto A" description="Categoria A" />
+  <Card.Body>Descrição curta do produto, em duas linhas no máximo.</Card.Body>
+  <Card.Footer>
+    <Button size="sm" variant="secondary">Ver detalhes</Button>
+  </Card.Footer>
+</Card>`,
+    },
+    {
+      titulo: 'Imagem ao fim, com cabeçalho e rodapé',
+      descricao:
+        'Com placement="end", a imagem fica ao lado de uma coluna com o cabeçalho, o corpo e o rodapé, que continuam empilhados. O rodapé fica na largura da coluna, e em dir="rtl" a imagem vai para a esquerda. --pl-card-media-size troca a largura.',
+      Previa: () => (
+        <div style={{ width: '100%', maxWidth: 480 }}>
+          <Card>
+            <Card.Header description="Categoria B" title="Produto B" />
+            <Card.Body>Descrição curta, ao lado da imagem quadrada.</Card.Body>
+            <Card.Footer start={<span>Atualizado há 5 minutos</span>}>
+              <Button size="sm" variant="secondary">Editar</Button>
+            </Card.Footer>
+            <Card.Media alt="" placement="end" src={IMAGEM_B} />
+          </Card>
+        </div>
+      ),
+      codigo:
+        `<Card>
+  <Card.Header title="Produto B" description="Categoria B" />
+  <Card.Body>Descrição curta, ao lado da imagem quadrada.</Card.Body>
+  <Card.Footer start={<span>Atualizado há 5 minutos</span>}>
+    <Button size="sm" variant="secondary">Editar</Button>
+  </Card.Footer>
+  <Card.Media alt="" placement="end" src={produto.imagem} />
+</Card>`,
+    },
+    {
       titulo: 'Ganchos de folha',
       descricao: 'O produto define --pl-sheet-shadow, --pl-sheet-radius e --pl-sheet-border num ancestral, e os cartões, a grade, a folha da página e o trilho os seguem.',
       Previa: () => (
@@ -337,6 +398,8 @@ export const pagina: Pagina = {
     { garantia: 'Sem nome inventado', como: 'Sem cabeçalho, não há região; se ele sair, o nome sai junto.', teste: 'Card.test.tsx' },
     { garantia: 'Nome de fora', como: <>O <code>aria-labelledby</code> do consumidor prevalece.</>, teste: 'Card.test.tsx' },
     { garantia: 'Nível de título', como: <><code>headingLevel</code> escolhe de h2 a h6.</>, teste: 'Card.test.tsx' },
+    { garantia: 'Imagem sem buraco', como: <>Sem <code>src</code>, ou se a imagem falhar, inclusive antes da hidratação, o <code>Card.Media</code> não é desenhado.</>, teste: 'CardMedia.test.tsx' },
+    { garantia: 'Imagem ao fim', como: 'Cabeçalho, corpo e rodapé ficam empilhados numa coluna, ao lado da imagem.', teste: 'CardMedia.test.tsx' },
     { garantia: 'Rodapé com start', como: <>O <code>start</code> fica à esquerda e os filhos num bloco à direita; sem ele, os filhos seguem diretos no rodapé, e o filho único vai ao fim.</>, teste: 'Card.test.tsx' },
   ],
   notaDaApi:
@@ -370,6 +433,16 @@ export const pagina: Pagina = {
     { nome: 'Card.Body children', tipo: 'ReactNode', descricao: 'Obrigatório. O conteúdo.' },
     { nome: 'Card.Body flush', tipo: 'boolean', padrao: 'false', descricao: 'Encosta o conteúdo nas bordas.' },
     { nome: 'Card.Footer start', tipo: 'ReactNode', descricao: 'Conteúdo à esquerda do rodapé, como uma ação secundária ou a situação do salvamento. Os filhos ficam à direita.' },
+    { nome: 'Card.Media alt', tipo: 'string', descricao: 'Obrigatório. Vazio quando a imagem só ilustra o texto ao lado.' },
+    { nome: 'Card.Media src', tipo: 'string | null', descricao: 'Endereço da imagem. Sem ele, ou se a imagem falhar, o Card.Media não é desenhado.' },
+    {
+      nome: 'Card.Media placement',
+      tipo: "'top' | 'end'",
+      padrao: "'top'",
+      descricao: 'top: largura toda, antes do cabeçalho. end: ao lado da coluna com cabeçalho, corpo e rodapé; precisa ser filho direto do Card.',
+    },
+    { nome: 'Card.Media ratio', tipo: "'1:1' | '4:3' | '16:9'", padrao: "'16:9' no topo, '1:1' ao fim", descricao: 'Proporção da área; a imagem a cobre sem distorcer.' },
+    { nome: '--pl-card-media-size', tipo: 'variável CSS', padrao: '88px', descricao: 'Largura da imagem ao fim; o produto a define em qualquer ancestral.' },
     { nome: 'Card.Footer children', tipo: 'ReactNode', descricao: 'Rodapé, com os itens nas pontas; um filho só vai ao fim. Com start, ficam juntos à direita e podem faltar.' },
   ],
 };
