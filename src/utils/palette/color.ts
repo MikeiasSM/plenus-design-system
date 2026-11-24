@@ -88,3 +88,16 @@ export function oklchToHex(color: Oklch) {
 
 /** Abaixo deste croma a cor e lida como neutra, e a matiz calculada e ruido. */
 export const NEUTRAL_CHROMA = 0.01;
+
+/**
+ * Mistura em OKLab, como `color-mix(in oklab, a peso%, b)`: `weight` e a parte de `a`, de 0 a 1. Serve para medir
+ * as cores que o CSS mistura, como o conteiner do tema escuro.
+ */
+export function mixOklab(a: string, b: string, weight: number) {
+  const [first, second] = [toOklch(a), toOklch(b)].map(({ C, L, h }) => ({ A: C * Math.cos(h), B: C * Math.sin(h), L }));
+  const mix = (x: number, y: number) => x * weight + y * (1 - weight);
+  const A = mix(first.A, second.A);
+  const B = mix(first.B, second.B);
+
+  return oklchToHex({ C: Math.hypot(A, B), L: mix(first.L, second.L), h: Math.atan2(B, A) });
+}

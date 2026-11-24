@@ -43,7 +43,7 @@
 
 .input:checked,
 .input:indeterminate {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-outline, var(--pl-color-primary));
   background-color: var(--pl-color-primary);
 }
 
