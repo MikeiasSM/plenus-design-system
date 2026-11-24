@@ -198,7 +198,7 @@ Na seleção múltipla, o `ComboBox` pode ter rodapé no painel. `selectAll` mar
 | `Avatar` | Representação visual de uma pessoa ou entidade. | Disponível |
 | `AvatarItem` | Avatar ao lado de um título e uma descrição, numa linha que não estoura a largura. | Disponível |
 | `AvatarGroup` | Avatares sobrepostos de quem participa, com o "+N" dos que não couberam. | Disponível |
-| `Card` | Superfície que agrupa conteúdo, com cabeçalho e rodapé próprios. | Disponível |
+| `Card` | Superfície que agrupa conteúdo, com cabeçalho, rodapé e imagem próprios. | Disponível |
 | `CardMetric` | Indicador num cartão: valor, tendência, composição ou evolução, com ativação para o detalhe. | Disponível |
 | `Badge` | Rótulo curto de estado ou categoria. | Disponível |
 | `Tag` | Etiqueta operada: removível, como o filtro ativo, ou de alternar. | Disponível |
@@ -273,6 +273,8 @@ O `AvatarGroup` mostra quem participa num espaço curto: os responsáveis de um 
 O `AvatarItem` é a linha de uma pessoa ou entidade: o `avatar`, normalmente um `Avatar`, à esquerda, o `title` e, abaixo dele, a `description` opcional. Texto longo vira reticências em vez de estourar a largura, e a linha mantém a altura do avatar. Serve a células de tabela, listas de membros e cabeçalhos de contato; o `AvatarItem` não é um controle e não responde a clique. O título já mostra o nome, então o `Avatar` passado em `avatar` entra decorativo e o leitor de tela lê o nome uma vez só; com `decorative={false}` no `Avatar`, ele continua nomeado, para quando o título não é o nome.
 
 O `Avatar` mostra a foto de `src` ou, sem ela ou quando ela falha, as iniciais das duas primeiras palavras do `name`, ou as que vierem em `initials`, como a sigla de uma entidade. O fundo é só das iniciais; a foto não tem fundo e ganha um contorno sutil para dentro, que a separa da superfície sem mudar a medida. Os tamanhos são `xs` (24px, na fonte micro), `sm` (32px), `md` (40px) e `lg` (56px). O `name` é o nome acessível, no `alt` da foto ou no `aria-label` das iniciais; com `decorative`, o avatar sai da árvore de acessibilidade, com `alt=""` na foto e `aria-hidden` nas iniciais, para quando o nome já está escrito ao lado. As variáveis `--pl-avatar-bg` e `--pl-avatar-fg` trocam o fundo e o texto das iniciais; o componente só as lê, com o valor do sistema de reserva, e o produto as define em qualquer ancestral.
+
+O `Card.Media` é a imagem do cartão. Com `placement="top"`, o padrão, ocupa a largura toda antes do cabeçalho, em 16:9; com `placement="end"`, o cartão vira linha de duas peças: uma coluna com o cabeçalho, o corpo e o rodapé, que continuam empilhados entre si como sem imagem, e a imagem ao fim, ao lado da coluna inteira, quadrada e com `--pl-card-media-size` de largura (88px por padrão), como num item de lista. O rodapé, com a linha de cima, fica na largura da coluna, e a imagem segue a direção do texto: em `dir="rtl"`, vai para a esquerda. Para ir ao fim, o `Card.Media` precisa ser filho direto do `Card`, em qualquer posição entre os filhos. `ratio` aceita `1:1`, `4:3` e `16:9`, e a imagem cobre a área sem distorcer. Sem `src`, ou se a imagem não carregar, o `Card.Media` não é desenhado e o cartão fica como sem imagem, sem buraco. `alt` é obrigatório e vazio quando a imagem só ilustra o texto ao lado.
 
 ## 6. Gráficos
 
@@ -399,7 +401,7 @@ O aviso aceita até duas ações em `actions`, na ordem dada, como "Desfazer" e 
 | `Breadcrumb` | Caminho percorrido até a posição atual. | Disponível |
 | `Pagination` | Navegação entre páginas de um conjunto. | Disponível |
 | `Tabs` | Alternância entre painéis de conteúdo. | Disponível |
-| `TabsNav` | Faixa de abas em que cada aba é um endereço. | Disponível |
+| `TabsNav` | Faixa de abas em que cada aba é um endereço, ou uma seção da página que a barra acompanha. | Disponível |
 | `Steps` | Etapas de um processo, com a atual destacada e as anteriores concluídas. | Disponível |
 | `AppShell` | Moldura de tela em camadas: a navegação da `Sidebar` e a página. | Disponível |
 | `Sidebar` | Navegação da aplicação: trilho de módulos, submenu do módulo com grupos e níveis, conta e gaveta no celular. | Disponível |
@@ -499,6 +501,8 @@ Para a cor própria só na navegação, sem mudar a da página, o `createPalette
 
 A `LinkList` é a lista de destinos de uma tela, como as pendências que levam aonde cada uma se resolve ou os atalhos de um índice de configurações. Cada item é um link inteiro, recebido conforme a seção "Link da aplicação", abaixo, com título, descrição opcional, ícone e um complemento ao fim, como uma contagem. Em `layout="list"`, o padrão, os itens são linhas separadas por uma divisória, com a seta ao fim; em `layout="grid"`, são células numa grade que se ajusta à largura, sem seta. `tone="danger"` marca o item que pede atenção. Escolher itens é papel da `List`, e uma ação que não navega continua sendo botão.
 
+Com `followScroll`, as abas da `TabsNav` são seções da mesma página (`href="#id"`), como as partes de uma página de configurações ou de documentação. A barra fica presa ao topo da área que rola, a página ou um contêiner como o corpo do `AppShell`, sobre a superfície. A seção atual é a última cujo topo chegou à borda de baixo da barra, medida na própria barra; no fim da rolagem, é a última seção, mesmo curta. A aba atual vem para o meio da faixa, sem animação para quem pede menos movimento, e `onCurrentChange` avisa a chave só quando a seção muda. Sem `current`, a barra guarda a seção sozinha, a partir de `defaultCurrent`; com `current`, o produto controla e precisa atualizá-lo em `onCurrentChange`. `stickyOffset` é a altura do que fica preso acima da barra na mesma área que rola, em pixels, e vira o `top` do sticky; um `top` em `style` vence. Tocar numa aba leva à seção pelo próprio link, e a seção recebe um `scroll-margin-top` com a altura da barra para o título não ficar por baixo dela; numa página aberta direto no `#id`, a margem é do produto. Continua sendo navegação, e não `tablist`: a aba atual leva `aria-current="location"`.
+
 ### Link da aplicação
 
 Os componentes de navegação não conhecem o roteador: a aplicação entrega o componente de link, e o sistema cuida da aparência e da acessibilidade.
@@ -532,7 +536,7 @@ import { Link } from 'react-router-dom';
 | Componente | Papel | Situação |
 | --- | --- | --- |
 | `Dialog` | Interação modal que interrompe o fluxo. | Disponível |
-| `Drawer` | Painel modal preso à lateral da tela. | Disponível |
+| `Drawer` | Painel modal preso à lateral ou à base da tela. | Disponível |
 | `SidePanel` | Painel não modal ao lado do conteúdo, de qualquer lado, que empurra a página. | Disponível |
 | `Popover` | Conteúdo ancorado a um gatilho, sem bloquear a página. | Disponível |
 | `Tooltip` | Descrição curta de um elemento, exibida no ponteiro ou no foco. | Disponível |
@@ -544,6 +548,8 @@ import { Link } from 'react-router-dom';
 O `Dialog` sem `title` não tem cabeçalho, e o nome vem do `aria-label`, que passa a ser obrigatório. Serve ao diálogo em que o próprio conteúdo é a tarefa, como a paleta de busca do `Ctrl+K`; a saída é o Esc ou o clique fora.
 
 O `Dialog` tem os tamanhos `sm`, `md`, `lg` e `xl`, de até 1040px, para formulários e conteúdos largos. `title` e `description` aceitam um nó, para uma ênfase ou um link na descrição; o título é o conteúdo do `h2` e o nome do diálogo, e não leva nada interativo. O corpo que rola, quando ganha foco, é nomeado "Conteúdo de" seguido do título, por `aria-labelledby`, também com o título em nó. `help` põe ao lado do título, fora do `h2` e do nome do diálogo, o ícone de ajuda da convenção do `help` da `Table`: focável, com a dica no ponteiro e no foco de teclado, e nomeado pelo próprio texto; o foco inicial continua no botão Fechar. `flush` tira o respiro interno do corpo, como no `Drawer`. `placement="top"` prende o cartão perto do topo, a 12% da altura da janela, com a altura máxima descontada dessa margem, para o diálogo cuja altura muda com o conteúdo, como uma busca, não pular a cada resultado; o padrão é `center`. `onBeforeClose` deixa o produto impedir o fechamento, como quando há alterações não salvas: devolve `boolean` ou `Promise<boolean>`, e `false` mantém aberto. É consultado por Esc, pelo clique no véu e pelo botão Fechar, uma consulta por vez, e não quando o produto muda `open`, que é decisão dele. A resposta de uma consulta antiga é descartada se o diálogo foi fechado e reaberto, e a consulta que falha conta como não fechar. Não recebe o motivo do fechamento, porque a confirmação não difere pela via; se um produto precisar, a assinatura ganha um argumento sem quebrar. O `Drawer` recebe o mesmo `onBeforeClose`, pois divide a mecânica com o `Dialog` e é onde mais se edita um item com alterações a perder.
+
+O `Drawer` com `side="bottom"` sobe da base da tela: é o painel do celular, para o detalhe de um item ou uma escolha curta. Tem a altura do conteúdo até o teto do `size` (`sm` 50%, `md` 75% e `lg` 90% da tela), cantos de cima arredondados e a área segura de baixo. A mecânica é a do `Dialog` (padrão Dialog Modal do WAI-ARIA): foco preso, Esc fecha, toque fora fecha, e o foco volta a quem abriu. Não tem alça: a alça convida a arrastar, e o painel não se arrasta. Como no `Dialog` e nas laterais, o botão Fechar fica no cabeçalho e só aparece com `title`. Sem `title`, o produto põe o próprio botão de fechar, no rodapé ou no corpo: no celular, com leitor de tela, não há Esc, e o toque fora não é um controle que se alcance. No computador, o painel fica centralizado, com até 640px de largura.
 
 O `Drawer` sem `title` segue o `Dialog`: sem cabeçalho, nomeado pelo `aria-label` obrigatório. O `title`, a `description` e o `help` do `Drawer` seguem os do `Dialog`. Com `flush`, o corpo perde o respiro interno, para o conteúdo que desenha a própria margem; a rolagem do meio continua.
 

@@ -24,7 +24,7 @@
   flex: none;
   width: 36px;
   height: 20px;
-  border: 1px solid var(--pl-color-border-strong);
+  border: 1px solid var(--pl-control-border);
   border-radius: var(--pl-radius-full);
   background: var(--pl-color-surface-muted);
   cursor: inherit;
@@ -45,7 +45,7 @@
 }
 
 .input:checked {
-  border-color: var(--pl-color-primary);
+  border-color: var(--pl-color-primary-outline, var(--pl-color-primary));
   background: var(--pl-color-primary);
 }
 
