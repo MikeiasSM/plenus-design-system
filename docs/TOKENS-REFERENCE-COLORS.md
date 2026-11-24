@@ -196,6 +196,8 @@ A identidade de marca chega aos tokens semanticos por uma paleta ativa, o contra
 | `--pl-palette-on-40` | Texto sobre o preenchimento no tema escuro |
 | `--pl-palette-strong-light` | Traco no tema claro: texto, borda e foco, a 4,5:1 sobre a superficie |
 | `--pl-palette-strong-dark` | Traco no tema escuro, com o mesmo minimo |
+| `--pl-palette-fill-hover` | Opcional. Fundo do hover sob o texto, quando o texto nao se le sobre o passo 60 |
+| `--pl-palette-fill-active` | Opcional. Fundo do pressionado sob o texto, quando o texto nao se le sobre o passo 70 |
 
 O CSS nao mede contraste, por isso o texto e o traco sao declarados, e nao calculados.
 
@@ -206,6 +208,8 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 | `color.primary` | `palette.solid` | `palette.40` |
 | `color.primary-hover` | `palette.60` | `palette.30` |
 | `color.primary-active` | `palette.70` | `palette.20` |
+| `color.primary-fill-hover` | `palette.fill-hover`; sem ele, `color.primary-hover` | `palette.30` |
+| `color.primary-fill-active` | `palette.fill-active`; sem ele, `color.primary-active` | `palette.20` |
 | `color.primary-strong` | `palette.strong-light` | `palette.strong-dark` |
 | `color.primary-container` | `palette.10` | `palette.40` a 16% sobre a superficie |
 | `color.primary-selected` | `palette.20` | `palette.40` a 26% sobre a superficie |
@@ -218,6 +222,8 @@ O laranja e a paleta padrao. `data-palette="blue"` e `data-palette="purple"` tro
 O tema vale por subárvore (`TOKENS.md` §4): a coluna do tema escuro vale onde `data-theme="dark"` esteja no elemento ou num ancestral, ou, sem `data-theme` em lugar nenhum, quando o sistema pede o escuro. Nestes tokens a escolha entre as colunas é feita por `light-dark()`, e por isso acompanha o tema mais próximo mesmo com a paleta declarada fora ou dentro dele.
 
 No escuro o preenchimento desce ao passo 40: o 50 do azul mede 2,79:1 e o do roxo 1,94:1 contra a superficie escura.
+
+`color.primary-fill-hover` e `color.primary-fill-active` sao o fundo do hover e do pressionado sob o texto `color.on-primary`, como no `Button` primario. `color.primary-hover` e `color.primary-active` seguem para o texto e para o preenchimento sem texto, como o link, a trilha, o progresso e o indicador de carregamento. Nas paletas fixas os dois pares coincidem.
 
 `color.primary` e o preenchimento: fundo do botao primario, do interruptor ligado, da selecao. `color.primary-strong` e o traco: texto, borda de selecao, anel de foco e aba ativa. Nas paletas em que a cor da marca ja se le contra a superficie, os dois coincidem; no laranja, o traco claro e o `brand.orange.70`, a 5,38:1.
 
@@ -232,7 +238,8 @@ Um produto declara as mesmas variaveis num elemento com `data-palette`, ou as re
 A regra de `createPalette`:
 
 - A cor e o preenchimento quando mede ao menos 1,5:1 contra a superficie clara. Abaixo disso ela some na tela, e a funcao recusa com o tom aceito mais proximo na mensagem.
-- O texto sobre o preenchimento e o branco ou o grafite, o que medir mais.
+- O texto sobre o preenchimento e o branco ou o grafite, o que medir mais. Se nenhum dos dois chega a 4,5:1, e o que medir mais entre branco, grafite e preto. Quem ja passa com o branco ou o grafite nao muda.
+- Quando esse texto fica abaixo de 4,5:1 sobre o passo 60 ou o 70 da rampa, a funcao declara `--pl-palette-fill-hover` e `--pl-palette-fill-active`: o proprio preenchimento, com a luminosidade OKLCH afastada do texto, 0,05 no hover e 0,09 no pressionado, mais claro sob o texto escuro e mais escuro sob o claro. No tema escuro eles seguem nos passos 30 e 20, como antes. Sem eles, `color.primary-fill-hover` e `color.primary-fill-active` valem o hover e o pressionado de sempre.
 - O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
 - A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
 

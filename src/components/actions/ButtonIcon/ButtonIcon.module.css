@@ -1,4 +1,11 @@
-/* Quadrado na altura do `Button` de cada tamanho — 32, 36 e 40px —, com o icone no lugar da entrelinha do texto. */
+/* Quadrado na altura do `Button` de cada tamanho — 32, 36 e 40px —, com o icone no lugar da entrelinha do texto.
+   O `xs`, de 24px com icone de 14px, nao tem par no `Button`. */
+.buttonIcon.xs {
+  padding: 4px;
+  border-radius: var(--pl-radius-sm);
+  font-size: 0.875rem;
+}
+
 .buttonIcon.sm {
   padding: 7px;
   font-size: 1rem;
@@ -15,6 +22,10 @@
 }
 
 @media (pointer: coarse) {
+  .buttonIcon.xs {
+    padding: calc((var(--pl-control-height-sm) - 0.875rem - 2px) / 2);
+  }
+
   .buttonIcon.sm {
     padding: calc((var(--pl-control-height-sm) - 1rem - 2px) / 2);
   }
@@ -26,4 +37,15 @@
   .buttonIcon.lg {
     padding: calc((48px - 1.25rem - 2px) / 2);
   }
+}
+
+/* O selo da contagem fica no canto superior direito, por cima da borda. */
+.counted {
+  position: relative;
+}
+
+.count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
 }

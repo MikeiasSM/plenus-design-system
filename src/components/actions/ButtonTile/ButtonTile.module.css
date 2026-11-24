@@ -55,9 +55,10 @@
   display: -webkit-box;
   max-width: 100%;
   overflow: hidden;
-  /* Quebra só entre palavras, mesmo sob um consumidor que herda outra regra. */
+  /* Quebra entre palavras e, na palavra que não cabe, hifeniza pelo idioma do documento (`lang`), mesmo sob um
+     consumidor que herda outra regra. */
   overflow-wrap: normal;
-  hyphens: manual;
+  hyphens: auto;
   word-break: normal;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

@@ -45,7 +45,8 @@ export const PARES = [
   ['--pl-color-text-secondary', '--pl-color-surface', TEXTO_MINIMO, 'texto secundario'],
   ['--pl-color-text-tertiary', '--pl-color-surface', TEXTO_MINIMO, 'texto terciario'],
   ['--pl-color-on-primary', '--pl-color-primary', TEXTO_MINIMO, 'texto sobre primary'],
-  ['--pl-color-on-primary', '--pl-color-primary-active', TEXTO_MINIMO, 'texto sobre primary pressionado'],
+  ['--pl-color-on-primary', '--pl-color-primary-fill-hover', TEXTO_MINIMO, 'texto sobre primary no hover'],
+  ['--pl-color-on-primary', '--pl-color-primary-fill-active', TEXTO_MINIMO, 'texto sobre primary pressionado'],
   ['--pl-color-text', '--pl-color-surface-muted', TEXTO_MINIMO, 'texto no hover neutro'],
   ['--pl-color-text', '--pl-color-border-strong', TEXTO_MINIMO, 'texto no fundo pressionado neutro'],
   ['--pl-color-text-secondary', '--pl-color-border-strong', TEXTO_MINIMO, 'texto secundario no fundo pressionado neutro'],
@@ -106,6 +107,8 @@ export const PARES = [
  */
 export const ACEITAS = new Set([
   'orange claro|--pl-color-on-primary|--pl-color-primary',
+  // O hover do laranja fixo, no passo 60, fica entre o solido (excecao acima) e o pressionado, que passa.
+  'orange claro|--pl-color-on-primary|--pl-color-primary-fill-hover',
   'orange claro|--pl-color-primary|--pl-color-background',
   ...PALETAS.flatMap((paleta) => [
     `${paleta} claro|--pl-color-border-strong|--pl-color-surface`,
