@@ -14,6 +14,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
+  "bin": {
+    "pl-verificar": "verificador/cli.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -57,6 +60,8 @@
   ],
   "files": [
     "dist",
+    "verificador",
+    "!verificador/*.test.mjs",
     "docs/CHANGELOG.md",
     "docs/COMPONENTS-CATALOG.md",
     "docs/CONTRIBUTING.md",
@@ -67,7 +72,7 @@
   "scripts": {
     "dev": "vite",
     "dev:showcase": "vite --config showcase/vite.config.ts",
-    "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs",
+    "build": "tsc -b && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs && node scripts/gerar-docs-agentes.mjs",
     "check:pacote": "node scripts/check-pacote.mjs",
     "check:consumo": "node scripts/check-consumo.mjs",
     "gerar:icones": "node scripts/gerar-icones.mjs",
@@ -79,7 +84,7 @@
     "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
     "preview:showcase": "vite preview --config showcase/vite.config.ts",
-    "build:pacote": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs"
+    "build:pacote": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.build.json && node scripts/finaliza-pacote.mjs && node scripts/gerar-docs-agentes.mjs"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.4",

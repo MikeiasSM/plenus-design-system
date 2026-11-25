@@ -132,6 +132,9 @@ function seletoresDePagina(css) {
 exigir(arquivoComConteudo('dist/types/index.d.ts', 100), 'dist/types/index.d.ts ausente ou vazio');
 exigir(arquivoComConteudo('dist/reset.css', 500), 'dist/reset.css ausente ou pequeno demais');
 exigir(arquivoComConteudo('dist/design-system.css', 1000), 'dist/design-system.css ausente ou pequeno demais');
+exigir(arquivoComConteudo('dist/docs/index.md', 5000), 'dist/docs/index.md ausente ou pequeno demais');
+exigir(arquivoComConteudo('dist/docs/tokens.json', 5000), 'dist/docs/tokens.json ausente ou pequeno demais');
+exigir(arquivoComConteudo('dist/docs/regras.json', 2000), 'dist/docs/regras.json, do pl-verificar, ausente ou pequeno demais');
 
 if (arquivoComConteudo('dist/design-system.css', 1)) {
   const css = readFileSync(resolve(raiz, 'dist/design-system.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
@@ -309,6 +312,13 @@ try {
   for (const doc of DOCS_DE_QUEM_MANTEM) {
     exigir(!caminhos.has(doc), `o pacote leva ${doc}, que e de quem mantem`);
   }
+
+  // O pl-verificar viaja inteiro, sem o teste, e o bin aponta para ele.
+  for (const arquivo of ['verificador/cli.mjs', 'verificador/index.mjs', 'dist/docs/regras.json']) {
+    exigir(caminhos.has(arquivo), `o pacote nao leva ${arquivo}`);
+  }
+  exigir(![...caminhos].some((caminho) => caminho.endsWith('.test.mjs')), 'o pacote leva o teste do verificador');
+  exigir(JSON.parse(readFileSync(resolve(raiz, 'package.json'), 'utf8')).bin?.['pl-verificar'] === 'verificador/cli.mjs', 'o bin pl-verificar nao aponta para verificador/cli.mjs');
 } catch (erro) {
   falhas.push(`nao foi possivel listar o conteudo do pacote: ${erro.message}`);
 }

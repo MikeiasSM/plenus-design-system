@@ -36,6 +36,25 @@ describe('Text', () => {
     expect(screen.getByText('Parágrafo').tagName).toBe('P');
   });
 
+  it('trata o role com nome de variante como a variante, sem levá-lo ao HTML', () => {
+    render(
+      <>
+        <Text role="label">Rótulo</Text>
+        <Text role="caption">Legenda</Text>
+        <Text role="code">Código</Text>
+        <Text role="label" variant="micro">Explícito</Text>
+      </>,
+    );
+
+    expect(screen.getByText('Rótulo')).not.toHaveAttribute('role');
+    expect(screen.getByText('Rótulo')).toHaveAttribute('data-variant', 'label');
+    expect(screen.getByText('Legenda')).toHaveAttribute('data-variant', 'caption');
+    expect(screen.getByText('Código')).toHaveAttribute('role', 'code');
+    expect(screen.getByText('Código')).toHaveAttribute('data-variant', 'body');
+    expect(screen.getByText('Explícito')).toHaveAttribute('role', 'label');
+    expect(screen.getByText('Explícito')).toHaveAttribute('data-variant', 'micro');
+  });
+
   it('encaminha ref, className e propriedades nativas ao elemento', () => {
     const ref = createRef<HTMLSpanElement>();
     render(

@@ -6,6 +6,8 @@ O projeto fornece a fonte oficial de componentes de interface, tokens visuais, p
 
 > O Design System define. O Showcase demonstra. As aplicações consomem.
 
+> **Para programar com a biblioteca**, pessoa ou agente de código: comece por `dist/docs/index.md`, no pacote instalado. Ele traz as regras de toda tela, cada peça numa linha e os nomes de todos os tokens. A entrega só vale com `npx pl-verificar` zerado: rode `npx pl-verificar --fix`, corrija à mão o que sobrar e rode de novo até ler "nenhum erro". Ele acusa token que não existe, cor e medida fixas, HTML cru onde há peça e outros desvios, sempre com o que usar no lugar.
+
 ## Objetivo
 
 Este repositório é a fonte oficial da verdade para a interface e a experiência de usuário dos produtos web da Plenustech.

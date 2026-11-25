@@ -4,6 +4,19 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `dist/docs/index.md`: índice curto para programar com a biblioteca, pessoa ou agente de código. Traz as regras de toda tela (os estilos e a ordem deles, o tema, o ponto único de importação, peça no lugar de HTML cru, só tokens, português), as trocas que mais erram, cada peça numa linha e o nome de todos os tokens. Abre com a condição de entrega: `npx pl-verificar` zerado. Sai do catálogo e dos tokens no build, e o README aponta para ele.
+- `dist/docs/tokens.json`: os tokens no formato DTCG, por grupo, com o valor no tema claro (`$value`), o do escuro (`$extensions["tema-escuro"]`), o tipo e, onde a documentação o descreve, o papel.
+- `pl-verificar`: comando do pacote (`npx pl-verificar`, sem dependência) que lê o código do produto, `src` por padrão, e acusa o que foge da biblioteca, sempre com o que usar no lugar. São estes os desvios: token `--pl-*` que não existe, com o vizinho mais parecido; nome antigo de token; cor fixa, com o token de mesmo valor ou o mais próximo; espaço e raio fixos que têm token igual; tamanho de texto fixo; sombra fixa; `<button>`, `<input>`, `<select>`, `<textarea>`, `<table>`, `<dialog>`, `<progress>` e `<meter>` crus, com a peça pelo tipo do campo; data num `InputText`; período montado com dois `DatePicker`; reserva depois de um token que existe, como `var(--pl-color-border, #e2e2e2)`; peça descontinuada; e os estilos da biblioteca ou o `reset.css` não importados. `--fix` aplica as trocas exatas: o nome antigo, a cor cujo token tem o mesmo valor e o mesmo papel da propriedade, o espaço e o raio de token igual, a reserva que sobra e o `reset.css` que falta. `--json` dá a saída em JSON, e o comando sai com código 1 quando há erro, dizendo o passo seguinte. Texto da interface não conta como cor ("Pedido #4821"), nem o valor de um campo de cor. As regras saem do build, em `dist/docs/regras.json`.
+
+### Corrigido
+
+- `Sidebar.Panel`: um `Sidebar.Account` posto entre os filhos vai para o rodapé, como pela propriedade `account`. Antes ficava dentro da lista, como item inválido.
+- `Text`: um `role` com nome de variante (`body`, `label`, `caption`, `micro`, `title`) vale como `variant` e não chega ao HTML, onde seria papel ARIA inválido. `role="code"` continua sendo o papel ARIA, e com `variant` o `role` vai ao HTML como antes.
+
 ## [0.7.2] — 2026-11-24
 
 ### Adicionado
