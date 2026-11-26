@@ -47,6 +47,7 @@ export const familias: readonly Familia[] = [
       componente('Checkbox', 'Escolha binária independente.'),
       componente('CheckboxGroup', 'Escolha múltipla entre opções sempre visíveis.', { importa: 'CheckboxGroup, Checkbox' }),
       componente('RadioGroup', 'Escolha única entre opções sempre visíveis.', { importa: 'RadioGroup, Radio' }),
+      componente('Rating', 'Avaliação em estrelas: a exibição de uma nota, com meia estrela e contagem, e a entrada num formulário.'),
       componente('Switch', 'Alternância de um estado ativo.'),
       componente('SegmentedControl', 'Escolha única entre poucos segmentos lado a lado.'),
       componente('Slider', 'Ajuste de um valor num intervalo, por arrasto ou teclado.'),

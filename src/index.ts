@@ -106,6 +106,8 @@ export type {
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
 export type { RadioGroupOrientation, RadioGroupProps, RadioGroupVariant, RadioProps } from './components/forms/RadioGroup';
+export { Rating } from './components/forms/Rating';
+export type { RatingDisplayProps, RatingInputProps, RatingLabels, RatingProps, RatingSize, RatingStep } from './components/forms/Rating';
 export { SegmentedControl } from './components/forms/SegmentedControl';
 export type {
   SegmentedControlItem,

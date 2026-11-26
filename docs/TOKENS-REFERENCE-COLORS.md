@@ -379,6 +379,17 @@ No tema claro, as series 4, 5 e 6 sao o **segundo tom** de cada matiz, e no clar
 
 A separacao entre series e medida, nunca arbitrada a olho, e a medicao inclui simulacao de deficiencia de visao de cores. As cores institucionais, tomadas em conjunto, apresentam um pior par de 3,6 sob deuteranopia. A paleta definida acima leva esse pior par a 20,6.
 
+## Cores da avaliacao
+
+A estrela do `Rating` tem dois tokens com o prefixo `rating`. O amarelo de alerta mede 1,78:1 contra a superficie clara, abaixo dos 3:1 de um elemento grafico (WCAG 1.4.11); por isso a estrela cheia tem contorno, que desenha a forma, como o contorno do `Switch` e do `Checkbox` na paleta propria. A estrela vazia e so o contorno, em `control.border`.
+
+| Token | Papel | Tema claro | Tema escuro |
+| --- | --- | --- | --- |
+| `rating.fill` | Recheio da estrela cheia | `color.warning` (`#FCB52F`) | `color.warning` (`#DDA24A`) |
+| `rating.stroke` | Contorno da estrela cheia e cor do icone proprio | `#996A00`, 4,76:1 | `color.warning`, 7,51:1 |
+
+O contorno e medido contra `color.surface` e `color.background` em `npm run check:contraste`. O produto pode redefinir os dois, desde que o contorno continue a 3:1.
+
 ## Cores de codigo
 
 O realce de sintaxe do `CodeBlock` tem tokens proprios com o prefixo `code`. A paleta parte dos temas da JetBrains — IntelliJ Light no claro, Darcula no escuro — porque e a que quem le o codigo da casa ja conhece da IDE.
