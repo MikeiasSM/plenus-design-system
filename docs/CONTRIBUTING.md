@@ -71,6 +71,12 @@ Componente novo, e variante nova que muda o desenho de um existente, começam po
 
 Depois da aprovação, todo recurso marcado **Depois** vira item de roadmap, com a origem e o motivo, para não se perder. O que é **Fora** e marca uma fronteira entra no catálogo, junto com o componente.
 
+### Redação dos textos do produto
+
+Avisos de desenvolvimento, mensagens de erro, mensagens do `pl-verificar`, README, documentos do pacote, catálogo, changelog, issues e pull requests são redigidos como nota técnica: impessoais, formais, coesos e objetivos. Sem tratamento direto ao leitor ("você", imperativo dirigido a ele) e sem vocabulário casual. A mensagem diz o que aconteceu, o efeito e a alternativa: "Slider: controle sem nome acessível. O nome pode vir de `label`, `aria-label` ou `aria-labelledby`."
+
+A biblioteca orienta e não obriga. O texto descreve o uso previsto, o que cada peça faz e o que não faz, e recomenda o melhor caminho; não impõe como o produto usa os componentes, porque limites de framework, de operação ou do próprio produto podem pedir outro caminho. Ferramentas da biblioteca não bloqueiam por padrão: tornar uma verificação bloqueante é escolha explícita do produto, como o `--strict` do `pl-verificar`. O que é requisito de funcionamento de uma peça, como o `aria-label` do `Dialog` sem título, é descrito como requisito dela, e não como norma de uso.
+
 ## 4. Estilos
 
 Utilize CSS Modules:

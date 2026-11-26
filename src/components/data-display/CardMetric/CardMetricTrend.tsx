@@ -61,7 +61,7 @@ export function CardMetricTrend({
     const unknown = unknownTrendParts([...lines, ...badgeLines]);
 
     if (unknown.length > 0 && isDevelopment()) {
-      console.warn(`CardMetric.Trend: a máscara cita partes que não existem (${unknown.map((part) => `{${part}}`).join(', ')}) e elas ficam de fora.`);
+      console.warn(`CardMetric.Trend: a máscara cita partes inexistentes (${unknown.map((part) => `{${part}}`).join(', ')}), omitidas do texto.`);
     }
   }, [badgeLines, lines]);
 

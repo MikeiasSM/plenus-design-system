@@ -257,7 +257,7 @@ describe('Rating', () => {
       render(<Rating label="Atendimento" max={12} />);
 
       expect(screen.getAllByRole('radio')).toHaveLength(10);
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('`max` vai de 3 a 10'));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('`max` aceita inteiros de 3 a 10'));
       warn.mockRestore();
     });
 
@@ -275,7 +275,7 @@ describe('Rating', () => {
       const exibicao = { readOnly: true, value: 4, clearable: true } as unknown as Parameters<typeof Rating>[0];
       render(<Rating {...exibicao} />);
 
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('`clearable` so vale na entrada'));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('`clearable` só se aplica à entrada'));
       warn.mockRestore();
     });
 
@@ -283,7 +283,7 @@ describe('Rating', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       render(<Rating />);
 
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('Rating: o grupo precisa de nome'));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('Rating: grupo sem nome acessível'));
       warn.mockRestore();
     });
   });

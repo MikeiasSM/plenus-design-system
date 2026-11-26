@@ -210,6 +210,14 @@ describe('Tour', () => {
     expect(aviso).toHaveBeenCalledWith(expect.stringContaining('tem 6 passos'));
     aviso.mockRestore();
   });
+
+  it('avisa em desenvolvimento o passo sem title', () => {
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<Tour defaultOpen id="sem-titulo" steps={[{ id: 'p', title: '', content: '...' }]} />);
+
+    expect(aviso).toHaveBeenCalledWith('Tour: "sem-titulo" tem passo sem `title`. O título dá nome ao diálogo do passo, e sem ele o diálogo fica sem nome acessível.');
+    aviso.mockRestore();
+  });
 });
 
 describe('TourProvider e useTour', () => {
@@ -263,7 +271,7 @@ describe('TourProvider e useTour', () => {
 
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
     expect(screen.getByRole('dialog', { name: 'Conheça a tela' })).toBeInTheDocument();
-    expect(aviso).toHaveBeenCalledWith(expect.stringContaining('Só um tour abre por vez'));
+    expect(aviso).toHaveBeenCalledWith(expect.stringContaining('apenas um tour fica aberto por vez'));
     aviso.mockRestore();
   });
 

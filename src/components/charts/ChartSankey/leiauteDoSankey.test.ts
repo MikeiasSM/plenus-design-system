@@ -83,7 +83,7 @@ describe('posicionarSankey', () => {
       { source: 'B', target: 'A', value: 1 },
     ];
 
-    expect(() => posicionarSankey({ ...opcoes, flows: ciclo, labels: ['A', 'B'] })).toThrow('ligacao circular');
-    expect(() => posicionarSankey({ ...opcoes, labels: ['A', 'B', 'C'] })).toThrow('no ausente: D');
+    expect(() => posicionarSankey({ ...opcoes, flows: ciclo, labels: ['A', 'B'] })).toThrow('ligação circular');
+    expect(() => posicionarSankey({ ...opcoes, labels: ['A', 'B', 'C'] })).toThrow('nó ausente: D');
   });
 });

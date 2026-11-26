@@ -86,7 +86,7 @@ function criarNosELigacoes(labels: readonly string[], flows: readonly FluxoDoSan
     const target = porRotulo.get(fluxo.target);
 
     if (!source || !target) {
-      throw new Error(`no ausente: ${source ? fluxo.target : fluxo.source}`);
+      throw new Error(`nó ausente: ${source ? fluxo.target : fluxo.source}`);
     }
 
     const ligacao = { index, source, target, value: fluxo.value, width: 0, y0: 0, y1: 0 };
@@ -113,7 +113,7 @@ function medirProfundidades(
 
   for (let passo = 0; atuais.size; passo++) {
     if (passo > nos.length) {
-      throw new Error('ligacao circular');
+      throw new Error('ligação circular');
     }
 
     const proximos = new Set<NoDoSankey>();

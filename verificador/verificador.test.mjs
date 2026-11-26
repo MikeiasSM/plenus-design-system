@@ -30,7 +30,7 @@ describe('pl-verificar', () => {
     const { achados } = rodar({ 'src/App.tsx': `${ESTILOS}const s = { ['--pl-shell-height' as string]: '100%', color: 'var(--pl-color-txt)' };` });
     expect(achados.map((a) => [a.regra, a.linha])).toEqual([['token-inexistente', 3], ['token-inexistente', 3]]);
     expect(achados[0].mensagem).toContain('`--pl-shell-gap`');
-    expect(achados[1].mensagem).toContain('use `--pl-color-text`');
+    expect(achados[1].mensagem).toContain('Token de nome próximo: `--pl-color-text`');
   });
 
   it('troca o nome antigo pelo atual', () => {
@@ -42,13 +42,13 @@ describe('pl-verificar', () => {
   it('acusa cor fixa e troca a que tem token igual', () => {
     const { achados, corrigido } = rodar({ 'a.css': '.x { border: 1px solid #E9E9E9; background: #fafafa; color: white; }' });
     expect(achados.map((a) => a.regra)).toEqual(['cor-fixa', 'cor-fixa', 'cor-fixa']);
-    expect(achados[1].mensagem).toContain('A mais próxima é `--pl-color-surface`');
+    expect(achados[1].mensagem).toContain('Token mais próximo: `--pl-color-surface`');
     expect(corrigido.get('a.css')).toContain('1px solid var(--pl-color-border)');
   });
 
   it('só troca a cor quando o papel do token combina com a propriedade', () => {
     const { achados, corrigido } = rodar({ 'a.css': '.x { color: #ffffff; background: #ffffff; }' });
-    expect(achados[0].mensagem).toContain('o papel desse token é outro');
+    expect(achados[0].mensagem).toContain('token de outro papel');
     expect(achados[0].correcao).toBeUndefined();
     expect(corrigido.get('a.css')).toBe('.x { color: #ffffff; background: var(--pl-color-surface); }');
   });
@@ -70,7 +70,7 @@ describe('pl-verificar', () => {
       'a.css': '.x { border-bottom: 1px solid var(--pl-color-border, #e2e2e2); padding: var(--pl-space-4 , 16px); box-shadow: var(--pl-sh-1, 0 1px 2px rgba(0,0,0,.1)); color: var(--pl-color-txt, #111); }',
     });
     expect(achados.map((a) => a.regra)).toEqual(['reserva-desnecessaria', 'reserva-desnecessaria', 'reserva-desnecessaria', 'token-inexistente', 'cor-fixa']);
-    expect(achados[0].mensagem).toBe('reserva `#e2e2e2` em `var(--pl-color-border, …)`: o token sempre existe com os estilos da biblioteca, e a cor fixa nela não acompanha o tema escuro. Use `var(--pl-color-border)`.');
+    expect(achados[0].mensagem).toBe('Reserva dispensável `#e2e2e2` em `var(--pl-color-border, …)`: o token está sempre definido com os estilos da biblioteca; a cor fixa da reserva também não acompanha o tema escuro. Forma equivalente: `var(--pl-color-border)`.');
     expect(corrigido.get('a.css')).toBe('.x { border-bottom: 1px solid var(--pl-color-border); padding: var(--pl-space-4); box-shadow: var(--pl-sh-1); color: var(--pl-color-txt, #111); }');
 
     const inline = rodar({ 'src/App.tsx': `${ESTILOS}const a = <div style={{ borderBottom: '1px solid var(--pl-color-border, #e2e2e2)' }} />;` });
@@ -93,7 +93,7 @@ describe('pl-verificar', () => {
     const { achados } = rodar({
       'src/App.tsx': `${ESTILOS}export const A = () => (<form><button onClick={() => x > 1}>Ok</button><input type="checkbox" /><input type="hidden" /><table /></form>);`,
     });
-    expect(achados.map((a) => a.mensagem.match(/use `(\w+)`/)[1])).toEqual(['Button', 'Checkbox', 'Table']);
+    expect(achados.map((a) => a.mensagem.match(/equivalente da biblioteca: `(\w+)`/)[1])).toEqual(['Button', 'Checkbox', 'Table']);
   });
 
   it('acusa data em campo de texto e período com dois DatePicker', () => {
@@ -105,7 +105,7 @@ describe('pl-verificar', () => {
 
   it('acusa a peça descontinuada', () => {
     const { achados } = rodar({ 'src/App.tsx': `${ESTILOS}const a = <AppShell.Panel />;` });
-    expect(achados[0].mensagem).toBe('`AppShell.Panel` foi descontinuado: use `Sidebar.Panel`.');
+    expect(achados[0].mensagem).toBe('`AppShell.Panel` está descontinuado. Substituto: `Sidebar.Panel`.');
   });
 
   it('pede os estilos da biblioteca e acrescenta o reset que falta', () => {
@@ -123,5 +123,31 @@ describe('pl-verificar', () => {
       'src/a.css': '.x { gap: var(--pl-space-4); color: currentColor; background: transparent; }',
     });
     expect(r).toEqual([]);
+  });
+
+  it('excetua a linha marcada pelo produto, e a seguinte quando a marca está sozinha na linha', () => {
+    const { achados, corrigido } = rodar({
+      'a.css': [
+        '/* pl-verificar-ignorar cor-fixa: cor do logotipo de parceiro */',
+        '.logo { color: #ffffff; padding: 16px; }',
+        '.x { border: 1px solid #e9e9e9; } /* pl-verificar-ignorar */',
+        '.y { padding: 16px; }',
+      ].join('\n'),
+    });
+    expect(achados.map((a) => [a.regra, a.linha, a.excecao])).toEqual([
+      ['cor-fixa', 2, 'linha'],
+      ['medida-fixa', 2, undefined],
+      ['cor-fixa', 3, 'linha'],
+      ['medida-fixa', 4, undefined],
+    ]);
+    expect(corrigido.get('a.css')).toContain('.logo { color: #ffffff; padding: var(--pl-space-4); }');
+    expect(corrigido.get('a.css')).toContain('.x { border: 1px solid #e9e9e9; }');
+    expect(corrigido.get('a.css')).toContain('.y { padding: var(--pl-space-4); }');
+  });
+
+  it('excetua a verificação desligada na configuração do produto', () => {
+    const arquivos = { 'src/App.tsx': `${ESTILOS}export const A = () => <table />;` };
+    const achados = verificar(Object.keys(arquivos), regras, (a) => arquivos[a], { desligar: ['html-cru'] });
+    expect(achados.map((a) => [a.regra, a.excecao])).toEqual([['html-cru', 'configuracao']]);
   });
 });

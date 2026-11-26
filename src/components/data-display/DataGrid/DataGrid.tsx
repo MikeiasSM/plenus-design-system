@@ -685,13 +685,13 @@ export function DataGrid<Row>({
 
   useEffect(() => {
     if (legacySortDirection && isDevelopment()) {
-      console.warn(`DataGrid "${label}": 'asc' e 'desc' em sort e defaultSort são obsoletos; use 'ascending' e 'descending'.`);
+      console.warn(`DataGrid "${label}": 'asc' e 'desc' em sort e defaultSort estão obsoletos. Substitutos: 'ascending' e 'descending'.`);
     }
   }, [legacySortDirection, label]);
 
   useEffect(() => {
     if (tree && renderDetail && isDevelopment()) {
-      console.warn(`DataGrid "${label}": getChildren e renderDetail não se combinam; com a árvore, o detalhe é ignorado.`);
+      console.warn(`DataGrid "${label}": getChildren e renderDetail não são combináveis; com a árvore, renderDetail é ignorado.`);
     }
   }, [tree, renderDetail, label]);
 

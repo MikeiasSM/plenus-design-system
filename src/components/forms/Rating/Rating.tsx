@@ -179,15 +179,15 @@ function useAvisosDoRating(props: RatingProps, max: number) {
     }
 
     if (requested !== max) {
-      console.warn(`Rating: \`max\` vai de ${MIN_MAX} a ${MAX_MAX}, inteiro; ${requested} vale como ${max}.`);
+      console.warn(`Rating: \`max\` aceita inteiros de ${MIN_MAX} a ${MAX_MAX}; ${requested} é tratado como ${max}.`);
     }
 
     if (step !== 1 && step !== 0.5) {
-      console.warn(`Rating: \`step\` e 1 ou 0.5; ${String(step)} vale como 1.`);
+      console.warn(`Rating: \`step\` aceita 1 ou 0.5; ${String(step)} é tratado como 1.`);
     }
 
     if (valueLabels && valueLabels.length !== max) {
-      console.warn(`Rating: \`valueLabels\` tem ${valueLabels.length} nomes para ${max} notas; os nomes ficam de fora.`);
+      console.warn(`Rating: \`valueLabels\` tem ${valueLabels.length} nomes para ${max} notas; os nomes são ignorados.`);
     }
 
     const doOutroModo = readOnly
@@ -197,8 +197,8 @@ function useAvisosDoRating(props: RatingProps, max: number) {
 
     if (usadas.length > 0) {
       console.warn(
-        `Rating: ${usadas.map((chave) => `\`${chave}\``).join(', ')} so ${usadas.length === 1 ? 'vale' : 'valem'} ${
-          readOnly ? 'na entrada, sem `readOnly`' : 'na exibicao, com `readOnly`'
+        `Rating: ${usadas.map((chave) => `\`${chave}\``).join(', ')} só se ${usadas.length === 1 ? 'aplica' : 'aplicam'} ${
+          readOnly ? 'à entrada, sem `readOnly`' : 'à exibição, com `readOnly`'
         }.`,
       );
     }

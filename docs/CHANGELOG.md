@@ -4,6 +4,19 @@ Mudanças de cada versão publicada de `@plenustech/design-system`, da mais rece
 
 A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma seção `## [X.Y.Z] — AAAA-MM-DD`, com os grupos que se aplicarem, nesta ordem: **Incompatível**, **Adicionado**, **Alterado**, **Corrigido** e **Removido**. Mudanças ainda não publicadas ficam em `## [Não publicado]`.
 
+## [Não publicado]
+
+### Adicionado
+
+- `pl-verificar`: exceções decididas pelo produto. `pl-verificar-ignorar`, num comentário, excetua a linha do comentário e, quando o comentário está sozinho na linha, também a seguinte; seguido de nomes de verificação separados por vírgula (`pl-verificar-ignorar cor-fixa: cor do logotipo`), excetua só essas. `pl-verificar.config.json`, na pasta em que o comando roda, desliga verificações (`"desligar"`) e exclui caminhos (`"ignorar"`); nome de verificação desconhecido encerra o comando com código 2 e a lista das disponíveis. O resumo informa quantos achados foram excetuados, e o `--fix` não altera as linhas excetuadas. No `--json`, o achado excetuado traz `excecao: "linha"` ou `"configuracao"`.
+- `pl-verificar --strict`: sai com código 1 quando há sugestões, para uso em integração contínua.
+
+### Alterado
+
+- `pl-verificar` passa a orientar, e não a obrigar: os achados são sugestões, e o comando sai com código 0 por padrão. Na 0.7.3, saía com código 1 sempre que havia achado; a integração contínua que dependia disso passa a usar `--strict`. As mensagens foram redigidas em tom impessoal, com a alternativa da biblioteca (por exemplo, "Cor fixa `#e9e9e9`. Token equivalente: `var(--pl-color-border)`."), e o resumo fala em sugestões, não em erros. Os nomes das verificações e os campos do `--json` não mudam.
+- `dist/docs/index.md` e README: o texto descreve o uso previsto e o que cada peça faz, sem condição de entrega. A seção "Regras de toda tela" passa a "Uso previsto em toda tela", e "Trocas que mais erram", a "Escolhas que mais se confundem". O índice registra que as decisões de uso são do produto e como marcar a exceção no `pl-verificar`.
+- Avisos de desenvolvimento e mensagens de erro em tom impessoal e com acentuação: `Slider` e grupos sem nome acessível, `Tour`, `TourProvider`, `AppShell`, `DataGrid`, `ColorField`, `CardMetric.Trend`, `Rating` e `createPalette`. Quem compara o texto desses avisos em teste atualiza a expectativa; o momento e a condição de cada aviso não mudam.
+
 ## [0.7.3] — 2026-11-26
 
 ### Adicionado

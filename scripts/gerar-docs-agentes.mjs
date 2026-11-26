@@ -208,13 +208,15 @@ const raizDoPacote = `node_modules/${pacote}`;
 const linhas = [
   `# ${pacote} ${version}: índice`,
   '',
-  `Consulta rápida para programar com a biblioteca. O detalhe de cada peça está em \`${raizDoPacote}/docs/COMPONENTS-CATALOG.md\` (procure o nome da peça) e a API exata nos tipos, em \`${raizDoPacote}/dist/types/\`. Os tokens, com valor no claro e no escuro, estão em \`${raizDoPacote}/dist/docs/tokens.json\`.`,
+  `Consulta rápida para programar com a biblioteca. O detalhe de cada peça está em \`${raizDoPacote}/docs/COMPONENTS-CATALOG.md\`, pelo nome da peça, e a API exata está nos tipos, em \`${raizDoPacote}/dist/types/\`. Os tokens, com valor no claro e no escuro, estão em \`${raizDoPacote}/dist/docs/tokens.json\`.`,
   '',
-  '> **A entrega só vale com `npx pl-verificar` zerado.** Ao terminar, rode `npx pl-verificar --fix` na pasta do projeto: ele faz as trocas exatas. Corrija à mão o que sobrar, seguindo cada mensagem, e rode `npx pl-verificar` de novo até ler "nenhum erro".',
+  'Este índice descreve o uso previsto da biblioteca e o que cada peça faz. As decisões de uso são do produto: limites de framework, de operação ou do próprio produto podem pedir outro caminho.',
   '',
-  '## Regras de toda tela',
+  '> **Conferência recomendada:** `npx pl-verificar`, na pasta do projeto, aponta onde o código se afasta do uso previsto e indica a alternativa da biblioteca. `npx pl-verificar --fix` aplica as trocas exatas. Os achados são sugestões; a exceção que o produto decide fica registrada com `pl-verificar-ignorar` na linha ou em `pl-verificar.config.json`.',
   '',
-  '1. Importe os estilos uma vez, no ponto de entrada, nesta ordem:',
+  '## Uso previsto em toda tela',
+  '',
+  '1. Os estilos são importados uma vez, no ponto de entrada, nesta ordem:',
   '',
   '   ```ts',
   `   import '${pacote}/styles.css';`,
@@ -224,21 +226,21 @@ const linhas = [
   '   O `styles.css` traz os componentes e os tokens. O `reset.css` dá à página o fundo, a cor do texto e a fonte do tema; sem ele, o texto solto fora dos componentes fica com a fonte e a cor do navegador.',
   '2. O tema escuro vale com `data-theme="dark"` no `<html>`; sem `data-theme`, segue o sistema. O seletor de tema do produto usa o `useColorScheme`.',
   '3. Tudo vem de um só ponto: `import { Button, InputText } from \'' + pacote + '\'`. Ícones vêm de `\'' + pacote + '/icons\'`.',
-  '4. Use a peça da biblioteca onde ela existe, e não HTML cru: botão, campo, tabela, diálogo, lista, abas, aviso.',
-  '5. Cor, espaço, raio, tipografia e sombra saem dos tokens `--pl-*` abaixo. Não invente nome: o token que não está na lista não existe. Não há `--pl-font-size-*`; o tamanho do texto é `--pl-type-<papel>-size`.',
-  '6. Texto da interface em português do Brasil.',
-  '7. O `npx pl-verificar` lê `src` (passe outras pastas como argumento). Ele acusa token que não existe, cor e medida fixas, reserva desnecessária em `var()`, HTML cru onde há peça, data em campo de texto, estilos não importados e peça descontinuada, e diz o que usar no lugar. Entregue com zero erros.',
+  '4. Onde a biblioteca tem peça, ela já traz rótulo, foco, estados e tema: botão, campo, tabela, diálogo, lista, abas, aviso. O elemento nativo equivalente não traz.',
+  '5. Cor, espaço, raio, tipografia e sombra têm tokens `--pl-*`, listados abaixo; nome fora da lista não existe na biblioteca. Não há `--pl-font-size-*`: o tamanho do texto é `--pl-type-<papel>-size`.',
+  '6. Os textos de interface da biblioteca estão em português do Brasil.',
+  '7. O `npx pl-verificar` lê `src`, ou as pastas passadas como argumento. Aponta token que não existe, cor e medida fixas, reserva dispensável em `var()`, elemento nativo onde há peça, data em campo de texto, estilos não importados e peça descontinuada, sempre com a alternativa da biblioteca. Sai com código 0; com `--strict`, sai com código 1 quando há sugestões, para uso em integração contínua.',
   '',
-  '## Trocas que mais erram',
+  '## Escolhas que mais se confundem',
   '',
-  '- Data é `DatePicker`, inclusive a de nascimento ou de vencimento; nunca `InputText` com máscara nem `<input type="date">`.',
-  '- Período de datas (de, até; início, fim) é um `DatePickerRange`, e não dois `DatePicker`.',
+  '- Data, inclusive a de nascimento ou de vencimento, é o papel do `DatePicker`, que valida e devolve a data; o `InputText` com máscara e o `<input type="date">` devolvem texto.',
+  '- Período de datas (de, até; início, fim) é o papel do `DatePickerRange`, que garante o fim depois do início, em vez de dois `DatePicker`.',
   '- O papel tipográfico do `Text` é `variant` (`body`, `label`, `caption`, `micro`, `title`, `code`), e não `role`.',
   '- A conta no rodapé do submenu vai em `Sidebar.Panel account={<Sidebar.Account …/>}`.',
-  '- Campo com rótulo, ajuda e erro: o campo da biblioteca recebe `label`, `hint` e `error`; não monte `<label>` à mão.',
-  '- Envio de arquivo com progresso e remoção é só o `FileUpload`: ele já traz a lista dos arquivos.',
-  '- Cor de marca que o `createPalette` recusa por sumir na superfície: `nearestPaletteColor(cor)` dá o tom aceito mais próximo; se a cor exata é decisão do produto, `createPalette(cor, { acceptFaintFill: true })`.',
-  '- Registros com ação em cada item (contatos, pedidos, notificações) vão numa `Table`, quando há colunas, ou num `Card` por registro. A `List` é para escolher itens e não admite botão dentro do item; a `SortableList` é para ordenar.',
+  '- Campo com rótulo, ajuda e erro: o campo da biblioteca recebe `label`, `hint` e `error` e faz a amarração entre eles, que o `<label>` montado à parte não faz.',
+  '- Envio de arquivo com progresso e remoção é o papel do `FileUpload`, que já traz a lista dos arquivos.',
+  '- Cor de marca que o `createPalette` recusa por sumir na superfície: `nearestPaletteColor(cor)` devolve o tom aceito mais próximo; quando a cor exata é decisão do produto, `createPalette(cor, { acceptFaintFill: true })`.',
+  '- Registros com ação em cada item (contatos, pedidos, notificações) cabem numa `Table`, quando há colunas, ou num `Card` por registro. A `List` serve à escolha de itens e não comporta botão dentro do item; a `SortableList` serve à ordenação.',
   '',
   '## Peças',
   '',
@@ -251,7 +253,7 @@ for (const { titulo, pecas } of secoes) {
   linhas.push('');
 }
 
-linhas.push('## Tokens', '', 'Os primitivos de cor (`primitive/brand`, `primitive/neutral`, `primitive/status`) alimentam os semânticos: na tela, use o semântico.', '');
+linhas.push('## Tokens', '', 'Os primitivos de cor (`primitive/brand`, `primitive/neutral`, `primitive/status`) alimentam os semânticos. Só o semântico acompanha o tema escuro e a paleta própria.', '');
 for (const [grupo, nomes] of nomesPorGrupo) {
   if (nomes.length) linhas.push(`- ${grupo}: ${nomes.map((n) => `\`${n}\``).join(', ')}`);
 }

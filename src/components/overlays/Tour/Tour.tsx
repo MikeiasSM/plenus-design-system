@@ -173,7 +173,7 @@ export function Tour({
     if (coordinator.claim(id)) {
       return;
     }
-    warnOnce(`ocupado:${id}`, `Tour: "${id}" não abriu, porque outro tour está aberto. Só um tour abre por vez.`);
+    warnOnce(`ocupado:${id}`, `Tour: "${id}" não foi aberto porque outro tour está aberto; apenas um tour fica aberto por vez.`);
     if (open === undefined) {
       setInternalOpen(false);
     }
@@ -191,10 +191,10 @@ export function Tour({
       }
       coordinator.emit({ type: 'start', tourId: id, version });
       if (steps.length > MAX_STEPS) {
-        warnOnce(`passos:${id}`, `Tour: "${id}" tem ${steps.length} passos. Acima de ${MAX_STEPS}, poucas pessoas chegam ao fim; prefira tours curtos.`);
+        warnOnce(`passos:${id}`, `Tour: "${id}" tem ${steps.length} passos. Tours com mais de ${MAX_STEPS} passos tendem a ser abandonados antes do fim; recomenda-se dividi-los.`);
       }
       if (steps.some((item) => !hasContent(item.title))) {
-        warnOnce(`titulo:${id}`, `Tour: "${id}" tem passo sem title. O título é o nome do diálogo do passo e é obrigatório.`);
+        warnOnce(`titulo:${id}`, `Tour: "${id}" tem passo sem \`title\`. O título dá nome ao diálogo do passo, e sem ele o diálogo fica sem nome acessível.`);
       }
     }
     // Fechado por fora: `stop()`, ou `open` que o produto passou a `false`.

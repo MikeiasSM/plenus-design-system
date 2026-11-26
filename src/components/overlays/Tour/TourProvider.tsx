@@ -136,13 +136,13 @@ function createCoordinator(options: RefObject<Options>): TourCoordinator {
     start(id) {
       if (!mounted.has(id)) {
         if (isDevelopment()) {
-          console.warn(`Tour: nenhum <Tour id="${id}"> está montado; start('${id}') não abriu nada.`);
+          console.warn(`Tour: start('${id}') sem efeito, porque nenhum <Tour id="${id}"> está montado.`);
         }
         return false;
       }
       if (active !== null && active !== id) {
         if (isDevelopment()) {
-          console.warn(`Tour: start('${id}') ignorado, porque o tour "${active}" está aberto. Só um tour abre por vez.`);
+          console.warn(`Tour: start('${id}') ignorado porque o tour "${active}" está aberto; apenas um tour fica aberto por vez.`);
         }
         return false;
       }

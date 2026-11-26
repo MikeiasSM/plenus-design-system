@@ -9,7 +9,7 @@ export function useAvisoDeGrupoSemNome(
 
   useEffect(() => {
     if (semNome && isDevelopment()) {
-      console.warn(`${componente}: o grupo precisa de nome; passe \`label\`, \`aria-label\` ou \`aria-labelledby\`.`);
+      console.warn(`${componente}: grupo sem nome acessível. O nome pode vir de \`label\`, \`aria-label\` ou \`aria-labelledby\`.`);
     }
   }, [componente, semNome]);
 }

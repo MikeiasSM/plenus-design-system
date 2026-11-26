@@ -6,7 +6,7 @@ O projeto fornece a fonte oficial de componentes de interface, tokens visuais, p
 
 > O Design System define. O Showcase demonstra. As aplicações consomem.
 
-> **Para programar com a biblioteca**, pessoa ou agente de código: comece por `dist/docs/index.md`, no pacote instalado. Ele traz as regras de toda tela, cada peça numa linha e os nomes de todos os tokens. A entrega só vale com `npx pl-verificar` zerado: rode `npx pl-verificar --fix`, corrija à mão o que sobrar e rode de novo até ler "nenhum erro". Ele acusa token que não existe, cor e medida fixas, HTML cru onde há peça e outros desvios, sempre com o que usar no lugar.
+> **Programação com a biblioteca**, por pessoa ou agente de código: o ponto de partida é `dist/docs/index.md`, no pacote instalado. Ele descreve o uso previsto em toda tela, cada peça numa linha e os nomes de todos os tokens. Para conferência, `npx pl-verificar` aponta onde o código se afasta do uso previsto, como token que não existe, cor e medida fixas ou elemento nativo onde há peça, sempre com a alternativa da biblioteca; `--fix` aplica as trocas exatas. Os achados são sugestões, e as decisões de uso são do produto: a exceção fica registrada com `pl-verificar-ignorar` na linha ou em `pl-verificar.config.json`, e `--strict` torna o comando bloqueante em integração contínua.
 
 ## Objetivo
 

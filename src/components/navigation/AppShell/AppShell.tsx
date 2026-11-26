@@ -71,7 +71,7 @@ function AppShellRoot({
 
   useEffect(() => {
     if (ignoresStateProps && isDevelopment()) {
-      console.warn('AppShell: há um <SidebarProvider> por fora, que guarda o estado e a configuração; as props de navegação do AppShell são ignoradas.');
+      console.warn('AppShell: um <SidebarProvider> externo guarda o estado e a configuração da navegação; as props de navegação do AppShell são ignoradas.');
     }
   }, [ignoresStateProps]);
 
