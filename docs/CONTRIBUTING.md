@@ -57,6 +57,20 @@ Antes de implementar:
 - Defina os estados visuais.
 - Defina os testes necessários.
 
+### Pesquisa de mercado e protótipo vivo
+
+Componente novo, e variante nova que muda o desenho de um existente, começam por um levantamento de mercado entregue num artefato com protótipo vivo. Nada se implementa antes da aprovação desse artefato. Ele tem, nesta ordem:
+
+1. **Papel e fronteira.** O que o componente responde, em uma frase, e como se distingue dos vizinhos do catálogo (por exemplo, `ChartGauge` contra `ChartRadial`, `ChartTimeline` contra `Timeline`).
+2. **Protótipo vivo.** O componente desenhado com os tokens `--pl-*`, nos temas claro e escuro, com dados de exemplo fictícios. Um painel ao lado liga cada propriedade proposta, com o nome dela. Abaixo, o JSX das escolhas atuais e o que o leitor de tela ouve. A largura estreita também se testa ali.
+3. **Cenários.** Usos reais com a mesma API, cada um com outra configuração, para mostrar a amplitude e os limites.
+4. **Matriz de recursos.** Uma linha por recurso e uma coluna por referência de mercado (bibliotecas de gráficos, design systems, ferramentas de BI, conforme a peça). Marca-se só o que se conhece com razoável certeza. Cada recurso recebe um veredito com o motivo: **Entra** nesta versão, **Depois**, quando houver consumidor, ou **Fora** do componente.
+5. **API proposta.** Propriedades, tipos e padrões, com os nomes que a família já usa.
+6. **Acessibilidade e teclado.** Papel, nome, valor, ordem de foco, teclas, cor nunca sozinha e movimento reduzido.
+7. **Decisões em aberto.** Perguntas objetivas ao mantenedor, cada uma com a recomendação.
+
+Depois da aprovação, todo recurso marcado **Depois** vira item de roadmap, com a origem e o motivo, para não se perder. O que é **Fora** e marca uma fronteira entra no catálogo, junto com o componente.
+
 ## 4. Estilos
 
 Utilize CSS Modules:
