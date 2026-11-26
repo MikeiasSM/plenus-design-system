@@ -2,9 +2,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * Verificador de uso da biblioteca, sem dependencias. Le o codigo do produto (TS, JS, JSX e CSS) e acusa o que foge
- * da biblioteca, sempre dizendo o que usar no lugar: token que nao existe, cor, medida e sombra fixas, HTML cru onde ha
- * peca, data em campo de texto, periodo com dois `DatePicker`, peca descontinuada e estilos nao importados.
+ * Verificador de uso da biblioteca, sem dependencias. Le o codigo do produto (TS, JS, JSX e CSS) e aponta onde ele se
+ * afasta do uso previsto, com a alternativa da biblioteca: token que nao existe, cor, medida e sombra fixas, elemento
+ * nativo onde ha peca, data em campo de texto, periodo com dois `DatePicker`, peca descontinuada e estilos nao
+ * importados. Os achados sao sugestoes: seguir cada uma e decisao do produto.
  *
  * As regras vem de `dist/docs/regras.json`, gerado no build a partir dos tokens e do catalogo.
  */
@@ -33,10 +34,27 @@ export function carregarRegras(caminho = new URL('../dist/docs/regras.json', imp
   return JSON.parse(readFileSync(caminho, 'utf8'));
 }
 
-export function listarArquivos(caminhos) {
+/** Le `pl-verificar.config.json` da pasta, quando existe: `{ "desligar": [verificacoes], "ignorar": [caminhos] }`. */
+export function carregarConfiguracao(pasta = '.') {
+  const caminho = join(pasta, 'pl-verificar.config.json');
+  if (!existsSync(caminho)) return {};
+  const configuracao = JSON.parse(readFileSync(caminho, 'utf8'));
+  const desconhecidas = (configuracao.desligar ?? []).filter((nome) => !VERIFICACOES.includes(nome));
+  if (desconhecidas.length) {
+    throw new Error(`pl-verificar.config.json: verificação desconhecida em "desligar": ${desconhecidas.join(', ')}. Verificações disponíveis: ${VERIFICACOES.join(', ')}.`);
+  }
+  return configuracao;
+}
+
+const normalizarCaminho = (caminho) => caminho.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+
+export function listarArquivos(caminhos, ignorar = []) {
+  const ignorados = ignorar.map(normalizarCaminho);
   const arquivos = [];
   const visitar = (caminho) => {
     if (!existsSync(caminho)) return;
+    const normalizado = normalizarCaminho(caminho);
+    if (ignorados.some((i) => normalizado === i || normalizado.startsWith(`${i}/`))) return;
     if (statSync(caminho).isDirectory()) {
       for (const entrada of readdirSync(caminho)) if (!PASTAS_IGNORADAS.has(entrada)) visitar(join(caminho, entrada));
     } else if (EXTENSOES_DE_CODIGO.test(caminho) || EXTENSOES_DE_CSS.test(caminho)) {
@@ -142,17 +160,17 @@ function distanciaDeEdicao(a, b) {
 }
 
 function sugerirToken(nome, regras) {
-  if (/^--pl-font-size/.test(nome)) return 'o tamanho do texto é `--pl-type-<papel>-size`, como `--pl-type-body-size`';
+  if (/^--pl-font-size/.test(nome)) return 'O tamanho do texto usa `--pl-type-<papel>-size`, como `--pl-type-body-size`';
   let melhor;
   for (const token of regras.tokens) {
     const distancia = distanciaDeEdicao(nome, token);
     if (!melhor || distancia < melhor.distancia) melhor = { token, distancia };
   }
-  if (melhor && melhor.distancia <= Math.max(2, Math.floor(nome.length * 0.25))) return `use \`${melhor.token}\``;
+  if (melhor && melhor.distancia <= Math.max(2, Math.floor(nome.length * 0.25))) return `Token de nome próximo: \`${melhor.token}\``;
   const grupo = nome.split('-').slice(0, 4).join('-');
   const vizinhos = regras.tokens.filter((token) => token.startsWith(grupo)).slice(0, 6);
-  if (vizinhos.length) return `os que existem nesse grupo são ${vizinhos.map((t) => `\`${t}\``).join(', ')}`;
-  return 'para variável do produto, use outro prefixo (o `--pl-` é da biblioteca); para um valor do tema, escolha um nome de `dist/docs/tokens.json`';
+  if (vizinhos.length) return `Tokens do mesmo grupo: ${vizinhos.map((t) => `\`${t}\``).join(', ')}`;
+  return 'O prefixo `--pl-` é reservado à biblioteca; para variáveis do produto, recomenda-se outro prefixo. Os tokens do tema estão listados em `dist/docs/tokens.json`';
 }
 
 /**
@@ -198,30 +216,70 @@ function pareceCss(texto) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Verificacao
 
+/** Nomes das verificacoes, os mesmos do campo `regra` de cada achado. */
+export const VERIFICACOES = [
+  'token-antigo', 'token-inexistente', 'reserva-desnecessaria', 'sombra-fixa', 'cor-fixa', 'medida-fixa', 'descontinuado',
+  'html-cru', 'data-em-texto', 'periodo-com-dois-campos', 'estilos-ausentes', 'reset-ausente',
+];
+
+const MARCA_DE_EXCECAO = /pl-verificar-ignorar\b([ \t]+[\w-]+(?:[ \t]*,[ \t]*[\w-]+)*)?/;
+
+/**
+ * Excecoes marcadas no proprio arquivo: `pl-verificar-ignorar`, num comentario, vale para a linha dele e, quando o
+ * comentario esta sozinho na linha, tambem para a seguinte. Seguido de nomes de verificacao separados por virgula,
+ * vale so para elas; o texto depois deles e livre.
+ */
+function excecoesDoArquivo(texto) {
+  const excecoes = new Map();
+  const juntar = (numero, alcance) => {
+    const atual = excecoes.get(numero);
+    if (atual === '*' || alcance === '*') excecoes.set(numero, '*');
+    else excecoes.set(numero, new Set([...(atual ?? []), ...alcance]));
+  };
+  texto.split('\n').forEach((linha, i) => {
+    const marca = linha.match(MARCA_DE_EXCECAO);
+    if (!marca) return;
+    const nomes = (marca[1] ?? '').split(',').map((n) => n.trim()).filter(Boolean);
+    const alcance = nomes.length && nomes.every((n) => VERIFICACOES.includes(n)) ? new Set(nomes) : '*';
+    juntar(i + 1, alcance);
+    if (/^\s*(\/\/|\/\*|\{\s*\/\*|\*)/.test(linha)) juntar(i + 2, alcance);
+  });
+  return excecoes;
+}
+
 /**
  * Verifica uma lista de arquivos. Cada achado traz arquivo, linha, coluna, regra, mensagem e, quando ha troca exata, a
- * correcao (`{ inicio, fim, texto }` no arquivo).
+ * correcao (`{ inicio, fim, texto }` no arquivo). O achado que o produto excetuou sai com `excecao`: `'linha'`, pela
+ * marca no arquivo, ou `'configuracao'`, pela verificacao desligada em `opcoes.desligar`.
  */
-export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) => readFileSync(arquivo, 'utf8')) {
+export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) => readFileSync(arquivo, 'utf8'), opcoes = {}) {
   const tokens = new Set(regras.tokens);
   const corPorValor = new Map();
   for (const cor of regras.cores) if (!corPorValor.has(cor.valor)) corPorValor.set(cor.valor, cor.nome);
+  const desligadas = new Set(opcoes.desligar ?? []);
+  const excecoesPorArquivo = new Map();
 
   const achados = [];
   const projeto = { usaLib: undefined, estilos: undefined, reset: false };
+  const registrar = (achado) => {
+    const alcance = excecoesPorArquivo.get(achado.arquivo)?.get(achado.linha);
+    const excecao = desligadas.has(achado.regra) ? 'configuracao' : alcance === '*' || alcance?.has(achado.regra) ? 'linha' : undefined;
+    achados.push(excecao ? { ...achado, excecao } : achado);
+  };
 
   for (const arquivo of arquivos) {
     const texto = ler(arquivo);
+    excecoesPorArquivo.set(arquivo, excecoesDoArquivo(texto));
     const css = EXTENSOES_DE_CSS.test(arquivo);
     const { codigo, semStrings, literais } = mascarar(texto, css);
 
-    const achar = (indice, regra, mensagem, correcao) => achados.push({ arquivo, ...posicao(texto, indice), regra, mensagem, ...(correcao && { correcao }) });
+    const achar = (indice, regra, mensagem, correcao) => registrar({ arquivo, ...posicao(texto, indice), regra, mensagem, ...(correcao && { correcao }) });
 
     const verificarToken = (nome, indice) => {
       if (regras.aliases[nome]) {
-        achar(indice, 'token-antigo', `\`${nome}\` é nome antigo: use \`${regras.aliases[nome]}\`.`, { inicio: indice, fim: indice + nome.length, texto: regras.aliases[nome] });
+        achar(indice, 'token-antigo', `Nome antigo de token: \`${nome}\`. Nome atual: \`${regras.aliases[nome]}\`.`, { inicio: indice, fim: indice + nome.length, texto: regras.aliases[nome] });
       } else if (!tokens.has(nome)) {
-        achar(indice, 'token-inexistente', `\`${nome}\` não existe: ${sugerirToken(nome, regras)}.`);
+        achar(indice, 'token-inexistente', `O token \`${nome}\` não existe na biblioteca. ${sugerirToken(nome, regras)}.`);
       }
     };
 
@@ -233,8 +291,8 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
       for (const reserva of reservasDeToken(valor)) {
         if (!tokens.has(reserva.nome) && !regras.aliases[reserva.nome]) continue;
         const conteudo = valor.slice(reserva.virgula + 1, reserva.fecha).trim();
-        const cor = new RegExp(COR.source).test(conteudo) ? ', e a cor fixa nela não acompanha o tema escuro' : '';
-        achar(inicio + reserva.virgula, 'reserva-desnecessaria', `reserva \`${conteudo}\` em \`var(${reserva.nome}, …)\`: o token sempre existe com os estilos da biblioteca${cor}. Use \`var(${reserva.nome})\`.`, {
+        const cor = new RegExp(COR.source).test(conteudo) ? '; a cor fixa da reserva também não acompanha o tema escuro' : '';
+        achar(inicio + reserva.virgula, 'reserva-desnecessaria', `Reserva dispensável \`${conteudo}\` em \`var(${reserva.nome}, …)\`: o token está sempre definido com os estilos da biblioteca${cor}. Forma equivalente: \`var(${reserva.nome})\`.`, {
           inicio: inicio + reserva.fimDoNome,
           fim: inicio + reserva.fecha,
           texto: '',
@@ -244,20 +302,20 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
 
       // A sombra fixa e um achado so: a cor dentro dela sai com a troca pelo token de sombra.
       if ((prop === 'box-shadow' || prop === 'text-shadow') && !/^\s*(none|inherit|initial|unset)\s*$/.test(valor) && !/var\(--pl-sh-/.test(valor) && /\d/.test(valor)) {
-        achar(inicio, 'sombra-fixa', `sombra fixa: use ${regras.sombras.map((s) => `\`var(${s})\``).join(', ')}.`);
+        achar(inicio, 'sombra-fixa', `Sombra fixa. Tokens de sombra disponíveis: ${regras.sombras.map((s) => `\`var(${s})\``).join(', ')}.`);
         return;
       }
 
       for (const { 0: trecho, index } of valor.matchAll(COR)) {
         const exato = corPorValor.get(paraRgba(trecho) ? normalizarCor(trecho) : trecho);
         if (exato && !papelCombina(prop, exato)) {
-          achar(inicio + index, 'cor-fixa', `cor fixa \`${trecho}\`: o valor é o de \`${exato}\`, mas o papel desse token é outro; escolha o token \`--pl-color-*\` do papel certo, que acompanha o tema escuro.`);
+          achar(inicio + index, 'cor-fixa', `Cor fixa \`${trecho}\`. O valor coincide com \`${exato}\`, token de outro papel; recomenda-se o token \`--pl-color-*\` do papel correspondente, que acompanha o tema escuro.`);
         } else if (exato) {
-          achar(inicio + index, 'cor-fixa', `cor fixa \`${trecho}\`: use \`var(${exato})\`.`, { inicio: inicio + index, fim: inicio + index + trecho.length, texto: `var(${exato})` });
+          achar(inicio + index, 'cor-fixa', `Cor fixa \`${trecho}\`. Token equivalente: \`var(${exato})\`.`, { inicio: inicio + index, fim: inicio + index + trecho.length, texto: `var(${exato})` });
         } else {
           const proxima = corMaisProxima(trecho, regras.cores);
-          const dica = proxima ? ` A mais próxima é \`${proxima.nome}\` (${proxima.valor})` : '';
-          achar(inicio + index, 'cor-fixa', `cor fixa \`${trecho}\`: use um token \`--pl-color-*\`, que acompanha o tema escuro.${dica}.`);
+          const dica = proxima ? ` Token mais próximo: \`${proxima.nome}\` (${proxima.valor}).` : '';
+          achar(inicio + index, 'cor-fixa', `Cor fixa \`${trecho}\`, que não acompanha o tema escuro. Recomenda-se um token \`--pl-color-*\`.${dica}`);
         }
       }
 
@@ -266,7 +324,7 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
           const hex = CORES_COM_NOME[palavra];
           if (!hex) continue;
           const proxima = corMaisProxima(hex, regras.cores);
-          achar(inicio + index, 'cor-fixa', `cor fixa \`${palavra}\`: use um token \`--pl-color-*\`, que acompanha o tema escuro.${proxima ? ` A mais próxima é \`${proxima.nome}\`` : ''}.`);
+          achar(inicio + index, 'cor-fixa', `Cor fixa \`${palavra}\`, que não acompanha o tema escuro. Recomenda-se um token \`--pl-color-*\`.${proxima ? ` Token mais próximo: \`${proxima.nome}\`.` : ''}`);
         }
       }
 
@@ -274,14 +332,14 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
       if (medidas) {
         for (const { 0: medida, index } of valor.matchAll(/(?<![\w.-])\d+(\.\d+)?px\b/g)) {
           const token = medidas[medida];
-          if (token) achar(inicio + index, 'medida-fixa', `medida fixa \`${medida}\`: use \`var(${token})\`.`, { inicio: inicio + index, fim: inicio + index + medida.length, texto: `var(${token})` });
+          if (token) achar(inicio + index, 'medida-fixa', `Medida fixa \`${medida}\`. Token equivalente: \`var(${token})\`.`, { inicio: inicio + index, fim: inicio + index + medida.length, texto: `var(${token})` });
         }
       }
 
       if (prop === 'font-size') {
         for (const { 0: medida, index } of valor.matchAll(/(?<![\w.-])\d+(\.\d+)?px\b/g)) {
           const candidatos = regras.medidas.fonte.filter((f) => f.valor === medida).map((f) => `\`var(${f.nome})\``);
-          if (candidatos.length) achar(inicio + index, 'medida-fixa', `tamanho de texto fixo \`${medida}\`: use ${candidatos.join(' ou ')}, conforme o papel do texto (ou o \`Text\` com \`variant\`).`);
+          if (candidatos.length) achar(inicio + index, 'medida-fixa', `Tamanho de texto fixo \`${medida}\`. Tokens equivalentes, conforme o papel do texto: ${candidatos.join(' ou ')}; o \`Text\` com \`variant\` também atende.`);
         }
       }
 
@@ -325,7 +383,7 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
 
     for (const { 1: dono, 2: membro, index } of semStrings.matchAll(/\b(\w+)\.(\w+)\b/g)) {
       const troca = regras.descontinuados[`${dono}.${membro}`];
-      if (troca) achar(index, 'descontinuado', `\`${dono}.${membro}\` foi descontinuado: use \`${troca}\`.`);
+      if (troca) achar(index, 'descontinuado', `\`${dono}.${membro}\` está descontinuado. Substituto: \`${troca}\`.`);
     }
 
     for (const { 0: trecho, 1: caminho, index } of codigo.matchAll(/\bimport\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"];?/g)) {
@@ -338,15 +396,15 @@ export function verificar(arquivos, regras = carregarRegras(), ler = (arquivo) =
   // Projeto: os estilos da biblioteca importados uma vez, com o reset.
   if (projeto.usaLib && !projeto.estilos) {
     const { arquivo, indice } = projeto.usaLib;
-    achados.push({
+    registrar({
       arquivo, ...posicao(ler(arquivo), indice), regra: 'estilos-ausentes',
-      mensagem: `os estilos da biblioteca não foram importados: no ponto de entrada, \`import '${PACOTE}/styles.css';\` e depois \`import '${PACOTE}/reset.css';\`.`,
+      mensagem: `Estilos da biblioteca não importados. Importação prevista no ponto de entrada: \`import '${PACOTE}/styles.css';\` seguido de \`import '${PACOTE}/reset.css';\`.`,
     });
   } else if (projeto.estilos && !projeto.reset) {
     const { arquivo, indice, fim, css } = projeto.estilos;
-    achados.push({
+    registrar({
       arquivo, ...posicao(ler(arquivo), indice), regra: 'reset-ausente',
-      mensagem: `falta o \`${PACOTE}/reset.css\`, depois do \`styles.css\`: sem ele, a página fica com o fundo, a cor e a fonte do navegador, e o tema escuro não chega ao texto solto.`,
+      mensagem: `\`${PACOTE}/reset.css\` não importado após o \`styles.css\`. Sem ele, a página mantém o fundo, a cor e a fonte do navegador, e o tema escuro não alcança o texto fora dos componentes.`,
       ...(!css && { correcao: { inicio: fim, fim, texto: `\nimport '${PACOTE}/reset.css';` } }),
     });
   }
@@ -386,14 +444,14 @@ function verificarJsx(texto, codigo, semStrings, regras, achar) {
       if (tipo === 'hidden') continue;
       peca = regras.entradas[tipo] ?? (tipo === 'submit' || tipo === 'reset' || tipo === 'button' ? 'Button' : 'InputText');
     }
-    achar(index + 1, 'html-cru', `\`<${tag}>\` cru: use \`${peca}\` da biblioteca, que já traz rótulo, foco, estados e tema.`);
+    achar(index + 1, 'html-cru', `Elemento nativo \`<${tag}>\`. Peça equivalente da biblioteca: \`${peca}\`, com rótulo, foco, estados e tema.`);
   }
 
   for (const { index } of semStrings.matchAll(/<InputText(?=[\s/>])/g)) {
     const atributos = codigo.slice(index, fimDaTag(codigo, index));
     const textos = [...atributos.matchAll(/\b(label|placeholder|aria-label|hint|mask)\s*=\s*\{?\s*["'`]([^"'`]*)/g)].map((m) => m[2]).join(' ');
     if (/\bdata\b|nascimento|vencimento|dd\s*\/\s*mm|\d{2}\/\d{2}\/\d{4}/i.test(textos)) {
-      achar(index + 1, 'data-em-texto', 'data num `InputText`: use `DatePicker`, que valida, abre o calendário e devolve a data, e não texto com máscara.');
+      achar(index + 1, 'data-em-texto', 'Data em `InputText`. Peça equivalente da biblioteca: `DatePicker`, que valida, abre o calendário e devolve a data em vez de texto com máscara.');
     }
   }
 
@@ -401,15 +459,15 @@ function verificarJsx(texto, codigo, semStrings, regras, achar) {
   if (datas.length >= 2) {
     const tudo = datas.map((d) => d.atributos).join(' ');
     if (/in[ií]cio|inicial|start|from|\bde\b|desde/i.test(tudo) && /\bfim\b|final|\bend\b|\bto\b|\bat[ée]\b/i.test(tudo)) {
-      achar(datas[1].index + 1, 'periodo-com-dois-campos', 'período montado com dois `DatePicker`: use um `DatePickerRange`, que garante o fim depois do início e escolhe as duas datas no mesmo calendário.');
+      achar(datas[1].index + 1, 'periodo-com-dois-campos', 'Período montado com dois `DatePicker`. Peça equivalente da biblioteca: `DatePickerRange`, que garante o fim depois do início e escolhe as duas datas no mesmo calendário.');
     }
   }
 }
 
-/** Aplica as correcoes exatas. Devolve o texto novo de cada arquivo alterado. */
+/** Aplica as correcoes exatas, menos as dos achados excetuados. Devolve o texto novo de cada arquivo alterado. */
 export function corrigir(achados, ler = (arquivo) => readFileSync(arquivo, 'utf8')) {
   const porArquivo = new Map();
-  for (const achado of achados) if (achado.correcao) porArquivo.set(achado.arquivo, [...(porArquivo.get(achado.arquivo) ?? []), achado.correcao]);
+  for (const achado of achados) if (achado.correcao && !achado.excecao) porArquivo.set(achado.arquivo, [...(porArquivo.get(achado.arquivo) ?? []), achado.correcao]);
 
   const novos = new Map();
   for (const [arquivo, correcoes] of porArquivo) {

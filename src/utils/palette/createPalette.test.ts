@@ -124,14 +124,14 @@ describe('createPalette', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     expect(tokens('#FCB52F', { onSolid: '#fff' })['--pl-palette-on-solid']).toBe('#FFFFFF');
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('por decisao do produto'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('por decisão do produto'));
 
     warn.mockRestore();
   });
 
   it('refuses a fill that disappears on the light surface and suggests the nearest tone', () => {
     expect(() => createPalette('#F3E9D2')).toThrow(RangeError);
-    expect(() => createPalette('#F3E9D2')).toThrow(/Tom mais proximo aceito: #[0-9A-F]{6}/);
+    expect(() => createPalette('#F3E9D2')).toThrow(/Tom aceito mais próximo: #[0-9A-F]{6}/);
   });
 
   it('rejects values that are not hexadecimal colors', () => {
@@ -146,7 +146,7 @@ describe('createPalette', () => {
       expect(tokens('#FFE14D', { acceptFaintFill: true })['--pl-palette-solid']).toBe('#FFE14D');
       tokens('#ffe14d', { acceptFaintFill: true });
       expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/#FFE14D mede 1\.30:1 .* por decisao do produto\. Tom mais proximo aceito: #EED037\./));
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/#FFE14D mede 1\.30:1 .* por decisão do produto\. Tom aceito mais próximo: #EED037\./));
 
       warn.mockRestore();
     });

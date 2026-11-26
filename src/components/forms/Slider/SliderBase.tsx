@@ -124,7 +124,7 @@ export function SliderBase({
 
   useEffect(() => {
     if (!name && !ariaLabelledby && isDevelopment()) {
-      console.warn('Slider: o controle precisa de nome; passe `label`, `aria-label` ou `aria-labelledby`.');
+      console.warn('Slider: controle sem nome acessível. O nome pode vir de `label`, `aria-label` ou `aria-labelledby`.');
     }
   }, [name, ariaLabelledby]);
 

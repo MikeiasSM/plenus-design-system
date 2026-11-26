@@ -5,7 +5,7 @@ import { BLACK, CONTROL_MINIMUM, DARK_SURFACE, FILL_MINIMUM, GRAPHITE, LIGHT_SUR
 
 export interface CreatePaletteOptions {
   /**
-   * Aceita a cor exata que mede menos de 1,5:1 contra a superficie clara, como o amarelo claro de uma marca, por
+   * Aceita a cor exata que mede menos de 1,5:1 contra a superfície clara, como o amarelo claro de uma marca, por
    * decisao do produto. Sem ela, a cor e recusada. Com ela, a funcao avisa uma vez em desenvolvimento, com a razao e
    * o tom aceito mais proximo; o hover e o pressionado escurecem, como em toda cor em que clarear sumiria com o botao; e o contorno
    * de `Switch` e `Checkbox` vem do traco da paleta, como em toda cor abaixo de 3:1.
@@ -95,7 +95,7 @@ function shiftedFills(solid: string, text: string) {
 }
 
 /**
- * Contorno do preenchimento. Quando a cor fica abaixo de 3:1 contra a superficie clara, o `Switch` ligado e o
+ * Contorno do preenchimento. Quando a cor fica abaixo de 3:1 contra a superfície clara, o `Switch` ligado e o
  * `Checkbox` marcado somem na superficie (WCAG 1.4.11). Entao a paleta declara `--pl-color-primary-outline` no traco,
  * que os dois usam como borda. No tema escuro a borda e o proprio preenchimento. Sem a declaracao, a borda e o
  * preenchimento, e cada escopo de `data-palette` a zera, para a paleta aninhada nao herdar a de fora.
@@ -127,7 +127,7 @@ function strongFrom(ramp: readonly string[], start: number, direction: 1 | -1, s
  */
 export function nearestPaletteColor(color: string) {
   if (!isHexColor(color)) {
-    throw new TypeError(`nearestPaletteColor: "${color}" nao e uma cor hexadecimal.`);
+    throw new TypeError(`nearestPaletteColor: "${color}" não é uma cor hexadecimal.`);
   }
 
   const solid = normalizeHex(color);
@@ -165,11 +165,11 @@ export function paletteTokens(
   { caller, warn }: PaletteTokensContext = { caller: 'createPalette', warn: true },
 ): Record<string, string> {
   if (!isHexColor(color)) {
-    throw new TypeError(`${caller}: "${color}" nao e uma cor hexadecimal.`);
+    throw new TypeError(`${caller}: "${color}" não é uma cor hexadecimal.`);
   }
 
   if (onSolid !== undefined && !isHexColor(onSolid)) {
-    throw new TypeError(`${caller}: onSolid "${onSolid}" nao e uma cor hexadecimal.`);
+    throw new TypeError(`${caller}: onSolid "${onSolid}" não é uma cor hexadecimal.`);
   }
 
   const solid = normalizeHex(color);
@@ -177,16 +177,16 @@ export function paletteTokens(
 
   if (fill < FILL_MINIMUM && !acceptFaintFill) {
     throw new RangeError(
-      `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superficie clara, abaixo de ${FILL_MINIMUM}:1. ` +
-        `Tom mais proximo aceito: ${nearestPaletteColor(solid)}.`,
+      `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superfície clara, abaixo de ${FILL_MINIMUM}:1. ` +
+        `Tom aceito mais próximo: ${nearestPaletteColor(solid)}.`,
     );
   }
 
   if (fill < FILL_MINIMUM && warn && isDevelopment() && !faintFillsWarned.has(solid)) {
     faintFillsWarned.add(solid);
     console.warn(
-      `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superficie clara, abaixo de ${FILL_MINIMUM}:1, ` +
-        `por decisao do produto. Tom mais proximo aceito: ${nearestPaletteColor(solid)}.`,
+      `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superfície clara, abaixo de ${FILL_MINIMUM}:1, ` +
+        `por decisão do produto. Tom aceito mais próximo: ${nearestPaletteColor(solid)}.`,
     );
   }
 
@@ -196,7 +196,7 @@ export function paletteTokens(
   if (warn && onSolid !== undefined && isDevelopment() && contrast(textOnSolid, solid) < TEXT_MINIMUM) {
     console.warn(
       `${caller}: texto ${textOnSolid} sobre ${solid} mede ${contrast(textOnSolid, solid).toFixed(2)}:1, ` +
-        `abaixo de ${TEXT_MINIMUM}:1, por decisao do produto.`,
+        `abaixo de ${TEXT_MINIMUM}:1, por decisão do produto.`,
     );
   }
 

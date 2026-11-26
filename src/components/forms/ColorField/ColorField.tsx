@@ -184,7 +184,7 @@ export function ColorField(allProps: ColorFieldProps) {
 
   useEffect(() => {
     if (rejectedKey && isDevelopment()) {
-      console.warn(`ColorField "${label}": sugestões fora do formato #RRGGBB ficam de fora: ${rejectedKey}.`);
+      console.warn(`ColorField "${label}": sugestões fora do formato #RRGGBB, omitidas: ${rejectedKey}.`);
     }
   }, [label, rejectedKey]);
 
