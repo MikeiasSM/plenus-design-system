@@ -436,7 +436,7 @@ export type {
 export { useColorScheme } from './hooks/useColorScheme';
 export type { ColorScheme, ResolvedColorScheme, UseColorSchemeOptions, UseColorSchemeResult } from './hooks/useColorScheme';
 export { createPalette, measurePalette, nearestPaletteColor } from './utils/palette';
-export type { CreatePaletteOptions, PaletteMeasure, PaletteRole, PaletteScope, PaletteTheme } from './utils/palette';
+export type { CreatePaletteOptions, FaintFillPaletteOptions, PaletteFillMeasure, PaletteMeasure, PaletteRole, PaletteScope, PaletteTheme } from './utils/palette';
 export { ChartsProvider } from './components/charts/ChartsProvider';
 export type { ChartsProviderProps } from './components/charts/ChartsProvider';
 export { ChartBar } from './components/charts/ChartBar';

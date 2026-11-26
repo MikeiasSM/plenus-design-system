@@ -125,6 +125,37 @@ describe('createPalette', () => {
     expect(() => createPalette('verde')).toThrow(TypeError);
     expect(() => createPalette('#67BD50', { onSolid: 'white' })).toThrow(TypeError);
   });
+
+  describe('faint fill accepted by the product', () => {
+    it('keeps the exact color and warns once per color in development', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      expect(tokens('#FFE14D', { acceptFaintFill: true })['--pl-palette-solid']).toBe('#FFE14D');
+      tokens('#ffe14d', { acceptFaintFill: true });
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/#FFE14D mede 1\.30:1 .* por decisao do produto\. Tom mais proximo aceito: #EED037\./));
+
+      warn.mockRestore();
+    });
+
+    it('darkens the hover and the pressed fill instead of lightening them into the surface', () => {
+      const style = tokens('#FFE14D', { acceptFaintFill: true });
+      const light = (name: string) => style[name].match(/#[0-9A-F]{6}/)![0];
+
+      expect(light('--pl-palette-fill-hover')).toBe('#EED037');
+      expect(light('--pl-palette-fill-active')).toBe('#E1C320');
+      expect(contrast(light('--pl-palette-fill-active'), '#FFFFFF')).toBeGreaterThan(contrast(light('--pl-palette-fill-hover'), '#FFFFFF'));
+      expect(contrast(style['--pl-palette-on-solid'], light('--pl-palette-fill-active'))).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('declares the outline of Switch and Checkbox from the stroke', () => {
+      expect(tokens('#FFE14D', { acceptFaintFill: true })['--pl-color-primary-outline']).toBe('light-dark(#816E02, var(--pl-color-primary))');
+    });
+
+    it('changes nothing for a color that already passes', () => {
+      expect(tokens('#EED037', { acceptFaintFill: true })).toEqual(tokens('#EED037'));
+    });
+  });
 });
 
 describe('nearestPaletteColor', () => {

@@ -5,6 +5,13 @@ import { BLACK, CONTROL_MINIMUM, DARK_SURFACE, FILL_MINIMUM, GRAPHITE, LIGHT_SUR
 
 export interface CreatePaletteOptions {
   /**
+   * Aceita a cor exata que mede menos de 1,5:1 contra a superficie clara, como o amarelo claro de uma marca, por
+   * decisao do produto. Sem ela, a cor e recusada. Com ela, a funcao avisa uma vez em desenvolvimento, com a razao e
+   * o tom aceito mais proximo; o hover e o pressionado escurecem, para o botao nao sumir na superficie; e o contorno
+   * de `Switch` e `Checkbox` vem do traco da paleta, como em toda cor abaixo de 3:1.
+   */
+  acceptFaintFill?: boolean;
+  /**
    * Texto sobre a cor, imposto pelo produto. Sem ele, o branco ou o grafite, o que medir mais; se nenhum dos dois
    * chega a 4,5:1, o que medir mais entre branco, grafite e preto.
    */
@@ -59,10 +66,14 @@ function fillStates(solid: string, ramp: readonly string[], text: string): Recor
   };
 }
 
-/** O preenchimento afastado do texto em luminosidade: mais claro sob o texto escuro e mais escuro sob o claro. */
+/**
+ * O preenchimento afastado do texto em luminosidade: mais claro sob o texto escuro e mais escuro sob o claro. O
+ * preenchimento fraco, abaixo de 1,5:1, sempre escurece: clarear o levaria ao branco da superficie.
+ */
 function shiftedFills(solid: string, text: string) {
   const oklch = toOklch(solid);
-  const direction = luminance(text) < luminance(solid) ? 1 : -1;
+  const faint = contrast(solid, LIGHT_SURFACE) < FILL_MINIMUM;
+  const direction = !faint && luminance(text) < luminance(solid) ? 1 : -1;
   const shifted = (shift: number) => oklchToHex({ ...oklch, L: Math.min(1, Math.max(0, oklch.L + direction * shift)) });
 
   return { active: shifted(FILL_ACTIVE_SHIFT), hover: shifted(FILL_HOVER_SHIFT) };
@@ -120,6 +131,9 @@ export function nearestPaletteColor(color: string) {
   return solid;
 }
 
+/** As cores fracas ja avisadas: `createPalette` roda a cada render, e o aviso sai uma vez por cor. */
+const faintFillsWarned = new Set<string>();
+
 /** Quem chama, para a mensagem de erro, e se o texto imposto que reprova avisa no console. */
 export interface PaletteTokensContext {
   caller: string;
@@ -132,7 +146,7 @@ export interface PaletteTokensContext {
  */
 export function paletteTokens(
   color: string,
-  { onSolid }: CreatePaletteOptions = {},
+  { acceptFaintFill = false, onSolid }: CreatePaletteOptions = {},
   { caller, warn }: PaletteTokensContext = { caller: 'createPalette', warn: true },
 ): Record<string, string> {
   if (!isHexColor(color)) {
@@ -146,10 +160,18 @@ export function paletteTokens(
   const solid = normalizeHex(color);
   const fill = contrast(solid, LIGHT_SURFACE);
 
-  if (fill < FILL_MINIMUM) {
+  if (fill < FILL_MINIMUM && !acceptFaintFill) {
     throw new RangeError(
       `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superficie clara, abaixo de ${FILL_MINIMUM}:1. ` +
         `Tom mais proximo aceito: ${nearestPaletteColor(solid)}.`,
+    );
+  }
+
+  if (fill < FILL_MINIMUM && warn && isDevelopment() && !faintFillsWarned.has(solid)) {
+    faintFillsWarned.add(solid);
+    console.warn(
+      `${caller}: ${solid} mede ${fill.toFixed(2)}:1 contra a superficie clara, abaixo de ${FILL_MINIMUM}:1, ` +
+        `por decisao do produto. Tom mais proximo aceito: ${nearestPaletteColor(solid)}.`,
     );
   }
 

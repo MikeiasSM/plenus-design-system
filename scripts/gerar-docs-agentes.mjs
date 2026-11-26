@@ -237,6 +237,7 @@ const linhas = [
   '- A conta no rodapé do submenu vai em `Sidebar.Panel account={<Sidebar.Account …/>}`.',
   '- Campo com rótulo, ajuda e erro: o campo da biblioteca recebe `label`, `hint` e `error`; não monte `<label>` à mão.',
   '- Envio de arquivo com progresso e remoção é só o `FileUpload`: ele já traz a lista dos arquivos.',
+  '- Cor de marca que o `createPalette` recusa por sumir na superfície: `nearestPaletteColor(cor)` dá o tom aceito mais próximo; se a cor exata é decisão do produto, `createPalette(cor, { acceptFaintFill: true })`.',
   '- Registros com ação em cada item (contatos, pedidos, notificações) vão numa `Table`, quando há colunas, ou num `Card` por registro. A `List` é para escolher itens e não admite botão dentro do item; a `SortableList` é para ordenar.',
   '',
   '## Peças',
