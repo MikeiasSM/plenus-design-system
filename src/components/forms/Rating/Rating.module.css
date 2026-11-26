@@ -1,0 +1,239 @@
+.rating {
+  --rating-size: 24px;
+  --rating-hit: 28px;
+  --rating-gap: 2px;
+  min-width: 0;
+  font-family: var(--pl-font-body);
+}
+
+.sm {
+  --rating-size: 16px;
+  --rating-hit: 24px;
+  --rating-gap: 0px;
+}
+
+.md {
+  --rating-size: 24px;
+  --rating-hit: 28px;
+  --rating-gap: 2px;
+}
+
+.lg {
+  --rating-size: 32px;
+  --rating-hit: 36px;
+  --rating-gap: 4px;
+}
+
+/* Entrada: o fieldset do grupo, como no RadioGroup. */
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-1) var(--pl-space-3);
+}
+
+.stars {
+  display: inline-flex;
+  flex: none;
+  gap: var(--rating-gap);
+}
+
+.star {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--rating-hit);
+  height: var(--rating-hit);
+  border-radius: var(--pl-radius-sm);
+  cursor: pointer;
+}
+
+.entry[data-disabled] .star {
+  cursor: not-allowed;
+}
+
+.entry[data-disabled] .stars {
+  opacity: 0.55;
+}
+
+/* O radio cobre a estrela inteira, ou a metade dela: o clique e o toque vao direto ao radio nativo. */
+.input {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.half {
+  width: 50%;
+}
+
+.start {
+  inset-inline: 0 auto;
+}
+
+.end {
+  inset-inline: auto 0;
+}
+
+.star:has(.input:focus-visible) {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+}
+
+.icon {
+  position: relative;
+  display: block;
+  width: var(--rating-size);
+  height: var(--rating-size);
+  pointer-events: none;
+}
+
+.iconEmpty,
+.iconFull {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.iconEmpty > svg,
+.iconFull > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.iconEmpty {
+  color: var(--pl-control-border);
+}
+
+.iconFull {
+  color: var(--pl-rating-stroke);
+}
+
+/* A meia estrela mostra a metade do inicio, que segue a direcao do texto. */
+.icon[data-fill='half'] .iconFull {
+  clip-path: inset(0 50% 0 0);
+}
+
+:dir(rtl) .icon[data-fill='half'] .iconFull {
+  clip-path: inset(0 0 0 50%);
+}
+
+.emptyPath {
+  fill: none;
+  stroke: var(--pl-control-border);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.fullPath {
+  fill: var(--pl-rating-fill);
+  stroke: var(--pl-rating-stroke);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.value {
+  color: var(--pl-color-text-secondary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.preview {
+  color: var(--pl-color-text-tertiary);
+}
+
+.clear {
+  padding: 2px var(--pl-space-1);
+  border: 0;
+  border-radius: var(--pl-radius-sm);
+  background: none;
+  color: var(--pl-color-text-secondary);
+  font: inherit;
+  font-size: var(--pl-type-caption-size);
+  line-height: var(--pl-type-caption-line-height);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.clear:focus-visible {
+  outline: 2px solid var(--pl-color-primary-strong);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .clear:hover {
+    color: var(--pl-color-text);
+  }
+}
+
+/* Exibicao: uma imagem, sem alvo de clique. */
+.display {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  vertical-align: middle;
+}
+
+.display .stars {
+  gap: 2px;
+}
+
+.display .star {
+  width: var(--rating-size);
+  height: var(--rating-size);
+  cursor: default;
+}
+
+.number {
+  color: var(--pl-color-text);
+  font-size: var(--pl-type-body-size);
+  font-weight: 600;
+  line-height: var(--pl-type-body-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.count {
+  color: var(--pl-color-text-tertiary);
+  font-size: var(--pl-type-body-size);
+  line-height: var(--pl-type-body-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (forced-colors: active) {
+  .emptyPath {
+    stroke: CanvasText;
+  }
+
+  .fullPath {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+
+  .iconEmpty {
+    color: CanvasText;
+  }
+
+  .iconFull {
+    color: Highlight;
+  }
+}

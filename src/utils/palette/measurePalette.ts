@@ -1,5 +1,5 @@
 import { contrast, mixOklab } from './color';
-import { CONTROL_MINIMUM, DARK_SURFACE, LIGHT_SURFACE, TEXT_MINIMUM } from './constants';
+import { CONTROL_MINIMUM, DARK_SURFACE, FILL_MINIMUM, LIGHT_SURFACE, TEXT_MINIMUM } from './constants';
 import { type CreatePaletteOptions, paletteTokens } from './createPalette';
 
 /** Papeis medidos, na ordem do laudo. */
@@ -30,7 +30,18 @@ export interface PaletteMeasure {
   imposed: boolean;
 }
 
-const lightOf = (value: string | undefined) => value?.match(/#[0-9A-F]{6}/i)?.[0]?.toUpperCase();
+/**
+ * Medida do preenchimento contra a superficie clara, com o piso de 1,5:1. Entra no laudo so com `acceptFaintFill`,
+ * no topo, e o retorno ganha este tipo so nessa chamada. `imposed` diz que a cor reprovada ficou por decisao do produto.
+ */
+export interface PaletteFillMeasure extends Omit<PaletteMeasure, 'role'> {
+  role: 'fill';
+}
+
+/** Opcoes de `measurePalette` com a cor fraca aceita: o laudo traz tambem a medida do preenchimento. */
+export type FaintFillPaletteOptions = CreatePaletteOptions & { acceptFaintFill: true };
+
+const lightOf =(value: string | undefined) => value?.match(/#[0-9A-F]{6}/i)?.[0]?.toUpperCase();
 
 interface MeasureFlags {
   adjusted?: boolean;
@@ -71,8 +82,13 @@ function measure(
  * O escuro segue `src/tokens/semantic/color.css`: o preenchimento e o passo 40 sob `--pl-palette-on-40`, o hover e o
  * pressionado sao os passos 30 e 20, o traco e `--pl-palette-strong-dark`, o contorno e o proprio passo 40, e o
  * conteiner e o passo 40 a 16% sobre a superficie escura, com o passo 30 como texto.
+ *
+ * Com `acceptFaintFill`, aceita a cor abaixo de 1,5:1 e abre o laudo com a medida do preenchimento contra a
+ * superficie clara (`fill`), reprovada e `imposed` quando a cor fica abaixo do piso.
  */
-export function measurePalette(color: string, options: CreatePaletteOptions = {}): PaletteMeasure[] {
+export function measurePalette(color: string, options: FaintFillPaletteOptions): (PaletteFillMeasure | PaletteMeasure)[];
+export function measurePalette(color: string, options?: CreatePaletteOptions): PaletteMeasure[];
+export function measurePalette(color: string, options: CreatePaletteOptions = {}): (PaletteFillMeasure | PaletteMeasure)[] {
   const style = paletteTokens(color, options, { caller: 'measurePalette', warn: false });
   const step = (value: number) => style[`--pl-palette-${value}`];
   const solid = style['--pl-palette-solid'];
@@ -84,7 +100,7 @@ export function measurePalette(color: string, options: CreatePaletteOptions = {}
   const darkText = style['--pl-palette-on-40'];
   const darkStrong = style['--pl-palette-strong-dark'];
 
-  return [
+  const measures = [
     measure('text-on-fill', 'light', text, solid, TEXT_MINIMUM, { imposed: options.onSolid !== undefined }),
     measure('hover', 'light', text, hover ?? step(60), TEXT_MINIMUM, { adjusted: hover !== undefined }),
     measure('active', 'light', text, active ?? step(70), TEXT_MINIMUM, { adjusted: active !== undefined }),
@@ -98,4 +114,11 @@ export function measurePalette(color: string, options: CreatePaletteOptions = {}
     measure('outline', 'dark', step(40), DARK_SURFACE, CONTROL_MINIMUM),
     measure('container', 'dark', step(30), mixOklab(step(40), DARK_SURFACE, 0.16), TEXT_MINIMUM),
   ];
+
+  if (!options.acceptFaintFill) {
+    return measures;
+  }
+
+  const fill = measure('text-on-fill', 'light', solid, LIGHT_SURFACE, FILL_MINIMUM);
+  return [{ ...fill, imposed: !fill.passes, role: 'fill' }, ...measures];
 }

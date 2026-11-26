@@ -78,6 +78,8 @@ export const PARES = [
   ['--pl-color-primary-strong', '--pl-color-background', CONTROLE_MINIMO, 'barra do item ativo da Sidebar'],
   ['--pl-control-border', '--pl-color-surface', CONTROLE_MINIMO, 'borda de controle: campos, Checkbox, Radio, Switch, cartao de opcao, FileUpload, List, Meter, Slider e PinInput'],
   ['--pl-control-border', '--pl-color-background', CONTROLE_MINIMO, 'borda de controle na pagina'],
+  ['--pl-rating-stroke', '--pl-color-surface', CONTROLE_MINIMO, 'contorno da estrela cheia do Rating'],
+  ['--pl-rating-stroke', '--pl-color-background', CONTROLE_MINIMO, 'contorno da estrela cheia do Rating na pagina'],
   ['--pl-color-on-success-container', '--pl-color-surface-muted', CONTROLE_MINIMO, 'Meter em sucesso'],
   ['--pl-color-on-warning-container', '--pl-color-surface-muted', CONTROLE_MINIMO, 'Meter em atencao'],
   ['--pl-color-danger-text', '--pl-color-surface-muted', CONTROLE_MINIMO, 'Meter em perigo'],

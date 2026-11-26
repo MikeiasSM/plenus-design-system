@@ -1,5 +1,6 @@
 import {
   Children,
+  isValidElement,
   useEffect,
   useId,
   useLayoutEffect,
@@ -27,6 +28,7 @@ import {
 } from './SidebarPanel.context';
 import { SidebarBrandContext } from './SidebarBrand.context';
 import { SidebarAction, type SidebarActionProps } from './SidebarAction';
+import { SidebarAccount } from './SidebarAccount';
 import frameStyles from './Sidebar.module.css';
 import styles from './SidebarPanel.module.css';
 import { thinScrollbar } from '../../../utils/scrollbar/scrollbar';
@@ -70,7 +72,7 @@ export interface SidebarPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'a
 
 /** Submenu do módulo, direto na base, entre o trilho e a página. Sem filhos, serve só de lugar da conta. */
 export function SidebarPanel({
-  account,
+  account: accountProp,
   accountMode = 'inline',
   brand,
   children,
@@ -92,7 +94,12 @@ export function SidebarPanel({
   const previousLabel = useRef(label);
   const controlled = enteredPath !== undefined;
   const rawPath = enteredPath ?? internalPath;
-  const hasItems = Children.toArray(children).length > 0;
+  // A conta posta entre os filhos vai para o rodapé, como pela propriedade `account`: dentro da lista seria um item inválido.
+  const childList = Children.toArray(children);
+  const accountChild = childList.find((child) => isValidElement(child) && child.type === SidebarAccount);
+  const items = accountChild === undefined ? children : childList.filter((child) => child !== accountChild);
+  const account = accountProp ?? accountChild;
+  const hasItems = Children.toArray(items).length > 0;
   const visible = isPanelVisible(hasItems ? 'items' : 'account');
 
   function changePath(next: string[]) {
@@ -186,7 +193,7 @@ export function SidebarPanel({
               {header !== undefined && header !== null && <div className={styles.header}>{header}</div>}
               <div className={[styles.list, thinScrollbar].join(' ')}>
                 <ul className={styles.items} data-part="list">
-                  <SidebarLevelContext value={{ ancestors: NO_PATH, label, stack }}>{children}</SidebarLevelContext>
+                  <SidebarLevelContext value={{ ancestors: NO_PATH, label, stack }}>{items}</SidebarLevelContext>
                 </ul>
               </div>
             </nav>

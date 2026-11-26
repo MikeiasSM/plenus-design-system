@@ -77,8 +77,39 @@ describe('measurePalette', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     measurePalette('#FF3B00', { onSolid: '#FFFFFF' });
+    measurePalette('#F5E46A', { acceptFaintFill: true });
     expect(warn).not.toHaveBeenCalled();
 
     warn.mockRestore();
+  });
+
+  describe('with the faint fill accepted by the product', () => {
+    it('opens the report with the fill against the light surface, failing and imposed', () => {
+      const laudo = measurePalette('#FFE14D', { acceptFaintFill: true });
+
+      expect(laudo[0]).toEqual({
+        adjusted: false,
+        background: '#FFFFFF',
+        foreground: '#FFE14D',
+        imposed: true,
+        minimum: 1.5,
+        passes: false,
+        ratio: 1.3,
+        role: 'fill',
+        theme: 'light',
+      });
+      expect(laudo.slice(1).map((item) => `${item.theme} ${item.role}`)).toEqual(measurePalette('#EED037').map((item) => `${item.theme} ${item.role}`));
+    });
+
+    it('measures the darkened hover and pressed fills under the text', () => {
+      const laudo = measurePalette('#FFE14D', { acceptFaintFill: true });
+
+      expect(laudo.find((item) => item.role === 'active' && item.theme === 'light')).toMatchObject({ background: '#E1C320', passes: true, adjusted: true });
+    });
+
+    it('reports a color that already passes as passing, and adds the fill only when the option is given', () => {
+      expect(measurePalette('#EED037', { acceptFaintFill: true })[0]).toMatchObject({ role: 'fill', passes: true, imposed: false });
+      expect(measurePalette('#EED037').some((item) => (item.role as string) === 'fill')).toBe(false);
+    });
   });
 });

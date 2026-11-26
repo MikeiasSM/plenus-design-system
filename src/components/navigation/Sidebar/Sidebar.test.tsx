@@ -76,6 +76,29 @@ describe('Sidebar', () => {
     expect(within(submenu).getByText('Operação')).toBeInTheDocument();
   });
 
+  it('leva a conta posta entre os filhos do submenu para o rodapé, fora da lista', () => {
+    render(
+      <AppShell>
+        <Sidebar>
+          <Sidebar.Rail>
+            <Sidebar.RailItem current href="/vendas" icon="V" label="Vendas" />
+          </Sidebar.Rail>
+          <Sidebar.Panel brand="Gestor" label="Vendas">
+            <Sidebar.Item current href="/pedidos" label="Pedidos" />
+            <Sidebar.Account avatar="MD" name="Suporte">
+              <Sidebar.Item href="/favoritos" label="Favoritos" />
+            </Sidebar.Account>
+          </Sidebar.Panel>
+        </Sidebar>
+      </AppShell>,
+    );
+
+    const list = screen.getByRole('navigation', { name: 'Vendas' }).querySelector('[data-part="list"]')!;
+    expect(list.querySelector(`.${panelStyles.account}`)).toBeNull();
+    expect([...list.children].every((child) => child.tagName === 'LI')).toBe(true);
+    expect(screen.getByRole('button', { name: /Suporte/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('deixa a marca e o recolher do submenu dentro da navegação do módulo', () => {
     render(<Example />);
 

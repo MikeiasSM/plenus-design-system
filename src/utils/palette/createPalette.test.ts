@@ -84,14 +84,27 @@ describe('createPalette', () => {
       });
     });
 
-    it('lightens the fill under graphite instead of darkening it into the text', () => {
+    it('darkens the light fill under graphite when lightening would lose the pressed fill on the surface', () => {
       const palette = tokens('#EED037');
+      const hover = lightSide(palette['--pl-palette-fill-hover'], '');
+      const active = lightSide(palette['--pl-palette-fill-active'], '');
 
       expect(palette['--pl-palette-on-solid']).toBe('#373435');
-      expect(toOklch(lightSide(palette['--pl-palette-fill-hover'], '')).L).toBeGreaterThan(toOklch('#EED037').L);
-      expect(toOklch(lightSide(palette['--pl-palette-fill-active'], '')).L).toBeGreaterThan(
-        toOklch(lightSide(palette['--pl-palette-fill-hover'], '')).L,
-      );
+      expect(toOklch(hover).L).toBeLessThan(toOklch('#EED037').L);
+      expect(toOklch(active).L).toBeLessThan(toOklch(hover).L);
+      expect(contrast(active, '#FFFFFF')).toBeGreaterThanOrEqual(1.5);
+    });
+
+    it('darkens only as far as the dark text still reads at 4.5:1', () => {
+      const palette = tokens('#F090F8');
+      const text = palette['--pl-palette-on-solid'];
+      const hover = lightSide(palette['--pl-palette-fill-hover'], '');
+      const active = lightSide(palette['--pl-palette-fill-active'], '');
+
+      expect(contrast(text, active)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(text, active)).toBeLessThan(4.6);
+      expect(toOklch(active).L).toBeLessThan(toOklch(hover).L);
+      expect(toOklch(hover).L).toBeLessThan(toOklch('#F090F8').L);
     });
 
     it('declares no fill of its own when the text already reads over the steps 60 and 70', () => {
@@ -124,6 +137,37 @@ describe('createPalette', () => {
   it('rejects values that are not hexadecimal colors', () => {
     expect(() => createPalette('verde')).toThrow(TypeError);
     expect(() => createPalette('#67BD50', { onSolid: 'white' })).toThrow(TypeError);
+  });
+
+  describe('faint fill accepted by the product', () => {
+    it('keeps the exact color and warns once per color in development', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      expect(tokens('#FFE14D', { acceptFaintFill: true })['--pl-palette-solid']).toBe('#FFE14D');
+      tokens('#ffe14d', { acceptFaintFill: true });
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/#FFE14D mede 1\.30:1 .* por decisao do produto\. Tom mais proximo aceito: #EED037\./));
+
+      warn.mockRestore();
+    });
+
+    it('darkens the hover and the pressed fill instead of lightening them into the surface', () => {
+      const style = tokens('#FFE14D', { acceptFaintFill: true });
+      const light = (name: string) => style[name].match(/#[0-9A-F]{6}/)![0];
+
+      expect(light('--pl-palette-fill-hover')).toBe('#EED037');
+      expect(light('--pl-palette-fill-active')).toBe('#E1C320');
+      expect(contrast(light('--pl-palette-fill-active'), '#FFFFFF')).toBeGreaterThan(contrast(light('--pl-palette-fill-hover'), '#FFFFFF'));
+      expect(contrast(style['--pl-palette-on-solid'], light('--pl-palette-fill-active'))).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('declares the outline of Switch and Checkbox from the stroke', () => {
+      expect(tokens('#FFE14D', { acceptFaintFill: true })['--pl-color-primary-outline']).toBe('light-dark(#816E02, var(--pl-color-primary))');
+    });
+
+    it('changes nothing for a color that already passes', () => {
+      expect(tokens('#EED037', { acceptFaintFill: true })).toEqual(tokens('#EED037'));
+    });
   });
 });
 

@@ -106,6 +106,8 @@ export type {
 export type { CheckboxProps } from './components/forms/Checkbox';
 export { RadioGroup, Radio } from './components/forms/RadioGroup';
 export type { RadioGroupOrientation, RadioGroupProps, RadioGroupVariant, RadioProps } from './components/forms/RadioGroup';
+export { Rating } from './components/forms/Rating';
+export type { RatingDisplayProps, RatingInputProps, RatingLabels, RatingProps, RatingSize, RatingStep } from './components/forms/Rating';
 export { SegmentedControl } from './components/forms/SegmentedControl';
 export type {
   SegmentedControlItem,
@@ -436,7 +438,7 @@ export type {
 export { useColorScheme } from './hooks/useColorScheme';
 export type { ColorScheme, ResolvedColorScheme, UseColorSchemeOptions, UseColorSchemeResult } from './hooks/useColorScheme';
 export { createPalette, measurePalette, nearestPaletteColor } from './utils/palette';
-export type { CreatePaletteOptions, PaletteMeasure, PaletteRole, PaletteScope, PaletteTheme } from './utils/palette';
+export type { CreatePaletteOptions, FaintFillPaletteOptions, PaletteFillMeasure, PaletteMeasure, PaletteRole, PaletteScope, PaletteTheme } from './utils/palette';
 export { ChartsProvider } from './components/charts/ChartsProvider';
 export type { ChartsProviderProps } from './components/charts/ChartsProvider';
 export { ChartBar } from './components/charts/ChartBar';

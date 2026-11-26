@@ -239,16 +239,16 @@ Um produto declara as mesmas variaveis num elemento com `data-palette`, ou as re
 
 A regra de `createPalette`:
 
-- A cor e o preenchimento quando mede ao menos 1,5:1 contra a superficie clara. Abaixo disso ela some na tela, e a funcao recusa com o tom aceito mais proximo na mensagem.
+- A cor e o preenchimento quando mede ao menos 1,5:1 contra a superficie clara. Abaixo disso ela some na tela, e a funcao recusa com o tom aceito mais proximo na mensagem. O produto que quer a cor exata mesmo assim, como o amarelo claro de uma marca, passa `createPalette(cor, { acceptFaintFill: true })`: a funcao aceita e avisa uma vez por cor em desenvolvimento, com a razao e o tom aceito mais proximo.
 - O texto sobre o preenchimento e o branco ou o grafite, o que medir mais. Se nenhum dos dois chega a 4,5:1, e o que medir mais entre branco, grafite e preto. Quem ja passa com o branco ou o grafite nao muda.
-- Quando esse texto fica abaixo de 4,5:1 sobre o passo 60 ou o 70 da rampa, a funcao declara `--pl-palette-fill-hover` e `--pl-palette-fill-active`: o proprio preenchimento, com a luminosidade OKLCH afastada do texto, 0,05 no hover e 0,09 no pressionado, mais claro sob o texto escuro e mais escuro sob o claro. No tema escuro eles seguem nos passos 30 e 20, como antes. Sem eles, `color.primary-fill-hover` e `color.primary-fill-active` valem o hover e o pressionado de sempre.
+- Quando esse texto fica abaixo de 4,5:1 sobre o passo 60 ou o 70 da rampa, a funcao declara `--pl-palette-fill-hover` e `--pl-palette-fill-active`: o proprio preenchimento, com a luminosidade OKLCH afastada do texto, 0,05 no hover e 0,09 no pressionado, mais claro sob o texto escuro e mais escuro sob o claro. Quando clarear levaria o pressionado abaixo de 1,5:1 contra a superficie, o botao sumiria no clique; entao os dois escurecem, e so ate onde o texto escuro ainda mede 4,5:1. Com `#FFE14D`, o hover e `#EED037` e o pressionado, `#E1C320`. No tema escuro eles seguem nos passos 30 e 20, como antes. Sem eles, `color.primary-fill-hover` e `color.primary-fill-active` valem o hover e o pressionado de sempre.
 - O traco e a propria cor quando ela chega a 4,5:1; senao, o passo mais escuro seguinte da rampa que chega.
 - A rampa tem luminosidade fixa na matiz da cor. A cor sem croma gera uma rampa neutra.
 - Quando o preenchimento fica abaixo de 3:1 contra a superficie clara, a funcao declara `--pl-color-primary-outline` com o traco (`--pl-palette-strong-light`) no tema claro e o proprio preenchimento no escuro. O `Switch` ligado e o `Checkbox` marcado o usam como borda; sem a declaracao, a borda e o proprio preenchimento. Assim, uma cor clara como o amarelo continua com fronteira de 3:1 (WCAG 1.4.11). O criterio olha so o preenchimento em repouso: o hover e o pressionado ficam sob o texto do `Button` primario, que nao exige fronteira de 3:1. As paletas fixas nao o declaram, e cada escopo de `data-palette` o zera, para a paleta aninhada nao herdar o contorno da de fora.
 
 A cor que vem de fora do codigo, como a escolhida pelo usuario, passa antes por `nearestPaletteColor(cor)`: a propria cor quando aceita, ou o tom aceito mais proximo, na mesma matiz. A recusa continua em `createPalette`, e o ajuste fica explicito em quem chama: `createPalette(nearestPaletteColor(cor))`.
 
-O laudo da paleta sai de `measurePalette(cor, opcoes)`: uma medida por papel (`text-on-fill`, `hover`, `active`, `strong`, `outline` e `container`), primeiro no tema claro e depois no escuro (`theme`), com as cores, a razao, o minimo (4,5 para texto, 3 para o contorno) e `passes`, decidido pela razao sem arredondar. `adjusted` diz se a biblioteca escolheu ali outra cor que nao a informada ou o passo padrao, e `imposed`, se a cor veio do produto, como o texto de `onSolid`. No escuro, o laudo mede o passo 40 sob `--pl-palette-on-40`, os passos 30 e 20 do hover e do pressionado, `--pl-palette-strong-dark` e o conteiner misturado sobre a superficie escura, como em `color.css`. E para o produto mostrar a quem escolheu a cor o que ficou como estava e o que mudou. Fica separada de `createPalette` para o retorno dela continuar espalhavel num elemento, e recusa as mesmas cores.
+O laudo da paleta sai de `measurePalette(cor, opcoes)`: uma medida por papel (`text-on-fill`, `hover`, `active`, `strong`, `outline` e `container`), primeiro no tema claro e depois no escuro (`theme`), com as cores, a razao, o minimo (4,5 para texto, 3 para o contorno) e `passes`, decidido pela razao sem arredondar. `adjusted` diz se a biblioteca escolheu ali outra cor que nao a informada ou o passo padrao, e `imposed`, se a cor veio do produto, como o texto de `onSolid`. No escuro, o laudo mede o passo 40 sob `--pl-palette-on-40`, os passos 30 e 20 do hover e do pressionado, `--pl-palette-strong-dark` e o conteiner misturado sobre a superficie escura, como em `color.css`. Com `acceptFaintFill`, o laudo abre com a medida do preenchimento contra a superficie clara (`fill`, minimo 1,5), reprovada e `imposed` quando a cor fica abaixo do piso; so essa chamada tem o retorno com o papel `fill` (`PaletteFillMeasure`). E para o produto mostrar a quem escolheu a cor o que ficou como estava e o que mudou. Fica separada de `createPalette` para o retorno dela continuar espalhavel num elemento, e recusa as mesmas cores.
 
 O texto sobre o preenchimento pode ser imposto pelo produto, com `createPalette(cor, { onSolid })`. A biblioteca aceita e, em desenvolvimento, avisa no console com a medida. A decisao fica registrada no codigo do produto, e o padrao da biblioteca continua acessivel.
 
@@ -378,6 +378,17 @@ Entre dois passos, a escala continua mistura os tokens vizinhos com `color-mix`,
 No tema claro, as series 4, 5 e 6 sao o **segundo tom** de cada matiz, e no claro esse segundo tom desce em vez de subir: um azul claro sobre superficie clara nao alcanca o piso de 3:1 que a WCAG 1.4.11 pede a objeto grafico.
 
 A separacao entre series e medida, nunca arbitrada a olho, e a medicao inclui simulacao de deficiencia de visao de cores. As cores institucionais, tomadas em conjunto, apresentam um pior par de 3,6 sob deuteranopia. A paleta definida acima leva esse pior par a 20,6.
+
+## Cores da avaliacao
+
+A estrela do `Rating` tem dois tokens com o prefixo `rating`. O amarelo de alerta mede 1,78:1 contra a superficie clara, abaixo dos 3:1 de um elemento grafico (WCAG 1.4.11); por isso a estrela cheia tem contorno, que desenha a forma, como o contorno do `Switch` e do `Checkbox` na paleta propria. A estrela vazia e so o contorno, em `control.border`.
+
+| Token | Papel | Tema claro | Tema escuro |
+| --- | --- | --- | --- |
+| `rating.fill` | Recheio da estrela cheia | `color.warning` (`#FCB52F`) | `color.warning` (`#DDA24A`) |
+| `rating.stroke` | Contorno da estrela cheia e cor do icone proprio | `#996A00`, 4,76:1 | `color.warning`, 7,51:1 |
+
+O contorno e medido contra `color.surface` e `color.background` em `npm run check:contraste`. O produto pode redefinir os dois, desde que o contorno continue a 3:1.
 
 ## Cores de codigo
 
