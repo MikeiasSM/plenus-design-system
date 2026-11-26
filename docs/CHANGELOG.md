@@ -19,6 +19,7 @@ A política de versão está em `CONTRIBUTING.md` §11. Cada versão tem uma se�
 
 - `Sidebar.Panel`: um `Sidebar.Account` posto entre os filhos vai para o rodapé, como pela propriedade `account`. Antes ficava dentro da lista, como item inválido.
 - `Text`: um `role` com nome de variante (`body`, `label`, `caption`, `micro`, `title`) vale como `variant` e não chega ao HTML, onde seria papel ARIA inválido. `role="code"` continua sendo o papel ARIA, e com `variant` o `role` vai ao HTML como antes.
+- `createPalette`: o hover e o pressionado do botão primário não somem mais na superfície numa cor clara sob texto escuro. Antes os dois clareavam sempre, e o pressionado de `#EED037` caía para 1,16:1 contra a superfície. Agora escurecem quando clarear levaria o pressionado abaixo de 1,5:1, e só até onde o texto ainda mede 4,5:1. Muda a cor do hover e do pressionado nessas paletas; as demais saem iguais.
 
 ## [0.7.2] — 2026-11-24
 
